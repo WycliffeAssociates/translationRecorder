@@ -94,6 +94,9 @@ public class Record extends Activity {
 
 
     private void startRecording(){
+        if(recorder != null){
+            recorder.release();
+        }
         recorder = null;
         Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_LONG).show();
         recorder = new WavRecorder();

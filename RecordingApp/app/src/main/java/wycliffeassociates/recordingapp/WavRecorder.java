@@ -43,9 +43,7 @@ public class WavRecorder {
      * to serve as a unique name until the user names the file
      */
     public WavRecorder(){
-        bufferSize = AudioRecord.getMinBufferSize(44100,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
+        bufferSize = AudioRecord.getMinBufferSize(44100, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
         recordedFilename = UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV;
 
     }
@@ -303,5 +301,9 @@ public class WavRecorder {
     }
     public String getRecordedFilename(){
         return recordedFilename;
+    }
+
+    public void release(){
+        recorder.release();
     }
 }
