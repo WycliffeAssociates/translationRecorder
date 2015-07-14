@@ -13,7 +13,7 @@ public class WavPlayer {
      * Plays audio given a filename.
      * @param filename the absolute path to the file to be played.
      */
-    public void play(String filename){
+    public static void play(String filename){
         MediaPlayer m = new MediaPlayer();
 
         /*

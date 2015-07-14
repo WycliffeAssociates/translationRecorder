@@ -15,8 +15,6 @@ import java.util.UUID;
 
 
 /**
- * @author Joseph Sarabia
- *
  * Contains the ability to record audio and output to a .wav file.
  * The file is written to a temporary .raw file, then upon a stop call
  * the file is copied into a .wav file with a UUID name.
@@ -303,10 +301,4 @@ public class WavRecorder {
         recordedFilename = name + AUDIO_RECORDER_FILE_EXT_WAV;
         return to.getAbsolutePath();
     }
-
-    public String getRecordedFilename(){
-        String filepath = Environment.getExternalStorageDirectory().getPath() + '/' + recordedFilename + AUDIO_RECORDER_FILE_EXT_WAV;
-        return filepath;
-    }
-
 }
