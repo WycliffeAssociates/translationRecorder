@@ -70,6 +70,7 @@
         android:layout_height="wrap_content"
         android:text="Save"
         android:id="@+id/btnSave"
-        android:layout_alignRight="@+id/textView" />
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/btnStop" />
 
 </RelativeLayout>

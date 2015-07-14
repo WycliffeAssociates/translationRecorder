@@ -102,6 +102,7 @@ public class MainActivity extends Activity {
     private void stopRecording(){
         recorder.stop();
         Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
+        recordedFilename = recorder.getFilename();
     }
     private void playRecording(){
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
@@ -115,18 +116,17 @@ public class MainActivity extends Activity {
                 case R.id.btnRecord:{
                     enableButtons(true);
                     startRecording();
-
                     break;
                 }
                 case R.id.btnStop:{
                     enableButtons(false);
                     stopRecording();
-
                     break;
                 }
                 case R.id.btnPlay:{
                     enableButtons(false);
                     playRecording();
+                    break;
                 }
                 case R.id.btnSave:{
                     saveRecording();
