@@ -241,11 +241,11 @@ public class WavRecorder {
         header[9] = 'A';
         header[10] = 'V';
         header[11] = 'E';
-        header[12] = 'f'; // 'fmt ' chunk
+        header[12] = 'f'; // fmt  chunk
         header[13] = 'm';
         header[14] = 't';
         header[15] = ' ' ;
-        header[16] = 16; // 4 bytes: size of ‘fmt ‘ chunk
+        header[16] = 16; // 4 bytes: size of fmt chunk
         header[17] = 0;
         header[18] = 0;
         header[19] = 0;
