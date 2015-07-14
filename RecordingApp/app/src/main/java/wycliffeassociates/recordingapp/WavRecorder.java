@@ -37,8 +37,8 @@ public class WavRecorder {
     private int bufferSize = 0;
     private Thread recordingThread = null;
     private boolean isRecording = false;
-    private String tempFileName = null;
-    private String recordedFilename = null;
+    private String tempFileName = null; //does not contain path
+    private String recordedFilename = null; //does not contain path
 
     /**
      * Initializes the buffer for writing audio and generates a unique ID for the .wav file,
@@ -180,8 +180,6 @@ public class WavRecorder {
      * @param outFilename the filename of the .wav file to be created
      */
     private void copyWaveFile(String inFilename,String outFilename){
-        recordedFilename = outFilename;
-
         FileInputStream in = null;
         FileOutputStream out = null;
         long totalAudioLen = 0;
@@ -298,11 +296,11 @@ public class WavRecorder {
     public String saveFile(String name) {
         String filepath = Environment.getExternalStorageDirectory().getPath();
         File dir = new File(filepath, AUDIO_RECORDER_FOLDER);
-        File from = new File(recordedFilename);
+        File from = new File(dir, recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         Boolean out = from.renameTo(to);
         System.out.println(out);
-        recordedFilename = name;
+        recordedFilename = name + AUDIO_RECORDER_FILE_EXT_WAV;
         return to.getAbsolutePath();
     }
 

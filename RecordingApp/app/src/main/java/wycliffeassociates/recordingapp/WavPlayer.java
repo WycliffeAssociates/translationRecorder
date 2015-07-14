@@ -1,7 +1,6 @@
 package wycliffeassociates.recordingapp;
 
 import android.media.MediaPlayer;
-import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -16,6 +15,7 @@ public class WavPlayer {
      */
     public void play(String filename){
         MediaPlayer m = new MediaPlayer();
+
         /*
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         m.setAudioStreamType(AudioManager.STREAM_MUSIC);
