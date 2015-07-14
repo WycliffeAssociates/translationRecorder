@@ -304,6 +304,8 @@ public class WavRecorder {
     }
 
     public void release(){
-        recorder.release();
+        if(recorder != null){
+            recorder.release();
+        }
     }
 }
