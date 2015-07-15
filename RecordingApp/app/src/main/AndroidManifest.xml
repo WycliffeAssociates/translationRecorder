@@ -23,6 +23,7 @@
         </activity>
 
         <activity android:name=".Record" />
+        <activity android:name=".AudioFiles" />
     </application>
 
 </manifest>
