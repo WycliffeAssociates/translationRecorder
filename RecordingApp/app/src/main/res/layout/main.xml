@@ -20,7 +20,7 @@
         <ImageButton
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/imageButton"
+            android:id="@+id/files"
             android:layout_weight="1"
             android:src="@drawable/menu"
             android:background="@color/menu"
@@ -32,7 +32,7 @@
         <ImageButton
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/Settings"
+            android:id="@+id/settings"
             android:layout_gravity="center_vertical|top"
             android:src="@drawable/ic_settings_white_48dp"
             android:adjustViewBounds="false"

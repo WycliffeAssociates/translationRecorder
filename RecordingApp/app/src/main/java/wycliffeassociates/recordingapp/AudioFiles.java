@@ -26,9 +26,12 @@ public class AudioFiles extends Activity {
 
         ListView audioList = (ListView)findViewById(R.id.listViewAudio);
         audioNameList = new ArrayList<String>();
-        directory = Environment.getExternalStorageDirectory().getPath();
-        directory += "/AudioRecorder";
 
+        //get output directory
+        WavRecorder temp = new WavRecorder();
+        directory = temp.getFileDirectory();
+
+        //get files in the directory
         File f = new File(directory);
         File file[] = f.listFiles();
         for (int i = 0; i < file.length; i++) {
@@ -41,21 +44,19 @@ public class AudioFiles extends Activity {
             }
         }
 
-        // Create The Adapter with passing ArrayList as 3rd parameter
+        //add files to adapter to display to the user
         ArrayAdapter<String> arrayAdapter =
                 new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, audioNameList);
-        // Set The Adapter
         audioList.setAdapter(arrayAdapter);
 
+        //on item list click -- play
         audioList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             // argument position gives the index of item which is clicked
             public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
 
                 String selectedAudio = audioNameList.get(position);
                 Toast.makeText(getApplicationContext(), "Audio : " + selectedAudio, Toast.LENGTH_LONG).show();
-                System.out.println(directory + selectedAudio);
-                //private WavRecorder recorder = null;
-                //WavPlayer.play(directory + selectedAudio);
+                WavPlayer.play(directory + "/" + selectedAudio);
             }
         });
     }

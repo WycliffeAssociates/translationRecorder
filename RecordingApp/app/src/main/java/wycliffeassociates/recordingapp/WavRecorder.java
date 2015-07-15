@@ -299,6 +299,12 @@ public class WavRecorder {
         recordedFilename = name + AUDIO_RECORDER_FILE_EXT_WAV;
         return to.getAbsolutePath();
     }
+
+    public String getFileDirectory(){
+        String filepath = Environment.getExternalStorageDirectory().getPath();
+
+        return filepath + "/" + AUDIO_RECORDER_FOLDER;
+    }
     public String getRecordedFilename(){
         return recordedFilename;
     }
