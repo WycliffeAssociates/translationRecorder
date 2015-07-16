@@ -1,0 +1,72 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="@color/background"
+    >
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:baselineAligned="false"
+        android:id="@+id/linearLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="false"
+        android:layout_marginTop="0dp">
+
+        <ImageButton
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/files"
+            android:layout_weight="1"
+            android:src="@drawable/menu"
+            android:background="@color/menu"
+            android:layout_margin="0dp"
+            android:elevation="6dp"
+            android:clickable="true"
+            android:cropToPadding="false" />
+
+        <ImageButton
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings"
+            android:layout_gravity="center_vertical|top"
+            android:src="@drawable/ic_settings_white_48dp"
+            android:adjustViewBounds="false"
+            android:layout_weight="1"
+            android:background="@color/backgroundImage"
+            android:layout_margin="0dp"
+            android:elevation="6dp"
+            android:clickable="true" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/linearLayout2"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/linearLayout"
+        android:gravity="bottom"
+        android:clickable="true">
+
+        <ImageButton
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/record"
+            android:layout_alignBottom="@+id/linearLayout2"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_album_white_48dp"
+            android:background="@color/mainImageBG"
+            android:layout_margin="0dp"
+            android:elevation="6dp"
+            android:layout_weight="1"
+            android:clickable="true" />
+    </LinearLayout>
+
+</RelativeLayout>
