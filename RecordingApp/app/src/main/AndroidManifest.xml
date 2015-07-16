@@ -22,9 +22,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Record" />
-        <activity android:name=".AudioFiles" />
+        <activity android:name=".Record" android:screenOrientation="landscape"/>
+        <activity android:name=".AudioFiles" android:screenOrientation="portrait" />
+        <activity android:name=".Settings" />
     </application>
 
 </manifest>
-

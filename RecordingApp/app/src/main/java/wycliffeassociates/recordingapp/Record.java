@@ -22,7 +22,7 @@ public class Record extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.record);
 
         setButtonHandlers();
         enableButtons(false);
@@ -36,7 +36,13 @@ public class Record extends Activity {
     }
 
     private void enableButton(int id,boolean isEnable){
+
         findViewById(id).setEnabled(isEnable);
+        if(isEnable){
+            findViewById(id).setVisibility(View.VISIBLE);
+        }else{
+            findViewById(id).setVisibility(View.INVISIBLE);
+        }
     }
 
     private void enableButtons(boolean isRecording) {
