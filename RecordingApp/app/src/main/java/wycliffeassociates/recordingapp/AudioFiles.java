@@ -66,20 +66,20 @@ public class AudioFiles extends Activity {
 
 
 
-        ArrayList<String> stringList = new ArrayList<String>();
-        stringList = sortString(audioNameList, true);
+        //ArrayList<String> stringList = new ArrayList<String>();
+        //stringList = sortString(audioNameList, true);
         //new ArrayList<String>();
 
-        for(int e = 0; e < stringList.size(); e++){
-            System.out.println(stringList.get(e));
-        }
+        //for(int e = 0; e < stringList.size(); e++){
+        //    System.out.println(stringList.get(e));
+        //}
 
 
 
 
         //add files to adapter to display to the user
-        ArrayAdapter<Date> arrayAdapter =
-                new ArrayAdapter<Date>(this,android.R.layout.simple_list_item_1, dateList);
+        ArrayAdapter<String> arrayAdapter =
+                new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, audioNameList);
         audioList.setAdapter(arrayAdapter);
 
 
