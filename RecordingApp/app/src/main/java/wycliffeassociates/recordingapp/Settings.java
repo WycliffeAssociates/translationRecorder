@@ -8,7 +8,7 @@ public class Settings extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
+        setContentView(R.layout.files_layout);
 
     }
 }

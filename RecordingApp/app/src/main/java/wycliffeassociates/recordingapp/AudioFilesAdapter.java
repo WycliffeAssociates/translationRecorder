@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+
 import wycliffeassociates.recordingapp.model.AudioItem;
 
 /**
@@ -17,7 +19,8 @@ import wycliffeassociates.recordingapp.model.AudioItem;
  * Creates a custom view for the audio entries in the file screen.
  *
  */
-public class AudioFilesAdapter extends ArrayAdapter{
+public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInterface
+     {
     /**
      * Populate with audio items
      */
@@ -52,15 +55,19 @@ public class AudioFilesAdapter extends ArrayAdapter{
      * @param parent
      *            The parent that this view will be attached to
      */
-    public View getView(int position, View convertView, ViewGroup parent){
+    public View getView(final int position, View convertView, ViewGroup parent){
 
 
         LayoutInflater inflater = ((Activity)aContext).getLayoutInflater();
         convertView = inflater.inflate(R.layout.audio_list_item, parent, false);
         TextView name = (TextView) convertView.findViewById(R.id.name);
         CheckBox cb = (CheckBox) convertView.findViewById(R.id.checkBox1);
+        cb.setScaleX(1.5f);
+        cb.setScaleY(1.5f);
 
         TextView date = (TextView) convertView.findViewById(R.id.date);
+        date.setGravity(Gravity.RIGHT);
+
 
         name.setText(audioItems[position].getName());
         date.setText(audioItems[position].getDate().toString());
@@ -69,7 +76,8 @@ public class AudioFilesAdapter extends ArrayAdapter{
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                System.out.println("PLAY AUDIO");
+                //System.out.println("PLAY AUDIO");
+                AudioFiles.AudioPlay(audioItems[position].getName());
 
                 // Do something here.
             }
@@ -80,7 +88,8 @@ public class AudioFilesAdapter extends ArrayAdapter{
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    System.out.println("CHECKED");
+
+                    System.out.println("EXPORT : " + audioItems[position].getName());
                 } else {
                     System.out.println("UNCHECKED");
                 }
@@ -94,3 +103,4 @@ public class AudioFilesAdapter extends ArrayAdapter{
     }
 
 }
+

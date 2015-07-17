@@ -14,11 +14,14 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+
+
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+
 
 import wycliffeassociates.recordingapp.model.AudioItem;
 
@@ -39,7 +42,7 @@ public class AudioFiles extends Activity {
     //5 for 9:99 - 0:00
     int sortBy = 0;
 
-    String directory = "";
+    static String directory = "";
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +111,24 @@ public class AudioFiles extends Activity {
         });*/
 
     }
+
+    //this is terrible... please interface
+    public static void AudioPlay (String fileName){
+        WavPlayer.play(directory + "/" + fileName);
+    }
+
+    static ArrayList<String> exportList = new ArrayList<String>();
+
+    public static void AudioExport (String fileName){
+        //System.out.println
+        exportList.add(fileName);
+    }
+
+    private void ExportLocal (String currDir, String nDir, String fileName){
+
+    }
+
+    //move
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
