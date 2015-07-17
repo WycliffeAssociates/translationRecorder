@@ -15,10 +15,14 @@ import java.util.Scanner;
 public class WavFileLoader {
 
     private byte[] wavFile;
-
+    public short[][] audioData;
     public static final int WAVE_HEADER_SIZE = 44;
     private int numChannels;
     private int sampleRate;
+    private int blockSize;
+    private int min;
+    private int max;
+    private int largestValue;
 
 
 
@@ -35,9 +39,16 @@ public class WavFileLoader {
         } catch (IOException e){
             e.printStackTrace();
         }
-        System.out.println("size is " + wavFile.length);
+        processHeader();
+        parseAudio();
+        System.out.println("Parsed Audio");
+
+    }
+    private void processHeader(){
         if(wavFile.length > WAVE_HEADER_SIZE) {
             numChannels = (int) wavFile[22] & 0xFF;
+            numChannels = 2;
+            blockSize = (int) wavFile[32] & 0xFF;
             int part1 = (((int) wavFile[27] & 0xFF) << 24) & 0xFF000000;
             int part2 = (((int) wavFile[26] & 0xFF) << 16) & 0x00FF0000;
             int part3 = (((int) wavFile[25] & 0xFF) << 8) & 0x0000FF00;
@@ -46,5 +57,34 @@ public class WavFileLoader {
             System.out.println("Sample rate is : " + sampleRate + " hz; Number of channels is " + numChannels);
         }
     }
-    public int getSampleRate(){ return sampleRate;}
+    private void parseAudio(){
+        audioData = new short[numChannels][(wavFile.length-WAVE_HEADER_SIZE)/numChannels];
+        int index = 0;
+        for(int i = WAVE_HEADER_SIZE; i < wavFile.length; i+=blockSize){
+            for(int j = 0; j < numChannels; j++){
+                byte low = wavFile[i+j];
+                byte hi = wavFile[i+j+1];
+
+                //wav file written in little endian
+                short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                audioData[j][index] = value;
+                max = (i==0 && j ==0)? value : max;
+                min = (i==0 && j ==0)? value : min;
+                max = (value > max)? value : max;
+                min = (value < min)?  value : min;
+            }
+            index++;
+        }
+        largestValue = (Math.abs(min) < Math.abs(max))? max : min;
+    }
+    public int getSampleRate(){ return sampleRate; }
+    public short[][] getAudioData(){ return audioData; }
+
+    public int getNumChannels() {
+        return numChannels;
+    }
+
+    public int getLargestValue() {
+        return largestValue;
+    }
 }

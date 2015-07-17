@@ -5,12 +5,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class Canvas extends Activity {
+public class CanvasScreen extends Activity {
 
     private String recordedFilename = null;
     private WavRecorder recorder = null;
@@ -95,8 +96,6 @@ public class Canvas extends Activity {
 
     public String getName(){return outputName;}
 
-
-
     private void startRecording(){
         if(recorder != null){
             recorder.release();
@@ -110,6 +109,28 @@ public class Canvas extends Activity {
         recorder.stop();
         Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
         recordedFilename = recorder.getFilename();
+
+
+        WavFileLoader temp = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + "/AudioRecorder/test.wav");
+        WavVisualizer vis = new WavVisualizer(temp.getAudioData(), temp.getNumChannels(), temp.getLargestValue());
+
+
+
+
+        double xsf = 1.75*vis.getXScaleFactor(customCanvas.getWidth());
+        double ysf = vis.getYScaleFactor(customCanvas.getHeight());
+        customCanvas.setXScale(xsf);
+        customCanvas.setYScale(ysf);
+        int inc = vis.getIncrement(xsf);
+        vis.sampleAudio(inc, ysf);
+        customCanvas.setSamples(vis.getSamples());
+        System.out.println("get width is returning " + customCanvas.getWidth());
+        System.out.println("get Height is returning " + customCanvas.getHeight());
+        System.out.println("X scale is " + xsf);
+        System.out.println("X scale SHOULD BE" + vis.getXScaleFactor(customCanvas.getWidth()));
+        System.out.println("Incremment is being set to  " + inc);
+
+
     }
     private void playRecording(){
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();

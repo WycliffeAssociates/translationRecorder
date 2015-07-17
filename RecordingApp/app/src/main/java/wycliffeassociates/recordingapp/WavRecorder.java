@@ -204,9 +204,6 @@ public class WavRecorder {
             in.close();
             out.close();
 
-            WavFileLoader temp = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + '/' + AUDIO_RECORDER_FOLDER +"/test.wav");
-            System.out.println("hey, " + temp.getSampleRate());
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -300,7 +297,6 @@ public class WavRecorder {
         File from = new File(dir, recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         Boolean out = from.renameTo(to);
-        System.out.println(out);
         recordedFilename = name + AUDIO_RECORDER_FILE_EXT_WAV;
         return to.getAbsolutePath();
     }

@@ -22,6 +22,9 @@ public class CanvasView extends View {
     private Paint mPaint;
     private float mX, mY;
     private static final float TOLERANCE = 5;
+    double[] samples;
+    double xScale;
+    double yScale;
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -37,6 +40,9 @@ public class CanvasView extends View {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(4f);
+        samples = null;
+        xScale = 0;
+        yScale = 0;
 
     }
 
@@ -55,12 +61,37 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         // draw the mPath with the mPaint on the canvas when onDraw
-        canvas.drawLine(0.f, canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight()/2, mPaint);
+        canvas.drawLine(0.f, canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
         canvas.drawPath(mPath, mPaint);
+        drawWaveform(canvas);
     }
 
-    public void drawWaveform(){
+    public void drawWaveform(Canvas canvas){
+        if (samples == null) {
+            return;
+        }
+        System.out.println("In the draw waveform function");
+        int oldX = 0;
+        int oldY =  (canvas.getHeight() / 2);
+        int xIndex = 0;
 
+        for (int t = 0; t < samples.length; t++) {
+            int y =  ((int) ((canvas.getHeight() / 2) - 15*(samples[t])));
+            canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
+            //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
+            xIndex++;
+            oldX = xIndex;
+            oldY = y;
+        }
+    }
+    public void setSamples(double[] samples){
+        this.samples = samples;
+    }
+    public void setXScale(double xScale){
+        this.xScale = xScale;
+    }
+    public void setYScale(double yScale){
+        this.yScale = yScale;
     }
 
 
@@ -115,3 +146,25 @@ public class CanvasView extends View {
         return true;
     }
 }
+
+/*
+*     public void drawWaveform(Canvas canvas){
+        if (samples == null) {
+            return;
+        }
+        System.out.println("In the draw waveform function");
+        int oldX = 0;
+        int oldY =  (canvas.getHeight() / 2);
+        int xIndex = 0;
+        int test[] = {243,634,42,453,62,745,12,53,756,656,7474,535,24,36,24,25,636,436,363,24,24,24,24,24,24,24};
+        for (int t = 0; t < test.length; t++) {
+            int y = (canvas.getHeight()) - test[t]/2;//(int) ((height / 2) - (samples[t]));
+            canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
+            System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
+            xIndex+=2;
+            oldX = xIndex;
+            oldY = y;
+        }
+    }
+*
+* */
