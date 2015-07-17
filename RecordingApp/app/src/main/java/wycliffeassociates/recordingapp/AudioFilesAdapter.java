@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import wycliffeassociates.recordingapp.model.AudioItem;
@@ -52,6 +53,8 @@ public class AudioFilesAdapter extends ArrayAdapter{
      *            The parent that this view will be attached to
      */
     public View getView(int position, View convertView, ViewGroup parent){
+
+
         LayoutInflater inflater = ((Activity)aContext).getLayoutInflater();
         convertView = inflater.inflate(R.layout.audio_list_item, parent, false);
         TextView name = (TextView) convertView.findViewById(R.id.name);
@@ -63,7 +66,31 @@ public class AudioFilesAdapter extends ArrayAdapter{
         date.setText(audioItems[position].getDate().toString());
 
 
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                System.out.println("PLAY AUDIO");
+
+                // Do something here.
+            }
+
+        });
+
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    System.out.println("CHECKED");
+                } else {
+                    System.out.println("UNCHECKED");
+                }
+            }
+        });
+
+
         return convertView;
+
+
     }
 
 }

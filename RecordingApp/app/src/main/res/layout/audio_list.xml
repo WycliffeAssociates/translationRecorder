@@ -10,6 +10,20 @@
         android:dividerHeight="0.5dp"
         android:divider="#0000CC"
         >
+
     </ListView>
+
+    <ImageButton
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/export"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_launcher"
+        android:gravity="bottom"
+        android:layout_margin="0dp"
+        android:elevation="6dp"
+        android:layout_weight="1"
+        android:clickable="true" />
+
 
 </LinearLayout>

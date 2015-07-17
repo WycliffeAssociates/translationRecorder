@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -41,12 +42,12 @@ public class AudioFiles extends Activity {
     String directory = "";
 
 
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
 
 
-        audioFileView= (ListView) findViewById(R.id.listViewAudio);
+        audioFileView = (ListView) findViewById(R.id.listViewAudio);
 
         audioNameList = new ArrayList<String>();
         dateList = new ArrayList<Date>();
@@ -86,14 +87,28 @@ public class AudioFiles extends Activity {
 
         AudioItem[] items2 = new AudioItem[testDate.size()];
         //get names of files that are now sorted by date
-        for(int j =0; j < testDate.size(); j++){
+        for (int j = 0; j < testDate.size(); j++) {
             //audioNameList.set(j,audioHash.get(testDate.get(j)));
-            items2[j] = new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j),0);
+            items2[j] = new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j), 0);
         }
 
         AudioFilesAdapter adapter = new AudioFilesAdapter(this, items2);
         audioFileView.setAdapter(adapter);
+
+
+        /*audioFileView.setOnClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
+                String selectedAudio = audioNameList.get(position);
+                //System.out.println("====");
+                Toast.makeText(getApplicationContext(), "Audio : " + selectedAudio, Toast.LENGTH_LONG).show();
+                WavPlayer.play(directory + "/" + selectedAudio);
+            }
+        });*/
+
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -101,36 +116,38 @@ public class AudioFiles extends Activity {
         return true;
     }
 
+
+
     //flag == true : sort by most recently modified
     //flag == false : sort by least recently modified
-    private ArrayList<Date> sortDate(ArrayList<Date> dList, Boolean flag){
+    private ArrayList<Date> sortDate(ArrayList<Date> dList, Boolean flag) {
         ArrayList<Date> outputList = new ArrayList<Date>();
         Date cmp = new Date();
         int val = 0;
         int size = dList.size() - 1;
 
         //as long as there are items
-        do{
-            size = dList.size()-1;
+        do {
+            size = dList.size() - 1;
             cmp = dList.get(size);
             val = size;
 
             //compare with other items
-            for(int x = 0; x < size; x++){
+            for (int x = 0; x < size; x++) {
                 if (cmp.after(dList.get(x))) {
-                    if(flag){
+                    if (flag) {
                         //A-Z
-                    }else{
+                    } else {
                         //Z-A
                         val = x;
                         cmp = dList.get(x);
                     }
-                }else{
-                    if(flag) {
+                } else {
+                    if (flag) {
                         //A-Z
                         val = x;
                         cmp = dList.get(x);
-                    }else{
+                    } else {
                         //Z-A
                     }
                 }
@@ -138,10 +155,11 @@ public class AudioFiles extends Activity {
             dList.remove(val);
             outputList.add(cmp);
 
-        }while(size > 0);
+        } while (size > 0);
 
         return outputList;
     }
+
 
     //._. Generics tho
     //flag == true : sort by A-Z
