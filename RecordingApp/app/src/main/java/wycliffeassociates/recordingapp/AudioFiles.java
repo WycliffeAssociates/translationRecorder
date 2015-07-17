@@ -3,9 +3,13 @@ package wycliffeassociates.recordingapp;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -15,10 +19,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
+import wycliffeassociates.recordingapp.model.AudioItem;
+
 public class AudioFiles extends Activity {
-    Hashtable<String, Date> audioHash = new Hashtable<String, Date>();
+    ListView audioFileView;
+
     ArrayList<String> audioNameList;
     ArrayList<Date> dateList;
+    ArrayList<AudioItem> items;
+
+    Hashtable<Date, String> audioHash = new Hashtable<Date, String>();
+    //ArrayList<Button> buttonList;
     //0 for Recent Modified
     //1 for Ancient Modified
     //2 for A-Z
@@ -29,14 +40,18 @@ public class AudioFiles extends Activity {
 
     String directory = "";
 
+
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
 
 
-        ListView audioList = (ListView)findViewById(R.id.listViewAudio);
+        audioFileView= (ListView) findViewById(R.id.listViewAudio);
+
         audioNameList = new ArrayList<String>();
         dateList = new ArrayList<Date>();
+        items = new ArrayList<AudioItem>();
+
 
         //get output directory
         WavRecorder temp = new WavRecorder();
@@ -60,27 +75,38 @@ public class AudioFiles extends Activity {
                 Date lastModDate = new Date(file[i].lastModified());
                 dateList.add(lastModDate);
 
-                audioHash.put(file[i].getName(), lastModDate);
+                audioHash.put(lastModDate, file[i].getName());
+
+                //items.add(new AudioItem(file[i].getName()));
             }
         }
 
+       /* for(int i=0; i<items2.length; i++){
+            items2[i] = items.get(i);
+        }
+*/
+        //sort by date
+        ArrayList<Date> testDate = sortDate(dateList, true);
 
-        //add files to adapter to display to the user
-        ArrayAdapter<Date> arrayAdapter =
-                new ArrayAdapter<Date>(this,android.R.layout.simple_list_item_1, sortDate(dateList,true));
-        audioList.setAdapter(arrayAdapter);
+        AudioItem[] items2 = new AudioItem[testDate.size()];
+        //get names of files that are now sorted by date
+        for(int j =0; j < testDate.size(); j++){
+            //audioNameList.set(j,audioHash.get(testDate.get(j)));
+            items2[j] = new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j),0);
+            //items2[j] =
+        }
+
+        //
 
 
-        //on item list click -- play
-        audioList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            // argument position gives the index of item which is clicked
-            public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
-
-                String selectedAudio = audioNameList.get(position);
-                Toast.makeText(getApplicationContext(), "Audio : " + selectedAudio, Toast.LENGTH_LONG).show();
-                WavPlayer.play(directory + "/" + selectedAudio);
-            }
-        });
+        AudioFilesAdapter adapter = new AudioFilesAdapter(this, items2);
+        audioFileView.setAdapter(adapter);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     //flag == true : sort by most recently modified
@@ -169,4 +195,6 @@ public class AudioFiles extends Activity {
 
         return outputList;
     }
+
+
 }
