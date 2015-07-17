@@ -129,8 +129,8 @@ public class WavRecorder {
             file.mkdirs();
         }
 
-        ExportFiles test = new ExportFiles(file.getAbsolutePath(), recordedFilename);
-        test.getDir();
+        //ExportFiles test = new ExportFiles();//file.getAbsolutePath(), recordedFilename
+        //test.getDir();
         return (file.getAbsolutePath() + "/" + recordedFilename);
     }
 

@@ -1,11 +1,19 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -17,44 +25,84 @@ public class ExportFiles extends Activity
     /**
      * The file path to the original file
      */
-  private String originalPath;
+  private String originalPath = Environment.getExternalStorageDirectory().getAbsolutePath() ;
 
     /**
      * The name of the file being moved
      */
-  private String fileName;
+  private String fileName = "";
 
     /**
      * The directory currently being navigated through
      */
-  private String currentDir;
+  private String currentDir = Environment.getExternalStorageDirectory().getAbsolutePath();
 
     /**
      * A list of files to show for the current directory
      */
-  private ArrayList<String> fileList;
+  private ArrayList<String> fileList = new ArrayList<String>();
 
     /**
-     * Constructor with parameters
-     * @param oldPath The path to the file
-     * @param name The name of the file
+     * A String that holds the name of the current folder being viewed
      */
+    private String currentFolder = "";
+
+    ArrayAdapter<String> arrayAdapter;
+    /**
+     * Empty constructor for ExportFiles
+
+    ExportFiles(){
+        originalPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        fileName = "";
+        currentDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        fileList = new ArrayList<String>();
+        setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
+    }
+
+
+     * Constructor with parameters
+     //* @param oldPath The path to the file
+     //* @param name The name of the file
+
     ExportFiles(String oldPath, String name){
         originalPath = oldPath;
         fileName = name;
         currentDir = oldPath;
         fileList = new ArrayList<String>();
+        setCurrentFolder(oldPath);
     }
+     */
 
-
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
+        System.out.println("reached here");
         super.onCreate(savedInstanceState);
-
-        //view a list of files
         setContentView(R.layout.export_list);
+        ListView list = (ListView)findViewById(R.id.listViewExport);
+        //add files to adapter to display to the user
+        setFilesInDir(getCurrentDir());
+        arrayAdapter =
+                new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, fileList);
+        list.setAdapter(arrayAdapter);
 
-        //THe list we want to view
-        ListView exportList = (ListView)findViewById(R.id.listViewExport);
+        //on item list click -- play
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            // argument position gives the index of item which is clicked
+            public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
+                switch (position) {
+                    case 0:
+                        moveUpDir(getCurrentDir());
+                        arrayAdapter.notifyDataSetChanged();
+                        break;
+                    default:
+                        moveDownDir(getCurrentDir(), getFilesInDir(getCurrentDir())[position - 1]);
+                        arrayAdapter.notifyDataSetChanged();
+                        break;
+                }
+                System.out.println("current directory is now " + getCurrentDir());
+            }
+        });
     }
 
     /**
@@ -62,24 +110,7 @@ public class ExportFiles extends Activity
      */
     public void getDir()
     {
-        //the list of all files in the directory
-        fileList = new ArrayList<String>();
-
-        File directory = new File(getOriginalPath());
-        if(directory.isDirectory())
-        {
-            System.out.println("Parent path" + directory.getParent());
-            String path[] = directory.getParent().split("/");
-            System.out.println("prev parent " + path[path.length-1]);
-            System.out.println("move up to " + moveUpDir(directory.getParent()));
-            String files[] = getFilesInDir(moveUpDir(directory.getParent()));
-            for(int i = 0; i < files.length; i++) {
-            fileList.add(files[i]);
-            System.out.println("Items in the directory: " + files[i]);
-            }
-            System.out.println("Move down to " + moveDownDir(moveUpDir(directory.getParent()),files[1]));
-
-        }
+       //nothing to show
     }
 
     /**
@@ -102,40 +133,70 @@ public class ExportFiles extends Activity
      * @param currentDirectory The current directory
      */
     public void setFilesInDir(String currentDirectory){
-        File directory = new File(currentDirectory);
-        ArrayList<String> files = new ArrayList<String>();
-        if(directory.isDirectory()) {
-            String[] dirList = directory.list();
-            for(int i = 0; i < dirList.length; i++)
-                files.add(dirList[i]);
+        try {
+            File directory = new File(currentDirectory);
+            if (directory.isDirectory()) {
+                String[] dirList = directory.list();
+                if(dirList != null) {
+                    String[] files = new String[dirList.length + 1];
+                    files[0] = "Go back to " + directory.getParent();
+                    for (int i = 0; i < dirList.length; i++) {
+                        files[i + 1] = dirList[i];
+                    }
+                    setFileList(files);
+                }
+            }
         }
-        setFileList(files);
+        catch(NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
-     * Finds the next directory up and returns path to it
+     * Moves the current directory to the next directory up (parent dir)
      * @param currentDirectory The current directory
-     * @return The directory one folder up
      */
-    public String moveUpDir(String currentDirectory)
-    {
+    public void moveUpDir(String currentDirectory) {
         File directory = new File(currentDirectory);
         String path[] = directory.getParent().split("/");
-        String finalPath = "";
-        for(int i = 0; i < path.length-1; i++)
-            finalPath = finalPath + path[i] + "/";
-        finalPath += path[path.length-1];
-        return finalPath;
+        if (path.length > 1) {
+            String finalPath = "";
+            for (int i = 0; i < path.length - 1; i++)
+                finalPath = finalPath + path[i] + "/";
+            finalPath += path[path.length - 1];
+        File test = new File(finalPath);
+            if(test.isDirectory()) {
+                try {
+                    setCurrentFolder(finalPath);
+                    setCurrentDir(finalPath);
+                    setFilesInDir(finalPath);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
-
     /**
-     * This function gets a new path name after moving down one directory
+     * This function sets the current directory path name after moving down one directory
      * @param currentDirectory The current directory
      * @param nextFolder the folder to add to the path
-     * @return
      */
-    public String moveDownDir(String currentDirectory, String nextFolder){
-        return currentDirectory + "/" + nextFolder;
+    public void moveDownDir(String currentDirectory, String nextFolder){
+        File dir = new File(currentDirectory + "/" + nextFolder);
+        try {
+            if (dir.isDirectory()&& dir.list() != null) {
+                try {
+                    setCurrentFolder(currentDirectory + "/" + nextFolder);
+                    setCurrentDir(currentDirectory + "/" + nextFolder);
+                    setFilesInDir(currentDirectory + "/" + nextFolder);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch(NullPointerException e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -197,7 +258,27 @@ public class ExportFiles extends Activity
      * The setter for the list of folders in the current directory
      * @param list a list of new files
      */
-    public void setFileList(ArrayList<String> list) {
-        this.fileList = list;
+    public void setFileList(String[] list) {
+        fileList.clear();
+        for(int i = 0; i < list.length; i++)
+            fileList.add(list[i]);
+    }
+
+    /**
+     * Given the pathname to the folder gets the name of the
+     * last folder in the path
+     * @param path The complete pathname to the folder (includes folder)
+     */
+    public void setCurrentFolder(String path) {
+       String[] folders = path.split("/");
+       currentFolder = folders[folders.length-1];
+    }
+
+    /**
+     * The Getter for the current folder
+     * @return Gets the current folder name
+     */
+    public String getCurrentFolder(){
+        return currentFolder;
     }
 }
