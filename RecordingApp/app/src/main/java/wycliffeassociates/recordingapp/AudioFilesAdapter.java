@@ -12,20 +12,47 @@ import android.widget.TextView;
 import wycliffeassociates.recordingapp.model.AudioItem;
 
 /**
- * Created by Butler on 7/17/2015.
+ *
+ * Creates a custom view for the audio entries in the file screen.
+ *
  */
 public class AudioFilesAdapter extends ArrayAdapter{
-    Context context;
+    /**
+     * Populate with audio items
+     */
     AudioItem[] audioItems= null;
 
-    public AudioFilesAdapter(Context context, AudioItem[] item){
-        super(context, R.layout.audio_list_item, item);
-        this.context = context;
-        this.audioItems = item;
+    /**
+     * Store the current context
+     */
+    Context aContext;
+
+    /**
+     *
+     * @param context
+     *            The current context
+     * @param resource
+     *            Array of audio items
+     */
+    public AudioFilesAdapter(Context context, AudioItem[] resource){
+        super(context, R.layout.audio_list_item, resource);
+        this.aContext = context;
+        this.audioItems = resource;
     }
 
+    /**
+     * Binds the views into a single view and set the correct information for
+     * each of the views
+     *
+     * @param position
+     *            Index of current audio item being manipulated
+     * @param convertView
+     *            The new view to be created
+     * @param parent
+     *            The parent that this view will be attached to
+     */
     public View getView(int position, View convertView, ViewGroup parent){
-        LayoutInflater inflater = ((Activity)context).getLayoutInflater();
+        LayoutInflater inflater = ((Activity)aContext).getLayoutInflater();
         convertView = inflater.inflate(R.layout.audio_list_item, parent, false);
         TextView name = (TextView) convertView.findViewById(R.id.name);
         CheckBox cb = (CheckBox) convertView.findViewById(R.id.checkBox1);

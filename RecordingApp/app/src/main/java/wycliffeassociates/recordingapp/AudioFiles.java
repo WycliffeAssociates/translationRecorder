@@ -81,10 +81,6 @@ public class AudioFiles extends Activity {
             }
         }
 
-       /* for(int i=0; i<items2.length; i++){
-            items2[i] = items.get(i);
-        }
-*/
         //sort by date
         ArrayList<Date> testDate = sortDate(dateList, true);
 
@@ -93,11 +89,7 @@ public class AudioFiles extends Activity {
         for(int j =0; j < testDate.size(); j++){
             //audioNameList.set(j,audioHash.get(testDate.get(j)));
             items2[j] = new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j),0);
-            //items2[j] =
         }
-
-        //
-
 
         AudioFilesAdapter adapter = new AudioFilesAdapter(this, items2);
         audioFileView.setAdapter(adapter);
