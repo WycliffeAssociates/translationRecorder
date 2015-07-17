@@ -203,6 +203,10 @@ public class WavRecorder {
 
             in.close();
             out.close();
+
+            WavFileLoader temp = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + '/' + AUDIO_RECORDER_FOLDER +"/test.wav");
+            System.out.println("hey, " + temp.getSampleRate());
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -273,6 +277,7 @@ public class WavRecorder {
         header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
 
         out.write(header, 0, 44);
+
     }
 
     /**

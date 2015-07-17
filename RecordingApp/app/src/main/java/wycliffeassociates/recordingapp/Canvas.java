@@ -10,22 +10,26 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+public class Canvas extends Activity {
 
-public class Record extends Activity {
     private String recordedFilename = null;
     private WavRecorder recorder = null;
     final Context context = this;
     private String outputName = null;
-
-
+    private CanvasView customCanvas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.waveform);
 
+        customCanvas = (CanvasView) findViewById(R.id.signature_canvas);
         setButtonHandlers();
         enableButtons(false);
+    }
+
+    public void clearCanvas(View v) {
+        customCanvas.clearCanvas();
     }
 
     private void setButtonHandlers() {
@@ -104,7 +108,7 @@ public class Record extends Activity {
     }
     private void stopRecording(){
         recorder.stop();
-        //Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
         recordedFilename = recorder.getFilename();
     }
     private void playRecording(){
