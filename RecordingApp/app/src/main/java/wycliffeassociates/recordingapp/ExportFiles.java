@@ -58,9 +58,17 @@ public class ExportFiles extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState){
 
-        //TEST ITEMS, PLEASE REMOVE
-        allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/test.wav");
-        allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/blah.wav");
+        Bundle extras = getIntent().getExtras();
+
+        if(extras != null)
+        {
+            allMoving = extras.getStringArrayList("exportList");
+        }
+        else{
+            //TEST ITEMS, PLEASE REMOVE
+            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/test.wav");
+            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/blah.wav");
+        }
 
         setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
         super.onCreate(savedInstanceState);
