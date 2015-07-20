@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import java.util.ArrayList;
+
 public class MainMenuListener extends Activity{
 
     private ImageButton btnRecord;
@@ -40,6 +42,8 @@ public class MainMenuListener extends Activity{
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), Settings.class);
+                ArrayList<String> path = new ArrayList<String>();
+                intent.putExtra("path", path);
                 startActivityForResult(intent, 0);
             }
         });

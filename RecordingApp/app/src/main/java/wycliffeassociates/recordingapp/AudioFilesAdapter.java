@@ -72,7 +72,9 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         name.setText(audioItems[position].getName());
         date.setText(audioItems[position].getDate().toString());
 
-
+        //======
+        //AudioFilesListener
+        //======
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -88,10 +90,13 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
+                    //System.out.println("EXPORT : " + audioItems[position].getName());
 
-                    System.out.println("EXPORT : " + audioItems[position].getName());
+
                 } else {
-                    System.out.println("UNCHECKED");
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
+                    //System.out.println("UNCHECKED");
                 }
             }
         });

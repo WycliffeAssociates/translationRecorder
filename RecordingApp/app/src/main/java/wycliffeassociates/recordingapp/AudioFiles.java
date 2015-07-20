@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -58,6 +59,8 @@ public class AudioFiles extends Activity {
 
 
         //get output directory
+        //global current directory?
+
         WavRecorder temp = new WavRecorder();
         directory = temp.getFileDirectory();
 
@@ -112,21 +115,7 @@ public class AudioFiles extends Activity {
 
     }
 
-    //this is terrible... please interface
-    public static void AudioPlay (String fileName){
-        WavPlayer.play(directory + "/" + fileName);
-    }
 
-    static ArrayList<String> exportList = new ArrayList<String>();
-
-    public static void AudioExport (String fileName){
-        //System.out.println
-        exportList.add(fileName);
-    }
-
-    private void ExportLocal (String currDir, String nDir, String fileName){
-
-    }
 
     //move
 
@@ -228,4 +217,34 @@ public class AudioFiles extends Activity {
     }
 
 
+    //pls, so bad
+    public static void AudioPlay (String fileName){
+        WavPlayer.play(directory + "/" + fileName);
+    }
+
+    static ArrayList<String> exportList = new ArrayList<String>();
+
+    public static void AudioExport (String fileName, boolean flag){
+        if(flag){
+            exportList.add(fileName);
+        }else{
+            exportList.remove(fileName);
+        }
+        /*
+        System.out.println("=============");
+        for(int p = 0 ; p < exportList.size() ; p++){
+            System.out.println(exportList.get(p));
+        }*/
+    }
+
+    private void executeExport(){
+        //in theory if it's done how navigating from our menu to the other screens are done
+        //Intent intent = new Intent(v.getContext(), Settings.class);
+        //ArrayList<String> path = new ArrayList<String>();
+        //intent.putExtra("exportList", exportList);
+        //startActivityForResult(intent, 0);
+    }
+    private void ExportLocal (String currDir, String nDir, String fileName){
+
+    }
 }
