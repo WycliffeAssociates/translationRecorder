@@ -7,6 +7,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,20 +21,60 @@ public class CanvasScreen extends Activity {
     final Context context = this;
     private String outputName = null;
     private CanvasView customCanvas;
+    private float userScale;
+    private float xTranslation;
+    private ScaleGestureDetector SGD;
+    private GestureDetector gestureDetector;
+
+
+    public boolean onTouchEvent(MotionEvent ev) {
+        if(ev.getPointerCount() > 1.0){
+            SGD.onTouchEvent(ev);
+        }
+        else {
+            gestureDetector.onTouchEvent(ev);
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waveform);
+        userScale = 1.f;
+
+        GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                xTranslation += distanceX;
+                customCanvas.setXTranslation(xTranslation);
+                customCanvas.invalidate();
+                return true;
+            }
+
+        };
+
+        ScaleGestureDetector.SimpleOnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener(){
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                userScale *= detector.getScaleFactor();
+                customCanvas.setUserScale(userScale);
+                customCanvas.invalidate();
+
+                return true;
+            }
+        };
+
+        gestureDetector = new GestureDetector(this, gestureListener);
+        SGD = new ScaleGestureDetector(this, scaleListener);
+
 
         customCanvas = (CanvasView) findViewById(R.id.signature_canvas);
         setButtonHandlers();
         enableButtons(false);
     }
 
-    public void clearCanvas(View v) {
-        customCanvas.clearCanvas();
-    }
+
 
     private void setButtonHandlers() {
         findViewById(R.id.btnRecord).setOnClickListener(btnClick);
@@ -129,6 +172,7 @@ public class CanvasScreen extends Activity {
         System.out.println("X scale is " + xsf);
         System.out.println("X scale SHOULD BE" + vis.getXScaleFactor(customCanvas.getWidth()));
         System.out.println("Incremment is being set to  " + inc);
+        customCanvas.invalidate();
 
 
     }

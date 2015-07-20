@@ -10,6 +10,7 @@ import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -26,12 +27,19 @@ public class CanvasView extends View {
     private float mX, mY;
     private static final float TOLERANCE = 5;
     ArrayList<Pair<Double,Double>> samples;
+    ScaleGestureDetector SGD;
+
     double xScale;
     double yScale;
+    float userScale;
+    private float xTranslation;
+
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
         context = c;
+        userScale = 1.f;
+        xTranslation = 0.f;
 
         // we set a new Path
         mPath = new Path();
@@ -57,6 +65,7 @@ public class CanvasView extends View {
         // your Canvas will draw onto the defined Bitmap
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+
     }
 
     // override onDraw
@@ -65,12 +74,15 @@ public class CanvasView extends View {
         super.onDraw(canvas);
         // draw the mPath with the mPaint on the canvas when onDraw
         mPaint.setColor(Color.DKGRAY);
-        canvas.drawLine(0.f, canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
+        canvas.drawLine(0.f, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
         canvas.drawPath(mPath, mPaint);
         drawWaveform(canvas);
+
     }
 
     public void drawWaveform(Canvas canvas){
+        canvas.scale(userScale, 1.f);
+        canvas.translate(-xTranslation, 0.f);
         mPaint.setColor(Color.WHITE);
         if (samples == null) {
             return;
@@ -101,8 +113,14 @@ public class CanvasView extends View {
     public void setYScale(double yScale){
         this.yScale = yScale;
     }
+    public void setUserScale(float userScale){
+        this.userScale = userScale;
+    }
+    public void setXTranslation(float xTranslation){
+        this.xTranslation = xTranslation;
+    }
 
-
+    /*
     // when ACTION_DOWN start touch according to the x,y values
     private void startTouch(float x, float y) {
         mPath.moveTo(x, y);
@@ -153,6 +171,7 @@ public class CanvasView extends View {
         }
         return true;
     }
+    */
 }
 
 /*
