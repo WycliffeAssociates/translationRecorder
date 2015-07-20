@@ -19,20 +19,15 @@ import java.util.ArrayList;
 /**
  * Class to export files between directories
  * @author Abi Gundy
- * @version 7/17/15
+ * @version 7/20/15
  *
  */
 public class ExportFiles extends Activity
 {
     /**
-     * The file path to the original file
+     * The full paths + names of the files to be moved
      */
-  private String originalPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder" ;
-
-    /**
-     * The name of the file being moved
-     */
-  private String fileName = "test.wav";
+    private ArrayList<String> allMoving = new ArrayList<String>();
 
     /**
      * The directory currently being navigated through
@@ -62,18 +57,23 @@ public class ExportFiles extends Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
+
+        //TEST ITEMS, PLEASE REMOVE
+        allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/test.wav");
+        allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/blah.wav");
+
         setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
-        System.out.println("reached here");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.export_list);
         list = (ListView)findViewById(R.id.listViewExport);
+
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());
         arrayAdapter =
                 new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, fileList);
         list.setAdapter(arrayAdapter);
 
-        //on item list click -- play
+        //on item list click move up or down directories
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             // argument position gives the index of item which is clicked
             public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
@@ -88,16 +88,20 @@ public class ExportFiles extends Activity
             }
         });
 
+        //the buttons at the bottom of the screen
         findViewById(R.id.btnCancel).setOnClickListener(btnClick);
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
     }
 
+    /**
+     * The listener for the save & cancel clicks
+     */
     private View.OnClickListener btnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.btnSave:{
-                    saveFile();
+                    saveFiles();
                     break;
                 }
                 case R.id.btnCancel:
@@ -193,36 +197,6 @@ public class ExportFiles extends Activity
     }
 
     /**
-     * Setter for changing the original path
-     * @param newPath the path to change it to
-     */
-    public void setOriginalPath(String newPath){originalPath = newPath;}
-
-    /**
-     * Getter for the original path
-     * @return the original path
-     */
-    public String getOriginalPath() {
-        return originalPath;
-    }
-
-    /**
-     * Setter for changing the file name
-     * @param fileName The new name for the file
-     */
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    /**
-     * Getter for the file name
-     * @return the file name
-     */
-    public String getFileName() {
-        return fileName;
-    }
-
-    /**
      * The getter for the current directory
      * @return The current directory
      */
@@ -275,7 +249,6 @@ public class ExportFiles extends Activity
         return currentFolder;
     }
 
-
     /**
      * Copies a source file to another file (will create a new file if need be
      * @param source The source path & filename
@@ -295,45 +268,61 @@ public class ExportFiles extends Activity
             e.printStackTrace();
         }
 
-
     }
 
     /**
-     * Copies multiple source files to another file (will create new files if need be)
-     * @param source The source paths & filenames
-     * @param dest The destination paths & filenames
+     * Closes the file manager
      */
-    public void copyFilesUsingFileChannels(ArrayList<File> source, ArrayList<File> dest) {
-        //TODO figure out how this will work
-        FileChannel inputChannel = null;
-        FileChannel outputChannel = null;
-        try {
-            for(int i = 0; i < source.size(); i++) {
-                inputChannel = new FileInputStream(source.get(i)).getChannel();
-                outputChannel = new FileOutputStream(dest.get(i)).getChannel();
-                outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
-            }
-            inputChannel.close();
-            outputChannel.close();
-
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Copies the file from one location to another without parameters
-     */
-    public void saveFile(){
-        File source = new File(getOriginalPath() + "/" + getFileName());
-        File dest = new File(getCurrentDir() + "/" + getFileName());
-        copyFileUsingFileChannels(source, dest);
-        Toast.makeText(getApplicationContext(), "File Exported to " + dest, Toast.LENGTH_LONG).show();
+    public void cancelExport(){
         finish();
     }
 
-    public void cancelExport(){
+    /**
+     * A method to extract filenames from their paths
+     * @param paths THe paths to the files
+     * @return The simple filenames of the files
+     */
+    public ArrayList<String> getNamesFromPath(ArrayList<String> paths){
+        ArrayList<String> names = new ArrayList<>();
+        for(int i = 0; i < paths.size(); i++){
+            String[] temp = paths.get(i).split("/");
+            names.add(temp[temp.length-1]);
+            System.out.println(names.get(i));
+        }
+        return names;
+    }
+
+    /**
+     * Gets an array of all of the files to move over
+     * @return An ArrayList<String> of files to move
+     */
+    public ArrayList<String> getAllMoving(){
+        return allMoving;
+    }
+
+    /**
+     * Copies files from any number of different directories to a single
+     * directory without deleting any files (no params)
+     */
+    public void saveFiles(){
+        //The files that are being moved
+        ArrayList<File> source = new ArrayList<>();
+        ArrayList<String> original = getAllMoving();
+        for(int i = 0; i < original.size(); i++) {
+            source.add(new File(original.get(i)));
+        }
+        //the actual file names to concat to the destination path
+        ArrayList<String> names = getNamesFromPath(original);
+        for(int j = 0; j < source.size(); j++)
+        {
+            copyFileUsingFileChannels(source.get(j),new File(getCurrentDir() + "/" + names.get(j)) );
+        }
+
+        //notify the user and close
+        if(source.size() > 1)
+            Toast.makeText(getApplicationContext(), "Files Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(getApplicationContext(), "File Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
         finish();
     }
 }
