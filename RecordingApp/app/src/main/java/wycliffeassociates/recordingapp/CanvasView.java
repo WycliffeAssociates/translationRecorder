@@ -8,8 +8,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
 
 public class CanvasView extends View {
 
@@ -22,7 +25,7 @@ public class CanvasView extends View {
     private Paint mPaint;
     private float mX, mY;
     private static final float TOLERANCE = 5;
-    double[] samples;
+    ArrayList<Pair<Double,Double>> samples;
     double xScale;
     double yScale;
 
@@ -36,10 +39,10 @@ public class CanvasView extends View {
         // and we set a new Paint with the desired attributes
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mPaint.setColor(Color.BLACK);
+        mPaint.setColor(Color.DKGRAY);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeWidth(4f);
+        mPaint.setStrokeWidth(1f);
         samples = null;
         xScale = 0;
         yScale = 0;
@@ -61,12 +64,14 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         // draw the mPath with the mPaint on the canvas when onDraw
+        mPaint.setColor(Color.DKGRAY);
         canvas.drawLine(0.f, canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
         canvas.drawPath(mPath, mPaint);
         drawWaveform(canvas);
     }
 
     public void drawWaveform(Canvas canvas){
+        mPaint.setColor(Color.WHITE);
         if (samples == null) {
             return;
         }
@@ -75,16 +80,19 @@ public class CanvasView extends View {
         int oldY =  (canvas.getHeight() / 2);
         int xIndex = 0;
 
-        for (int t = 0; t < samples.length; t++) {
-            int y =  ((int) ((canvas.getHeight() / 2) - 15*(samples[t])));
+        for (int t = 0; t < samples.size(); t++) {
+            int y =  ((int) ((canvas.getHeight() / 2) - 15*(-samples.get(t).first)));
             canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
+            oldY = y;
+            y = ((int) ((canvas.getHeight() / 2) - 15*(-samples.get(t).second)));
+            canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
             //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
             xIndex++;
             oldX = xIndex;
             oldY = y;
         }
     }
-    public void setSamples(double[] samples){
+    public void setSamples(ArrayList<Pair<Double,Double>> samples){
         this.samples = samples;
     }
     public void setXScale(double xScale){

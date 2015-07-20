@@ -117,7 +117,7 @@ public class CanvasScreen extends Activity {
 
 
 
-        double xsf = 1.75*vis.getXScaleFactor(customCanvas.getWidth());
+        double xsf = 5.0*vis.getXScaleFactor(customCanvas.getWidth());
         double ysf = vis.getYScaleFactor(customCanvas.getHeight());
         customCanvas.setXScale(xsf);
         customCanvas.setYScale(ysf);
