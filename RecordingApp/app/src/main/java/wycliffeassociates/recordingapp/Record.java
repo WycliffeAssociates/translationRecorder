@@ -65,6 +65,14 @@ public class Record extends Activity {
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+
+        Button pButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        pButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(R.drawable.ic_save_white_48dp), null, null, null);
+        pButton.setText("");
+
+        Button nButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        nButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(R.drawable.ic_mic_white_48dp), null, null, null);
+        nButton.setText("");
     }
 
     private void setButtonHandlers() {
