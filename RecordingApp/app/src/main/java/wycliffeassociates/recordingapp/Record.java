@@ -2,12 +2,17 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -16,7 +21,7 @@ public class Record extends Activity {
     private WavRecorder recorder = null;
     final Context context = this;
     private String outputName = null;
-
+    private boolean isSaved = true;
 
 
     @Override
@@ -28,6 +33,40 @@ public class Record extends Activity {
         enableButtons(false);
     }
 
+    @Override
+    public void onBackPressed() {
+        if(!isSaved) {
+            ReallyQuit dialog = new ReallyQuit();
+            dialog.show(this.getFragmentManager(), "reallyQuitDialog");
+        }
+        else
+            super.onBackPressed();
+    }
+
+    public void onRecordOver(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage(R.string.record_over);
+        builder
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        saveRecording();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Record", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        enableButtons(true);
+                        startRecording();
+                        isSaved = false;
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
     private void setButtonHandlers() {
         findViewById(R.id.btnRecord).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
@@ -35,7 +74,7 @@ public class Record extends Activity {
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
     }
 
-    private void enableButton(int id,boolean isEnable){
+    private void enableButton(int id, boolean isEnable){
         findViewById(id).setEnabled(isEnable);
     }
 
@@ -68,7 +107,7 @@ public class Record extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 setName(toSave.getText().toString());
-                //SAVE FILE HERE
+                isSaved = true;
             }
         });
 
@@ -117,8 +156,14 @@ public class Record extends Activity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.btnRecord:{
-                    enableButtons(true);
-                    startRecording();
+                    if(isSaved) {
+                        enableButtons(true);
+                        startRecording();
+                        isSaved = false;
+                    }
+                    else{
+                        onRecordOver();
+                    }
                     break;
                 }
                 case R.id.btnStop:{
