@@ -4,8 +4,8 @@
     android:clickable="false"
     android:id="@+id/listitem">
 
-    <CheckBox android:layout_width="100dp"
-        android:layout_height="100dp"
+    <CheckBox android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:checked="false"
         android:id="@+id/checkBox"
         android:textSize="50sp"

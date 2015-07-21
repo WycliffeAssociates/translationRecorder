@@ -1,0 +1,44 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical" >
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        >
+            <ListView
+            android:id="@+id/listViewExport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:dividerHeight="0.1dp"
+            android:divider="#000000"/>
+        </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+
+             <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="@dimen/abc_action_button_min_width_material"
+                android:layout_height="@dimen/abc_action_button_min_height_material"
+                android:id="@+id/btnSave"
+                android:background="@drawable/ic_save_white_48dp"
+                 android:layout_marginRight="250dp"
+               />
+
+            <ImageButton
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="@dimen/abc_action_button_min_width_material"
+                android:layout_height="@dimen/abc_action_button_min_height_material"
+                android:id="@+id/btnCancel"
+                android:background="@drawable/abc_ic_clear_mtrl_alpha"
+                android:layout_toRightOf="@id/btnSave"/>
+    </LinearLayout>
+</LinearLayout>

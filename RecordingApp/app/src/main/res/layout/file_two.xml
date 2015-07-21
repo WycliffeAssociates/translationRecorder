@@ -14,17 +14,17 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
 
-        <Button
+        <ImageButton
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:id="@+id/button5"
+            android:id="@+id/btnExport"
             android:background="@drawable/abc_ic_commit_search_api_mtrl_alpha"
             android:elevation="12dp" />
 
         <Button
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_toRightOf="@id/button5"
+            android:layout_toRightOf="@id/export"
             android:id="@+id/button12"
             android:background="@drawable/ic_delete_white_48dp"
             android:elevation="12dp"
@@ -103,10 +103,10 @@
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/Folders">
 
-        <ToggleButton
-            android:layout_width="57dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/button"
+        <ImageButton
+            android:layout_width="82dp"
+            android:layout_height="50dp"
+            android:id="@+id/btnCheckAll"
             android:elevation="12dp"
             android:background="@drawable/abc_btn_check_to_on_mtrl_015"
             android:layout_marginStart="270dp"
