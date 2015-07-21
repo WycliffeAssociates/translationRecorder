@@ -31,18 +31,6 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
      */
     Context aContext;
 
-    // boolean array for storing
-    //the state of each CheckBox
-    boolean[] checkBoxState = null;
-
-    ViewHolder viewHolder;
-
-    private class ViewHolder {
-        TextView filename;
-        CheckBox checkBox;
-        TextView date;
-    }
-
     /**
      *
      * @param context
@@ -68,52 +56,55 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
      *            The parent that this view will be attached to
      */
     public View getView(final int position, View convertView, ViewGroup parent){
-        checkBoxState = new boolean[audioItems.length];
+
+
         LayoutInflater inflater = ((Activity)aContext).getLayoutInflater();
         convertView = inflater.inflate(R.layout.listitem, parent, false);
-        viewHolder=new ViewHolder();
-        viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
-        viewHolder.filename = (TextView) convertView.findViewById(R.id.filename);
+        TextView name = (TextView) convertView.findViewById(R.id.filename);
+        CheckBox cb = (CheckBox) convertView.findViewById(R.id.checkBox);
+        cb.setScaleX(3f);
+        cb.setScaleY(3f);
 
-        viewHolder.date = (TextView) convertView.findViewById(R.id.date);
-        viewHolder.date.setGravity(Gravity.RIGHT);
+        TextView date = (TextView) convertView.findViewById(R.id.date);
+        date.setGravity(Gravity.RIGHT);
 
-        viewHolder.filename.setText(audioItems[position].getName());
-        viewHolder.date.setText(audioItems[position].getDate().toString());
 
-        convertView.setTag(viewHolder);
-        viewHolder.checkBox.setChecked(checkBoxState[position]);
+        name.setText(audioItems[position].getName());
+        date.setText(audioItems[position].getDate().toString());
 
-        viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (((CheckBox) v).isChecked())
-                    checkBoxState[position] = true;
-                else
-                    checkBoxState[position] = false;
-
-            }
-
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                    //System.out.println("EXPORT : " + audioItems[position].getName());
-                } else {
-                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                    //System.out.println("UNCHECKED");
-                }
-            }
-        });
-
+        //======
+        //AudioFilesListener
+        //======
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 //System.out.println("PLAY AUDIO");
                 AudioFiles.AudioPlay(audioItems[position].getName());
+
                 // Do something here.
+            }
+
+        });
+
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
+                    System.out.println("EXPORT : " + audioItems[position].getName());
+
+
+                } else {
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
+                    System.out.println("UNCHECKED");
+                }
             }
         });
 
+
         return convertView;
+
+
     }
 
 }

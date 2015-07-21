@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,6 +28,8 @@ import java.util.Hashtable;
 import wycliffeassociates.recordingapp.model.AudioItem;
 
 public class AudioFiles extends Activity {
+
+    private ImageButton btnExport;
     ListView audioFileView;
 
     ArrayList<String> audioNameList;
@@ -47,8 +50,25 @@ public class AudioFiles extends Activity {
 
 
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_two);
+
+        btnExport = (ImageButton)findViewById(R.id.btnExport);
+        btnExport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ExportFiles.class);
+                if(exportList.size() > 0) {
+                    intent.putExtra("exportList", exportList);
+                    startActivityForResult(intent, 0);
+                }
+                else {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
 
 
         audioFileView = (ListView) findViewById(R.id.listViewAudio);
@@ -225,15 +245,10 @@ public class AudioFiles extends Activity {
 
     public static void AudioExport (String fileName, boolean flag){
         if(flag){
-            exportList.add(fileName);
+            exportList.add(directory + "/" + fileName);
         }else{
-            exportList.remove(fileName);
+            exportList.remove(directory + "/" + fileName);
         }
-        /*
-        System.out.println("=============");
-        for(int p = 0 ; p < exportList.size() ; p++){
-            System.out.println(exportList.get(p));
-        }*/
     }
 
     private void executeExport(){
