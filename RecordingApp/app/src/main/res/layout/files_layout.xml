@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.butler.test.Tutorial2"
+    tools:context="com.example.isaac.filesystemtest.Record_screen"
     android:background="#ff4caf50">
 
 
@@ -9,7 +9,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginRight="550dp"
+        android:layout_marginEnd="550dp"
         android:elevation="22dp"
         android:layout_alignTop="@+id/Sidebar"
         android:id="@+id/Folders">
@@ -21,7 +21,7 @@
             android:id="@+id/button7"
             android:background="#ffaae6ba"
             android:layout_marginTop="100dp"
-            android:layout_marginLeft="50dp"
+            android:layout_marginStart="50dp"
             android:textColor="#ff322019"
             android:textSize="30dp" />
 
@@ -32,9 +32,9 @@
             android:id="@+id/button8"
             android:background="#ffaae6ba"
             android:layout_marginTop="76dp"
-            android:layout_marginLeft="50dp"
+            android:layout_marginStart="50dp"
             android:textColor="#ff322019"
-            android:textSize="30dp" />
+            android:textSize="30sp" />
 
         <Button
             android:layout_width="151dp"
@@ -43,9 +43,9 @@
             android:id="@+id/button9"
             android:background="#ffaae6ba"
             android:layout_marginTop="76dp"
-            android:layout_marginLeft="50dp"
+            android:layout_marginStart="50dp"
             android:textColor="#ff322019"
-            android:textSize="30dp" />
+            android:textSize="30sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -53,11 +53,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="false"
-        android:layout_marginRight="550dp"
-
+        android:layout_marginEnd="550dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-
         android:background="#ffb9f6ca"
         android:elevation="21dp"
         android:id="@+id/Sidebar">
@@ -88,21 +85,17 @@
         android:background="#ff413e3a"
         android:layout_marginTop="1000dp"
         android:elevation="31dp"
-        android:id="@+id/WavePreview"></LinearLayout>
-
+        android:id="@+id/WavePreview">
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-
         android:layout_marginEnd="130dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="270dp"
+        android:layout_marginStart="270dp"
         android:id="@+id/FileScrollField"
         android:visibility="gone">
 
@@ -120,12 +113,6 @@
         android:layout_height="match_parent"
         android:id="@+id/ToolBar"
         android:background="#ffe8f5e9"
-        android:layout_alignTop="@+id/Sidebar"
-
-        android:layout_alignEnd="@+id/WavePreview"
-        android:layout_alignRight="@+id/WavePreview"
-
-        android:layout_marginBottom="10dp"
         android:elevation="12dp">
 
         <ToggleButton
@@ -134,7 +121,7 @@
             android:id="@+id/button"
             android:elevation="12dp"
             android:background="@drawable/abc_btn_check_to_on_mtrl_015"
-            android:layout_marginLeft="270dp" />
+            android:layout_marginStart="270dp" />
 
         <Button
             android:layout_width="wrap_content"
@@ -164,10 +151,9 @@
         android:layout_height="100dp"
         android:id="@+id/File"
         android:background="@drawable/file"
-
         android:layout_below="@+id/FileScrollField"
         android:layout_marginTop="100dp"
-        android:layout_marginLeft="250dp"
+        android:layout_marginStart="250dp"
         android:clickable="true"
         android:weightSum="1">
 
@@ -178,7 +164,7 @@
             android:singleLine="true"
             android:background="#ff2e7d32"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="0.03" />
 
         <TextView
@@ -201,7 +187,7 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp"
-            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
             android:singleLine="true" />
 
         <Button
@@ -211,7 +197,7 @@
             android:singleLine="true"
             android:background="@drawable/settings_shadow"
             android:layout_marginTop="21dp"
-            android:layout_marginLeft="270dp"
+            android:layout_marginStart="270dp"
             android:layout_weight="0.03" />
 
     </LinearLayout>

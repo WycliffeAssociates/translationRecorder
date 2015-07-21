@@ -22,7 +22,7 @@ public class Record extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.record);
+        setContentView(R.layout.activity_main);
         setButtonHandlers();
         enableButtons(false);
     }
@@ -37,11 +37,6 @@ public class Record extends Activity {
 
     private void enableButton(int id,boolean isEnable){
         findViewById(id).setEnabled(isEnable);
-        if(isEnable){
-            findViewById(id).setVisibility(View.VISIBLE);
-        }else{
-            findViewById(id).setVisibility(View.INVISIBLE);
-        }
     }
 
     private void enableButtons(boolean isRecording) {
@@ -114,7 +109,6 @@ public class Record extends Activity {
             recorder.stop();
         }
         else {
-            recorder.stop();
             recorder.pause_stop(temporaryFiles);
         }
 
@@ -128,7 +122,7 @@ public class Record extends Activity {
     }
 
     private void pauseRecording(){
-        recorder.stop();
+        recorder.pause();
         temporaryFiles.add(recorder.getFilename());
         Toast.makeText(getApplicationContext(), "Audio Paused", Toast.LENGTH_LONG).show();
     }

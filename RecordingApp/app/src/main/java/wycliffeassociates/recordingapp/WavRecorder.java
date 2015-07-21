@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.SequenceInputStream;
 import java.util.UUID;
 import java.util.ArrayList;
 
@@ -95,92 +94,19 @@ public class WavRecorder {
 
 
     public void pause_stop(ArrayList<String> temporaryFiles){
-
-        //isRecording = false;
-        //recorder = null;
-        //recordingThread = null;
-        //recorder.release();
-
-        for(int i = 1; i < temporaryFiles.size(); i++){
-            //System.out.println(temporaryFiles.get(i));
-            File arg0 = new File(temporaryFiles.get(0));
-            File arg1 = new File(temporaryFiles.get(i));
-            //CombineFile(arg0, arg1, arg0);
-            CombineFile(arg0, arg1, arg0);
-        }
-
-        copyWaveFile(temporaryFiles.get(0), Environment.getExternalStorageDirectory().getPath() + "/lol222");
-        //deleteTempFile();
-    }
-    public static void CombineFile(File audioFile1, File audioFile2, File outputFile){
-        long timeStart= System.currentTimeMillis();
-        try {
-
-            FileInputStream fistream1 = new FileInputStream(audioFile1);
-            FileInputStream fistream2 = new FileInputStream(audioFile2);
-            SequenceInputStream sistream = new SequenceInputStream(fistream1, fistream2);
-            FileOutputStream fostream = new FileOutputStream(outputFile);
-
-            int count;
-            byte[] temp = new byte[4096];
-            while((count = sistream.read(temp)) != -1) {
-                fostream.write(temp, 0, count);
+            String temp = "temporarycombinedfile";
+            String temp1 = "temporaryotherfile";
+            String temp2 = "finalfile";
+            copyWaveFile(temporaryFiles.get(0), temp);
+            int i = 0;
+            while (i < temporaryFiles.size()) {
+                copyWaveFile(temporaryFiles.get(i), temp1);
+                CombineWaveFile(temp, temp1, temp2);
+                i = i + 1;
+                temp = temp2;
+                temp1 = temporaryFiles.get(i);
             }
-
-            fostream.close();
-            sistream.close();
-            fistream1.close();
-            fistream2.close();
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }}
-
-    public void CombineWaveFile(String file1, String file2, String outputFile) {
-        FileInputStream in1 = null, in2 = null;
-        FileOutputStream out = null;
-        long totalAudioLen = 0;
-        long totalDataLen = totalAudioLen + 36;
-        long longSampleRate = RECORDER_SAMPLERATE;
-        int channels = 2;
-        long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels / 8;
-
-        byte[] data = new byte[bufferSize];
-
-        try {
-            in1 = new FileInputStream(file1);
-            in2 = new FileInputStream(file2);
-//getFilename()
-            out = new FileOutputStream(outputFile);
-
-            totalAudioLen = in1.getChannel().size() + in2.getChannel().size();
-            totalDataLen = totalAudioLen + 36;
-
-            WriteWaveFileHeader(out, totalAudioLen, totalDataLen,
-                    longSampleRate, channels, byteRate);
-
-            while (in1.read(data) != -1) {
-
-                out.write(data);
-
-            }
-            while (in2.read(data) != -1) {
-
-                out.write(data);
-            }
-
-            out.close();
-            in1.close();
-            in2.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            deleteTempFile();
     }
 
     /**
@@ -390,14 +316,6 @@ public class WavRecorder {
         return to.getAbsolutePath();
     }
 
-    /**
-     * Deletes a file
-     */
-    private void deleteFile(String file) {
-        File del = new File(file);
-        del.delete();
-    }
-
     public String getFileDirectory(){
         String filepath = Environment.getExternalStorageDirectory().getPath();
 
@@ -426,5 +344,48 @@ public class WavRecorder {
         }
     }
 
+    public void CombineWaveFile(String file1, String file2, String file3) {
+        FileInputStream in1 = null, in2 = null;
+        FileOutputStream out = null;
+        long totalAudioLen = 0;
+        long totalDataLen = totalAudioLen + 36;
+        long longSampleRate = RECORDER_SAMPLERATE;
+        int channels = 2;
+        long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels / 8;
+
+        byte[] data = new byte[bufferSize];
+
+        try {
+            in1 = new FileInputStream(file1);
+            in2 = new FileInputStream(file2);
+
+            out = new FileOutputStream(file3);
+
+            totalAudioLen = in1.getChannel().size() + in2.getChannel().size();
+            totalDataLen = totalAudioLen + 36;
+
+            WriteWaveFileHeader(out, totalAudioLen, totalDataLen,
+                    longSampleRate, channels, byteRate);
+
+            while (in1.read(data) != -1) {
+
+                out.write(data);
+
+            }
+            while (in2.read(data) != -1) {
+
+                out.write(data);
+            }
+
+            out.close();
+            in1.close();
+            in2.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

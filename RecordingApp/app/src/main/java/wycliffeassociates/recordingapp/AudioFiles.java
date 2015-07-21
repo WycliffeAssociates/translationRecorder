@@ -48,7 +48,7 @@ public class AudioFiles extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.audio_list);
+        setContentView(R.layout.file_two);
 
 
         audioFileView = (ListView) findViewById(R.id.listViewAudio);
@@ -103,7 +103,6 @@ public class AudioFiles extends Activity {
 
 
         /*audioFileView.setOnClickListener(new AdapterView.OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
                 String selectedAudio = audioNameList.get(position);
