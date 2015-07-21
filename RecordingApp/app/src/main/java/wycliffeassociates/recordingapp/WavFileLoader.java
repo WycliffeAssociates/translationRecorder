@@ -27,7 +27,7 @@ public class WavFileLoader {
 
 
     public WavFileLoader(String file){
-
+        System.out.println("Opening file " + file);
         try {
             File f = new File(file);
             wavFile = new byte[(int)f.length()];
@@ -58,7 +58,7 @@ public class WavFileLoader {
         }
     }
     private void parseAudio(){
-        audioData = new short[numChannels][(wavFile.length-WAVE_HEADER_SIZE)/numChannels];
+        audioData = new short[numChannels][(wavFile.length-WAVE_HEADER_SIZE)/blockSize];
         int index = 0;
         for(int i = WAVE_HEADER_SIZE; i < wavFile.length; i+=blockSize){
             for(int j = 0; j < numChannels; j++){
@@ -74,6 +74,11 @@ public class WavFileLoader {
                 min = (value < min)?  value : min;
             }
             index++;
+        }
+        if(audioData[0].length != (wavFile.length-WAVE_HEADER_SIZE)){
+            System.out.println("Audio data length: " + audioData[0].length);
+            System.out.println("File length: " + wavFile.length);
+            System.out.println("What what what");
         }
         largestValue = (Math.abs(min) < Math.abs(max))? max : min;
     }

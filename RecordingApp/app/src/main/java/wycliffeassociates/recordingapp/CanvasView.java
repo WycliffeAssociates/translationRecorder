@@ -83,24 +83,26 @@ public class CanvasView extends View {
     public void drawWaveform(Canvas canvas){
         canvas.scale(userScale, 1.f);
         canvas.translate(-xTranslation, 0.f);
+
         mPaint.setColor(Color.WHITE);
         if (samples == null) {
             return;
         }
-        System.out.println("In the draw waveform function");
         int oldX = 0;
         int oldY =  (canvas.getHeight() / 2);
         int xIndex = 0;
 
         for (int t = 0; t < samples.size(); t++) {
-            int y =  ((int) ((canvas.getHeight() / 2) - 15*(-samples.get(t).first)));
+            int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
             canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
             oldY = y;
-            y = ((int) ((canvas.getHeight() / 2) - 15*(-samples.get(t).second)));
+            y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
+
             canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
             //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
-            xIndex++;
+
             oldX = xIndex;
+            xIndex++;
             oldY = y;
         }
     }
@@ -120,78 +122,4 @@ public class CanvasView extends View {
         this.xTranslation = xTranslation;
     }
 
-    /*
-    // when ACTION_DOWN start touch according to the x,y values
-    private void startTouch(float x, float y) {
-        mPath.moveTo(x, y);
-        mX = x;
-        mY = y;
-    }
-
-    // when ACTION_MOVE move touch according to the x,y values
-    private void moveTouch(float x, float y) {
-        float dx = Math.abs(x - mX);
-        float dy = Math.abs(y - mY);
-        if (dx >= TOLERANCE || dy >= TOLERANCE) {
-            mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-            mX = x;
-            mY = y;
-        }
-    }
-
-    public void clearCanvas() {
-        mPath.reset();
-        invalidate();
-    }
-
-    // when ACTION_UP stop touch
-    private void upTouch() {
-        mPath.lineTo(mX, mY);
-    }
-
-    //override the onTouchEvent
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
-
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                startTouch(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                moveTouch(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                upTouch();
-                invalidate();
-                break;
-        }
-        return true;
-    }
-    */
 }
-
-/*
-*     public void drawWaveform(Canvas canvas){
-        if (samples == null) {
-            return;
-        }
-        System.out.println("In the draw waveform function");
-        int oldX = 0;
-        int oldY =  (canvas.getHeight() / 2);
-        int xIndex = 0;
-        int test[] = {243,634,42,453,62,745,12,53,756,656,7474,535,24,36,24,25,636,436,363,24,24,24,24,24,24,24};
-        for (int t = 0; t < test.length; t++) {
-            int y = (canvas.getHeight()) - test[t]/2;//(int) ((height / 2) - (samples[t]));
-            canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
-            System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
-            xIndex+=2;
-            oldX = xIndex;
-            oldY = y;
-        }
-    }
-*
-* */

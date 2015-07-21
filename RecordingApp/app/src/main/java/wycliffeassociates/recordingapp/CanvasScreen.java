@@ -20,11 +20,14 @@ public class CanvasScreen extends Activity {
     private WavRecorder recorder = null;
     final Context context = this;
     private String outputName = null;
-    private CanvasView customCanvas;
+    private CanvasView mainCanvas;
+    private CanvasView minimap;
     private float userScale;
     private float xTranslation;
     private ScaleGestureDetector SGD;
     private GestureDetector gestureDetector;
+    private WavFileLoader waveLoader;
+    private WavVisualizer waveVis;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -47,8 +50,8 @@ public class CanvasScreen extends Activity {
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 xTranslation += distanceX;
-                customCanvas.setXTranslation(xTranslation);
-                customCanvas.invalidate();
+                mainCanvas.setXTranslation(xTranslation);
+                mainCanvas.invalidate();
                 return true;
             }
 
@@ -58,8 +61,8 @@ public class CanvasScreen extends Activity {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
                 userScale *= detector.getScaleFactor();
-                customCanvas.setUserScale(userScale);
-                customCanvas.invalidate();
+                mainCanvas.setUserScale(userScale);
+                mainCanvas.invalidate();
 
                 return true;
             }
@@ -69,7 +72,8 @@ public class CanvasScreen extends Activity {
         SGD = new ScaleGestureDetector(this, scaleListener);
 
 
-        customCanvas = (CanvasView) findViewById(R.id.signature_canvas);
+        mainCanvas = (CanvasView) findViewById(R.id.signature_canvas);
+        minimap = (CanvasView) findViewById(R.id.minimap);
         setButtonHandlers();
         enableButtons(false);
     }
@@ -140,6 +144,8 @@ public class CanvasScreen extends Activity {
     public String getName(){return outputName;}
 
     private void startRecording(){
+        waveLoader = null;
+        waveVis = null;
         if(recorder != null){
             recorder.release();
         }
@@ -147,32 +153,49 @@ public class CanvasScreen extends Activity {
         Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_LONG).show();
         recorder = new WavRecorder();
         recorder.record();
+
     }
     private void stopRecording(){
+        waveLoader = null;
+        waveVis = null;
         recorder.stop();
         Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
         recordedFilename = recorder.getFilename();
 
-
-        WavFileLoader temp = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + "/AudioRecorder/test.wav");
-        WavVisualizer vis = new WavVisualizer(temp.getAudioData(), temp.getNumChannels(), temp.getLargestValue());
-
-
+        waveLoader = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + "/AudioRecorder/test.wav");
+        //waveLoader = new WavFileLoader(recordedFilename);
+        waveVis = new WavVisualizer(waveLoader.getAudioData(), waveLoader.getNumChannels());
 
 
-        double xsf = 5.0*vis.getXScaleFactor(customCanvas.getWidth());
-        double ysf = vis.getYScaleFactor(customCanvas.getHeight());
-        customCanvas.setXScale(xsf);
-        customCanvas.setYScale(ysf);
-        int inc = vis.getIncrement(xsf);
-        vis.sampleAudio(inc, ysf);
-        customCanvas.setSamples(vis.getSamples());
-        System.out.println("get width is returning " + customCanvas.getWidth());
-        System.out.println("get Height is returning " + customCanvas.getHeight());
+
+
+        double xsf = waveVis.getXScaleFactor(mainCanvas.getWidth(), 10);
+        mainCanvas.setXScale(xsf);
+        int inc = waveVis.getIncrement(xsf);
+        waveVis.sampleAudio(inc);
+        double ysf = waveVis.getYScaleFactor(mainCanvas.getHeight());
+        mainCanvas.setYScale(ysf);
+        mainCanvas.setSamples(waveVis.getSamples());
+        System.out.println("get width is returning " + mainCanvas.getWidth());
+        System.out.println("get Height is returning " + mainCanvas.getHeight());
         System.out.println("X scale is " + xsf);
-        System.out.println("X scale SHOULD BE" + vis.getXScaleFactor(customCanvas.getWidth()));
-        System.out.println("Incremment is being set to  " + inc);
-        customCanvas.invalidate();
+        System.out.println("Y scale is " + ysf);
+        System.out.println("Y scale SHOULD be " + (mainCanvas.getHeight() / 65536.0));
+        System.out.println("X scale SHOULD BE" + waveVis.getXScaleFactor(mainCanvas.getWidth(), 10));
+        System.out.println("Increment is being set to  " + inc);
+        mainCanvas.invalidate();
+
+
+        WavVisualizer miniVis = new WavVisualizer(waveLoader.getAudioData(), waveLoader.getNumChannels());
+
+        double xsf2 = miniVis.getXScaleFactor(minimap.getWidth(), 0);
+        minimap.setXScale(xsf2);
+        int inc2 = miniVis.getIncrement(xsf2);
+        miniVis.sampleAudio(inc2);
+        double ysf2 = miniVis.getYScaleFactor(minimap.getHeight());
+        minimap.setYScale(ysf2);
+        minimap.setSamples(miniVis.getSamples());
+        minimap.invalidate();
 
 
     }

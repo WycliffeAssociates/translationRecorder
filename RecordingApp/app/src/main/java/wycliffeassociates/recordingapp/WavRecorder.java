@@ -36,7 +36,7 @@ public class WavRecorder {
     private Thread recordingThread = null;
     private boolean isRecording = false;
     private String tempFileName = null; //does not contain path
-    private String recordedFilename = null; //does not contain path
+    private String recordedFilename = null; //does contain path
 
     /**
      * Initializes the buffer for writing audio and generates a unique ID for the .wav file,

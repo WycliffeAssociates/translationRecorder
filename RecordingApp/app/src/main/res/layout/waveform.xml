@@ -7,19 +7,33 @@
     android:background="#fda93d"
     android:orientation="vertical" >
 
-    <wycliffeassociates.recordingapp.CanvasView
-        android:id="@+id/signature_canvas"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textColor="#FFFFFF" />
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:onClick="clearCanvas"
-        android:text="Clear Canvas" />
+        <wycliffeassociates.recordingapp.CanvasView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:id="@+id/minimap"
+            android:layout_weight=".1"
+            android:background="#fffd7b2d" />
+
+        <wycliffeassociates.recordingapp.CanvasView
+            android:id="@+id/signature_canvas"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textColor="#FFFFFF"
+            android:layout_weight=".60" />
+
+        <view
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            class="android.support.v4.widget.Space"
+            android:id="@+id/view2"
+            android:layout_weight=".3" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

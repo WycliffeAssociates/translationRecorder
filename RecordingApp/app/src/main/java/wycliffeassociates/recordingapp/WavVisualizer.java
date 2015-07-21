@@ -6,22 +6,22 @@ import java.util.ArrayList;
 
 public class WavVisualizer {
 
-    private int largest;
+    private double largest;
     private int numChannels;
     private short audio[][];
     private ArrayList<Pair<Double, Double>> samples;
 
-    public WavVisualizer(short audio[][], int numChannels, int largest){
+    public WavVisualizer(short audio[][], int numChannels){
         this.audio = audio;
         this.numChannels = numChannels;
-        this.largest = largest;
+        this.largest = Double.MIN_VALUE;
     }
 
-    public void sampleAudio(int increment, double yScale){
+    public void sampleAudio(int increment){
         samples = new ArrayList<>();
         double recip = 1.0/increment;
         int index = 0;
-        for(int i = 0; i < audio[0].length-increment; i += increment){
+        for(int i = 0; i < audio[0].length-increment-1; i += increment){
             double sum = 0;
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
@@ -32,17 +32,37 @@ public class WavVisualizer {
                 max = (max < (double)audio[0][i+j])? audio[0][i+j] : max;
                 min = (min > (double)audio[0][i+j])? audio[0][i+j] : min;
             }
-            samples.add(index, new Pair<>(max*yScale/4, min*yScale/4));
+            largest = (Math.abs(min) > largest)? Math.abs(min) : largest;
+            largest = (Math.abs(max) > largest)? max : largest;
+            samples.add(index, new Pair<>(max, min));
             //samples[index] = -sum* yScale/4;
             index++;
         }
+        System.out.println("Length should be: " + index);
+        System.out.println("Sample size : " + samples.size());
+        for(int i = samples.size()-1; i > 0; i--){
+            if((samples.get(i).first < 0.00001) && (samples.get(i).first > -0.000001) && (samples.get(i).second < 0.00001) && samples.get(i).second > -0.00001)
+                samples.remove(i);
+            else
+                break;
+        }
+        System.out.println("Sample size after trim : " + samples.size());
     }
 
 
-    public double getXScaleFactor(int canvasWidth) { return (canvasWidth / ((double) audio[0].length)); }
+    public double getXScaleFactor(int canvasWidth, int secondsOnScreen) {
+        double secondsInCycles = 44100 * secondsOnScreen;
+
+        if(secondsOnScreen > 0) {
+            return canvasWidth / secondsInCycles;
+        }
+        else
+            return (canvasWidth / ((double) audio[0].length));
+    }
 
     public double getYScaleFactor(int canvasHeight){
-        return (canvasHeight / (largest * 2 * 1.2));
+        System.out.println(largest);
+        return (canvasHeight / (largest * 2.0));
     }
 
     public short[] getAudio(int channel){
@@ -50,7 +70,7 @@ public class WavVisualizer {
     }
 
     public int getIncrement(double xScale) {
-        int increment = (int) (audio[0].length / (audio[0].length * xScale));
+        int increment = (int) Math.ceil((1.0 / xScale));
         return increment;
     }
     public ArrayList<Pair<Double, Double>> getSamples(){
