@@ -18,6 +18,7 @@ public class Record extends Activity {
     final Context context = this;
     private String outputName = null;
     private boolean isSaved = true;
+    private boolean isPaused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,7 @@ public class Record extends Activity {
 
     @Override
     public void onBackPressed() {
-        if(!isSaved) {
+        if(isPaused && !isSaved) {
             QuitDialog dialog = new QuitDialog();
             dialog.show(this.getFragmentManager(), "reallyQuitDialog");
         }
@@ -87,7 +88,7 @@ public class Record extends Activity {
         enableButton(R.id.btnRecord, !isRecording);
         enableButton(R.id.btnStop, isRecording);
         enableButton(R.id.btnPlay, !isRecording);
-        enableButton(R.id.btnSave, true);
+        enableButton(R.id.btnSave, !isRecording);
         enableButton(R.id.btnPause, isRecording);
     }
 
@@ -187,8 +188,8 @@ public class Record extends Activity {
                 }
                 case R.id.btnPause:{
                     enableButtons(false);
+                    isPaused = true;
                     pauseRecording();
-                    enableButton(R.id.btnSave, false);
                     enableButton(R.id.btnPlay,false);
                     break;
                 }
