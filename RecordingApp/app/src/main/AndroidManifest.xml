@@ -22,7 +22,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".CanvasScreen" />
-        <activity android:name=".Record" />
         <activity android:name=".AudioFiles" />
     </application>
 

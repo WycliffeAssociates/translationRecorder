@@ -33,6 +33,10 @@ public class CanvasView extends View {
     double yScale;
     float userScale;
     private float xTranslation;
+    private byte[] buffer;
+    private int blockSize;
+    private int numChannels;
+    private boolean recording;
 
 
     public CanvasView(Context c, AttributeSet attrs) {
@@ -77,7 +81,58 @@ public class CanvasView extends View {
         canvas.drawLine(0.f, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
         canvas.drawPath(mPath, mPaint);
         drawWaveform(canvas);
+        drawBuffer(canvas, buffer, blockSize, numChannels, recording);
 
+    }
+
+    public void setNumChannels(int numChannels) {
+        this.numChannels = numChannels;
+    }
+
+    public void setBlockSize(int blockSize) {
+        this.blockSize = blockSize;
+    }
+
+    public void setBuffer(byte[] buffer){
+        this.buffer = buffer;
+    }
+
+    public void setRecording(boolean recording) {
+        this.recording = recording;
+    }
+    public boolean getRecording() {
+        return this.recording;
+    }
+
+
+    public void drawBuffer(Canvas canvas, byte[] buffer, int blocksize, int numChannels, boolean recording){
+        if (!recording || buffer == null || canvas == null) {
+            System.out.println("returning");
+            return;
+        }
+
+        System.out.println("in drawbuffer");
+        Short[] temp = new Short[buffer.length/blocksize];
+        int index = 0;
+        for(int i = 0; i<buffer.length; i+=blocksize){
+            byte low = buffer[i];
+            byte hi = buffer[i + 1];
+            temp[index] = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+            index++;
+        }
+
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
+        double xScale = width/(temp.length);
+        double yScale = height/65536.0;
+        System.out.println("temp is length" + temp.length);
+
+        for(int i = 0; i < temp.length-1; i++){
+            System.out.println("value is " + (int)((yScale*temp[i])));
+            System.out.println("next value is " + (int)((yScale*temp[i+1])));
+            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2), (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
+        }
+        this.invalidate();
     }
 
     public void drawWaveform(Canvas canvas){

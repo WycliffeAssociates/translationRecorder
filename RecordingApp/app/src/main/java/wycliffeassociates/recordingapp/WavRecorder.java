@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp;
 
+
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -30,6 +31,7 @@ public class WavRecorder {
     private static final int RECORDER_SAMPLERATE = 44100;
     private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
     private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    private RecordingManager manager;
 
     private AudioRecord recorder = null;
     private int bufferSize = 0;
@@ -37,15 +39,25 @@ public class WavRecorder {
     private boolean isRecording = false;
     private String tempFileName = null; //does not contain path
     private String recordedFilename = null; //does contain path
+    private byte data[];
+
+    public byte[] getBuffer(){
+        return data;
+    }
 
     /**
      * Initializes the buffer for writing audio and generates a unique ID for the .wav file,
      * to serve as a unique name until the user names the file
      */
-    public WavRecorder(){
+    public WavRecorder(RecordingManager manager){
+        this.manager = manager;
         bufferSize = AudioRecord.getMinBufferSize(44100, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
         recordedFilename = UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV;
 
+    }
+
+    public int getAudioSessionID(){
+        return recorder.getAudioSessionId();
     }
 
     /**
@@ -135,7 +147,7 @@ public class WavRecorder {
      * Writes audio data from the microphone to a .raw file
      */
     private void writeAudioDataToFile(){
-        byte data[] = new byte[bufferSize];
+        data = new byte[bufferSize];
         String filename = getTempFilename();
         FileOutputStream os = null;
 
@@ -148,19 +160,20 @@ public class WavRecorder {
 
         int read = 0;
 
+
         if(null != os){
-            while(isRecording){
+            while (isRecording){
                 read = recorder.read(data, 0, bufferSize);
 
                 if(AudioRecord.ERROR_INVALID_OPERATION != read){
                     try {
                         os.write(data);
+                        manager.onWaveUpdate(data);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-
             try {
                 os.close();
             } catch (IOException e) {

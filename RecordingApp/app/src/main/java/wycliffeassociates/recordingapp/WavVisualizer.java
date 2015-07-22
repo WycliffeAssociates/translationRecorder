@@ -38,15 +38,6 @@ public class WavVisualizer {
             //samples[index] = -sum* yScale/4;
             index++;
         }
-        System.out.println("Length should be: " + index);
-        System.out.println("Sample size : " + samples.size());
-        for(int i = samples.size()-1; i > 0; i--){
-            if((samples.get(i).first < 0.00001) && (samples.get(i).first > -0.000001) && (samples.get(i).second < 0.00001) && samples.get(i).second > -0.00001)
-                samples.remove(i);
-            else
-                break;
-        }
-        System.out.println("Sample size after trim : " + samples.size());
     }
 
 

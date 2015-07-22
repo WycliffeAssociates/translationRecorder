@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.audiofx.Visualizer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
@@ -28,6 +29,7 @@ public class CanvasScreen extends Activity {
     private GestureDetector gestureDetector;
     private WavFileLoader waveLoader;
     private WavVisualizer waveVis;
+    Thread visThread;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -151,19 +153,35 @@ public class CanvasScreen extends Activity {
         }
         recorder = null;
         Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_LONG).show();
-        recorder = new WavRecorder();
+        mainCanvas.setRecording(true);
+        mainCanvas.setBlockSize(4);
+        mainCanvas.setNumChannels(2);
+        recorder = new WavRecorder(new RecordingManager() {
+            @Override
+            public void onWaveUpdate(final byte[] buffer) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(mainCanvas != null){
+                            mainCanvas.setBuffer(buffer);
+                            mainCanvas.invalidate();
+                        }
+                    }
+                });
+            }
+        });
         recorder.record();
-
     }
     private void stopRecording(){
+        mainCanvas.setRecording(false);
         waveLoader = null;
         waveVis = null;
         recorder.stop();
         Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
         recordedFilename = recorder.getFilename();
 
-        waveLoader = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + "/AudioRecorder/test.wav");
-        //waveLoader = new WavFileLoader(recordedFilename);
+        //waveLoader = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + "/AudioRecorder/test.wav");
+        waveLoader = new WavFileLoader(recordedFilename);
         waveVis = new WavVisualizer(waveLoader.getAudioData(), waveLoader.getNumChannels());
 
 

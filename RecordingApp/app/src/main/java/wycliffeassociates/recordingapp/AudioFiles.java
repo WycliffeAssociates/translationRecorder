@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class AudioFiles extends Activity {
     ArrayList<String> audioNameList;
     String directory = "";
-
+/*
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
@@ -59,5 +59,5 @@ public class AudioFiles extends Activity {
                 WavPlayer.play(directory + "/" + selectedAudio);
             }
         });
-    }
+    }*/
 }
