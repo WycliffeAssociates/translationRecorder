@@ -19,14 +19,14 @@ public class Record extends Activity {
     private String outputName = null;
     private boolean isSaved = true;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.record);
         setButtonHandlers();
         enableButtons(false);
+        enableButton(R.id.btnSave, false);
+        enableButton(R.id.btnPlay, false);
     }
 
     @Override
@@ -76,6 +76,7 @@ public class Record extends Activity {
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPlay).setOnClickListener(btnClick);
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
+        findViewById(R.id.btnPause).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable){
@@ -87,6 +88,7 @@ public class Record extends Activity {
         enableButton(R.id.btnStop, isRecording);
         enableButton(R.id.btnPlay, !isRecording);
         enableButton(R.id.btnSave, true);
+        enableButton(R.id.btnPause, isRecording);
     }
 
     private void saveRecording(){
@@ -134,27 +136,30 @@ public class Record extends Activity {
 
     public String getName(){return outputName;}
 
-
-
     private void startRecording(){
-        if(recorder != null){
-            recorder.release();
+        if(recorder != null){//has been paused, pick up again
+           Toast.makeText(getApplicationContext(), R.string.resume_recording, Toast.LENGTH_LONG).show();
+            recorder.record();
         }
-        recorder = null;
-        Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_LONG).show();
-        recorder = new WavRecorder();
-        recorder.record();
+        else {//brand new recording, keep going
+            Toast.makeText(getApplicationContext(), R.string.start_recording, Toast.LENGTH_LONG).show();
+            recorder = new WavRecorder();
+            recorder.record();
+        }
     }
     private void stopRecording(){
         recorder.stop();
-        Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), R.string.stop_recording, Toast.LENGTH_LONG).show();
         recordedFilename = recorder.getFilename();
     }
     private void playRecording(){
-        Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), R.string.playing_audio, Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
     }
-
+    private void pauseRecording(){
+        recorder.pause();
+        Toast.makeText(getApplicationContext(), R.string.pause_recording, Toast.LENGTH_LONG).show();
+    }
     private View.OnClickListener btnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -180,6 +185,14 @@ public class Record extends Activity {
                     playRecording();
                     break;
                 }
+                case R.id.btnPause:{
+                    enableButtons(false);
+                    pauseRecording();
+                    enableButton(R.id.btnSave, false);
+                    enableButton(R.id.btnPlay,false);
+                    break;
+                }
+
                 case R.id.btnSave:{
                     saveRecording();
                     break;

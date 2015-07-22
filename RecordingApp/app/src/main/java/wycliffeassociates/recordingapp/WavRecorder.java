@@ -37,6 +37,8 @@ public class WavRecorder {
     private boolean isRecording = false;
     private String tempFileName = null; //does not contain path
     private String recordedFilename = null; //does not contain path
+    private boolean wasPaused = false;
+    FileOutputStream os = null;
 
     /**
      * Initializes the buffer for writing audio and generates a unique ID for the .wav file,
@@ -52,8 +54,9 @@ public class WavRecorder {
      * Spawns a recording thread that writes audio to a .raw file
      */
     public void record(){
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
+        if(!wasPaused)
+            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                    RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
 
         int i = recorder.getState();
         if(i==1)
@@ -91,6 +94,13 @@ public class WavRecorder {
 
         copyWaveFile(getTempFilename(), getFilename());
         deleteTempFile();
+    }
+
+    public void pause(){
+        if(recorder != null){
+            wasPaused = true;
+            isRecording = false;
+        }
     }
 
     /**
@@ -140,22 +150,24 @@ public class WavRecorder {
     private void writeAudioDataToFile(){
         byte data[] = new byte[bufferSize];
         String filename = getTempFilename();
-        FileOutputStream os = null;
 
-        try {
-            os = new FileOutputStream(filename);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if(!wasPaused) {
+            try {
+                System.out.println("new output stream");
+                os = new FileOutputStream(filename, true);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         int read = 0;
 
-        if(null != os){
-            while(isRecording){
+        if(null != os) {
+            while (isRecording) {
                 read = recorder.read(data, 0, bufferSize);
 
-                if(AudioRecord.ERROR_INVALID_OPERATION != read){
+                if (AudioRecord.ERROR_INVALID_OPERATION != read) {
                     try {
                         os.write(data);
                     } catch (IOException e) {
@@ -164,11 +176,15 @@ public class WavRecorder {
                 }
             }
 
+        }
+        if (!wasPaused) {
             try {
                 os.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else{
+            wasPaused = false;
         }
     }
 
