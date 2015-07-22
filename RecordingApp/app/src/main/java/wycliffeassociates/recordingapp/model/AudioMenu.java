@@ -5,9 +5,7 @@ import java.util.Collection;
 
 import wycliffeassociates.recordingapp.model.AudioItem;
 
-/**
- * Created by Butler on 7/13/2015.
- */
+//Unused
 public class AudioMenu {
     private String folderName;
     private Collection<AudioItem> mAudioItems;
