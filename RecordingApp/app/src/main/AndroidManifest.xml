@@ -28,6 +28,7 @@
         <activity android:name=".Settings" android:screenOrientation="portrait"/>
         <activity android:name=".ExportFiles" android:screenOrientation="portrait"/>
         
+
     </application>
 
 </manifest>

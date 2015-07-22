@@ -178,10 +178,8 @@ public class WavRecorder {
         }
 
         int read = 0;
-
         if(null != os){
             while (isRecording){
-
                 read = recorder.read(data, 0, bufferSize);
 
                 if (AudioRecord.ERROR_INVALID_OPERATION != read) {
@@ -196,7 +194,6 @@ public class WavRecorder {
 
         }
         if (!wasPaused) {
-
             try {
                 os.close();
             } catch (IOException e) {

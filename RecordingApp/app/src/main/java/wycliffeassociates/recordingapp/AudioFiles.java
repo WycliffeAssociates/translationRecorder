@@ -31,6 +31,7 @@ public class AudioFiles extends Activity {
 
     private ImageButton btnExport;
     ListView audioFileView;
+
     ArrayList<String> audioNameList;
     ArrayList<Date> dateList;
     ArrayList<AudioItem> items;
@@ -49,8 +50,27 @@ public class AudioFiles extends Activity {
 
 
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_two);
+
+        //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
+
+        btnExport = (ImageButton)findViewById(R.id.btnExport);
+        btnExport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ExportFiles.class);
+                if(exportList.size() > 0) {
+                    intent.putExtra("exportList", exportList);
+                    startActivityForResult(intent, 0);
+                }
+                else {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
 
         //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
 
@@ -122,8 +142,6 @@ public class AudioFiles extends Activity {
         audioFileView.setAdapter(adapter);
 
     }
-
-
 
     //move
 
@@ -243,4 +261,6 @@ public class AudioFiles extends Activity {
 
     private void executeExport(){   }
 
+
 }
+
