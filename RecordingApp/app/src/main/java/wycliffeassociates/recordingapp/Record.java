@@ -9,7 +9,6 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import java.util.ArrayList;
 
 
 public class Record extends Activity {
@@ -17,15 +16,18 @@ public class Record extends Activity {
     private WavRecorder recorder = null;
     final Context context = this;
     private String outputName = null;
-    private ArrayList<String> temporaryFiles = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.record);
         setButtonHandlers();
         enableButtons(false);
+        enableButton(R.id.btnSave, false);
+        enableButton(R.id.btnPlay, false);
     }
+
 
     private void setButtonHandlers() {
         findViewById(R.id.btnRecord).setOnClickListener(btnClick);
@@ -69,7 +71,6 @@ public class Record extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 setName(toSave.getText().toString());
-                //SAVE FILE HERE
             }
         });
 
@@ -93,40 +94,29 @@ public class Record extends Activity {
     public String getName(){return outputName;}
 
     private void startRecording(){
-        if(recorder != null){
-            recorder.release();
+        if(recorder != null){//has been paused, pick up again
+           Toast.makeText(getApplicationContext(), R.string.resume_recording, Toast.LENGTH_LONG).show();
+            recorder.record();
         }
-        recorder = null;
-        recorder = null;
-        Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_LONG).show();
-        recorder = new WavRecorder();
-        recorder.record();
+        else {//brand new recording, keep going
+            Toast.makeText(getApplicationContext(), R.string.start_recording, Toast.LENGTH_LONG).show();
+            recorder = new WavRecorder();
+            recorder.record();
+        }
     }
-
     private void stopRecording(){
-        temporaryFiles.add(recorder.getFilename());
-        if (temporaryFiles.size()  < 2) {
-            recorder.stop();
-        }
-        else {
-            recorder.pause_stop(temporaryFiles);
-        }
-
-        Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
+        recorder.stop();
+        Toast.makeText(getApplicationContext(), R.string.stop_recording, Toast.LENGTH_LONG).show();
         recordedFilename = recorder.getFilename();
     }
-
     private void playRecording(){
-        Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), R.string.playing_audio, Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
     }
-
     private void pauseRecording(){
         recorder.pause();
-        temporaryFiles.add(recorder.getFilename());
-        Toast.makeText(getApplicationContext(), "Audio Paused", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), R.string.pause_recording, Toast.LENGTH_LONG).show();
     }
-
     private View.OnClickListener btnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -134,8 +124,10 @@ public class Record extends Activity {
                 case R.id.btnRecord:{
                     enableButtons(true);
                     startRecording();
+                    enableButton(R.id.btnSave, false);
                     break;
                 }
+
                 case R.id.btnStop:{
                     enableButtons(false);
                     stopRecording();
@@ -146,13 +138,16 @@ public class Record extends Activity {
                     playRecording();
                     break;
                 }
-                case R.id.btnSave:{
-                    saveRecording();
-                    break;
-                }
                 case R.id.btnPause:{
                     enableButtons(false);
                     pauseRecording();
+                    enableButton(R.id.btnSave, false);
+                    enableButton(R.id.btnPlay,false);
+                    break;
+                }
+
+                case R.id.btnSave:{
+                    saveRecording();
                     break;
                 }
             }

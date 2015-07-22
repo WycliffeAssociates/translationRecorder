@@ -4,14 +4,14 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Environment;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.UUID;
-import java.util.ArrayList;
+
 
 
 /**
@@ -37,6 +37,8 @@ public class WavRecorder {
     private boolean isRecording = false;
     private String tempFileName = null; //does not contain path
     private String recordedFilename = null; //does not contain path
+    private boolean wasPaused = false;
+    FileOutputStream os = null;
 
     /**
      * Initializes the buffer for writing audio and generates a unique ID for the .wav file,
@@ -45,14 +47,16 @@ public class WavRecorder {
     public WavRecorder(){
         bufferSize = AudioRecord.getMinBufferSize(44100, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
         recordedFilename = UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV;
+
     }
 
     /**
      * Spawns a recording thread that writes audio to a .raw file
      */
     public void record(){
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
+        if(!wasPaused)
+            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                    RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
 
         int i = recorder.getState();
         if(i==1)
@@ -88,25 +92,15 @@ public class WavRecorder {
             recordingThread = null;
         }
 
-        copyWaveFile(getTempFilename(), getFilename()); // copies the raw file into a wav file
-        deleteTempFile(); // deletes the .raw file
+        copyWaveFile(getTempFilename(), getFilename());
+        deleteTempFile();
     }
 
-
-    public void pause_stop(ArrayList<String> temporaryFiles){
-            String temp = "temporarycombinedfile";
-            String temp1 = "temporaryotherfile";
-            String temp2 = "finalfile";
-            copyWaveFile(temporaryFiles.get(0), temp);
-            int i = 0;
-            while (i < temporaryFiles.size()) {
-                copyWaveFile(temporaryFiles.get(i), temp1);
-                CombineWaveFile(temp, temp1, temp2);
-                i = i + 1;
-                temp = temp2;
-                temp1 = temporaryFiles.get(i);
-            }
-            deleteTempFile();
+    public void pause(){
+        if(recorder != null){
+            wasPaused = true;
+            isRecording = false;
+        }
     }
 
     /**
@@ -153,22 +147,24 @@ public class WavRecorder {
     private void writeAudioDataToFile(){
         byte data[] = new byte[bufferSize];
         String filename = getTempFilename();
-        FileOutputStream os = null;
 
-        try {
-            os = new FileOutputStream(filename);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if(!wasPaused) {
+            try {
+                System.out.println("new output stream");
+                os = new FileOutputStream(filename, true);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         int read = 0;
 
-        if(null != os){
-            while(isRecording){
+        if(null != os) {
+            while (isRecording) {
                 read = recorder.read(data, 0, bufferSize);
 
-                if(AudioRecord.ERROR_INVALID_OPERATION != read){
+                if (AudioRecord.ERROR_INVALID_OPERATION != read) {
                     try {
                         os.write(data);
                     } catch (IOException e) {
@@ -177,11 +173,15 @@ public class WavRecorder {
                 }
             }
 
+        }
+        if (!wasPaused) {
             try {
                 os.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else{
+            wasPaused = false;
         }
     }
 
@@ -330,62 +330,4 @@ public class WavRecorder {
             recorder.release();
         }
     }
-
-    public void pause(){
-        if(null != recorder){
-            isRecording = false;
-            int i = recorder.getState();
-            if (i == 1)
-                recorder.stop();
-            recorder.release();
-
-            recorder = null;
-            recordingThread = null;
-        }
-    }
-
-    public void CombineWaveFile(String file1, String file2, String file3) {
-        FileInputStream in1 = null, in2 = null;
-        FileOutputStream out = null;
-        long totalAudioLen = 0;
-        long totalDataLen = totalAudioLen + 36;
-        long longSampleRate = RECORDER_SAMPLERATE;
-        int channels = 2;
-        long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels / 8;
-
-        byte[] data = new byte[bufferSize];
-
-        try {
-            in1 = new FileInputStream(file1);
-            in2 = new FileInputStream(file2);
-
-            out = new FileOutputStream(file3);
-
-            totalAudioLen = in1.getChannel().size() + in2.getChannel().size();
-            totalDataLen = totalAudioLen + 36;
-
-            WriteWaveFileHeader(out, totalAudioLen, totalDataLen,
-                    longSampleRate, channels, byteRate);
-
-            while (in1.read(data) != -1) {
-
-                out.write(data);
-
-            }
-            while (in2.read(data) != -1) {
-
-                out.write(data);
-            }
-
-            out.close();
-            in1.close();
-            in2.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

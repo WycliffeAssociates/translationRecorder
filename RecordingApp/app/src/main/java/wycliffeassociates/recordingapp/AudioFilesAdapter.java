@@ -61,12 +61,14 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         LayoutInflater inflater = ((Activity)aContext).getLayoutInflater();
         convertView = inflater.inflate(R.layout.listitem, parent, false);
         TextView name = (TextView) convertView.findViewById(R.id.filename);
+        name.setTextSize(20f);
         CheckBox cb = (CheckBox) convertView.findViewById(R.id.checkBox);
         cb.setScaleX(3f);
         cb.setScaleY(3f);
 
         TextView date = (TextView) convertView.findViewById(R.id.date);
         date.setGravity(Gravity.RIGHT);
+        date.setTextSize(15f);
 
 
         name.setText(audioItems[position].getName());
@@ -85,6 +87,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             }
 
         });
+
 
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

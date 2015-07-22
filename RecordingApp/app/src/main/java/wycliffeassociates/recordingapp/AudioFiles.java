@@ -54,6 +54,8 @@ public class AudioFiles extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_two);
 
+        //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
+
         btnExport = (ImageButton)findViewById(R.id.btnExport);
         btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,17 +122,6 @@ public class AudioFiles extends Activity {
 
         AudioFilesAdapter adapter = new AudioFilesAdapter(this, items2);
         audioFileView.setAdapter(adapter);
-
-
-        /*audioFileView.setOnClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
-                String selectedAudio = audioNameList.get(position);
-                //System.out.println("====");
-                Toast.makeText(getApplicationContext(), "Audio : " + selectedAudio, Toast.LENGTH_LONG).show();
-                WavPlayer.play(directory + "/" + selectedAudio);
-            }
-        });*/
 
     }
 
@@ -251,14 +242,6 @@ public class AudioFiles extends Activity {
         }
     }
 
-    private void executeExport(){
-        //in theory if it's done how navigating from our menu to the other screens are done
-        //Intent intent = new Intent(v.getContext(), Settings.class);
-        //ArrayList<String> path = new ArrayList<String>();
-        //intent.putExtra("exportList", exportList);
-        //startActivityForResult(intent, 0);
-    }
-    private void ExportLocal (String currDir, String nDir, String fileName){
+    private void executeExport(){   }
 
-    }
 }

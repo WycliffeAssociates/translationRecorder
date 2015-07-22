@@ -2,4 +2,14 @@
     <string name="app_name">AudioRecorder</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Record.java -->
+    <string name="resume_recording">Resume Recording</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="stop_recording">Stop Recording</string>
+    <string name="playing_audio">Playing Audio</string>
+    <string name="pause_recording">Paused Recording</string>
+
+    <!-- DIALOGUE -->
+    <string name="diag_export">Export Audio</string>
 </resources>
