@@ -24,7 +24,7 @@
         <Button
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_toRightOf="@id/export"
+            android:layout_toRightOf="@id/btnExport"
             android:id="@+id/button12"
             android:background="@drawable/ic_delete_white_48dp"
             android:elevation="12dp"
@@ -85,7 +85,7 @@
         android:layout_below="@+id/ToolBar">
 
         <ListView
-            android:id="@id/listViewAudio"
+            android:id="@id/listViewExport"
             android:layout_width="match_parent"
             android:layout_height="980dp"
             >

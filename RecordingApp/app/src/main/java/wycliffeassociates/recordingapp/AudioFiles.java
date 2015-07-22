@@ -73,7 +73,7 @@ public class AudioFiles extends Activity {
         });
 
 
-        audioFileView = (ListView) findViewById(R.id.listViewAudio);
+        audioFileView = (ListView) findViewById(R.id.listViewExport);
 
         audioNameList = new ArrayList<String>();
         dateList = new ArrayList<Date>();

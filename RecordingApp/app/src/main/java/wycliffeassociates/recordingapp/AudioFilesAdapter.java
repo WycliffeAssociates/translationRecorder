@@ -12,6 +12,8 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 
+import java.text.SimpleDateFormat;
+
 import wycliffeassociates.recordingapp.model.AudioItem;
 
 /**
@@ -70,9 +72,12 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         date.setGravity(Gravity.RIGHT);
         date.setTextSize(15f);
 
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+        String output = format.format(audioItems[position].getDate());
+
 
         name.setText(audioItems[position].getName());
-        date.setText(audioItems[position].getDate().toString());
+        date.setText(output);
 
         //======
         //AudioFilesListener
