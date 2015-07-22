@@ -10,7 +10,7 @@ import android.widget.Button;
 /**
  * Created by Abi on 7/21/2015.
  */
-public class ReallyQuit extends DialogFragment{
+public class QuitDialog extends DialogFragment{
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction

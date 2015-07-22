@@ -2,17 +2,13 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -36,7 +32,7 @@ public class Record extends Activity {
     @Override
     public void onBackPressed() {
         if(!isSaved) {
-            ReallyQuit dialog = new ReallyQuit();
+            QuitDialog dialog = new QuitDialog();
             dialog.show(this.getFragmentManager(), "reallyQuitDialog");
         }
         else
