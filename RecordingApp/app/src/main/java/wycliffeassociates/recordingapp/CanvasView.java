@@ -125,11 +125,7 @@ public class CanvasView extends View {
         int height = canvas.getHeight();
         double xScale = width/(temp.length);
         double yScale = height/65536.0;
-        System.out.println("temp is length" + temp.length);
-
         for(int i = 0; i < temp.length-1; i++){
-            System.out.println("value is " + (int)((yScale*temp[i])));
-            System.out.println("next value is " + (int)((yScale*temp[i+1])));
             canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2), (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
         }
         this.invalidate();
@@ -137,7 +133,7 @@ public class CanvasView extends View {
 
     public void drawWaveform(Canvas canvas){
         canvas.scale(userScale, 1.f);
-        canvas.translate(-xTranslation, 0.f);
+        canvas.translate(-xTranslation/Math.abs(userScale), 0.f);
 
         mPaint.setColor(Color.WHITE);
         if (samples == null) {

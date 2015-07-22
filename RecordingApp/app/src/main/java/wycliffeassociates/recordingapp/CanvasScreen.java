@@ -29,7 +29,6 @@ public class CanvasScreen extends Activity {
     private GestureDetector gestureDetector;
     private WavFileLoader waveLoader;
     private WavVisualizer waveVis;
-    Thread visThread;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -194,13 +193,13 @@ public class CanvasScreen extends Activity {
         double ysf = waveVis.getYScaleFactor(mainCanvas.getHeight());
         mainCanvas.setYScale(ysf);
         mainCanvas.setSamples(waveVis.getSamples());
-        System.out.println("get width is returning " + mainCanvas.getWidth());
-        System.out.println("get Height is returning " + mainCanvas.getHeight());
-        System.out.println("X scale is " + xsf);
-        System.out.println("Y scale is " + ysf);
-        System.out.println("Y scale SHOULD be " + (mainCanvas.getHeight() / 65536.0));
-        System.out.println("X scale SHOULD BE" + waveVis.getXScaleFactor(mainCanvas.getWidth(), 10));
-        System.out.println("Increment is being set to  " + inc);
+//        System.out.println("get width is returning " + mainCanvas.getWidth());
+//        System.out.println("get Height is returning " + mainCanvas.getHeight());
+//        System.out.println("X scale is " + xsf);
+//        System.out.println("Y scale is " + ysf);
+//        System.out.println("Y scale SHOULD be " + (mainCanvas.getHeight() / 65536.0));
+//        System.out.println("X scale SHOULD BE" + waveVis.getXScaleFactor(mainCanvas.getWidth(), 10));
+//        System.out.println("Increment is being set to  " + inc);
         mainCanvas.invalidate();
 
 
