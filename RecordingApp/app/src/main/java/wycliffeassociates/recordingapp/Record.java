@@ -143,7 +143,12 @@ public class Record extends Activity {
         }
         else {//brand new recording, keep going
             Toast.makeText(getApplicationContext(), R.string.start_recording, Toast.LENGTH_LONG).show();
-            recorder = new WavRecorder();
+            recorder = new WavRecorder(new RecordingManager() {
+                @Override
+                public void onWaveUpdate(byte[] buffer) {
+
+                }
+            });
             recorder.record();
         }
     }
@@ -157,7 +162,7 @@ public class Record extends Activity {
         WavPlayer.play(recordedFilename);
     }
     private void pauseRecording(){
-        recorder.pause();
+        //recorder.pause();
         Toast.makeText(getApplicationContext(), R.string.pause_recording, Toast.LENGTH_LONG).show();
     }
     private View.OnClickListener btnClick = new View.OnClickListener() {

@@ -101,7 +101,12 @@ public class AudioFiles extends Activity {
         //get output directory
         //global current directory?
 
-        WavRecorder temp = new WavRecorder();
+        WavRecorder temp = new WavRecorder(new RecordingManager() {
+            @Override
+            public void onWaveUpdate(byte[] buffer) {
+
+            }
+        });
         directory = temp.getFileDirectory();
 
         //get files in the directory
