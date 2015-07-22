@@ -1,9 +1,7 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -25,7 +23,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.List;
 
 
 import wycliffeassociates.recordingapp.model.AudioItem;
@@ -60,7 +57,6 @@ public class AudioFiles extends Activity {
         //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
 
         btnExport = (ImageButton)findViewById(R.id.btnExport);
-        final Context c = this;
         btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,19 +66,7 @@ public class AudioFiles extends Activity {
                     startActivityForResult(intent, 0);
                 }
                 else {
-
-                    Intent mainIntent = new Intent();
-                    mainIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                 //   mainIntent.setData(Intent.EXTRA_STREAM,null);
-                   mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                   PackageManager packageManager = getPackageManager();
-                    final List pkgAppsList = packageManager.queryIntentActivities(mainIntent, packageManager.MATCH_DEFAULT_ONLY);
-                    for(int i = 0; i < pkgAppsList.size();i++)
-                    {
-                        System.out.println(pkgAppsList.get(i));
-                     }
-
-                   Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                 }
 
             }
