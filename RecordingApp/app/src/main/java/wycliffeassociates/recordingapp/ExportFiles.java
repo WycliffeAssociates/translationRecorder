@@ -70,10 +70,6 @@ public class ExportFiles extends Activity
             allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/blah.wav");
         }
 
-        for(int l=0; l<allMoving.size();l++){
-            System.out.println(allMoving.get(l));
-        }
-
         setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.export_list);

@@ -2,7 +2,7 @@
     <string name="app_name">AudioRecorder</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+	
     <!-- Record.java -->
     <string name="resume_recording">Resume Recording</string>
     <string name="start_recording">Start Recording</string>
@@ -12,4 +12,6 @@
 
     <!-- DIALOGUE -->
     <string name="diag_export">Export Audio</string>
+    <string name="exit">Are you sure you want to exit without saving?</string>
+    <string name="record_over">Are you sure you want to record again without saving?</string>
 </resources>

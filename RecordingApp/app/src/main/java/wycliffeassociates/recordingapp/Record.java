@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -16,7 +17,7 @@ public class Record extends Activity {
     private WavRecorder recorder = null;
     final Context context = this;
     private String outputName = null;
-
+    private boolean isSaved = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +29,47 @@ public class Record extends Activity {
         enableButton(R.id.btnPlay, false);
     }
 
+    @Override
+    public void onBackPressed() {
+        if(!isSaved) {
+            QuitDialog dialog = new QuitDialog();
+            dialog.show(this.getFragmentManager(), "reallyQuitDialog");
+        }
+        else
+            super.onBackPressed();
+    }
+
+    public void onRecordOver(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage(R.string.record_over);
+        builder
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        saveRecording();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Record", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        enableButtons(true);
+                        startRecording();
+                        isSaved = false;
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        Button pButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        pButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(R.drawable.ic_save_white_48dp), null, null, null);
+        pButton.setText("");
+
+        Button nButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        nButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(R.drawable.ic_mic_white_48dp), null, null, null);
+        nButton.setText("");
+    }
 
     private void setButtonHandlers() {
         findViewById(R.id.btnRecord).setOnClickListener(btnClick);
@@ -37,7 +79,7 @@ public class Record extends Activity {
         findViewById(R.id.btnPause).setOnClickListener(btnClick);
     }
 
-    private void enableButton(int id,boolean isEnable){
+    private void enableButton(int id, boolean isEnable){
         findViewById(id).setEnabled(isEnable);
     }
 
@@ -71,6 +113,7 @@ public class Record extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 setName(toSave.getText().toString());
+                isSaved = true;
             }
         });
 
@@ -122,12 +165,16 @@ public class Record extends Activity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.btnRecord:{
-                    enableButtons(true);
-                    startRecording();
-                    enableButton(R.id.btnSave, false);
+                    if(isSaved) {
+                        enableButtons(true);
+                        startRecording();
+                        isSaved = false;
+                    }
+                    else{
+                        onRecordOver();
+                    }
                     break;
                 }
-
                 case R.id.btnStop:{
                     enableButtons(false);
                     stopRecording();
