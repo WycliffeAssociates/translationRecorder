@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,6 +95,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.checkBox.setScaleX(3f);
             viewHolder.checkBox.setScaleY(3f);
 
+
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
             viewHolder.date.setGravity(Gravity.RIGHT);
 
@@ -107,7 +109,10 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         }
         // set items to be displayed
         viewHolder.filename.setText(audioItems[position].getName());
-        viewHolder.date.setText(audioItems[position].getDate().toString());
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+        String output = format.format(audioItems[position].getDate());
+        viewHolder.date.setText(output);
 
         viewHolder.checkBox.setChecked(checkBoxState[position]);
 
@@ -142,10 +147,8 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                     if (isChecked) {
                         AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                        System.out.println("EXPORT : " + audioItems[position].getName());
                     } else {
                         AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                        System.out.println("UNCHECKED");
                     }
                 }
             });

@@ -61,7 +61,7 @@
             android:id="@+id/record"
             android:layout_alignBottom="@+id/linearLayout2"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_album_white_48dp"
+            android:src="@drawable/ic_mic_white_48dp"
             android:background="@color/mainImageBG"
             android:layout_margin="0dp"
             android:elevation="6dp"

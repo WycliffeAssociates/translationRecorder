@@ -5,67 +5,6 @@
     android:background="#ff4caf50">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="250dp"
-        android:layout_height="match_parent"
-        android:background="#52ff98"
-        android:id="@+id/Folders"
-        android:weightSum="1"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
-
-        <ImageButton
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:id="@+id/btnExport"
-            android:background="@drawable/abc_ic_commit_search_api_mtrl_alpha"
-            android:elevation="12dp" />
-
-        <Button
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_toRightOf="@id/btnExport"
-            android:id="@+id/button12"
-            android:background="@drawable/ic_delete_white_48dp"
-            android:elevation="12dp"
-            android:layout_weight="0.03" />
-
-        <Button
-            android:layout_width="151dp"
-            android:layout_height="86dp"
-            android:text="Folder1"
-            android:id="@+id/button7"
-            android:background="#ffaae6ba"
-            android:layout_marginTop="100dp"
-            android:layout_marginStart="50dp"
-            android:textColor="#ff322019"
-            android:textSize="30dp" />
-
-        <Button
-            android:layout_width="151dp"
-            android:layout_height="86dp"
-            android:text="Folder2"
-            android:id="@+id/button8"
-            android:background="#ffaae6ba"
-            android:layout_marginTop="76dp"
-            android:layout_marginStart="50dp"
-            android:textColor="#ff322019"
-            android:textSize="30sp" />
-
-        <Button
-            android:layout_width="151dp"
-            android:layout_height="86dp"
-            android:text="Folder3"
-            android:id="@+id/button9"
-            android:background="#ffaae6ba"
-            android:layout_marginTop="76dp"
-            android:layout_marginStart="50dp"
-            android:textColor="#ff322019"
-            android:textSize="30sp" />
-
-    </LinearLayout>
-
-    <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -81,13 +20,12 @@
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/Folders"
         android:layout_below="@+id/ToolBar">
 
         <ListView
             android:id="@id/listViewExport"
             android:layout_width="match_parent"
-            android:layout_height="980dp"
+            android:layout_height="988dp"
             >
         </ListView>
 
@@ -100,8 +38,14 @@
         android:id="@+id/ToolBar"
         android:background="#ffe8f5e9"
         android:elevation="12dp"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/Folders">
+        android:layout_alignParentTop="true">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnExport"
+            android:background="@drawable/abc_ic_commit_search_api_mtrl_alpha"
+            android:elevation="12dp" />
 
         <ImageButton
             android:layout_width="82dp"
@@ -111,6 +55,14 @@
             android:background="@drawable/abc_btn_check_to_on_mtrl_015"
             android:layout_marginStart="270dp"
             android:checked="false" />
+
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="41dp"
+            android:layout_toRightOf="@id/btnExport"
+            android:id="@+id/button12"
+            android:background="@drawable/ic_delete_white_48dp"
+            android:elevation="12dp" />
 
         <Button
             android:layout_width="wrap_content"
