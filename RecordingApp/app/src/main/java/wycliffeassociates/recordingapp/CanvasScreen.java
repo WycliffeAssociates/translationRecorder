@@ -152,6 +152,10 @@ public class CanvasScreen extends Activity {
         }
         recorder = null;
         Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_LONG).show();
+        mainCanvas.setSamples(null);
+        minimap.setSamples(null);
+        minimap.invalidate();
+        mainCanvas.invalidate();
         mainCanvas.setRecording(true);
         mainCanvas.setBlockSize(4);
         mainCanvas.setNumChannels(2);
@@ -176,6 +180,9 @@ public class CanvasScreen extends Activity {
         waveLoader = null;
         waveVis = null;
         recorder.stop();
+
+
+
         Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
         recordedFilename = recorder.getFilename();
 
