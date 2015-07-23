@@ -72,6 +72,24 @@ public class AudioFiles extends Activity {
             }
         });
 
+        //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
+
+        btnExport = (ImageButton)findViewById(R.id.btnExport);
+        btnExport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ExportFiles.class);
+                if(exportList.size() > 0) {
+                    intent.putExtra("exportList", exportList);
+                    startActivityForResult(intent, 0);
+                }
+                else {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
 
         audioFileView = (ListView) findViewById(R.id.listViewExport);
 
@@ -83,7 +101,12 @@ public class AudioFiles extends Activity {
         //get output directory
         //global current directory?
 
-        WavRecorder temp = new WavRecorder();
+        WavRecorder temp = new WavRecorder(new RecordingManager() {
+            @Override
+            public void onWaveUpdate(byte[] buffer) {
+
+            }
+        });
         directory = temp.getFileDirectory();
 
         //get files in the directory
@@ -124,8 +147,6 @@ public class AudioFiles extends Activity {
         audioFileView.setAdapter(adapter);
 
     }
-
-
 
     //move
 
@@ -172,6 +193,7 @@ public class AudioFiles extends Activity {
                     }
                 }
             }
+
             dList.remove(val);
             outputList.add(cmp);
 
@@ -244,4 +266,6 @@ public class AudioFiles extends Activity {
 
     private void executeExport(){   }
 
+
 }
+

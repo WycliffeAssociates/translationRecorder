@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp;
 
+
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -30,33 +31,41 @@ public class WavRecorder {
     private static final int RECORDER_SAMPLERATE = 44100;
     private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
     private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    private RecordingManager manager;
 
     private AudioRecord recorder = null;
     private int bufferSize = 0;
     private Thread recordingThread = null;
     private boolean isRecording = false;
     private String tempFileName = null; //does not contain path
-    private String recordedFilename = null; //does not contain path
-    private boolean wasPaused = false;
-    FileOutputStream os = null;
+    private String recordedFilename = null; //does contain path
+    private byte data[];
+
+    public byte[] getBuffer(){
+        return data;
+    }
 
     /**
      * Initializes the buffer for writing audio and generates a unique ID for the .wav file,
      * to serve as a unique name until the user names the file
      */
-    public WavRecorder(){
+    public WavRecorder(RecordingManager manager){
+        this.manager = manager;
         bufferSize = AudioRecord.getMinBufferSize(44100, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
         recordedFilename = UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV;
 
+    }
+
+    public int getAudioSessionID(){
+        return recorder.getAudioSessionId();
     }
 
     /**
      * Spawns a recording thread that writes audio to a .raw file
      */
     public void record(){
-        if(!wasPaused)
-            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                    RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
+        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
 
         int i = recorder.getState();
         if(i==1)
@@ -96,13 +105,6 @@ public class WavRecorder {
         deleteTempFile();
     }
 
-    public void pause(){
-        if(recorder != null){
-            wasPaused = true;
-            isRecording = false;
-        }
-    }
-
     /**
      * Retrieves the absolute filepath of the temporary raw file.
      * If the AudioRecorder folder is not present, it is created.
@@ -138,9 +140,6 @@ public class WavRecorder {
         if (!file.exists()) {
             file.mkdirs();
         }
-
-        //ExportFiles test = new ExportFiles();//file.getAbsolutePath(), recordedFilename
-        //test.getDir();
         return (file.getAbsolutePath() + "/" + recordedFilename);
     }
 
@@ -148,43 +147,38 @@ public class WavRecorder {
      * Writes audio data from the microphone to a .raw file
      */
     private void writeAudioDataToFile(){
-        byte data[] = new byte[bufferSize];
+        data = new byte[bufferSize];
         String filename = getTempFilename();
+        FileOutputStream os = null;
 
-        if(!wasPaused) {
-            try {
-                System.out.println("new output stream");
-                os = new FileOutputStream(filename, true);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try {
+            os = new FileOutputStream(filename);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
         int read = 0;
 
-        if(null != os) {
-            while (isRecording) {
+
+        if(null != os){
+            while (isRecording){
                 read = recorder.read(data, 0, bufferSize);
 
-                if (AudioRecord.ERROR_INVALID_OPERATION != read) {
+                if(AudioRecord.ERROR_INVALID_OPERATION != read){
                     try {
                         os.write(data);
+                        manager.onWaveUpdate(data);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-
-        }
-        if (!wasPaused) {
             try {
                 os.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else{
-            wasPaused = false;
         }
     }
 
@@ -222,6 +216,7 @@ public class WavRecorder {
 
             in.close();
             out.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -292,6 +287,7 @@ public class WavRecorder {
         header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
 
         out.write(header, 0, 44);
+
     }
 
     /**
@@ -314,7 +310,6 @@ public class WavRecorder {
         File from = new File(dir, recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         Boolean out = from.renameTo(to);
-        System.out.println(out);
         recordedFilename = name + AUDIO_RECORDER_FILE_EXT_WAV;
         return to.getAbsolutePath();
     }
