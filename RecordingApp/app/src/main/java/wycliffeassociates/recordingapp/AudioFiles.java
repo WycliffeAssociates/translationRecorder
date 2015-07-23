@@ -30,7 +30,11 @@ import wycliffeassociates.recordingapp.model.AudioItem;
 public class AudioFiles extends Activity {
 
     private ImageButton btnExport;
+    private ImageButton btnCheckAll;
     ListView audioFileView;
+
+    boolean flag = true;
+    public AudioFilesAdapter adapter;
 
     ArrayList<String> audioNameList;
     ArrayList<Date> dateList;
@@ -50,53 +54,14 @@ public class AudioFiles extends Activity {
 
 
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_two);
-
-        //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
-
-        btnExport = (ImageButton)findViewById(R.id.btnExport);
-        btnExport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), ExportFiles.class);
-                if(exportList.size() > 0) {
-                    intent.putExtra("exportList", exportList);
-                    startActivityForResult(intent, 0);
-                }
-                else {
-                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
-        //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
-
-        btnExport = (ImageButton)findViewById(R.id.btnExport);
-        btnExport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), ExportFiles.class);
-                if(exportList.size() > 0) {
-                    intent.putExtra("exportList", exportList);
-                    startActivityForResult(intent, 0);
-                }
-                else {
-                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
 
         audioFileView = (ListView) findViewById(R.id.listViewExport);
 
         audioNameList = new ArrayList<String>();
         dateList = new ArrayList<Date>();
         items = new ArrayList<AudioItem>();
-
 
         //get output directory
         //global current directory?
@@ -113,15 +78,12 @@ public class AudioFiles extends Activity {
         File f = new File(directory);
         File file[] = f.listFiles();
 
-
         for (int i = 0; i < file.length; i++) {
             int len = file[i].getName().length();
             String sub = file[i].getName().substring(len - 4);
 
             if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
                     || sub.equalsIgnoreCase(".mp3")) {
-
-
                 audioNameList.add(file[i].getName());
 
                 Date lastModDate = new Date(file[i].lastModified());
@@ -143,9 +105,38 @@ public class AudioFiles extends Activity {
             items2[j] = new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j), 0);
         }
 
-        AudioFilesAdapter adapter = new AudioFilesAdapter(this, items2);
+        adapter = new AudioFilesAdapter(this, items2);
         audioFileView.setAdapter(adapter);
 
+        //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
+
+        btnExport = (ImageButton)findViewById(R.id.btnExport);
+        btnExport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ExportFiles.class);
+                if(exportList.size() > 0) {
+                    intent.putExtra("exportList", exportList);
+                    startActivityForResult(intent, 0);
+                }
+                else {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        btnCheckAll = (ImageButton)findViewById(R.id.btnCheckAll);
+        btnCheckAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < audioFileView.getCount(); i++) {
+                    adapter.checkBoxState[i] = flag;
+                    adapter.notifyDataSetChanged();
+                }
+                flag = !flag;
+            }
+        });
     }
 
     //move
