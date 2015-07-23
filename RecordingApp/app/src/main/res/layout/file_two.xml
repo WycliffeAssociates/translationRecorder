@@ -41,15 +41,15 @@
         android:layout_alignParentTop="true">
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="53dp"
+            android:layout_height="match_parent"
             android:id="@+id/btnExport"
             android:background="@drawable/abc_ic_commit_search_api_mtrl_alpha"
             android:elevation="12dp" />
 
         <ImageButton
-            android:layout_width="82dp"
-            android:layout_height="50dp"
+            android:layout_width="59dp"
+            android:layout_height="match_parent"
             android:id="@+id/btnCheckAll"
             android:elevation="12dp"
             android:background="@drawable/abc_btn_check_to_on_mtrl_015"
@@ -57,8 +57,8 @@
             android:checked="false" />
 
         <Button
-            android:layout_width="50dp"
-            android:layout_height="41dp"
+            android:layout_width="102dp"
+            android:layout_height="wrap_content"
             android:layout_toRightOf="@id/btnExport"
             android:id="@+id/button12"
             android:background="@drawable/ic_delete_white_48dp"

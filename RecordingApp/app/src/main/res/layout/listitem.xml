@@ -4,32 +4,21 @@
     android:clickable="false"
     android:id="@+id/listitem">
 
+    <TextView
+        android:id="@+id/background"
+        android:layout_toRightOf="@+id/checkBox"
+        android:background="@drawable/file"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp" />
+
     <CheckBox android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checked="false"
         android:id="@+id/checkBox"
-        android:textSize="50sp"
-        android:layout_alignBottom="@+id/filename"
+        android:layout_alignBottom="@id/background"
         android:layout_alignParentTop="true"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="30dp" />
-
-    <TextView
-        android:id="@+id/filename"
-        android:layout_toRightOf="@id/checkBox"
-        android:text="POTATO"
-        android:background="@drawable/file"
-        android:paddingTop="20dp"
-        android:paddingBottom="3dip"
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
-        android:textSize="15sp"
-        android:autoText="false"
-        android:typeface="serif"
-        android:textIsSelectable="false"
-        android:textAlignment="center"
-        android:singleLine="false"
-        android:paddingStart="30dp"/>
 
     <TextView
         android:id="@+id/date"
@@ -38,10 +27,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_alignBaseline="@+id/checkBox"
-        android:layout_alignBottom="@+id/checkBox"
-        android:layout_toEndOf="@+id/checkBox" />
+        android:layout_marginTop="60dp"
+        android:layout_toEndOf="@id/checkBox" />
 
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/filename"
+        android:text="Potato"
+        android:textSize="20sp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_toEndOf="@id/checkBox" />
 
 </RelativeLayout>
