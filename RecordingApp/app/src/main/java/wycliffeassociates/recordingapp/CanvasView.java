@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -34,8 +35,8 @@ public class CanvasView extends View {
     float userScale;
     private float xTranslation;
     private byte[] buffer;
-    private int blockSize;
-    private int numChannels;
+    private int blockSize = 4;
+    private int numChannels = 2;
     private boolean recording;
 
 
@@ -111,7 +112,7 @@ public class CanvasView extends View {
             return;
         }
 
-        System.out.println("in drawbuffer");
+        //System.out.println("in drawbuffer");
         Short[] temp = new Short[buffer.length/blocksize];
         int index = 0;
         for(int i = 0; i<buffer.length; i+=blocksize){
@@ -123,7 +124,7 @@ public class CanvasView extends View {
 
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-        double xScale = width/(temp.length);
+        double xScale = width/(index);
         double yScale = height/65536.0;
         for(int i = 0; i < temp.length-1; i++){
             canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2), (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
@@ -171,6 +172,51 @@ public class CanvasView extends View {
     }
     public void setXTranslation(float xTranslation){
         this.xTranslation = xTranslation;
+    }
+
+
+    //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
+    public void listenForRecording(final Activity ctx){
+        final CanvasView mainCanvas = this;
+        this.setRecording(true);
+        Thread uiThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean isStopped = false;
+                boolean isPaused = false;
+                while (!isStopped) {
+                    try {
+                        RecordingMessage message = RecordingQueues.UIQueue.take();
+                        isStopped = message.isStopped();
+                        isPaused = message.isPaused();
+                        if (!isPaused && message.getData() != null) {
+                            setBuffer(message.getData());
+                            ctx.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mainCanvas.invalidate();
+                                }
+                            });
+                        }
+                        if (isStopped) {
+                            mainCanvas.setBuffer(null);
+                            mainCanvas.setRecording(false);
+                            ctx.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mainCanvas.invalidate();
+                                }
+                            });
+                            return;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
+        uiThread.start();
     }
 
 }
