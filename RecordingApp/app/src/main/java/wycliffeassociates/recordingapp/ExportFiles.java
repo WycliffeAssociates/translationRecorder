@@ -64,11 +64,6 @@ public class ExportFiles extends Activity
         {
             allMoving = extras.getStringArrayList("exportList");
         }
-        else{
-            //TEST ITEMS, PLEASE REMOVE
-            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/test.wav");
-            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/blah.wav");
-        }
 
         setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
         super.onCreate(savedInstanceState);

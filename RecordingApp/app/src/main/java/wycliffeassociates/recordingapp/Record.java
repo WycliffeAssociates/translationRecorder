@@ -40,38 +40,6 @@ public class Record extends Activity {
             super.onBackPressed();
     }
 
-    public void onRecordOver(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setMessage(R.string.record_over);
-        builder
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        saveRecording();
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton("Record", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        enableButtons(true);
-                        startRecording();
-                        isSaved = false;
-                        dialog.dismiss();
-                    }
-                });
-
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-
-        Button pButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        pButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(R.drawable.ic_save_white_48dp), null, null, null);
-        pButton.setText("");
-
-        Button nButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-        nButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(R.drawable.ic_mic_white_48dp), null, null, null);
-        nButton.setText("");
-    }
-
     private void setButtonHandlers() {
         findViewById(R.id.btnRecord).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
@@ -171,14 +139,9 @@ public class Record extends Activity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.btnRecord:{
-                    if(isSaved) {
-                        enableButtons(true);
-                        startRecording();
-                        isSaved = false;
-                    }
-                    else{
-                        onRecordOver();
-                    }
+                    enableButtons(true);
+                    startRecording();
+                    isSaved = false;
                     break;
                 }
                 case R.id.btnStop:{
