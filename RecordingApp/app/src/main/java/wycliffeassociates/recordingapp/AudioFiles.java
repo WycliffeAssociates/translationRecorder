@@ -106,9 +106,9 @@ public class AudioFiles extends Activity {
         }
 
         //sort by date
-        ArrayList<Date> testDate = sortDate(dateList, true);
+        final ArrayList<Date> testDate = sortDate(dateList, true);
 
-        AudioItem[] items2 = new AudioItem[testDate.size()];
+        final AudioItem[] items2 = new AudioItem[testDate.size()];
         //get names of files that are now sorted by date
         for (int j = 0; j < testDate.size(); j++) {
             //audioNameList.set(j,audioHash.get(testDate.get(j)));
@@ -124,6 +124,11 @@ public class AudioFiles extends Activity {
         btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                for (int i = 0; i < adapter.checkBoxState.length; i++){
+                    if(adapter.checkBoxState[i] == true){
+                        AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
+                    }
+                }
                 System.out.println(exportList);
                 Intent intent = new Intent(v.getContext(), ExportFiles.class);
                 if(exportList.size() > 0) {

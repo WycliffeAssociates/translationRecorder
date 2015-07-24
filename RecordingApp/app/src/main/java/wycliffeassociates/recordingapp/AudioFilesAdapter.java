@@ -136,16 +136,17 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             public void onClick(View v) {
                 if (((CheckBox) v).isChecked()) {
                     checkBoxState[position] = true;
-                    AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
+                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
                 }
                 else {
                     checkBoxState[position] = false;
-                    AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
+                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
                 }
 
             }
         });
 
+        /**
         viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -156,6 +157,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
                 }
             }
         });
+         **/
 
             return convertView;
         }

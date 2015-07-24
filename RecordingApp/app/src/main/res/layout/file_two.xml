@@ -82,18 +82,19 @@
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/linearLayout4">
+        android:layout_below="@id/linearLayout4"
+        android:layout_above="@+id/linearLayout1">
 
         <ListView
             android:id="@id/listViewExport"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
         </ListView>
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="40dp"
