@@ -92,8 +92,8 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
 
 
-            viewHolder.checkBox.setScaleX(3f);
-            viewHolder.checkBox.setScaleY(3f);
+            //viewHolder.checkBox.setScaleX(3f);
+            //viewHolder.checkBox.setScaleY(3f);
 
 
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);

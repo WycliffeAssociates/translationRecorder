@@ -1,205 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.isaac.filesystemtest.Record_screen"
-    android:background="#ff4caf50">
-
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="550dp"
-        android:elevation="22dp"
-        android:layout_alignTop="@+id/Sidebar"
-        android:id="@+id/Folders">
-
-        <Button
-            android:layout_width="151dp"
-            android:layout_height="86dp"
-            android:text="Folder1"
-            android:id="@+id/button7"
-            android:background="#ffaae6ba"
-            android:layout_marginTop="100dp"
-            android:layout_marginStart="50dp"
-            android:textColor="#ff322019"
-            android:textSize="30dp" />
-
-        <Button
-            android:layout_width="151dp"
-            android:layout_height="86dp"
-            android:text="Folder2"
-            android:id="@+id/button8"
-            android:background="#ffaae6ba"
-            android:layout_marginTop="76dp"
-            android:layout_marginStart="50dp"
-            android:textColor="#ff322019"
-            android:textSize="30sp" />
-
-        <Button
-            android:layout_width="151dp"
-            android:layout_height="86dp"
-            android:text="Folder3"
-            android:id="@+id/button9"
-            android:background="#ffaae6ba"
-            android:layout_marginTop="76dp"
-            android:layout_marginStart="50dp"
-            android:textColor="#ff322019"
-            android:textSize="30sp" />
-    </LinearLayout>
-
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="false"
-        android:layout_marginEnd="550dp"
-        android:layout_alignParentEnd="true"
-        android:background="#ffb9f6ca"
-        android:elevation="21dp"
-        android:id="@+id/Sidebar">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="84dp"
-            android:id="@+id/button5"
-            android:background="@drawable/abc_ic_commit_search_api_mtrl_alpha"
-            android:elevation="12dp" />
-
-        <Button
-            android:layout_width="58dp"
-            android:layout_height="58dp"
-            android:id="@+id/button6"
-            android:background="@drawable/ic_delete_white_48dp"
-            android:elevation="12dp"
-            android:layout_marginLeft="100dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="#ff413e3a"
-        android:layout_marginTop="1000dp"
-        android:elevation="31dp"
-        android:id="@+id/WavePreview">
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="130dp"
-        android:layout_marginStart="270dp"
-        android:id="@+id/FileScrollField"
-        android:visibility="gone">
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/scrollView"
-            android:layout_gravity="center_horizontal"
-            android:fillViewport="false" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/ToolBar"
-        android:background="#ffe8f5e9"
-        android:elevation="12dp">
-
-        <ToggleButton
-            android:layout_width="57dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/button"
-            android:elevation="12dp"
-            android:background="@drawable/abc_btn_check_to_on_mtrl_015"
-            android:layout_marginStart="270dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Aa"
-            android:id="@+id/button3"
-            android:layout_weight="1" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="00:00"
-            android:id="@+id/button2"
-            android:layout_weight="1" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Date"
-            android:id="@+id/button4"
-            android:layout_weight="1" />
+        android:layout_centerHorizontal="true"
+        android:background="#ff515a50"
+        android:id="@+id/linearLayout2">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="android/file_path/super_ultra_megga/filepath_of_destiny"
+        android:id="@+id/textView4"
+        android:textSize="25sp"
+        android:layout_gravity="center"
+        android:layout_weight="1" />
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton14"
+        android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+        android:background="#00000000"
+        android:layout_weight="1"
+        android:layout_gravity="center" />
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        android:id="@+id/File"
-        android:background="@drawable/file"
-        android:layout_below="@+id/FileScrollField"
-        android:layout_marginTop="100dp"
-        android:layout_marginStart="250dp"
-        android:clickable="true"
-        android:weightSum="1">
-
-        <Button
-            android:layout_width="42dp"
-            android:layout_height="37dp"
-            android:id="@+id/button10"
-            android:singleLine="true"
-            android:background="#ff2e7d32"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="0.03" />
-
-        <TextView
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        ></LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="#ff515a50">
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="File Name"
-            android:id="@+id/textView"
-            android:textColor="#ff342317"
-            android:textSize="35sp"
-            android:textStyle="bold"
-            android:layout_marginTop="25dp"
-            android:layout_marginLeft="10dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="23:02"
-            android:id="@+id/textView2"
-            android:textColor="#ff342317"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginTop="25dp"
-            android:layout_marginStart="12dp"
-            android:singleLine="true" />
-
-        <Button
-            android:layout_width="42dp"
-            android:layout_height="37dp"
-            android:id="@+id/button11"
-            android:singleLine="true"
-            android:background="@drawable/settings_shadow"
-            android:layout_marginTop="21dp"
-            android:layout_marginStart="270dp"
-            android:layout_weight="0.03" />
-
+            android:id="@+id/imageButton12"
+            android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+            android:background="#00000000"
+            android:layout_weight="1" />
+        <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton13"
+        android:src="@drawable/ic_save_white_48dp"
+        android:background="#00000000"
+        android:layout_weight="1" />
     </LinearLayout>
 
+    <ListView
+        android:id="@+id/listViewExport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:dividerHeight="0.1dp"
+        android:divider="#000000"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/linearLayout2" />
 </RelativeLayout>

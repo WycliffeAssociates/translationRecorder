@@ -14,9 +14,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -33,6 +35,9 @@ public class AudioFiles extends Activity {
     private ImageButton btnExport;
     private ImageButton btnCheckAll;
     ListView audioFileView;
+    private String currentDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+    TextView file_path;
+
 
     boolean flag = true;
     public AudioFilesAdapter adapter;
@@ -58,6 +63,11 @@ public class AudioFiles extends Activity {
         setContentView(R.layout.file_two);
 
         audioFileView = (ListView) findViewById(R.id.listViewExport);
+
+        file_path = (TextView)findViewById(R.id.filepath);
+        file_path.setText(currentDir);
+
+
 
         audioNameList = new ArrayList<String>();
         dateList = new ArrayList<Date>();
@@ -114,6 +124,7 @@ public class AudioFiles extends Activity {
         btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println(exportList);
                 Intent intent = new Intent(v.getContext(), ExportFiles.class);
                 if(exportList.size() > 0) {
                     intent.putExtra("exportList", exportList);
@@ -122,6 +133,7 @@ public class AudioFiles extends Activity {
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                 }
+
                 exportList = new ArrayList<String>();
                 Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
                 adapter.notifyDataSetChanged();
