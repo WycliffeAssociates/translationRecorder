@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -51,7 +52,6 @@ public class AudioFiles extends Activity {
     int sortBy = 0;
 
     static String directory = "";
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +122,9 @@ public class AudioFiles extends Activity {
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                 }
-
+                exportList = new ArrayList<String>();
+                Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -134,21 +136,23 @@ public class AudioFiles extends Activity {
                     adapter.checkBoxState[i] = flag;
                     adapter.notifyDataSetChanged();
                 }
+                if (flag == false) {
+                    exportList = new ArrayList<String>();
+                    Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
+                    adapter.notifyDataSetChanged();
+                }
                 flag = !flag;
             }
         });
     }
 
     //move
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
-
 
     //flag == true : sort by most recently modified
     //flag == false : sort by least recently modified
@@ -192,7 +196,6 @@ public class AudioFiles extends Activity {
 
         return outputList;
     }
-
 
     //._. Generics tho
     //flag == true : sort by A-Z
@@ -257,6 +260,11 @@ public class AudioFiles extends Activity {
 
     private void executeExport(){   }
 
-
+    @Override
+    public void onBackPressed(){
+        exportList = new ArrayList<String>();
+        Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
+        finish();
+    }
 }
 
