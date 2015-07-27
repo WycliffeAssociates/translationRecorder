@@ -72,6 +72,10 @@ public class ExportFiles extends Activity
         setContentView(R.layout.export_list);
         list = (ListView)findViewById(R.id.listViewExport);
 
+        //get recently exported directory
+        final PreferencesManager pref = new PreferencesManager(this);
+        currentDir = (String) pref.getPreferences("exportDirectory");
+
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());
         arrayAdapter =
@@ -322,6 +326,10 @@ public class ExportFiles extends Activity
                 Toast.makeText(getApplicationContext(), "Files Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(getApplicationContext(), "File Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
+
+            //update most recently exported directory
+            final PreferencesManager pref = new PreferencesManager(this);
+            pref.setPreferences("exportDirectory",currentDir);
             finish();
         }
         catch(IOException e) {
