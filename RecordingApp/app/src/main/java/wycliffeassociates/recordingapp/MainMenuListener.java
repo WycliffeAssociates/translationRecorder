@@ -40,6 +40,13 @@ public class MainMenuListener extends Activity{
         });
 
         btnSettings = (ImageButton) findViewById(R.id.settings);
+        btnSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), Settings.class);
+                startActivityForResult(intent, 0);
+            }
+        });
     }
 
 
