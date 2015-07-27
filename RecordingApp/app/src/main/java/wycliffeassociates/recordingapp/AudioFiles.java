@@ -138,12 +138,20 @@ public class AudioFiles extends Activity {
         btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ((file == null) || (adapter.checkBoxState.length == 0)){
-                    System.out.println("no files");
+                for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                    if (adapter.checkBoxState[i] == true) {
+                        AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
+                    }
                 }
-                else {
+                if (exportList.size() > 0){
                     mDrawerLayout.openDrawer(Gravity.RIGHT);
                 }
+                else {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+                exportList = new ArrayList<String>();
+                Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -159,8 +167,6 @@ public class AudioFiles extends Activity {
                     System.out.println(adapter.checkBoxState.length);
                     for (int i = 0; i < adapter.checkBoxState.length; i++) {
                         if (adapter.checkBoxState[i] == true) {
-                            System.out.println("here 160");
-                            System.out.println(items2[0].getName());
                             AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
                         }
                     }
@@ -186,7 +192,6 @@ public class AudioFiles extends Activity {
             public void onClick(View v){
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
-                        System.out.println(items2[0].getName());
                         AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
                     }
                 }
