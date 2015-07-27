@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioFormat;
-import android.media.audiofx.Visualizer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
@@ -41,8 +40,6 @@ public class CanvasScreen extends Activity {
     private float xTranslation;
     private ScaleGestureDetector SGD;
     private GestureDetector gestureDetector;
-    private WavFileLoader waveLoader;
-    private WavVisualizer waveVis;
     private boolean paused = false;
 
 
@@ -179,6 +176,7 @@ public class CanvasScreen extends Activity {
 
     private void startRecording(){
         if(!paused) {
+            RecordingQueues.writingQueue.clear();
             Intent intent = new Intent(this, WavFileWriter.class);
             intent.putExtra("audioFileName", getFilename());
             startService(new Intent(this, WavRecorder.class));
@@ -193,60 +191,27 @@ public class CanvasScreen extends Activity {
 
     }
     private void stopRecording(){
-
+        stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
             RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        stopService(new Intent(this, WavRecorder.class));
 
-        /*
-        waveLoader = null;
-        waveVis = null;
-        recorder.stop();
+        try {
+            Boolean done = RecordingQueues.doneWriting.take();
+            if(done.booleanValue()){
+                mainCanvas.loadWavFromFile(recordedFilename);
+                mainCanvas.displayWaveform(10);
 
+                minimap.loadWavFromFile(recordedFilename);
+                minimap.displayWaveform(0);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-
-        Toast.makeText(getApplicationContext(), "Stopping Recording", Toast.LENGTH_LONG).show();
-        recordedFilename = recorder.getFilename();
-
-        //waveLoader = new WavFileLoader(Environment.getExternalStorageDirectory().getPath() + "/AudioRecorder/test.wav");
-        waveLoader = new WavFileLoader(recordedFilename);
-        waveVis = new WavVisualizer(waveLoader.getAudioData(), waveLoader.getNumChannels());
-
-
-
-
-        double xsf = waveVis.getXScaleFactor(mainCanvas.getWidth(), 10);
-        mainCanvas.setXScale(xsf);
-        int inc = waveVis.getIncrement(xsf);
-        waveVis.sampleAudio(inc);
-        double ysf = waveVis.getYScaleFactor(mainCanvas.getHeight());
-        mainCanvas.setYScale(ysf);
-        mainCanvas.setSamples(waveVis.getSamples());
-        System.out.println("get width is returning " + mainCanvas.getWidth());
-        System.out.println("get Height is returning " + mainCanvas.getHeight());
-        System.out.println("X scale is " + xsf);
-        System.out.println("Y scale is " + ysf);
-        System.out.println("Y scale SHOULD be " + (mainCanvas.getHeight() / 65536.0));
-        System.out.println("X scale SHOULD BE" + waveVis.getXScaleFactor(mainCanvas.getWidth(), 10));
-        System.out.println("Increment is being set to  " + inc);
-        mainCanvas.invalidate();
-
-
-        WavVisualizer miniVis = new WavVisualizer(waveLoader.getAudioData(), waveLoader.getNumChannels());
-
-        double xsf2 = miniVis.getXScaleFactor(minimap.getWidth(), 0);
-        minimap.setXScale(xsf2);
-        int inc2 = miniVis.getIncrement(xsf2);
-        miniVis.sampleAudio(inc2);
-        double ysf2 = miniVis.getYScaleFactor(minimap.getHeight());
-        minimap.setYScale(ysf2);
-        minimap.setSamples(miniVis.getSamples());
-        minimap.invalidate();
-        */
 
     }
     private void playRecording(){

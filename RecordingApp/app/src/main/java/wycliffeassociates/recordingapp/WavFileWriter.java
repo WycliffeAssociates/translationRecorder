@@ -6,7 +6,6 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.os.Environment;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,9 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/**
- * Created by Parrot on 7/24/15.
- */
+
 public class WavFileWriter extends Service{
     private static final int RECORDER_BPP = 16;
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
@@ -60,6 +57,8 @@ public class WavFileWriter extends Service{
                     temp.close();
                     copyWaveFile(getTempFilename(), filename);
                     deleteTempFile();
+                    RecordingQueues.writingQueue.clear();
+                    RecordingQueues.doneWriting.put(new Boolean(true));
                     stopSelf();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();

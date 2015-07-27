@@ -42,7 +42,6 @@ public class WavFileLoader {
         processHeader();
         parseAudio();
         System.out.println("Parsed Audio");
-
     }
     private void processHeader(){
         if(wavFile.length > WAVE_HEADER_SIZE) {
