@@ -43,6 +43,7 @@ public class Record extends Activity {
 
     private boolean isSaved = true;
     private boolean isPaused = false;
+    private boolean isPlaying = false;
 
     public boolean onTouchEvent(MotionEvent ev) {
         if(ev.getPointerCount() > 1.0){
@@ -121,7 +122,7 @@ public class Record extends Activity {
 
     private void enableButtons(boolean isRecording) {
         enableButton(R.id.btnRecord, !isRecording);
-        enableButton(R.id.btnStop, isRecording);
+        enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPlay, !isRecording);
         enableButton(R.id.btnSave, !isRecording);
         enableButton(R.id.btnPause, isRecording);
@@ -203,6 +204,7 @@ public class Record extends Activity {
 
     }
     private void stopRecording(){
+        isPlaying = false;
         stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
@@ -229,6 +231,7 @@ public class Record extends Activity {
     private void playRecording(){
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
+
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {

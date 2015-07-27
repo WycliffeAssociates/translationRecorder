@@ -42,6 +42,7 @@ public class CanvasScreen extends Activity {
     private GestureDetector gestureDetector;
     private boolean paused = false;
     private boolean isSaved = false;
+    private boolean isPlaying = false;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -111,9 +112,10 @@ public class CanvasScreen extends Activity {
     }
 
     private void enableButtons(boolean isRecording) {
+
         enableButton(R.id.btnRecord, !isRecording);
-        enableButton(R.id.btnStop, isRecording);
-        enableButton(R.id.btnPlay, !isRecording);
+        enableButton(R.id.btnStop, true);
+        enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, !isRecording);
         enableButton(R.id.btnPause, isRecording);
     }
@@ -192,33 +194,63 @@ public class CanvasScreen extends Activity {
         }
 
     }
-    private void stopRecording(){
-        stopService(new Intent(this, WavRecorder.class));
-        try {
-            RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
-            RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private void stopRecording() {
+        if (isPlaying) {
+            isPlaying = false;
+            WavPlayer.stop();
         }
-
-        try {
-            Boolean done = RecordingQueues.doneWriting.take();
-            if(done.booleanValue()){
-                mainCanvas.loadWavFromFile(recordedFilename);
-                mainCanvas.displayWaveform(10);
-
-                minimap.loadWavFromFile(recordedFilename);
-                minimap.displayWaveform(0);
+        else {
+            stopService(new Intent(this, WavRecorder.class));
+            try {
+                RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
+                RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
+            try {
+                Boolean done = RecordingQueues.doneWriting.take();
+                if (done.booleanValue()) {
+                    mainCanvas.loadWavFromFile(recordedFilename);
+                    mainCanvas.displayWaveform(10);
+
+                    minimap.loadWavFromFile(recordedFilename);
+                    minimap.displayWaveform(0);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
     private void playRecording(){
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
+        isPlaying = true;
+        mainCanvas.setXTranslation(0);
+        mainCanvas.invalidate();
+        Thread playback = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int translation = 0;
+                while(WavPlayer.isPlaying()){
+                    mainCanvas.setXTranslation(translation);
+                    translation += 10;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainCanvas.invalidate();
+                        }
+                    });
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        playback.start();
     }
 
     @Override

@@ -39,6 +39,7 @@ public class QuitDialog extends DialogFragment{
         Button pButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_POSITIVE);
         Button nButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_NEGATIVE);
 
+
         nButton.setBackground(getResources().getDrawable(R.drawable.ic_delete_white_48dp));
         pButton.setBackground(getResources().getDrawable(R.drawable.ic_save_white_48dp));
 
