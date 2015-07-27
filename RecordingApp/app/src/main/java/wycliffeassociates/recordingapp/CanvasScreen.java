@@ -41,6 +41,7 @@ public class CanvasScreen extends Activity {
     private ScaleGestureDetector SGD;
     private GestureDetector gestureDetector;
     private boolean paused = false;
+    private boolean isSaved = false;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -158,6 +159,7 @@ public class CanvasScreen extends Activity {
     public void setName(String newName){
         outputName = newName;
         recordedFilename = saveFile(outputName);
+        isSaved = true;
     }
 
     public String getName(){return outputName;}
@@ -217,6 +219,16 @@ public class CanvasScreen extends Activity {
     private void playRecording(){
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!isSaved) {
+            QuitDialog dialog = new QuitDialog();
+            dialog.show(this.getFragmentManager(), "reallyQuitDialog");
+        }
+        else
+            super.onBackPressed();
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
