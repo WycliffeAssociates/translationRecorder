@@ -2,22 +2,16 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.media.Image;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import wycliffeassociates.recordingapp.model.AudioItem;
 
@@ -60,7 +54,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
      *            Array of audio items
      */
     public AudioFilesAdapter(Context context, AudioItem[] resource){
-        super(context, R.layout.listitem, resource);
+        super(context, R.layout.audio_list_item, resource);
         this.aContext = context;
         this.audioItems = resource;
         //create the boolean array with
@@ -83,7 +77,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
     public View getView(final int position, View convertView, ViewGroup parent){
         if(convertView == null) {
             LayoutInflater inflater = ((Activity) aContext).getLayoutInflater();
-            convertView = inflater.inflate(R.layout.listitem, null);
+            convertView = inflater.inflate(R.layout.audio_list_item, null);
 
             viewHolder = new ViewHolder();
 

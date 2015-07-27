@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.Menu;
@@ -14,8 +13,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.net.Uri;
-import org.w3c.dom.Text;
-
 
 
 import java.io.File;
@@ -62,7 +59,7 @@ public class AudioFiles extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.file_two);
+        setContentView(R.layout.audio_list);
 
         audioFileView = (ListView) findViewById(R.id.listViewExport);
 
@@ -158,10 +155,6 @@ public class AudioFiles extends Activity {
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
-
-                    exportList = new ArrayList<String>();
-                    Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
-                    adapter.notifyDataSetChanged();
                 }
             }
         });
@@ -219,9 +212,6 @@ public class AudioFiles extends Activity {
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                 }
-                exportList = new ArrayList<String>();
-                Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
-                adapter.notifyDataSetChanged();
             }
         });
 
@@ -231,8 +221,7 @@ public class AudioFiles extends Activity {
             public void onClick(View v) {
                 if (file == null) {
                     System.out.println("No files 173");
-                }
-                else {
+                } else {
                     for (int i = 0; i < audioFileView.getCount(); i++) {
                         adapter.checkBoxState[i] = flag;
                         adapter.notifyDataSetChanged();
@@ -354,7 +343,11 @@ public class AudioFiles extends Activity {
 
     public static void AudioExport (String fileName, boolean flag){
         if(flag){
-            exportList.add(directory + "/" + fileName);
+            if(exportList.contains(directory + "/" + fileName)){
+
+            }else{
+                exportList.add(directory + "/" + fileName);
+            }
         }else{
             exportList.remove(directory + "/" + fileName);
         }

@@ -96,7 +96,7 @@
                 android:layout_above="@+id/linearLayout1">
 
                 <ListView
-                    android:id="@id/listViewExport"
+                    android:id="@+id/listViewExport"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 </ListView>
