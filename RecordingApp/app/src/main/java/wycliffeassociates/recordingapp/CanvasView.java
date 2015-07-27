@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.Pair;
-import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
@@ -20,28 +20,29 @@ public class CanvasView extends View {
     public int width;
     public int height;
     private Bitmap mBitmap;
-    private Canvas mCanvas;
+    //private Canvas mCanvas;
     private Path mPath;
-    Context context;
+    //private Context context;
     private Paint mPaint;
-    private float mX, mY;
-    private static final float TOLERANCE = 5;
-    ArrayList<Pair<Double,Double>> samples;
+    private WavFileLoader wavLoader;
+    private WavVisualizer wavVis;
+    private short[][] audioData;
+    private ArrayList<Pair<Double,Double>> samples;
     ScaleGestureDetector SGD;
+    private final int SECONDS_ON_SCREEN = 10;
 
     double xScale;
     double yScale;
     float userScale;
     private float xTranslation;
     private byte[] buffer;
-    private int blockSize;
-    private int numChannels;
+    private int blockSize = 4;
+    private int numChannels = 2;
     private boolean recording;
 
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
-        context = c;
         userScale = 1.f;
         xTranslation = 0.f;
 
@@ -68,8 +69,6 @@ public class CanvasView extends View {
 
         // your Canvas will draw onto the defined Bitmap
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-
     }
 
     // override onDraw
@@ -111,7 +110,7 @@ public class CanvasView extends View {
             return;
         }
 
-        System.out.println("in drawbuffer");
+        //System.out.println("in drawbuffer");
         Short[] temp = new Short[buffer.length/blocksize];
         int index = 0;
         for(int i = 0; i<buffer.length; i+=blocksize){
@@ -123,14 +122,13 @@ public class CanvasView extends View {
 
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-        double xScale = width/(temp.length);
+        double xScale = width/(index *.999);
         double yScale = height/65536.0;
         for(int i = 0; i < temp.length-1; i++){
             canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2), (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
         }
         this.invalidate();
     }
-
     public void drawWaveform(Canvas canvas){
         canvas.scale(userScale, 1.f);
         canvas.translate(-xTranslation/Math.abs(userScale), 0.f);
@@ -171,6 +169,66 @@ public class CanvasView extends View {
     }
     public void setXTranslation(float xTranslation){
         this.xTranslation = xTranslation;
+    }
+
+    public void loadWavFromFile(String path){
+        wavLoader = new WavFileLoader(path);
+        audioData = wavLoader.getAudioData();
+    }
+
+    public void displayWaveform(int seconds){
+        wavVis = new WavVisualizer(audioData, wavLoader.getNumChannels());
+        xScale = wavVis.getXScaleFactor(this.getWidth(), seconds);
+        int inc = wavVis.getIncrement(xScale);
+        wavVis.sampleAudio(inc);
+        yScale = wavVis.getYScaleFactor(this.getHeight());
+        samples = wavVis.getSamples();
+        System.out.println("height is " + this.getHeight());
+        this.invalidate();
+    }
+
+    //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
+    public void listenForRecording(final Activity ctx){
+        final CanvasView mainCanvas = this;
+        this.setRecording(true);
+        Thread uiThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean isStopped = false;
+                boolean isPaused = false;
+                while (!isStopped) {
+                    try {
+                        RecordingMessage message = RecordingQueues.UIQueue.take();
+                        isStopped = message.isStopped();
+                        isPaused = message.isPaused();
+                        if (!isPaused && message.getData() != null) {
+                            setBuffer(message.getData());
+                            ctx.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mainCanvas.invalidate();
+                                }
+                            });
+                        }
+                        if (isStopped) {
+                            mainCanvas.setBuffer(null);
+                            mainCanvas.setRecording(false);
+                            ctx.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mainCanvas.invalidate();
+                                }
+                            });
+                            return;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
+        uiThread.start();
     }
 
 }
