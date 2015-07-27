@@ -138,23 +138,9 @@ public class AudioFiles extends Activity {
         btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                    if (adapter.checkBoxState[i] == true) {
-                        AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
-                    }
-                }
-                if (exportList.size() > 0){
-                    mDrawerLayout.openDrawer(Gravity.RIGHT);
-                }
-                else {
-                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                }
-                exportList = new ArrayList<String>();
-                Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
-                adapter.notifyDataSetChanged();
+                mDrawerLayout.openDrawer(Gravity.RIGHT);
             }
         });
-
 
         btnExportFolder = (ImageButton)findViewById(R.id.btnExportFolder);
         btnExportFolder.setOnClickListener(new View.OnClickListener() {
