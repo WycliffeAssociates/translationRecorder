@@ -9,22 +9,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.net.Uri;
-
-
 import org.w3c.dom.Text;
 
+
+
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -82,13 +76,13 @@ public class AudioFiles extends Activity {
         //get output directory
         //global current directory?
 
-        WavRecorder temp = new WavRecorder(new RecordingManager() {
+        /*WavRecorder temp = new WavRecorder(new RecordingManager() {
             @Override
             public void onWaveUpdate(byte[] buffer) {
 
             }
-        });
-        directory = temp.getFileDirectory();
+        });*/
+        directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/AudioRecorder";
 
         //get files in the directory
         File f = new File(directory);

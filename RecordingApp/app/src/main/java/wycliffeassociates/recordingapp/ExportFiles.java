@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -65,16 +67,15 @@ public class ExportFiles extends Activity
         {
             allMoving = extras.getStringArrayList("exportList");
         }
-        else{
-            //TEST ITEMS, PLEASE REMOVE
-            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/test.wav");
-            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/blah.wav");
-        }
 
         setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.export_list);
         list = (ListView)findViewById(R.id.listViewExport);
+
+        //get recently exported directory
+        final PreferencesManager pref = new PreferencesManager(this);
+        currentDir = (String) pref.getPreferences("exportDirectory");
 
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());
@@ -263,20 +264,13 @@ public class ExportFiles extends Activity
      * @param source The source path & filename
      * @param dest The destination path & filename
      */
-    public void copyFileUsingFileChannels(File source, File dest) {
+    public void copyFileUsingFileChannels(File source, File dest) throws IOException {
         FileChannel inputChannel,outputChannel = null;
-        try {
-            inputChannel = new FileInputStream(source).getChannel();
-            outputChannel = new FileOutputStream(dest).getChannel();
-            outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
-            inputChannel.close();
-            outputChannel.close();
-
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
-
+        inputChannel = new FileInputStream(source).getChannel();
+        outputChannel = new FileOutputStream(dest).getChannel();
+        outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+        outputChannel.close();
+        inputChannel.close();
     }
 
     /**
@@ -320,18 +314,28 @@ public class ExportFiles extends Activity
         for(int i = 0; i < original.size(); i++) {
             source.add(new File(original.get(i)));
         }
-        //the actual file names to concat to the destination path
-        ArrayList<String> names = getNamesFromPath(original);
-        for(int j = 0; j < source.size(); j++)
-        {
-            copyFileUsingFileChannels(source.get(j),new File(getCurrentDir() + "/" + names.get(j)) );
-        }
 
-        //notify the user and close
-        if(source.size() > 1)
-            Toast.makeText(getApplicationContext(), "Files Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(getApplicationContext(), "File Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
-        finish();
+        try {
+            //the actual file names to concat to the destination path
+            ArrayList<String> names = getNamesFromPath(original);
+            for (int j = 0; j < source.size(); j++) {
+                copyFileUsingFileChannels(source.get(j), new File(getCurrentDir() + "/" + names.get(j)));
+            }
+
+            //notify the user and close
+            if(source.size() > 1)
+                Toast.makeText(getApplicationContext(), "Files Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(getApplicationContext(), "File Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
+
+            //update most recently exported directory
+            final PreferencesManager pref = new PreferencesManager(this);
+            pref.setPreferences("exportDirectory",currentDir);
+            finish();
+        }
+        catch(IOException e) {
+            Toast.makeText(getApplicationContext(), "Sorry, you don't have permission to write to this folder", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 }
