@@ -92,8 +92,8 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
 
 
-            viewHolder.checkBox.setScaleX(3f);
-            viewHolder.checkBox.setScaleY(3f);
+            //viewHolder.checkBox.setScaleX(3f);
+            //viewHolder.checkBox.setScaleY(3f);
 
 
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
@@ -134,24 +134,31 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         //CheckBox
         viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (((CheckBox) v).isChecked())
+                if (((CheckBox) v).isChecked()) {
                     checkBoxState[position] = true;
-                else
+                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
+                }
+                else {
                     checkBoxState[position] = false;
+                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
+                }
 
             }
         });
 
+        /**
         viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    if (isChecked) {
-                        AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                    } else {
-                        AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                    }
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
+                } else {
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
                 }
-            });
+            }
+        });
+         **/
+
             return convertView;
         }
     }
