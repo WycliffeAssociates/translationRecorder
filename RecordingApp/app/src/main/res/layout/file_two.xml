@@ -1,117 +1,175 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ff4caf50">
-
-    <LinearLayout
-        android:orientation="horizontal"
+    android:layout_height="match_parent">
+    <!-- The main content view -->
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/linearLayout5"
-        android:background="#ff2f3e31">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Path/file_path/file_path_of_destiny"
-            android:id="@+id/filepath"
-            android:singleLine="true"
-            android:textSize="25sp"
-            android:textColor="#ffdcffd7" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ff8da793"
-        android:id="@+id/linearLayout4"
-        android:layout_below="@+id/linearLayout5"
-        android:layout_alignParentStart="true">
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnCheckAll"
-            android:src="@drawable/check_all"
-            android:background="#00000000"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageButton4"
-            android:src="@drawable/aa"
-            android:background="#00000000"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/imageButton5"
-            android:src="@drawable/time"
-            android:background="#00000000"
-            android:layout_weight="1.58" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/imageButton6"
-            android:src="@drawable/date"
-            android:background="#00000000"
-            android:layout_weight="1.83" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="#ff413e3a"
-        android:elevation="31dp"
-        android:id="@+id/WavePreview"
-        android:minHeight="100dp">
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/linearLayout4"
-        android:layout_above="@+id/linearLayout1">
-
-        <ListView
-            android:id="@id/listViewExport"
+        android:layout_height="match_parent">
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </ListView>
+            android:layout_height="match_parent"
+            android:background="#ff4caf50">
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:id="@+id/linearLayout5"
+                android:background="#ff2f3e31">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Path/file_path/file_path_of_destiny"
+                    android:id="@+id/filepath"
+                    android:singleLine="true"
+                    android:textSize="25sp"
+                    android:textColor="#ffdcffd7" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ff8da793"
+                android:id="@+id/linearLayout4"
+                android:layout_below="@+id/linearLayout5"
+                android:layout_alignParentStart="true">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnCheckAll"
+                    android:src="@drawable/check_all"
+                    android:background="#00000000"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageButton4"
+                    android:src="@drawable/aa"
+                    android:background="#00000000"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/imageButton5"
+                    android:src="@drawable/time"
+                    android:background="#00000000"
+                    android:layout_weight="1.58" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/imageButton6"
+                    android:src="@drawable/date"
+                    android:background="#00000000"
+                    android:layout_weight="1.83" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="#ff413e3a"
+                android:elevation="31dp"
+                android:id="@+id/WavePreview"
+                android:minHeight="100dp">
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/linearLayout4"
+                android:layout_above="@+id/linearLayout1">
+
+                <ListView
+                    android:id="@id/listViewExport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                </ListView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout1"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ff8da793"
+                android:layout_alignBottom="@+id/btnExport"
+                android:layout_alignEnd="@+id/btnExport"
+                android:minHeight="40dp">
+            </LinearLayout>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnExport"
+                android:background="@drawable/ic_export_purple_133"
+                android:elevation="12dp"
+                android:layout_above="@+id/WavePreview"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+    </FrameLayout>
+    <!-- The navigation drawer -->
+    <LinearLayout android:id="@+id/right_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="#111">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical" android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ff81c784">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:background="#ffbee3c4"
+                android:elevation="60dp">
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnExportApp"
+                    android:src="@drawable/export_app"
+                    android:background="#00000000"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_horizontal" />
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnExportFTP"
+                    android:src="@drawable/export_ftp"
+                    android:background="#00000000"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_horizontal" />
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnExportFolder"
+                    android:src="@drawable/export_folder"
+                    android:background="#00000000"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_horizontal" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ff8da793"
-        android:layout_alignBottom="@+id/btnExport"
-        android:layout_alignEnd="@+id/btnExport"
-        android:minHeight="40dp">
-     </LinearLayout>
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnExport"
-        android:background="@drawable/ic_export_purple_133"
-        android:elevation="12dp"
-        android:layout_above="@+id/WavePreview"
-        android:layout_alignParentEnd="true" />
-
-</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>
