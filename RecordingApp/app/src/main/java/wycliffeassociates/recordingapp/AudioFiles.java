@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageButton;
@@ -96,7 +97,7 @@ public class AudioFiles extends Activity {
 
             }
         });*/
-        //directory = temp.getFileDirectory();
+        directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/AudioRecorder";
 
         //get files in the directory
         File f = new File(directory);
