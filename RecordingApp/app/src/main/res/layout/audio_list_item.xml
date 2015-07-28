@@ -9,7 +9,7 @@
         android:layout_toRightOf="@+id/checkBox"
         android:background="@drawable/item"
         android:layout_width="fill_parent"
-        android:layout_height="100dp" />
+        android:layout_height="80dp" />
 
     <CheckBox android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,18 +18,18 @@
         android:button="@drawable/checkbox_selector"
         android:layout_alignBottom="@id/background"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="10dp"
         android:layout_marginLeft="30dp" />
 
     <TextView
         android:id="@+id/date"
         android:text="Jan 5th"
         android:textColor="#ffc8e6c9"
-        android:textSize="10sp"
+        android:textSize="15sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="40dp"
         android:layout_toEndOf="@id/checkBox" />
 
     <TextView
@@ -39,7 +39,7 @@
         android:text="Potato"
         android:textSize="20sp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_toEndOf="@id/checkBox" />
 
 </RelativeLayout>
