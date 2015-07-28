@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/files"
-            android:src="@drawable/ic_ic_menu_white_48dp_133"
+            android:src="@drawable/menu"
             android:layout_weight="1"
             android:background="#71be71"
             android:adjustViewBounds="false"
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/settings"
-            android:src="@drawable/ic_ic_settings_white_48dp_133"
+            android:src="@drawable/settings"
             android:layout_weight="1"
             android:background="#a94dbc"
             android:elevation="6dp" />
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/record"
-            android:src="@drawable/ic_ic_mic_white_48dp_133"
+            android:src="@drawable/mic"
             android:layout_gravity="center_horizontal"
             android:background="#00000000" />
 

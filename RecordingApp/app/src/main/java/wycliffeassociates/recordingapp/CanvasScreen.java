@@ -62,7 +62,7 @@ public class CanvasScreen extends Activity {
 
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.waveform);
+        setContentView(R.layout.recording_screen);
         userScale = 1.f;
 
         GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
@@ -91,7 +91,7 @@ public class CanvasScreen extends Activity {
         SGD = new ScaleGestureDetector(this, scaleListener);
 
 
-        mainCanvas = (CanvasView) findViewById(R.id.signature_canvas);
+        mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
         setButtonHandlers();
         enableButtons(false);
@@ -104,7 +104,7 @@ public class CanvasScreen extends Activity {
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPlay).setOnClickListener(btnClick);
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
-        findViewById(R.id.btnPause).setOnClickListener(btnClick);
+        //findViewById(R.id.btnPause).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id,boolean isEnable){
@@ -117,7 +117,7 @@ public class CanvasScreen extends Activity {
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, !isRecording);
-        enableButton(R.id.btnPause, isRecording);
+        //enableButton(R.id.btnPause, isRecording);
     }
 
     private void saveRecording(){
@@ -200,6 +200,8 @@ public class CanvasScreen extends Activity {
             WavPlayer.stop();
         }
         else {
+            findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
+            findViewById(R.id.linearLayout9).setVisibility(View.INVISIBLE);
             stopService(new Intent(this, WavRecorder.class));
             try {
                 RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
@@ -250,7 +252,7 @@ public class CanvasScreen extends Activity {
                             mainCanvas.invalidate();
                         }
                     });
-                    
+
                 }
             }
         });
