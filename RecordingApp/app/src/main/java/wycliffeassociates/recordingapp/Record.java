@@ -91,7 +91,7 @@ public class Record extends Activity {
         SGD = new ScaleGestureDetector(this, scaleListener);
 
 
-        mainCanvas = (CanvasView) findViewById(R.id.signature_canvas);
+        mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
         setButtonHandlers();
         enableButtons(false);
