@@ -45,6 +45,7 @@ public class CanvasScreen extends Activity {
     private boolean isPlaying = false;
 
 
+
     public boolean onTouchEvent(MotionEvent ev) {
         if(ev.getPointerCount() > 1.0){
             SGD.onTouchEvent(ev);
@@ -160,8 +161,8 @@ public class CanvasScreen extends Activity {
 
     public void setName(String newName){
         outputName = newName;
-        recordedFilename = saveFile(outputName);
         isSaved = true;
+        recordedFilename = saveFile(outputName);
     }
 
     public String getName(){return outputName;}
@@ -180,7 +181,8 @@ public class CanvasScreen extends Activity {
 
     private void startRecording(){
         if(!paused) {
-            RecordingQueues.writingQueue.clear();
+    	    isSaved = false;
+    	    RecordingQueues.writingQueue.clear();
             Intent intent = new Intent(this, WavFileWriter.class);
             intent.putExtra("audioFileName", getFilename());
             startService(new Intent(this, WavRecorder.class));
@@ -218,8 +220,6 @@ public class CanvasScreen extends Activity {
                     mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
                     mainCanvas.shouldDrawMaker(true);
-
-
                     minimap.loadWavFromFile(recordedFilename);
                     minimap.displayWaveform(0);
                 }

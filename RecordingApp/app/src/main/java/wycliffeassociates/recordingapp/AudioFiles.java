@@ -13,8 +13,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.net.Uri;
-
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -185,6 +183,7 @@ public class AudioFiles extends Activity {
                         AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
                     }
                 }
+
 
                 //if something is checked
                 if(exportList.size() > 0) {
