@@ -39,6 +39,7 @@ public class CanvasView extends View {
     private int blockSize = 4;
     private int numChannels = 2;
     private boolean recording;
+    private boolean shouldDrawLine = false;
 
 
     public CanvasView(Context c, AttributeSet attrs) {
@@ -81,6 +82,9 @@ public class CanvasView extends View {
         canvas.drawPath(mPath, mPaint);
         drawWaveform(canvas);
         drawBuffer(canvas, buffer, blockSize, numChannels, recording);
+        if(shouldDrawLine){
+            drawMarker(canvas);
+        }
 
     }
 
@@ -231,5 +235,13 @@ public class CanvasView extends View {
         uiThread.start();
     }
 
+    public void shouldDrawMaker(boolean yes){
+        this.shouldDrawLine = yes;
+    }
+    public void drawMarker(Canvas canvas){
+        mPaint.setStrokeWidth(2.f);
+        mPaint.setColor(Color.RED);
+        canvas.drawLine((canvas.getWidth()/8) + xTranslation, 0, (canvas.getWidth()/8)+xTranslation, canvas.getHeight(), mPaint);
+    }
 
 }

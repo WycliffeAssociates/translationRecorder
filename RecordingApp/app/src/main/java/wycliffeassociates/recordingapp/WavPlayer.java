@@ -38,5 +38,17 @@ public class WavPlayer {
         else
             return false;
     }
+    public static int getLocation(){
+        if(m == null)
+            return 0;
+        else
+            return m.getCurrentPosition();
+    }
+    public static int getDuration(){
+        if(m == null)
+            return 0;
+        else
+            return m.getDuration();
+    }
 
 }

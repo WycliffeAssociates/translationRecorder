@@ -212,7 +212,11 @@ public class CanvasScreen extends Activity {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
                     mainCanvas.loadWavFromFile(recordedFilename);
+                    final int base = -mainCanvas.getWidth()/8;
+                    mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
+                    mainCanvas.shouldDrawMaker(true);
+
 
                     minimap.loadWavFromFile(recordedFilename);
                     minimap.displayWaveform(0);
@@ -227,26 +231,26 @@ public class CanvasScreen extends Activity {
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
         isPlaying = true;
-        mainCanvas.setXTranslation(0);
+        final int base = -mainCanvas.getWidth()/8;
+        mainCanvas.setXTranslation(base);
         mainCanvas.invalidate();
         Thread playback = new Thread(new Runnable() {
             @Override
             public void run() {
                 int translation = 0;
                 while(WavPlayer.isPlaying()){
-                    mainCanvas.setXTranslation(translation);
-                    translation += 10;
+                    double location = (double)WavPlayer.getLocation()/ (double)WavPlayer.getDuration();
+                    double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
+                    System.out.println("Scalefactor is " + scaleFactor);
+                    translation = (int)(location * scaleFactor);
+                    mainCanvas.setXTranslation(base+translation);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mainCanvas.invalidate();
                         }
                     });
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    
                 }
             }
         });
