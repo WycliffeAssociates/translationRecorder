@@ -59,7 +59,6 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         this.audioItems = resource;
         //create the boolean array with
         //initial state as false
-        System.out.println(resource.length);
         checkBoxState = new boolean[resource.length];
     }
 

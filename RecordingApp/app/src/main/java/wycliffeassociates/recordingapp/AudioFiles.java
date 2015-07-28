@@ -28,17 +28,30 @@ public class AudioFiles extends Activity {
 
     private DrawerLayout mDrawerLayout;
     private ImageButton btnExport;
-    private ImageButton btnCheckAll;
-    private ImageButton btnExportApp;
-    private ImageButton btnExportFTP;
-    private ImageButton btnExportFolder;
+    private ImageButton btnCheckAll, btnSortName, btnSortDuration, btnSortDate;
+
+    private ImageButton btnExportApp, btnExportFTP, btnExportFolder;
+
     private ListView audioFileView;
     private String currentDir = Environment.getExternalStorageDirectory().getAbsolutePath();
     private TextView file_path;
     AudioItem[] items2;
     private File file[];
 
-    boolean flag = true;
+    //0 - check all
+    //1,2 - sortName
+    //3,4 - sortDuration
+    //5,6 - sortDate
+    boolean checkAll = true;
+
+    //0, Z-A
+    //1, A-Z
+    //2, 0:00 - 9:99
+    //3, 9:99 - 0:00
+    //4, Oldest First
+    //5, Recent First
+    int sort = 5;
+
     public AudioFilesAdapter adapter;
 
     ArrayList<String> audioNameList;
@@ -46,14 +59,6 @@ public class AudioFiles extends Activity {
     ArrayList<AudioItem> items;
 
     Hashtable<Date, String> audioHash = new Hashtable<Date, String>();
-    //ArrayList<Button> buttonList;
-    //0 for Recent Modified
-    //1 for Ancient Modified
-    //2 for A-Z
-    //3 for Z-A
-    //4 for 0:00 - 9:99
-    //5 for 9:99 - 0:00
-    int sortBy = 0;
 
     static String directory = "";
 
@@ -70,16 +75,10 @@ public class AudioFiles extends Activity {
         dateList = new ArrayList<Date>();
         items = new ArrayList<AudioItem>();
 
-        //get output directory
-        //global current directory?
+        final PreferencesManager pref = new PreferencesManager(this);
+        directory = pref.getPreferences("fileDirectory") + "/" + pref.getPreferences("fileFolder");
 
-        /*WavRecorder temp = new WavRecorder(new RecordingManager() {
-            @Override
-            public void onWaveUpdate(byte[] buffer) {
-
-            }
-        });*/
-        directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/AudioRecorder";
+        sort = (int) pref.getPreferences("displaySort");
 
         //get files in the directory
         File f = new File(directory);
@@ -105,18 +104,38 @@ public class AudioFiles extends Activity {
                 }
             }
 
+
             //sort by date
-            final ArrayList<Date> testDate = sortDate(dateList, true);
-
-            items2 = new AudioItem[testDate.size()];
-            //get names of files that are now sorted by date
-            for (int j = 0; j < testDate.size(); j++) {
-                //audioNameList.set(j,audioHash.get(testDate.get(j)));
-                items2[j] = new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j), 0);
+            ArrayList<Date> testDate = new ArrayList<Date>();
+            ArrayList<String> testName = new ArrayList<String>();
+            switch(sort){
+                case 0:
+                    testName = sortString(audioNameList, false);
+                    break;
+                case 1:
+                    testName = sortString(audioNameList, true);
+                    break;
+                case 4:
+                    testDate = sortDate(dateList, false);
+                    break;
+                case 5:
+                default:
+                    testDate = sortDate(dateList, true);
+                    break;
             }
-
-            System.out.println("Setting Adapter");
-            System.out.println(items2.length);
+            if(sort == 0 || sort == 1){
+                items2 = new AudioItem[testName.size()];
+                for (int j = 0; j < testName.size(); j++) {
+                    //audioNameList.set(j,audioHash.get(testDate.get(j)));
+                    items2[j] = new AudioItem((testName.get(j)), dateList.get(j), 0);
+                }
+            }else{
+                items2 = new AudioItem[testDate.size()];
+                for (int j = 0; j < testDate.size(); j++) {
+                    //audioNameList.set(j,audioHash.get(testDate.get(j)));
+                    items2[j] = new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j), 0);
+                }
+            }
             adapter = new AudioFilesAdapter(this, items2);
             audioFileView.setAdapter(adapter);
 
@@ -141,13 +160,11 @@ public class AudioFiles extends Activity {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    System.out.println(adapter.checkBoxState.length);
                     for (int i = 0; i < adapter.checkBoxState.length; i++) {
                         if (adapter.checkBoxState[i] == true) {
                             AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
                         }
                     }
-                    System.out.println(exportList);
                     Intent intent = new Intent(v.getContext(), ExportFiles.class);
                     if (exportList.size() > 0) {
                         intent.putExtra("exportList", exportList);
@@ -169,45 +186,9 @@ public class AudioFiles extends Activity {
                     }
                 }
 
-                Intent sendIntent = new Intent();
-                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
                 //if something is checked
                 if(exportList.size() > 0) {
-
-                    //share it implementation
-                    File tFile;
-
-                    //individual file
-                    if(exportList.size() < 2){
-                        Uri audioUri;
-
-                        tFile = new File (exportList.get(0));
-                        audioUri = Uri.fromFile(tFile);
-                        sendIntent.setAction(Intent.ACTION_SEND);
-
-                        //send individual URI
-                        sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);
-
-                        //multiple files
-                    }else{
-
-                        ArrayList<Uri> audioUris = new ArrayList<Uri>();
-                        for(int i=0; i<exportList.size(); i++){
-                            tFile = new File(exportList.get(i));
-                            audioUris.add(Uri.fromFile(tFile));
-                        }
-                        sendIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-
-                        //send multiple arrayList of URIs
-                        sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, audioUris);
-                    }
-
-                    //open
-                    sendIntent.setType("audio/*");
-                    startActivity(Intent.createChooser(sendIntent, "Export Audio"));
-
-
+                    exportShareIT(exportList);
                 }
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
@@ -220,18 +201,18 @@ public class AudioFiles extends Activity {
             @Override
             public void onClick(View v) {
                 if (file == null) {
-                    System.out.println("No files 173");
+
                 } else {
                     for (int i = 0; i < audioFileView.getCount(); i++) {
-                        adapter.checkBoxState[i] = flag;
+                        adapter.checkBoxState[i] = checkAll;
                         adapter.notifyDataSetChanged();
                     }
-                    if (flag == false) {
+                    if (checkAll == false) {
                         exportList = new ArrayList<String>();
                         Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
                         adapter.notifyDataSetChanged();
                     }
-                    flag = !flag;
+                    checkAll = !checkAll;
                 }
             }
         });
@@ -243,6 +224,44 @@ public class AudioFiles extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    private void exportShareIT(ArrayList<String> exportList){
+
+        Intent sendIntent = new Intent();
+        sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        //share it implementation
+        File tFile;
+
+        //individual file
+        if(exportList.size() < 2){
+            Uri audioUri;
+
+            tFile = new File (exportList.get(0));
+            audioUri = Uri.fromFile(tFile);
+            sendIntent.setAction(Intent.ACTION_SEND);
+
+            //send individual URI
+            sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);
+
+            //multiple files
+        }else{
+
+            ArrayList<Uri> audioUris = new ArrayList<Uri>();
+            for(int i=0; i<exportList.size(); i++){
+                tFile = new File(exportList.get(i));
+                audioUris.add(Uri.fromFile(tFile));
+            }
+            sendIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+
+            //send multiple arrayList of URIs
+            sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, audioUris);
+        }
+
+        //open
+        sendIntent.setType("audio/*");
+        startActivity(Intent.createChooser(sendIntent, "Export Audio"));
     }
 
     //flag == true : sort by most recently modified
@@ -292,7 +311,6 @@ public class AudioFiles extends Activity {
     //flag == true : sort by A-Z
     //flag == false : sort by Z-A
     private ArrayList<String> sortString (ArrayList<String> nList, Boolean flag){
-        System.out.println("ArraylistString");
         ArrayList<String> outputList = new ArrayList<String>();
 
         String cmp = "";
@@ -325,7 +343,6 @@ public class AudioFiles extends Activity {
                     }
                 }
             }
-            System.out.println(val);
             nList.remove(val);
             outputList.add(cmp);
 
@@ -355,9 +372,7 @@ public class AudioFiles extends Activity {
 
     @Override
     public void onBackPressed(){
-        if (file == null) {
-            System.out.println("no files");
-        }
+        if (file == null) {}
         else {
             exportList = new ArrayList<String>();
             Arrays.fill(adapter.checkBoxState, Boolean.FALSE);

@@ -4,9 +4,12 @@ package wycliffeassociates.recordingapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.provider.*;
+import android.provider.Settings;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  *
@@ -71,12 +74,16 @@ public class PreferencesManager {
         //set default preferences
         if(name.toLowerCase().equals("all")){
             editor.putString("fileName", (String) temp.get("fileName"));
-            editor.putInt   ("fileCounter", (int) temp.get("fileCounter"));
+            editor.putInt("fileCounter", (int) temp.get("fileCounter"));
             editor.putString("fileDirectory", (String) temp.get("fileDirectory"));
             editor.putString("fileFolder", (String) temp.get("fileFolder"));
             editor.putString("exportDirectory", (String) temp.get("exportDirectory"));
             editor.putString("Language", (String) temp.get("Language"));
-        }else if(name.equals("fileCounter")){
+            editor.putInt("displaySort", (int) temp.get("displaySort"));
+            //editor.putString("appName", (String) temp.get("appName"));
+            //editor.putString("deviceUUID", (String) temp.get("deviceUUID"));
+
+        }else if(name.equals("fileCounter") || name.equals("displaySort")) {
             editor.putInt(name, (int) temp.get(name));
         }else{
             editor.putString(name, (String) temp.get(name));
@@ -166,6 +173,10 @@ public class PreferencesManager {
         prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getPath().toString());
         //prefs.put("fileFolder", "AudioRecorder");
         prefs.put("Language", "EN");
+
+        prefs.put("displaySort", 5);
+        //prefs.put("appName", (String) getResources().g);
+        //prefs.put("deviceUUID", getDeviceUUID());
         //======
 
         Object ret = null;
@@ -182,5 +193,14 @@ public class PreferencesManager {
             //not a pref
         }
         return ret;
+    }
+
+    //UUID change on factory reset?
+    private String getDeviceUUID(){
+       /* UUID deviceUUID = new UUID(android.provider.Settings.Secure.ANDROID_ID.hashCode(),
+                Settings.Secure.ANDROID_ID.hashCode());
+
+        return deviceUUID.toString();*/
+        return "test";
     }
 }

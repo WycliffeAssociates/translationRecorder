@@ -9,7 +9,7 @@
         android:text="Reset Counter"
         android:id="@+id/tReset"
 
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="50dp"
 
         android:layout_marginLeft="100dp" />
 
@@ -19,7 +19,7 @@
         android:text="Increment Counter"
         android:id="@+id/tIncrement"
         android:layout_marginLeft="100dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="100dp"
         />
 
     <Button
@@ -29,7 +29,7 @@
         android:id="@+id/hardReset"
 
         android:layout_marginLeft="100dp"
-        android:layout_marginTop="240dp"/>
+        android:layout_marginTop="150dp"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -38,7 +38,39 @@
         android:id="@+id/saveFileName"
 
         android:layout_marginLeft="370dp"
-        android:layout_marginTop="240dp"/>
+        android:layout_marginTop="150dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A-Z"
+        android:id="@+id/sortName"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="200dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Duration"
+        android:id="@+id/sortDuration"
+        android:enabled="false"
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="200dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:id="@+id/sortDate"
+        android:layout_marginLeft="400dp"
+        android:layout_marginTop="200dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/displaySort"
+        android:editable="false"
+        android:enabled="false"
+
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="250dp"/>
 
     <EditText
         android:layout_width="wrap_content"
@@ -48,7 +80,7 @@
         android:enabled="false"
 
         android:layout_marginLeft="370dp"
-        android:layout_marginTop="80dp"/>
+        android:layout_marginTop="50dp"/>
 
     <EditText
         android:layout_width="wrap_content"
@@ -58,7 +90,7 @@
         android:enabled="true"
 
         android:layout_marginLeft="370dp"
-        android:layout_marginTop="160dp"/>
+        android:layout_marginTop="100dp"/>
 
     <EditText
         android:layout_width="wrap_content"
@@ -67,6 +99,6 @@
         android:editable="false"
 
         android:layout_marginLeft="100dp"
-        android:layout_marginTop="330dp"/>
+        android:layout_marginTop="350dp"/>
 
 </RelativeLayout>

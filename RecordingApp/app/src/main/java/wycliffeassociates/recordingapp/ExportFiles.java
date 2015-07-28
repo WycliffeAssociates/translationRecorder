@@ -290,7 +290,6 @@ public class ExportFiles extends Activity
         for(int i = 0; i < paths.size(); i++){
             String[] temp = paths.get(i).split("/");
             names.add(temp[temp.length-1]);
-            System.out.println(names.get(i));
         }
         return names;
     }
