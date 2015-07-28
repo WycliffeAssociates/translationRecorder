@@ -3,4 +3,102 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset Counter"
+        android:id="@+id/tReset"
+
+        android:layout_marginTop="50dp"
+
+        android:layout_marginLeft="100dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Increment Counter"
+        android:id="@+id/tIncrement"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="100dp"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Restore Default Prefences"
+        android:id="@+id/hardReset"
+
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="150dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Default FileName"
+        android:id="@+id/saveFileName"
+
+        android:layout_marginLeft="370dp"
+        android:layout_marginTop="150dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A-Z"
+        android:id="@+id/sortName"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="200dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Duration"
+        android:id="@+id/sortDuration"
+        android:enabled="false"
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="200dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:id="@+id/sortDate"
+        android:layout_marginLeft="400dp"
+        android:layout_marginTop="200dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/displaySort"
+        android:editable="false"
+        android:enabled="false"
+
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="250dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/displayFileName"
+        android:editable="false"
+        android:enabled="false"
+
+        android:layout_marginLeft="370dp"
+        android:layout_marginTop="50dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editFileName"
+        android:editable="true"
+        android:enabled="true"
+
+        android:layout_marginLeft="370dp"
+        android:layout_marginTop="100dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/displayPreferences"
+        android:editable="false"
+
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="350dp"/>
+
 </RelativeLayout>

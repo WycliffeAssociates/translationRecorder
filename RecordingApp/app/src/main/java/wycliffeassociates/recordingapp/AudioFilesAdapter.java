@@ -2,22 +2,16 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.media.Image;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import wycliffeassociates.recordingapp.model.AudioItem;
 
@@ -60,12 +54,11 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
      *            Array of audio items
      */
     public AudioFilesAdapter(Context context, AudioItem[] resource){
-        super(context, R.layout.listitem, resource);
+        super(context, R.layout.audio_list_item, resource);
         this.aContext = context;
         this.audioItems = resource;
         //create the boolean array with
         //initial state as false
-        System.out.println(resource.length);
         checkBoxState = new boolean[resource.length];
     }
 
@@ -83,7 +76,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
     public View getView(final int position, View convertView, ViewGroup parent){
         if(convertView == null) {
             LayoutInflater inflater = ((Activity) aContext).getLayoutInflater();
-            convertView = inflater.inflate(R.layout.listitem, null);
+            convertView = inflater.inflate(R.layout.audio_list_item, null);
 
             viewHolder = new ViewHolder();
 
@@ -92,8 +85,8 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
 
 
-            viewHolder.checkBox.setScaleX(3f);
-            viewHolder.checkBox.setScaleY(3f);
+            //viewHolder.checkBox.setScaleX(3f);
+            //viewHolder.checkBox.setScaleY(3f);
 
 
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
@@ -134,24 +127,31 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         //CheckBox
         viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (((CheckBox) v).isChecked())
+                if (((CheckBox) v).isChecked()) {
                     checkBoxState[position] = true;
-                else
+                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
+                }
+                else {
                     checkBoxState[position] = false;
+                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
+                }
 
             }
         });
 
+        /**
         viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    if (isChecked) {
-                        AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                    } else {
-                        AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                    }
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
+                } else {
+                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
                 }
-            });
+            }
+        });
+         **/
+
             return convertView;
         }
     }

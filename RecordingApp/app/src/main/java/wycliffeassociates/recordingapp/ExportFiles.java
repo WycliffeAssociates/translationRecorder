@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Class to export files between directories
@@ -71,6 +72,10 @@ public class ExportFiles extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.export_list);
         list = (ListView)findViewById(R.id.listViewExport);
+
+        //get recently exported directory
+        final PreferencesManager pref = new PreferencesManager(this);
+        currentDir = (String) pref.getPreferences("exportDirectory");
 
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());
@@ -285,7 +290,6 @@ public class ExportFiles extends Activity
         for(int i = 0; i < paths.size(); i++){
             String[] temp = paths.get(i).split("/");
             names.add(temp[temp.length-1]);
-            System.out.println(names.get(i));
         }
         return names;
     }
@@ -322,6 +326,10 @@ public class ExportFiles extends Activity
                 Toast.makeText(getApplicationContext(), "Files Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(getApplicationContext(), "File Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
+
+            //update most recently exported directory
+            final PreferencesManager pref = new PreferencesManager(this);
+            pref.setPreferences("exportDirectory",currentDir);
             finish();
         }
         catch(IOException e) {

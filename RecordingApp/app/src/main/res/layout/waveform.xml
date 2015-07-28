@@ -95,6 +95,13 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_gravity="right|top" />
+
+        <Button
+            android:layout_width="393dp"
+            android:layout_height="184dp"
+            android:text="Pause"
+            android:id="@+id/btnPause"
+            android:layout_gravity="right|center_vertical" />
     </FrameLayout>
 
 </FrameLayout>

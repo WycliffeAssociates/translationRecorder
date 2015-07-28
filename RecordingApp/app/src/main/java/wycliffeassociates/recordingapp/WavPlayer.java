@@ -9,36 +9,46 @@ import java.io.IOException;
  */
 public class WavPlayer {
 
+    private static MediaPlayer m;
     /**
      * Plays audio given a filename.
      * @param filename the absolute path to the file to be played.
      */
     public static void play(String filename){
-        MediaPlayer m = new MediaPlayer();
-
-        /*
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        m.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        audioManager.setMode(AudioManager.MODE_IN_CALL);
-        audioManager.setSpeakerphoneOn(true);
-        */
+        m = new MediaPlayer();
 
         try {
             m.setDataSource(filename);
-        }
-
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
             m.prepare();
         }
-
         catch (IOException e) {
             e.printStackTrace();
         }
-
         m.start();
     }
+
+    public static void stop(){
+        if(m != null){
+            m.stop();
+        }
+    }
+    public static boolean isPlaying(){
+        if(m != null)
+            return m.isPlaying();
+        else
+            return false;
+    }
+    public static int getLocation(){
+        if(m == null)
+            return 0;
+        else
+            return m.getCurrentPosition();
+    }
+    public static int getDuration(){
+        if(m == null)
+            return 0;
+        else
+            return m.getDuration();
+    }
+
 }
