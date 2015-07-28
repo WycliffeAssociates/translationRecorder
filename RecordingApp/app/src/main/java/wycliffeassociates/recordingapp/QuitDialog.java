@@ -5,12 +5,15 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.WindowManager;
 import android.widget.Button;
 
 /**
  * Created by Abi on 7/21/2015.
  */
 public class QuitDialog extends DialogFragment{
+    AlertDialog dialog;
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
@@ -27,9 +30,9 @@ public class QuitDialog extends DialogFragment{
                         getActivity().finish();
                     }
                 });
-
+      dialog = builder.create();
         // Create the AlertDialog object and return it
-        return builder.create();
+        return dialog;
     }
 
     @Override
@@ -40,8 +43,16 @@ public class QuitDialog extends DialogFragment{
         Button nButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_NEGATIVE);
 
 
-        nButton.setBackground(getResources().getDrawable(R.drawable.ic_delete_white_48dp));
-        pButton.setBackground(getResources().getDrawable(R.drawable.ic_save_white_48dp));
+        nButton.setBackground(getResources().getDrawable(R.drawable.ic_ic_delete_black_48dp));
+        pButton.setBackground(getResources().getDrawable(R.drawable.ic_ic_save_black_48dp));
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.gravity = Gravity.CENTER;
+
+        dialog.getWindow().setAttributes(lp);
 
     }
 }
