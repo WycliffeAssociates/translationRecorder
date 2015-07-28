@@ -45,16 +45,14 @@ public class ExportFiles extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.export_list);
+        setContentView(R.layout.audio_list);
         Bundle extras = getIntent().getExtras();
 
         if(extras != null) {
             allMoving = extras.getStringArrayList("exportList");
             totalFiles = allMoving.size();
-            for (int i = 0; i < allMoving.size(); i++) {
-                thisPath = allMoving.get(i);
-                createFile("audio/*", getNameFromPath(thisPath));
-            }
+            thisPath = allMoving.get(0);
+            createFile("audio/*", getNameFromPath(thisPath));
         }
     }
 
@@ -65,6 +63,7 @@ public class ExportFiles extends Activity
             if (requestCode == 43) {
                 currentUri = resultData.getData();
                 savefile(currentUri, allMoving.get(fileNum));
+
             }
         }
     }
@@ -75,13 +74,11 @@ public class ExportFiles extends Activity
      * @param fileName The name of the file selected.
      */
     private void createFile(String mimeType, String fileName) {
-        System.out.println("ABI: preparing intent");
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT );
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(mimeType);
         intent.putExtra(Intent.EXTRA_TITLE, fileName);
         this.startActivityForResult(intent, 43);
-        System.out.println("ABI: activity started");
     }
 
     /**
@@ -97,7 +94,6 @@ public class ExportFiles extends Activity
             String sourceFilename = path;
             ParcelFileDescriptor destinationFilename = getContentResolver().
                     openFileDescriptor(destUri, "w");
-            System.out.println("ABI: final path " + destinationFilename.getFileDescriptor());
             bis = new BufferedInputStream(new FileInputStream(sourceFilename));
             bos = new BufferedOutputStream(new FileOutputStream(destinationFilename.getFileDescriptor()));
             byte[] buf = new byte[1024];
@@ -114,19 +110,19 @@ public class ExportFiles extends Activity
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(!iteratePath())
-            {
-                System.out.println("ABI: start activity)");
-                Intent back = new Intent(this,AudioFiles.class);
-                startActivity(back);
+            iteratePath();
+            if(fileNum < totalFiles) {
+                thisPath = allMoving.get(fileNum);
+                createFile("audio/*", getNameFromPath(thisPath));
             }
+            else finish();
         }
 
     }
 
     /**
      * A method to extract filename from the path
-     * @param path THe paths to the files
+     * @param path The paths to the files
      * @return The simple filename of the file
      */
     public String getNameFromPath(String path){
