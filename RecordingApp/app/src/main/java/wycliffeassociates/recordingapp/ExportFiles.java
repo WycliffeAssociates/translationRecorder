@@ -1,23 +1,17 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
-import android.os.Build;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.os.ParcelFileDescriptor;
 
-import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Class to export files between directories
@@ -33,308 +27,127 @@ public class ExportFiles extends Activity
     private ArrayList<String> allMoving = new ArrayList<String>();
 
     /**
-     * The directory currently being navigated through
+     * the current filepath being exported
      */
-  private String currentDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+    private String thisPath;
 
     /**
-     * A list of files to show for the current directory
+     * the total number of files being exported
      */
-  private ArrayList<String> fileList = new ArrayList<>();
+    private int totalFiles = 0;
 
     /**
-     * A String that holds the name of the current folder being viewed
+     * the number of the current file bein exported (corresponds with allMoving)
      */
-    private String currentFolder = "";
-
-    /**
-     * The adapter that displays the list of files in the FMS
-     */
-    ArrayAdapter<String> arrayAdapter;
-
-    /**
-     * The list of items in the current directory
-     */
-    ListView list;
+    private int fileNum =0;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-
-        Bundle extras = getIntent().getExtras();
-
-        if(extras != null)
-        {
-            allMoving = extras.getStringArrayList("exportList");
-        }
-
-        setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.export_list);
-        list = (ListView)findViewById(R.id.listViewExport);
+        Bundle extras = getIntent().getExtras();
 
-        //get recently exported directory
-        final PreferencesManager pref = new PreferencesManager(this);
-        currentDir = (String) pref.getPreferences("exportDirectory");
-
-        //add files to adapter to display to the user
-        setFilesInDir(getCurrentDir());
-        arrayAdapter =
-                new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, fileList);
-        list.setAdapter(arrayAdapter);
-
-        //on item list click move up or down directories
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            // argument position gives the index of item which is clicked
-            public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
-                if(position == 0) {
-                    moveUpDir(getCurrentDir());
-                    arrayAdapter.notifyDataSetChanged();
-                }
-                else{
-                    moveDownDir(getCurrentDir(), getFilesInDir(getCurrentDir())[position - 1]);
-                    arrayAdapter.notifyDataSetChanged();
-                }
+        if(extras != null) {
+            allMoving = extras.getStringArrayList("exportList");
+            totalFiles = allMoving.size();
+            for (int i = 0; i < allMoving.size(); i++) {
+                thisPath = allMoving.get(i);
+                createFile("audio/*", getNameFromPath(thisPath));
             }
-        });
+        }
+    }
 
-        //the buttons at the bottom of the screen
-        findViewById(R.id.btnCancel).setOnClickListener(btnClick);
-        findViewById(R.id.btnSave).setOnClickListener(btnClick);
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+        Uri currentUri = null;
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 43) {
+                currentUri = resultData.getData();
+                savefile(currentUri, allMoving.get(fileNum));
+            }
+        }
     }
 
     /**
-     * The listener for the save & cancel clicks
+     * Creates a file in folder selected by user
+     * @param mimeType Typically going to be "audio/*" for this app
+     * @param fileName The name of the file selected.
      */
-    private View.OnClickListener btnClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch(v.getId()){
-                case R.id.btnSave:{
-                    saveFiles();
-                    break;
-                }
-                case R.id.btnCancel:
-                    cancelExport();
-                    break;
-            }
-        }
-    };
-
-    /**
-     * Gets all of the files in the current directory and lists them
-     * @param currentDirectory The current directory
-     * @return All of the files in the current directory
-     */
-    public String[] getFilesInDir(String currentDirectory){
-        File directory = new File(currentDirectory);
-        if(directory.isDirectory()) {
-            return directory.list();
-        }
-        else
-        return new String[0];
+    private void createFile(String mimeType, String fileName) {
+        System.out.println("ABI: preparing intent");
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT );
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(mimeType);
+        intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        this.startActivityForResult(intent, 43);
+        System.out.println("ABI: activity started");
     }
 
     /**
-     * resets file list for directory
-     * @param currentDirectory The current directory
+     * Copies a file from a path to a uri
+     * @param destUri The desination of the file
+     * @param path The original path to the file
      */
-    public void setFilesInDir(String currentDirectory){
+    public void savefile(Uri destUri, String path)
+    {
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
         try {
-            File directory = new File(currentDirectory);
-            if (directory.isDirectory()) {
-                String[] dirList = directory.list();
-                if(dirList != null) {
-                    String[] files = new String[dirList.length + 1];
-                    files[0] = "Go back to " + directory.getParent();
-                    for (int i = 0; i < dirList.length; i++) {
-                        files[i + 1] = dirList[i];
-                    }
-                    setFileList(files);
-                }
-            }
-        }
-        catch(NullPointerException e) {
+            String sourceFilename = path;
+            ParcelFileDescriptor destinationFilename = getContentResolver().
+                    openFileDescriptor(destUri, "w");
+            System.out.println("ABI: final path " + destinationFilename.getFileDescriptor());
+            bis = new BufferedInputStream(new FileInputStream(sourceFilename));
+            bos = new BufferedOutputStream(new FileOutputStream(destinationFilename.getFileDescriptor()));
+            byte[] buf = new byte[1024];
+            bis.read(buf);
+            do {
+                bos.write(buf);
+            } while(bis.read(buf) != -1);
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * Moves the current directory to the next directory up (parent dir)
-     * @param currentDirectory The current directory
-     */
-    public void moveUpDir(String currentDirectory) {
-        File directory = new File(currentDirectory);
-        String path[] = directory.getParent().split("/");
-        if (path.length > 1) {
-            String finalPath = "";
-            for (int i = 0; i < path.length - 1; i++)
-                finalPath = finalPath + path[i] + "/";
-            finalPath += path[path.length - 1];
-        File test = new File(finalPath);
-            if(test.isDirectory()) {
-                try {
-                    setCurrentFolder(finalPath);
-                    setCurrentDir(finalPath);
-                    setFilesInDir(finalPath);
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
+        } finally {
+            try {
+                if (bis != null) bis.close();
+                if (bos != null) bos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(!iteratePath())
+            {
+                System.out.println("ABI: start activity)");
+                Intent back = new Intent(this,AudioFiles.class);
+                startActivity(back);
             }
         }
+
     }
+
     /**
-     * This function sets the current directory path name after moving down one directory
-     * @param currentDirectory The current directory
-     * @param nextFolder the folder to add to the path
+     * A method to extract filename from the path
+     * @param path THe paths to the files
+     * @return The simple filename of the file
      */
-    public void moveDownDir(String currentDirectory, String nextFolder){
-        File dir = new File(currentDirectory + "/" + nextFolder);
-        try {
-            if (dir.isDirectory()&& dir.list() != null) {
-                try {
-                    setCurrentFolder(currentDirectory + "/" + nextFolder);
-                    setCurrentDir(currentDirectory + "/" + nextFolder);
-                    setFilesInDir(currentDirectory + "/" + nextFolder);
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-            }
+    public String getNameFromPath(String path){
+            String[] temp = path.split("/");
+           return temp[temp.length-1];
+    }
+
+    /**
+     * Iterates the file number that is being looked a
+     * @return Returns true if iteration worked, false if the end has been reached
+     */
+    public boolean iteratePath(){
+        if(fileNum + 1 < totalFiles) {
+            fileNum++;
+            return true;
         }
-        catch(NullPointerException e){
-            e.printStackTrace();
+        if(fileNum + 1 == totalFiles){
+            fileNum++;
+            return false;
         }
+        return false;
     }
 
-    /**
-     * The getter for the current directory
-     * @return The current directory
-     */
-    public String getCurrentDir() {
-        return currentDir;
-    }
-
-    /**
-     * The setter for the current directory
-     * @param currentDir The current directory
-     */
-    public void setCurrentDir(String currentDir) {
-        this.currentDir = currentDir;
-    }
-
-    /**
-     * getter for the list of folders in the
-     * current directory
-     * @return The file list
-     */
-    public ArrayList<String> getFileList() {
-        return fileList;
-    }
-
-    /**
-     * The setter for the list of folders in the current directory
-     * @param list a list of new files
-     */
-    public void setFileList(String[] list) {
-        fileList.clear();
-        for(int i = 0; i < list.length; i++)
-            fileList.add(list[i]);
-    }
-
-    /**
-     * Given the pathname to the folder gets the name of the
-     * last folder in the path
-     * @param path The complete pathname to the folder (includes folder)
-     */
-    public void setCurrentFolder(String path) {
-       String[] folders = path.split("/");
-       currentFolder = folders[folders.length-1];
-    }
-
-    /**
-     * The Getter for the current folder
-     * @return Gets the current folder name
-     */
-    public String getCurrentFolder(){
-        return currentFolder;
-    }
-
-    /**
-     * Copies a source file to another file (will create a new file if need be
-     * @param source The source path & filename
-     * @param dest The destination path & filename
-     */
-    public void copyFileUsingFileChannels(File source, File dest) throws IOException {
-        FileChannel inputChannel,outputChannel = null;
-        inputChannel = new FileInputStream(source).getChannel();
-        outputChannel = new FileOutputStream(dest).getChannel();
-        outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
-        outputChannel.close();
-        inputChannel.close();
-    }
-
-    /**
-     * Closes the file manager
-     */
-    public void cancelExport(){
-        finish();
-    }
-
-    /**
-     * A method to extract filenames from their paths
-     * @param paths THe paths to the files
-     * @return The simple filenames of the files
-     */
-    public ArrayList<String> getNamesFromPath(ArrayList<String> paths){
-        ArrayList<String> names = new ArrayList<>();
-        for(int i = 0; i < paths.size(); i++){
-            String[] temp = paths.get(i).split("/");
-            names.add(temp[temp.length-1]);
-        }
-        return names;
-    }
-
-    /**
-     * Gets an array of all of the files to move over
-     * @return An ArrayList<String> of files to move
-     */
-    public ArrayList<String> getAllMoving(){
-        return allMoving;
-    }
-
-    /**
-     * Copies files from any number of different directories to a single
-     * directory without deleting any files (no params)
-     */
-    public void saveFiles(){
-        //The files that are being moved
-        ArrayList<File> source = new ArrayList<>();
-        ArrayList<String> original = getAllMoving();
-        for(int i = 0; i < original.size(); i++) {
-            source.add(new File(original.get(i)));
-        }
-
-        try {
-            //the actual file names to concat to the destination path
-            ArrayList<String> names = getNamesFromPath(original);
-            for (int j = 0; j < source.size(); j++) {
-                copyFileUsingFileChannels(source.get(j), new File(getCurrentDir() + "/" + names.get(j)));
-            }
-
-            //notify the user and close
-            if(source.size() > 1)
-                Toast.makeText(getApplicationContext(), "Files Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(getApplicationContext(), "File Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
-
-            //update most recently exported directory
-            final PreferencesManager pref = new PreferencesManager(this);
-            pref.setPreferences("exportDirectory",currentDir);
-            finish();
-        }
-        catch(IOException e) {
-            Toast.makeText(getApplicationContext(), "Sorry, you don't have permission to write to this folder", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-    }
 }
