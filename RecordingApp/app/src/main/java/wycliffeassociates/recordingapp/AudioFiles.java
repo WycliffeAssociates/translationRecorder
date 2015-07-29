@@ -33,7 +33,7 @@ public class AudioFiles extends Activity {
 
     private DrawerLayout mDrawerLayout;
     private ImageButton btnExport;
-    private ImageButton btnCheckAll, btnSortName, btnSortDuration, btnSortDate;
+    private ImageButton btnCheckAll;
 
     private ImageButton btnExportApp, btnExportFTP, btnExportFolder;
 
@@ -41,7 +41,7 @@ public class AudioFiles extends Activity {
     private String currentDir = Environment.getExternalStorageDirectory().getAbsolutePath();
     private TextView file_path;
     AudioItem[] items2;
-    private File file[];
+    public File file[];
 
     //0 - check all
     //1,2 - sortName
@@ -169,6 +169,30 @@ public class AudioFiles extends Activity {
             @Override
             public void onClick(View v) {
                 mDrawerLayout.openDrawer(Gravity.RIGHT);
+            }
+        });
+
+        btnExportFTP = (ImageButton)findViewById(R.id.btnExportFTP);
+        btnExportFTP.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                exportList = new ArrayList<String>();
+                if ((file == null)) {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                        if (adapter.checkBoxState[i] == true) {
+                            AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
+                        }
+                    }
+                    if (exportList.size() > 0) {
+                        Intent intent = new Intent(v.getContext(), FTPActivity.class);
+                        startActivityForResult(intent, 0);
+                    } else {
+                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         });
 
