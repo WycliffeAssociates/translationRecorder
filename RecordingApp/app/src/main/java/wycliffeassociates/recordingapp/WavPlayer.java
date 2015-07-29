@@ -10,21 +10,31 @@ import java.io.IOException;
 public class WavPlayer {
 
     private static MediaPlayer m;
+    private static boolean paused = false;
     /**
      * Plays audio given a filename.
      * @param filename the absolute path to the file to be played.
      */
     public static void play(String filename){
-        m = new MediaPlayer();
+        if(paused){
+            paused = false;
+            m.start();
+        }
+        else {
+            m = new MediaPlayer();
 
-        try {
-            m.setDataSource(filename);
-            m.prepare();
+            try {
+                m.setDataSource(filename);
+                m.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            m.start();
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        m.start();
+    }
+    public static void pause(){
+        paused = true;
+        m.pause();
     }
 
     public static void stop(){
