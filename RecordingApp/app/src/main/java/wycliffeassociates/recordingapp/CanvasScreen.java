@@ -95,13 +95,14 @@ public class CanvasScreen extends Activity {
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
         setButtonHandlers();
-        enableButtons(false);
+        enableButtons(true);
+        startRecording();
     }
 
 
 
     private void setButtonHandlers() {
-        findViewById(R.id.btnRecord).setOnClickListener(btnClick);
+        findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPlay).setOnClickListener(btnClick);
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
@@ -115,7 +116,7 @@ public class CanvasScreen extends Activity {
 
     private void enableButtons(boolean isRecording) {
 
-        enableButton(R.id.btnRecord, !isRecording);
+        enableButton(R.id.btnRecording, !isRecording);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, !isRecording);
@@ -172,7 +173,7 @@ public class CanvasScreen extends Activity {
     private void pauseRecording(){
         paused = true;
         isRecording = false;
-        findViewById(R.id.btnRecord).setVisibility(View.VISIBLE);
+        findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
         stopService(new Intent(this, WavRecorder.class));
         try {
@@ -192,7 +193,7 @@ public class CanvasScreen extends Activity {
 
     private void startRecording(){
         findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
-        findViewById(R.id.btnRecord).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
         if(!paused) {
             isRecording = true;
     	    isSaved = false;
@@ -298,7 +299,7 @@ public class CanvasScreen extends Activity {
         public void onClick(View v) {
             System.out.println("Pressed something");
             switch(v.getId()){
-                case R.id.btnRecord:{
+                case R.id.btnRecording:{
                     System.out.println("Pressed Record");
                     enableButtons(true);
                     startRecording();
