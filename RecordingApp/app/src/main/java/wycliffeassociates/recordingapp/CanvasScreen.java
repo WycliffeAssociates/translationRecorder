@@ -43,7 +43,7 @@ public class CanvasScreen extends Activity {
     private boolean paused = false;
     private boolean isSaved = false;
     private boolean isPlaying = false;
-
+    private boolean isRecording = false;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -169,6 +169,7 @@ public class CanvasScreen extends Activity {
 
     private void pauseRecording(){
         paused = true;
+        isRecording = false;
         stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.writingQueue.put(new RecordingMessage(null, true, false));
@@ -181,6 +182,7 @@ public class CanvasScreen extends Activity {
 
     private void startRecording(){
         if(!paused) {
+            isRecording = true;
     	    isSaved = false;
     	    RecordingQueues.writingQueue.clear();
             Intent intent = new Intent(this, WavFileWriter.class);
@@ -192,11 +194,13 @@ public class CanvasScreen extends Activity {
         }
         else {
             paused = false;
+            isRecording = true;
             startService(new Intent(this, WavRecorder.class));
         }
 
     }
     private void stopRecording() {
+        isRecording = false;
         if (isPlaying) {
             isPlaying = false;
             WavPlayer.stop();
@@ -263,6 +267,9 @@ public class CanvasScreen extends Activity {
     public void onBackPressed() {
         if(!isSaved) {
             QuitDialog dialog = new QuitDialog();
+            if(isRecording){
+                dialog.setIsRecording(true);
+            }
             dialog.show(this.getFragmentManager(), "reallyQuitDialog");
         }
         else

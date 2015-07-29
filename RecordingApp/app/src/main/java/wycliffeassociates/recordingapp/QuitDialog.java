@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.WindowManager;
@@ -14,6 +16,7 @@ import android.widget.Button;
  */
 public class QuitDialog extends DialogFragment{
     AlertDialog dialog;
+    private boolean isRecording = false;
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
@@ -27,6 +30,17 @@ public class QuitDialog extends DialogFragment{
                 })
                 .setNegativeButton(" ", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        if(isRecording){
+                            System.out.println("trying to stop the recording service");
+                            getActivity().stopService(new Intent(getActivity(), WavRecorder.class));
+                            try {
+                                RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
+                                RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
+                                Boolean done = RecordingQueues.doneWriting.take();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         getActivity().finish();
                     }
                 });
@@ -43,8 +57,8 @@ public class QuitDialog extends DialogFragment{
         Button nButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_NEGATIVE);
 
 
-        nButton.setBackground(getResources().getDrawable(R.drawable.ic_ic_delete_black_48dp));
-        pButton.setBackground(getResources().getDrawable(R.drawable.ic_ic_save_black_48dp));
+        nButton.setBackground(getResources().getDrawableForDensity(R.drawable.ic_ic_delete_black_48dp, 48));
+        pButton.setBackground(getResources().getDrawableForDensity(R.drawable.ic_ic_save_black_48dp, 48));
 
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(dialog.getWindow().getAttributes());
@@ -54,5 +68,9 @@ public class QuitDialog extends DialogFragment{
 
         dialog.getWindow().setAttributes(lp);
 
+    }
+
+    public void setIsRecording(boolean isRecording) {
+        this.isRecording = isRecording;
     }
 }
