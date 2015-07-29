@@ -176,6 +176,7 @@ public class AudioFiles extends Activity {
         btnExportFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                exportList = new ArrayList<String>();
                 if ((file == null)) {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                 }
@@ -203,12 +204,12 @@ public class AudioFiles extends Activity {
         btnExportApp.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
                         AudioFiles.AudioExport(items2[i].getName(), adapter.checkBoxState[i]);
                     }
                 }
-
 
                 //if something is checked
                 if(exportList.size() > 0) {
