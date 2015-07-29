@@ -14,7 +14,7 @@
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnRecord"
+        android:id="@+id/btnPauseRecording"
         android:background="@drawable/ic_album_white_48dp"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:focusable="false"

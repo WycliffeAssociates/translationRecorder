@@ -109,7 +109,7 @@ public class Record extends Activity {
 
 
     private void setButtonHandlers() {
-        findViewById(R.id.btnRecord).setOnClickListener(btnClick);
+        findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPlay).setOnClickListener(btnClick);
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
@@ -121,7 +121,7 @@ public class Record extends Activity {
     }
 
     private void enableButtons(boolean isRecording) {
-        enableButton(R.id.btnRecord, !isRecording);
+        enableButton(R.id.btnPauseRecording, !isRecording);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPlay, !isRecording);
         enableButton(R.id.btnSave, !isRecording);
@@ -239,7 +239,7 @@ public class Record extends Activity {
         public void onClick(View v) {
             System.out.println("Pressed something");
             switch(v.getId()){
-                case R.id.btnRecord:{
+                case R.id.btnPauseRecording:{
                     System.out.println("Pressed Record");
                     enableButtons(true);
                     startRecording();
