@@ -40,6 +40,13 @@ public class CanvasView extends View {
     private int numChannels = 2;
     private boolean recording;
     private boolean shouldDrawLine = false;
+    private boolean shouldDrawMiniMarker = false;
+
+    public void setMiniMarkerLoc(float miniMarkerLoc) {
+        this.miniMarkerLoc = miniMarkerLoc;
+    }
+
+    private float miniMarkerLoc;
 
 
     public CanvasView(Context c, AttributeSet attrs) {
@@ -84,6 +91,9 @@ public class CanvasView extends View {
         drawBuffer(canvas, buffer, blockSize, numChannels, recording);
         if(shouldDrawLine){
             drawMarker(canvas);
+        }
+        if(shouldDrawMiniMarker){
+            minimapMaker(canvas);
         }
 
     }
@@ -243,5 +253,11 @@ public class CanvasView extends View {
         mPaint.setColor(Color.RED);
         canvas.drawLine((canvas.getWidth()/8) + xTranslation, 0, (canvas.getWidth()/8)+xTranslation, canvas.getHeight(), mPaint);
     }
-
+    public void shouldDrawMiniMarker(boolean yes){
+        this.shouldDrawMiniMarker = true;
+    }
+    public void minimapMaker(Canvas canvas){
+        mPaint.setColor(Color.GREEN);
+        canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
+    }
 }

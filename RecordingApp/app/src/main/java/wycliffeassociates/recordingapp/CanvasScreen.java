@@ -250,10 +250,13 @@ public class CanvasScreen extends Activity {
                     System.out.println("Scalefactor is " + scaleFactor);
                     translation = (int)(location * scaleFactor);
                     mainCanvas.setXTranslation(base+translation);
+                    minimap.setMiniMarkerLoc((float)(location*minimap.getWidth()));
+                    minimap.shouldDrawMiniMarker(true);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mainCanvas.invalidate();
+                            minimap.invalidate();
                         }
                     });
 
