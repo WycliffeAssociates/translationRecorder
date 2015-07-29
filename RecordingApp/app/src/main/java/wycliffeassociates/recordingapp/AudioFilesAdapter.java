@@ -85,10 +85,6 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
 
 
-            //viewHolder.checkBox.setScaleX(3f);
-            //viewHolder.checkBox.setScaleY(3f);
-
-
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
             viewHolder.date.setGravity(Gravity.RIGHT);
 
@@ -115,9 +111,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                //System.out.println("PLAY AUDIO");
                 AudioFiles.AudioPlay(audioItems[position].getName());
-                // Do something here.
             }
 
         });
@@ -129,28 +123,13 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             public void onClick(View v) {
                 if (((CheckBox) v).isChecked()) {
                     checkBoxState[position] = true;
-                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
                 }
                 else {
                     checkBoxState[position] = false;
-                    //AudioFiles.AudioExport(audioItems[position].getName(), checkBoxState[position]);
                 }
 
             }
         });
-
-        /**
-        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                } else {
-                    AudioFiles.AudioExport(audioItems[position].getName(), isChecked);
-                }
-            }
-        });
-         **/
 
             return convertView;
         }
