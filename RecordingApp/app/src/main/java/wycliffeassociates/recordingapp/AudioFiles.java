@@ -88,7 +88,7 @@ public class AudioFiles extends Activity {
 
         //pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
-        directory = pref.getPreferences("fileDirectory") + "/" + pref.getPreferences("fileFolder");
+        directory = (String) pref.getPreferences("fileDirectory");
         sort = (int) pref.getPreferences("displaySort");
 
 

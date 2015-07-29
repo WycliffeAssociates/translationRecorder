@@ -2,10 +2,14 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -14,10 +18,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 /**
  *
@@ -26,6 +32,8 @@ import java.util.Map;
  */
 public class Settings extends Activity {
     private Button tFileName, tReset, tIncrement, hardReset, pPreferences, saveFileName;
+
+    private Button setSaveDirectory;
     private Button sortName, sortDuration, sortDate;
     private EditText displayFileName, displayPreferences, displaySort;
     private EditText editFileName;
@@ -124,8 +132,41 @@ public class Settings extends Activity {
             }
         });
 
+        setSaveDirectory = (Button)findViewById(R.id.setSaveDirectory);
+        setSaveDirectory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String temp = (String) pref.getPreferences("fileDirectory");
+
+                Intent intent = new Intent();
+                intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
+                startActivityForResult(intent, 21);
+
+
+                //printPreferences(pref);
+            }
+        });
+
 
     }
+
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+        Uri currentUri = null;
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 21) {
+                currentUri = resultData.getData();
+                File temp = new File(currentUri.getPath());
+                PreferencesManager pref = new PreferencesManager(this);
+
+                //:( -- get file path
+                pref.setPreferences("fileDirectory", temp.getAbsolutePath().toString());
+                printPreferences(pref);
+            }
+        }
+    }
+
+
     private void printPreferences(PreferencesManager pref){
         HashMap<String, Object> test = (HashMap<String,Object>) pref.getPreferences("all");
         samplePreferences = "";

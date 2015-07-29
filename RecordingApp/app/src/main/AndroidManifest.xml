@@ -25,7 +25,6 @@
         <activity android:name=".CanvasScreen" android:screenOrientation="landscape"/>
         <activity android:name=".AudioFiles" android:screenOrientation="portrait" />
         <activity android:name=".Settings" android:screenOrientation="portrait"/>
-        <activity android:name=".ExportFiles" android:screenOrientation="portrait"/>
         <service android:name=".WavRecorder" />
         <service android:name=".WavFileWriter" />
 

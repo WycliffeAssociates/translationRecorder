@@ -76,7 +76,7 @@ public class PreferencesManager {
             editor.putString("fileName", (String) temp.get("fileName"));
             editor.putInt("fileCounter", (int) temp.get("fileCounter"));
             editor.putString("fileDirectory", (String) temp.get("fileDirectory"));
-            editor.putString("fileFolder", (String) temp.get("fileFolder"));
+            //editor.putString("fileFolder", (String) temp.get("fileFolder"));
             editor.putString("exportDirectory", (String) temp.get("exportDirectory"));
             editor.putString("Language", (String) temp.get("Language"));
             editor.putInt("displaySort", (int) temp.get("displaySort"));
@@ -168,9 +168,9 @@ public class PreferencesManager {
         //DEFAULTS
         prefs.put("fileName", "Recording");
         prefs.put("fileCounter", 1);
-        prefs.put("fileDirectory", Environment.getExternalStorageDirectory().getPath().toString());
-        prefs.put("fileFolder", "AudioRecorder");
-        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getPath().toString());
+        prefs.put("fileDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + R.string.app_name);
+        //prefs.put("fileFolder", "deprecated");
+        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + R.string.app_name);
         //prefs.put("fileFolder", "AudioRecorder");
         prefs.put("Language", "EN");
 

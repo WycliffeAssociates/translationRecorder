@@ -72,6 +72,14 @@
         android:layout_marginLeft="150dp"
         android:layout_marginTop="250dp"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save Directory"
+        android:id="@+id/setSaveDirectory"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="300dp"/>
+
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
