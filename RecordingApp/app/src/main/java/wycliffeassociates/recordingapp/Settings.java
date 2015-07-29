@@ -40,8 +40,8 @@ public class Settings extends Activity {
 
         displayFileName = (EditText)findViewById(R.id.displayFileName);
         displayPreferences = (EditText)findViewById(R.id.displayPreferences);
-        editFileName = (EditText)findViewById(R.id.editFileName);
         displaySort = (EditText)findViewById(R.id.displaySort);
+        editFileName = (EditText)findViewById(R.id.editFileName);
 
 
 
@@ -104,7 +104,7 @@ public class Settings extends Activity {
                 }else{
                     pref.setPreferences("displaySort", 5);
                 }
-
+                printPreferences(pref);
                 printSort(pref);
             }
         });
@@ -119,6 +119,7 @@ public class Settings extends Activity {
                 }else{
                     pref.setPreferences("displaySort", 1);
                 }
+                printPreferences(pref);
                 printSort(pref);
             }
         });
