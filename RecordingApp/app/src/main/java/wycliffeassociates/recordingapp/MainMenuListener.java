@@ -11,6 +11,8 @@ import android.widget.ImageButton;
 
 import java.util.ArrayList;
 
+import wycliffeassociates.recordingapp.model.DefaultName;
+
 public class MainMenuListener extends Activity{
 
     private ImageButton btnRecord;
@@ -43,7 +45,7 @@ public class MainMenuListener extends Activity{
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), Settings.class);
+                Intent intent = new Intent(v.getContext(), DefaultName.class);
                 startActivityForResult(intent, 0);
             }
         });

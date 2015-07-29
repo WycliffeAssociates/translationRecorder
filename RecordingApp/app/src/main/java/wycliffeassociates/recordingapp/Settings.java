@@ -29,7 +29,9 @@ public class Settings extends Activity {
     private Button sortName, sortDuration, sortDate;
     private EditText displayFileName, displayPreferences, displaySort;
     private EditText editFileName;
-    private String sampleName, samplePreferences;
+    private String sampleName;
+    private String samplePreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,4 +158,6 @@ public class Settings extends Activity {
         int h = (int) pref.getPreferences("displaySort");
         displaySort.setText(output[h]);
     }
+
+
 }
