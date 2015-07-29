@@ -168,9 +168,10 @@ public class PreferencesManager {
         //DEFAULTS
         prefs.put("fileName", "Recording");
         prefs.put("fileCounter", 1);
-        prefs.put("fileDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + R.string.app_name);
+        prefs.put("fileDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + "AudioRecorder");
         //prefs.put("fileFolder", "deprecated");
-        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + R.string.app_name);
+        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + "AudioRecorder");
+                //R.string.app_name);
         //prefs.put("fileFolder", "AudioRecorder");
         prefs.put("Language", "EN");
 
