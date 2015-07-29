@@ -1,8 +1,12 @@
-package wycliffeassociates.recordingapp.model;
+package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
+import java.io.File;
 
 import wycliffeassociates.recordingapp.R;
 
@@ -35,28 +39,58 @@ public class DefaultName extends Activity
     /**
      * The counter that increments every time a new recording is made
      */
-    private int counter;
+    private static int counter;
 
     /**
      * The default name of the file based on other info provided by the user
      */
     private String defaultName;
 
+    /**
+     * True if the user wants to name according to lang & book code
+     */
+    private boolean useDefaults;
+
+    /**
+     * Path to the json file for language code
+     */
+    File langCodePath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.default_name);
+
         //Initialize all class variables
         deviceID = getDeviceID();
         appName = getAppName();
         language = "";
         book = "";
         //TODO: get the counter from settings.java
-        counter = 0;
+        counter = 1;
         defaultName = getDefaultName();
 
-    }
+        langCodePath = getDir("TranslationCodes", MODE_PRIVATE);
 
+        String[] list = getFilesDir().list();
+        for(int i = 0; i < list.length; i++)
+             System.out.println("ABI: " + list[i]);
+        System.out.println("ABI: " + list.length);
+
+
+    }
+/*
+    public void setUpLanguageSpinner(){
+        Spinner spinner = (Spinner) findViewById(R.id.langCode);
+// Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.planets_array, android.R.layout.simple_spinner_item);
+// Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+    }
+*/
     /**
      * Getter for the unique identifier of the device
      * @return the unique identifier of the device
@@ -71,8 +105,8 @@ public class DefaultName extends Activity
      */
     public String getAppName() {
         String name = getResources().getString(R.string.app_name);
-        if(name.contains(" "))
-            name.replace(" ","");
+        name.replace(" ","");
+        name.toLowerCase();
         return name;
     }
 
@@ -124,6 +158,13 @@ public class DefaultName extends Activity
     }
 
     /**
+     * Resets the counter to 1
+     */
+    public void resetCounter(){
+        counter = 1;
+    }
+
+    /**
      * setter for the recording number
      * @param counter The recording number
      */
@@ -136,6 +177,25 @@ public class DefaultName extends Activity
      * @return The default name
      */
     public String getDefaultName() {
-        return getAppName() + "-" + getDeviceID() + "-" + getLanguage() + "-"  + getBook() + "-" + getCounter() + ".wav";
+        if(useDefaults)
+             return getAppName() + "-" + getDeviceID() + "-" + getLanguage() + "-"  + getBook() + "-" + getCounter() + ".wav";
+        else//TODO: add in filename given by user
+            return getCounter() + ".wav";
+    }
+
+    /**
+     * Checks if defaults are being used in default name
+     * @return True if defaults are being used, false otherwise
+     */
+    public boolean isUseDefaults() {
+        return useDefaults;
+    }
+
+    /**
+     * Setter for whether or not defaults are used in name
+     * @param useDefaults True if defaults are used in name, false otherwise
+     */
+    public void setUseDefaults(boolean useDefaults) {
+        this.useDefaults = useDefaults;
     }
 }
