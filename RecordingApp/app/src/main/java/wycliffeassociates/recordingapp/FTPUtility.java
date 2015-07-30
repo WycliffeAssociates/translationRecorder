@@ -8,9 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Created by Emmanuel on 7/29/2015.
- */
 public class FTPUtility {
     private String FTPServer;
     private int Port;

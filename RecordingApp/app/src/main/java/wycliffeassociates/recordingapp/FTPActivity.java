@@ -9,9 +9,6 @@ import android.widget.TextView;
 
 import java.io.File;
 
-/**
- * Created by Emmanuel on 7/29/2015.
- */
 public class FTPActivity extends Activity {
     private EditText FTPServer;
     private EditText Port;
