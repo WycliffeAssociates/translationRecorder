@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 import wycliffeassociates.recordingapp.model.AudioItem;
@@ -183,13 +185,26 @@ public class AudioFiles extends Activity {
                             exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
                         }
                     }
-//                    Intent intent = new Intent(v.getContext(), ExportFiles.class);
                     if (exportList.size() > 0) {
-//                        intent.putExtra("exportList", exportList);
-//                        startActivityForResult(intent, 0);
+                        //to create zip folder use application/zip as mimetype
                         totalFiles = exportList.size();
                         thisPath = exportList.get(0);
-                        createFile("audio/*", getNameFromPath(thisPath));
+
+                        //remove extension for the path name & add .zip extension.
+                        String tempPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                        //files to zip
+                        String[] toZip = new String[totalFiles];
+                        for(int i = 0; i < totalFiles;i++){
+                            toZip[i] = exportList.get(i);
+                        }
+                        try{
+                            zip(toZip,tempPath);
+                        }
+                        catch(IOException e){
+                            e.printStackTrace();
+                        }
+                      //  createFile(, "test.zip");
+                        createFile("application/*", getNameFromPath(tempPath));
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -551,7 +566,8 @@ public class AudioFiles extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            iteratePath();
+            if(!path.contains(".zip"));
+                iteratePath();
             if(fileNum < totalFiles) {
                 thisPath = exportList.get(fileNum);
                 createFile("audio/*", getNameFromPath(thisPath));
@@ -582,6 +598,43 @@ public class AudioFiles extends Activity {
                 savefile(currentUri, exportList.get(fileNum));
 
             }
+        }
+    }
+
+    //==================================
+    //         Zipping files
+    //==================================
+
+    /**
+     * Zips files into a single folder
+     * @param files A String array of the paths to the files to be zipped
+     * @param zipFile The location of the zip file as a String
+     * @throws IOException
+     */
+    public static void zip(String[] files, String zipFile) throws IOException {
+        BufferedInputStream origin = null;
+        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+        try {
+            byte data[] = new byte[1024];
+
+            for (int i = 0; i < files.length; i++) {
+                FileInputStream fi = new FileInputStream(files[i]);
+                origin = new BufferedInputStream(fi, 1024);
+                try {
+                    ZipEntry entry = new ZipEntry(files[i].substring(files[i].lastIndexOf("/") + 1));
+                    out.putNextEntry(entry);
+                    int count;
+                    while ((count = origin.read(data, 0, 1024)) != -1) {
+                        out.write(data, 0, count);
+                    }
+                }
+                finally {
+                    origin.close();
+                }
+            }
+        }
+        finally {
+            out.close();
         }
     }
 }

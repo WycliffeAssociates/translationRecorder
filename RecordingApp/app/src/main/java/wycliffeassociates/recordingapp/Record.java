@@ -139,6 +139,7 @@ public class Record extends Activity {
 
     public boolean getSaveName(Context c){
         final EditText toSave = new EditText(c);
+        toSave.setHint("default");
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
 
         //prepare the dialog
@@ -306,6 +307,7 @@ public class Record extends Activity {
             return recordedFilename;
         }
     }
+
 }
 
 

@@ -15,6 +15,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -45,7 +46,6 @@ public class CanvasScreen extends Activity {
     private boolean isPlaying = false;
     private boolean isRecording = false;
 
-
     public boolean onTouchEvent(MotionEvent ev) {
         if(ev.getPointerCount() > 1.0){
             SGD.onTouchEvent(ev);
@@ -59,6 +59,10 @@ public class CanvasScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final PreferencesManager pref = new PreferencesManager(this);
+        outputName = (String)pref.getPreferences("fileName");
+
         //recordedFilename = savedInstanceState.getString("outputFileName", null);
 
         //make sure the tablet does not go to sleep while on the recording screen
@@ -136,6 +140,9 @@ public class CanvasScreen extends Activity {
     public boolean getSaveName(Context c){
         final EditText toSave = new EditText(c);
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        //pref.getPreferences("fileName");
+        toSave.setText(outputName,TextView.BufferType.EDITABLE);
 
         //prepare the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(c);
@@ -339,6 +346,7 @@ public class CanvasScreen extends Activity {
      * @return the absolute path of the file created
      */
     public String saveFile(String name) {
+        //eventually will be pref.getPreferences("fileDirectory");
         String filepath = Environment.getExternalStorageDirectory().getPath();
         File dir = new File(filepath, AUDIO_RECORDER_FOLDER);
         System.out.println(recordedFilename);
