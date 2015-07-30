@@ -45,7 +45,6 @@ public class WavFileLoader {
     }
     private void processHeader(){
         if(wavFile.length > WAVE_HEADER_SIZE) {
-            numChannels = (int) wavFile[22] & 0xFF;
             numChannels = 2;
             blockSize = (int) wavFile[32] & 0xFF;
             int part1 = (((int) wavFile[27] & 0xFF) << 24) & 0xFF000000;

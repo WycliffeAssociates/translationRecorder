@@ -262,7 +262,6 @@ public class CanvasScreen extends Activity {
                 while(WavPlayer.isPlaying()){
                     double location = (double)WavPlayer.getLocation()/ (double)WavPlayer.getDuration();
                     double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
-                    System.out.println("Scalefactor is " + scaleFactor);
                     translation = (int)(location * scaleFactor);
                     mainCanvas.setXTranslation(base+translation);
                     minimap.setMiniMarkerLoc((float) (location * minimap.getWidth()));
