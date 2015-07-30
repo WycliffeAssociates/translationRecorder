@@ -95,17 +95,19 @@ public class CanvasScreen extends Activity {
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
         setButtonHandlers();
-        enableButtons(false);
+        enableButtons(true);
+        startRecording();
     }
 
 
 
     private void setButtonHandlers() {
-        findViewById(R.id.btnRecord).setOnClickListener(btnClick);
+        findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPlay).setOnClickListener(btnClick);
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
-        //findViewById(R.id.btnPause).setOnClickListener(btnClick);
+        findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
+        findViewById(R.id.btnPause).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id,boolean isEnable){
@@ -114,11 +116,12 @@ public class CanvasScreen extends Activity {
 
     private void enableButtons(boolean isRecording) {
 
-        enableButton(R.id.btnRecord, !isRecording);
+        enableButton(R.id.btnRecording, !isRecording);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, !isRecording);
-        //enableButton(R.id.btnPause, isRecording);
+        enableButton(R.id.btnPauseRecording, isRecording);
+        enableButton(R.id.btnPause, true);
     }
 
     private void saveRecording(){
@@ -170,6 +173,8 @@ public class CanvasScreen extends Activity {
     private void pauseRecording(){
         paused = true;
         isRecording = false;
+        findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
+        findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
         stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.writingQueue.put(new RecordingMessage(null, true, false));
@@ -179,8 +184,16 @@ public class CanvasScreen extends Activity {
         }
 
     }
+    private void pausePlayback(){
+        paused = true;
+        findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+        WavPlayer.pause();
+    }
 
     private void startRecording(){
+        findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
+        findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
         if(!paused) {
             isRecording = true;
     	    isSaved = false;
@@ -207,7 +220,7 @@ public class CanvasScreen extends Activity {
         }
         else {
             findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
-            findViewById(R.id.linearLayout9).setVisibility(View.INVISIBLE);
+            findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
             stopService(new Intent(this, WavRecorder.class));
             try {
                 RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
@@ -234,6 +247,8 @@ public class CanvasScreen extends Activity {
 
     }
     private void playRecording(){
+        findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
         isPlaying = true;
@@ -250,10 +265,13 @@ public class CanvasScreen extends Activity {
                     System.out.println("Scalefactor is " + scaleFactor);
                     translation = (int)(location * scaleFactor);
                     mainCanvas.setXTranslation(base+translation);
+                    minimap.setMiniMarkerLoc((float) (location * minimap.getWidth()));
+                    minimap.shouldDrawMiniMarker(true);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mainCanvas.invalidate();
+                            minimap.invalidate();
                         }
                     });
 
@@ -281,7 +299,7 @@ public class CanvasScreen extends Activity {
         public void onClick(View v) {
             System.out.println("Pressed something");
             switch(v.getId()){
-                case R.id.btnRecord:{
+                case R.id.btnRecording:{
                     System.out.println("Pressed Record");
                     enableButtons(true);
                     startRecording();
@@ -302,9 +320,13 @@ public class CanvasScreen extends Activity {
                     break;
                 }
                 case R.id.btnPause:{
+                    enableButtons(true);
+                    pausePlayback();
+                    break;
+                }
+                case R.id.btnPauseRecording:{
                     enableButtons(false);
                     pauseRecording();
-                    break;
                 }
             }
         }
