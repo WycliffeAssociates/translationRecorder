@@ -41,12 +41,12 @@ public class AudioFiles extends Activity {
 
     private ListView audioFileView;
     private TextView file_path;
-
-    private String currentDir;
+    private static String currentDir;
     private File file[];
 
+
     private ArrayList<AudioItem> audioItemList;
-    private ArrayList<String> exportList;
+    static ArrayList<String> exportList;
 
     private ArrayList<String> audioNameList;
     private ArrayList<Date> dateList;
@@ -62,9 +62,7 @@ public class AudioFiles extends Activity {
 
     public AudioFilesAdapter adapter;
 
-    Hashtable<Date, String> audioHash = new Hashtable<Date, String>();
-
-    static String directory = "";
+    Hashtable<Date, String> audioHash;
 
     /**
      * the current filepath being exported
@@ -88,7 +86,7 @@ public class AudioFiles extends Activity {
 
         //pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
-        directory = (String) pref.getPreferences("fileDirectory");
+        currentDir = (String) pref.getPreferences("fileDirectory");
         sort = (int) pref.getPreferences("displaySort");
 
 
@@ -100,10 +98,11 @@ public class AudioFiles extends Activity {
         audioNameList = new ArrayList<String>();
         dateList = new ArrayList<Date>();
         audioItemList = new ArrayList<AudioItem>();
+        audioHash = new Hashtable<Date, String>();
 
 
         //get files in the directory
-        File f = new File(directory);
+        File f = new File(currentDir);
         file = f.listFiles();
         //no files
         if (file == null) {
@@ -146,6 +145,30 @@ public class AudioFiles extends Activity {
             }
         });
 
+        btnExportFTP = (ImageButton)findViewById(R.id.btnExportFTP);
+        btnExportFTP.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                exportList = new ArrayList<String>();
+                if ((file == null)) {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                        if (adapter.checkBoxState[i] == true) {
+                            exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
+                        }
+                    }
+                    if (exportList.size() > 0) {
+                        Intent intent = new Intent(v.getContext(), FTPActivity.class);
+                        startActivityForResult(intent, 0);
+                    } else {
+                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
         btnExportFolder = (ImageButton)findViewById(R.id.btnExportFolder);
         btnExportFolder.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,7 +180,7 @@ public class AudioFiles extends Activity {
                 else {
                     for (int i = 0; i < adapter.checkBoxState.length; i++) {
                         if (adapter.checkBoxState[i] == true) {
-                            exportList.add(audioItemList.get(i).getName());
+                            exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
                         }
                     }
 //                    Intent intent = new Intent(v.getContext(), ExportFiles.class);
@@ -181,7 +204,7 @@ public class AudioFiles extends Activity {
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
-                        exportList.add(audioItemList.get(i).getName());
+                        exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
                     }
                 }
 
@@ -418,7 +441,7 @@ public class AudioFiles extends Activity {
 
     //Change
     public static void AudioPlay (String fileName){
-        WavPlayer.play(directory + "/" + fileName);
+        WavPlayer.play(currentDir + "/" + fileName);
     }
 
     //==================================
