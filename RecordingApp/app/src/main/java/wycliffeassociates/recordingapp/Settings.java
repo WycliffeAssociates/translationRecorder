@@ -2,19 +2,18 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TextView;
-
 import java.io.File;
-import java.util.prefs.Preferences;
 
 /**
  *
@@ -22,11 +21,12 @@ import java.util.prefs.Preferences;
  *
  */
 public class Settings extends Activity {
-    private Button tReset;
-    private ImageButton hardReset,setSaveDirectory, setFtp;
-    private Spinner setLangCode, setBookCode;
+    private Button hardReset;
+    private ImageButton setSaveDirectory, setFtp;
     private String sampleName;
     private TextView displayFileName, showSaveDirectory;
+    private EditText tReset,setBookCode;
+    AutoCompleteTextView setLangCode;
 
     final int SET_SAVE_DIR = 21;
 
@@ -40,57 +40,82 @@ public class Settings extends Activity {
 
         displayFileName = (TextView)findViewById(R.id.defaultFileName);
         showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
-        tReset = (Button)findViewById(R.id.tReset);
+        tReset = (EditText)findViewById(R.id.tReset);
 
         printFileName(pref);
         printSaveDirectory(pref);
         printCounter(pref);
 
-        setLangCode = (Spinner)findViewById(R.id.setLangCode);
-        //setLangCode.setSelection((int) pref.getPreferences("languageNumber"));
-        setLangCode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        //need to get an adapter for autocompletion eventually. Functional now
+        setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
+        setLangCode.setText(pref.getPreferences("targetLanguage").toString());
+        setLangCode.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                pref.setPreferences("targetLanguage", setLangCode.getSelectedItem());
-                pref.setPreferences("languageNumber", setLangCode.getSelectedItemPosition());
-                updateFileName(pref);
+            public void afterTextChanged(Editable s) {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                //change nothing
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                newVal = newVal.replaceAll("![A-Za-z0-9]", "");
+                pref.setPreferences("targetLanguage", newVal);
+                updateFileName(pref);
             }
         });
 
-        setBookCode = (Spinner)findViewById(R.id.setBookCode);
-        setBookCode.setSelection((int) pref.getPreferences("bookNumber"));
-        setBookCode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
+        setBookCode = (EditText)findViewById(R.id.setBookCode);
+        setBookCode.setText(pref.getPreferences("book").toString());
+        setBookCode.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
-            {
-                pref.setPreferences("book",setBookCode.getSelectedItem());
-                pref.setPreferences("bookNumber", setBookCode.getSelectedItemPosition());
-                updateFileName(pref);
+            public void afterTextChanged(Editable s) {
             }
+
             @Override
-            public void onNothingSelected(AdapterView<?> parentView)
-            {
-                //change nothing
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                newVal = newVal.replaceAll("![A-Za-z0-9]", "");
+                pref.setPreferences("book", newVal);
+                updateFileName(pref);
             }
         });
 
-        tReset = (Button)findViewById(R.id.tReset);
-        tReset.setOnClickListener(new View.OnClickListener() {
+        tReset = (EditText)findViewById(R.id.tReset);
+        tReset.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                pref.setPreferences("fileCounter", 1);
-                printCounter(pref);
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                int counter = (int)pref.getPreferences("fileCounter");
+                try {
+                    counter = Integer.parseInt(newVal);
+                }
+                catch(NumberFormatException e){
+                    e.printStackTrace();
+                }
+                pref.setPreferences("fileCounter", counter);
                 printFileName(pref);
             }
         });
 
-        hardReset = (ImageButton)findViewById(R.id.btnRestoreDefault);
+        hardReset = (Button)findViewById(R.id.btnRestoreDefault);
         hardReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

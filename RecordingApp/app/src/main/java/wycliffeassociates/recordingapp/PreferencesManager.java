@@ -176,9 +176,7 @@ public class PreferencesManager {
         prefs.put("Language", "EN");
 
         prefs.put("targetLanguage", "en");
-        prefs.put("languageNumber", "0");
         prefs.put("book","mat");
-        prefs.put("bookNumber",39);
         prefs.put("displaySort", 5);
         //prefs.put("appName", (String) getResources().g);
         //prefs.put("deviceUUID", getDeviceUUID());

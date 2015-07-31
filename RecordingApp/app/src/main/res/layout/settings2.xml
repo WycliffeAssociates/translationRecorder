@@ -31,13 +31,15 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/File_Name_Buttons">
 
-                <Spinner
+                <AutoCompleteTextView
                     android:id="@+id/setLangCode"
                     android:layout_width="300dp"
                     android:layout_height="60dp"
+                    android:text="Reset"
+                    android:gravity="center"
                     android:background="@drawable/purple"
-                    android:spinnerMode="dropdown"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:layout_gravity="center" />
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -45,14 +47,15 @@
                     android:layout_height="match_parent"
                     android:id="@+id/space"></LinearLayout>
 
-                <Spinner
+                <EditText
                     android:id="@+id/setBookCode"
                     android:layout_width="300dp"
                     android:layout_height="60dp"
+                    android:text="Reset"
+                    android:gravity="center"
                     android:background="@drawable/purple"
-                    android:spinnerMode="dropdown"
                     android:layout_weight="1"
-                    android:entries="@array/bookCodes"/>
+                    android:layout_gravity="center"/>
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -60,14 +63,16 @@
                     android:layout_height="match_parent"
                     android:id="@+id/space2"></LinearLayout>
 
-                <Button
+                <EditText
                     android:id="@+id/tReset"
                     android:text="Reset"
+                    android:gravity="center"
                     android:layout_width="300dp"
                     android:layout_height="60dp"
                     android:background="@drawable/purple"
                     android:layout_weight="1"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    android:inputType="number"/>
 
             </LinearLayout>
 
@@ -170,12 +175,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1.2">
 
-            <ImageButton
+            <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/btnRestoreDefault"
-                android:src="@drawable/restore_defaults"
-                android:background="#00000000"
+                android:text="Restore Default Settings"
+                android:background="@drawable/purple"
+                android:textSize="25sp"
                 android:layout_gravity="center"
                 android:layout_weight="1" />
         </LinearLayout>
