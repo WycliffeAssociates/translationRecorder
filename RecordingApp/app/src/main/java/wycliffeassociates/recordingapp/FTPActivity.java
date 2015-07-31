@@ -1,15 +1,22 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.File;
+import java.io.FileInputStream;
+
 
 public class FTPActivity extends Activity {
+
     private EditText FTPServer;
     private EditText Port;
     private EditText UserName;
@@ -17,6 +24,10 @@ public class FTPActivity extends Activity {
     private EditText Directory;
     private Button Ok;
     private Button Cancel;
+
+    String filepath, server, password, direc, user;
+    int port;
+    File uploadFile;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,26 +38,23 @@ public class FTPActivity extends Activity {
 
         Ok.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick (View v) {
+            public void onClick(View v) {
                 FTPServer = (EditText) findViewById(R.id.FTPServer);
-                String server = FTPServer.getText().toString();
-                Port = (EditText) findViewById(R.id.FTPServer);
-                int port = Integer.getInteger(Port.getText().toString());
+                server = FTPServer.getText().toString();
+                Port = (EditText) findViewById(R.id.Port);
+                String port_string = Port.getText().toString();
+                port = Integer.parseInt(port_string);
                 UserName = (EditText) findViewById(R.id.UserName);
-                String user = UserName.getText().toString();
+                user = UserName.getText().toString();
                 Password = (EditText) findViewById(R.id.Password);
-                String password = Password.getText().toString();
+                password = Password.getText().toString();
                 Directory = (EditText) findViewById(R.id.fileDirectory);
-                String direc = Directory.getText().toString();
+                direc = Directory.getText().toString();
+                filepath = AudioFiles.exportList.get(0);
+                uploadFile = new File(filepath);
 
-                String filepath = AudioFiles.exportList.get(0);
-                File uploadFile = new File(filepath);
-                UploadTask task = new UploadTask(server, port, user, password, direc, uploadFile);
-                try {
-                    task.doInBackground();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                new UploadFile().execute(filepath, server, user, password);
+
             }
         });
 
@@ -58,7 +66,34 @@ public class FTPActivity extends Activity {
                 finish();
             }
         });
+
+
     }
 
+    private class UploadFile extends AsyncTask<String, Integer, Boolean> {
 
+        @Override
+        protected Boolean doInBackground(String... params) {
+            FTPClient client = new FTPClient();
+            try {
+                client.setUseEPSVwithIPv4(true);
+                client.connect(server, port);
+                client.login(user, password);
+                client.setFileType(FTP.BINARY_FILE_TYPE);
+                boolean result = client.storeFile("naruto.wav",new FileInputStream(uploadFile));
+                return result;
+            } catch (Exception e) {
+                Log.d("FTP", e.toString());
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean sucess) {
+            if (sucess)
+                System.out.println("Success");
+            else
+                System.out.println("Error");
+        }
+    }
 }
