@@ -45,6 +45,7 @@ public class CanvasScreen extends Activity {
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isRecording = false;
+   private PreferencesManager pref;
 
     public boolean onTouchEvent(MotionEvent ev) {
         if(ev.getPointerCount() > 1.0){
@@ -59,9 +60,9 @@ public class CanvasScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pref = new PreferencesManager(this);
 
-        final PreferencesManager pref = new PreferencesManager(this);
-        outputName = (String)pref.getPreferences("fileName");
+        outputName = (String)pref.getPreferences("fileName")+"-" +pref.getPreferences("fileCounter").toString();
 
         //recordedFilename = savedInstanceState.getString("outputFileName", null);
 
@@ -354,6 +355,7 @@ public class CanvasScreen extends Activity {
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         Boolean out = from.renameTo(to);
         recordedFilename = to.getAbsolutePath();
+        pref.setPreferences("fileCounter", ((int)pref.getPreferences("fileCounter")+1));
         return to.getAbsolutePath();
     }
 
