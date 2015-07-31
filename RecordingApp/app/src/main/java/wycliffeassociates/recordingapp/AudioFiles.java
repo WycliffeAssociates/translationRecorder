@@ -3,7 +3,6 @@ package wycliffeassociates.recordingapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
@@ -66,6 +65,17 @@ public class AudioFiles extends Activity {
 
     Hashtable<Date, String> audioHash;
 
+
+    /**
+     * URI of the document in storage where it was exported by the user
+     */
+    private Uri currentUri;
+
+    /**
+     * The path to the zipfile
+     */
+    private String zipPath = null;
+
     /**
      * the current filepath being exported
      */
@@ -81,10 +91,10 @@ public class AudioFiles extends Activity {
      */
     private int fileNum =0;
 
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
-
 
         //pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
@@ -186,25 +196,25 @@ public class AudioFiles extends Activity {
                         }
                     }
                     if (exportList.size() > 0) {
-                        //to create zip folder use application/zip as mimetype
                         totalFiles = exportList.size();
                         thisPath = exportList.get(0);
-
-                        //remove extension for the path name & add .zip extension.
-                        String tempPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                        //files to zip
-                        String[] toZip = new String[totalFiles];
-                        for(int i = 0; i < totalFiles;i++){
-                            toZip[i] = exportList.get(i);
+                        if(exportList.size() > 1) {
+                            //we want a zip file since there are multiple files
+                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                            //files to zip
+                            String[] toZip = new String[totalFiles];
+                            for (int i = 0; i < totalFiles; i++) {
+                                toZip[i] = exportList.get(i);
+                            }
+                            try {
+                                zip(toZip, zipPath);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            createFile("application/zip", getNameFromPath(zipPath));
                         }
-                        try{
-                            zip(toZip,tempPath);
-                        }
-                        catch(IOException e){
-                            e.printStackTrace();
-                        }
-                      //  createFile(, "test.zip");
-                        createFile("application/*", getNameFromPath(tempPath));
+                        else//export single file over
+                          createFile("audio/*", getNameFromPath(thisPath));
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -216,6 +226,7 @@ public class AudioFiles extends Activity {
         btnExportApp.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
@@ -225,7 +236,23 @@ public class AudioFiles extends Activity {
 
                 //if something is checked
                 if(exportList.size() > 0) {
-                    exportApplications(exportList);
+                    if(exportList.size() > 1) {//export multiple files as a single zip file
+                        String toExport[] = new String[exportList.size()];
+                        thisPath = exportList.get(0);
+                        for (int i = 0; i < exportList.size(); i++) {
+                            toExport[i] = exportList.get(i);
+                        }
+                        try {
+                            //this could cause problems if the directory list contains matches
+                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                            zip(toExport, zipPath);//TODO: learn how to delete this file after upload
+                            exportZipApplications(zipPath);
+                        } catch (IOException e) {
+                            exportApplications(exportList);
+                            e.printStackTrace();
+                        }
+                    }
+                    else exportApplications(exportList);
                 }
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
@@ -507,6 +534,33 @@ public class AudioFiles extends Activity {
         startActivity(Intent.createChooser(sendIntent, "Export Audio"));
     }
 
+    /**
+     *  Passes zip file URI to relevant audio applications.
+     *      @param path
+     *      a list of filenames to be exported
+     */
+    private void exportZipApplications(String path){
+
+        Intent sendIntent = new Intent();
+        sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        //share it implementation
+        File tFile;
+
+        Uri audioUri;
+
+        tFile = new File (path);
+        audioUri = Uri.fromFile(tFile);
+        sendIntent.setAction(Intent.ACTION_SEND);
+
+        //send individual URI
+        sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);
+
+        //open
+        sendIntent.setType("application/zip");
+        startActivityForResult(Intent.createChooser(sendIntent, "Export Zip"), 3);
+    }
+
     //==================================
     //         Export to Folder
     //==================================
@@ -539,7 +593,7 @@ public class AudioFiles extends Activity {
 
     /**
      * Copies a file from a path to a uri
-     * @param destUri The desination of the file
+     * @param destUri The destination of the file
      * @param path The original path to the file
      */
     public void savefile(Uri destUri, String path)
@@ -566,14 +620,27 @@ public class AudioFiles extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(!path.contains(".zip"));
+
+            //not very well abstracted, but if we are working with non-zip-files
+            //keep saving files
+            if(!path.contains(".zip")) {
                 iteratePath();
-            if(fileNum < totalFiles) {
-                thisPath = exportList.get(fileNum);
-                createFile("audio/*", getNameFromPath(thisPath));
+                if (fileNum < totalFiles) {
+                    thisPath = exportList.get(fileNum);
+                    createFile("audio/*", getNameFromPath(thisPath));
+                }
+            }
+            else//we just transferred a zip file, the old file needs to be deleted
+            {
+                File toDelete = new File(path);
+                try {
+                    toDelete.getCanonicalFile().delete();
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                }
             }
         }
-
     }
 
     /**
@@ -591,12 +658,20 @@ public class AudioFiles extends Activity {
 
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-        Uri currentUri = null;
+        currentUri = null;
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == 43) {
                 currentUri = resultData.getData();
-                savefile(currentUri, exportList.get(fileNum));
+                if(null!= zipPath){
+                    savefile(currentUri, zipPath);
+                    zipPath = null;//reset
+                }//
+                else
+                    savefile(currentUri, thisPath);
+            }
 
+            if(requestCode ==3){//delete zip file, needs to be done after upload
+                zipPath = null;//set null for next time
             }
         }
     }

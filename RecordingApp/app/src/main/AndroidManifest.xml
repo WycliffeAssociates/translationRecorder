@@ -29,7 +29,6 @@
         <service android:name=".WavFileWriter" />
         <activity android:name=".FTPActivity" android:theme="@android:style/Theme.Holo.DialogWhenLarge"/>
 
-
     </application>
 
 </manifest>
