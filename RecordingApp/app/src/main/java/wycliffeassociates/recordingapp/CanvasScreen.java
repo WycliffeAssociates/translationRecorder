@@ -347,10 +347,8 @@ public class CanvasScreen extends Activity {
      * @return the absolute path of the file created
      */
     public String saveFile(String name) {
-        //eventually will be pref.getPreferences("fileDirectory");
-        String filepath = Environment.getExternalStorageDirectory().getPath();
-        File dir = new File(filepath, AUDIO_RECORDER_FOLDER);
-        System.out.println(recordedFilename);
+        File dir = new File(pref.getPreferences("fileDirectory").toString());
+       // System.out.println(recordedFilename);
         File from = new File(recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         Boolean out = from.renameTo(to);
