@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -28,7 +29,7 @@
         <service android:name=".WavRecorder" />
         <service android:name=".WavFileWriter" />
         <activity android:name=".FTPActivity" android:theme="@android:style/Theme.Holo.DialogWhenLarge"/>
-
+        <activity android:name=".connectivity.LanguageNamesRequest" />
     </application>
 
 </manifest>

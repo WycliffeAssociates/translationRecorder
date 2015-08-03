@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,12 +14,16 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import java.io.File;
+import java.util.ArrayList;
+
+import wycliffeassociates.recordingapp.model.Language;
 
 /**
  *
@@ -55,6 +61,73 @@ public class Settings extends Activity {
 
         //need to get an adapter for autocompletion eventually. Functional now
         setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
+        //setLangCode.setText(pref.getPreferences("targetLanguage").toString());
+
+
+        //SELECT
+        String tableName = "langnames";
+        SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+
+        String querySelect = "SELECT * FROM " + tableName;
+        String queryCount = "SELECT COUNT(*) FROM " + tableName;
+
+        //unsynchronized
+        Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
+        //Cursor cursor = audiorecorder.query(DATABASE_TABLE, new String[] { KEY_ROWID, KEY_NAME,
+        //        KEY_MOVES,KEY_TIME}, null, null, null, null, KEY_MOVES + " ASC");
+
+        System.out.println("==========");
+        //System.out.println("Spen : " + cursor.getCount());
+
+               /* if(cursor!=null) {
+                    cursor.moveToFirst();
+                    while(!cursor.isLast()) {
+                        System.out.println(value.getName() + "," + value.getCode() + "," + value.getCountryCode()
+                                + "," + value.getLanguageDirection() + "," + i + "\n")
+                        cursor.moveToNext();
+                    }
+                }*/
+        ArrayList<Language> languageList = new ArrayList<Language>();
+        String[] listHolder;
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while (!cursor.isLast()) {
+                        /*System.out.println(cursor.getString(0));
+                        System.out.println(cursor.getInt(1));*/
+                //create language
+
+                Boolean gw = false;
+                if (cursor.getInt(0) == 0) {
+                    gw = true;
+                }
+
+                String ld = cursor.getString(1);
+                String lc = cursor.getString(2);
+                String ln = cursor.getString(3);
+                String cc = cursor.getString(4); //temp
+                int pk = cursor.getInt(5);
+
+                Language temp = new Language(gw, ld, lc, ln, cc, pk);
+                languageList.add(temp);
+                        /*System.out.println(cursor.getInt(0) + ", " + cursor.getString(1) + ", " +
+                                cursor.getString(2) + ", " + cursor.getString(3) + ", " +
+                                cursor.getString(4) + ", " + cursor.getInt(5));*/
+                cursor.moveToNext();
+            }
+        }
+
+        audiorecorder.close();
+
+        listHolder = new String[languageList.size()];
+        for (int a = 0; a < listHolder.length; a++) {
+            listHolder[a] = (languageList.get(a)).getCode() + " - " +
+                    (languageList.get(a)).getName();
+            //System.out.println(listHolder[a]);
+        }
+
+        //CREATE
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listHolder);
+        setLangCode.setAdapter(adapter);
         setLangCode.setText(pref.getPreferences("targetLanguage").toString());
         setLangCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -68,7 +141,9 @@ public class Settings extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newVal = s.toString();
+                String[] temp = s.toString().split(" - ");
+
+                String newVal = temp[0];
                 newVal = newVal.replaceAll("![A-Za-z0-9]", "");
                 pref.setPreferences("targetLanguage", newVal);
                 updateFileName(pref);

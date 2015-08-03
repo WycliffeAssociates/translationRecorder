@@ -25,9 +25,11 @@ public class PreferencesManager {
     private static PreferencesManager sInstance;
     //private final Preferences mPref;
     private final SharedPreferences mPref;
+    private Context context;
 
     public PreferencesManager(Context context) {
         mPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        this.context = context;
     }
 
     public static synchronized void initializeInstance(Context context) {
@@ -78,7 +80,7 @@ public class PreferencesManager {
             editor.putString("fileDirectory", (String) temp.get("fileDirectory"));
             //editor.putString("fileFolder", (String) temp.get("fileFolder"));
             editor.putString("exportDirectory", (String) temp.get("exportDirectory"));
-            editor.putString("Language", (String) temp.get("Language"));
+            editor.putString("exportLanguage", (String) temp.get("exportLanguage"));
             editor.putInt("displaySort", (int) temp.get("displaySort"));
 
             editor.putString("ftpServer", (String) temp.get("ftpServer"));
@@ -174,9 +176,9 @@ public class PreferencesManager {
         //DEFAULTS
         prefs.put("fileName", "en-mat");
         prefs.put("fileCounter", 1);
-        prefs.put("fileDirectory", (Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + "AudioRecorder"));
+        prefs.put("fileDirectory", (Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + context.getString(R.string.folder_name)));
         //prefs.put("fileFolder", "deprecated");
-        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + "AudioRecorder");
+        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + context.getString(R.string.folder_name));
                 //R.string.app_name);
         //prefs.put("fileFolder", "AudioRecorder");
         prefs.put("Language", "EN");
