@@ -1,8 +1,12 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,6 +32,8 @@ public class Settings extends Activity {
     private EditText tReset,setBookCode;
     AutoCompleteTextView setLangCode;
 
+    private Context c;
+
     final int SET_SAVE_DIR = 21;
 
 
@@ -36,7 +42,8 @@ public class Settings extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings2);
 
-        final PreferencesManager pref = new PreferencesManager(this);
+        c = this;
+        final PreferencesManager pref = new PreferencesManager(c);
 
         displayFileName = (TextView)findViewById(R.id.defaultFileName);
         showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
@@ -135,7 +142,11 @@ public class Settings extends Activity {
                 String temp = (String) pref.getPreferences("fileDirectory");
 
                 Intent intent = new Intent();
-                intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                     intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
+                else{
+                    
+                }
                 startActivityForResult(intent, SET_SAVE_DIR);
             }
         });
@@ -144,7 +155,37 @@ public class Settings extends Activity {
         setFtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             //toDo: open ftp dialog
+             //toDo: edit theme for gravity & edittext items & get preferences to show
+                final Dialog ftp = new Dialog(c,android.R.style.Theme_Translucent_NoTitleBar);
+                ftp.setContentView(R.layout.ftp_dialog);
+
+               final EditText server = (EditText)ftp.findViewById(R.id.ftpServer);
+                server.setText(pref.getPreferences("ftpServer").toString());
+               final EditText userName = (EditText)ftp.findViewById(R.id.userName);
+                System.out.println("ABI: username = " + pref.getPreferences("ftpUserName").toString());
+               final EditText port = (EditText)ftp.findViewById(R.id.ftpPort);
+                port.setText(pref.getPreferences("ftpPort").toString());
+               final EditText password = (EditText)ftp.findViewById(R.id.ftpPassword);
+                password.setEnabled(false);
+               final EditText secureftp = (EditText)ftp.findViewById(R.id.secureFtp);
+                secureftp.setText(pref.getPreferences("ftp").toString());
+               final EditText directory = (EditText)ftp.findViewById(R.id.ftpDirectory);
+                directory.setText(pref.getPreferences("ftpDirectory").toString());
+
+                ImageButton ok = (ImageButton)ftp.findViewById(R.id.ftpOk);
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View w) {
+                        pref.setPreferences("ftpServer", server.getText().toString());
+                        pref.setPreferences("ftpUserName", userName.getText().toString());
+                        pref.setPreferences("ftpPort", port.getText().toString());
+                        pref.setPreferences("ftp", secureftp.getText().toString());
+                        pref.setPreferences("ftpDirectory", directory.getText().toString());
+                        ftp.hide();
+                    }
+                });
+
+                ftp.show();
             }
         });
     }

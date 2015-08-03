@@ -80,6 +80,12 @@ public class PreferencesManager {
             editor.putString("exportDirectory", (String) temp.get("exportDirectory"));
             editor.putString("Language", (String) temp.get("Language"));
             editor.putInt("displaySort", (int) temp.get("displaySort"));
+
+            editor.putString("ftpServer", (String) temp.get("ftpServer"));
+            editor.putString("ftpUserName", (String) temp.get("ftpUserName"));
+            editor.putString("ftpPort", (String) temp.get("ftpPort"));
+            editor.putString("ftp", (String) temp.get("ftp"));
+            editor.putString("ftpDirectory", (String) temp.get("ftpDirectory"));
             //editor.putString("appName", (String) temp.get("appName"));
             //editor.putString("deviceUUID", (String) temp.get("deviceUUID"));
 
@@ -178,6 +184,14 @@ public class PreferencesManager {
         prefs.put("targetLanguage", "en");
         prefs.put("book","mat");
         prefs.put("displaySort", 5);
+
+        //ftp defaults
+        prefs.put("ftpServer","");
+        prefs.put("ftpUserName", "");
+        prefs.put("ftpPort", "");
+        prefs.put("ftp", "");
+        prefs.put("ftpDirectory","");
+
         //prefs.put("appName", (String) getResources().g);
         //prefs.put("deviceUUID", getDeviceUUID());
         //======
