@@ -4,9 +4,9 @@
     android:layout_height="wrap_content">
 
     <EditText
-        android:layout_width="match_parent"
+        android:layout_width="229dp"
         android:layout_height="wrap_content"
-        android:text="192.168.102.155"
+        android:text="192.168.102.167"
         android:id="@+id/FTPServer" />
 
     <EditText
@@ -50,4 +50,7 @@
         android:layout_height="wrap_content"
         android:text="New Button"
         android:id="@+id/btnCANCEL" />
+
+
+
 </LinearLayout>
