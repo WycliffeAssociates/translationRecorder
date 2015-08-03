@@ -13,6 +13,7 @@ import android.util.Pair;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class CanvasView extends View {
@@ -26,7 +27,7 @@ public class CanvasView extends View {
     private Paint mPaint;
     private WavFileLoader wavLoader;
     private WavVisualizer wavVis;
-    private short[][] audioData;
+    //private short[] audioData;
     private ArrayList<Pair<Double,Double>> samples;
     ScaleGestureDetector SGD;
     private final int SECONDS_ON_SCREEN = 10;
@@ -41,6 +42,7 @@ public class CanvasView extends View {
     private boolean recording;
     private boolean shouldDrawLine = false;
     private boolean shouldDrawMiniMarker = false;
+    int increment = 1;
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
         this.miniMarkerLoc = miniMarkerLoc;
@@ -153,12 +155,18 @@ public class CanvasView extends View {
         }
         int oldX = 0;
         int oldY =  (canvas.getHeight() / 2);
-        int xIndex = 0;
+        int xIndex = wavLoader.getSampleStartIndex();
+        System.out.println("Starting at index: " + xIndex);
+        System.out.println("y scale is : " + yScale);
+        System.out.println("x scale is : " + xScale);
+        System.out.println("samples are of size "+ samples.size());
 
         for (int t = 0; t < samples.size(); t++) {
+
             int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
             canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
             oldY = y;
+            //System.out.println("y is: " + y + " x is: " + xIndex);
             y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
 
             canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
@@ -186,18 +194,28 @@ public class CanvasView extends View {
     }
 
     public void loadWavFromFile(String path){
-        wavLoader = new WavFileLoader(path);
-        audioData = wavLoader.getAudioData();
+        try {
+            wavLoader = new WavFileLoader(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        samples = null;
+    }
+
+    public void resample(int position){
+        samples = wavLoader.getAudioWindow(position, 10, increment);
     }
 
     public void displayWaveform(int seconds){
-        wavVis = new WavVisualizer(audioData, wavLoader.getNumChannels());
+        wavVis = new WavVisualizer(samples, wavLoader.getLargest());
         xScale = wavVis.getXScaleFactor(this.getWidth(), seconds);
-        int inc = wavVis.getIncrement(xScale);
-        wavVis.sampleAudio(inc);
+        increment = wavVis.getIncrement(xScale);
+        System.out.println(increment + "is the increment");
+        //wavVis.sampleAudio(inc);
         yScale = wavVis.getYScaleFactor(this.getHeight());
-        samples = wavVis.getSamples();
+        //samples = wavVis.getSamples();
         System.out.println("height is " + this.getHeight());
+        resample(0);
         this.invalidate();
     }
 

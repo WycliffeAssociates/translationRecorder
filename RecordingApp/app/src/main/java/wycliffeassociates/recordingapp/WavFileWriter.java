@@ -2,14 +2,8 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Service;
 import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
-import android.os.Environment;
 import android.os.IBinder;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,13 +11,6 @@ import java.io.RandomAccessFile;
 
 
 public class WavFileWriter extends Service{
-    private static final int RECORDER_BPP = 16;
-    private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
-    private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
-    private static final String AUDIO_RECORDER_TEMP_FILE = "record_temp.raw";
-    private static final int RECORDER_SAMPLERATE = 44100;
-    private static final int RECORDER_CHANNELS = 2; //2 is for stereo
-    private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     private String filename = null;
 
     @Override
@@ -83,14 +70,6 @@ public class WavFileWriter extends Service{
         return null;
     }
 
-    /**
-     * Deletes the temporary .raw file
-     */
-    private void deleteTempFile() {
-        File file = new File(getTempFilename());
-        file.delete();
-    }
-
     private void overwriteHeaderData(String filepath, long totalDataLen){
         long totalAudioLen = totalDataLen - 36; //While the header is 44 bytes, 8 consist of the data subchunk header
         totalDataLen -= 8; //this subtracts out the data subchunk header
@@ -98,8 +77,8 @@ public class WavFileWriter extends Service{
             RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
             System.out.println("Passed in string name " + filename);
             //seek to header[4] to overwrite data length
-            long longSampleRate = RECORDER_SAMPLERATE;
-            long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * RECORDER_CHANNELS/Byte.SIZE;
+            long longSampleRate = AudioInfo.SAMPLERATE;
+            long byteRate = AudioInfo.BPP * AudioInfo.SAMPLERATE * AudioInfo.NUM_CHANNELS;
             byte[] header = new byte[44];
 
             header[0] = 'R';
@@ -124,7 +103,7 @@ public class WavFileWriter extends Service{
             header[19] = 0;
             header[20] = 1; // format = 1
             header[21] = 0;
-            header[22] = (byte)RECORDER_CHANNELS; // number of channels
+            header[22] = (byte) AudioInfo.NUM_CHANNELS; // number of channels
             header[23] = 0;
             header[24] = (byte) (longSampleRate & 0xff);
             header[25] = (byte) ((longSampleRate >> 8) & 0xff);
@@ -134,9 +113,9 @@ public class WavFileWriter extends Service{
             header[29] = (byte) ((byteRate >> 8) & 0xff);
             header[30] = (byte) ((byteRate >> 16) & 0xff);
             header[31] = (byte) ((byteRate >> 24) & 0xff);
-            header[32] = (byte) (RECORDER_CHANNELS * RECORDER_BPP / Byte.SIZE); // block align
+            header[32] = (byte) (AudioInfo.NUM_CHANNELS * AudioInfo.BPP); // block align
             header[33] = 0;
-            header[34] = RECORDER_BPP; // bits per sample
+            header[34] = AudioInfo.BPP; // bits per sample
             header[35] = 0;
             header[36] = 'd';
             header[37] = 'a';
@@ -167,25 +146,4 @@ public class WavFileWriter extends Service{
         out.write(header);
     }
 
-    /**
-     * Retrieves the absolute filepath of the temporary raw file.
-     * If the AudioRecorder folder is not present, it is created.
-     *
-     * @return the absolute filepath to the temporary .raw file
-     */
-    private String getTempFilename(){
-        String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath,AUDIO_RECORDER_FOLDER);
-
-        if(!file.exists()){
-            file.mkdirs();
-        }
-
-        File tempFile = new File(filepath,AUDIO_RECORDER_TEMP_FILE);
-
-        if(tempFile.exists())
-            tempFile.delete();
-
-        return (file.getAbsolutePath() + "/" + AUDIO_RECORDER_TEMP_FILE);
-    }
 }

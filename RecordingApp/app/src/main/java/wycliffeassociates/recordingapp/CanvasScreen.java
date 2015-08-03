@@ -237,8 +237,9 @@ public class CanvasScreen extends Activity {
                     mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
                     mainCanvas.shouldDrawMaker(true);
-                    minimap.loadWavFromFile(recordedFilename);
-                    minimap.displayWaveform(0);
+
+                    //minimap.loadWavFromFile(recordedFilename);
+                    //minimap.displayWaveform(0);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -259,12 +260,14 @@ public class CanvasScreen extends Activity {
             @Override
             public void run() {
                 int translation = 0;
+                double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
                 while(WavPlayer.isPlaying()){
-                    double location = (double)WavPlayer.getLocation()/ (double)WavPlayer.getDuration();
-                    double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
-                    translation = (int)(location * scaleFactor);
+                    int location = WavPlayer.getLocation();
+                    double locPercentage = (double)location/ (double)WavPlayer.getDuration();
+                    translation = (int)(locPercentage * scaleFactor);
+                    mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
                     mainCanvas.setXTranslation(base+translation);
-                    minimap.setMiniMarkerLoc((float) (location * minimap.getWidth()));
+                    minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));
                     minimap.shouldDrawMiniMarker(true);
                     runOnUiThread(new Runnable() {
                         @Override
