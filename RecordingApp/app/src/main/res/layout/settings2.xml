@@ -47,7 +47,7 @@
                     android:layout_height="match_parent"
                     android:id="@+id/space"></LinearLayout>
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/setBookCode"
                     android:layout_width="300dp"
                     android:layout_height="60dp"

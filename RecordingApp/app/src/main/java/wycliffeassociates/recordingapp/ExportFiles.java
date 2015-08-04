@@ -47,38 +47,30 @@ public class ExportFiles extends Activity
     /**
      * The adapter that displays the list of files in the FMS
      */
-    ArrayAdapter<String> arrayAdapter;
+   private ArrayAdapter<String> arrayAdapter;
 
     /**
      * The list of items in the current directory
      */
-    ListView list;
+    private ListView list;
 
+    /**
+     * preferences manager
+     */
+    private static PreferencesManager pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-
-        Bundle extras = getIntent().getExtras();
-
-        if(extras != null)
-        {
-            allMoving = extras.getStringArrayList("exportList");
-        }
-        else{
-            //TEST ITEMS, PLEASE REMOVE
-            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/test.wav");
-            allMoving.add(Environment.getExternalStorageDirectory().getAbsolutePath()+"/AudioRecorder/blah.wav");
-        }
-
-        setCurrentFolder(Environment.getExternalStorageDirectory().getAbsolutePath());
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.export_list);
-        list = (ListView)findViewById(R.id.listViewExport);
+        pref = new PreferencesManager(this);
+        setCurrentFolder(pref.getPreferences("fileDirectory").toString());
+        setContentView(R.layout.save_location_menu);
+        list = (ListView)findViewById(R.id.folderList);
 
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());
         arrayAdapter =
-                new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, fileList);
+                new ArrayAdapter<>(this,R.layout.save_location_list, fileList);
         list.setAdapter(arrayAdapter);
 
         //on item list click move up or down directories
@@ -109,7 +101,7 @@ public class ExportFiles extends Activity
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.btnSave:{
-                    saveFiles();
+                    saveDirectory(pref);
                     break;
                 }
                 case R.id.btnCancel:
@@ -309,28 +301,12 @@ public class ExportFiles extends Activity
     }
 
     /**
-     * Copies files from any number of different directories to a single
-     * directory without deleting any files (no params)
+     * Sets the new default save directory to the selected directory
+     * @param prefs The preference manager
      */
-    public void saveFiles(){
-        //The files that are being moved
-        ArrayList<File> source = new ArrayList<>();
-        ArrayList<String> original = getAllMoving();
-        for(int i = 0; i < original.size(); i++) {
-            source.add(new File(original.get(i)));
-        }
-        //the actual file names to concat to the destination path
-        ArrayList<String> names = getNamesFromPath(original);
-        for(int j = 0; j < source.size(); j++)
-        {
-            copyFileUsingFileChannels(source.get(j),new File(getCurrentDir() + "/" + names.get(j)) );
-        }
-
-        //notify the user and close
-        if(source.size() > 1)
-            Toast.makeText(getApplicationContext(), "Files Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(getApplicationContext(), "File Exported to " + getCurrentDir(), Toast.LENGTH_LONG).show();
+    public void saveDirectory(PreferencesManager prefs){
+        prefs.setPreferences("fileDirectory", getCurrentDir());
+        System.out.println("ABI: finishing saver");
         finish();
     }
 }

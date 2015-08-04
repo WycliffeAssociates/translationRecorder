@@ -161,11 +161,15 @@ public class Settings extends Activity {
             public void onClick(View v) {
                /* String temp = (String) pref.getPreferences("fileDirectory");
 
-                Intent intent = new Intent();
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                     intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Intent intent = new Intent();
+                    intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, SET_SAVE_DIR);
+                }
                 else{
-                    
+                    Intent intent = new Intent(c, ExportFiles.class);
+                    startActivity(intent);
+                    printSaveDirectory(pref);
                 }
                 startActivityForResult(intent, SET_SAVE_DIR);*/
 
@@ -227,20 +231,18 @@ public class Settings extends Activity {
 
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-        Uri currentUri = null;
+        Uri currentUri;
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SET_SAVE_DIR) {
+                PreferencesManager preferences = new PreferencesManager(this);
                 currentUri = resultData.getData();
                 File temp = new File(currentUri.getPath());
-                PreferencesManager pref = new PreferencesManager(this);
-
-                //:( -- get file path
-                pref.setPreferences("fileDirectory", temp.getAbsolutePath().toString());
-                printSaveDirectory(pref);
+                preferences.setPreferences("fileDirectory", temp.getAbsolutePath().toString());
+                printSaveDirectory(preferences);
             }
         }
     }
-
+    
     public void pullLangNames(){
 
         try {
@@ -297,6 +299,7 @@ public class Settings extends Activity {
             //No existing database
         }
     }
+
     /**
      * Prints the file name to the appropriate textview
      * @param pref the preference manager that holds the save file name
@@ -326,7 +329,7 @@ public class Settings extends Activity {
 
     /**
      * Updates the fileName based on the
-     * @param pref
+     * @param pref the preference manager that holds the target language
      */
     private void updateFileName(PreferencesManager pref){
             String name = (String)pref.getPreferences("targetLanguage") + "-" +
