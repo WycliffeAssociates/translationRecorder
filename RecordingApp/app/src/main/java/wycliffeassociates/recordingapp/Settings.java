@@ -64,9 +64,8 @@ public class Settings extends Activity {
         setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
         //setLangCode.setText(pref.getPreferences("targetLanguage").toString());
 
-
         //update
-        pullLangNames();
+        pullDB();
 
         setLangCode.setText(pref.getPreferences("targetLanguage").toString());
         setLangCode.addTextChangedListener(new TextWatcher() {
@@ -144,8 +143,7 @@ public class Settings extends Activity {
                 pref.resetPreferences("all");
 
 
-                Intent intent = new Intent(Settings.this, LanguageNamesRequest.class);
-                startActivityForResult(intent, 0);
+                pullDB();
 
 
                 printSaveDirectory(pref);
@@ -242,7 +240,24 @@ public class Settings extends Activity {
             }
         }
     }
-    
+
+    public void pullDB(){
+        try {
+            String tableName = "langnames";
+            SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+
+            String querySelect = "SELECT * FROM " + tableName;
+
+            Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
+            audiorecorder.close();
+        }catch(Exception e){
+            Intent intent = new Intent(c, LanguageNamesRequest.class);
+            startActivityForResult(intent, 0);
+
+        }
+        pullLangNames();
+    }
+
     public void pullLangNames(){
 
         try {

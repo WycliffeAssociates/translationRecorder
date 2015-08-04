@@ -126,33 +126,38 @@ public class LanguageNamesRequest extends Activity {
 
             // Making a request to url and getting response
             String jsonStr = "";
-            try {
+            Boolean toggle = false;
+            /*try {
                 jsonStr = sh.makeServiceCall(HOST_DOMAIN, ServiceHandler.GET);
             }catch(Exception e){
-
-            }
+                toggle = true;
+            }*/
+            toggle = true;
             //Log.d("Response: ", "> " + jsonStr);
 
             if (jsonStr != null) {
-                try {
+                if(toggle) {
+                    try {
 
-                    InputStream is = getAssets().open("langnames.json");
+                        InputStream is = getAssets().open("langnames.json");
 
-                    int size = is.available();
+                        int size = is.available();
 
-                    byte[] buffer = new byte[size];
+                        byte[] buffer = new byte[size];
 
-                    is.read(buffer);
+                        is.read(buffer);
 
-                    is.close();
+                        is.close();
 
-                    jsonStr = new String(buffer, "UTF-8");
+                        jsonStr = new String(buffer, "UTF-8");
 
 
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    return null;
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        return null;
+                    }
                 }
+
                 try {
                     JSONArray jsonArray = new JSONArray((jsonStr));
 
