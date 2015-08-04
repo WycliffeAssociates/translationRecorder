@@ -23,6 +23,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 
+import wycliffeassociates.recordingapp.connectivity.LanguageNamesRequest;
 import wycliffeassociates.recordingapp.model.Language;
 
 /**
@@ -64,70 +65,9 @@ public class Settings extends Activity {
         //setLangCode.setText(pref.getPreferences("targetLanguage").toString());
 
 
-        //SELECT
-        String tableName = "langnames";
-        SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+        //update
+        pullLangNames();
 
-        String querySelect = "SELECT * FROM " + tableName;
-        String queryCount = "SELECT COUNT(*) FROM " + tableName;
-
-        //unsynchronized
-        Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
-        //Cursor cursor = audiorecorder.query(DATABASE_TABLE, new String[] { KEY_ROWID, KEY_NAME,
-        //        KEY_MOVES,KEY_TIME}, null, null, null, null, KEY_MOVES + " ASC");
-
-        System.out.println("==========");
-        //System.out.println("Spen : " + cursor.getCount());
-
-               /* if(cursor!=null) {
-                    cursor.moveToFirst();
-                    while(!cursor.isLast()) {
-                        System.out.println(value.getName() + "," + value.getCode() + "," + value.getCountryCode()
-                                + "," + value.getLanguageDirection() + "," + i + "\n")
-                        cursor.moveToNext();
-                    }
-                }*/
-        ArrayList<Language> languageList = new ArrayList<Language>();
-        String[] listHolder;
-        if (cursor != null) {
-            cursor.moveToFirst();
-            while (!cursor.isLast()) {
-                        /*System.out.println(cursor.getString(0));
-                        System.out.println(cursor.getInt(1));*/
-                //create language
-
-                Boolean gw = false;
-                if (cursor.getInt(0) == 0) {
-                    gw = true;
-                }
-
-                String ld = cursor.getString(1);
-                String lc = cursor.getString(2);
-                String ln = cursor.getString(3);
-                String cc = cursor.getString(4); //temp
-                int pk = cursor.getInt(5);
-
-                Language temp = new Language(gw, ld, lc, ln, cc, pk);
-                languageList.add(temp);
-                        /*System.out.println(cursor.getInt(0) + ", " + cursor.getString(1) + ", " +
-                                cursor.getString(2) + ", " + cursor.getString(3) + ", " +
-                                cursor.getString(4) + ", " + cursor.getInt(5));*/
-                cursor.moveToNext();
-            }
-        }
-
-        audiorecorder.close();
-
-        listHolder = new String[languageList.size()];
-        for (int a = 0; a < listHolder.length; a++) {
-            listHolder[a] = (languageList.get(a)).getCode() + " - " +
-                    (languageList.get(a)).getName();
-            //System.out.println(listHolder[a]);
-        }
-
-        //CREATE
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listHolder);
-        setLangCode.setAdapter(adapter);
         setLangCode.setText(pref.getPreferences("targetLanguage").toString());
         setLangCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -203,6 +143,11 @@ public class Settings extends Activity {
             public void onClick(View v) {
                 pref.resetPreferences("all");
 
+
+                Intent intent = new Intent(Settings.this, LanguageNamesRequest.class);
+                startActivityForResult(intent, 0);
+
+
                 printSaveDirectory(pref);
                 printFileName(pref);
                 printCounter(pref);
@@ -214,7 +159,7 @@ public class Settings extends Activity {
         setSaveDirectory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String temp = (String) pref.getPreferences("fileDirectory");
+               /* String temp = (String) pref.getPreferences("fileDirectory");
 
                 Intent intent = new Intent();
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -222,7 +167,22 @@ public class Settings extends Activity {
                 else{
                     
                 }
-                startActivityForResult(intent, SET_SAVE_DIR);
+                startActivityForResult(intent, SET_SAVE_DIR);*/
+
+                String tableName = "langnames";
+                SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+
+                String queryDelete = "DROP TABLE " + tableName;
+                //String queryOnDuplicate = " ON DUPLICATE KEY UPDATE "
+
+                //kill database
+                try {
+                    audiorecorder.execSQL(queryDelete);
+                    System.out.println("dropped");
+                }catch(RuntimeException e){
+
+                }
+                audiorecorder.close();
             }
         });
 
@@ -230,24 +190,24 @@ public class Settings extends Activity {
         setFtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             //toDo: edit theme for gravity & edittext items & get preferences to show
-                final Dialog ftp = new Dialog(c,android.R.style.Theme_Translucent_NoTitleBar);
+                //toDo: edit theme for gravity & edittext items & get preferences to show
+                final Dialog ftp = new Dialog(c, android.R.style.Theme_Translucent_NoTitleBar);
                 ftp.setContentView(R.layout.ftp_dialog);
 
-               final EditText server = (EditText)ftp.findViewById(R.id.ftpServer);
+                final EditText server = (EditText) ftp.findViewById(R.id.ftpServer);
                 server.setText(pref.getPreferences("ftpServer").toString());
-               final EditText userName = (EditText)ftp.findViewById(R.id.userName);
+                final EditText userName = (EditText) ftp.findViewById(R.id.userName);
                 System.out.println("ABI: username = " + pref.getPreferences("ftpUserName").toString());
-               final EditText port = (EditText)ftp.findViewById(R.id.ftpPort);
+                final EditText port = (EditText) ftp.findViewById(R.id.ftpPort);
                 port.setText(pref.getPreferences("ftpPort").toString());
-               final EditText password = (EditText)ftp.findViewById(R.id.ftpPassword);
+                final EditText password = (EditText) ftp.findViewById(R.id.ftpPassword);
                 password.setEnabled(false);
-               final EditText secureftp = (EditText)ftp.findViewById(R.id.secureFtp);
+                final EditText secureftp = (EditText) ftp.findViewById(R.id.secureFtp);
                 secureftp.setText(pref.getPreferences("ftp").toString());
-               final EditText directory = (EditText)ftp.findViewById(R.id.ftpDirectory);
+                final EditText directory = (EditText) ftp.findViewById(R.id.ftpDirectory);
                 directory.setText(pref.getPreferences("ftpDirectory").toString());
 
-                ImageButton ok = (ImageButton)ftp.findViewById(R.id.ftpOk);
+                ImageButton ok = (ImageButton) ftp.findViewById(R.id.ftpOk);
                 ok.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View w) {
@@ -281,6 +241,62 @@ public class Settings extends Activity {
         }
     }
 
+    public void pullLangNames(){
+
+        try {
+            //SELECT
+            String tableName = "langnames";
+            SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+
+            String querySelect = "SELECT * FROM " + tableName;
+            String queryCount = "SELECT COUNT(*) FROM " + tableName;
+
+            //unsynchronized
+            Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
+
+
+            ArrayList<Language> languageList = new ArrayList<Language>();
+            String[] listHolder;
+            if (cursor != null) {
+                cursor.moveToFirst();
+                while (!cursor.isLast()) {
+                    //create language
+
+                    Boolean gw = false;
+                    if (cursor.getInt(0) == 0) {
+                        gw = true;
+                    }
+
+                    String ld = cursor.getString(1);
+                    String lc = cursor.getString(2);
+                    String ln = cursor.getString(3);
+                    String cc = cursor.getString(4); //temp
+                    int pk = cursor.getInt(5);
+
+                    Language temp = new Language(gw, ld, lc, ln, cc, pk);
+                    languageList.add(temp);
+                        /*System.out.println(cursor.getInt(0) + ", " + cursor.getString(1) + ", " +
+                                cursor.getString(2) + ", " + cursor.getString(3) + ", " +
+                                cursor.getString(4) + ", " + cursor.getInt(5));*/
+                    cursor.moveToNext();
+                }
+            }
+
+            audiorecorder.close();
+
+            listHolder = new String[languageList.size()];
+            for (int a = 0; a < listHolder.length; a++) {
+                listHolder[a] = (languageList.get(a)).getCode() + " - " +
+                        (languageList.get(a)).getName();
+                //System.out.println(listHolder[a]);
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listHolder);
+            setLangCode.setAdapter(adapter);
+        }catch(RuntimeException e){
+            //No existing database
+        }
+    }
     /**
      * Prints the file name to the appropriate textview
      * @param pref the preference manager that holds the save file name
