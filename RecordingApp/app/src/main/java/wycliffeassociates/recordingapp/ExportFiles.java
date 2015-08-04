@@ -1,12 +1,14 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -55,6 +57,11 @@ public class ExportFiles extends Activity
     private ListView list;
 
     /**
+     * Displays up a directory
+     */
+    private TextView backBar;
+
+    /**
      * preferences manager
      */
     private static PreferencesManager pref;
@@ -64,27 +71,34 @@ public class ExportFiles extends Activity
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
         setCurrentFolder(pref.getPreferences("fileDirectory").toString());
+        setCurrentDir(pref.getPreferences("fileDirectory").toString());
         setContentView(R.layout.save_location_menu);
-        list = (ListView)findViewById(R.id.folderList);
+
+        backBar = (TextView)findViewById(R.id.backBar);
+        updateBackBar(getCurrentDir());
+        backBar.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v){
+                moveUpDir(getCurrentDir());
+                arrayAdapter.notifyDataSetChanged();
+            }
+        });
 
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());
+
+        list = (ListView)findViewById(R.id.folderList);
         arrayAdapter =
-                new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, fileList);
+                new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, fileList);
         list.setAdapter(arrayAdapter);
 
         //on item list click move up or down directories
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             // argument position gives the index of item which is clicked
             public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
-                if(position == 0) {
-                    moveUpDir(getCurrentDir());
+                    moveDownDir(getCurrentDir(), getFilesInDir(getCurrentDir())[position]);
                     arrayAdapter.notifyDataSetChanged();
-                }
-                else{
-                    moveDownDir(getCurrentDir(), getFilesInDir(getCurrentDir())[position - 1]);
-                    arrayAdapter.notifyDataSetChanged();
-                }
             }
         });
 
@@ -135,12 +149,12 @@ public class ExportFiles extends Activity
             if (directory.isDirectory()) {
                 String[] dirList = directory.list();
                 if(dirList != null) {
-                    String[] files = new String[dirList.length + 1];
-                    files[0] = "Go back to " + directory.getParent();
+                    String[] files = new String[dirList.length];
                     for (int i = 0; i < dirList.length; i++) {
-                        files[i + 1] = dirList[i];
+                        files[i] = dirList[i];
                     }
                     setFileList(files);
+                    updateBackBar(currentDirectory);
                 }
             }
         }
@@ -274,7 +288,7 @@ public class ExportFiles extends Activity
      * Closes the file manager
      */
     public void cancelExport(){
-        finish();
+        this.finish();
     }
 
     /**
@@ -304,9 +318,37 @@ public class ExportFiles extends Activity
      * Sets the new default save directory to the selected directory
      * @param prefs The preference manager
      */
-    public void saveDirectory(PreferencesManager prefs){
-        prefs.setPreferences("fileDirectory", getCurrentDir());
-        System.out.println("ABI: finishing saver");
-        finish();
+    public void saveDirectory(PreferencesManager prefs) {
+        String dir = getCurrentDir()+ "/testing5409";
+        File fDir = new File(dir);
+            try{
+               boolean created = fDir.mkdir();
+               if(created) {
+                   fDir.delete();
+                   prefs.setPreferences("fileDirectory", getCurrentDir());
+                   System.out.println("ABI: default dir = " + prefs.getPreferences("fileDirectory"));
+                   Intent resultIntent = new Intent();
+                   setResult(Activity.RESULT_OK, resultIntent);
+                   finish();
+               }
+                else  Toast.makeText(getApplicationContext(),
+                       "Please select a directory that can be written to"
+                       , Toast.LENGTH_LONG).show();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+    }
+
+    public void updateBackBar(String newDir){
+        try {
+            File directory = new File(newDir);
+            if (directory.isDirectory()) {
+                backBar.setText( "Go back to " + directory.getParent());
+            }
+        }
+        catch(NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 }

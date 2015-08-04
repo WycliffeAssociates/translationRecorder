@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ff875bb4">
+    android:background="#ff875bb4"
+    android:focusableInTouchMode="true">
 
     <LinearLayout
         android:orientation="vertical"
@@ -120,12 +121,12 @@
                 android:layout_gravity="bottom" />
 
             <TextView
-                android:layout_width="500dp"
+                android:layout_width="550dp"
                 android:layout_height="50dp"
                 android:text="path/pathy-path/pathy-path-path"
                 android:id="@+id/showSaveDirectory"
                 android:gravity="center_horizontal"
-                android:textSize="35sp"
+                android:textSize="25sp"
                 android:background="@drawable/purple"
                 android:layout_gravity="center" />
 

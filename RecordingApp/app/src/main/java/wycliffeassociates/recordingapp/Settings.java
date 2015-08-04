@@ -42,6 +42,7 @@ public class Settings extends Activity {
     private Context c;
 
     final int SET_SAVE_DIR = 21;
+    final int SET_SAVE_DIR2 = 22;
 
 
     @Override
@@ -145,9 +146,7 @@ public class Settings extends Activity {
             public void onClick(View v) {
                 pref.resetPreferences("all");
 
-
                 pullDB();
-
 
                 printSaveDirectory(pref);
                 printFileName(pref);
@@ -162,21 +161,22 @@ public class Settings extends Activity {
         setSaveDirectory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String temp = (String) pref.getPreferences("fileDirectory");
 
+                /*//need to change some things in Preference manager before getting this
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     Intent intent = new Intent();
                     intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
                     startActivityForResult(intent, SET_SAVE_DIR);
                 }
-                else{
+                else{*/
                     Intent intent = new Intent(c, ExportFiles.class);
-                    startActivity(intent);
-                    printSaveDirectory(pref);
-                    startActivityForResult(intent, SET_SAVE_DIR);
-                }
+                    startActivityForResult(intent, SET_SAVE_DIR2);
+               // }
 
-                /*
+
+/*
                 String tableName = "langnames";
                 SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
 
@@ -191,7 +191,7 @@ public class Settings extends Activity {
 
                 }
                 audiorecorder.close();
-                */
+*/
             }
         });
 
@@ -236,13 +236,16 @@ public class Settings extends Activity {
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         Uri currentUri;
+        PreferencesManager preferences = new PreferencesManager(this);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SET_SAVE_DIR) {
-                PreferencesManager preferences = new PreferencesManager(this);
                 currentUri = resultData.getData();
                 File temp = new File(currentUri.getPath());
                 preferences.setPreferences("fileDirectory", temp.getAbsolutePath().toString());
+            }
+            if (requestCode == SET_SAVE_DIR2) {
                 printSaveDirectory(preferences);
+                System.out.println("ABI: save dir = " + preferences.getPreferences("fileDirectory"));
             }
         }
     }
