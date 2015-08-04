@@ -28,7 +28,7 @@
                     android:text="Path/file_path/file_path_of_destiny"
                     android:id="@+id/filepath"
                     android:singleLine="true"
-                    android:textSize="15sp"
+                    android:textSize="20sp"
                     android:textColor="#ffdcffd7" />
             </LinearLayout>
 

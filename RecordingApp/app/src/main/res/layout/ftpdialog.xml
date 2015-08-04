@@ -51,6 +51,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="192.168.102.167"
                     android:id="@+id/FTPServer" />
 
                 <TextView
@@ -67,6 +68,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
+                    android:text="21"
                     android:id="@+id/Port" />
 
                 <TextView
@@ -105,6 +107,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="Emmanuel"
                     android:id="@+id/UserName" />
 
                 <TextView
@@ -121,6 +124,8 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:text="SigmaStorm1"
                     android:id="@+id/Password" />
 
                 <TextView
@@ -137,6 +142,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="/"
                     android:id="@+id/fileDirectory" />
             </LinearLayout>
         </LinearLayout>

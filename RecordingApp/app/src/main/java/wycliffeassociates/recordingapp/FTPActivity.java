@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.commons.net.io.CopyStreamAdapter;
 
 import java.io.BufferedInputStream;
@@ -73,18 +74,19 @@ public class FTPActivity extends Activity {
         @Override
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(FTPActivity.this);
-            progressDialog.setMessage("File(s) is Uploading to Server");
+            progressDialog.setMessage("File(s) uploading to Server");
             progressDialog.setIndeterminate(false);
-            progressDialog.setTitle("UPLOAD FILE(S)");
+            progressDialog.setTitle("UPLOADING FILE(S)");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progressDialog.setProgress(0);
             progressDialog.setMax(AudioFiles.exportList.size());
+            progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
         }
 
         @Override
         protected Boolean doInBackground(String... params) {
-            FTPClient client = new FTPClient();
+            FTPSClient client = new FTPSClient();
             boolean result = false;
             try {
                 client.setUseEPSVwithIPv4(true);
