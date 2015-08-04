@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.ScaleGestureDetector;
@@ -42,7 +43,8 @@ public class CanvasView extends View {
     private boolean recording;
     private boolean shouldDrawLine = false;
     private boolean shouldDrawMiniMarker = false;
-    int increment = 1;
+    private int increment = 1;
+    private boolean isMinimap = false;
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
         this.miniMarkerLoc = miniMarkerLoc;
@@ -99,6 +101,9 @@ public class CanvasView extends View {
         }
 
     }
+    public void setIsMinimap(boolean flag){
+        this.isMinimap = flag;
+    }
 
     public void setNumChannels(int numChannels) {
         this.numChannels = numChannels;
@@ -115,10 +120,10 @@ public class CanvasView extends View {
     public void setRecording(boolean recording) {
         this.recording = recording;
     }
+
     public boolean getRecording() {
         return this.recording;
     }
-
 
     public void drawBuffer(Canvas canvas, byte[] buffer, int blocksize, int numChannels, boolean recording){
         if (!recording || buffer == null || canvas == null) {
@@ -147,19 +152,21 @@ public class CanvasView extends View {
     }
     public void drawWaveform(Canvas canvas){
         canvas.scale(userScale, 1.f);
-        canvas.translate(-xTranslation/Math.abs(userScale), 0.f);
+        canvas.translate(-xTranslation / Math.abs(userScale), 0.f);
 
         mPaint.setColor(Color.WHITE);
         if (samples == null) {
             return;
         }
-        int oldX = wavLoader.getSampleStartIndex();
         int oldY =  (canvas.getHeight() / 2);
-        int xIndex = wavLoader.getSampleStartIndex();
-        System.out.println("Starting at index: " + xIndex);
-        System.out.println("y scale is : " + yScale);
-        System.out.println("x scale is : " + xScale);
-        System.out.println("samples are of size " + samples.size());
+        int xIndex;
+        int oldX;
+        if(isMinimap) {
+            xIndex = oldX = 0;
+        }
+        else{
+            xIndex = oldX = wavLoader.getSampleStartIndex();
+        }
 
         for (int t = 0; t < samples.size(); t++) {
 
@@ -202,6 +209,16 @@ public class CanvasView extends View {
         samples = null;
     }
 
+    public void getMinimap(){
+        samples = wavLoader.getMinimap(this.getWidth());
+        wavVis = new WavVisualizer(samples, wavLoader.getLargest());
+        xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
+        yScale = wavVis.getYScaleFactor(this.getHeight());
+        wavLoader = null;
+        wavVis = null;
+        Runtime.getRuntime().freeMemory();
+    }
+
     public void resample(int position){
         samples = wavLoader.getAudioWindow(position, 10, increment);
     }
@@ -209,6 +226,7 @@ public class CanvasView extends View {
     public void recomputeIncrement(float xScale){
         increment = wavVis.getIncrement(xScale);
     }
+
 
     public void displayWaveform(int seconds){
         wavVis = new WavVisualizer(samples, wavLoader.getLargest());

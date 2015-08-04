@@ -1,17 +1,9 @@
 package wycliffeassociates.recordingapp;
 
-
-import android.content.Context;
-import android.provider.MediaStore;
 import android.util.Pair;
-import android.widget.Toast;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Array;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -26,37 +18,9 @@ public class WavFileLoader {
     private final int DATA_CHUNK = 2*AudioInfo.SAMPLERATE / 1000; //number of datapoints per second that should actually be useful: 44100 samples per sec, div by 20 = 2205 * 2 channels = 4410
                                          //this is enough for a resolution of 2k pixel width to display one second of wav across
     private double largest = 0;
-    private MappedByteBuffer buffer;
+    static private MappedByteBuffer buffer;
     private int startIndex;
 
-//    public WavFileLoader(String file){
-//        samples = new ArrayList<>();
-//        System.out.println("Opening file " + file);
-//        try {
-//            File f = new File(file);
-//            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
-//            byte[] header = new byte[AudioInfo.HEADER_SIZE];
-//            buf.read(header, 0, header.length);
-//            boolean stillReading = true;
-//            System.out.println("this is the length of the file " + (f.length()-44) );
-//            System.out.println("this should be the size of the sample " + f.length()/DATA_CHUNK );
-//            while(stillReading){
-//                byte[] chunk = new byte[DATA_CHUNK];
-//                if(buf.read(chunk, 0, chunk.length) == -1){
-//                    stillReading = false;
-//                }
-//                sampleAudioChunk(chunk);
-//            }
-//            buf.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
-//        //processHeader();
-//        //parseAudio();
-//        System.out.println("Parsed Audio");
-//    }
 
     public WavFileLoader(String file) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(file, "r");
@@ -75,6 +39,28 @@ public class WavFileLoader {
             largest = (i==0)? value: largest;
             largest = (Math.abs(value) > largest)? Math.abs(value) : largest;
         }
+    }
+
+    public ArrayList<Pair<Double,Double>> getMinimap(int canvasWidth){
+        ArrayList<Pair<Double,Double>> minimap = new ArrayList<>();
+        int increment = (int)Math.floor((buffer.capacity()/2)/(double)canvasWidth);
+        for(int i = 0; i < buffer.capacity(); i+= increment*AudioInfo.SIZE_OF_SHORT){
+            double max = Double.MIN_VALUE;
+            double min = Double.MAX_VALUE;
+
+            //compute the average
+            for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
+                if((i+j+1) < buffer.capacity()) {
+                    byte low = buffer.get(i + j);
+                    byte hi = buffer.get(i + j + 1);
+                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                    max = (max < (double) value) ? value : max;
+                    min = (min > (double) value) ? value : min;
+                }
+            }
+            minimap.add(new Pair<>(max, min));
+        }
+        return minimap;
     }
 
     //need to rework the main loop a bit; will lose data at the end if not in the incrememnt window
@@ -118,7 +104,7 @@ public class WavFileLoader {
 
     public static int positionToWindowStart(int position){
         int second = (int)Math.floor(position/1000.0);
-        return Math.max(second-1, 0);
+        return Math.max(second-2, 0);
     }
 
     private void sampleAudioChunk(byte[] chunk){

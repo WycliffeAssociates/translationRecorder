@@ -94,6 +94,7 @@ public class CanvasScreen extends Activity {
 
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
+        minimap.setIsMinimap(true);
         setButtonHandlers();
         enableButtons(true);
         startRecording();
@@ -238,8 +239,9 @@ public class CanvasScreen extends Activity {
                     mainCanvas.displayWaveform(10);
                     mainCanvas.shouldDrawMaker(true);
 
-                    //minimap.loadWavFromFile(recordedFilename);
-                    //minimap.displayWaveform(0);
+                    minimap.loadWavFromFile(recordedFilename);
+                    minimap.getMinimap();
+                    minimap.invalidate();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
