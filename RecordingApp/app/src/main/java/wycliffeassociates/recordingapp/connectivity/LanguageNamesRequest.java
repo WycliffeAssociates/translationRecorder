@@ -23,6 +23,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.sql.SQLData;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,11 +106,17 @@ public class LanguageNamesRequest extends Activity {
                     "lc VARCHAR, ln VARCHAR, cc VARCHAR, pk INTEGER);";
             String queryInsertLang = "INSERT INTO " + tableName + " (gw, ld, lc, ln, cc, pk) " +
                     "VALUES ";
+            String queryDuplicate = "WHERE NOT EXISTS ( SELECT * FROM " + tableName + " WHERE pk = ";
 
-            //String queryOnDuplicate = " ON DUPLICATE KEY UPDATE "
+                    //String queryOnDuplicate = " ON DUPLICATE KEY UPDATE "
 
             //kill database
-            audiorecorder.execSQL(queryDelete);
+            try{
+                audiorecorder.execSQL(queryDelete);
+            }catch(RuntimeException e){
+                //
+            }
+
             //create database
             audiorecorder.execSQL(queryCreate);
 
@@ -116,11 +125,34 @@ public class LanguageNamesRequest extends Activity {
             ServiceHandler sh = new ServiceHandler();
 
             // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(HOST_DOMAIN, ServiceHandler.GET);
+            String jsonStr = "";
+            try {
+                jsonStr = sh.makeServiceCall(HOST_DOMAIN, ServiceHandler.GET);
+            }catch(Exception e){
 
+            }
             //Log.d("Response: ", "> " + jsonStr);
 
             if (jsonStr != null) {
+                try {
+
+                    InputStream is = getAssets().open("langnames.json");
+
+                    int size = is.available();
+
+                    byte[] buffer = new byte[size];
+
+                    is.read(buffer);
+
+                    is.close();
+
+                    jsonStr = new String(buffer, "UTF-8");
+
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    return null;
+                }
                 try {
                     JSONArray jsonArray = new JSONArray((jsonStr));
 
@@ -159,7 +191,8 @@ public class LanguageNamesRequest extends Activity {
                                 lc + "', '" +
                                 ln + "', '" +
                                 "temp" + "', " +
-                                pk + ");");
+                                pk + ") ");
+                                //+ queryDuplicate + pk + ";");
 
 
                         //Language temp = new Language(gw, ld, lc, ln, cc, pk);
