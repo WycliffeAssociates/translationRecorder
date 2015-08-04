@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -27,8 +28,7 @@ public class FTPActivity extends Activity {
     private EditText UserName;
     private EditText Password;
     private EditText Directory;
-    private Button Ok;
-    private Button Cancel;
+    private ImageButton Ok;
     CopyStreamAdapter streamListener;
 
     PreferencesManager pref;
@@ -45,7 +45,7 @@ public class FTPActivity extends Activity {
         setContentView(R.layout.ftpdialog);
         pref = new PreferencesManager(this);
 
-        Ok = (Button)findViewById(R.id.btnOK);
+        Ok = (ImageButton)findViewById(R.id.btnOkay);
 
         Ok.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,14 +62,6 @@ public class FTPActivity extends Activity {
                 Directory = (EditText) findViewById(R.id.fileDirectory);
                 direc = Directory.getText().toString();
                 new UploadFile().execute();
-            }
-        });
-
-        Cancel = (Button)findViewById(R.id.btnCANCEL);
-        Cancel.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                finish();
             }
         });
 

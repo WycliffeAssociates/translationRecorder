@@ -41,19 +41,19 @@
                 android:layout_below="@+id/linearLayout5"
                 android:layout_alignParentStart="true">
 
-                <ImageButton
+                <CheckBox
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:id="@+id/btnCheckAll"
-                    android:src="@drawable/check_all"
-                    android:background="#00000000"
-                    android:layout_weight="1" />
+                    android:button="@drawable/checkbox_selector"
+                    android:checked="false"
+                    android:layout_marginLeft="30px" />
 
                 <ImageButton
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:id="@+id/btnSortName"
-                    android:src="@drawable/aa"
+                    android:src="@drawable/ic_name_56"
                     android:background="#00000000"
                     android:layout_weight="1" />
 
@@ -61,17 +61,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:id="@+id/btnSortDuration"
-                    android:src="@drawable/time"
+                    android:src="@drawable/ic_time_56"
                     android:background="#00000000"
-                    android:layout_weight="1.58" />
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:id="@+id/btnSortDate"
-                    android:src="@drawable/date"
+                    android:src="@drawable/ic_date_56"
                     android:background="#00000000"
-                    android:layout_weight="1.83" />
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/btnDelete"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_delete_white_48dp"
+                    android:background="#00000000"/>
+
+
             </LinearLayout>
 
 

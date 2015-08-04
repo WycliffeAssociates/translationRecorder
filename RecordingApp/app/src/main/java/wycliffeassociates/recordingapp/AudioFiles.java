@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -33,9 +34,10 @@ public class AudioFiles extends Activity {
 
     private DrawerLayout mDrawerLayout;
 
+    private CheckBox btnCheckAll;
+
     private ImageButton
-            btnCheckAll,
-                btnSortName, btnSortDuration, btnSortDate,
+                btnSortName, btnSortDuration, btnSortDate, btnDelete,
             btnExport,
                 btnExportApp, btnExportFTP, btnExportFolder;
 
@@ -43,7 +45,6 @@ public class AudioFiles extends Activity {
     private TextView file_path;
     private static String currentDir;
     private File file[];
-
 
     private ArrayList<AudioItem> audioItemList;
     static ArrayList<String> exportList;
@@ -99,7 +100,6 @@ public class AudioFiles extends Activity {
         dateList = new ArrayList<Date>();
         audioItemList = new ArrayList<AudioItem>();
         audioHash = new Hashtable<Date, String>();
-
 
         //get files in the directory
         File f = new File(currentDir);
@@ -218,7 +218,7 @@ public class AudioFiles extends Activity {
             }
         });
 
-        btnCheckAll = (ImageButton)findViewById(R.id.btnCheckAll);
+        btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
         btnCheckAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -267,6 +267,7 @@ public class AudioFiles extends Activity {
             }
         });
 
+        btnDelete = (ImageButton)findViewById(R.id.btnDelete);
     }
 
     @Override
@@ -277,7 +278,7 @@ public class AudioFiles extends Activity {
     }
 
     /**
-     *
+     *Clears Check Box State when the back button is pressed
      */
     public void onBackPressed(){
         if (file == null) {}
