@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -12,7 +13,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -200,12 +203,16 @@ public class Settings extends Activity {
             @Override
             public void onClick(View v) {
                 //toDo: edit theme for gravity & edittext items & get preferences to show
-                final Dialog ftp = new Dialog(c, android.R.style.Theme_Translucent_NoTitleBar);
+                final Dialog ftp = new Dialog(c);
+                ftp.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                ftp.setCanceledOnTouchOutside(true);
+                ftp.getWindow().setBackgroundDrawableResource(R.color.transparent);
                 ftp.setContentView(R.layout.ftp_dialog);
 
                 final EditText server = (EditText) ftp.findViewById(R.id.ftpServer);
                 server.setText(pref.getPreferences("ftpServer").toString());
                 final EditText userName = (EditText) ftp.findViewById(R.id.userName);
+                userName.setText(pref.getPreferences("ftpUserName").toString());
                 final EditText port = (EditText) ftp.findViewById(R.id.ftpPort);
                 port.setText(pref.getPreferences("ftpPort").toString());
                 final EditText password = (EditText) ftp.findViewById(R.id.ftpPassword);
@@ -245,7 +252,6 @@ public class Settings extends Activity {
             }
             if (requestCode == SET_SAVE_DIR2) {
                 printSaveDirectory(preferences);
-                System.out.println("ABI: save dir = " + preferences.getPreferences("fileDirectory"));
             }
         }
     }

@@ -301,7 +301,6 @@ public class ExportFiles extends Activity
         for(int i = 0; i < paths.size(); i++){
             String[] temp = paths.get(i).split("/");
             names.add(temp[temp.length-1]);
-            System.out.println(names.get(i));
         }
         return names;
     }
@@ -319,14 +318,13 @@ public class ExportFiles extends Activity
      * @param prefs The preference manager
      */
     public void saveDirectory(PreferencesManager prefs) {
-        String dir = getCurrentDir()+ "/testing5409";
+        String dir = getCurrentDir()+ "/thisshouldbedeleted";
         File fDir = new File(dir);
             try{
                boolean created = fDir.mkdir();
                if(created) {
                    fDir.delete();
                    prefs.setPreferences("fileDirectory", getCurrentDir());
-                   System.out.println("ABI: default dir = " + prefs.getPreferences("fileDirectory"));
                    Intent resultIntent = new Intent();
                    setResult(Activity.RESULT_OK, resultIntent);
                    finish();
