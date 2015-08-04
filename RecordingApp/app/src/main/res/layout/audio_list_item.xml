@@ -33,6 +33,17 @@
         android:layout_toEndOf="@id/checkBox" />
 
     <TextView
+        android:id="@+id/duration"
+        android:text=""
+        android:textColor="#ffc8e6c9"
+        android:textSize="15sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="240dp"
+        android:layout_marginTop="40dp"
+        android:layout_toEndOf="@id/checkBox" />
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/filename"

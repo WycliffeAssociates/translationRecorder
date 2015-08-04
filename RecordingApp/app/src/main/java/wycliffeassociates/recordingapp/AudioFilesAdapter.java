@@ -42,7 +42,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
     //class for caching the views in a row
     private class ViewHolder
     {
-        TextView filename, date;
+        TextView filename, date, duration;
         CheckBox checkBox;
     }
 
@@ -84,6 +84,9 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.filename = (TextView) convertView.findViewById(R.id.filename);
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
 
+            viewHolder.duration = (TextView) convertView.findViewById(R.id.duration);
+            viewHolder.duration.setGravity(Gravity.RIGHT);
+
 
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
             viewHolder.date.setGravity(Gravity.RIGHT);
@@ -102,6 +105,13 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
         String output = format.format(audioItems[position].getDate());
         viewHolder.date.setText(output);
+
+        int length = audioItems[position].getDuration();
+        int hours = (length / (60 * 60));
+        int minutes = ((length - (60 * 60 * hours)) / 60);
+        int seconds = length - (60 * 60 * hours) - (60 * minutes);
+        String duration = String.format("%02d",hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+        viewHolder.duration.setText(duration);
 
         viewHolder.checkBox.setChecked(checkBoxState[position]);
 
