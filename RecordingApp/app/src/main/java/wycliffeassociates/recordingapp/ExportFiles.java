@@ -64,8 +64,8 @@ public class ExportFiles extends Activity
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
         setCurrentFolder(pref.getPreferences("fileDirectory").toString());
-        setContentView(R.layout.export_list);
-        list = (ListView)findViewById(R.id.listViewExport);
+        setContentView(R.layout.save_location_menu);
+        list = (ListView)findViewById(R.id.folderList);
 
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());

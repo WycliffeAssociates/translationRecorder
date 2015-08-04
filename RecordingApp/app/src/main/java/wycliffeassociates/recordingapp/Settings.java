@@ -64,6 +64,9 @@ public class Settings extends Activity {
         setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
         //setLangCode.setText(pref.getPreferences("targetLanguage").toString());
 
+        //Intent intent = new Intent(c, LanguageNamesRequest.class);
+        //startActivity(intent);
+
         //update
         pullLangNames();
 
@@ -163,7 +166,7 @@ public class Settings extends Activity {
         setSaveDirectory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               /* String temp = (String) pref.getPreferences("fileDirectory");
+                String temp = (String) pref.getPreferences("fileDirectory");
 
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     Intent intent = new Intent();
@@ -174,9 +177,10 @@ public class Settings extends Activity {
                     Intent intent = new Intent(c, ExportFiles.class);
                     startActivity(intent);
                     printSaveDirectory(pref);
+                    startActivityForResult(intent, SET_SAVE_DIR);
                 }
-                startActivityForResult(intent, SET_SAVE_DIR);*/
 
+                /*
                 String tableName = "langnames";
                 SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
 
@@ -191,10 +195,11 @@ public class Settings extends Activity {
 
                 }
                 audiorecorder.close();
+                */
             }
         });
 
-        setFtp = (ImageButton)findViewById(R.id.setFtp);
+        setFtp = (ImageButton) findViewById(R.id.setFtp);
         setFtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,8 +209,8 @@ public class Settings extends Activity {
 
                 final EditText server = (EditText) ftp.findViewById(R.id.ftpServer);
                 server.setText(pref.getPreferences("ftpServer").toString());
-               final EditText userName = (EditText)ftp.findViewById(R.id.userName);
-                final EditText port = (EditText)ftp.findViewById(R.id.ftpPort);
+                final EditText userName = (EditText) ftp.findViewById(R.id.userName);
+                final EditText port = (EditText) ftp.findViewById(R.id.ftpPort);
                 port.setText(pref.getPreferences("ftpPort").toString());
                 final EditText password = (EditText) ftp.findViewById(R.id.ftpPassword);
                 password.setEnabled(false);
