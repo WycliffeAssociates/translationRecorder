@@ -264,7 +264,7 @@ public class CanvasScreen extends Activity {
                 while(WavPlayer.isPlaying()){
                     int location = WavPlayer.getLocation();
                     double locPercentage = (double)location/ (double)WavPlayer.getDuration();
-                    translation = (int)(locPercentage * scaleFactor);
+                    translation = (int)(userScale*(int)(locPercentage * scaleFactor));
                     mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
                     mainCanvas.setXTranslation(base+translation);
                     minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));

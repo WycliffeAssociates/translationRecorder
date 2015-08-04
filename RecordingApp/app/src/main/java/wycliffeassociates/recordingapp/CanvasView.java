@@ -159,7 +159,7 @@ public class CanvasView extends View {
         System.out.println("Starting at index: " + xIndex);
         System.out.println("y scale is : " + yScale);
         System.out.println("x scale is : " + xScale);
-        System.out.println("samples are of size "+ samples.size());
+        System.out.println("samples are of size " + samples.size());
 
         for (int t = 0; t < samples.size(); t++) {
 
@@ -204,6 +204,10 @@ public class CanvasView extends View {
 
     public void resample(int position){
         samples = wavLoader.getAudioWindow(position, 10, increment);
+    }
+
+    public void recomputeIncrement(float xScale){
+        increment = wavVis.getIncrement(xScale);
     }
 
     public void displayWaveform(int seconds){
@@ -269,7 +273,7 @@ public class CanvasView extends View {
     public void drawMarker(Canvas canvas){
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.RED);
-        canvas.drawLine((canvas.getWidth()/8) + xTranslation, 0, (canvas.getWidth()/8)+xTranslation, canvas.getHeight(), mPaint);
+        canvas.drawLine(((canvas.getWidth()/8) + xTranslation)/userScale, 0, ((canvas.getWidth()/8) + xTranslation)/userScale, canvas.getHeight(), mPaint);
     }
     public void shouldDrawMiniMarker(boolean yes){
         this.shouldDrawMiniMarker = true;
