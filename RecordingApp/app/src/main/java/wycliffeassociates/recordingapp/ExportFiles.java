@@ -64,13 +64,13 @@ public class ExportFiles extends Activity
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
         setCurrentFolder(pref.getPreferences("fileDirectory").toString());
-        setContentView(R.layout.save_location_menu);
-        list = (ListView)findViewById(R.id.folderList);
+        setContentView(R.layout.export_list);
+        list = (ListView)findViewById(R.id.listViewExport);
 
         //add files to adapter to display to the user
         setFilesInDir(getCurrentDir());
         arrayAdapter =
-                new ArrayAdapter<>(this,R.layout.save_location_list, fileList);
+                new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, fileList);
         list.setAdapter(arrayAdapter);
 
         //on item list click move up or down directories

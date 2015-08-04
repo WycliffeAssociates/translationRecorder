@@ -39,7 +39,8 @@
                     android:gravity="center"
                     android:background="@drawable/purple"
                     android:layout_weight="1"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    android:completionThreshold="1"/>
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -55,6 +56,7 @@
                     android:gravity="center"
                     android:background="@drawable/purple"
                     android:layout_weight="1"
+                    android:completionThreshold="1"
                     android:layout_gravity="center"/>
 
                 <LinearLayout

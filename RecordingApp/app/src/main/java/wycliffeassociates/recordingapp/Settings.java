@@ -23,6 +23,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 
+import wycliffeassociates.recordingapp.connectivity.LanguageNamesRequest;
 import wycliffeassociates.recordingapp.model.Language;
 
 /**
@@ -35,8 +36,8 @@ public class Settings extends Activity {
     private ImageButton setSaveDirectory, setFtp;
     private String sampleName;
     private TextView displayFileName, showSaveDirectory;
-    private EditText tReset,setBookCode;
-    AutoCompleteTextView setLangCode;
+    private EditText tReset;
+    AutoCompleteTextView setLangCode,setBookCode;
 
     private Context c;
 
@@ -63,6 +64,9 @@ public class Settings extends Activity {
         setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
         //setLangCode.setText(pref.getPreferences("targetLanguage").toString());
 
+/*
+        Intent intent = new Intent(Settings.this, LanguageNamesRequest.class);
+        startActivityForResult(intent, 0);
 
         //SELECT
         String tableName = "langnames";
@@ -79,21 +83,12 @@ public class Settings extends Activity {
         System.out.println("==========");
         //System.out.println("Spen : " + cursor.getCount());
 
-               /* if(cursor!=null) {
-                    cursor.moveToFirst();
-                    while(!cursor.isLast()) {
-                        System.out.println(value.getName() + "," + value.getCode() + "," + value.getCountryCode()
-                                + "," + value.getLanguageDirection() + "," + i + "\n")
-                        cursor.moveToNext();
-                    }
-                }*/
         ArrayList<Language> languageList = new ArrayList<Language>();
         String[] listHolder;
         if (cursor != null) {
             cursor.moveToFirst();
             while (!cursor.isLast()) {
-                        /*System.out.println(cursor.getString(0));
-                        System.out.println(cursor.getInt(1));*/
+
                 //create language
 
                 Boolean gw = false;
@@ -109,9 +104,6 @@ public class Settings extends Activity {
 
                 Language temp = new Language(gw, ld, lc, ln, cc, pk);
                 languageList.add(temp);
-                        /*System.out.println(cursor.getInt(0) + ", " + cursor.getString(1) + ", " +
-                                cursor.getString(2) + ", " + cursor.getString(3) + ", " +
-                                cursor.getString(4) + ", " + cursor.getInt(5));*/
                 cursor.moveToNext();
             }
         }
@@ -124,10 +116,10 @@ public class Settings extends Activity {
                     (languageList.get(a)).getName();
             //System.out.println(listHolder[a]);
         }
-
+*/
         //CREATE
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listHolder);
-        setLangCode.setAdapter(adapter);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listHolder);
+//        setLangCode.setAdapter(adapter);
         setLangCode.setText(pref.getPreferences("targetLanguage").toString());
         setLangCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -150,7 +142,10 @@ public class Settings extends Activity {
             }
         });
 
-        setBookCode = (EditText)findViewById(R.id.setBookCode);
+        String[] bookArray = getResources().getStringArray(R.array.bookCodes);
+        setBookCode = (AutoCompleteTextView)findViewById(R.id.setBookCode);
+        ArrayAdapter<String> bookAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,bookArray);
+        setBookCode.setAdapter(bookAdapter);
         setBookCode.setText(pref.getPreferences("book").toString());
         setBookCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -206,6 +201,8 @@ public class Settings extends Activity {
                 printSaveDirectory(pref);
                 printFileName(pref);
                 printCounter(pref);
+                printLanguage(pref);
+                printBook(pref);
             }
         });
 
@@ -240,8 +237,7 @@ public class Settings extends Activity {
                final EditText server = (EditText)ftp.findViewById(R.id.ftpServer);
                 server.setText(pref.getPreferences("ftpServer").toString());
                final EditText userName = (EditText)ftp.findViewById(R.id.userName);
-                System.out.println("ABI: username = " + pref.getPreferences("ftpUserName").toString());
-               final EditText port = (EditText)ftp.findViewById(R.id.ftpPort);
+                final EditText port = (EditText)ftp.findViewById(R.id.ftpPort);
                 port.setText(pref.getPreferences("ftpPort").toString());
                final EditText password = (EditText)ftp.findViewById(R.id.ftpPassword);
                 password.setEnabled(false);
@@ -308,6 +304,23 @@ public class Settings extends Activity {
         tReset.setText(counter);
     }
 
+    /**
+     * Prints the current language code in the field
+     * @param pref the preference manager that holds the current code
+     */
+    private void printLanguage(PreferencesManager pref){
+        String counter = pref.getPreferences("targetLanguage").toString();
+        setLangCode.setText(counter);
+    }
+
+    /**
+     * Prints the current book code in the field
+     * @param pref the preference manager that holds the current code
+     */
+    private void printBook(PreferencesManager pref){
+        String counter = pref.getPreferences("book").toString();
+        setBookCode.setText(counter);
+    }
     /**
      * Updates the fileName based on the
      * @param pref the preference manager that holds the target language
