@@ -77,16 +77,18 @@ public class WavFileLoader {
         }
     }
 
+    //need to rework the main loop a bit; will lose data at the end if not in the incrememnt window
     public ArrayList<Pair<Double,Double>> getAudioWindow(int startSecond, int numSeconds, int increment){
         ArrayList<Pair<Double,Double>> samples = new ArrayList<>();
-        int index = 0;
-        int extraSecondsBuffer = (int)Math.ceil(numSeconds/4.0);
+        int extraSecondsBuffer = (int)Math.ceil(numSeconds/8.0);
         int lastIndex = (startSecond+numSeconds+extraSecondsBuffer)*AudioInfo.SIZE_OF_SHORT*AudioInfo.SAMPLERATE;
-        System.out.println(lastIndex + "last index is ");
-        System.out.println((startSecond*AudioInfo.SAMPLERATE*AudioInfo.SIZE_OF_SHORT) + " start index");
-        System.out.println(numSeconds + "num Seconds is ");
-        System.out.println(startSecond + "num Seconds is ");
-        System.out.println(AudioInfo.SIZE_OF_SHORT + "Size of short ");
+//        System.out.println(lastIndex + "last index is ");
+//        System.out.println((startSecond*AudioInfo.SAMPLERATE*AudioInfo.SIZE_OF_SHORT) + " start index");
+//        System.out.println(numSeconds + "num Seconds is ");
+//        System.out.println(startSecond + "start Seconds is ");
+//        System.out.println(AudioInfo.SIZE_OF_SHORT + "Size of short ");
+//        System.out.println(increment + "incremement is ");
+//        System.out.println((AudioInfo.SAMPLERATE/increment) + "number of points per second");
         for(int i = startSecond*AudioInfo.SAMPLERATE*AudioInfo.SIZE_OF_SHORT; i < Math.min(buffer.capacity(), lastIndex); i += increment*AudioInfo.SIZE_OF_SHORT){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
@@ -101,13 +103,13 @@ public class WavFileLoader {
                     min = (min > (double) value) ? value : min;
                 }
             }
-            samples.add(index, new Pair<>(max, min));
+            samples.add(new Pair<>(max, min));
         }
         setSampleStartIndex(startSecond, increment);
         return samples;
     }
     private void setSampleStartIndex(int startSecond, int increment){
-        int incInSec = AudioInfo.SAMPLERATE / increment;
+        int incInSec = (int)Math.floor(AudioInfo.SAMPLERATE / increment);
         startIndex = incInSec * startSecond;
     }
     public int getSampleStartIndex(){
@@ -116,7 +118,7 @@ public class WavFileLoader {
 
     public static int positionToWindowStart(int position){
         int second = (int)Math.floor(position/1000.0);
-        return Math.max(second - 1, 0);
+        return Math.max(second-1, 0);
     }
 
     private void sampleAudioChunk(byte[] chunk){

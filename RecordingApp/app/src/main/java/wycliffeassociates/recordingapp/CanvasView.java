@@ -153,7 +153,7 @@ public class CanvasView extends View {
         if (samples == null) {
             return;
         }
-        int oldX = 0;
+        int oldX = wavLoader.getSampleStartIndex();
         int oldY =  (canvas.getHeight() / 2);
         int xIndex = wavLoader.getSampleStartIndex();
         System.out.println("Starting at index: " + xIndex);
