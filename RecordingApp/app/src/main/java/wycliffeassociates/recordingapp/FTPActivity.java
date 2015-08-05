@@ -30,15 +30,12 @@ public class FTPActivity extends Activity {
     private EditText Password;
     private EditText Directory;
     private ImageButton Ok;
-    CopyStreamAdapter streamListener;
 
     PreferencesManager pref;
 
     String filepath, server, password, direc, user, destinationfilename;
     int port;
     File uploadFile;
-    int increment = 0;
-
 
 
     protected void onCreate(Bundle savedInstanceState) {

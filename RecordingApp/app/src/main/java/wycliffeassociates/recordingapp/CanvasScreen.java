@@ -284,11 +284,11 @@ public class CanvasScreen extends Activity {
     @Override
     public void onBackPressed() {
         if(!isSaved) {
-            QuitDialog dialog = new QuitDialog();
+            exitdialog dialog = new exitdialog(this, R.style.Theme_UserDialog);
             if(isRecording){
                 dialog.setIsRecording(true);
             }
-            dialog.show(this.getFragmentManager(), "reallyQuitDialog");
+            dialog.show();
         }
         else
             super.onBackPressed();

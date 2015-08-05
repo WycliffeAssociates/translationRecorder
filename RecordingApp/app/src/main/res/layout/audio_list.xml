@@ -128,7 +128,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/btnExport"
-                android:background="@drawable/ic_export_purple_133"
+                android:background="@drawable/ic_export_icon_share_83"
                 android:elevation="12dp"
                 android:layout_above="@+id/WavePreview"
                 android:layout_alignParentEnd="true" />
