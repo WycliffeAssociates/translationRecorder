@@ -7,77 +7,103 @@
         android:background="#fffda93d">
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent" android:layout_height="match_parent">
-            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:orientation="vertical" android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#fffda93d"
-                android:id="@+id/RelativeLayout_basic_toolbar">
+            android:orientation="vertical" android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#fffda93d">
 
-                <RelativeLayout
-                    android:orientation="horizontal"
-                    android:layout_width="500dp"
-                    android:layout_height="130dp"
-                    android:background="@drawable/toolbartest"
+            <RelativeLayout
+                android:orientation="horizontal"
+                android:layout_width="500dp"
+                android:layout_height="130dp"
+                android:background="@drawable/toolbartest"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/toolbar"
+                android:visibility="visible">
+
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnPauseRecording"
+                    android:src="@drawable/record_toggle"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:layout_gravity="center"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginLeft="89dp"
+                    android:visibility="invisible"
+                    android:focusableInTouchMode="false" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnRecording"
+                    android:src="@drawable/mic_small"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="108dp"
                     android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:id="@+id/toolbar"
-                    android:visibility="visible">
+                    android:layout_alignParentStart="true"
+                    android:visibility="visible" />
 
-
-                    <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/btnPauseRecording"
-                        android:src="@drawable/record_toggle"
-                        android:layout_weight="1"
-                        android:background="#00000000"
-                        android:layout_gravity="center"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginLeft="89dp"
-                        android:visibility="invisible"
-                        android:focusableInTouchMode="false" />
-
-                    <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/btnRecording"
-                        android:src="@drawable/mic_small"
-                        android:layout_weight="1"
-                        android:background="#00000000"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="108dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentStart="true"
-                        android:visibility="visible" />
-
-                    <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/btnStop"
-                        android:src="@drawable/stop"
-                        android:layout_weight="1"
-                        android:background="#00000000"
-                        android:layout_gravity="center"
-                        android:layout_centerVertical="true"
-                        android:layout_toEndOf="@+id/btnPauseRecording"
-                        android:layout_marginStart="134dp" />
-                </RelativeLayout>
-
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnStop"
+                    android:src="@drawable/stop"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:layout_gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@+id/btnPauseRecording"
+                    android:layout_marginStart="134dp" />
             </RelativeLayout>
 
+            <view
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                class="wycliffeassociates.recordingapp.CanvasView"
+                android:id="@+id/main_canvas"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/linearLayout13" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:id="@+id/linearLayout13"
+                android:background="#57575757"></LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:orientation="horizontal"></LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_gravity="right"
+                    android:id="@+id/volumeBar" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"></LinearLayout>
+            </LinearLayout>
+
         </RelativeLayout>
-
-        <view
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            class="wycliffeassociates.recordingapp.CanvasView"
-            android:id="@+id/main_canvas"
-            android:layout_above="@+id/linearLayout9" />
-
     </RelativeLayout>
-
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -170,7 +196,6 @@
             android:layout_height="80dp"
             android:layout_alignParentTop="true"
             android:background="#ff4a4b49"
-            android:layout_toStartOf="@+id/linearLayout11"
             android:id="@+id/linearLayout12"
             android:layout_alignParentEnd="true">
 
@@ -181,22 +206,6 @@
                 android:id="@+id/minimap" />
         </LinearLayout>
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:id="@+id/linearLayout11"
-            android:layout_below="@+id/linearLayout12"
-            android:background="@drawable/volume_limit_transparent"></LinearLayout>
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnCancel"
-            android:background="@drawable/x"
-            android:layout_below="@+id/linearLayout12"
-            android:layout_toStartOf="@+id/linearLayout11" />
     </RelativeLayout>
 
 </RelativeLayout>

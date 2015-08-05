@@ -82,8 +82,6 @@ public class CanvasScreen extends Activity {
             public boolean onScale(ScaleGestureDetector detector) {
                 userScale *= detector.getScaleFactor();
                 mainCanvas.setUserScale(userScale);
-                mainCanvas.invalidate();
-
                 return true;
             }
         };
@@ -94,10 +92,11 @@ public class CanvasScreen extends Activity {
 
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
+        findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
+        findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
         minimap.setIsMinimap(true);
         setButtonHandlers();
-        enableButtons(true);
-        startRecording();
+        enableButtons(false);
     }
 
 
@@ -193,6 +192,7 @@ public class CanvasScreen extends Activity {
     }
 
     private void startRecording(){
+        findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
         if(!paused) {
@@ -220,6 +220,7 @@ public class CanvasScreen extends Activity {
             WavPlayer.stop();
         }
         else {
+            findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
             findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
             findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
             stopService(new Intent(this, WavRecorder.class));

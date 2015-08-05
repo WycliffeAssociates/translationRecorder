@@ -181,6 +181,7 @@ public class CanvasView extends View {
 
             oldX = xIndex;
             xIndex++;
+
             oldY = y;
         }
     }
@@ -255,12 +256,23 @@ public class CanvasView extends View {
                         RecordingMessage message = RecordingQueues.UIQueue.take();
                         isStopped = message.isStopped();
                         isPaused = message.isPaused();
+
                         if (!isPaused && message.getData() != null) {
                             setBuffer(message.getData());
+                            double max = 0;
+                            for(int i =0; i < buffer.length; i+=2) {
+                                byte low = buffer[i];
+                                byte hi = buffer[i + 1];
+                                short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                                max = (Math.abs(value) > max)? Math.abs(value) : max;
+                            }
+                            final double db = Math.log10(max / (double) AudioInfo.AMPLITUDE_RANGE)* 10;
+                            System.out.println("db is "+db);
                             ctx.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     mainCanvas.invalidate();
+                                    changeVolumeBar(ctx, db);
                                 }
                             });
                         }
@@ -284,6 +296,63 @@ public class CanvasView extends View {
         });
         uiThread.start();
     }
+    public void changeVolumeBar(Activity ctx, double db){
+        if(db > -1){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.max);
+            System.out.println(db);
+        }
+        else if (db < -1 && db > -1.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_16);
+        }
+        else if (db < -1.5 && db > -2){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_15);
+        }
+        else if (db < -2 && db > -2.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_14);
+        }
+        else if (db < -2.5 && db > -3){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_13);
+        }
+        else if (db < -3 && db > -3.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_12);
+        }
+        else if (db < -3.5 && db > -4){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_11);
+        }
+        else if (db < -4 && db > -4.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_10);
+        }
+        else if (db < -4.5 && db > -5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_9);
+        }
+        else if (db < -5 && db > -5.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_8);
+        }
+        else if (db < -5.5 && db > -6){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_7);
+        }
+        else if (db < -6 && db > -6.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_6);
+        }
+        else if (db < -6.5 && db > -7){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_5);
+        }
+        else if (db < -7 && db > -7.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_4);
+        }
+        else if (db < -7.5 && db > -8){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_3);
+        }
+        else if (db < -8 && db > -8.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_2);
+        }
+        else if (db < -8.5 && db > -12){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_1);
+        }
+        else {
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
+        }
+    }
 
     public void shouldDrawMaker(boolean yes){
         this.shouldDrawLine = yes;
@@ -301,3 +370,4 @@ public class CanvasView extends View {
         canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
     }
 }
+
