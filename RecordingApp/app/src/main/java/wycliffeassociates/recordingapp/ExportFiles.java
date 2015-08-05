@@ -102,13 +102,12 @@ public class ExportFiles extends Activity
             }
         });
 
-        //the buttons at the bottom of the screen
-        findViewById(R.id.btnCancel).setOnClickListener(btnClick);
+        //the button at the bottom of the screen
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
     }
 
     /**
-     * The listener for the save & cancel clicks
+     * The listener for the save click
      */
     private View.OnClickListener btnClick = new View.OnClickListener() {
         @Override
@@ -118,9 +117,6 @@ public class ExportFiles extends Activity
                     saveDirectory(pref);
                     break;
                 }
-                case R.id.btnCancel:
-                    cancelExport();
-                    break;
             }
         }
     };

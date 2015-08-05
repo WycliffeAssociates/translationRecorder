@@ -1,22 +1,17 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
-import android.graphics.drawable.ColorDrawable;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -42,9 +37,19 @@ public class Settings extends Activity {
     private EditText tReset;
     AutoCompleteTextView setLangCode,setBookCode;
 
+    /**
+     * The context of this activity
+     */
     private Context c;
 
+    /**
+     * Request code for Android version 5.0 on saving a directory
+     */
     final int SET_SAVE_DIR = 21;
+
+    /**
+     * Request code for Android version under 5.0 on saving a directory
+     */
     final int SET_SAVE_DIR2 = 22;
 
 
@@ -53,202 +58,42 @@ public class Settings extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings2);
 
+        //context
         c = this;
         final PreferencesManager pref = new PreferencesManager(c);
 
+        //initializing items that need to be printed to screen
         displayFileName = (TextView)findViewById(R.id.defaultFileName);
         showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
         tReset = (EditText)findViewById(R.id.tReset);
 
+        //display defaults in their fields
         printFileName(pref);
         printSaveDirectory(pref);
         printCounter(pref);
 
-        //need to get an adapter for autocompletion eventually. Functional now
-        setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
-        //setLangCode.setText(pref.getPreferences("targetLanguage").toString());
-
         //update
         pullDB();
 
-        setLangCode.setText(pref.getPreferences("targetLanguage").toString());
-        setLangCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String[] temp = s.toString().split(" - ");
-
-                String newVal = temp[0];
-                newVal = newVal.replaceAll("![A-Za-z0-9]", "");
-                pref.setPreferences("targetLanguage", newVal);
-                updateFileName(pref);
-            }
-        });
-
-        String[] bookArray = getResources().getStringArray(R.array.bookCodes);
-        setBookCode = (AutoCompleteTextView)findViewById(R.id.setBookCode);
-        ArrayAdapter<String> bookAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,bookArray);
-        setBookCode.setAdapter(bookAdapter);
-        setBookCode.setText(pref.getPreferences("book").toString());
-        setBookCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newVal = s.toString();
-                newVal = newVal.replaceAll("![A-Za-z0-9]", "");
-                pref.setPreferences("book", newVal);
-                updateFileName(pref);
-            }
-        });
-
-        tReset = (EditText)findViewById(R.id.tReset);
-        tReset.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newVal = s.toString();
-                int counter = (int)pref.getPreferences("fileCounter");
-                try {
-                    counter = Integer.parseInt(newVal);
-                }
-                catch(NumberFormatException e){
-                    e.printStackTrace();
-                }
-                pref.setPreferences("fileCounter", counter);
-                printFileName(pref);
-            }
-        });
-
-        hardReset = (Button)findViewById(R.id.btnRestoreDefault);
-        hardReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pref.resetPreferences("all");
-
-                pullDB();
-
-                printSaveDirectory(pref);
-                printFileName(pref);
-                printCounter(pref);
-                printLanguage(pref);
-                printBook(pref);
-            }
-        });
-
-        //todo: use export files option rather than open document tree (API level 21)
-        setSaveDirectory = (ImageButton)findViewById(R.id.setSaveDirectory);
-        setSaveDirectory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String temp = (String) pref.getPreferences("fileDirectory");
-
-                /*//need to change some things in Preference manager before getting this
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Intent intent = new Intent();
-                    intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
-                    startActivityForResult(intent, SET_SAVE_DIR);
-                }
-                else{*/
-                    Intent intent = new Intent(c, ExportFiles.class);
-                    startActivityForResult(intent, SET_SAVE_DIR2);
-               // }
-
-
-/*
-                String tableName = "langnames";
-                SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
-
-                String queryDelete = "DROP TABLE " + tableName;
-                //String queryOnDuplicate = " ON DUPLICATE KEY UPDATE "
-
-                //kill database
-                try {
-                    audiorecorder.execSQL(queryDelete);
-                    System.out.println("dropped");
-                }catch(RuntimeException e){
-
-                }
-                audiorecorder.close();
-*/
-            }
-        });
-
-        setFtp = (ImageButton) findViewById(R.id.setFtp);
-        setFtp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //toDo: edit theme for gravity & edittext items & get preferences to show
-                final Dialog ftp = new Dialog(c);
-                ftp.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                ftp.setCanceledOnTouchOutside(true);
-                ftp.getWindow().setBackgroundDrawableResource(R.color.transparent);
-                ftp.setContentView(R.layout.ftp_dialog);
-
-                final EditText server = (EditText) ftp.findViewById(R.id.ftpServer);
-                server.setText(pref.getPreferences("ftpServer").toString());
-                final EditText userName = (EditText) ftp.findViewById(R.id.userName);
-                userName.setText(pref.getPreferences("ftpUserName").toString());
-                final EditText port = (EditText) ftp.findViewById(R.id.ftpPort);
-                port.setText(pref.getPreferences("ftpPort").toString());
-                final EditText password = (EditText) ftp.findViewById(R.id.ftpPassword);
-                password.setEnabled(false);
-                final EditText secureftp = (EditText) ftp.findViewById(R.id.secureFtp);
-                secureftp.setText(pref.getPreferences("ftp").toString());
-                final EditText directory = (EditText) ftp.findViewById(R.id.ftpDirectory);
-                directory.setText(pref.getPreferences("ftpDirectory").toString());
-
-                ImageButton ok = (ImageButton) ftp.findViewById(R.id.ftpOk);
-                ok.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View w) {
-                        pref.setPreferences("ftpServer", server.getText().toString());
-                        pref.setPreferences("ftpUserName", userName.getText().toString());
-                        pref.setPreferences("ftpPort", port.getText().toString());
-                        pref.setPreferences("ftp", secureftp.getText().toString());
-                        pref.setPreferences("ftpDirectory", directory.getText().toString());
-                        ftp.hide();
-                    }
-                });
-
-                ftp.show();
-            }
-        });
+        //setting up listeners on all buttons
+        langCodeListener(pref);
+        bookCodeListener(pref);
+        counterListener(pref);
+        resetListener(pref);
+        saveDirectoryListener();
+        ftpListener(pref);
     }
+
 
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
         Uri currentUri;
         PreferencesManager preferences = new PreferencesManager(this);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == SET_SAVE_DIR) {
+            if (requestCode == SET_SAVE_DIR) {//this may need to be parsed differently
                 currentUri = resultData.getData();
                 File temp = new File(currentUri.getPath());
-                preferences.setPreferences("fileDirectory", temp.getAbsolutePath().toString());
+                preferences.setPreferences("fileDirectory", temp.getAbsolutePath());
             }
             if (requestCode == SET_SAVE_DIR2) {
                 printSaveDirectory(preferences);
@@ -259,12 +104,12 @@ public class Settings extends Activity {
     public void pullDB(){
         try {
             String tableName = "langnames";
-            SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+            SQLiteDatabase audioRecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
 
             String querySelect = "SELECT * FROM " + tableName;
 
-            Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
-            audiorecorder.close();
+            Cursor cursor = audioRecorder.rawQuery(querySelect, new String[]{});
+            audioRecorder.close();
         }catch(Exception e){
             Intent intent = new Intent(c, LanguageNamesRequest.class);
             startActivityForResult(intent, 0);
@@ -278,16 +123,16 @@ public class Settings extends Activity {
         try {
             //SELECT
             String tableName = "langnames";
-            SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+            SQLiteDatabase audioRecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
 
             String querySelect = "SELECT * FROM " + tableName;
             String queryCount = "SELECT COUNT(*) FROM " + tableName;
 
-            //unsynchronized
-            Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
+            //un-synchronized
+            Cursor cursor = audioRecorder.rawQuery(querySelect, new String[]{});
 
 
-            ArrayList<Language> languageList = new ArrayList<Language>();
+            ArrayList<Language> languageList = new ArrayList<>();
             String[] listHolder;
             if (cursor != null) {
                 cursor.moveToFirst();
@@ -314,7 +159,7 @@ public class Settings extends Activity {
                 }
             }
 
-            audiorecorder.close();
+            audioRecorder.close();
 
             listHolder = new String[languageList.size()];
             for (int a = 0; a < listHolder.length; a++) {
@@ -323,9 +168,10 @@ public class Settings extends Activity {
                 //System.out.println(listHolder[a]);
             }
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listHolder);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listHolder);
             setLangCode.setAdapter(adapter);
         }catch(RuntimeException e){
+            e.printStackTrace();
             //No existing database
         }
     }
@@ -379,9 +225,198 @@ public class Settings extends Activity {
      * @param pref the preference manager that holds the target language
      */
     private void updateFileName(PreferencesManager pref){
-            String name = (String)pref.getPreferences("targetLanguage") + "-" +
-                    (String)pref.getPreferences("book");
+            String name = pref.getPreferences("targetLanguage") + "-" +
+                    pref.getPreferences("book");
             pref.setPreferences("fileName", name);
             printFileName(pref);
     }
+
+
+    /**
+     * Sets a listener on the langCode textView
+     * @param pref the preference manager
+     */
+    private void langCodeListener(final PreferencesManager pref) {
+        setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
+        setLangCode.setText(pref.getPreferences("targetLanguage").toString());//default
+
+        setLangCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String[] temp = s.toString().split(" - ");//we only want the language code
+                String newVal = temp[0];
+
+                newVal = newVal.replaceAll("![A-Za-z0-9]", "");//remove any strange characters
+
+                pref.setPreferences("targetLanguage", newVal);//add selecet language code to preferences
+                updateFileName(pref);
+            }
+        });
+    }
+
+    /**
+     * Sets up the bookCode Textview with a listener
+     * @param pref preferences manager
+     */
+    private void bookCodeListener(final PreferencesManager pref) {
+        String[] bookArray = getResources().getStringArray(R.array.bookCodes);//resource of 3 letter Bible book codes
+
+        setBookCode = (AutoCompleteTextView)findViewById(R.id.setBookCode);
+        ArrayAdapter<String> bookAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,bookArray);
+        setBookCode.setAdapter(bookAdapter);
+        setBookCode.setText(pref.getPreferences("book").toString());
+
+        setBookCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                newVal = newVal.replaceAll("![A-Za-z0-9]", "");//get rid of strange characters
+                pref.setPreferences("book", newVal);//save selection to preferences
+                updateFileName(pref);
+            }
+        });
+    }
+
+
+    /**
+     * Sets a listener on the counter editText
+     * @param pref the preference manager
+     */
+    private void counterListener(final PreferencesManager pref) {
+        tReset = (EditText)findViewById(R.id.tReset);
+        tReset.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                int counter = (int)pref.getPreferences("fileCounter");//set default
+                try {//should never have an error since input will always be a number
+                    counter = Integer.parseInt(newVal);
+                }
+                catch(NumberFormatException e){
+                    e.printStackTrace();
+                }
+                pref.setPreferences("fileCounter", counter);//save to preferences
+                printFileName(pref);//update file name
+            }
+        });
+    }
+
+    /**
+     * Sets a listener on the reset button
+     * @param pref the preference manager
+     */
+    private void resetListener(final PreferencesManager pref) {
+        hardReset = (Button)findViewById(R.id.btnRestoreDefault);
+        hardReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pref.resetPreferences("all");//resets preferences
+
+                pullDB();//tries to pull db from url
+
+                //update all fields based on changes
+                printSaveDirectory(pref);
+                printFileName(pref);
+                printCounter(pref);
+                printLanguage(pref);
+                printBook(pref);
+            }
+        });
+    }
+
+    /**
+     * Sets up a save directory listener that will call the ExportFiles.class activity
+     * so that the user can choose out of all available directories where files
+     * should be saved.
+     */
+    private void saveDirectoryListener() {
+        setSaveDirectory = (ImageButton)findViewById(R.id.setSaveDirectory);
+        setSaveDirectory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /* toDO: need to change some things in Preference manager before getting this
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Intent intent = new Intent();
+                    intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, SET_SAVE_DIR);
+                }*/
+                Intent intent = new Intent(c, ExportFiles.class);
+                startActivityForResult(intent, SET_SAVE_DIR2);
+            }
+        });
+    }
+
+    /**
+     * Sets a listener on the ftp button and pulls up a dialog for FTP defaults to be set
+     * the user's inputs are then saved by the preference manager as defaults
+     * @param pref The preference manager
+     */
+    private void ftpListener(final PreferencesManager pref) {
+        setFtp = (ImageButton) findViewById(R.id.setFtp);
+        setFtp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //setting up the dialog
+                final Dialog ftp = new Dialog(c);
+                ftp.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                ftp.setCanceledOnTouchOutside(true);
+                ftp.getWindow().setBackgroundDrawableResource(R.color.transparent);
+                ftp.setContentView(R.layout.ftp_dialog);
+
+                //getting the appropriate fields and putting defaults into textfields
+                final EditText server = (EditText) ftp.findViewById(R.id.ftpServer);
+                server.setText(pref.getPreferences("ftpServer").toString());
+                final EditText userName = (EditText) ftp.findViewById(R.id.userName);
+                userName.setText(pref.getPreferences("ftpUserName").toString());
+                final EditText port = (EditText) ftp.findViewById(R.id.ftpPort);
+                port.setText(pref.getPreferences("ftpPort").toString());
+                final EditText password = (EditText) ftp.findViewById(R.id.ftpPassword);
+                password.setEnabled(false);
+                final EditText secureFtp = (EditText) ftp.findViewById(R.id.secureFtp);
+                secureFtp.setText(pref.getPreferences("ftp").toString());
+                final EditText directory = (EditText) ftp.findViewById(R.id.ftpDirectory);
+                directory.setText(pref.getPreferences("ftpDirectory").toString());
+
+                //on the click of the "OK" button, the preference manager saves the input in each field
+                ImageButton ok = (ImageButton) ftp.findViewById(R.id.ftpOk);
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View w) {
+                        pref.setPreferences("ftpServer", server.getText().toString());
+                        pref.setPreferences("ftpUserName", userName.getText().toString());
+                        pref.setPreferences("ftpPort", port.getText().toString());
+                        pref.setPreferences("ftp", secureFtp.getText().toString());
+                        pref.setPreferences("ftpDirectory", directory.getText().toString());
+                        ftp.hide();
+                    }
+                });
+
+                ftp.show();
+            }
+        });
+    }
+
 }

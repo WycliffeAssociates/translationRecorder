@@ -51,17 +51,8 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btnCancel"
-            android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
-            android:background="#00000000"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/btnSave"
-            android:src="@drawable/ic_ic_save_white_48dp"
-            android:background="#00000000"
-            android:layout_weight="1" />
+            android:src="@drawable/save_24"
+            android:background="#00000000"/>
     </LinearLayout>
 </RelativeLayout>
