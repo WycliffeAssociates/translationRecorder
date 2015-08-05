@@ -379,7 +379,7 @@ public class Settings extends Activity {
      * should be saved.
      */
     private void saveDirectoryListener() {
-        LinearLayout saveDir = (LinearLayout)findViewById(R.id.Default_Folder);
+        TextView saveDir = (TextView)findViewById(R.id.showSaveDirectory);
         saveDir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -401,7 +401,7 @@ public class Settings extends Activity {
      * @param pref The preference manager
      */
     private void ftpListener(final PreferencesManager pref) {
-       LinearLayout setFtp = (LinearLayout)findViewById(R.id.FTP);
+      ImageButton setFtp = (ImageButton)findViewById(R.id.setFtp);
         setFtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
