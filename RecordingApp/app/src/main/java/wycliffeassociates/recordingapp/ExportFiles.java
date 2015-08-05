@@ -76,10 +76,10 @@ public class ExportFiles extends Activity
 
         backBar = (TextView)findViewById(R.id.backBar);
         updateBackBar(getCurrentDir());
-        backBar.setOnClickListener(new View.OnClickListener(){
+        backBar.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 moveUpDir(getCurrentDir());
                 arrayAdapter.notifyDataSetChanged();
             }
@@ -97,23 +97,23 @@ public class ExportFiles extends Activity
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             // argument position gives the index of item which is clicked
             public void onItemClick(AdapterView<?> arg0, View v, int position, long arg3) {
-                    moveDownDir(getCurrentDir(), getFilesInDir(getCurrentDir())[position]);
-                    arrayAdapter.notifyDataSetChanged();
+                moveDownDir(getCurrentDir(), getFilesInDir(getCurrentDir())[position]);
+                arrayAdapter.notifyDataSetChanged();
             }
         });
 
-        //the button at the bottom of the screen
+        //the buttons at the bottom of the screen
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
     }
 
     /**
-     * The listener for the save click
+     * The listener for the save & cancel clicks
      */
     private View.OnClickListener btnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch(v.getId()){
-                case R.id.btnSave:{
+                case R.id.btnSave: {
                     saveDirectory(pref);
                     break;
                 }
@@ -334,6 +334,10 @@ public class ExportFiles extends Activity
             }
     }
 
+    /**
+     * Updates top bar to display the parent directory
+     * @param newDir the parent directory
+     */
     public void updateBackBar(String newDir){
         try {
             File directory = new File(newDir);
