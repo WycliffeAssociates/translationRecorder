@@ -123,19 +123,20 @@ public class AudioFiles extends Activity {
         else {
             for (int i = 0; i < file.length; i++) {
                 int len = file[i].getName().length();
-                String sub = file[i].getName().substring(len - 4);
+                if(len>3) {
+                    String sub = file[i].getName().substring(len - 4);
 
-                if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
-                        || sub.equalsIgnoreCase(".mp3")) {
-                    //add file names
-                    Date lastModDate = new Date(file[i].lastModified());
+                    if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
+                            || sub.equalsIgnoreCase(".mp3")) {
+                        //add file names
+                        Date lastModDate = new Date(file[i].lastModified());
 
-                    File tFile = new File (currentDir + "/" + file[i].getName());
-                    Uri uri = Uri.fromFile(tFile);
+                        File tFile = new File(currentDir + "/" + file[i].getName());
+                        Uri uri = Uri.fromFile(tFile);
 
-                    //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
+                        //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
 
-                    //TODO : DURATION
+                        //TODO : DURATION
                     /*MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
                     mmr.setDataSource(this, uri);
@@ -144,11 +145,12 @@ public class AudioFiles extends Activity {
                     int time = (Integer.parseInt(duration) / 1000);
                     mmr.release();*/
 
-                    long time = (((tFile.length() -44) / 4) / 44100);
-                    //System.out.println("pppp" + time);
+                        long time = (((tFile.length() - 44) / 4) / 44100);
+                        //System.out.println("pppp" + time);
 
-                    //create an Audio Item
-                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
+                        //create an Audio Item
+                        tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
+                    }
                 }
             }
 
