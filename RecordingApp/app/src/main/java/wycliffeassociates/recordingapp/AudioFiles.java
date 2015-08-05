@@ -135,7 +135,8 @@ public class AudioFiles extends Activity {
 
                     //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
 
-                   /* MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                    //TODO : DURATION ERROR
+                    /*MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
                     mmr.setDataSource(this, uri);
                     String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
@@ -272,7 +273,7 @@ public class AudioFiles extends Activity {
         });
 
 
-        /*btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
+        btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
         btnCheckAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -291,7 +292,7 @@ public class AudioFiles extends Activity {
                     checkAll = !checkAll;
                 }
             }
-        });*/
+        });
 
         btnSortName = (ImageButton)findViewById(R.id.btnSortName);
         btnSortName.setOnClickListener(new View.OnClickListener() {
@@ -336,8 +337,8 @@ public class AudioFiles extends Activity {
         });
 
 
-        /*
-        btnDelete = (ImageButton)findViewById(R.id.btnDelete);
+
+       /* btnDelete = (ImageButton)findViewById(R.id.btnDelete);
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
