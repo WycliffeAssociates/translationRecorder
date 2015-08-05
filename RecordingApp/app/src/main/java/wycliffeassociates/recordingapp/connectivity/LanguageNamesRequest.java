@@ -48,7 +48,7 @@ public class LanguageNamesRequest extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
+        setContentView(R.layout.settings2);
 
         //.getMyMemoryState();
         //.MemoryInfo();

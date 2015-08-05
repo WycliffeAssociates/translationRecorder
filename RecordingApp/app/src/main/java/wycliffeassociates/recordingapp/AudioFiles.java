@@ -133,12 +133,14 @@ public class AudioFiles extends Activity {
                     Uri uri = Uri.fromFile(tFile);
 
                     //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
-                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                   /* MediaMetadataRetriever mmr = new MediaMetadataRetriever();
                     mmr.setDataSource(this, uri);
                     String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                     //System.out.println(duration);
                     int time = (Integer.parseInt(duration) / 1000);
                     mmr.release();
+*/
+                    int time = 0;
 
                     //create an Audio Item
                     tempItemList.add(new AudioItem(file[i].getName(), lastModDate, time));
