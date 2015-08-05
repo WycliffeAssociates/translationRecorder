@@ -14,6 +14,9 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +48,8 @@ public class CanvasScreen extends Activity {
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isRecording = false;
-   private PreferencesManager pref;
+    private PreferencesManager pref;
+    RotateAnimation anim;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -103,6 +107,11 @@ public class CanvasScreen extends Activity {
         minimap.setIsMinimap(true);
         setButtonHandlers();
         enableButtons(false);
+        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        anim.setInterpolator(new LinearInterpolator());
+        anim.setRepeatCount(Animation.INFINITE);
+        anim.setDuration(1500);
+
     }
 
 
@@ -144,7 +153,7 @@ public class CanvasScreen extends Activity {
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
 
         //pref.getPreferences("fileName");
-        toSave.setText(outputName,TextView.BufferType.EDITABLE);
+        toSave.setText(outputName, TextView.BufferType.EDITABLE);
 
         //prepare the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(c);
@@ -185,6 +194,7 @@ public class CanvasScreen extends Activity {
         isRecording = false;
         findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnPauseRecording).setAnimation(null);
 
         stopService(new Intent(this, WavRecorder.class));
         try {
@@ -206,6 +216,7 @@ public class CanvasScreen extends Activity {
         findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnPauseRecording).setAnimation(anim);
         if(!paused) {
             isRecording = true;
     	    isSaved = false;
