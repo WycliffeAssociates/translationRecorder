@@ -123,7 +123,7 @@ public class AudioFiles extends Activity {
         else {
             for (int i = 0; i < file.length; i++) {
                 int len = file[i].getName().length();
-                if(len>3) {
+                if (len > 3) {
                     String sub = file[i].getName().substring(len - 4);
 
                     if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
@@ -153,223 +153,216 @@ public class AudioFiles extends Activity {
                     }
 
 
-            }
-
-
-            //audioFileView.setAdapter(
-            generateAdapterView(tempItemList, sort);
-            //);
-
-        }
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
-
-        btnExport = (ImageButton)findViewById(R.id.btnExport);
-        btnExport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDrawerLayout.openDrawer(Gravity.RIGHT);
-            }
-        });
-
-        btnExportFTP = (ImageButton)findViewById(R.id.btnExportFTP);
-        btnExportFTP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v){
-                exportList = new ArrayList<String>();
-                if ((file == null)) {
-                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                 }
-                else {
-                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                        if (adapter.checkBoxState[i] == true) {
-                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                        }
-                    }
-                    if (exportList.size() > 0) {
-                        Intent intent = new Intent(v.getContext(), FTPActivity.class);
-                        startActivityForResult(intent, 0);
-                    } else {
+
+
+                //audioFileView.setAdapter(
+                generateAdapterView(tempItemList, sort);
+                //);
+
+            }
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+            //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
+
+            btnExport = (ImageButton) findViewById(R.id.btnExport);
+            btnExport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mDrawerLayout.openDrawer(Gravity.RIGHT);
+                }
+            });
+
+            btnExportFTP = (ImageButton) findViewById(R.id.btnExportFTP);
+            btnExportFTP.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    exportList = new ArrayList<String>();
+                    if ((file == null)) {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                            if (adapter.checkBoxState[i] == true) {
+                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+                            }
+                        }
+                        if (exportList.size() > 0) {
+                            Intent intent = new Intent(v.getContext(), FTPActivity.class);
+                            startActivityForResult(intent, 0);
+                        } else {
+                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        btnExportFolder = (ImageButton)findViewById(R.id.btnExportFolder);
-        btnExportFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            btnExportFolder = (ImageButton) findViewById(R.id.btnExportFolder);
+            btnExportFolder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                String append = "";
-                        //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
-                exportList = new ArrayList<String>();
-                if ((file == null)) {
-                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    String append = "";
+                    //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
+                    exportList = new ArrayList<String>();
+                    if ((file == null)) {
+                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                            if (adapter.checkBoxState[i] == true) {
+                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+                            }
+                        }
+                        if (exportList.size() > 0) {
+                            totalFiles = exportList.size();
+                            thisPath = exportList.get(0);
+                            if (exportList.size() > 1) {
+                                //we want a zip file since there are multiple files
+                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                                //files to zip
+                                String[] toZip = new String[totalFiles];
+                                for (int i = 0; i < totalFiles; i++) {
+                                    toZip[i] = exportList.get(i);
+                                }
+                                try {
+                                    zip(toZip, zipPath);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                createFile("application/zip", append + getNameFromPath(zipPath));
+                            } else//export single file over
+                                createFile("audio/*", append + getNameFromPath(thisPath));
+                        } else {
+                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
-                else {
+            });
+
+            btnExportApp = (ImageButton) findViewById(R.id.btnExportApp);
+            btnExportApp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    String append = "";
+                    //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
+                    exportList = new ArrayList<String>();
                     for (int i = 0; i < adapter.checkBoxState.length; i++) {
                         if (adapter.checkBoxState[i] == true) {
                             exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                         }
                     }
+
+                    //if something is checked
                     if (exportList.size() > 0) {
-                        totalFiles = exportList.size();
-                        thisPath = exportList.get(0);
-                        if(exportList.size() > 1) {
-                            //we want a zip file since there are multiple files
-                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                            //files to zip
-                            String[] toZip = new String[totalFiles];
-                            for (int i = 0; i < totalFiles; i++) {
-                                toZip[i] = exportList.get(i);
+                        if (exportList.size() > 1) {//export multiple files as a single zip file
+                            String toExport[] = new String[exportList.size()];
+                            thisPath = exportList.get(0);
+                            for (int i = 0; i < exportList.size(); i++) {
+                                toExport[i] = exportList.get(i);
                             }
                             try {
-                                zip(toZip, zipPath);
+                                //this could cause problems if the directory list contains matches
+                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                                zip(toExport, zipPath);//TODO: learn how to delete this file after upload
+                                exportZipApplications(zipPath);
                             } catch (IOException e) {
+                                exportApplications(exportList, append);
                                 e.printStackTrace();
                             }
-                            createFile("application/zip", append + getNameFromPath(zipPath));
-                        }
-                        else//export single file over
-                            createFile("audio/*", append + getNameFromPath(thisPath));
+                        } else exportApplications(exportList, append);
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }
-        });
+            });
 
-        btnExportApp = (ImageButton)findViewById(R.id.btnExportApp);
-        btnExportApp.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
 
-                String append ="";
-                        //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
-                exportList = new ArrayList<String>();
-                for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                    if (adapter.checkBoxState[i] == true) {
-                        exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                    }
-                }
+            btnCheckAll = (CheckBox) findViewById(R.id.btnCheckAll);
+            btnCheckAll.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (file == null) {
 
-                //if something is checked
-                if(exportList.size() > 0) {
-                    if(exportList.size() > 1) {//export multiple files as a single zip file
-                        String toExport[] = new String[exportList.size()];
-                        thisPath = exportList.get(0);
-                        for (int i = 0; i < exportList.size(); i++) {
-                            toExport[i] = exportList.get(i);
+                    } else {
+                        for (int i = 0; i < audioFileView.getCount(); i++) {
+                            adapter.checkBoxState[i] = checkAll;
+                            adapter.notifyDataSetChanged();
                         }
-                        try {
-                            //this could cause problems if the directory list contains matches
-                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                            zip(toExport, zipPath);//TODO: learn how to delete this file after upload
-                            exportZipApplications(zipPath);
-                        } catch (IOException e) {
-                            exportApplications(exportList, append);
-                            e.printStackTrace();
+                        if (checkAll == false) {
+                            exportList = new ArrayList<String>();
+                            Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
+                            adapter.notifyDataSetChanged();
+                        }
+                        checkAll = !checkAll;
+                    }
+                }
+            });
+
+            btnSortName = (ImageButton) findViewById(R.id.btnSortName);
+            btnSortName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (sort == 1) {
+                        pref.setPreferences("displaySort", 0);
+                    } else {
+                        pref.setPreferences("displaySort", 1);
+                    }
+                    sort = (int) pref.getPreferences("displaySort");
+                    generateAdapterView(tempItemList, sort);
+                }
+            });
+
+            btnSortDuration = (ImageButton) findViewById(R.id.btnSortDuration);
+            btnSortDuration.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (sort == 3) {
+                        pref.setPreferences("displaySort", 2);
+                    } else {
+                        pref.setPreferences("displaySort", 3);
+                    }
+                    sort = (int) pref.getPreferences("displaySort");
+                    generateAdapterView(tempItemList, sort);
+                }
+            });
+
+            btnSortDate = (ImageButton) findViewById(R.id.btnSortDate);
+            btnSortDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (sort == 5) {
+                        pref.setPreferences("displaySort", 4);
+                    } else {
+                        pref.setPreferences("displaySort", 5);
+                    }
+                    sort = (int) pref.getPreferences("displaySort");
+                    generateAdapterView(tempItemList, sort);
+                }
+            });
+
+
+            btnDelete = (ImageButton) findViewById(R.id.btnDelete);
+            btnDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    exportList = new ArrayList<String>();
+                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                        if (adapter.checkBoxState[i] == true) {
+                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                         }
                     }
-                    else exportApplications(exportList, append);
-                }
-                else {
-                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
-
-        btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
-        btnCheckAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (file == null) {
-
-                } else {
-                    for (int i = 0; i < audioFileView.getCount(); i++) {
-                        adapter.checkBoxState[i] = checkAll;
-                        adapter.notifyDataSetChanged();
+                    //if something is checked
+                    if (exportList.size() > 0) {
+                        deleteFiles(exportList);
+                    } else {
+                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
-                    if (checkAll == false) {
-                        exportList = new ArrayList<String>();
-                        Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
-                        adapter.notifyDataSetChanged();
-                    }
-                    checkAll = !checkAll;
+                    sort = (int) pref.getPreferences("displaySort");
+                    generateAdapterView(tempItemList, sort);
                 }
-            }
-        });
-
-        btnSortName = (ImageButton)findViewById(R.id.btnSortName);
-        btnSortName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(sort == 1){
-                    pref.setPreferences("displaySort", 0);
-                }else{
-                    pref.setPreferences("displaySort", 1);
-                }
-                sort = (int) pref.getPreferences("displaySort");
-                generateAdapterView(tempItemList, sort);
-            }
-        });
-
-        btnSortDuration = (ImageButton)findViewById(R.id.btnSortDuration);
-        btnSortDuration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(sort == 3){
-                    pref.setPreferences("displaySort", 2);
-                }else{
-                    pref.setPreferences("displaySort", 3);
-                }
-                sort = (int) pref.getPreferences("displaySort");
-                generateAdapterView(tempItemList, sort);
-            }
-        });
-
-        btnSortDate = (ImageButton)findViewById(R.id.btnSortDate);
-        btnSortDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(sort == 5){
-                    pref.setPreferences("displaySort", 4);
-                }else{
-                    pref.setPreferences("displaySort", 5);
-                }
-                sort = (int) pref.getPreferences("displaySort");
-                generateAdapterView(tempItemList, sort);
-            }
-        });
-
-
-
-        btnDelete = (ImageButton)findViewById(R.id.btnDelete);
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exportList = new ArrayList<String>();
-                for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                    if (adapter.checkBoxState[i] == true) {
-                        exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                    }
-                }
-
-                //if something is checked
-                if(exportList.size() > 0) {
-                    deleteFiles(exportList);
-                }
-                else {
-                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                }
-                sort = (int) pref.getPreferences("displaySort");
-                generateAdapterView(tempItemList, sort);
-            }
-        });
-
+            });
+        }
     }
 
     @Override
