@@ -123,7 +123,8 @@ public class AudioFiles extends Activity {
         else {
             for (int i = 0; i < file.length; i++) {
                 int len = file[i].getName().length();
-                String sub = file[i].getName().substring(len - 4);
+                if(len>3) {
+                    String sub = file[i].getName().substring(len - 4);
 
                     if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
                             || sub.equalsIgnoreCase(".mp3")) {
@@ -150,6 +151,7 @@ public class AudioFiles extends Activity {
                         //create an Audio Item
                         tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
                     }
+
 
             }
 
@@ -414,6 +416,7 @@ public class AudioFiles extends Activity {
     //TODO : after merge, ezpz implement
     private void deleteFiles(ArrayList<String> exportList){
         //int count = 0;
+        /*
         for(int i = 0 ; i < exportList.size() ; i++) {
             File file = new File(exportList.get(i));
             boolean deleted = file.delete();
@@ -430,7 +433,7 @@ public class AudioFiles extends Activity {
                 //System.out.println("========" + (i - count));
                 //count++;
             }
-        }
+        }*/
     }
 
     private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {

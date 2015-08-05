@@ -14,7 +14,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1.1"
+            android:layout_weight="1"
             android:id="@+id/File_Name"
             android:paddingTop="20dp">
 
@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:text="File Name"
                 android:id="@+id/displayFileName"
-                android:textSize="25dp"
+                android:textSize="50sp"
                 android:gravity="center_horizontal" />
 
             <LinearLayout
@@ -35,7 +35,7 @@
                 <AutoCompleteTextView
                     android:id="@+id/setLangCode"
                     android:layout_width="300dp"
-                    android:layout_height="30dp"
+                    android:layout_height="60dp"
                     android:text="Reset"
                     android:gravity="center"
                     android:background="@drawable/purple"
@@ -52,7 +52,7 @@
                 <AutoCompleteTextView
                     android:id="@+id/setBookCode"
                     android:layout_width="300dp"
-                    android:layout_height="30dp"
+                    android:layout_height="60dp"
                     android:text="Reset"
                     android:gravity="center"
                     android:background="@drawable/purple"
@@ -71,7 +71,7 @@
                     android:text="Reset"
                     android:gravity="center"
                     android:layout_width="300dp"
-                    android:layout_height="30dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/purple"
                     android:layout_weight="1"
                     android:layout_gravity="center"
@@ -85,7 +85,7 @@
                 android:text="enter_value_here"
                 android:id="@+id/defaultFileName"
                 android:gravity="center_horizontal"
-                android:textSize="15dp" />
+                android:textSize="35sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -100,7 +100,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:id="@+id/Default_Folder"
-            android:weightSum="1">
+            android:weightSum="1"
+            android:paddingTop="20dp">
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -115,17 +116,17 @@
                 android:layout_height="wrap_content"
                 android:text="Default Folder"
                 android:id="@+id/textView9"
-                android:textSize="25dp"
+                android:textSize="50sp"
                 android:gravity="center_horizontal"
                 android:layout_gravity="bottom" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_width="550dp"
+                android:layout_height="50dp"
                 android:text="path/pathy-path/pathy-path-path"
                 android:id="@+id/showSaveDirectory"
                 android:gravity="center_horizontal"
-                android:textSize="15dp"
+                android:textSize="25sp"
                 android:background="@drawable/purple"
                 android:layout_gravity="center" />
 
@@ -144,7 +145,8 @@
             android:layout_weight="1.1"
             android:id="@+id/FTP"
             android:layout_gravity="right"
-            android:paddingTop="20dp">
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -159,7 +161,7 @@
                 android:layout_height="wrap_content"
                 android:text="Set FTP"
                 android:id="@+id/textView10"
-                android:textSize="25dp"
+                android:textSize="50sp"
                 android:gravity="center_horizontal"/>
 
         </LinearLayout>
@@ -177,8 +179,8 @@
             android:layout_weight="1.2">
 
             <Button
-                android:layout_width="300dp"
-                android:layout_height="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:id="@+id/btnRestoreDefault"
                 android:text="Restore Default Settings"
                 android:background="@drawable/purple"
@@ -187,14 +189,14 @@
                 android:layout_weight="1" />
 
             <Button
-                android:layout_width="300dp"
-                android:layout_height="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:id="@+id/serverSync"
                 android:text="Sync with Server"
                 android:background="@drawable/purple"
                 android:textSize="15sp"
                 android:layout_gravity="center"
-                android:layout_weight="1" />
+                android:layout_weight="1.2" />
         </LinearLayout>
 
     </LinearLayout>

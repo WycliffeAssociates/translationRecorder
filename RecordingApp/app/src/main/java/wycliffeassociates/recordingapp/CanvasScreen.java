@@ -57,7 +57,7 @@ public class CanvasScreen extends Activity {
             SGD.onTouchEvent(ev);
         }
         else {
-            gestureDetector.onTouchEvent(ev);
+            //gestureDetector.onTouchEvent(ev);
         }
         return true;
     }
@@ -96,7 +96,7 @@ public class CanvasScreen extends Activity {
             }
         };
 
-        gestureDetector = new GestureDetector(this, gestureListener);
+        //gestureDetector = new GestureDetector(this, gestureListener);
         SGD = new ScaleGestureDetector(this, scaleListener);
 
 
