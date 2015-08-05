@@ -22,6 +22,8 @@ public class AudioItem implements Comparable<AudioItem> {
      */
     private int aDuration;
 
+    private boolean aState;
+
     //private double FileSize;
 
 
@@ -30,11 +32,14 @@ public class AudioItem implements Comparable<AudioItem> {
         Date t= new Date();
         this.aDate = t;
         this.aDuration = 0;
+        this.aState = false;
     }
+    //TODO : after merge, gogo
     public AudioItem(String name, Date date, int duration){
         this.aName = name;
         this.aDate = date;
         this.aDuration = duration;
+        this.aState = false;
     }
 
     //create a shallow copy of another audio item
@@ -42,6 +47,7 @@ public class AudioItem implements Comparable<AudioItem> {
         aName = item.aName;
         aDate = item.aDate;
         aDuration = item.aDuration;
+        aState = item.aState;
         //this.FileSize = item.FileSize;
 
     }
@@ -54,15 +60,17 @@ public class AudioItem implements Comparable<AudioItem> {
         this.aDate = date;
     }
 
-    public void setDuration(int duration){
-        this.aDuration = duration;
-    }
+    public void setDuration(int duration){ this.aDuration = duration; }
+
+    public void setaState(boolean state){ this.aState = state;}
 
     public String getName() { return aName; }
 
     public Date getDate(){ return aDate; }
 
     public int getDuration(){ return aDuration; }
+
+    public boolean getState(){ return aState; }
 
     public String toString() {
         return getName();

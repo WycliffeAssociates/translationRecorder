@@ -47,6 +47,7 @@ public class CanvasScreen extends Activity {
     private boolean isRecording = false;
    private PreferencesManager pref;
 
+
     public boolean onTouchEvent(MotionEvent ev) {
         if(ev.getPointerCount() > 1.0){
             SGD.onTouchEvent(ev);
@@ -87,8 +88,6 @@ public class CanvasScreen extends Activity {
             public boolean onScale(ScaleGestureDetector detector) {
                 userScale *= detector.getScaleFactor();
                 mainCanvas.setUserScale(userScale);
-                mainCanvas.invalidate();
-
                 return true;
             }
         };
@@ -99,9 +98,11 @@ public class CanvasScreen extends Activity {
 
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
+        findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
+        findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
+        minimap.setIsMinimap(true);
         setButtonHandlers();
-        enableButtons(true);
-        startRecording();
+        enableButtons(false);
     }
 
 
@@ -180,9 +181,11 @@ public class CanvasScreen extends Activity {
 
     private void pauseRecording(){
         paused = true;
+
         isRecording = false;
         findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
+
         stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.writingQueue.put(new RecordingMessage(null, true, false));
@@ -200,6 +203,7 @@ public class CanvasScreen extends Activity {
     }
 
     private void startRecording(){
+        findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
         if(!paused) {
@@ -227,6 +231,7 @@ public class CanvasScreen extends Activity {
             WavPlayer.stop();
         }
         else {
+            findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
             findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
             findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
             stopService(new Intent(this, WavRecorder.class));
@@ -237,6 +242,7 @@ public class CanvasScreen extends Activity {
                 e.printStackTrace();
             }
 
+
             try {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
@@ -245,8 +251,10 @@ public class CanvasScreen extends Activity {
                     mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
                     mainCanvas.shouldDrawMaker(true);
+
                     minimap.loadWavFromFile(recordedFilename);
-                    minimap.displayWaveform(0);
+                    minimap.getMinimap();
+                    minimap.invalidate();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -267,13 +275,14 @@ public class CanvasScreen extends Activity {
             @Override
             public void run() {
                 int translation = 0;
+                double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
                 while(WavPlayer.isPlaying()){
-                    double location = (double)WavPlayer.getLocation()/ (double)WavPlayer.getDuration();
-                    double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
-                    System.out.println("Scalefactor is " + scaleFactor);
-                    translation = (int)(location * scaleFactor);
+                    int location = WavPlayer.getLocation();
+                    double locPercentage = (double)location/ (double)WavPlayer.getDuration();
+                    translation = (int)(userScale*(int)(locPercentage * scaleFactor));
+                    mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
                     mainCanvas.setXTranslation(base+translation);
-                    minimap.setMiniMarkerLoc((float) (location * minimap.getWidth()));
+                    minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));
                     minimap.shouldDrawMiniMarker(true);
                     runOnUiThread(new Runnable() {
                         @Override
@@ -335,6 +344,7 @@ public class CanvasScreen extends Activity {
                 case R.id.btnPauseRecording:{
                     enableButtons(false);
                     pauseRecording();
+                    break;
                 }
             }
         }

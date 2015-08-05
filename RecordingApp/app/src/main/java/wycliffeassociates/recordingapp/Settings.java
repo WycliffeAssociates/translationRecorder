@@ -72,9 +72,6 @@ public class Settings extends Activity {
         printSaveDirectory(pref);
         printCounter(pref);
 
-        //update
-        pullDB();
-
         //setting up listeners on all buttons
         langCodeListener(pref);
         bookCodeListener(pref);
@@ -82,6 +79,13 @@ public class Settings extends Activity {
         resetListener(pref);
         saveDirectoryListener();
         ftpListener(pref);
+    }
+
+    public void onBackPressed() {
+        Intent intent = new Intent(Settings.this, MainMenuListener.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+
     }
 
 
@@ -101,19 +105,25 @@ public class Settings extends Activity {
         }
     }
 
-    public void pullDB(){
-        try {
-            String tableName = "langnames";
-            SQLiteDatabase audioRecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+    public void pullDB(Boolean flag){
 
-            String querySelect = "SELECT * FROM " + tableName;
-
-            Cursor cursor = audioRecorder.rawQuery(querySelect, new String[]{});
-            audioRecorder.close();
-        }catch(Exception e){
+        if(flag){
             Intent intent = new Intent(c, LanguageNamesRequest.class);
             startActivityForResult(intent, 0);
+        }else {
+            try {
+                String tableName = "langnames";
+                SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
 
+                String querySelect = "SELECT * FROM " + tableName;
+
+                Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
+                audiorecorder.close();
+            } catch (Exception e) {
+                Intent intent = new Intent(c, LanguageNamesRequest.class);
+                startActivityForResult(intent, 0);
+
+            }
         }
         pullLangNames();
     }
@@ -240,6 +250,9 @@ public class Settings extends Activity {
         setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
         setLangCode.setText(pref.getPreferences("targetLanguage").toString());//default
 
+        //update
+        pullDB(false);
+
         setLangCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
@@ -335,7 +348,7 @@ public class Settings extends Activity {
             public void onClick(View v) {
                 pref.resetPreferences("all");//resets preferences
 
-                pullDB();//tries to pull db from url
+                pullDB(true);//tries to pull db from url
 
                 //update all fields based on changes
                 printSaveDirectory(pref);
