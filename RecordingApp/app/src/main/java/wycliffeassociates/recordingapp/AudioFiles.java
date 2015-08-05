@@ -201,13 +201,26 @@ public class AudioFiles extends Activity {
                             exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
                         }
                     }
-//                    Intent intent = new Intent(v.getContext(), ExportFiles.class);
                     if (exportList.size() > 0) {
-//                        intent.putExtra("exportList", exportList);
-//                        startActivityForResult(intent, 0);
                         totalFiles = exportList.size();
                         thisPath = exportList.get(0);
-                        createFile("audio/*", getNameFromPath(thisPath));
+                        if(exportList.size() > 1) {
+                            //we want a zip file since there are multiple files
+                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                            //files to zip
+                            String[] toZip = new String[totalFiles];
+                            for (int i = 0; i < totalFiles; i++) {
+                                toZip[i] = exportList.get(i);
+                            }
+                            try {
+                                zip(toZip, zipPath);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            createFile("application/zip", getNameFromPath(zipPath));
+                        }
+                        else//export single file over
+                            createFile("audio/*", getNameFromPath(thisPath));
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -219,6 +232,7 @@ public class AudioFiles extends Activity {
         btnExportApp.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
@@ -228,7 +242,23 @@ public class AudioFiles extends Activity {
 
                 //if something is checked
                 if(exportList.size() > 0) {
-                    exportApplications(exportList);
+                    if(exportList.size() > 1) {//export multiple files as a single zip file
+                        String toExport[] = new String[exportList.size()];
+                        thisPath = exportList.get(0);
+                        for (int i = 0; i < exportList.size(); i++) {
+                            toExport[i] = exportList.get(i);
+                        }
+                        try {
+                            //this could cause problems if the directory list contains matches
+                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                            zip(toExport, zipPath);//TODO: learn how to delete this file after upload
+                            exportZipApplications(zipPath);
+                        } catch (IOException e) {
+                            exportApplications(exportList);
+                            e.printStackTrace();
+                        }
+                    }
+                    else exportApplications(exportList);
                 }
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
@@ -365,6 +395,19 @@ public class AudioFiles extends Activity {
         audioFileView.setAdapter(adapter);
     }
 
+    //TODO : after merge, ezpz implement
+    private void deleteFiles(ArrayList<String> exportList){
+        int count = 0;
+        for(int i = 0 ; i < exportList.size() ; i++) {
+            File file = new File(exportList.get(i));
+            boolean deleted = file.delete();
+            if(deleted){
+                tempItemList.remove(i - count);
+                System.out.println("========" + (i - count));
+                count++;
+            }
+        }
+    }
 
     private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
         ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
