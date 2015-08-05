@@ -2,21 +2,13 @@ package wycliffeassociates.recordingapp.connectivity;
 
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 
-import wycliffeassociates.recordingapp.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 
 import org.json.JSONArray;
@@ -25,15 +17,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.UnknownHostException;
-import java.sql.SQLData;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import wycliffeassociates.recordingapp.Settings;
 import wycliffeassociates.recordingapp.model.Language;
-import wycliffeassociates.recordingapp.model.LanguageHolder;
 
 public class LanguageNamesRequest extends Activity {
 

@@ -1,112 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#79549d"
+    android:focusableInTouchMode="true">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Reset Counter"
-        android:id="@+id/tReset"
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        android:layout_marginTop="50dp"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/File_Name"
+            android:paddingTop="20dp">
 
-        android:layout_marginLeft="100dp" />
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="File Name"
+                android:id="@+id/displayFileName"
+                android:textSize="50sp"
+                android:gravity="center_horizontal" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Increment Counter"
-        android:id="@+id/tIncrement"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="100dp"
-        />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/File_Name_Buttons">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Restore Default Prefences"
-        android:id="@+id/hardReset"
+                <AutoCompleteTextView
+                    android:id="@+id/setLangCode"
+                    android:layout_width="300dp"
+                    android:layout_height="60dp"
+                    android:text="Reset"
+                    android:gravity="center"
+                    android:background="@drawable/purple"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:completionThreshold="1"/>
 
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="150dp"/>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="5dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/space"></LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Change Default FileName"
-        android:id="@+id/saveFileName"
+                <AutoCompleteTextView
+                    android:id="@+id/setBookCode"
+                    android:layout_width="300dp"
+                    android:layout_height="60dp"
+                    android:text="Reset"
+                    android:gravity="center"
+                    android:background="@drawable/purple"
+                    android:layout_weight="1"
+                    android:completionThreshold="1"
+                    android:layout_gravity="center"/>
 
-        android:layout_marginLeft="370dp"
-        android:layout_marginTop="150dp"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="A-Z"
-        android:id="@+id/sortName"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="200dp"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Duration"
-        android:id="@+id/sortDuration"
-        android:enabled="false"
-        android:layout_marginLeft="250dp"
-        android:layout_marginTop="200dp"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date"
-        android:id="@+id/sortDate"
-        android:layout_marginLeft="400dp"
-        android:layout_marginTop="200dp"/>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="5dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/space2"></LinearLayout>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/displaySort"
-        android:editable="false"
-        android:enabled="false"
+                <EditText
+                    android:id="@+id/tReset"
+                    android:text="Reset"
+                    android:gravity="center"
+                    android:layout_width="300dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/purple"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:inputType="number"/>
 
-        android:layout_marginLeft="150dp"
-        android:layout_marginTop="250dp"/>
+            </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save Directory"
-        android:id="@+id/setSaveDirectory"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="300dp"/>
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="enter_value_here"
+                android:id="@+id/defaultFileName"
+                android:gravity="center_horizontal"
+                android:textSize="35sp" />
+        </LinearLayout>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/displayFileName"
-        android:editable="false"
-        android:enabled="false"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="#ffa87ad5"></LinearLayout>
 
-        android:layout_marginLeft="370dp"
-        android:layout_marginTop="50dp"/>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/Default_Folder"
+            android:weightSum="1"
+            android:paddingTop="20dp">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/editFileName"
-        android:editable="true"
-        android:enabled="true"
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/setSaveDirectory"
+                android:src="@drawable/ic_purple_folder_56"
+                android:background="#00000000"
+                android:layout_gravity="center" />
 
-        android:layout_marginLeft="370dp"
-        android:layout_marginTop="100dp"/>
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Default Folder"
+                android:id="@+id/textView9"
+                android:textSize="50sp"
+                android:gravity="center_horizontal"
+                android:layout_gravity="bottom" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/displayPreferences"
-        android:editable="false"
+            <TextView
+                android:layout_width="550dp"
+                android:layout_height="50dp"
+                android:text="path/pathy-path/pathy-path-path"
+                android:id="@+id/showSaveDirectory"
+                android:gravity="center_horizontal"
+                android:textSize="25sp"
+                android:background="@drawable/purple"
+                android:layout_gravity="center" />
 
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="350dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="#ffa87ad5" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.1"
+            android:id="@+id/FTP"
+            android:layout_gravity="right"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/setFtp"
+                android:src="@drawable/ic_ftp_purple"
+                android:background="#00000000"
+                android:layout_gravity="center" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Set FTP"
+                android:id="@+id/textView10"
+                android:textSize="50sp"
+                android:gravity="center_horizontal"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="#ffa87ad5" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnRestoreDefault"
+                android:text="Restore Default Settings"
+                android:background="@drawable/purple"
+                android:textSize="25sp"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

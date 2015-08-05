@@ -56,7 +56,7 @@ public class Settings extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings2);
+        setContentView(R.layout.settings);
 
         //context
         c = this;

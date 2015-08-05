@@ -32,6 +32,7 @@ public class MainMenuListener extends Activity{
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), AudioFiles.class);
                 startActivityForResult(intent, 0);
+                overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
             }
         });
 
@@ -41,6 +42,7 @@ public class MainMenuListener extends Activity{
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), Settings.class);
                 startActivityForResult(intent, 0);
+                overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
             }
         });
     }
