@@ -236,6 +236,9 @@ public class CanvasScreen extends Activity {
 
     }
     private void stopRecording() {
+        if(!isRecording && !isPlaying){
+            return;
+        }
         isRecording = false;
         if (isPlaying) {
             isPlaying = false;
