@@ -419,133 +419,136 @@ public class AudioFiles extends Activity {
     }
 
     private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
-        ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
 
-        boolean flag = false;
-        switch(sort){
-            case 0:
-            case 2:
-            case 4:
-                //false
-                break;
-            case 1:
-            case 3:
-            case 5:
-            default:
-                flag = true;
-                break;
+            ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
+        if (nList.size() > 0) {
+            boolean flag = false;
+            switch (sort) {
+                case 0:
+                case 2:
+                case 4:
+                    //false
+                    break;
+                case 1:
+                case 3:
+                case 5:
+                default:
+                    flag = true;
+                    break;
+            }
+
+            int val = 0;
+            int size = nList.size() - 1;
+
+            if (sort == 0 || sort == 1) {
+                String cmp = "";
+
+                //as long as there are items
+                do {
+                    size = nList.size() - 1;
+                    cmp = nList.get(size).getName().toLowerCase();
+                    val = size;
+
+                    //compare with other items
+                    for (int x = 0; x < size; x++) {
+                        if (cmp.compareTo(nList.get(x).getName().toLowerCase()) < 0) {
+                            if (flag) {
+                                //A-Z
+                            } else {
+                                //Z-A
+                                val = x;
+                                cmp = nList.get(x).getName();
+                            }
+                        } else {
+                            if (flag) {
+                                //A-Z
+                                val = x;
+                                cmp = nList.get(x).getName();
+                            } else {
+                                //Z-A
+                            }
+                        }
+                    }
+
+                    outputList.add(nList.get(val));
+                    nList.remove(val);
+
+                } while (size > 0);
+
+            } else if (sort == 2 || sort == 3) {
+                Integer cmp = 0;
+                //as long as there are items
+                do {
+                    size = nList.size() - 1;
+                    cmp = nList.get(size).getDuration();
+                    val = size;
+
+                    //compare with other items
+                    for (int x = 0; x < size; x++) {
+                        if (cmp > nList.get(x).getDuration()) {
+                            if (flag) {
+                                //A-Z
+                            } else {
+                                //Z-A
+                                val = x;
+                                cmp = nList.get(x).getDuration();
+                            }
+                        } else {
+                            if (flag) {
+                                //A-Z
+                                val = x;
+                                cmp = nList.get(x).getDuration();
+                            } else {
+                                //Z-A
+                            }
+                        }
+                    }
+
+                    outputList.add(nList.get(val));
+                    nList.remove(val);
+
+                } while (size > 0);
+            } else {
+                ArrayList<Date> tempList = new ArrayList<Date>();
+                Date cmp = new Date();
+
+                //as long as there are items
+                do {
+                    size = nList.size() - 1;
+                    cmp = nList.get(size).getDate();
+                    val = size;
+
+                    //compare with other items
+                    for (int x = 0; x < size; x++) {
+                        if (cmp.after(nList.get(x).getDate())) {
+                            if (flag) {
+                                //A-Z
+                            } else {
+                                //Z-A
+                                val = x;
+                                cmp = nList.get(x).getDate();
+                            }
+                        } else {
+                            if (flag) {
+                                //A-Z
+                                val = x;
+                                cmp = nList.get(x).getDate();
+                            } else {
+                                //Z-A
+                            }
+                        }
+                    }
+
+                    outputList.add(nList.get(val));
+                    nList.remove(val);
+
+                } while (size > 0);
+            }
+
+
+        } else {System.out.println("empty");
         }
-
-        int val = 0;
-        int size = nList.size() - 1;
-
-        if(sort == 0 || sort == 1){
-            String cmp = "";
-
-            //as long as there are items
-            do{
-                size = nList.size()-1;
-                cmp = nList.get(size).getName().toLowerCase();
-                val = size;
-
-                //compare with other items
-                for(int x = 0; x < size; x++){
-                    if (cmp.compareTo(nList.get(x).getName().toLowerCase()) < 0) {
-                        if(flag){
-                            //A-Z
-                        }else{
-                            //Z-A
-                            val = x;
-                            cmp = nList.get(x).getName();
-                        }
-                    }else{
-                        if(flag) {
-                            //A-Z
-                            val = x;
-                            cmp = nList.get(x).getName();
-                        }else{
-                            //Z-A
-                        }
-                    }
-                }
-
-                outputList.add(nList.get(val));
-                nList.remove(val);
-
-            }while(size > 0);
-
-        }else if(sort == 2 || sort == 3){
-            Integer cmp = 0;
-            //as long as there are items
-            do {
-                size = nList.size() - 1;
-                cmp = nList.get(size).getDuration();
-                val = size;
-
-                //compare with other items
-                for (int x = 0; x < size; x++) {
-                    if (cmp > nList.get(x).getDuration()) {
-                        if (flag) {
-                            //A-Z
-                        } else {
-                            //Z-A
-                            val = x;
-                            cmp = nList.get(x).getDuration();
-                        }
-                    } else {
-                        if (flag) {
-                            //A-Z
-                            val = x;
-                            cmp = nList.get(x).getDuration();
-                        } else {
-                            //Z-A
-                        }
-                    }
-                }
-
-                outputList.add(nList.get(val));
-                nList.remove(val);
-
-            } while (size > 0);
-        }else{
-            ArrayList<Date> tempList = new ArrayList<Date>();
-            Date cmp = new Date();
-
-            //as long as there are items
-            do {
-                size = nList.size() - 1;
-                cmp = nList.get(size).getDate();
-                val = size;
-
-                //compare with other items
-                for (int x = 0; x < size; x++) {
-                    if (cmp.after(nList.get(x).getDate())) {
-                        if (flag) {
-                            //A-Z
-                        } else {
-                            //Z-A
-                            val = x;
-                            cmp = nList.get(x).getDate();
-                        }
-                    } else {
-                        if (flag) {
-                            //A-Z
-                            val = x;
-                            cmp = nList.get(x).getDate();
-                        } else {
-                            //Z-A
-                        }
-                    }
-                }
-
-                outputList.add(nList.get(val));
-                nList.remove(val);
-
-            } while (size > 0);
-        }
-
-
-        return outputList;
+            return outputList;
     }
 
     //Change
