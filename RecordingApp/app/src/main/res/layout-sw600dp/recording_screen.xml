@@ -13,8 +13,8 @@
 
             <RelativeLayout
                 android:orientation="horizontal"
-                android:layout_width="400dp"
-                android:layout_height="70dp"
+                android:layout_width="500dp"
+                android:layout_height="130dp"
                 android:background="@drawable/toolbartest"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
