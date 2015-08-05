@@ -17,6 +17,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import wycliffeassociates.recordingapp.model.Language;
  */
 public class Settings extends Activity {
     private Button hardReset;
-    private ImageButton setSaveDirectory, setFtp;
     private String sampleName;
     private TextView displayFileName, showSaveDirectory;
     private EditText tReset;
@@ -366,8 +366,8 @@ public class Settings extends Activity {
      * should be saved.
      */
     private void saveDirectoryListener() {
-        setSaveDirectory = (ImageButton)findViewById(R.id.setSaveDirectory);
-        setSaveDirectory.setOnClickListener(new View.OnClickListener() {
+        LinearLayout saveDir = (LinearLayout)findViewById(R.id.Default_Folder);
+        saveDir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 /* toDO: need to change some things in Preference manager before getting this
@@ -388,7 +388,7 @@ public class Settings extends Activity {
      * @param pref The preference manager
      */
     private void ftpListener(final PreferencesManager pref) {
-        setFtp = (ImageButton) findViewById(R.id.setFtp);
+       LinearLayout setFtp = (LinearLayout)findViewById(R.id.FTP);
         setFtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -423,7 +423,7 @@ public class Settings extends Activity {
                         pref.setPreferences("ftpPort", port.getText().toString());
                         pref.setPreferences("ftp", secureFtp.getText().toString());
                         pref.setPreferences("ftpDirectory", directory.getText().toString());
-                        ftp.hide();
+                        ftp.dismiss();
                     }
                 });
 
