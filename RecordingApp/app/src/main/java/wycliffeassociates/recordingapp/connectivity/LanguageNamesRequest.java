@@ -7,6 +7,7 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -59,7 +60,7 @@ public class LanguageNamesRequest extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
+        setContentView(R.layout.settings2);
 
         //ActivityManager.getMyMemoryState();
         //ActivityManager.MemoryInfo();
@@ -108,7 +109,7 @@ public class LanguageNamesRequest extends Activity {
                     "VALUES ";
             String queryDuplicate = "WHERE NOT EXISTS ( SELECT * FROM " + tableName + " WHERE pk = ";
 
-                    //String queryOnDuplicate = " ON DUPLICATE KEY UPDATE "
+            //String queryOnDuplicate = " ON DUPLICATE KEY UPDATE "
 
             //kill database
             try{
@@ -127,94 +128,94 @@ public class LanguageNamesRequest extends Activity {
             // Making a request to url and getting response
             String jsonStr = "";
             Boolean toggle = false;
-            /*try {
+            try {
                 jsonStr = sh.makeServiceCall(HOST_DOMAIN, ServiceHandler.GET);
             }catch(Exception e){
                 toggle = true;
-            }*/
-            toggle = true;
-            //Log.d("Response: ", "> " + jsonStr);
+            };
 
             if (jsonStr != null) {
-                if(toggle) {
-                    try {
-
-                        InputStream is = getAssets().open("langnames.json");
-
-                        int size = is.available();
-
-                        byte[] buffer = new byte[size];
-
-                        is.read(buffer);
-
-                        is.close();
-
-                        jsonStr = new String(buffer, "UTF-8");
-
-
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                        return null;
-                    }
-                }
-
-                try {
-                    JSONArray jsonArray = new JSONArray((jsonStr));
-
-                    //PreferencesManager pref = new PreferencesManager(LanguageNamesRequest.this, "wycliffeassociates.recordingapp.langnames");
-                    //pref.resetPreferences("clear");
-
-                    for(int i = 0; i < jsonArray.length() ; i++){
-                        JSONObject c = jsonArray.getJSONObject(i);
-
-                        //SQL boolean
-                        Boolean gw = c.getBoolean(GATEWAY_LANGUAGE);
-
-                        int sqlGW = 0;
-                        if(gw){
-                            sqlGW = 1;
-                        }
-
-                        String ld = c.getString(LANGAUGE_DIRECTION);
-                        String lc = c.getString(LANGUAGE_CODE);
-                        String ln = c.getString(LANGAUGE_NAME);
-
-                        //SQL injection
-                        ld = sanitizeSQL(ld);
-                        lc = sanitizeSQL(lc);
-                        ln = sanitizeSQL(ln);
-
-                        // JSONObject jsonObj = c.getJSONObject()
-                        // String cc = c.getString(COUNTRY_CODE);
-
-                        int pk = c.getInt(PRIMARY_KEY);
-
-                        //INSERT INTO
-                        audiorecorder.execSQL(queryInsertLang + "(" +
-                                sqlGW + ", '" +
-                                ld + "', '" +
-                                lc + "', '" +
-                                ln + "', '" +
-                                "temp" + "', " +
-                                pk + ") ");
-                                //+ queryDuplicate + pk + ";");
-
-
-                        //Language temp = new Language(gw, ld, lc, ln, cc, pk);
-                        //languageList.add(temp);
-                        //pref.setPreferences(Integer.toString(pk), ln);
-                        //pref.putObject(Integer.toString(pk), temp);
-
-                    }
-
-                    audiorecorder.close();
-                    //System.gc();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                toggle = false;
             } else {
                 Log.e("ServiceHandler", "Couldn't get any data from the url");
+            }
+
+            if(toggle) {
+                try {
+
+                    InputStream is = getAssets().open("langnames.json");
+
+                    int size = is.available();
+
+                    byte[] buffer = new byte[size];
+
+                    is.read(buffer);
+
+                    is.close();
+
+                    jsonStr = new String(buffer, "UTF-8");
+
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    return null;
+                }
+            }
+
+            try {
+                JSONArray jsonArray = new JSONArray((jsonStr));
+
+                //PreferencesManager pref = new PreferencesManager(LanguageNamesRequest.this, "wycliffeassociates.recordingapp.langnames");
+                //pref.resetPreferences("clear");
+
+                for(int i = 0; i < jsonArray.length() ; i++){
+                    JSONObject c = jsonArray.getJSONObject(i);
+
+                    //SQL boolean
+                    Boolean gw = c.getBoolean(GATEWAY_LANGUAGE);
+
+                    int sqlGW = 0;
+                    if(gw){
+                        sqlGW = 1;
+                    }
+
+                    String ld = c.getString(LANGAUGE_DIRECTION);
+                    String lc = c.getString(LANGUAGE_CODE);
+                    String ln = c.getString(LANGAUGE_NAME);
+
+                    //SQL injection
+                    ld = sanitizeSQL(ld);
+                    lc = sanitizeSQL(lc);
+                    ln = sanitizeSQL(ln);
+
+                    // JSONObject jsonObj = c.getJSONObject()
+                    // String cc = c.getString(COUNTRY_CODE);
+
+                    int pk = c.getInt(PRIMARY_KEY);
+
+                    //INSERT INTO
+                    audiorecorder.execSQL(queryInsertLang + "(" +
+                            sqlGW + ", '" +
+                            ld + "', '" +
+                            lc + "', '" +
+                            ln + "', '" +
+                            "temp" + "', " +
+                            pk + ") ");
+                    //+ queryDuplicate + pk + ";");
+
+
+                    //Language temp = new Language(gw, ld, lc, ln, cc, pk);
+                    //languageList.add(temp);
+                    //pref.setPreferences(Integer.toString(pk), ln);
+                    //pref.putObject(Integer.toString(pk), temp);
+
+                }
+
+                audiorecorder.close();
+                //System.gc();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
             return null;
@@ -225,6 +226,7 @@ public class LanguageNamesRequest extends Activity {
             // Dismiss the progress dialog
             if (pDialog.isShowing())
                 pDialog.dismiss();
+
 
             Intent intent = new Intent(LanguageNamesRequest.this, Settings.class);
             startActivityForResult(intent, 0);
@@ -241,4 +243,3 @@ public class LanguageNamesRequest extends Activity {
 
     }
 }
-

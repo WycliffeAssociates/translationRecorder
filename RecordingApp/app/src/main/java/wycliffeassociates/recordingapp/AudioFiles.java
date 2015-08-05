@@ -2,12 +2,14 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -47,10 +49,8 @@ public class AudioFiles extends Activity {
 
 
     private ArrayList<AudioItem> audioItemList;
+    private ArrayList<AudioItem> tempItemList;
     static ArrayList<String> exportList;
-
-    private ArrayList<String> audioNameList;
-    private ArrayList<Date> dateList;
     private boolean checkAll = true;
 
     //0, Z-A
@@ -91,10 +91,10 @@ public class AudioFiles extends Activity {
      */
     private int fileNum =0;
 
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
+
 
         //pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
@@ -107,11 +107,9 @@ public class AudioFiles extends Activity {
         file_path.setText(currentDir);
 
         //initialization
-        audioNameList = new ArrayList<String>();
-        dateList = new ArrayList<Date>();
         audioItemList = new ArrayList<AudioItem>();
+        tempItemList = new ArrayList<AudioItem>();
         audioHash = new Hashtable<Date, String>();
-
 
         //get files in the directory
         File f = new File(currentDir);
@@ -129,19 +127,27 @@ public class AudioFiles extends Activity {
                 if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
                         || sub.equalsIgnoreCase(".mp3")) {
                     //add file names
-                    audioNameList.add(file[i].getName());
-
-                    //add recently modified dates
                     Date lastModDate = new Date(file[i].lastModified());
-                    dateList.add(lastModDate);
 
-                    audioHash.put(lastModDate, file[i].getName());
+                    File tFile = new File (currentDir + "/" + file[i].getName());
+                    Uri uri = Uri.fromFile(tFile);
+
+                    //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
+                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                    mmr.setDataSource(this, uri);
+                    String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                    //System.out.println(duration);
+                    int time = (Integer.parseInt(duration) / 1000);
+                    mmr.release();
+
+                    //create an Audio Item
+                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, time));
                 }
             }
 
 
             //audioFileView.setAdapter(
-                generateAdapterView(audioNameList, dateList);
+            generateAdapterView(tempItemList, sort);
             //);
 
         }
@@ -195,26 +201,13 @@ public class AudioFiles extends Activity {
                             exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
                         }
                     }
+//                    Intent intent = new Intent(v.getContext(), ExportFiles.class);
                     if (exportList.size() > 0) {
+//                        intent.putExtra("exportList", exportList);
+//                        startActivityForResult(intent, 0);
                         totalFiles = exportList.size();
                         thisPath = exportList.get(0);
-                        if(exportList.size() > 1) {
-                            //we want a zip file since there are multiple files
-                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                            //files to zip
-                            String[] toZip = new String[totalFiles];
-                            for (int i = 0; i < totalFiles; i++) {
-                                toZip[i] = exportList.get(i);
-                            }
-                            try {
-                                zip(toZip, zipPath);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            createFile("application/zip", getNameFromPath(zipPath));
-                        }
-                        else//export single file over
-                          createFile("audio/*", getNameFromPath(thisPath));
+                        createFile("audio/*", getNameFromPath(thisPath));
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -226,7 +219,6 @@ public class AudioFiles extends Activity {
         btnExportApp.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
@@ -236,23 +228,7 @@ public class AudioFiles extends Activity {
 
                 //if something is checked
                 if(exportList.size() > 0) {
-                    if(exportList.size() > 1) {//export multiple files as a single zip file
-                        String toExport[] = new String[exportList.size()];
-                        thisPath = exportList.get(0);
-                        for (int i = 0; i < exportList.size(); i++) {
-                            toExport[i] = exportList.get(i);
-                        }
-                        try {
-                            //this could cause problems if the directory list contains matches
-                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                            zip(toExport, zipPath);//TODO: learn how to delete this file after upload
-                            exportZipApplications(zipPath);
-                        } catch (IOException e) {
-                            exportApplications(exportList);
-                            e.printStackTrace();
-                        }
-                    }
-                    else exportApplications(exportList);
+                    exportApplications(exportList);
                 }
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
@@ -260,19 +236,8 @@ public class AudioFiles extends Activity {
             }
         });
 
-
-
-        audioFileView = (ListView) findViewById(R.id.listViewExport);
-
-        audioNameList = new ArrayList<String>();
-        dateList = new ArrayList<Date>();
-        items = new ArrayList<AudioItem>();
-
-
-        //get output directory
-        //global current directory?
-
-        /*WavRecorder temp = new WavRecorder(new RecordingManager() {
+        /*btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
+        btnCheckAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (file == null) {
@@ -290,10 +255,7 @@ public class AudioFiles extends Activity {
                     checkAll = !checkAll;
                 }
             }
-
         });*/
-        //directory = temp.getFileDirectory();
-        //});
 
         btnSortName = (ImageButton)findViewById(R.id.btnSortName);
         btnSortName.setOnClickListener(new View.OnClickListener() {
@@ -305,7 +267,21 @@ public class AudioFiles extends Activity {
                     pref.setPreferences("displaySort", 1);
                 }
                 sort = (int) pref.getPreferences("displaySort");
-                generateAdapterView(audioNameList,dateList);
+                generateAdapterView(tempItemList, sort);
+            }
+        });
+
+        btnSortDuration = (ImageButton)findViewById(R.id.btnSortDuration);
+        btnSortDuration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(sort == 3){
+                    pref.setPreferences("displaySort", 2);
+                }else{
+                    pref.setPreferences("displaySort", 3);
+                }
+                sort = (int) pref.getPreferences("displaySort");
+                generateAdapterView(tempItemList, sort);
             }
         });
 
@@ -319,10 +295,34 @@ public class AudioFiles extends Activity {
                     pref.setPreferences("displaySort", 5);
                 }
                 sort = (int) pref.getPreferences("displaySort");
-                generateAdapterView(audioNameList,dateList);
+                generateAdapterView(tempItemList, sort);
             }
         });
 
+        /*
+        btnDelete = (ImageButton)findViewById(R.id.btnDelete);
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exportList = new ArrayList<String>();
+                for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                    if (adapter.checkBoxState[i] == true) {
+                        exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
+                    }
+                }
+
+                //if something is checked
+                if(exportList.size() > 0) {
+                    deleteFiles(exportList);
+                }
+                else {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+                sort = (int) pref.getPreferences("displaySort");
+                generateAdapterView(tempItemList, sort);
+            }
+        });
+         */
     }
 
     @Override
@@ -333,7 +333,7 @@ public class AudioFiles extends Activity {
     }
 
     /**
-     *
+     *Clears Check Box State when the back button is pressed
      */
     public void onBackPressed(){
         if (file == null) {}
@@ -344,59 +344,16 @@ public class AudioFiles extends Activity {
         finish();
     }
 
-    /**
-     *
-     * @param audioNameList
-     * @param dateList
-     */
-    private void generateAdapterView(ArrayList<String> audioNameList, ArrayList<Date> dateList){
+    private void generateAdapterView(ArrayList<AudioItem> tempItemList, int sort){
+        ArrayList<AudioItem> cleanList = new ArrayList<AudioItem>();
+        for( int a = 0 ; a < tempItemList.size() ; a ++ ){
+            cleanList.add(tempItemList.get(a));
+        }
+
         //clear list
         audioItemList = new ArrayList<AudioItem>();
 
-        //holder for sorting function
-        ArrayList<Date> testDate = new ArrayList<Date>();
-        ArrayList<String> testName = new ArrayList<String>();
-
-        //temp arrays to keep paramters untouched
-        ArrayList<Date> tempDate = new ArrayList<Date>();
-        ArrayList<String> tempName = new ArrayList<String>();
-
-        //generate
-        for(int a = 0; a < audioNameList.size() ; a++){
-            tempName.add(audioNameList.get(a));
-        }
-        for(int a = 0; a < dateList.size() ; a++){
-            tempDate.add(dateList.get(a));
-        }
-
-        //Sort list based on preference
-        switch(sort){
-            case 0:
-                testName = sortString(tempName, false);
-                break;
-            case 1:
-                testName = sortString(tempName, true);
-                break;
-            case 4:
-                testDate = sortDate(tempDate, false);
-                break;
-            case 5:
-            default:
-                testDate = sortDate(tempDate, true);
-                break;
-        }
-        //add items to list
-        if(sort == 0 || sort == 1){
-            for (int j = 0; j < testName.size(); j++) {
-                //audioNameList.set(j,audioHash.get(testDate.get(j)));
-                audioItemList.add(new AudioItem((testName.get(j)), dateList.get(j), 0));
-            }
-        }else{
-            for (int j = 0; j < testDate.size(); j++) {
-                //audioNameList.set(j,audioHash.get(testDate.get(j)));
-                audioItemList.add(new AudioItem(audioHash.get(testDate.get(j)), testDate.get(j), 0));
-            }
-        }
+        audioItemList = sortAudioItem(cleanList, sort);
 
         //temp array for Adapter
         AudioItem[] tempArr = new AudioItem[audioItemList.size()];
@@ -408,89 +365,133 @@ public class AudioFiles extends Activity {
         audioFileView.setAdapter(adapter);
     }
 
-    //flag == true : sort by most recently modified
-    //flag == false : sort by least recently modified
-    private ArrayList<Date> sortDate(ArrayList<Date> dList, Boolean flag) {
-        ArrayList<Date> outputList = new ArrayList<Date>();
-        Date cmp = new Date();
-        int val = 0;
-        int size = dList.size() - 1;
 
-        //as long as there are items
-        do {
-            size = dList.size() - 1;
-            cmp = dList.get(size);
-            val = size;
+    private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
+        ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
 
-            //compare with other items
-            for (int x = 0; x < size; x++) {
-                if (cmp.after(dList.get(x))) {
-                    if (flag) {
-                        //A-Z
-                    } else {
-                        //Z-A
-                        val = x;
-                        cmp = dList.get(x);
-                    }
-                } else {
-                    if (flag) {
-                        //A-Z
-                        val = x;
-                        cmp = dList.get(x);
-                    } else {
-                        //Z-A
-                    }
-                }
-            }
+        boolean flag = false;
+        switch(sort){
+            case 0:
+            case 2:
+            case 4:
+                //false
+                break;
+            case 1:
+            case 3:
+            case 5:
+            default:
+                flag = true;
+                break;
+        }
 
-            dList.remove(val);
-            outputList.add(cmp);
-
-        } while (size > 0);
-
-        return outputList;
-    }
-
-    //._. Generics tho
-    //flag == true : sort by A-Z
-    //flag == false : sort by Z-A
-    private ArrayList<String> sortString (ArrayList<String> nList, Boolean flag){
-        ArrayList<String> outputList = new ArrayList<String>();
-
-        String cmp = "";
         int val = 0;
         int size = nList.size() - 1;
 
-        //as long as there are items
-        do{
-            size = nList.size()-1;
-            cmp = nList.get(size).toLowerCase();
-            val = size;
+        if(sort == 0 || sort == 1){
+            String cmp = "";
 
-            //compare with other items
-            for(int x = 0; x < size; x++){
-                if (cmp.compareTo(nList.get(x).toLowerCase()) < 0) {
-                    if(flag){
-                        //A-Z
+            //as long as there are items
+            do{
+                size = nList.size()-1;
+                cmp = nList.get(size).getName().toLowerCase();
+                val = size;
+
+                //compare with other items
+                for(int x = 0; x < size; x++){
+                    if (cmp.compareTo(nList.get(x).getName().toLowerCase()) < 0) {
+                        if(flag){
+                            //A-Z
+                        }else{
+                            //Z-A
+                            val = x;
+                            cmp = nList.get(x).getName();
+                        }
                     }else{
-                        //Z-A
-                        val = x;
-                        cmp = nList.get(x);
-                    }
-                }else{
-                    if(flag) {
-                        //A-Z
-                        val = x;
-                        cmp = nList.get(x);
-                    }else{
-                        //Z-A
+                        if(flag) {
+                            //A-Z
+                            val = x;
+                            cmp = nList.get(x).getName();
+                        }else{
+                            //Z-A
+                        }
                     }
                 }
-            }
-            nList.remove(val);
-            outputList.add(cmp);
 
-        }while(size > 0);
+                outputList.add(nList.get(val));
+                nList.remove(val);
+
+            }while(size > 0);
+
+        }else if(sort == 2 || sort == 3){
+            Integer cmp = 0;
+            //as long as there are items
+            do {
+                size = nList.size() - 1;
+                cmp = nList.get(size).getDuration();
+                val = size;
+
+                //compare with other items
+                for (int x = 0; x < size; x++) {
+                    if (cmp > nList.get(x).getDuration()) {
+                        if (flag) {
+                            //A-Z
+                        } else {
+                            //Z-A
+                            val = x;
+                            cmp = nList.get(x).getDuration();
+                        }
+                    } else {
+                        if (flag) {
+                            //A-Z
+                            val = x;
+                            cmp = nList.get(x).getDuration();
+                        } else {
+                            //Z-A
+                        }
+                    }
+                }
+
+                outputList.add(nList.get(val));
+                nList.remove(val);
+
+            } while (size > 0);
+        }else{
+            ArrayList<Date> tempList = new ArrayList<Date>();
+            Date cmp = new Date();
+
+            //as long as there are items
+            do {
+                size = nList.size() - 1;
+                cmp = nList.get(size).getDate();
+                val = size;
+
+                //compare with other items
+                for (int x = 0; x < size; x++) {
+                    if (cmp.after(nList.get(x).getDate())) {
+                        if (flag) {
+                            //A-Z
+                        } else {
+                            //Z-A
+                            val = x;
+                            cmp = nList.get(x).getDate();
+                        }
+                    } else {
+                        if (flag) {
+                            //A-Z
+                            val = x;
+                            cmp = nList.get(x).getDate();
+                        } else {
+                            //Z-A
+                        }
+                    }
+                }
+
+                outputList.add(nList.get(val));
+                nList.remove(val);
+
+            } while (size > 0);
+        }
+
 
         return outputList;
     }
