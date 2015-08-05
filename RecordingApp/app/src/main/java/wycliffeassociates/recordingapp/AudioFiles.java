@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
@@ -27,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 import wycliffeassociates.recordingapp.model.AudioItem;
@@ -64,6 +65,17 @@ public class AudioFiles extends Activity {
     public AudioFilesAdapter adapter;
 
     Hashtable<Date, String> audioHash;
+
+
+    /**
+     * URI of the document in storage where it was exported by the user
+     */
+    private Uri currentUri;
+
+    /**
+     * The path to the zipfile
+     */
+    private String zipPath = null;
 
     /**
      * the current filepath being exported
@@ -122,12 +134,16 @@ public class AudioFiles extends Activity {
                     Uri uri = Uri.fromFile(tFile);
 
                     //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
-                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+
+                   /* MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+
                     mmr.setDataSource(this, uri);
                     String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                     //System.out.println(duration);
                     int time = (Integer.parseInt(duration) / 1000);
                     mmr.release();
+*/
+                    int time = 0;
 
                     //create an Audio Item
                     tempItemList.add(new AudioItem(file[i].getName(), lastModDate, time));
@@ -190,13 +206,26 @@ public class AudioFiles extends Activity {
                             exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
                         }
                     }
-//                    Intent intent = new Intent(v.getContext(), ExportFiles.class);
                     if (exportList.size() > 0) {
-//                        intent.putExtra("exportList", exportList);
-//                        startActivityForResult(intent, 0);
                         totalFiles = exportList.size();
                         thisPath = exportList.get(0);
-                        createFile("audio/*", getNameFromPath(thisPath));
+                        if(exportList.size() > 1) {
+                            //we want a zip file since there are multiple files
+                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                            //files to zip
+                            String[] toZip = new String[totalFiles];
+                            for (int i = 0; i < totalFiles; i++) {
+                                toZip[i] = exportList.get(i);
+                            }
+                            try {
+                                zip(toZip, zipPath);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            createFile("application/zip", getNameFromPath(zipPath));
+                        }
+                        else//export single file over
+                            createFile("audio/*", getNameFromPath(thisPath));
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -208,6 +237,7 @@ public class AudioFiles extends Activity {
         btnExportApp.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
@@ -217,7 +247,23 @@ public class AudioFiles extends Activity {
 
                 //if something is checked
                 if(exportList.size() > 0) {
-                    exportApplications(exportList);
+                    if(exportList.size() > 1) {//export multiple files as a single zip file
+                        String toExport[] = new String[exportList.size()];
+                        thisPath = exportList.get(0);
+                        for (int i = 0; i < exportList.size(); i++) {
+                            toExport[i] = exportList.get(i);
+                        }
+                        try {
+                            //this could cause problems if the directory list contains matches
+                            zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                            zip(toExport, zipPath);//TODO: learn how to delete this file after upload
+                            exportZipApplications(zipPath);
+                        } catch (IOException e) {
+                            exportApplications(exportList);
+                            e.printStackTrace();
+                        }
+                    }
+                    else exportApplications(exportList);
                 }
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
@@ -225,7 +271,8 @@ public class AudioFiles extends Activity {
             }
         });
 
-        btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
+
+        /*btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
         btnCheckAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -244,7 +291,7 @@ public class AudioFiles extends Activity {
                     checkAll = !checkAll;
                 }
             }
-        });
+        });*/
 
         btnSortName = (ImageButton)findViewById(R.id.btnSortName);
         btnSortName.setOnClickListener(new View.OnClickListener() {
@@ -288,7 +335,31 @@ public class AudioFiles extends Activity {
             }
         });
 
+
+        /*
         btnDelete = (ImageButton)findViewById(R.id.btnDelete);
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exportList = new ArrayList<String>();
+                for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                    if (adapter.checkBoxState[i] == true) {
+                        exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
+                    }
+                }
+
+                //if something is checked
+                if(exportList.size() > 0) {
+                    deleteFiles(exportList);
+                }
+                else {
+                    Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+                sort = (int) pref.getPreferences("displaySort");
+                generateAdapterView(tempItemList, sort);
+            }
+        });
+         */
     }
 
     @Override
@@ -325,10 +396,25 @@ public class AudioFiles extends Activity {
         AudioItem[] tempArr = new AudioItem[audioItemList.size()];
         for(int a = 0; a < audioItemList.size(); a++){
             tempArr[a] = audioItemList.get(a);
+
         }
         //set Adapter view
         adapter = (new AudioFilesAdapter(this, tempArr));
         audioFileView.setAdapter(adapter);
+    }
+
+    //TODO : after merge, ezpz implement
+    private void deleteFiles(ArrayList<String> exportList){
+        int count = 0;
+        for(int i = 0 ; i < exportList.size() ; i++) {
+            File file = new File(exportList.get(i));
+            boolean deleted = file.delete();
+            if(deleted){
+                tempItemList.remove(i - count);
+                System.out.println("========" + (i - count));
+                count++;
+            }
+        }
     }
 
     private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
@@ -514,6 +600,33 @@ public class AudioFiles extends Activity {
         startActivity(Intent.createChooser(sendIntent, "Export Audio"));
     }
 
+    /**
+     *  Passes zip file URI to relevant audio applications.
+     *      @param path
+     *      a list of filenames to be exported
+     */
+    private void exportZipApplications(String path){
+
+        Intent sendIntent = new Intent();
+        sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        //share it implementation
+        File tFile;
+
+        Uri audioUri;
+
+        tFile = new File (path);
+        audioUri = Uri.fromFile(tFile);
+        sendIntent.setAction(Intent.ACTION_SEND);
+
+        //send individual URI
+        sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);
+
+        //open
+        sendIntent.setType("application/zip");
+        startActivityForResult(Intent.createChooser(sendIntent, "Export Zip"), 3);
+    }
+
     //==================================
     //         Export to Folder
     //==================================
@@ -546,7 +659,7 @@ public class AudioFiles extends Activity {
 
     /**
      * Copies a file from a path to a uri
-     * @param destUri The desination of the file
+     * @param destUri The destination of the file
      * @param path The original path to the file
      */
     public void savefile(Uri destUri, String path)
@@ -573,13 +686,27 @@ public class AudioFiles extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            iteratePath();
-            if(fileNum < totalFiles) {
-                thisPath = exportList.get(fileNum);
-                createFile("audio/*", getNameFromPath(thisPath));
+
+            //not very well abstracted, but if we are working with non-zip-files
+            //keep saving files
+            if(!path.contains(".zip")) {
+                iteratePath();
+                if (fileNum < totalFiles) {
+                    thisPath = exportList.get(fileNum);
+                    createFile("audio/*", getNameFromPath(thisPath));
+                }
+            }
+            else//we just transferred a zip file, the old file needs to be deleted
+            {
+                File toDelete = new File(path);
+                try {
+                    toDelete.getCanonicalFile().delete();
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                }
             }
         }
-
     }
 
     /**
@@ -597,13 +724,58 @@ public class AudioFiles extends Activity {
 
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-        Uri currentUri = null;
+        currentUri = null;
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == 43) {
                 currentUri = resultData.getData();
-                savefile(currentUri, exportList.get(fileNum));
-
+                if(null!= zipPath){
+                    savefile(currentUri, zipPath);
+                    zipPath = null;//reset
+                }//
+                else
+                    savefile(currentUri, thisPath);
             }
+
+            if(requestCode ==3){//delete zip file, needs to be done after upload
+                zipPath = null;//set null for next time
+            }
+        }
+    }
+
+    //==================================
+    //         Zipping files
+    //==================================
+
+    /**
+     * Zips files into a single folder
+     * @param files A String array of the paths to the files to be zipped
+     * @param zipFile The location of the zip file as a String
+     * @throws IOException
+     */
+    public static void zip(String[] files, String zipFile) throws IOException {
+        BufferedInputStream origin = null;
+        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+        try {
+            byte data[] = new byte[1024];
+
+            for (int i = 0; i < files.length; i++) {
+                FileInputStream fi = new FileInputStream(files[i]);
+                origin = new BufferedInputStream(fi, 1024);
+                try {
+                    ZipEntry entry = new ZipEntry(files[i].substring(files[i].lastIndexOf("/") + 1));
+                    out.putNextEntry(entry);
+                    int count;
+                    while ((count = origin.read(data, 0, 1024)) != -1) {
+                        out.write(data, 0, count);
+                    }
+                }
+                finally {
+                    origin.close();
+                }
+            }
+        }
+        finally {
+            out.close();
         }
     }
 }

@@ -8,11 +8,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class CanvasView extends View {
@@ -26,7 +28,8 @@ public class CanvasView extends View {
     private Paint mPaint;
     private WavFileLoader wavLoader;
     private WavVisualizer wavVis;
-    private short[][] audioData;
+    //private short[] audioData;
+
     private ArrayList<Pair<Double,Double>> samples;
     ScaleGestureDetector SGD;
     private final int SECONDS_ON_SCREEN = 10;
@@ -41,6 +44,8 @@ public class CanvasView extends View {
     private boolean recording;
     private boolean shouldDrawLine = false;
     private boolean shouldDrawMiniMarker = false;
+    private int increment = 1;
+    private boolean isMinimap = false;
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
         this.miniMarkerLoc = miniMarkerLoc;
@@ -97,6 +102,9 @@ public class CanvasView extends View {
         }
 
     }
+    public void setIsMinimap(boolean flag){
+        this.isMinimap = flag;
+    }
 
     public void setNumChannels(int numChannels) {
         this.numChannels = numChannels;
@@ -113,10 +121,10 @@ public class CanvasView extends View {
     public void setRecording(boolean recording) {
         this.recording = recording;
     }
+
     public boolean getRecording() {
         return this.recording;
     }
-
 
     public void drawBuffer(Canvas canvas, byte[] buffer, int blocksize, int numChannels, boolean recording){
         if (!recording || buffer == null || canvas == null) {
@@ -145,20 +153,28 @@ public class CanvasView extends View {
     }
     public void drawWaveform(Canvas canvas){
         canvas.scale(userScale, 1.f);
-        canvas.translate(-xTranslation/Math.abs(userScale), 0.f);
+        canvas.translate(-xTranslation / Math.abs(userScale), 0.f);
 
         mPaint.setColor(Color.WHITE);
         if (samples == null) {
             return;
         }
-        int oldX = 0;
         int oldY =  (canvas.getHeight() / 2);
-        int xIndex = 0;
+        int xIndex;
+        int oldX;
+        if(isMinimap) {
+            xIndex = oldX = 0;
+        }
+        else{
+            xIndex = oldX = wavLoader.getSampleStartIndex();
+        }
 
         for (int t = 0; t < samples.size(); t++) {
+
             int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
             canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
             oldY = y;
+            //System.out.println("y is: " + y + " x is: " + xIndex);
             y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
 
             canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
@@ -166,6 +182,7 @@ public class CanvasView extends View {
 
             oldX = xIndex;
             xIndex++;
+
             oldY = y;
         }
     }
@@ -186,18 +203,43 @@ public class CanvasView extends View {
     }
 
     public void loadWavFromFile(String path){
-        wavLoader = new WavFileLoader(path);
-        audioData = wavLoader.getAudioData();
+        try {
+            wavLoader = new WavFileLoader(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        samples = null;
     }
 
-    public void displayWaveform(int seconds){
-        wavVis = new WavVisualizer(audioData, wavLoader.getNumChannels());
-        xScale = wavVis.getXScaleFactor(this.getWidth(), seconds);
-        int inc = wavVis.getIncrement(xScale);
-        wavVis.sampleAudio(inc);
+    public void getMinimap(){
+        samples = wavLoader.getMinimap(this.getWidth());
+        wavVis = new WavVisualizer(samples, wavLoader.getLargest());
+        xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
         yScale = wavVis.getYScaleFactor(this.getHeight());
-        samples = wavVis.getSamples();
+        wavLoader = null;
+        wavVis = null;
+        Runtime.getRuntime().freeMemory();
+    }
+
+    public void resample(int position){
+        samples = wavLoader.getAudioWindow(position, 10, increment);
+    }
+
+    public void recomputeIncrement(float xScale){
+        increment = wavVis.getIncrement(xScale);
+    }
+
+
+    public void displayWaveform(int seconds){
+        wavVis = new WavVisualizer(samples, wavLoader.getLargest());
+        xScale = wavVis.getXScaleFactor(this.getWidth(), seconds);
+        increment = wavVis.getIncrement(xScale);
+        System.out.println(increment + "is the increment");
+        //wavVis.sampleAudio(inc);
+        yScale = wavVis.getYScaleFactor(this.getHeight());
+        //samples = wavVis.getSamples();
         System.out.println("height is " + this.getHeight());
+        resample(0);
         this.invalidate();
     }
 
@@ -215,12 +257,24 @@ public class CanvasView extends View {
                         RecordingMessage message = RecordingQueues.UIQueue.take();
                         isStopped = message.isStopped();
                         isPaused = message.isPaused();
+
                         if (!isPaused && message.getData() != null) {
                             setBuffer(message.getData());
+                            double max = 0;
+                            for(int i =0; i < buffer.length; i+=2) {
+                                byte low = buffer[i];
+                                byte hi = buffer[i + 1];
+                                short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                                max = (Math.abs(value) > max)? Math.abs(value) : max;
+                            }
+                            final double db = Math.log10(max / (double) AudioInfo.AMPLITUDE_RANGE)* 10;
+                            System.out.println("db is "+db);
                             ctx.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     mainCanvas.invalidate();
+                                    changeVolumeBar(ctx, db);
+
                                 }
                             });
                         }
@@ -244,6 +298,63 @@ public class CanvasView extends View {
         });
         uiThread.start();
     }
+    public void changeVolumeBar(Activity ctx, double db){
+        if(db > -1){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.max);
+            System.out.println(db);
+        }
+        else if (db < -1 && db > -1.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_16);
+        }
+        else if (db < -1.5 && db > -2){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_15);
+        }
+        else if (db < -2 && db > -2.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_14);
+        }
+        else if (db < -2.5 && db > -3){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_13);
+        }
+        else if (db < -3 && db > -3.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_12);
+        }
+        else if (db < -3.5 && db > -4){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_11);
+        }
+        else if (db < -4 && db > -4.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_10);
+        }
+        else if (db < -4.5 && db > -5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_9);
+        }
+        else if (db < -5 && db > -5.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_8);
+        }
+        else if (db < -5.5 && db > -6){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_7);
+        }
+        else if (db < -6 && db > -6.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_6);
+        }
+        else if (db < -6.5 && db > -7){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_5);
+        }
+        else if (db < -7 && db > -7.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_4);
+        }
+        else if (db < -7.5 && db > -8){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_3);
+        }
+        else if (db < -8 && db > -8.5){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_2);
+        }
+        else if (db < -8.5 && db > -12){
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_1);
+        }
+        else {
+            ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
+        }
+    }
 
     public void shouldDrawMaker(boolean yes){
         this.shouldDrawLine = yes;
@@ -251,7 +362,7 @@ public class CanvasView extends View {
     public void drawMarker(Canvas canvas){
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.RED);
-        canvas.drawLine((canvas.getWidth()/8) + xTranslation, 0, (canvas.getWidth()/8)+xTranslation, canvas.getHeight(), mPaint);
+        canvas.drawLine(((canvas.getWidth()/8) + xTranslation)/userScale, 0, ((canvas.getWidth()/8) + xTranslation)/userScale, canvas.getHeight(), mPaint);
     }
     public void shouldDrawMiniMarker(boolean yes){
         this.shouldDrawMiniMarker = true;
@@ -260,4 +371,6 @@ public class CanvasView extends View {
         mPaint.setColor(Color.GREEN);
         canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
     }
+
 }
+

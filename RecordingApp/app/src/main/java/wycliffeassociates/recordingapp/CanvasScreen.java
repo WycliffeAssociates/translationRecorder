@@ -15,6 +15,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -44,6 +45,7 @@ public class CanvasScreen extends Activity {
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isRecording = false;
+   private PreferencesManager pref;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -59,6 +61,10 @@ public class CanvasScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pref = new PreferencesManager(this);
+
+        outputName = (String)pref.getPreferences("fileName")+"-" +pref.getPreferences("fileCounter").toString();
+
         //recordedFilename = savedInstanceState.getString("outputFileName", null);
 
         //make sure the tablet does not go to sleep while on the recording screen
@@ -82,8 +88,6 @@ public class CanvasScreen extends Activity {
             public boolean onScale(ScaleGestureDetector detector) {
                 userScale *= detector.getScaleFactor();
                 mainCanvas.setUserScale(userScale);
-                mainCanvas.invalidate();
-
                 return true;
             }
         };
@@ -94,9 +98,11 @@ public class CanvasScreen extends Activity {
 
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
+        findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
+        findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
+        minimap.setIsMinimap(true);
         setButtonHandlers();
-        enableButtons(true);
-        startRecording();
+        enableButtons(false);
     }
 
 
@@ -137,6 +143,9 @@ public class CanvasScreen extends Activity {
         final EditText toSave = new EditText(c);
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
 
+        //pref.getPreferences("fileName");
+        toSave.setText(outputName,TextView.BufferType.EDITABLE);
+
         //prepare the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(c);
         builder.setTitle("Save as");
@@ -172,9 +181,11 @@ public class CanvasScreen extends Activity {
 
     private void pauseRecording(){
         paused = true;
+
         isRecording = false;
         findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
+
         stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.writingQueue.put(new RecordingMessage(null, true, false));
@@ -192,6 +203,7 @@ public class CanvasScreen extends Activity {
     }
 
     private void startRecording(){
+        findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
         if(!paused) {
@@ -219,6 +231,7 @@ public class CanvasScreen extends Activity {
             WavPlayer.stop();
         }
         else {
+            findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
             findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
             findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
             stopService(new Intent(this, WavRecorder.class));
@@ -229,6 +242,7 @@ public class CanvasScreen extends Activity {
                 e.printStackTrace();
             }
 
+
             try {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
@@ -237,8 +251,10 @@ public class CanvasScreen extends Activity {
                     mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
                     mainCanvas.shouldDrawMaker(true);
+
                     minimap.loadWavFromFile(recordedFilename);
-                    minimap.displayWaveform(0);
+                    minimap.getMinimap();
+                    minimap.invalidate();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -259,13 +275,14 @@ public class CanvasScreen extends Activity {
             @Override
             public void run() {
                 int translation = 0;
+                double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
                 while(WavPlayer.isPlaying()){
-                    double location = (double)WavPlayer.getLocation()/ (double)WavPlayer.getDuration();
-                    double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
-                    System.out.println("Scalefactor is " + scaleFactor);
-                    translation = (int)(location * scaleFactor);
+                    int location = WavPlayer.getLocation();
+                    double locPercentage = (double)location/ (double)WavPlayer.getDuration();
+                    translation = (int)(userScale*(int)(locPercentage * scaleFactor));
+                    mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
                     mainCanvas.setXTranslation(base+translation);
-                    minimap.setMiniMarkerLoc((float) (location * minimap.getWidth()));
+                    minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));
                     minimap.shouldDrawMiniMarker(true);
                     runOnUiThread(new Runnable() {
                         @Override
@@ -327,6 +344,7 @@ public class CanvasScreen extends Activity {
                 case R.id.btnPauseRecording:{
                     enableButtons(false);
                     pauseRecording();
+                    break;
                 }
             }
         }
@@ -339,13 +357,13 @@ public class CanvasScreen extends Activity {
      * @return the absolute path of the file created
      */
     public String saveFile(String name) {
-        String filepath = Environment.getExternalStorageDirectory().getPath();
-        File dir = new File(filepath, AUDIO_RECORDER_FOLDER);
-        System.out.println(recordedFilename);
+        File dir = new File(pref.getPreferences("fileDirectory").toString());
+       // System.out.println(recordedFilename);
         File from = new File(recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         Boolean out = from.renameTo(to);
         recordedFilename = to.getAbsolutePath();
+        pref.setPreferences("fileCounter", ((int)pref.getPreferences("fileCounter")+1));
         return to.getAbsolutePath();
     }
 
