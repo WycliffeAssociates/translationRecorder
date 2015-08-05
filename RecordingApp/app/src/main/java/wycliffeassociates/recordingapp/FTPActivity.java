@@ -112,6 +112,7 @@ public class FTPActivity extends Activity {
                 for (int i = 0; i < AudioFiles.exportList.size(); i ++) {
                     filepath = AudioFiles.exportList.get(i);
                     uploadFile = new File(filepath);
+                    //(String) (pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/") +
                     destinationfilename = filepath.replace((String) pref.getPreferences("fileDirectory") + "/", "");
                     result = client.storeFile(destinationfilename, new FileInputStream(uploadFile)); // store file on server
                     publishProgress(i+1);

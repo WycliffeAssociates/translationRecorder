@@ -125,17 +125,17 @@ public class AudioFiles extends Activity {
                 int len = file[i].getName().length();
                 String sub = file[i].getName().substring(len - 4);
 
-                if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
-                        || sub.equalsIgnoreCase(".mp3")) {
-                    //add file names
-                    Date lastModDate = new Date(file[i].lastModified());
+                    if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
+                            || sub.equalsIgnoreCase(".mp3")) {
+                        //add file names
+                        Date lastModDate = new Date(file[i].lastModified());
 
-                    File tFile = new File (currentDir + "/" + file[i].getName());
-                    Uri uri = Uri.fromFile(tFile);
+                        File tFile = new File(currentDir + "/" + file[i].getName());
+                        Uri uri = Uri.fromFile(tFile);
 
-                    //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
+                        //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
 
-                    //TODO : DURATION
+                        //TODO : DURATION
                     /*MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
                     mmr.setDataSource(this, uri);
@@ -144,12 +144,13 @@ public class AudioFiles extends Activity {
                     int time = (Integer.parseInt(duration) / 1000);
                     mmr.release();*/
 
-                    long time = (((tFile.length() -44) / 4) / 44100);
-                    //System.out.println("pppp" + time);
+                        long time = (((tFile.length() - 44) / 2) / 44100);
+                        //System.out.println("pppp" + time);
 
-                    //create an Audio Item
-                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
-                }
+                        //create an Audio Item
+                        tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
+                    }
+
             }
 
 
@@ -198,6 +199,9 @@ public class AudioFiles extends Activity {
         btnExportFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                String append = "";
+                        //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
                 exportList = new ArrayList<String>();
                 if ((file == null)) {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
@@ -224,10 +228,10 @@ public class AudioFiles extends Activity {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            createFile("application/zip", getNameFromPath(zipPath));
+                            createFile("application/zip", append + getNameFromPath(zipPath));
                         }
                         else//export single file over
-                            createFile("audio/*", getNameFromPath(thisPath));
+                            createFile("audio/*", append + getNameFromPath(thisPath));
                     } else {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -240,6 +244,8 @@ public class AudioFiles extends Activity {
             @Override
             public void onClick(View v){
 
+                String append ="";
+                        //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
@@ -261,11 +267,11 @@ public class AudioFiles extends Activity {
                             zip(toExport, zipPath);//TODO: learn how to delete this file after upload
                             exportZipApplications(zipPath);
                         } catch (IOException e) {
-                            exportApplications(exportList);
+                            exportApplications(exportList, append);
                             e.printStackTrace();
                         }
                     }
-                    else exportApplications(exportList);
+                    else exportApplications(exportList, append);
                 }
                 else {
                     Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
@@ -575,7 +581,7 @@ public class AudioFiles extends Activity {
      *      @param exportList
      *          a list of filenames to be exported
      */
-    private void exportApplications(ArrayList<String> exportList){
+    private void exportApplications(ArrayList<String> exportList, String append){
 
         Intent sendIntent = new Intent();
         sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -590,6 +596,8 @@ public class AudioFiles extends Activity {
             tFile = new File (exportList.get(0));
             audioUri = Uri.fromFile(tFile);
             sendIntent.setAction(Intent.ACTION_SEND);
+            String filename = exportList.get(0).replace(currentDir + "/", "");
+            sendIntent.putExtra(Intent.EXTRA_TITLE, append + filename);
 
             //send individual URI
             sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);

@@ -125,6 +125,7 @@ public class LanguageNamesRequest extends Activity {
             if (jsonStr != null) {
                 toggle = false;
             } else {
+                toggle = true;
                 Log.e("ServiceHandler", "Couldn't get any data from the url");
             }
 

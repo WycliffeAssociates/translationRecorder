@@ -88,8 +88,8 @@ public class PreferencesManager {
             editor.putString("ftpPort", (String) temp.get("ftpPort"));
             editor.putString("ftp", (String) temp.get("ftp"));
             editor.putString("ftpDirectory", (String) temp.get("ftpDirectory"));
-            //editor.putString("appName", (String) temp.get("appName"));
-            //editor.putString("deviceUUID", (String) temp.get("deviceUUID"));
+            editor.putString("appName", (String) temp.get("appName"));
+            editor.putString("deviceUUID", (String) temp.get("deviceUUID"));
 
         }else if(name.equals("fileCounter") || name.equals("displaySort")) {
             editor.putInt(name, (int) temp.get(name));
@@ -194,8 +194,8 @@ public class PreferencesManager {
         prefs.put("ftp", "");
         prefs.put("ftpDirectory","");
 
-        //prefs.put("appName", (String) getResources().g);
-        //prefs.put("deviceUUID", getDeviceUUID());
+        prefs.put("appName", context.getString(R.string.app_name));
+        prefs.put("deviceUUID", getDeviceUUID());
         //======
 
         Object ret = null;
@@ -216,10 +216,12 @@ public class PreferencesManager {
 
     //UUID change on factory reset?
     private String getDeviceUUID(){
+
        /* UUID deviceUUID = new UUID(android.provider.Settings.Secure.ANDROID_ID.hashCode(),
                 Settings.Secure.ANDROID_ID.hashCode());
 
         return deviceUUID.toString();*/
-        return "test";
+        //return "test";
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }
