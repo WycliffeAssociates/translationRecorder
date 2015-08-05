@@ -46,6 +46,7 @@ public class CanvasScreen extends Activity {
     private boolean isRecording = false;
 
 
+
     public boolean onTouchEvent(MotionEvent ev) {
         if(ev.getPointerCount() > 1.0){
             SGD.onTouchEvent(ev);
@@ -172,9 +173,11 @@ public class CanvasScreen extends Activity {
 
     private void pauseRecording(){
         paused = true;
+
         isRecording = false;
         findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
+
         stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.writingQueue.put(new RecordingMessage(null, true, false));
@@ -230,6 +233,7 @@ public class CanvasScreen extends Activity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
 
             try {
                 Boolean done = RecordingQueues.doneWriting.take();
@@ -332,6 +336,7 @@ public class CanvasScreen extends Activity {
                 case R.id.btnPauseRecording:{
                     enableButtons(false);
                     pauseRecording();
+                    break;
                 }
             }
         }

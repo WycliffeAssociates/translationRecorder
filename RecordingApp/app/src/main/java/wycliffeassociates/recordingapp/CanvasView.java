@@ -29,6 +29,7 @@ public class CanvasView extends View {
     private WavFileLoader wavLoader;
     private WavVisualizer wavVis;
     //private short[] audioData;
+
     private ArrayList<Pair<Double,Double>> samples;
     ScaleGestureDetector SGD;
     private final int SECONDS_ON_SCREEN = 10;
@@ -273,6 +274,7 @@ public class CanvasView extends View {
                                 public void run() {
                                     mainCanvas.invalidate();
                                     changeVolumeBar(ctx, db);
+
                                 }
                             });
                         }
@@ -369,5 +371,6 @@ public class CanvasView extends View {
         mPaint.setColor(Color.GREEN);
         canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
     }
+
 }
 

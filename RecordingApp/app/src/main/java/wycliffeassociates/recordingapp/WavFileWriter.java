@@ -11,6 +11,7 @@ import java.io.RandomAccessFile;
 
 
 public class WavFileWriter extends Service{
+
     private String filename = null;
 
     @Override
@@ -133,6 +134,7 @@ public class WavFileWriter extends Service{
             e.printStackTrace();
         }
     }
+
 
 
     /**

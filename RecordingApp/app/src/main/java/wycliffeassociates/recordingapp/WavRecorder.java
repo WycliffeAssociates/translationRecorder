@@ -44,6 +44,7 @@ public class WavRecorder extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         System.out.println("Starting recording service");
         Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_SHORT).show();
+
         record();
         return START_STICKY;
     }

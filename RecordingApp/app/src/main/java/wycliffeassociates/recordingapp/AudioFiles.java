@@ -221,8 +221,19 @@ public class AudioFiles extends Activity {
             }
         });
 
-        btnCheckAll = (ImageButton)findViewById(R.id.btnCheckAll);
-        btnCheckAll.setOnClickListener(new View.OnClickListener() {
+
+
+        audioFileView = (ListView) findViewById(R.id.listViewExport);
+
+        audioNameList = new ArrayList<String>();
+        dateList = new ArrayList<Date>();
+        items = new ArrayList<AudioItem>();
+
+
+        //get output directory
+        //global current directory?
+
+        /*WavRecorder temp = new WavRecorder(new RecordingManager() {
             @Override
             public void onClick(View v) {
                 if (file == null) {
@@ -240,8 +251,9 @@ public class AudioFiles extends Activity {
                     checkAll = !checkAll;
                 }
             }
-        });
-    }
+
+        });*/
+        //directory = temp.getFileDirectory();
 
     //move
     @Override
