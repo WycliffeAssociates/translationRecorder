@@ -25,9 +25,11 @@ public class PreferencesManager {
     private static PreferencesManager sInstance;
     //private final Preferences mPref;
     private final SharedPreferences mPref;
+    private Context context;
 
     public PreferencesManager(Context context) {
         mPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        this.context = context;
     }
 
     public static synchronized void initializeInstance(Context context) {
@@ -76,10 +78,16 @@ public class PreferencesManager {
             editor.putString("fileName", (String) temp.get("fileName"));
             editor.putInt("fileCounter", (int) temp.get("fileCounter"));
             editor.putString("fileDirectory", (String) temp.get("fileDirectory"));
-            editor.putString("fileFolder", (String) temp.get("fileFolder"));
+            //editor.putString("fileFolder", (String) temp.get("fileFolder"));
             editor.putString("exportDirectory", (String) temp.get("exportDirectory"));
-            editor.putString("Language", (String) temp.get("Language"));
+            editor.putString("exportLanguage", (String) temp.get("exportLanguage"));
             editor.putInt("displaySort", (int) temp.get("displaySort"));
+
+            editor.putString("ftpServer", (String) temp.get("ftpServer"));
+            editor.putString("ftpUserName", (String) temp.get("ftpUserName"));
+            editor.putString("ftpPort", (String) temp.get("ftpPort"));
+            editor.putString("ftp", (String) temp.get("ftp"));
+            editor.putString("ftpDirectory", (String) temp.get("ftpDirectory"));
             //editor.putString("appName", (String) temp.get("appName"));
             //editor.putString("deviceUUID", (String) temp.get("deviceUUID"));
 
@@ -166,15 +174,26 @@ public class PreferencesManager {
 
         //======
         //DEFAULTS
-        prefs.put("fileName", "Recording");
+        prefs.put("fileName", "en-mat");
         prefs.put("fileCounter", 1);
-        prefs.put("fileDirectory", Environment.getExternalStorageDirectory().getPath().toString());
-        prefs.put("fileFolder", "AudioRecorder");
-        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getPath().toString());
+        prefs.put("fileDirectory", (Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + context.getString(R.string.folder_name)));
+        //prefs.put("fileFolder", "deprecated");
+        prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + context.getString(R.string.folder_name));
+                //R.string.app_name);
         //prefs.put("fileFolder", "AudioRecorder");
         prefs.put("Language", "EN");
 
+        prefs.put("targetLanguage", "en");
+        prefs.put("book","mat");
         prefs.put("displaySort", 5);
+
+        //ftp defaults
+        prefs.put("ftpServer","");
+        prefs.put("ftpUserName", "");
+        prefs.put("ftpPort", "");
+        prefs.put("ftp", "");
+        prefs.put("ftpDirectory","");
+
         //prefs.put("appName", (String) getResources().g);
         //prefs.put("deviceUUID", getDeviceUUID());
         //======

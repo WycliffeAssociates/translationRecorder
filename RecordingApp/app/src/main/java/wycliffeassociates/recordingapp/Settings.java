@@ -1,23 +1,28 @@
 package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
-
-import java.io.FileOutputStream;
+import android.widget.TextView;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
+import wycliffeassociates.recordingapp.connectivity.LanguageNamesRequest;
+import wycliffeassociates.recordingapp.model.Language;
 
 /**
  *
@@ -25,135 +30,393 @@ import java.util.Map;
  *
  */
 public class Settings extends Activity {
-    private Button tFileName, tReset, tIncrement, hardReset, pPreferences, saveFileName;
-    private Button sortName, sortDuration, sortDate;
-    private EditText displayFileName, displayPreferences, displaySort;
-    private EditText editFileName;
-    private String sampleName, samplePreferences;
+    private Button hardReset;
+    private ImageButton setSaveDirectory, setFtp;
+    private String sampleName;
+    private TextView displayFileName, showSaveDirectory;
+    private EditText tReset;
+    AutoCompleteTextView setLangCode,setBookCode;
+
+    /**
+     * The context of this activity
+     */
+    private Context c;
+
+    /**
+     * Request code for Android version 5.0 on saving a directory
+     */
+    final int SET_SAVE_DIR = 21;
+
+    /**
+     * Request code for Android version under 5.0 on saving a directory
+     */
+    final int SET_SAVE_DIR2 = 22;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
+        setContentView(R.layout.settings2);
 
-        final PreferencesManager pref = new PreferencesManager(this);
+        //context
+        c = this;
+        final PreferencesManager pref = new PreferencesManager(c);
 
-        displayFileName = (EditText)findViewById(R.id.displayFileName);
-        displayPreferences = (EditText)findViewById(R.id.displayPreferences);
-        editFileName = (EditText)findViewById(R.id.editFileName);
-        displaySort = (EditText)findViewById(R.id.displaySort);
+        //initializing items that need to be printed to screen
+        displayFileName = (TextView)findViewById(R.id.defaultFileName);
+        showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
+        tReset = (EditText)findViewById(R.id.tReset);
 
-
-
-        printPreferences(pref);
+        //display defaults in their fields
         printFileName(pref);
-        printSort(pref);
+        printSaveDirectory(pref);
+        printCounter(pref);
 
-        tReset = (Button)findViewById(R.id.tReset);
-        tReset.setOnClickListener(new View.OnClickListener() {
+        //update
+        pullDB();
+
+        //setting up listeners on all buttons
+        langCodeListener(pref);
+        bookCodeListener(pref);
+        counterListener(pref);
+        resetListener(pref);
+        saveDirectoryListener();
+        ftpListener(pref);
+    }
+
+
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+        Uri currentUri;
+        PreferencesManager preferences = new PreferencesManager(this);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SET_SAVE_DIR) {//this may need to be parsed differently
+                currentUri = resultData.getData();
+                File temp = new File(currentUri.getPath());
+                preferences.setPreferences("fileDirectory", temp.getAbsolutePath());
+            }
+            if (requestCode == SET_SAVE_DIR2) {
+                printSaveDirectory(preferences);
+            }
+        }
+    }
+
+    public void pullDB(){
+        try {
+            String tableName = "langnames";
+            SQLiteDatabase audioRecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+
+            String querySelect = "SELECT * FROM " + tableName;
+
+            Cursor cursor = audioRecorder.rawQuery(querySelect, new String[]{});
+            audioRecorder.close();
+        }catch(Exception e){
+            Intent intent = new Intent(c, LanguageNamesRequest.class);
+            startActivityForResult(intent, 0);
+
+        }
+        pullLangNames();
+    }
+
+    public void pullLangNames(){
+
+        try {
+            //SELECT
+            String tableName = "langnames";
+            SQLiteDatabase audioRecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
+
+            String querySelect = "SELECT * FROM " + tableName;
+            String queryCount = "SELECT COUNT(*) FROM " + tableName;
+
+            //un-synchronized
+            Cursor cursor = audioRecorder.rawQuery(querySelect, new String[]{});
+
+
+            ArrayList<Language> languageList = new ArrayList<>();
+            String[] listHolder;
+            if (cursor != null) {
+                cursor.moveToFirst();
+                while (!cursor.isLast()) {
+                    //create language
+
+                    Boolean gw = false;
+                    if (cursor.getInt(0) == 0) {
+                        gw = true;
+                    }
+
+                    String ld = cursor.getString(1);
+                    String lc = cursor.getString(2);
+                    String ln = cursor.getString(3);
+                    String cc = cursor.getString(4); //temp
+                    int pk = cursor.getInt(5);
+
+                    Language temp = new Language(gw, ld, lc, ln, cc, pk);
+                    languageList.add(temp);
+                        /*System.out.println(cursor.getInt(0) + ", " + cursor.getString(1) + ", " +
+                                cursor.getString(2) + ", " + cursor.getString(3) + ", " +
+                                cursor.getString(4) + ", " + cursor.getInt(5));*/
+                    cursor.moveToNext();
+                }
+            }
+
+            audioRecorder.close();
+
+            listHolder = new String[languageList.size()];
+            for (int a = 0; a < listHolder.length; a++) {
+                listHolder[a] = (languageList.get(a)).getCode() + " - " +
+                        (languageList.get(a)).getName();
+                //System.out.println(listHolder[a]);
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listHolder);
+            setLangCode.setAdapter(adapter);
+        }catch(RuntimeException e){
+            e.printStackTrace();
+            //No existing database
+        }
+    }
+
+    /**
+     * Prints the file name to the appropriate textview
+     * @param pref the preference manager that holds the save file name
+     */
+    private void printFileName(PreferencesManager pref){
+        sampleName = (String) pref.getPreferences("fileName");
+        displayFileName.setText(sampleName+ "-" + pref.getPreferences("fileCounter"));
+    }
+
+    /**
+     * Prints the save directory to the appropriate textview
+     * @param pref The preference manager that holds the save directory
+     */
+    private void printSaveDirectory(PreferencesManager pref){
+        String saveDirectory = (String) pref.getPreferences("fileDirectory");
+        showSaveDirectory.setText(saveDirectory);
+    }
+
+    /**
+     * Prints the current counter on the counter button
+     * @param pref the preference manager that holds the current counter
+     */
+    private void printCounter(PreferencesManager pref){
+        String counter = pref.getPreferences("fileCounter").toString();
+        tReset.setText(counter);
+    }
+
+    /**
+     * Prints the current language code in the field
+     * @param pref the preference manager that holds the current code
+     */
+    private void printLanguage(PreferencesManager pref){
+        String counter = pref.getPreferences("targetLanguage").toString();
+        setLangCode.setText(counter);
+    }
+
+    /**
+     * Prints the current book code in the field
+     * @param pref the preference manager that holds the current code
+     */
+    private void printBook(PreferencesManager pref){
+        String counter = pref.getPreferences("book").toString();
+        setBookCode.setText(counter);
+    }
+    /**
+     * Updates the fileName based on the
+     * @param pref the preference manager that holds the target language
+     */
+    private void updateFileName(PreferencesManager pref){
+            String name = pref.getPreferences("targetLanguage") + "-" +
+                    pref.getPreferences("book");
+            pref.setPreferences("fileName", name);
+            printFileName(pref);
+    }
+
+
+    /**
+     * Sets a listener on the langCode textView
+     * @param pref the preference manager
+     */
+    private void langCodeListener(final PreferencesManager pref) {
+        setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
+        setLangCode.setText(pref.getPreferences("targetLanguage").toString());//default
+
+        setLangCode.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                pref.setPreferences("fileCounter", 1);
+            public void afterTextChanged(Editable s) {
+            }
 
-                printFileName(pref);
-                printPreferences(pref);
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String[] temp = s.toString().split(" - ");//we only want the language code
+                String newVal = temp[0];
+
+                newVal = newVal.replaceAll("![A-Za-z0-9]", "");//remove any strange characters
+
+                pref.setPreferences("targetLanguage", newVal);//add selecet language code to preferences
+                updateFileName(pref);
             }
         });
+    }
 
-        tIncrement = (Button)findViewById(R.id.tIncrement);
-        tIncrement.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Sets up the bookCode Textview with a listener
+     * @param pref preferences manager
+     */
+    private void bookCodeListener(final PreferencesManager pref) {
+        String[] bookArray = getResources().getStringArray(R.array.bookCodes);//resource of 3 letter Bible book codes
+
+        setBookCode = (AutoCompleteTextView)findViewById(R.id.setBookCode);
+        ArrayAdapter<String> bookAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,bookArray);
+        setBookCode.setAdapter(bookAdapter);
+        setBookCode.setText(pref.getPreferences("book").toString());
+
+        setBookCode.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                int count = (int) pref.getPreferences("fileCounter");
-                pref.setPreferences("fileCounter", count + 1);
-
-                printFileName(pref);
-                printPreferences(pref);
+            public void afterTextChanged(Editable s) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                newVal = newVal.replaceAll("![A-Za-z0-9]", "");//get rid of strange characters
+                pref.setPreferences("book", newVal);//save selection to preferences
+                updateFileName(pref);
             }
         });
+    }
 
-        hardReset = (Button)findViewById(R.id.hardReset);
+
+    /**
+     * Sets a listener on the counter editText
+     * @param pref the preference manager
+     */
+    private void counterListener(final PreferencesManager pref) {
+        tReset = (EditText)findViewById(R.id.tReset);
+        tReset.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                int counter = (int)pref.getPreferences("fileCounter");//set default
+                try {//should never have an error since input will always be a number
+                    counter = Integer.parseInt(newVal);
+                }
+                catch(NumberFormatException e){
+                    e.printStackTrace();
+                }
+                pref.setPreferences("fileCounter", counter);//save to preferences
+                printFileName(pref);//update file name
+            }
+        });
+    }
+
+    /**
+     * Sets a listener on the reset button
+     * @param pref the preference manager
+     */
+    private void resetListener(final PreferencesManager pref) {
+        hardReset = (Button)findViewById(R.id.btnRestoreDefault);
         hardReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pref.resetPreferences("all");
+                pref.resetPreferences("all");//resets preferences
 
+                pullDB();//tries to pull db from url
+
+                //update all fields based on changes
+                printSaveDirectory(pref);
                 printFileName(pref);
-                printPreferences(pref);
+                printCounter(pref);
+                printLanguage(pref);
+                printBook(pref);
             }
         });
+    }
 
-        saveFileName = (Button)findViewById(R.id.saveFileName);
-        saveFileName.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Sets up a save directory listener that will call the ExportFiles.class activity
+     * so that the user can choose out of all available directories where files
+     * should be saved.
+     */
+    private void saveDirectoryListener() {
+        setSaveDirectory = (ImageButton)findViewById(R.id.setSaveDirectory);
+        setSaveDirectory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pref.setPreferences("fileName", editFileName.getEditableText().toString());
-                printFileName(pref);
+                /* toDO: need to change some things in Preference manager before getting this
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Intent intent = new Intent();
+                    intent.setAction(intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, SET_SAVE_DIR);
+                }*/
+                Intent intent = new Intent(c, ExportFiles.class);
+                startActivityForResult(intent, SET_SAVE_DIR2);
             }
         });
+    }
 
-
-
-        sortDate = (Button)findViewById(R.id.sortDate);
-        sortDate.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Sets a listener on the ftp button and pulls up a dialog for FTP defaults to be set
+     * the user's inputs are then saved by the preference manager as defaults
+     * @param pref The preference manager
+     */
+    private void ftpListener(final PreferencesManager pref) {
+        setFtp = (ImageButton) findViewById(R.id.setFtp);
+        setFtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int) pref.getPreferences("displaySort");
-                if(temp == 5){
-                    pref.setPreferences("displaySort", 4);
-                }else{
-                    pref.setPreferences("displaySort", 5);
-                }
+                //setting up the dialog
+                final Dialog ftp = new Dialog(c);
+                ftp.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                ftp.setCanceledOnTouchOutside(true);
+                ftp.getWindow().setBackgroundDrawableResource(R.color.transparent);
+                ftp.setContentView(R.layout.ftp_dialog);
 
-                printSort(pref);
+                //getting the appropriate fields and putting defaults into textfields
+                final EditText server = (EditText) ftp.findViewById(R.id.ftpServer);
+                server.setText(pref.getPreferences("ftpServer").toString());
+                final EditText userName = (EditText) ftp.findViewById(R.id.userName);
+                userName.setText(pref.getPreferences("ftpUserName").toString());
+                final EditText port = (EditText) ftp.findViewById(R.id.ftpPort);
+                port.setText(pref.getPreferences("ftpPort").toString());
+                final EditText password = (EditText) ftp.findViewById(R.id.ftpPassword);
+                password.setEnabled(false);
+                final EditText secureFtp = (EditText) ftp.findViewById(R.id.secureFtp);
+                secureFtp.setText(pref.getPreferences("ftp").toString());
+                final EditText directory = (EditText) ftp.findViewById(R.id.ftpDirectory);
+                directory.setText(pref.getPreferences("ftpDirectory").toString());
+
+                //on the click of the "OK" button, the preference manager saves the input in each field
+                ImageButton ok = (ImageButton) ftp.findViewById(R.id.ftpOk);
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View w) {
+                        pref.setPreferences("ftpServer", server.getText().toString());
+                        pref.setPreferences("ftpUserName", userName.getText().toString());
+                        pref.setPreferences("ftpPort", port.getText().toString());
+                        pref.setPreferences("ftp", secureFtp.getText().toString());
+                        pref.setPreferences("ftpDirectory", directory.getText().toString());
+                        ftp.hide();
+                    }
+                });
+
+                ftp.show();
             }
         });
-
-        sortName = (Button)findViewById(R.id.sortName);
-        sortName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int temp = (int) pref.getPreferences("displaySort");
-                if(temp == 1){
-                    pref.setPreferences("displaySort", 0);
-                }else{
-                    pref.setPreferences("displaySort", 1);
-                }
-                printSort(pref);
-            }
-        });
-
-
     }
-    private void printPreferences(PreferencesManager pref){
-        HashMap<String, Object> test = (HashMap<String,Object>) pref.getPreferences("all");
-        samplePreferences = "";
 
-        for (Map.Entry<String, Object> entry : test.entrySet()) {
-            String key = entry.getKey().toString();;
-            Object value = entry.getValue();
-
-            samplePreferences += key + " : " + value + "\n\n";
-        }
-        displayPreferences.setText(samplePreferences);
-    }
-    private void printFileName(PreferencesManager pref){
-        sampleName = (String) pref.getPreferences("fileName");
-        sampleName += ((int) pref.getPreferences("fileCounter"));
-
-        displayFileName.setText(sampleName);
-        editFileName.setText(sampleName);
-    }
-    private void printSort(PreferencesManager pref){
-        String[] output = new String[6];
-        output[0] = "Alphabetically Descending ( Z - A )";
-        output[1] = "Alphabetically Ascending ( A - Z )";
-        output[2] = "Shortest Duration ( 0:00 - 9:99 )";
-        output[3] = "Longest Duration ( 9:99 - 0:00 )";
-        output[4] = "Least Recently Modified";
-        output[5] = "Recently Modified";
-
-        int h = (int) pref.getPreferences("displaySort");
-        displaySort.setText(output[h]);
-    }
 }

@@ -3,13 +3,9 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.ImageButton;
-
-import java.util.ArrayList;
 
 public class MainMenuListener extends Activity{
 

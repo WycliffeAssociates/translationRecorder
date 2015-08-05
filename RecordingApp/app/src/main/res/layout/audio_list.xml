@@ -13,7 +13,7 @@
             android:layout_height="match_parent"
             android:background="#ff4caf50">
 
-            <!--<LinearLayout
+            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -28,9 +28,9 @@
                     android:text="Path/file_path/file_path_of_destiny"
                     android:id="@+id/filepath"
                     android:singleLine="true"
-                    android:textSize="25sp"
+                    android:textSize="15sp"
                     android:textColor="#ffdcffd7" />
-            </LinearLayout>-->
+            </LinearLayout>
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -38,8 +38,7 @@
                 android:layout_height="wrap_content"
                 android:background="#ff8da793"
                 android:id="@+id/linearLayout4"
-
-                android:layout_alignParentTop="true"
+                android:layout_below="@+id/linearLayout5"
                 android:layout_alignParentStart="true">
 
                 <ImageButton
@@ -48,23 +47,9 @@
                     android:id="@+id/btnCheckAll"
                     android:src="@drawable/check_all"
                     android:background="#00000000"
-                    android:layout_marginLeft="30dp" />
+                    android:layout_weight="1" />
 
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Path/file_path/file_path_of_destiny"
-                    android:id="@+id/filepath"
-                    android:singleLine="true"
-                    android:textSize="25sp"
-                    android:layout_toEndOf="@id/btnCheckAll"
-                    android:textColor="#ffdcffd7"
-                    android:layout_marginLeft="20dp"
-                    android:layout_gravity="center_vertical" />
-
-               <!-- <ImageButton
+                <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/btnSortName"
@@ -86,7 +71,7 @@
                     android:id="@+id/btnSortDate"
                     android:src="@drawable/date"
                     android:background="#00000000"
-                    android:layout_weight="1.83" />-->
+                    android:layout_weight="1.83" />
             </LinearLayout>
 
 
