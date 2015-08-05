@@ -410,6 +410,7 @@ public class AudioFiles extends Activity {
     //TODO : after merge, ezpz implement
     private void deleteFiles(ArrayList<String> exportList){
         //int count = 0;
+        /*
         for(int i = 0 ; i < exportList.size() ; i++) {
             File file = new File(exportList.get(i));
             boolean deleted = file.delete();
@@ -426,7 +427,7 @@ public class AudioFiles extends Activity {
                 //System.out.println("========" + (i - count));
                 //count++;
             }
-        }
+        }*/
     }
 
     private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
