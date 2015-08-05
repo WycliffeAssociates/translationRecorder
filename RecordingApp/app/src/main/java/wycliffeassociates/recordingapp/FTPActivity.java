@@ -5,11 +5,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.*;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -29,6 +32,7 @@ public class FTPActivity extends Activity {
     private EditText UserName;
     private EditText Password;
     private EditText Directory;
+    private EditText SecureFTP;
     private ImageButton Ok;
 
     PreferencesManager pref;
@@ -36,30 +40,45 @@ public class FTPActivity extends Activity {
     String filepath, server, password, direc, user, destinationfilename;
     int port;
     File uploadFile;
+    Context c;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ftpdialog);
+        c = this;
         pref = new PreferencesManager(this);
+
+        FTPServer = (EditText) findViewById(R.id.FTPServer);
+        FTPServer.setText(pref.getPreferences("ftpServer").toString());
+        Port = (EditText) findViewById(R.id.Port);
+        Port.setText(pref.getPreferences("ftpPort").toString());
+        UserName = (EditText) findViewById(R.id.UserName);
+        UserName.setText(pref.getPreferences("ftpUserName").toString());
+        Password = (EditText) findViewById(R.id.Password);
+        Directory = (EditText) findViewById(R.id.fileDirectory);
+        Directory.setText(pref.getPreferences("ftpDirectory").toString());
+        SecureFTP = (EditText)findViewById(R.id.editText10);
+        SecureFTP.setText(pref.getPreferences("ftp").toString());
 
         Ok = (ImageButton)findViewById(R.id.btnOkay);
 
         Ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FTPServer = (EditText) findViewById(R.id.FTPServer);
-                server = FTPServer.getText().toString();
-                Port = (EditText) findViewById(R.id.Port);
-                String port_string = Port.getText().toString();
-                port = Integer.parseInt(port_string);
-                UserName = (EditText) findViewById(R.id.UserName);
-                user = UserName.getText().toString();
-                Password = (EditText) findViewById(R.id.Password);
-                password = Password.getText().toString();
-                Directory = (EditText) findViewById(R.id.fileDirectory);
-                direc = Directory.getText().toString();
-                new UploadFile().execute();
+
+                try {
+                    server = FTPServer.getText().toString();
+                    String port_string = Port.getText().toString();
+                    port = Integer.parseInt(port_string);
+                    user = UserName.getText().toString();
+                    password = Password.getText().toString();
+                    direc = Directory.getText().toString();
+                    new UploadFile().execute();
+                }
+                catch(Exception e){
+                    Toast.makeText(c,"Failed, please check parameters",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

@@ -79,6 +79,7 @@ public class Settings extends Activity {
         resetListener(pref);
         saveDirectoryListener();
         ftpListener(pref);
+        syncListener(pref);
     }
 
     public void onBackPressed() {
@@ -348,14 +349,26 @@ public class Settings extends Activity {
             public void onClick(View v) {
                 pref.resetPreferences("all");//resets preferences
 
-                pullDB(true);//tries to pull db from url
-
                 //update all fields based on changes
                 printSaveDirectory(pref);
                 printFileName(pref);
                 printCounter(pref);
                 printLanguage(pref);
                 printBook(pref);
+            }
+        });
+    }
+
+    /**
+     * Setting a listener on the sync button to sync with the langcodes on the server
+     * @param pref the preferences manager
+     */
+    private void syncListener(final PreferencesManager pref){
+        Button sync = (Button)findViewById(R.id.serverSync);
+        sync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pullDB(true);//tries to pull db from url
             }
         });
     }

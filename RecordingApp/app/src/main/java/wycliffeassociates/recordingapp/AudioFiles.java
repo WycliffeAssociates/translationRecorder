@@ -135,19 +135,20 @@ public class AudioFiles extends Activity {
 
                     //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
 
-                    //TODO : DURATION ERROR
+                    //TODO : DURATION
                     /*MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
                     mmr.setDataSource(this, uri);
                     String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                     //System.out.println(duration);
                     int time = (Integer.parseInt(duration) / 1000);
-                    mmr.release();
-*/
-                    int time = 0;
+                    mmr.release();*/
+
+                    long time = (((tFile.length() -44) / 4) / 44100);
+                    //System.out.println("pppp" + time);
 
                     //create an Audio Item
-                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, time));
+                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
                 }
             }
 
@@ -180,7 +181,7 @@ public class AudioFiles extends Activity {
                 else {
                     for (int i = 0; i < adapter.checkBoxState.length; i++) {
                         if (adapter.checkBoxState[i] == true) {
-                            exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
+                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                         }
                     }
                     if (exportList.size() > 0) {
@@ -204,7 +205,7 @@ public class AudioFiles extends Activity {
                 else {
                     for (int i = 0; i < adapter.checkBoxState.length; i++) {
                         if (adapter.checkBoxState[i] == true) {
-                            exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
+                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                         }
                     }
                     if (exportList.size() > 0) {
@@ -242,7 +243,7 @@ public class AudioFiles extends Activity {
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
-                        exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
+                        exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                     }
                 }
 
@@ -338,14 +339,14 @@ public class AudioFiles extends Activity {
 
 
 
-       /* btnDelete = (ImageButton)findViewById(R.id.btnDelete);
+        btnDelete = (ImageButton)findViewById(R.id.btnDelete);
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exportList = new ArrayList<String>();
                 for (int i = 0; i < adapter.checkBoxState.length; i++) {
                     if (adapter.checkBoxState[i] == true) {
-                        exportList.add(pref.getPreferences("fileDirectory") + "/" + audioItemList.get(i).getName());
+                        exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                     }
                 }
 
@@ -360,7 +361,7 @@ public class AudioFiles extends Activity {
                 generateAdapterView(tempItemList, sort);
             }
         });
-         */
+
     }
 
     @Override
@@ -406,14 +407,22 @@ public class AudioFiles extends Activity {
 
     //TODO : after merge, ezpz implement
     private void deleteFiles(ArrayList<String> exportList){
-        int count = 0;
+        //int count = 0;
         for(int i = 0 ; i < exportList.size() ; i++) {
             File file = new File(exportList.get(i));
             boolean deleted = file.delete();
             if(deleted){
-                tempItemList.remove(i - count);
-                System.out.println("========" + (i - count));
-                count++;
+
+                String value = exportList.get(i).replace(currentDir + "/", "");
+                for(int a = 0 ; a < tempItemList.size() ; a++){
+                    if(tempItemList.get(a).getName().equals(value)){
+                        tempItemList.remove(a);
+                        a = tempItemList.size() + 2;
+                    }
+                }
+                //tempItemList.remove(i - count);
+                //System.out.println("========" + (i - count));
+                //count++;
             }
         }
     }
