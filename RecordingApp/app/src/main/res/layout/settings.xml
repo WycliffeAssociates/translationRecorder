@@ -184,9 +184,19 @@
                 android:id="@+id/btnRestoreDefault"
                 android:text="Restore Default Settings"
                 android:background="@drawable/purple"
-                android:textSize="25sp"
+                android:textSize="15sp"
                 android:layout_gravity="center"
                 android:layout_weight="1" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/serverSync"
+                android:text="Sync with Server"
+                android:background="@drawable/purple"
+                android:textSize="15sp"
+                android:layout_gravity="center"
+                android:layout_weight="1.2" />
         </LinearLayout>
 
     </LinearLayout>
