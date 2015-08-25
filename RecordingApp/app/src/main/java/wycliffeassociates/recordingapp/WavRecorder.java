@@ -54,6 +54,7 @@ public class WavRecorder extends Service {
         // Tell the user we stopped.
         Toast.makeText(getApplicationContext(), "Stopping Recording Service", Toast.LENGTH_SHORT).show();
         isRecording = false;
+        recorder.stop();
         recorder.release();
         super.onDestroy();
     }

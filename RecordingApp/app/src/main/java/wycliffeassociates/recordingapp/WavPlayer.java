@@ -42,6 +42,15 @@ public class WavPlayer {
             m.stop();
         }
     }
+
+    public static void release(){
+        if(m != null){
+            paused = false;
+            m.release();
+            m = null;
+        }
+    }
+
     public static boolean isPlaying(){
         if(m != null)
             return m.isPlaying();

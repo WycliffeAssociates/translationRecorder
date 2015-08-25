@@ -32,7 +32,14 @@ public class QuitDialog extends DialogFragment{
                     public void onClick(DialogInterface dialog, int id) {
                         if(isRecording){
                             System.out.println("trying to stop the recording service");
-                            getActivity().stopService(new Intent(getActivity(), WavRecorder.class));
+                            boolean serviceStopped = getActivity().stopService(new Intent(getActivity(), WavRecorder.class));
+                            if(serviceStopped == true){
+                                System.out.println("Successfully stopped the service.");
+                            }
+                            else {
+                                System.out.println("Could not stop the service.");
+                            }
+
                             try {
                                 RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
                                 RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
@@ -44,7 +51,7 @@ public class QuitDialog extends DialogFragment{
                         getActivity().finish();
                     }
                 });
-      dialog = builder.create();
+        dialog = builder.create();
         // Create the AlertDialog object and return it
         return dialog;
     }
@@ -67,7 +74,6 @@ public class QuitDialog extends DialogFragment{
         lp.gravity = Gravity.CENTER;
 
         dialog.getWindow().setAttributes(lp);
-
     }
 
     public void setIsRecording(boolean isRecording) {

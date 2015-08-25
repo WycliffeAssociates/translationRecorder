@@ -256,7 +256,6 @@ public class CanvasScreen extends Activity {
                 e.printStackTrace();
             }
 
-
             try {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
@@ -318,11 +317,16 @@ public class CanvasScreen extends Activity {
             exitdialog dialog = new exitdialog(this, R.style.Theme_UserDialog);
             if(isRecording){
                 dialog.setIsRecording(true);
+                isRecording = false;
+            }
+            if(isPlaying){
+                dialog.setIsPlaying(true);
+                isPlaying = false;
             }
             dialog.show();
         }
         else
-            super.onBackPressed();
+            super.onDestroy();
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
