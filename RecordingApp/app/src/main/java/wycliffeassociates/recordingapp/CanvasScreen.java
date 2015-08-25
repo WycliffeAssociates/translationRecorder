@@ -134,7 +134,7 @@ public class CanvasScreen extends Activity {
         enableButton(R.id.btnRecording, !isRecording);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPlay, true);
-        enableButton(R.id.btnSave, !isRecording);
+        enableButton(R.id.btnSave, true);
         enableButton(R.id.btnPauseRecording, isRecording);
         enableButton(R.id.btnPause, true);
     }
@@ -326,7 +326,8 @@ public class CanvasScreen extends Activity {
             dialog.show();
         }
         else
-            super.onDestroy();
+            super.onBackPressed();
+
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
