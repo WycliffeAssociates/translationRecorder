@@ -8,6 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Pair;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 
 public class CanvasView extends View {
 
+    private boolean hasDrawnOnce;
     public int width;
     public int height;
     private Bitmap mBitmap;
@@ -46,6 +49,8 @@ public class CanvasView extends View {
     private boolean shouldDrawMiniMarker = false;
     private int increment = 1;
     private boolean isMinimap = false;
+    private Canvas mCanvas = null;
+    private Drawable background;
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
         this.miniMarkerLoc = miniMarkerLoc;
@@ -56,6 +61,17 @@ public class CanvasView extends View {
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
+        init();
+    }
+
+    public CanvasView(Context c, AttributeSet attrs, Bitmap bmp) {
+        super(c, attrs);
+        init();
+        mBitmap = bmp;
+        hasDrawnOnce = false;
+    }
+
+    private void init(){
         userScale = 1.f;
         xTranslation = 0.f;
 
@@ -75,13 +91,14 @@ public class CanvasView extends View {
 
     }
 
+
     // override onSizeChanged
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
         // your Canvas will draw onto the defined Bitmap
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        //mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
     }
 
     // override onDraw
@@ -98,8 +115,10 @@ public class CanvasView extends View {
             drawMarker(canvas);
         }
         if(shouldDrawMiniMarker){
+            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
             minimapMaker(canvas);
         }
+
 
     }
     public void setIsMinimap(boolean flag){
@@ -152,38 +171,44 @@ public class CanvasView extends View {
         this.invalidate();
     }
     public void drawWaveform(Canvas canvas){
-        canvas.scale(userScale, 1.f);
-        canvas.translate(-xTranslation / Math.abs(userScale), 0.f);
+        if(!isMinimap || !hasDrawnOnce){
+            canvas.scale(userScale, 1.f);
+            canvas.translate(-xTranslation / Math.abs(userScale), 0.f);
 
-        mPaint.setColor(Color.WHITE);
-        if (samples == null) {
-            return;
-        }
-        int oldY =  (canvas.getHeight() / 2);
-        int xIndex;
-        int oldX;
-        if(isMinimap) {
-            xIndex = oldX = 0;
-        }
-        else{
-            xIndex = oldX = wavLoader.getSampleStartIndex();
-        }
+            mPaint.setColor(Color.WHITE);
+            if (samples == null) {
+                return;
+            }
+            int oldY =  (canvas.getHeight() / 2);
+            int xIndex;
+            int oldX;
+            if(isMinimap) {
+                xIndex = oldX = 0;
+            }
+            else{
+                xIndex = oldX = wavLoader.getSampleStartIndex();
+            }
 
-        for (int t = 0; t < samples.size(); t++) {
+            for (int t = 0; t < samples.size(); t++) {
 
-            int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
-            canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
-            oldY = y;
-            //System.out.println("y is: " + y + " x is: " + xIndex);
-            y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
+                int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
+                canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
+                oldY = y;
+                //System.out.println("y is: " + y + " x is: " + xIndex);
+                y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
 
-            canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
-            //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
+                canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
+                //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
 
-            oldX = xIndex;
-            xIndex++;
+                oldX = xIndex;
+                xIndex++;
 
-            oldY = y;
+                oldY = y;
+            }
+            if(isMinimap && !hasDrawnOnce){
+                setBackground(background);
+                hasDrawnOnce = true;
+            }
         }
     }
     public void setSamples(ArrayList<Pair<Double,Double>> samples){
@@ -219,6 +244,18 @@ public class CanvasView extends View {
         wavLoader = null;
         wavVis = null;
         Runtime.getRuntime().freeMemory();
+        System.out.println("Saving minimap to BMP...");
+        mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        System.out.println("Created a BMP...");
+        mCanvas = new Canvas(mBitmap);
+        Drawable background = getBackground();
+        if(background!= null){
+            background.draw(mCanvas);
+        }
+        else
+            mCanvas.drawColor(Color.TRANSPARENT);
+        draw(mCanvas);
+        this.invalidate();
     }
 
     public void resample(int position){

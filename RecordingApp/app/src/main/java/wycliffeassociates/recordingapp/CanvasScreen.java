@@ -258,6 +258,7 @@ public class CanvasScreen extends Activity {
             try {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
+
                     mainCanvas.loadWavFromFile(recordedFilename);
                     final int base = -mainCanvas.getWidth()/8;
                     mainCanvas.setXTranslation(base);
@@ -266,6 +267,8 @@ public class CanvasScreen extends Activity {
 
                     minimap.loadWavFromFile(recordedFilename);
                     minimap.getMinimap();
+                    minimap.setMiniMarkerLoc(0.f);
+                    minimap.shouldDrawMiniMarker(true);
                     minimap.invalidate();
                 }
             } catch (InterruptedException e) {
