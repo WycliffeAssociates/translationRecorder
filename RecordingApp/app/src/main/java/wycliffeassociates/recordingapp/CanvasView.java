@@ -189,6 +189,7 @@ public class CanvasView extends View {
                 xIndex = oldX = wavLoader.getSampleStartIndex();
             }
 
+            int numTs = 0;
             for (int t = 0; t < samples.size(); t++) {
 
                 int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
@@ -204,11 +205,16 @@ public class CanvasView extends View {
                 xIndex++;
 
                 oldY = y;
+                numTs = t;
             }
+            System.out.println("number of draws: " + numTs);
             if(isMinimap && !hasDrawnOnce){
                 setBackground(background);
                 hasDrawnOnce = true;
             }
+        }
+        else{
+            System.out.println("skipped drawing the minimap");
         }
     }
     public void setSamples(ArrayList<Pair<Double,Double>> samples){

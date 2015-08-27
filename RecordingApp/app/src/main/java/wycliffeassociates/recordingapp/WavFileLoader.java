@@ -75,6 +75,7 @@ public class WavFileLoader {
 //        System.out.println(AudioInfo.SIZE_OF_SHORT + "Size of short ");
 //        System.out.println(increment + "incremement is ");
 //        System.out.println((AudioInfo.SAMPLERATE/increment) + "number of points per second");
+        int leftOff = 0;
         for(int i = startSecond*AudioInfo.SAMPLERATE*AudioInfo.SIZE_OF_SHORT; i < Math.min(buffer.capacity(), lastIndex); i += increment*AudioInfo.SIZE_OF_SHORT){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
@@ -84,6 +85,21 @@ public class WavFileLoader {
                 if((i+j+1) < buffer.capacity()) {
                     byte low = buffer.get(i + j);
                     byte hi = buffer.get(i + j + 1);
+                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                    max = (max < (double) value) ? value : max;
+                    min = (min > (double) value) ? value : min;
+                }
+            }
+            samples.add(new Pair<>(max, min));
+            leftOff = i;
+        }
+        if(leftOff +(increment*AudioInfo.SIZE_OF_SHORT) < Math.min(buffer.capacity(), lastIndex)){
+            double max = Double.MIN_VALUE;
+            double min = Double.MAX_VALUE;
+            for(int i = leftOff; i < Math.min(buffer.capacity(), lastIndex); i+=AudioInfo.SIZE_OF_SHORT){
+                if((i+1) < buffer.capacity()) {
+                    byte low = buffer.get(i);
+                    byte hi = buffer.get(i + 1);
                     short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
                     max = (max < (double) value) ? value : max;
                     min = (min > (double) value) ? value : min;

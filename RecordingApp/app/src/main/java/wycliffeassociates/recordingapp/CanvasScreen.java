@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.Timer;
 import java.util.UUID;
 
 public class CanvasScreen extends Activity {
@@ -278,6 +279,7 @@ public class CanvasScreen extends Activity {
 
     }
     private void playRecording(){
+        paused = false;
         findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
@@ -291,12 +293,22 @@ public class CanvasScreen extends Activity {
             public void run() {
                 int translation = 0;
                 double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
-                while(WavPlayer.isPlaying()){
-                    int location = WavPlayer.getLocation();
-                    double locPercentage = (double)location/ (double)WavPlayer.getDuration();
-                    translation = (int)(userScale*(int)(locPercentage * scaleFactor));
+                int location=0;
+                int oldLoc = 0;
+                int average = 0;
+                int difference = 0;
+                int count = 1;
+                do {
+                    oldLoc = location;
+                    location = Math.max((WavPlayer.isPlaying() || paused)? WavPlayer.getLocation() : Math.min(location+average, WavPlayer.getDuration()), oldLoc);
+                    difference = location - oldLoc;
+                    average = 100;//( difference > 1)? (average * ((count-1)/count)+difference/count) : average;
+                    count++;
+
+                    double locPercentage = (double) location / (double) WavPlayer.getDuration();
+                    translation = (int) (userScale * (int) (locPercentage * scaleFactor));
                     mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
-                    mainCanvas.setXTranslation(base+translation);
+                    mainCanvas.setXTranslation(base + translation);
                     minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));
                     minimap.shouldDrawMiniMarker(true);
                     runOnUiThread(new Runnable() {
@@ -306,7 +318,30 @@ public class CanvasScreen extends Activity {
                             minimap.invalidate();
                         }
                     });
+                    try {
+                        //capping the framerate seems to smooth out the playback. May want to investigate a smarter way to do this.
+                        Thread.sleep(1000 / 60);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
 
+                } while (location != WavPlayer.getDuration());
+                if(!paused){
+                    //force a redraw at the end of the file; playback thread is faster than drawing.
+                    location = WavPlayer.getDuration();
+                    translation = (int) (userScale * (int) (scaleFactor));
+                    mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
+                    mainCanvas.setXTranslation(base + translation);
+                    minimap.setMiniMarkerLoc((float) (minimap.getWidth()));
+                    minimap.shouldDrawMiniMarker(true);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainCanvas.invalidate();
+                            minimap.invalidate();
+                        }
+                    });
                 }
             }
         });
