@@ -190,7 +190,6 @@ public class CanvasScreen extends Activity {
 
     private void pauseRecording(){
         paused = true;
-
         isRecording = false;
         findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);

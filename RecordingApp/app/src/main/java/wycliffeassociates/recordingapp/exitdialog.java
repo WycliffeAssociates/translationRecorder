@@ -69,9 +69,21 @@ public class exitdialog extends Dialog implements View.OnClickListener {
                         e.printStackTrace();
                     }
                 }
-                if (isPlaying){
+                else if (isPlaying){
                     WavPlayer.stop();
                     WavPlayer.release();
+                }
+                else {
+                    WavPlayer.stop();
+                    WavPlayer.release();
+                    try {
+                        boolean serviceStopped = activity.stopService(new Intent(activity, WavRecorder.class));
+                        RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
+                        RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
+                        Boolean done = RecordingQueues.doneWriting.take();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 activity.finish();
                 break;
