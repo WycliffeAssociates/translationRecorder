@@ -37,7 +37,6 @@ public class WavRecorder extends Service {
     public void onCreate() {
         isRecording = true;
         System.out.println("Starting recording service");
-
     }
 
     @Override

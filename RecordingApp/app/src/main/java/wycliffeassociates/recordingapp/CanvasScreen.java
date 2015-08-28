@@ -279,7 +279,6 @@ public class CanvasScreen extends Activity {
 
     }
     private void playRecording(){
-        paused = false;
         findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
@@ -288,6 +287,23 @@ public class CanvasScreen extends Activity {
         final int base = -mainCanvas.getWidth()/8;
         mainCanvas.setXTranslation(base);
         mainCanvas.invalidate();
+        if(!paused){
+            double locPercentage = 0;
+            double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
+            int translation = (int) (userScale * (int) (locPercentage * scaleFactor));
+            mainCanvas.resample(WavFileLoader.positionToWindowStart(0));
+            mainCanvas.setXTranslation(base + translation);
+            minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));
+            minimap.shouldDrawMiniMarker(true);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainCanvas.invalidate();
+                    minimap.invalidate();
+                }
+            });
+        }
+        paused = false;
         Thread playback = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -298,11 +314,11 @@ public class CanvasScreen extends Activity {
                 int average = 0;
                 int difference = 0;
                 int count = 1;
-                do {
+                while (location != WavPlayer.getDuration()) {
                     oldLoc = location;
                     location = Math.max((WavPlayer.isPlaying() || paused)? WavPlayer.getLocation() : Math.min(location+average, WavPlayer.getDuration()), oldLoc);
                     difference = location - oldLoc;
-                    average = 100;//( difference > 1)? (average * ((count-1)/count)+difference/count) : average;
+                    average = 100;//average * ((count-1)/count)+difference/count);
                     count++;
 
                     double locPercentage = (double) location / (double) WavPlayer.getDuration();
@@ -326,23 +342,17 @@ public class CanvasScreen extends Activity {
                     }
                     System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
 
-                } while (location != WavPlayer.getDuration());
-                if(!paused){
-                    //force a redraw at the end of the file; playback thread is faster than drawing.
-                    location = WavPlayer.getDuration();
-                    translation = (int) (userScale * (int) (scaleFactor));
-                    mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
-                    mainCanvas.setXTranslation(base + translation);
-                    minimap.setMiniMarkerLoc((float) (minimap.getWidth()));
-                    minimap.shouldDrawMiniMarker(true);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mainCanvas.invalidate();
-                            minimap.invalidate();
-                        }
-                    });
-                }
+                } ;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pausePlayback();
+                        WavPlayer.seekToStart();
+                    }
+                });
+
+                paused = false;
+
             }
         });
         playback.start();

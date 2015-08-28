@@ -37,6 +37,11 @@ public class WavPlayer {
         m.pause();
     }
 
+    public static void seekToStart(){
+        if(m != null)
+            m.seekTo(0);
+    }
+
     public static void stop(){
         if(m != null){
             m.stop();
