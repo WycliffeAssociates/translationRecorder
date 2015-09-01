@@ -16,15 +16,22 @@ public class WavPlayer {
      * @param filename the absolute path to the file to be played.
      */
     public static void play(String filename){
-        if(paused){
+        if(paused && m != null){
             paused = false;
             m.start();
+        }
+        else if(paused && m == null){
+            paused = false;
+        }
+        else if(m != null && m.isPlaying()){
+            return;
         }
         else {
             m = new MediaPlayer();
 
             try {
                 m.setDataSource(filename);
+                System.out.println(filename + " is the loaded file to play.");
                 m.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -32,9 +39,12 @@ public class WavPlayer {
             m.start();
         }
     }
+
     public static void pause(){
-        paused = true;
-        m.pause();
+        if(m != null) {
+            paused = true;
+            m.pause();
+        }
     }
 
     public static void seekToStart(){
@@ -51,6 +61,7 @@ public class WavPlayer {
     public static void release(){
         if(m != null){
             paused = false;
+            m.reset();
             m.release();
             m = null;
         }

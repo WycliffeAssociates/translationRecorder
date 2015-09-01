@@ -15,6 +15,8 @@ public class exitdialog extends Dialog implements View.OnClickListener {
 
     private boolean isRecording = false;
     private boolean isPlaying = false;
+    private boolean isPausedRecording = false;
+
 
     private Activity activity;
 
@@ -44,6 +46,10 @@ public class exitdialog extends Dialog implements View.OnClickListener {
     public void setIsPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
     }
+    public void setIsPausedRecording(boolean isPausedRecording) {
+        this.isPausedRecording = isPausedRecording;
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -76,13 +82,15 @@ public class exitdialog extends Dialog implements View.OnClickListener {
                 else {
                     WavPlayer.stop();
                     WavPlayer.release();
-                    try {
-                        boolean serviceStopped = activity.stopService(new Intent(activity, WavRecorder.class));
-                        RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
-                        RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
-                        Boolean done = RecordingQueues.doneWriting.take();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if(isPausedRecording){
+                        try {
+                            boolean serviceStopped = activity.stopService(new Intent(activity, WavRecorder.class));
+                            RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
+                            RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
+                            Boolean done = RecordingQueues.doneWriting.take();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 activity.finish();

@@ -51,6 +51,7 @@ public class CanvasScreen extends Activity {
     private boolean isRecording = false;
     private PreferencesManager pref;
     RotateAnimation anim;
+    private boolean isPausedRecording = false;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -203,7 +204,7 @@ public class CanvasScreen extends Activity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        isPausedRecording = true;
     }
     private void pausePlayback(){
         paused = true;
@@ -230,6 +231,7 @@ public class CanvasScreen extends Activity {
         }
         else {
             paused = false;
+            isPausedRecording = false;
             isRecording = true;
             startService(new Intent(this, WavRecorder.class));
         }
@@ -369,6 +371,9 @@ public class CanvasScreen extends Activity {
             if(isPlaying){
                 dialog.setIsPlaying(true);
                 isPlaying = false;
+            }
+            if(isPausedRecording) {
+                dialog.setIsPausedRecording(true);
             }
             dialog.show();
         }
