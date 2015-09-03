@@ -51,7 +51,7 @@ public class WavFileLoader {
             //compute the average
             for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
                 if((i+j+1) < buffer.capacity()) {
-                    System.out.println("Capacity is: " + buffer.capacity() + ", i is : " + i + ", j is : " + j + ", i+j+1="+(i+j+1));
+                    //System.out.println("Capacity is: " + buffer.capacity() + ", i is : " + i + ", j is : " + j + ", i+j+1="+(i+j+1));
                     byte low = buffer.get(i + j);
                     byte hi = buffer.get(i + j + 1);
                     short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));

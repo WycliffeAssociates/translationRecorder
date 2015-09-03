@@ -289,7 +289,6 @@ public class CanvasView extends View {
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
     public void listenForRecording(final Activity ctx){
         final CanvasView mainCanvas = this;
-        this.setRecording(true);
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -315,7 +314,9 @@ public class CanvasView extends View {
                             ctx.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mainCanvas.invalidate();
+                                    if(recording) {
+                                        mainCanvas.invalidate();
+                                    }
                                     changeVolumeBar(ctx, db);
 
                                 }

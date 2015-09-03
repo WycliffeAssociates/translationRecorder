@@ -114,6 +114,9 @@ public class CanvasScreen extends Activity {
         anim.setRepeatCount(Animation.INFINITE);
         anim.setDuration(1500);
 
+        startService(new Intent(this, WavRecorder.class));
+        System.out.println("Started the service");
+        mainCanvas.listenForRecording(this);
     }
 
 
@@ -214,6 +217,7 @@ public class CanvasScreen extends Activity {
     }
 
     private void startRecording(){
+        stopService(new Intent(this, WavRecorder.class));
         findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
@@ -227,7 +231,8 @@ public class CanvasScreen extends Activity {
             startService(new Intent(this, WavRecorder.class));
             System.out.println("Started the service");
             startService(intent);
-            mainCanvas.listenForRecording(this);
+            mainCanvas.setRecording(true);
+            //mainCanvas.listenForRecording(this);
         }
         else {
             paused = false;
