@@ -94,7 +94,7 @@ public class CanvasScreen extends Activity {
 
         GestureDetector.SimpleOnGestureListener clickListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onSingleTapUp(MotionEvent e) {
+            public boolean onDown(MotionEvent e) {
                 if(WavPlayer.exists()) {
                     float xPos = e.getX() / mainCanvas.getWidth();
                     int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
