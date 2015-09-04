@@ -45,10 +45,12 @@ public class CanvasScreen extends Activity {
     private float xTranslation;
     private ScaleGestureDetector SGD;
     private GestureDetector gestureDetector;
+    private GestureDetector clickMinimap;
     private boolean paused = false;
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isRecording = false;
+    private boolean minimapClicked = false;
     private PreferencesManager pref;
     RotateAnimation anim;
     private boolean isPausedRecording = false;
@@ -60,6 +62,7 @@ public class CanvasScreen extends Activity {
         }
         else {
             //gestureDetector.onTouchEvent(ev);
+            clickMinimap.onTouchEvent(ev);
         }
         return true;
     }
@@ -89,6 +92,35 @@ public class CanvasScreen extends Activity {
 
         };
 
+        GestureDetector.SimpleOnGestureListener clickListener = new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                if(WavPlayer.exists()) {
+                    float xPos = e.getX() / mainCanvas.getWidth();
+                    int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
+                    WavPlayer.seekTo(timeToSeekTo);
+                    double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
+                    int translation = (int) (userScale * (int) (xPos * scaleFactor));
+                    mainCanvas.resample(WavFileLoader.positionToWindowStart(timeToSeekTo));
+                    final int base = -mainCanvas.getWidth()/8;
+                    mainCanvas.setXTranslation(base + translation);
+                    minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
+                    minimap.shouldDrawMiniMarker(true);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainCanvas.invalidate();
+                            minimap.invalidate();
+                        }
+                    });
+                }
+                minimapClicked = true;
+                minimap.invalidate();
+                return true;
+            }
+
+        };
+
         ScaleGestureDetector.SimpleOnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener(){
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
@@ -100,7 +132,7 @@ public class CanvasScreen extends Activity {
 
         //gestureDetector = new GestureDetector(this, gestureListener);
         SGD = new ScaleGestureDetector(this, scaleListener);
-
+        clickMinimap = new GestureDetector(this, clickListener);
 
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
         minimap = (CanvasView) findViewById(R.id.minimap);
@@ -266,7 +298,7 @@ public class CanvasScreen extends Activity {
             try {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
-
+                    WavPlayer.loadFile(recordedFilename);
                     mainCanvas.loadWavFromFile(recordedFilename);
                     final int base = -mainCanvas.getWidth()/8;
                     mainCanvas.setXTranslation(base);
@@ -294,7 +326,7 @@ public class CanvasScreen extends Activity {
         final int base = -mainCanvas.getWidth()/8;
         mainCanvas.setXTranslation(base);
         mainCanvas.invalidate();
-        if(!paused){
+        if(!paused && !minimapClicked){
             double locPercentage = 0;
             double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
             int translation = (int) (userScale * (int) (locPercentage * scaleFactor));
@@ -323,8 +355,13 @@ public class CanvasScreen extends Activity {
                 int count = 1;
                 while (location != WavPlayer.getDuration()) {
                     oldLoc = location;
-                    location = Math.max((WavPlayer.isPlaying() || paused)? WavPlayer.getLocation() : Math.min(location+average, WavPlayer.getDuration()), oldLoc);
-                    difference = location - oldLoc;
+                    if(!minimapClicked) {
+                        location = Math.max((WavPlayer.isPlaying() || paused) ? WavPlayer.getLocation() : Math.min(location + average, WavPlayer.getDuration()), oldLoc);
+                    } else {
+                        location = WavPlayer.getLocation();
+                        minimapClicked = false;
+                    }
+                    difference  = location - oldLoc;
                     average = 100;//average * ((count-1)/count)+difference/count);
                     count++;
 

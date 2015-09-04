@@ -16,7 +16,7 @@ public class WavPlayer {
      * @param filename the absolute path to the file to be played.
      */
     public static void play(String filename){
-        if(paused && m != null){
+        if(paused && m != null || !m.isPlaying() && m!=null && !paused){
             paused = false;
             m.start();
         }
@@ -39,6 +39,16 @@ public class WavPlayer {
             m.start();
         }
     }
+    public static void loadFile(String filename){
+        release();
+        m = new MediaPlayer();
+        try {
+            m.setDataSource(filename);
+            m.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void pause(){
         if(m != null) {
@@ -47,9 +57,22 @@ public class WavPlayer {
         }
     }
 
+    public static boolean exists(){
+        if(m!= null){
+            return true;
+        }
+        else
+            return false;
+    }
+
     public static void seekToStart(){
         if(m != null)
             m.seekTo(0);
+    }
+
+    public static void seekTo(int x){
+        if(m != null &&  x < m.getDuration())
+            m.seekTo(x);
     }
 
     public static void stop(){
