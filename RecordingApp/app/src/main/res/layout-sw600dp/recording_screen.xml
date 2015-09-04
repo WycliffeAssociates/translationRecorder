@@ -209,6 +209,17 @@
                 android:id="@+id/minimap" />
         </LinearLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/textView"
+            android:layout_below="@+id/linearLayout12"
+            android:layout_alignParentStart="true"
+            android:enabled="false"
+            android:editable="false"
+            android:text="00:00" />
+
     </RelativeLayout>
 
 </RelativeLayout>

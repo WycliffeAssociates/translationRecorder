@@ -22,8 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.Timer;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
+
+import wycliffeassociates.recordingapp.model.RecordingTimer;
 
 public class CanvasScreen extends Activity {
     //Constants for WAV format
@@ -54,6 +56,8 @@ public class CanvasScreen extends Activity {
     private PreferencesManager pref;
     RotateAnimation anim;
     private boolean isPausedRecording = false;
+    private RecordingTimer timer;
+    private TextView timerView;
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -149,6 +153,10 @@ public class CanvasScreen extends Activity {
         startService(new Intent(this, WavRecorder.class));
         System.out.println("Started the service");
         mainCanvas.listenForRecording(this);
+        timerView = (TextView)findViewById(R.id.textView);
+        timerView.invalidate();
+
+
     }
 
 
@@ -227,6 +235,7 @@ public class CanvasScreen extends Activity {
 
     private void pauseRecording(){
         paused = true;
+        timer.pause();
         isRecording = false;
         findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
@@ -255,6 +264,8 @@ public class CanvasScreen extends Activity {
         findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPauseRecording).setAnimation(anim);
         if(!paused) {
+            timer = new RecordingTimer();
+            timer.startTimer();
             isRecording = true;
     	    isSaved = false;
     	    RecordingQueues.writingQueue.clear();
@@ -264,14 +275,40 @@ public class CanvasScreen extends Activity {
             System.out.println("Started the service");
             startService(intent);
             mainCanvas.setRecording(true);
+
             //mainCanvas.listenForRecording(this);
         }
         else {
+            timer.resume();
+
             paused = false;
             isPausedRecording = false;
             isRecording = true;
             startService(new Intent(this, WavRecorder.class));
         }
+        Thread timerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (isRecording) {
+                    if(timerView!= null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String time = new SimpleDateFormat("mm:ss").format((timer.getTimeElapsed()));
+                                timerView.setText(time);
+                                timerView.invalidate();
+                            }
+                        });
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        timerThread.start();
 
     }
     private void stopRecording() {
@@ -284,6 +321,7 @@ public class CanvasScreen extends Activity {
             WavPlayer.stop();
         }
         else {
+            timer = null;
             findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
             findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
             findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
