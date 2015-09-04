@@ -294,7 +294,8 @@ public class CanvasScreen extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                String time = new SimpleDateFormat("mm:ss").format((timer.getTimeElapsed()));
+                                long t = timer.getTimeElapsed();
+                                String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
                                 timerView.setText(time);
                                 timerView.invalidate();
                             }
