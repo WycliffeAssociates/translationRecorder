@@ -121,7 +121,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                AudioFiles.AudioPlay(audioItems[position].getName());
+                //AudioFiles.AudioPlay(audioItems[position].getName());
             }
 
         });
