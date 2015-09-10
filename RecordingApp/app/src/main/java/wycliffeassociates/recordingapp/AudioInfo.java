@@ -18,7 +18,7 @@ public class AudioInfo{
     public static final int BLOCKSIZE = 2;
     public static final int HEADER_SIZE = 44;
     public static final int SIZE_OF_SHORT = 2;
-    public static final int AMPLITUDE_RANGE = 32768;
+    public static final int AMPLITUDE_RANGE = 32767;
 
     private AudioInfo(){}
 }

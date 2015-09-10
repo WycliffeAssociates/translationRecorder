@@ -74,7 +74,7 @@ public class FTPActivity extends Activity {
                     user = UserName.getText().toString();
                     password = Password.getText().toString();
                     direc = Directory.getText().toString();
-                    new UploadFile().execute();
+                    new UploadFile().execute("");
                 }
                 catch(Exception e){
                     Toast.makeText(c,"Failed, please check parameters",Toast.LENGTH_SHORT).show();
@@ -102,27 +102,39 @@ public class FTPActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            FTPSClient client = new FTPSClient();
+            System.out.println("Here in do background");
+            FTPClient client = new FTPClient();
             boolean result = false;
             try {
                 client.setUseEPSVwithIPv4(true);
                 client.connect(server, port); // connect to server
                 client.login(user, password); // login to server
+                if (client.isConnected()){
+                    System.out.println("Connection Established Successfully");
+                }
+                else {
+                    System.out.println("Could not establish a connection to the server");
+                }
                 client.setFileType(FTP.BINARY_FILE_TYPE); // set file type
                 for (int i = 0; i < AudioFiles.exportList.size(); i ++) {
                     filepath = AudioFiles.exportList.get(i);
                     uploadFile = new File(filepath);
                     //(String) (pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/") +
                     destinationfilename = filepath.replace((String) pref.getPreferences("fileDirectory") + "/", "");
-                    result = client.storeFile(destinationfilename, new FileInputStream(uploadFile)); // store file on server
+                    FileInputStream file = new FileInputStream(uploadFile);
+                    if(!uploadFile.exists()) {
+                        System.out.println("Error File does not exist");
+                    }
+                    result = client.storeFile(destinationfilename, file); // store file on server
                     publishProgress(i+1);
                     System.out.println("Status Value-->" + result);
+                    System.out.println(client.getReplyCode() + "Is the server reply code");
                 }
                 client.logout(); // logout of the server
                 client.disconnect(); // disconnect from the server
                 return result;
             } catch (Exception e) {
-                Log.d("FTP", e.toString());
+                System.out.println("Exception " + e);
                 return false;
             }
         }

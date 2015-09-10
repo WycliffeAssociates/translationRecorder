@@ -309,7 +309,7 @@ public class CanvasView extends View {
                                 short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
                                 max = (Math.abs(value) > max)? Math.abs(value) : max;
                             }
-                            final double db = Math.log10(max / (double) AudioInfo.AMPLITUDE_RANGE)* 10;
+                            final double db = Math.log10(max / (double) AudioInfo.AMPLITUDE_RANGE)* 20;
                             System.out.println("db is "+db);
                             ctx.runOnUiThread(new Runnable() {
                                 @Override
@@ -383,16 +383,16 @@ public class CanvasView extends View {
         else if (db < -6.5 && db > -7){
             ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_5);
         }
-        else if (db < -7 && db > -7.5){
+        else if (db < -7 && db > -9){
             ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_4);
         }
-        else if (db < -7.5 && db > -8){
+        else if (db < -9 && db > -10){
             ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_3);
         }
-        else if (db < -8 && db > -8.5){
+        else if (db < -10 && db > -11){
             ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_2);
         }
-        else if (db < -8.5 && db > -12){
+        else if (db < -11 && db > -12){
             ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_1);
         }
         else {

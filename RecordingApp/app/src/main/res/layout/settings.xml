@@ -2,13 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#79549d"
+    android:background="#7879549d"
     android:focusableInTouchMode="true">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#00ffffff">
 
         <LinearLayout
             android:orientation="vertical"
@@ -38,10 +39,11 @@
                     android:layout_height="30dp"
                     android:text="Reset"
                     android:gravity="center"
-                    android:background="@drawable/purple"
+                    android:background="#ffffff"
                     android:layout_weight="1"
                     android:layout_gravity="center"
-                    android:completionThreshold="1"/>
+                    android:completionThreshold="1"
+                    android:backgroundTint="#ffffff" />
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -55,10 +57,11 @@
                     android:layout_height="30dp"
                     android:text="Reset"
                     android:gravity="center"
-                    android:background="@drawable/purple"
+                    android:background="#ffffff"
                     android:layout_weight="1"
                     android:completionThreshold="1"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center"
+                    android:backgroundTint="#ffffff" />
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -72,10 +75,11 @@
                     android:gravity="center"
                     android:layout_width="300dp"
                     android:layout_height="30dp"
-                    android:background="@drawable/purple"
+                    android:background="#ffffff"
                     android:layout_weight="1"
                     android:layout_gravity="center"
-                    android:inputType="number"/>
+                    android:inputType="number"
+                    android:backgroundTint="#ffffff" />
 
             </LinearLayout>
 
@@ -126,8 +130,9 @@
                 android:id="@+id/showSaveDirectory"
                 android:gravity="center_horizontal"
                 android:textSize="15dp"
-                android:background="@drawable/purple"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:backgroundTint="#ffffff"
+                android:background="#ffffff" />
 
         </LinearLayout>
 
@@ -181,20 +186,22 @@
                 android:layout_height="50dp"
                 android:id="@+id/btnRestoreDefault"
                 android:text="Restore Default Settings"
-                android:background="@drawable/purple"
+                android:background="#ffffff"
                 android:textSize="15sp"
                 android:layout_gravity="center"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:backgroundTint="#ffffff" />
 
             <Button
                 android:layout_width="300dp"
                 android:layout_height="50dp"
                 android:id="@+id/serverSync"
                 android:text="Sync with Server"
-                android:background="@drawable/purple"
+                android:background="#ffffff"
                 android:textSize="15sp"
                 android:layout_gravity="center"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:backgroundTint="#ffffff" />
         </LinearLayout>
 
     </LinearLayout>
