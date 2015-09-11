@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.UUID;
 
 import wycliffeassociates.recordingapp.model.RecordingTimer;
+import wycliffeassociates.recordingapp.model.UIDataManager;
 
 public class CanvasScreen extends Activity {
     //Constants for WAV format
@@ -41,8 +42,9 @@ public class CanvasScreen extends Activity {
     private WavRecorder recorder = null;
     final Context context = this;
     private String outputName = null;
-    private CanvasView mainCanvas;
-    private CanvasView minimap;
+    private WaveformView mainCanvas;
+    private MinimapView minimap;
+    private UIDataManager manager;
     private float userScale;
     private float xTranslation;
     private ScaleGestureDetector SGD;
@@ -138,11 +140,12 @@ public class CanvasScreen extends Activity {
         SGD = new ScaleGestureDetector(this, scaleListener);
         clickMinimap = new GestureDetector(this, clickListener);
 
-        mainCanvas = (CanvasView) findViewById(R.id.main_canvas);
-        minimap = (CanvasView) findViewById(R.id.minimap);
+        mainCanvas = (CanvasView) findViewById(R.id.main_canvas) instanceof WaveformView ? ((WaveformView) findViewById(R.id.main_canvas)) : null;
+        minimap = (CanvasView) findViewById(R.id.minimap) instanceof MinimapView ? ((MinimapView) findViewById(R.id.minimap)) : null;
+        manager = new UIDataManager(mainCanvas, minimap, this);
+
         findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
-        minimap.setIsMinimap(true);
         setButtonHandlers();
         enableButtons(false);
         anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
@@ -152,7 +155,7 @@ public class CanvasScreen extends Activity {
 
         startService(new Intent(this, WavRecorder.class));
         System.out.println("Started the service");
-        mainCanvas.listenForRecording(this);
+        //mainCanvas.listenForRecording(this);
         timerView = (TextView)findViewById(R.id.textView);
         timerView.invalidate();
 
@@ -263,10 +266,12 @@ public class CanvasScreen extends Activity {
         findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
         findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPauseRecording).setAnimation(anim);
+        isRecording = true;
+        manager.setIsRecording(true);
+
         if(!paused) {
             timer = new RecordingTimer();
             timer.startTimer();
-            isRecording = true;
     	    isSaved = false;
     	    RecordingQueues.writingQueue.clear();
             Intent intent = new Intent(this, WavFileWriter.class);
@@ -274,7 +279,7 @@ public class CanvasScreen extends Activity {
             startService(new Intent(this, WavRecorder.class));
             System.out.println("Started the service");
             startService(intent);
-            mainCanvas.setRecording(true);
+            manager.listenForRecording();
 
             //mainCanvas.listenForRecording(this);
         }
@@ -283,9 +288,9 @@ public class CanvasScreen extends Activity {
 
             paused = false;
             isPausedRecording = false;
-            isRecording = true;
             startService(new Intent(this, WavRecorder.class));
         }
+
         Thread timerThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -338,8 +343,8 @@ public class CanvasScreen extends Activity {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
                     WavPlayer.loadFile(recordedFilename);
-                    mainCanvas.loadWavFromFile(recordedFilename);
-                    final int base = -mainCanvas.getWidth()/8;
+                    manager.loadWavFromFile(recordedFilename);
+                    /*final int base = -mainCanvas.getWidth()/8;
                     mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
                     mainCanvas.shouldDrawMaker(true);
@@ -348,7 +353,7 @@ public class CanvasScreen extends Activity {
                     minimap.getMinimap();
                     minimap.setMiniMarkerLoc(0.f);
                     minimap.shouldDrawMiniMarker(true);
-                    minimap.invalidate();
+                    minimap.invalidate();*/
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

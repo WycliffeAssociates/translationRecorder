@@ -41,7 +41,6 @@ public class CanvasView extends View {
     double yScale;
     float userScale;
     private float xTranslation;
-    private byte[] buffer;
     private int blockSize = 4;
     private int numChannels = 2;
     private boolean recording;
@@ -105,21 +104,8 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // draw the mPath with the mPaint on the canvas when onDraw
         mPaint.setColor(Color.DKGRAY);
         canvas.drawLine(0.f, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
-        canvas.drawPath(mPath, mPaint);
-        drawWaveform(canvas);
-        drawBuffer(canvas, buffer, blockSize, numChannels, recording);
-        if(shouldDrawLine){
-            drawMarker(canvas);
-        }
-        if(shouldDrawMiniMarker){
-            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
-            minimapMaker(canvas);
-        }
-
-
     }
     public void setIsMinimap(boolean flag){
         this.isMinimap = flag;
@@ -133,9 +119,6 @@ public class CanvasView extends View {
         this.blockSize = blockSize;
     }
 
-    public void setBuffer(byte[] buffer){
-        this.buffer = buffer;
-    }
 
     public void setRecording(boolean recording) {
         this.recording = recording;
@@ -145,77 +128,36 @@ public class CanvasView extends View {
         return this.recording;
     }
 
-    public void drawBuffer(Canvas canvas, byte[] buffer, int blocksize, int numChannels, boolean recording){
-        if (!recording || buffer == null || canvas == null) {
-            System.out.println("returning");
-            return;
+
+    public void drawWaveform(ArrayList<Pair<Double,Double>> samples, Canvas canvas , int startIndex){
+        canvas.scale(userScale, 1.f);
+
+        mPaint.setColor(Color.WHITE);
+
+        int oldY =  (canvas.getHeight() / 2);
+        int xIndex;
+        int oldX;
+        xIndex = oldX = startIndex;
+
+        int numTs = 0;
+        for (int t = 0; t < samples.size(); t++) {
+
+            int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
+            canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
+            oldY = y;
+            //System.out.println("y is: " + y + " x is: " + xIndex);
+            y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
+
+            canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
+            //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
+
+            oldX = xIndex;
+            xIndex++;
+
+            oldY = y;
+            numTs = t;
         }
-
-        //System.out.println("in drawbuffer");
-        Short[] temp = new Short[buffer.length/blocksize];
-        int index = 0;
-        for(int i = 0; i<buffer.length; i+=blocksize){
-            byte low = buffer[i];
-            byte hi = buffer[i + 1];
-            temp[index] = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-            index++;
-        }
-
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
-        double xScale = width/(index *.999);
-        double yScale = height/65536.0;
-        for(int i = 0; i < temp.length-1; i++){
-            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2), (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
-        }
-        this.invalidate();
-    }
-    public void drawWaveform(Canvas canvas){
-        if(!isMinimap || !hasDrawnOnce){
-            canvas.scale(userScale, 1.f);
-            canvas.translate(-xTranslation / Math.abs(userScale), 0.f);
-
-            mPaint.setColor(Color.WHITE);
-            if (samples == null) {
-                return;
-            }
-            int oldY =  (canvas.getHeight() / 2);
-            int xIndex;
-            int oldX;
-            if(isMinimap) {
-                xIndex = oldX = 0;
-            }
-            else{
-                xIndex = oldX = wavLoader.getSampleStartIndex();
-            }
-
-            int numTs = 0;
-            for (int t = 0; t < samples.size(); t++) {
-
-                int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
-                canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
-                oldY = y;
-                //System.out.println("y is: " + y + " x is: " + xIndex);
-                y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
-
-                canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
-                //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
-
-                oldX = xIndex;
-                xIndex++;
-
-                oldY = y;
-                numTs = t;
-            }
-            System.out.println("number of draws: " + numTs);
-            if(isMinimap && !hasDrawnOnce){
-                setBackground(background);
-                hasDrawnOnce = true;
-            }
-        }
-        else{
-            System.out.println("skipped drawing the minimap");
-        }
+        System.out.println("number of draws: " + numTs);
     }
     public void setSamples(ArrayList<Pair<Double,Double>> samples){
         this.samples = samples;
@@ -244,7 +186,6 @@ public class CanvasView extends View {
 
     public void getMinimap(){
         samples = wavLoader.getMinimap(this.getWidth());
-        wavVis = new WavVisualizer(samples, wavLoader.getLargest());
         xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
         yScale = wavVis.getYScaleFactor(this.getHeight());
         wavLoader = null;
@@ -265,7 +206,6 @@ public class CanvasView extends View {
     }
 
     public void resample(int position){
-        samples = wavLoader.getAudioWindow(position, 10, increment);
     }
 
     public void recomputeIncrement(float xScale){
@@ -274,7 +214,6 @@ public class CanvasView extends View {
 
 
     public void displayWaveform(int seconds){
-        wavVis = new WavVisualizer(samples, wavLoader.getLargest());
         xScale = wavVis.getXScaleFactor(this.getWidth(), seconds);
         increment = wavVis.getIncrement(xScale);
         System.out.println(increment + "is the increment");
@@ -286,62 +225,7 @@ public class CanvasView extends View {
         this.invalidate();
     }
 
-    //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
-    public void listenForRecording(final Activity ctx){
-        final CanvasView mainCanvas = this;
-        Thread uiThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                boolean isStopped = false;
-                boolean isPaused = false;
-                while (!isStopped) {
-                    try {
-                        RecordingMessage message = RecordingQueues.UIQueue.take();
-                        isStopped = message.isStopped();
-                        isPaused = message.isPaused();
 
-                        if (!isPaused && message.getData() != null) {
-                            setBuffer(message.getData());
-                            double max = 0;
-                            for(int i =0; i < buffer.length; i+=2) {
-                                byte low = buffer[i];
-                                byte hi = buffer[i + 1];
-                                short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                                max = (Math.abs(value) > max)? Math.abs(value) : max;
-                            }
-                            final double db = Math.log10(max / (double) AudioInfo.AMPLITUDE_RANGE)* 20;
-                            System.out.println("db is "+db);
-                            ctx.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if(recording) {
-                                        mainCanvas.invalidate();
-                                    }
-                                    changeVolumeBar(ctx, db);
-
-                                }
-                            });
-                        }
-                        if (isStopped) {
-                            mainCanvas.setBuffer(null);
-                            mainCanvas.setRecording(false);
-                            ctx.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mainCanvas.invalidate();
-                                }
-                            });
-                            return;
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        });
-        uiThread.start();
-    }
     public void changeVolumeBar(Activity ctx, double db){
         if(db > -1){
             ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.max);

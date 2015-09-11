@@ -1,6 +1,10 @@
 package wycliffeassociates.recordingapp;
 
 import android.util.Pair;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
@@ -18,16 +22,84 @@ public class WavFileLoader {
     private final int DATA_CHUNK = 2*AudioInfo.SAMPLERATE / 1000; //number of datapoints per second that should actually be useful: 44100 samples per sec, div by 20 = 2205 * 2 channels = 4410
                                          //this is enough for a resolution of 2k pixel width to display one second of wav across
     private double largest = 0;
-    static private MappedByteBuffer buffer;
+    private MappedByteBuffer buffer;
+    private MappedByteBuffer preprocessedBuffer;
     private int startIndex;
+    private String visTempFile = "/storage/emulated/0/AudioRecorder/visualization.tmp";
+    private int screenWidth = 1920;
 
+    public MappedByteBuffer getMappedFile(){
+        return buffer;
+    }
+    public MappedByteBuffer getMappedCacheFile(){
+        return preprocessedBuffer;
+    }
 
     public WavFileLoader(String file) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(file, "r");
         FileChannel fc = raf.getChannel();
         buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
+        generateTempFile();
+        RandomAccessFile rafCached = new RandomAccessFile(visTempFile, "r");
+        FileChannel fcCached = rafCached.getChannel();
+        preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
         computeLargestValue();
         System.out.println("Largest value from file is " + largest);
+    }
+
+    private void generateTempFile(){
+        try {
+            FileOutputStream temp = new FileOutputStream(new File(visTempFile));
+            //generate a file that can show 5 seconds on the screen without compromising resolution
+            int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth);
+            for(int i = 0; i < buffer.capacity(); i+=AudioInfo.SIZE_OF_SHORT*increment){
+                double max = Double.MIN_VALUE;
+                double min = Double.MAX_VALUE;
+                int minIdx = 0;
+                int maxIdx = 0;
+
+                for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
+                    if((i+j+1) < buffer.capacity()) {
+                        byte low = buffer.get(i + j);
+                        byte hi = buffer.get(i + j + 1);
+                        short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                        if(max < (double)value){
+                            max = value;
+                            maxIdx = j;
+                        }
+                        if(min > (double)value) {
+                            min = value;
+                            minIdx = j;
+                        }
+                    }
+                }
+                //order matters, rather than get the values themselves, find the index on this range and use that to write the values
+                try {
+                    if(minIdx < maxIdx){
+                        temp.write(buffer.get(i+minIdx));
+                        temp.write(buffer.get(i+minIdx+1));
+                        temp.write(buffer.get(i+maxIdx));
+                        temp.write(buffer.get(i+maxIdx+1));
+                    }
+                    else{
+                        temp.write(buffer.get(i+maxIdx));
+                        temp.write(buffer.get(i+maxIdx+1));
+                        temp.write(buffer.get(i+minIdx));
+                        temp.write(buffer.get(i+minIdx+1));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            temp.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private void computeLargestValue(){
@@ -64,53 +136,7 @@ public class WavFileLoader {
         return minimap;
     }
 
-    //need to rework the main loop a bit; will lose data at the end if not in the incrememnt window
-    public ArrayList<Pair<Double,Double>> getAudioWindow(int startSecond, int numSeconds, int increment){
-        ArrayList<Pair<Double,Double>> samples = new ArrayList<>();
-        int extraSecondsBuffer = (int)Math.ceil(numSeconds/8.0);
-        int lastIndex = (startSecond+numSeconds+extraSecondsBuffer)*AudioInfo.SIZE_OF_SHORT*AudioInfo.SAMPLERATE;
-//        System.out.println(lastIndex + "last index is ");
-//        System.out.println((startSecond*AudioInfo.SAMPLERATE*AudioInfo.SIZE_OF_SHORT) + " start index");
-//        System.out.println(numSeconds + "num Seconds is ");
-//        System.out.println(startSecond + "start Seconds is ");
-//        System.out.println(AudioInfo.SIZE_OF_SHORT + "Size of short ");
-//        System.out.println(increment + "incremement is ");
-//        System.out.println((AudioInfo.SAMPLERATE/increment) + "number of points per second");
-        int leftOff = 0;
-        for(int i = startSecond*AudioInfo.SAMPLERATE*AudioInfo.SIZE_OF_SHORT; i < Math.min(buffer.capacity(), lastIndex); i += increment*AudioInfo.SIZE_OF_SHORT){
-            double max = Double.MIN_VALUE;
-            double min = Double.MAX_VALUE;
 
-            //compute the average
-            for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
-                if((i+j+1) < buffer.capacity()) {
-                    byte low = buffer.get(i + j);
-                    byte hi = buffer.get(i + j + 1);
-                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                    max = (max < (double) value) ? value : max;
-                    min = (min > (double) value) ? value : min;
-                }
-            }
-            samples.add(new Pair<>(max, min));
-            leftOff = i;
-        }
-        if(leftOff +(increment*AudioInfo.SIZE_OF_SHORT) < Math.min(buffer.capacity(), lastIndex)){
-            double max = Double.MIN_VALUE;
-            double min = Double.MAX_VALUE;
-            for(int i = leftOff; i < Math.min(buffer.capacity(), lastIndex); i+=AudioInfo.SIZE_OF_SHORT){
-                if((i+1) < buffer.capacity()) {
-                    byte low = buffer.get(i);
-                    byte hi = buffer.get(i + 1);
-                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                    max = (max < (double) value) ? value : max;
-                    min = (min > (double) value) ? value : min;
-                }
-            }
-            samples.add(new Pair<>(max, min));
-        }
-        setSampleStartIndex(startSecond, increment);
-        return samples;
-    }
     private void setSampleStartIndex(int startSecond, int increment){
         int incInSec = (int)Math.floor(AudioInfo.SAMPLERATE / increment);
         startIndex = incInSec * startSecond;
