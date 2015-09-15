@@ -129,27 +129,24 @@ public class CanvasView extends View {
     }
 
 
-    public void drawWaveform(ArrayList<Pair<Double,Double>> samples, Canvas canvas , int startIndex){
-        canvas.scale(userScale, 1.f);
-
+    public void drawWaveform(ArrayList<Pair<Double,Double>> samples, Canvas canvas){
         mPaint.setColor(Color.WHITE);
-
         int oldY =  (canvas.getHeight() / 2);
         int xIndex;
         int oldX;
-        xIndex = oldX = startIndex;
+        xIndex = oldX = 0;
 
         int numTs = 0;
         for (int t = 0; t < samples.size(); t++) {
 
-            int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first*yScale));
+            int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first));
             canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
             oldY = y;
             //System.out.println("y is: " + y + " x is: " + xIndex);
-            y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second*yScale));
+            y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second));
 
             canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
-            //System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
+            System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
 
             oldX = xIndex;
             xIndex++;
@@ -175,19 +172,11 @@ public class CanvasView extends View {
         this.xTranslation = xTranslation;
     }
 
-    public void loadWavFromFile(String path){
-        try {
-            wavLoader = new WavFileLoader(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        samples = null;
-    }
 
     public void getMinimap(){
         samples = wavLoader.getMinimap(this.getWidth());
         xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
-        yScale = wavVis.getYScaleFactor(this.getHeight());
+        //yScale = wavVis.getYScaleFactor(this.getHeight());
         wavLoader = null;
         wavVis = null;
         Runtime.getRuntime().freeMemory();
@@ -218,7 +207,7 @@ public class CanvasView extends View {
         increment = wavVis.getIncrement(xScale);
         System.out.println(increment + "is the increment");
         //wavVis.sampleAudio(inc);
-        yScale = wavVis.getYScaleFactor(this.getHeight());
+       // yScale = wavVis.getYScaleFactor(this.getHeight());
         //samples = wavVis.getSamples();
         System.out.println("height is " + this.getHeight());
         resample(0);

@@ -49,7 +49,16 @@ public class WaveformView extends CanvasView {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
+        }
+        else if (samples != null ){
+            try {
+                System.out.println("hello I'm about to draw");
+                UIDataManager.lock.acquire();
+                super.drawWaveform(samples, canvas);
+                UIDataManager.lock.release();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -93,5 +102,9 @@ public class WaveformView extends CanvasView {
             canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2), (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
         }
         this.postInvalidate();
+    }
+
+    public void setWaveformDataForPlayback(ArrayList<Pair<Double, Double>> samples){
+        this.samples = samples;
     }
 }

@@ -18,15 +18,14 @@ public class WavFileLoader {
     public short[] audioData;
     private int min;
     private int max;
-    private int largestValue;
     private final int DATA_CHUNK = 2*AudioInfo.SAMPLERATE / 1000; //number of datapoints per second that should actually be useful: 44100 samples per sec, div by 20 = 2205 * 2 channels = 4410
                                          //this is enough for a resolution of 2k pixel width to display one second of wav across
-    private double largest = 0;
+    private int largest = 0;
     private MappedByteBuffer buffer;
     private MappedByteBuffer preprocessedBuffer;
     private int startIndex;
     private String visTempFile = "/storage/emulated/0/AudioRecorder/visualization.tmp";
-    private int screenWidth = 1920;
+    private int screenWidth = 2560;
 
     public MappedByteBuffer getMappedFile(){
         return buffer;
@@ -35,7 +34,8 @@ public class WavFileLoader {
         return preprocessedBuffer;
     }
 
-    public WavFileLoader(String file) throws IOException {
+    public WavFileLoader(String file, int screenWidth) throws IOException {
+        this.screenWidth = screenWidth;
         RandomAccessFile raf = new RandomAccessFile(file, "r");
         FileChannel fc = raf.getChannel();
         buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
@@ -43,18 +43,20 @@ public class WavFileLoader {
         RandomAccessFile rafCached = new RandomAccessFile(visTempFile, "r");
         FileChannel fcCached = rafCached.getChannel();
         preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
-        computeLargestValue();
         System.out.println("Largest value from file is " + largest);
     }
 
     private void generateTempFile(){
         try {
+            int count = 0;
             FileOutputStream temp = new FileOutputStream(new File(visTempFile));
             //generate a file that can show 5 seconds on the screen without compromising resolution
             int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth);
+            System.out.println(increment + "increment ");
+
             for(int i = 0; i < buffer.capacity(); i+=AudioInfo.SIZE_OF_SHORT*increment){
-                double max = Double.MIN_VALUE;
-                double min = Double.MAX_VALUE;
+                int max = Integer.MIN_VALUE;
+                int min = Integer.MAX_VALUE;
                 int minIdx = 0;
                 int maxIdx = 0;
 
@@ -63,11 +65,14 @@ public class WavFileLoader {
                         byte low = buffer.get(i + j);
                         byte hi = buffer.get(i + j + 1);
                         short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                        if(max < (double)value){
+                        if(max < value){
                             max = value;
                             maxIdx = j;
+                            if(value > largest){
+                                largest = value;
+                            }
                         }
-                        if(min > (double)value) {
+                        if(min > value) {
                             min = value;
                             minIdx = j;
                         }
@@ -76,10 +81,10 @@ public class WavFileLoader {
                 //order matters, rather than get the values themselves, find the index on this range and use that to write the values
                 try {
                     if(minIdx < maxIdx){
-                        temp.write(buffer.get(i+minIdx));
-                        temp.write(buffer.get(i+minIdx+1));
-                        temp.write(buffer.get(i+maxIdx));
-                        temp.write(buffer.get(i+maxIdx+1));
+                        temp.write((byte) buffer.get(i + minIdx));
+                        temp.write((byte) buffer.get(i+minIdx+1));
+                        temp.write((byte) buffer.get(i+maxIdx));
+                        temp.write((byte) buffer.get(i+maxIdx+1));
                     }
                     else{
                         temp.write(buffer.get(i+maxIdx));
@@ -87,9 +92,11 @@ public class WavFileLoader {
                         temp.write(buffer.get(i+minIdx));
                         temp.write(buffer.get(i+minIdx+1));
                     }
+                    count+=4;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                System.out.println("i is " + count);
             }
             temp.close();
         } catch (FileNotFoundException e) {
@@ -102,16 +109,7 @@ public class WavFileLoader {
 
     }
 
-    private void computeLargestValue(){
-        largest = 0;
-        for(int i = 0; i < buffer.capacity(); i+=AudioInfo.SIZE_OF_SHORT){
-            byte low = buffer.get(i);
-            byte hi = buffer.get(i+1);
-            short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-            largest = (i==0)? value: largest;
-            largest = (Math.abs(value) > largest)? Math.abs(value) : largest;
-        }
-    }
+
 
     public ArrayList<Pair<Double,Double>> getMinimap(int canvasWidth){
         ArrayList<Pair<Double,Double>> minimap = new ArrayList<>();
@@ -164,8 +162,8 @@ public class WavFileLoader {
             min = (value < min)?  value : min;
         }
         //samples.add(new Pair<>(max, min));
-        largest = (Math.abs(min) > largest)? Math.abs(min) : largest;
-        largest = (Math.abs(max) > largest)? max : largest;
+        //largest = (Math.abs(min) > largest)? Math.abs(min) : largest;
+        //largest = (Math.abs(max) > largest)? max : largest;
     }
 
     private void processHeader(){
@@ -197,7 +195,6 @@ public class WavFileLoader {
             }
             index++;
         }
-        largestValue = (Math.abs(min) < Math.abs(max))? max : min;
     }
     public int getSampleRate(){ return AudioInfo.SAMPLERATE; }
     public short[] getAudioData(){ return audioData; }
@@ -206,7 +203,7 @@ public class WavFileLoader {
         return AudioInfo.NUM_CHANNELS;
     }
 
-    public double getLargest() {
+    public int getLargest() {
         return largest;
     }
 

@@ -1,9 +1,11 @@
 package wycliffeassociates.recordingapp.model;
 
 import android.app.Activity;
+import android.util.Pair;
 
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.AudioInfo;
@@ -21,6 +23,7 @@ import wycliffeassociates.recordingapp.WaveformView;
  */
 public class UIDataManager {
 
+    private int largest;
     private final WaveformView mainWave;
     private final MinimapView minimap;
     private final Activity ctx;
@@ -44,15 +47,16 @@ public class UIDataManager {
 
     public void loadWavFromFile(String path){
         try {
-            wavLoader = new WavFileLoader(path);
+            wavLoader = new WavFileLoader(path, mainWave.getWidth());
             buffer = wavLoader.getMappedFile();
             preprocessedBuffer = wavLoader.getMappedCacheFile();
+            largest = wavLoader.getLargest();
             System.out.println("Mapped files completed.");
         } catch (IOException e) {
             System.out.println("There was an error with mapping the files");
             e.printStackTrace();
         }
-
+        wavVis = new WavVisualizer(buffer, preprocessedBuffer);
     }
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
     public void listenForRecording(){
@@ -112,8 +116,10 @@ public class UIDataManager {
         return  Math.log10(value / (double) AudioInfo.AMPLITUDE_RANGE)* 20;
     }
 
-    public void drawWaveformDuringPlayback(){
-        wavVis = new WavVisualizer(buffer, preprocessedBuffer);
-        //wavVis.getDataToDraw(WavPlayer.getLocation());
+    public void drawWaveformDuringPlayback(int location){
+        mainWave.setDrawingFromBuffer(false);
+        ArrayList<Pair<Double, Double>> samples = wavVis.getDataToDraw(location, mainWave.getWidth(), mainWave.getHeight(), largest);
+        mainWave.setWaveformDataForPlayback(samples);
+        mainWave.postInvalidate();
     }
 }

@@ -344,6 +344,7 @@ public class CanvasScreen extends Activity {
                 if (done.booleanValue()) {
                     WavPlayer.loadFile(recordedFilename);
                     manager.loadWavFromFile(recordedFilename);
+                    manager.drawWaveformDuringPlayback(50);
                     /*final int base = -mainCanvas.getWidth()/8;
                     mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
@@ -367,36 +368,13 @@ public class CanvasScreen extends Activity {
         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
         WavPlayer.play(recordedFilename);
         isPlaying = true;
-        final int base = -mainCanvas.getWidth()/8;
-        mainCanvas.setXTranslation(base);
-        mainCanvas.invalidate();
-        if(!paused && !minimapClicked){
-            double locPercentage = 0;
-            double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
-            int translation = (int) (userScale * (int) (locPercentage * scaleFactor));
-            mainCanvas.resample(WavFileLoader.positionToWindowStart(0));
-            mainCanvas.setXTranslation(base + translation);
-            minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));
-            minimap.shouldDrawMiniMarker(true);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mainCanvas.invalidate();
-                    minimap.invalidate();
-                }
-            });
-        }
         paused = false;
         Thread playback = new Thread(new Runnable() {
             @Override
             public void run() {
-                int translation = 0;
-                double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
                 int location=0;
                 int oldLoc = 0;
                 int average = 0;
-                int difference = 0;
-                int count = 1;
                 while (location != WavPlayer.getDuration()) {
                     oldLoc = location;
                     if(!minimapClicked) {
@@ -405,23 +383,10 @@ public class CanvasScreen extends Activity {
                         location = WavPlayer.getLocation();
                         minimapClicked = false;
                     }
-                    difference  = location - oldLoc;
                     average = 100;//average * ((count-1)/count)+difference/count);
-                    count++;
 
                     double locPercentage = (double) location / (double) WavPlayer.getDuration();
-                    translation = (int) (userScale * (int) (locPercentage * scaleFactor));
-                    mainCanvas.resample(WavFileLoader.positionToWindowStart(location));
-                    mainCanvas.setXTranslation(base + translation);
-                    minimap.setMiniMarkerLoc((float) (locPercentage * minimap.getWidth()));
-                    minimap.shouldDrawMiniMarker(true);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mainCanvas.invalidate();
-                            minimap.invalidate();
-                        }
-                    });
+                    manager.drawWaveformDuringPlayback(100);
                     try {
                         //capping the framerate seems to smooth out the playback. May want to investigate a smarter way to do this.
                         Thread.sleep(1000 / 60);
