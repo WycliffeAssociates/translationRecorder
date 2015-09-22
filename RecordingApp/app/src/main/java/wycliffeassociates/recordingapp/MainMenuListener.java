@@ -21,7 +21,7 @@ public class MainMenuListener extends Activity{
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), CanvasScreen.class);
+                Intent intent = new Intent(v.getContext(), RecordingScreen.class);
                 startActivityForResult(intent, 0);
             }
         });

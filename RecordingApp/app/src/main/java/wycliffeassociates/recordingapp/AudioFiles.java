@@ -290,8 +290,10 @@ public class AudioFiles extends Activity {
                         }
                         if (checkAll == false) {
                             exportList = new ArrayList<String>();
-                            Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
-                            adapter.notifyDataSetChanged();
+                            if(adapter != null && adapter.checkBoxState != null){
+                                Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
+                                adapter.notifyDataSetChanged();
+                            }
                         }
                         checkAll = !checkAll;
                     }

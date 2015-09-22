@@ -19,7 +19,7 @@ public class WavFileLoader {
     private int min;
     private int max;
     private final int DATA_CHUNK = 2*AudioInfo.SAMPLERATE / 1000; //number of datapoints per second that should actually be useful: 44100 samples per sec, div by 20 = 2205 * 2 channels = 4410
-                                         //this is enough for a resolution of 2k pixel width to display one second of wav across
+    //this is enough for a resolution of 2k pixel width to display one second of wav across
     private int largest = 0;
     private MappedByteBuffer buffer;
     private MappedByteBuffer preprocessedBuffer;
@@ -107,8 +107,7 @@ public class WavFileLoader {
     }
 
 
-
-    public ArrayList<Pair<Double,Double>> getMinimap(int canvasWidth){
+    public ArrayList<Pair<Double,Double>> getMinimap(int canvasWidth) {
         ArrayList<Pair<Double,Double>> minimap = new ArrayList<>();
         int increment = (int)Math.floor((buffer.capacity()/2)/(double)canvasWidth);
         for(int i = 0; i < buffer.capacity(); i+= increment*AudioInfo.SIZE_OF_SHORT){

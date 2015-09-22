@@ -50,7 +50,6 @@ public class Settings extends Activity {
      * Request code for Android version under 5.0 on saving a directory
      */
     final int SET_SAVE_DIR2 = 22;
-    private boolean pingMeBack = false;
 
 
     @Override

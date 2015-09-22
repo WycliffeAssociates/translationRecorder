@@ -24,10 +24,10 @@ import java.util.UUID;
 
 import wycliffeassociates.recordingapp.model.RecordingTimer;
 
-public class CanvasScreen extends Activity {
+public class RecordingScreen extends Activity {
     //Constants for WAV format
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
-    private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+    private static final String AUDIO_RECORDER_FOLDER = "TranslationRecorder";
 
 
     private String recordedFilename = null;
@@ -140,6 +140,7 @@ public class CanvasScreen extends Activity {
         anim.setDuration(1500);
 
         startService(new Intent(this, WavRecorder.class));
+        manager.listenForRecording(false);
         timerView = (TextView)findViewById(R.id.timerView);
         timerView.invalidate();
         filenameView = (TextView)findViewById(R.id.filenameView);
@@ -264,7 +265,7 @@ public class CanvasScreen extends Activity {
             startService(new Intent(this, WavRecorder.class));
             System.out.println("Started the service");
             startService(intent);
-            manager.listenForRecording();
+            manager.listenForRecording(true);
 
             //mainCanvas.listenForRecording(this);
         }
@@ -304,10 +305,8 @@ public class CanvasScreen extends Activity {
 
     }
     private void stopRecording() {
-        if(!isRecording && !isPlaying){
-            return;
-        }
         isRecording = false;
+        isPausedRecording = false;
         if (isPlaying) {
             isPlaying = false;
             WavPlayer.stop();
@@ -328,19 +327,10 @@ public class CanvasScreen extends Activity {
             try {
                 Boolean done = RecordingQueues.doneWriting.take();
                 if (done.booleanValue()) {
+
                     WavPlayer.loadFile(recordedFilename);
                     manager.loadWavFromFile(recordedFilename);
                     manager.drawWaveformDuringPlayback(0);
-                    /*final int base = -mainCanvas.getWidth()/8;
-                    mainCanvas.setXTranslation(base);
-                    mainCanvas.displayWaveform(10);
-                    mainCanvas.shouldDrawMaker(true);
-
-                    minimap.loadWavFromFile(recordedFilename);
-                    minimap.getMinimap();
-                    minimap.setMiniMarkerLoc(0.f);
-                    minimap.shouldDrawMiniMarker(true);
-                    minimap.invalidate();*/
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

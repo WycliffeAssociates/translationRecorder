@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Audio Recorder</string>
+    <string name="app_name">Translation Recorder</string>
     <string name="hello_world">Hello world!</string>
-    <string name="folder_name">AudioRecorder</string>
+    <string name="folder_name">TranslationRecorder</string>
     <string name="action_settings">Settings</string>
 	
     <!-- Record.java -->

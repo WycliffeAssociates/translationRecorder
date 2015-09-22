@@ -25,6 +25,7 @@ public class UIDataManager {
     private WavVisualizer wavVis;
     private MappedByteBuffer buffer;
     private MappedByteBuffer preprocessedBuffer;
+    private int secondsOnScreen = 5;
 
     public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx){
         this.mainWave = mainWave;
@@ -51,13 +52,15 @@ public class UIDataManager {
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth());
     }
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
-    public void listenForRecording(){
+    public void listenForRecording(boolean drawWaveform){
         mainWave.setDrawingFromBuffer(true);
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 boolean isStopped = false;
                 boolean isPaused = false;
+                double maxDB = 0;
+                long timeDelay = System.currentTimeMillis();
                 while (!isStopped) {
                     try {
                         RecordingMessage message = RecordingQueues.UIQueue.take();
@@ -66,11 +69,22 @@ public class UIDataManager {
 
                         if (!isPaused && message.getData() != null) {
                             byte[] buffer = message.getData();
+
+                            double max = getPeakVolume(buffer);
+                            double db = computeDB(max);
+                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 500)){
+                                VolumeMeter.changeVolumeBar(ctx, db);
+                                maxDB = db;
+                            }
+                            else if(((System.currentTimeMillis() - timeDelay) > 500)){
+                                VolumeMeter.changeVolumeBar(ctx, db);
+                                maxDB = db;
+                                timeDelay = System.currentTimeMillis();
+                            }
+
                             lock.acquire();
                             mainWave.setBuffer(buffer);
                             lock.release();
-                            double max = getPeakVolume(buffer);
-                            final double db = computeDB(max);
                             //System.out.println("db is "+db);
                             if(isRecording) {
                                 mainWave.postInvalidate();
