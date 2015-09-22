@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioFormat;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
@@ -19,24 +18,17 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.UUID;
 
 import wycliffeassociates.recordingapp.model.RecordingTimer;
-import wycliffeassociates.recordingapp.model.UIDataManager;
 
 public class CanvasScreen extends Activity {
     //Constants for WAV format
-    private static final int RECORDER_BPP = 16;
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
-    private static final String AUDIO_RECORDER_TEMP_FILE = "record_temp.raw";
-    private static final int RECORDER_SAMPLERATE = 44100;
-    private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
-    private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+
 
     private String recordedFilename = null;
     private WavRecorder recorder = null;
@@ -60,6 +52,8 @@ public class CanvasScreen extends Activity {
     private boolean isPausedRecording = false;
     private RecordingTimer timer;
     private TextView timerView;
+    private TextView filenameView;
+
 
 
     public boolean onTouchEvent(MotionEvent ev) {
@@ -91,7 +85,6 @@ public class CanvasScreen extends Activity {
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 xTranslation += distanceX;
-                mainCanvas.setXTranslation(xTranslation);
                 mainCanvas.invalidate();
                 return true;
             }
@@ -105,13 +98,7 @@ public class CanvasScreen extends Activity {
                     float xPos = e.getX() / mainCanvas.getWidth();
                     int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                     WavPlayer.seekTo(timeToSeekTo);
-                    double scaleFactor = (WavPlayer.getDuration() / 10000.0) * mainCanvas.getWidth();
-                    int translation = (int) (userScale * (int) (xPos * scaleFactor));
-                    mainCanvas.resample(WavFileLoader.positionToWindowStart(timeToSeekTo));
-                    final int base = -mainCanvas.getWidth()/8;
-                    mainCanvas.setXTranslation(base + translation);
                     minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
-                    minimap.shouldDrawMiniMarker(true);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -131,7 +118,6 @@ public class CanvasScreen extends Activity {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
                 userScale *= detector.getScaleFactor();
-                mainCanvas.setUserScale(userScale);
                 return true;
             }
         };
@@ -154,12 +140,10 @@ public class CanvasScreen extends Activity {
         anim.setDuration(1500);
 
         startService(new Intent(this, WavRecorder.class));
-        System.out.println("Started the service");
-        //mainCanvas.listenForRecording(this);
-        timerView = (TextView)findViewById(R.id.textView);
+        timerView = (TextView)findViewById(R.id.timerView);
         timerView.invalidate();
-
-
+        filenameView = (TextView)findViewById(R.id.filenameView);
+        filenameView.setText(outputName);
     }
 
 
@@ -232,6 +216,7 @@ public class CanvasScreen extends Activity {
         outputName = newName;
         isSaved = true;
         recordedFilename = saveFile(outputName);
+        filenameView.setText(outputName);
     }
 
     public String getName(){return outputName;}
@@ -285,7 +270,6 @@ public class CanvasScreen extends Activity {
         }
         else {
             timer.resume();
-
             paused = false;
             isPausedRecording = false;
             startService(new Intent(this, WavRecorder.class));
@@ -299,10 +283,12 @@ public class CanvasScreen extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                long t = timer.getTimeElapsed();
-                                String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
-                                timerView.setText(time);
-                                timerView.invalidate();
+                                if(timer != null) {
+                                    long t = timer.getTimeElapsed();
+                                    String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
+                                    timerView.setText(time);
+                                    timerView.invalidate();
+                                }
                             }
                         });
                     }
@@ -344,7 +330,7 @@ public class CanvasScreen extends Activity {
                 if (done.booleanValue()) {
                     WavPlayer.loadFile(recordedFilename);
                     manager.loadWavFromFile(recordedFilename);
-                    manager.drawWaveformDuringPlayback(50);
+                    manager.drawWaveformDuringPlayback(0);
                     /*final int base = -mainCanvas.getWidth()/8;
                     mainCanvas.setXTranslation(base);
                     mainCanvas.displayWaveform(10);
@@ -365,8 +351,7 @@ public class CanvasScreen extends Activity {
     private void playRecording(){
         findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
-        Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
-        WavPlayer.play(recordedFilename);
+        WavPlayer.play();
         isPlaying = true;
         paused = false;
         Thread playback = new Thread(new Runnable() {
@@ -375,6 +360,9 @@ public class CanvasScreen extends Activity {
                 int location=0;
                 int oldLoc = 0;
                 int average = 0;
+                long startTime;
+                long playback = System.currentTimeMillis();
+                startTime = System.currentTimeMillis();
                 while (location != WavPlayer.getDuration()) {
                     oldLoc = location;
                     if(!minimapClicked) {
@@ -386,14 +374,18 @@ public class CanvasScreen extends Activity {
                     average = 100;//average * ((count-1)/count)+difference/count);
 
                     double locPercentage = (double) location / (double) WavPlayer.getDuration();
-                    manager.drawWaveformDuringPlayback(100);
-                    try {
-                        //capping the framerate seems to smooth out the playback. May want to investigate a smarter way to do this.
-                        Thread.sleep(1000 / 60);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if(mainCanvas.isDoneDrawing()) {
+                        manager.drawWaveformDuringPlayback((int)Math.min(System.currentTimeMillis() - playback, WavPlayer.getDuration()));
+
+                        if (System.currentTimeMillis() >= 3000 + startTime) {
+                            System.out.println("FPS is:" + mainCanvas.getFps() / (double) ((System.currentTimeMillis() - startTime) / 1000.0));
+                            System.out.println("Frames are " + mainCanvas.getFps());
+                            mainCanvas.resetFPS();
+                            startTime = System.currentTimeMillis();
+                        }
                     }
-                    System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
+
+                    //System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
 
                 } ;
                 runOnUiThread(new Runnable() {

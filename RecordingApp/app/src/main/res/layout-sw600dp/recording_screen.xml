@@ -213,12 +213,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/textView"
+            android:id="@+id/timerView"
             android:layout_below="@+id/linearLayout12"
             android:layout_alignParentStart="true"
             android:enabled="false"
             android:editable="false"
-            android:text="00:00" />
+            android:text="00:00:00"
+            android:textColor="#010101" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/filenameView"
+            android:layout_below="@+id/timerView"
+            android:layout_alignParentStart="true"
+            android:textColor="#010101" />
 
     </RelativeLayout>
 

@@ -61,7 +61,26 @@ public class MinimapView extends CanvasView {
 //        this.invalidate();
     }
 
-
+  /*public void getMinimap(){
+        //samples = wavLoader.getMinimap(this.getWidth());
+        xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
+        //yScale = wavVis.getYScaleFactor(this.getHeight());
+        wavLoader = null;
+        wavVis = null;
+        Runtime.getRuntime().freeMemory();
+        System.out.println("Saving minimap to BMP...");
+        mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        System.out.println("Created a BMP...");
+        mCanvas = new Canvas(mBitmap);
+        Drawable background = getBackground();
+        if(background!= null){
+            background.draw(mCanvas);
+        }
+        else
+            mCanvas.drawColor(Color.TRANSPARENT);
+        draw(mCanvas);
+        this.invalidate();
+    }*/
 
     public void minimapMaker(Canvas canvas){
         mPaint.setColor(Color.GREEN);

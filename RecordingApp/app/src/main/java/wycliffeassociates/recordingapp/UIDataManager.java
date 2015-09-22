@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.model;
+package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.util.Pair;
@@ -8,15 +8,7 @@ import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.CanvasView;
-import wycliffeassociates.recordingapp.MinimapView;
-import wycliffeassociates.recordingapp.RecordingMessage;
-import wycliffeassociates.recordingapp.RecordingQueues;
-import wycliffeassociates.recordingapp.WavFileLoader;
-import wycliffeassociates.recordingapp.WavPlayer;
-import wycliffeassociates.recordingapp.WavVisualizer;
-import wycliffeassociates.recordingapp.WaveformView;
+
 
 /**
  * Created by sarabiaj on 9/10/2015.
@@ -56,7 +48,7 @@ public class UIDataManager {
             System.out.println("There was an error with mapping the files");
             e.printStackTrace();
         }
-        wavVis = new WavVisualizer(buffer, preprocessedBuffer);
+        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth());
     }
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
     public void listenForRecording(){
@@ -118,8 +110,31 @@ public class UIDataManager {
 
     public void drawWaveformDuringPlayback(int location){
         mainWave.setDrawingFromBuffer(false);
-        ArrayList<Pair<Double, Double>> samples = wavVis.getDataToDraw(location, mainWave.getWidth(), mainWave.getHeight(), largest);
+        long startTime = System.nanoTime();
+        try {
+            lock.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        float[] samples = wavVis.getDataToDraw(location, mainWave.getWidth(), mainWave.getHeight(), largest);
+        lock.release();
+        mainWave.setIsDoneDrawing(false);
+        System.out.println("Time taken to generate samples to draw: " + (System.nanoTime()-startTime));
+        //System.out.println("Size of buffer to draw is "+samples.size());
+
         mainWave.setWaveformDataForPlayback(samples);
         mainWave.postInvalidate();
+        Runtime.getRuntime().freeMemory();
+    }
+
+    private float[] convertToArray(ArrayList<Pair<Double,Double>> samples){
+        float[] path = new float[samples.size()*4];
+        for(int i = 0; i < samples.size(); i++){
+            path[i*4] = i;
+            path[i*4+1] = (float)(samples.get(i).first + mainWave.getHeight() / 2);
+            path[i*4+2] = i;
+            path[i*4+3] = (float)(samples.get(i).second + mainWave.getHeight() / 2);
+        }
+        return path;
     }
 }

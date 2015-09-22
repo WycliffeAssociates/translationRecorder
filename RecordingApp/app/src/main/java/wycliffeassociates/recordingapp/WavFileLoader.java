@@ -48,7 +48,6 @@ public class WavFileLoader {
 
     private void generateTempFile(){
         try {
-            int count = 0;
             FileOutputStream temp = new FileOutputStream(new File(visTempFile));
             //generate a file that can show 5 seconds on the screen without compromising resolution
             int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth);
@@ -92,11 +91,9 @@ public class WavFileLoader {
                         temp.write(buffer.get(i+minIdx));
                         temp.write(buffer.get(i+minIdx+1));
                     }
-                    count+=4;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                System.out.println("i is " + count);
             }
             temp.close();
         } catch (FileNotFoundException e) {

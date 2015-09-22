@@ -8,86 +8,51 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.ScaleGestureDetector;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class CanvasView extends View {
+public abstract class CanvasView extends View {
 
-    private boolean hasDrawnOnce;
-    public int width;
-    public int height;
-    private Bitmap mBitmap;
-    //private Canvas mCanvas;
-    private Path mPath;
-    //private Context context;
-    private Paint mPaint;
-    private WavFileLoader wavLoader;
-    private WavVisualizer wavVis;
-    //private short[] audioData;
+    protected Paint mPaint;
+    int fps = 0;
+    protected boolean doneDrawing = false;
 
-    private ArrayList<Pair<Double,Double>> samples;
-    ScaleGestureDetector SGD;
-    private final int SECONDS_ON_SCREEN = 10;
-
-    double xScale;
-    double yScale;
-    float userScale;
-    private float xTranslation;
-    private int blockSize = 4;
-    private int numChannels = 2;
-    private boolean recording;
-    private boolean shouldDrawLine = false;
-    private boolean shouldDrawMiniMarker = false;
-    private int increment = 1;
-    private boolean isMinimap = false;
-    private Canvas mCanvas = null;
-    private Drawable background;
-
-    public void setMiniMarkerLoc(float miniMarkerLoc) {
-        this.miniMarkerLoc = miniMarkerLoc;
+    public boolean isDoneDrawing(){
+        return doneDrawing;
     }
-
-    private float miniMarkerLoc;
-
+    public void setIsDoneDrawing(boolean c){
+        doneDrawing = c;
+    }
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
         init();
     }
 
-    public CanvasView(Context c, AttributeSet attrs, Bitmap bmp) {
-        super(c, attrs);
-        init();
-        mBitmap = bmp;
-        hasDrawnOnce = false;
+    public int getFps(){
+        return fps;
+    }
+    public void resetFPS(){
+        fps = 0;
     }
 
-    private void init(){
-        userScale = 1.f;
-        xTranslation = 0.f;
-
-        // we set a new Path
-        mPath = new Path();
-
-        // and we set a new Paint with the desired attributes
+    protected void init(){
         mPaint = new Paint();
-        mPaint.setAntiAlias(true);
         mPaint.setColor(Color.DKGRAY);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(1f);
-        samples = null;
-        xScale = 0;
-        yScale = 0;
-
     }
 
 
@@ -95,9 +60,6 @@ public class CanvasView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
-        // your Canvas will draw onto the defined Bitmap
-        //mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
     }
 
     // override onDraw
@@ -107,111 +69,13 @@ public class CanvasView extends View {
         mPaint.setColor(Color.DKGRAY);
         canvas.drawLine(0.f, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
     }
-    public void setIsMinimap(boolean flag){
-        this.isMinimap = flag;
-    }
 
-    public void setNumChannels(int numChannels) {
-        this.numChannels = numChannels;
-    }
-
-    public void setBlockSize(int blockSize) {
-        this.blockSize = blockSize;
-    }
-
-
-    public void setRecording(boolean recording) {
-        this.recording = recording;
-    }
-
-    public boolean getRecording() {
-        return this.recording;
-    }
-
-
-    public void drawWaveform(ArrayList<Pair<Double,Double>> samples, Canvas canvas){
+    public void drawWaveform(float[] samples, Canvas canvas){
         mPaint.setColor(Color.WHITE);
-        int oldY =  (canvas.getHeight() / 2);
-        int xIndex;
-        int oldX;
-        xIndex = oldX = 0;
+        canvas.drawLines(samples, mPaint);
+        fps++;
+        doneDrawing = true;
 
-        int numTs = 0;
-        for (int t = 0; t < samples.size(); t++) {
-
-            int y =  ((int) ((canvas.getHeight() / 2) + samples.get(t).first));
-            canvas.drawLine(oldX, oldY, xIndex, y, mPaint);
-            oldY = y;
-            //System.out.println("y is: " + y + " x is: " + xIndex);
-            y = ((int) ((canvas.getHeight() / 2) + samples.get(t).second));
-
-            canvas.drawLine(xIndex, oldY, xIndex, y, mPaint);
-            System.out.println("at x: " + oldX + ", y: " + oldY + "to X: " + xIndex + ", Y: " + y);
-
-            oldX = xIndex;
-            xIndex++;
-
-            oldY = y;
-            numTs = t;
-        }
-        System.out.println("number of draws: " + numTs);
-    }
-    public void setSamples(ArrayList<Pair<Double,Double>> samples){
-        this.samples = samples;
-    }
-    public void setXScale(double xScale){
-        this.xScale = xScale;
-    }
-    public void setYScale(double yScale){
-        this.yScale = yScale;
-    }
-    public void setUserScale(float userScale){
-        this.userScale = userScale;
-    }
-    public void setXTranslation(float xTranslation){
-        this.xTranslation = xTranslation;
-    }
-
-
-    public void getMinimap(){
-        samples = wavLoader.getMinimap(this.getWidth());
-        xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
-        //yScale = wavVis.getYScaleFactor(this.getHeight());
-        wavLoader = null;
-        wavVis = null;
-        Runtime.getRuntime().freeMemory();
-        System.out.println("Saving minimap to BMP...");
-        mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-        System.out.println("Created a BMP...");
-        mCanvas = new Canvas(mBitmap);
-        Drawable background = getBackground();
-        if(background!= null){
-            background.draw(mCanvas);
-        }
-        else
-            mCanvas.drawColor(Color.TRANSPARENT);
-        draw(mCanvas);
-        this.invalidate();
-    }
-
-    public void resample(int position){
-    }
-
-    public void recomputeIncrement(float xScale){
-        increment = wavVis.getIncrement(xScale);
-    }
-
-
-    public void displayWaveform(int seconds){
-        xScale = wavVis.getXScaleFactor(this.getWidth(), seconds);
-        increment = wavVis.getIncrement(xScale);
-        System.out.println(increment + "is the increment");
-        //wavVis.sampleAudio(inc);
-       // yScale = wavVis.getYScaleFactor(this.getHeight());
-        //samples = wavVis.getSamples();
-        System.out.println("height is " + this.getHeight());
-        resample(0);
-        this.invalidate();
     }
 
 
@@ -273,21 +137,8 @@ public class CanvasView extends View {
         }
     }
 
-    public void shouldDrawMaker(boolean yes){
-        this.shouldDrawLine = yes;
-    }
-    public void drawMarker(Canvas canvas){
-        mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(Color.RED);
-        canvas.drawLine(((canvas.getWidth()/8) + xTranslation)/userScale, 0, ((canvas.getWidth()/8) + xTranslation)/userScale, canvas.getHeight(), mPaint);
-    }
-    public void shouldDrawMiniMarker(boolean yes){
-        this.shouldDrawMiniMarker = true;
-    }
-    public void minimapMaker(Canvas canvas){
-        mPaint.setColor(Color.GREEN);
-        canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
-    }
+
+
 
 }
 

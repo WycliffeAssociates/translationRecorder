@@ -3,24 +3,16 @@ package wycliffeassociates.recordingapp;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Pair;
-
-import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-
-import wycliffeassociates.recordingapp.model.UIDataManager;
 
 /**
  * Created by sarabiaj on 9/10/2015.
  */
 public class WaveformView extends CanvasView {
 
-    private Paint mPaint;
     private byte[] buffer;
     private boolean drawingFromBuffer = false;
-    private ArrayList<Pair<Double,Double>> samples;
+    private float[] samples;
 
 
     public void drawMarker(Canvas canvas){
@@ -52,39 +44,26 @@ public class WaveformView extends CanvasView {
         }
         else if (samples != null ){
             try {
-                System.out.println("hello I'm about to draw");
                 UIDataManager.lock.acquire();
-                super.drawWaveform(samples, canvas);
+                drawWaveform(samples, canvas);
                 UIDataManager.lock.release();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void init(){
-        // and we set a new Paint with the desired attributes
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setColor(Color.DKGRAY);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeWidth(1f);
-        xScale = 0;
-        yScale = 0;
-    }
 
     public void setBuffer(byte[] buffer){
         this.buffer = buffer;
     }
 
     public void drawBuffer(Canvas canvas, byte[] buffer, int blocksize, int numChannels){
+        mPaint.setColor(Color.WHITE);
         if (buffer == null || canvas == null) {
             System.out.println("returning");
             return;
         }
-
-        //System.out.println("in drawbuffer");
         Short[] temp = new Short[buffer.length/blocksize];
         int index = 0;
         for(int i = 0; i<buffer.length; i+=blocksize){
@@ -104,7 +83,7 @@ public class WaveformView extends CanvasView {
         this.postInvalidate();
     }
 
-    public void setWaveformDataForPlayback(ArrayList<Pair<Double, Double>> samples){
+    public void setWaveformDataForPlayback(float[] samples){
         this.samples = samples;
     }
 }

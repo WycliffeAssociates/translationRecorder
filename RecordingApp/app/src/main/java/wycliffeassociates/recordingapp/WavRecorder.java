@@ -3,12 +3,10 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Service;
 import android.content.Intent;
-import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.IBinder;
-import android.provider.MediaStore;
-import android.widget.Toast;
+
 
 
 
@@ -24,7 +22,6 @@ public class WavRecorder extends Service {
     private int bufferSize = 0;
     private Thread recordingThread = null;
     private boolean isRecording = false;
-    private String recordedFilename = null; //does contain path
     private byte data[];
 
 
@@ -36,22 +33,16 @@ public class WavRecorder extends Service {
     @Override
     public void onCreate() {
         isRecording = true;
-        System.out.println("Starting recording service");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        System.out.println("Starting recording service");
-        Toast.makeText(getApplicationContext(), "Starting Recording", Toast.LENGTH_SHORT).show();
-
         record();
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        // Tell the user we stopped.
-        Toast.makeText(getApplicationContext(), "Stopping Recording Service", Toast.LENGTH_SHORT).show();
         isRecording = false;
         recorder.stop();
         recorder.release();

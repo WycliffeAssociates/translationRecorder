@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
  * Created by jsarabia on 7/24/15.
  */
 public class RecordingQueues {
-    public static volatile BlockingQueue<RecordingMessage> UIQueue = new ArrayBlockingQueue<>(512);
-    public static volatile BlockingQueue<RecordingMessage> writingQueue = new ArrayBlockingQueue<>(512);
+    public static volatile BlockingQueue<RecordingMessage> UIQueue = new ArrayBlockingQueue<>(1024);
+    public static volatile BlockingQueue<RecordingMessage> writingQueue = new ArrayBlockingQueue<>(1024);
     public static volatile BlockingQueue<Boolean> doneWriting = new ArrayBlockingQueue<>(1);
 
     private RecordingQueues(){}

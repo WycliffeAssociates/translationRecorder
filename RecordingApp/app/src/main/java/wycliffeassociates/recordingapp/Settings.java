@@ -13,7 +13,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -35,7 +34,7 @@ public class Settings extends Activity {
     private String sampleName;
     private TextView displayFileName, showSaveDirectory;
     private EditText tReset;
-    AutoCompleteTextView setLangCode,setBookCode;
+    MyAutoCompleteTextView setLangCode,setBookCode;
 
     /**
      * The context of this activity
@@ -51,6 +50,7 @@ public class Settings extends Activity {
      * Request code for Android version under 5.0 on saving a directory
      */
     final int SET_SAVE_DIR2 = 22;
+    private boolean pingMeBack = false;
 
 
     @Override
@@ -248,11 +248,17 @@ public class Settings extends Activity {
      * @param pref the preference manager
      */
     private void langCodeListener(final PreferencesManager pref) {
-        setLangCode = (AutoCompleteTextView)findViewById(R.id.setLangCode);
+        setLangCode = (MyAutoCompleteTextView)findViewById(R.id.setLangCode);
         setLangCode.setText(pref.getPreferences("targetLanguage").toString());//default
 
         //update
         pullDB(false);
+        setLangCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                setLangCode.showDropDown();
+            }
+        });
 
         setLangCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -269,6 +275,7 @@ public class Settings extends Activity {
                 String[] temp = s.toString().split(" - ");//we only want the language code
                 String newVal = temp[0];
 
+
                 newVal = newVal.replaceAll("![A-Za-z0-9]", "");//remove any strange characters
 
                 pref.setPreferences("targetLanguage", newVal);//add selecet language code to preferences
@@ -284,25 +291,37 @@ public class Settings extends Activity {
     private void bookCodeListener(final PreferencesManager pref) {
         String[] bookArray = getResources().getStringArray(R.array.bookCodes);//resource of 3 letter Bible book codes
 
-        setBookCode = (AutoCompleteTextView)findViewById(R.id.setBookCode);
+        setBookCode = (MyAutoCompleteTextView)findViewById(R.id.setBookCode);
         ArrayAdapter<String> bookAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,bookArray);
         setBookCode.setAdapter(bookAdapter);
         setBookCode.setText(pref.getPreferences("book").toString());
+
+        setBookCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                setBookCode.showDropDown();
+            }
+        });
 
         setBookCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
             }
+
             @Override
             public void beforeTextChanged(CharSequence s, int start,
                                           int count, int after) {
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String newVal = s.toString();
                 newVal = newVal.replaceAll("![A-Za-z0-9]", "");//get rid of strange characters
                 pref.setPreferences("book", newVal);//save selection to preferences
                 updateFileName(pref);
+                if(s.length() == 0){
+                    setBookCode.showDropDown();
+                }
             }
         });
     }
