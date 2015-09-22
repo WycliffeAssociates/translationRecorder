@@ -32,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/File_Name_Buttons">
 
-                <AutoCompleteTextView
+                <wycliffeassociates.recordingapp.MyAutoCompleteTextView
+                    android:inputType="textNoSuggestions"
                     android:id="@+id/setLangCode"
                     android:layout_width="300dp"
                     android:layout_height="60dp"
@@ -50,7 +51,8 @@
                     android:layout_height="match_parent"
                     android:id="@+id/space"></LinearLayout>
 
-                <AutoCompleteTextView
+                <wycliffeassociates.recordingapp.MyAutoCompleteTextView
+                    android:inputType="textNoSuggestions"
                     android:id="@+id/setBookCode"
                     android:layout_width="300dp"
                     android:layout_height="60dp"
