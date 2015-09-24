@@ -28,7 +28,7 @@ public class WavVisualizer {
     public float[] getDataToDraw(int location, int screenWidth, int screenHeight, int largest){
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
         int numSecondsOnScreen = getNumSecondsOnScreen(userScale);
-        System.out.println("numSeconds on screen is " + numSecondsOnScreen);
+        //System.out.println("numSeconds on screen is " + numSecondsOnScreen);
         //based on the user scale, determine which buffer waveData should be
         useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
         MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
@@ -41,9 +41,9 @@ public class WavVisualizer {
         //startPosition -= computeOffsetForPlaybackLine(screenWidth, numSecondsOnScreen);
         //startPosition = Math.max(0, startPosition);
         //initializeSamples(samples, screenWidth, numSecondsOnScreen, location);
-        //startPosition = Math.max(0, startPosition);
+        startPosition = Math.max(0, startPosition);
         //System.out.println("Size of padding for drawing buffer = "+samples.size());
-        System.out.println("Start position is " +  startPosition+ " lastIndex is " + lastIndex + " capacity is " +  waveData.capacity() + " increment is " + increment);
+        //System.out.println("Start position is " +  startPosition+ " lastIndex is " + lastIndex + " capacity is " +  waveData.capacity() + " increment is " + increment);
 
 
 
@@ -160,7 +160,7 @@ public class WavVisualizer {
 
     private int getLastIndex(int startMillisecond, int numSecondsOnScreen, int screenWidth){
         int endMillisecond = startMillisecond + (numSecondsOnScreen)*1000;
-        System.out.println("end millisecond is  " + endMillisecond + " start millisecond is " + startMillisecond );
+        //System.out.println("end millisecond is  " + endMillisecond + " start millisecond is " + startMillisecond );
         return computeSampleStartPosition(endMillisecond, numSecondsOnScreen, screenWidth);
     }
 
@@ -197,7 +197,7 @@ public class WavVisualizer {
             return (canvasWidth / ((double) sampleSize));
     }
 
-    public double getYScaleFactor(int canvasHeight, int largest){
+    public static double getYScaleFactor(int canvasHeight, int largest){
         //System.out.println(largest + " for calculating y scale");
         return ((canvasHeight*.8)/ (largest * 2.0));
     }

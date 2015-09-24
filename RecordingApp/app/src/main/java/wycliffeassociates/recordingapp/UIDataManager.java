@@ -45,6 +45,7 @@ public class UIDataManager {
             preprocessedBuffer = wavLoader.getMappedCacheFile();
             largest = wavLoader.getLargest();
             System.out.println("Mapped files completed.");
+            minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
         } catch (IOException e) {
             System.out.println("There was an error with mapping the files");
             e.printStackTrace();
@@ -133,7 +134,7 @@ public class UIDataManager {
         float[] samples = wavVis.getDataToDraw(location, mainWave.getWidth(), mainWave.getHeight(), largest);
         lock.release();
         mainWave.setIsDoneDrawing(false);
-        System.out.println("Time taken to generate samples to draw: " + (System.nanoTime()-startTime));
+        //System.out.println("Time taken to generate samples to draw: " + (System.nanoTime()-startTime));
         //System.out.println("Size of buffer to draw is "+samples.size());
 
         mainWave.setWaveformDataForPlayback(samples);

@@ -11,7 +11,7 @@ public class VolumeMeter {
     public static void changeVolumeBar(Activity context, double decibel){
         final double db = decibel;
         final Activity ctx = context;
-        System.out.println(db);
+        //System.out.println(db);
 
         ctx.runOnUiThread(new Runnable() {
             @Override

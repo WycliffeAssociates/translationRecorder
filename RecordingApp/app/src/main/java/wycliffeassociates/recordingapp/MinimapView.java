@@ -18,47 +18,47 @@ public class MinimapView extends CanvasView {
 
     private Bitmap mBitmap;
     private float miniMarkerLoc;
-    private Paint mPaint;
     private Canvas mCanvas = null;
     private Drawable background;
-
-
+    private boolean initialized = false;
 
 
     public MinimapView(Context c, AttributeSet attrs) {
         super(c, attrs);
-        //init();
-        //mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-
     }
 
     @Override
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
-        //canvas.drawBitmap(mBitmap, 0, 0, mPaint);
-        //minimapMaker(canvas);
+        if(initialized){
+            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+            minimapMaker(canvas);
+        }
+
+
     }
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
         this.miniMarkerLoc = miniMarkerLoc;
+        this.postInvalidate();
     }
 
-    public void init(ArrayList<Pair<Double,Double>> samples, WavVisualizer wavVis){
-//        xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
-//        yScale = wavVis.getYScaleFactor(this.getHeight());
-//        Runtime.getRuntime().freeMemory();
-//        System.out.println("Saving minimap to BMP...");
-//        System.out.println("Created a BMP...");
-//        mCanvas = new Canvas(mBitmap);
-//        Drawable background = getBackground();
-//        if(background != null){
-//            background.draw(mCanvas);
-//        }
-//        else
-//            mCanvas.drawColor(Color.TRANSPARENT);
-//        drawWaveform(samples, mCanvas);
-//        setBackground(background);
-//        this.invalidate();
+    public void init(float[] samples){
+        mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Runtime.getRuntime().freeMemory();
+        System.out.println("Saving minimap to BMP...");
+        System.out.println("Created a BMP...");
+        mCanvas = new Canvas(mBitmap);
+        Drawable background = getBackground();
+        if(background != null){
+            background.draw(mCanvas);
+        }
+        else
+            mCanvas.drawColor(Color.TRANSPARENT);
+        drawWaveform(samples, mCanvas);
+        setBackground(background);
+        initialized = true;
+        this.invalidate();
     }
 
   /*public void getMinimap(){

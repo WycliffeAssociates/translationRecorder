@@ -53,6 +53,11 @@ public class RecordingScreen extends Activity {
     private RecordingTimer timer;
     private TextView timerView;
     private TextView filenameView;
+    private long timePaused = 0;
+    private long totalTimePaused = 0;
+    private boolean resetPlaybackThread = true;
+    Thread playback;
+    private long startTime = System.currentTimeMillis();
 
 
 
@@ -94,21 +99,13 @@ public class RecordingScreen extends Activity {
         GestureDetector.SimpleOnGestureListener clickListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
-                if(WavPlayer.exists()) {
+                if(WavPlayer.exists() && e.getY() <= minimap.getHeight() ) {
                     float xPos = e.getX() / mainCanvas.getWidth();
                     int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                     WavPlayer.seekTo(timeToSeekTo);
                     minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mainCanvas.invalidate();
-                            minimap.invalidate();
-                        }
-                    });
                 }
                 minimapClicked = true;
-                minimap.invalidate();
                 return true;
             }
 
@@ -241,6 +238,7 @@ public class RecordingScreen extends Activity {
     }
     private void pausePlayback(){
         paused = true;
+        timePaused = System.currentTimeMillis();
         findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
         WavPlayer.pause();
@@ -342,55 +340,70 @@ public class RecordingScreen extends Activity {
         findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
         WavPlayer.play();
+        System.out.println ("paused is " + paused + " reset is " + resetPlaybackThread);
         isPlaying = true;
-        paused = false;
-        Thread playback = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int location=0;
-                int oldLoc = 0;
-                int average = 0;
-                long startTime;
-                long playback = System.currentTimeMillis();
-                startTime = System.currentTimeMillis();
-                while (location != WavPlayer.getDuration()) {
-                    oldLoc = location;
-                    if(!minimapClicked) {
-                        location = Math.max((WavPlayer.isPlaying() || paused) ? WavPlayer.getLocation() : Math.min(location + average, WavPlayer.getDuration()), oldLoc);
-                    } else {
-                        location = WavPlayer.getLocation();
-                        minimapClicked = false;
-                    }
-                    average = 100;//average * ((count-1)/count)+difference/count);
-
-                    double locPercentage = (double) location / (double) WavPlayer.getDuration();
-                    if(mainCanvas.isDoneDrawing()) {
-                        manager.drawWaveformDuringPlayback((int)Math.min(System.currentTimeMillis() - playback, WavPlayer.getDuration()));
-
-                        if (System.currentTimeMillis() >= 3000 + startTime) {
-                            System.out.println("FPS is:" + mainCanvas.getFps() / (double) ((System.currentTimeMillis() - startTime) / 1000.0));
-                            System.out.println("Frames are " + mainCanvas.getFps());
-                            mainCanvas.resetFPS();
-                            startTime = System.currentTimeMillis();
+        if(paused && !resetPlaybackThread){
+            totalTimePaused += System.currentTimeMillis() - timePaused;
+            paused = false;
+        }
+        else if(!resetPlaybackThread) {
+            startTime = System.currentTimeMillis();
+        }
+        else{
+            final int duration = WavPlayer.getDuration();
+            System.out.println("Recreating playback thread");
+            resetPlaybackThread = false;
+            playback = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int location = 0;
+                    int oldLoc = 0;
+                    startTime = System.currentTimeMillis();
+                    long playback = System.currentTimeMillis();
+                    int locationSkippedTo = 0;
+                    while (location < duration) {
+                        oldLoc = location;
+                        if (minimapClicked) {
+                            locationSkippedTo = WavPlayer.getLocation();
+                        } else if (paused) {
+                            location = oldLoc;
+                        } else {
+                            location = (int) Math.min(System.currentTimeMillis() - playback - totalTimePaused - locationSkippedTo, WavPlayer.getDuration());
+                            minimapClicked = false;
                         }
+
+                        float locPercentage = (float) location / (float) WavPlayer.getDuration();
+                        minimap.setMiniMarkerLoc(locPercentage * minimap.getWidth());
+                        if (mainCanvas.isDoneDrawing()) {
+                            manager.drawWaveformDuringPlayback(location);
+                            if (System.currentTimeMillis() >= 3000 + startTime) {
+                               // System.out.println("FPS is:" + mainCanvas.getFps() / (double) ((System.currentTimeMillis() - startTime) / 1000.0));
+                                //System.out.println("Frames are " + mainCanvas.getFps());
+                                mainCanvas.resetFPS();
+                                startTime = System.currentTimeMillis();
+                            }
+                        }
+
+                        //System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
+
                     }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pausePlayback();
+                            WavPlayer.seekToStart();
+                        }
+                    });
 
-                    //System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
-
-                } ;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        pausePlayback();
-                        WavPlayer.seekToStart();
-                    }
-                });
-
-                paused = false;
-
-            }
-        });
-        playback.start();
+                    paused = false;
+                    resetPlaybackThread = true;
+                    totalTimePaused = 0;
+                    minimapClicked = false;
+                    System.out.println("Out of playback thread");
+                }
+            });
+            playback.start();
+        }
     }
 
     @Override

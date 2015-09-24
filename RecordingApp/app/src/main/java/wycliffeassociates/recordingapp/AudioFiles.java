@@ -381,6 +381,7 @@ public class AudioFiles extends Activity {
         if (file == null) {}
         else {
             exportList = new ArrayList<String>();
+            if(adapter != null && adapter.checkBoxState != null)
             Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
         }
         finish();
