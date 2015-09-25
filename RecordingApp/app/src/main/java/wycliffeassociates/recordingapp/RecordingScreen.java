@@ -103,7 +103,13 @@ public class RecordingScreen extends Activity {
                     float xPos = e.getX() / mainCanvas.getWidth();
                     int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                     WavPlayer.seekTo(timeToSeekTo);
+                    startTime = System.currentTimeMillis() - timeToSeekTo;
+                    totalTimePaused = 0;
+                    if(paused){
+                        timePaused = System.currentTimeMillis();
+                    }
                     minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
+                    manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
                 }
                 minimapClicked = true;
                 return true;
@@ -339,17 +345,24 @@ public class RecordingScreen extends Activity {
     private void playRecording(){
         findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
-        WavPlayer.play();
-        System.out.println ("paused is " + paused + " reset is " + resetPlaybackThread);
+        System.out.println("paused is " + paused + " reset is " + resetPlaybackThread);
         isPlaying = true;
-        if(paused && !resetPlaybackThread){
+        if(paused && !resetPlaybackThread && !minimapClicked){
             totalTimePaused += System.currentTimeMillis() - timePaused;
             paused = false;
+            WavPlayer.play();
         }
-        else if(!resetPlaybackThread) {
+        else if(!resetPlaybackThread && !minimapClicked) {
             startTime = System.currentTimeMillis();
+            paused = false;
+            WavPlayer.play();
         }
         else{
+            if(paused && minimapClicked){
+                totalTimePaused += System.currentTimeMillis() - timePaused;
+            }
+            paused = false;
+            WavPlayer.play();
             final int duration = WavPlayer.getDuration();
             System.out.println("Recreating playback thread");
             resetPlaybackThread = false;
@@ -358,17 +371,16 @@ public class RecordingScreen extends Activity {
                 public void run() {
                     int location = 0;
                     int oldLoc = 0;
-                    startTime = System.currentTimeMillis();
-                    long playback = System.currentTimeMillis();
-                    int locationSkippedTo = 0;
-                    while (location < duration) {
+                    if(!minimapClicked){
+                        startTime = System.currentTimeMillis();
+                    }
+                    while (location < duration +10) {
+                        System.out.println("location is " + location + " start time is " + startTime + " total time paused is " + totalTimePaused + " current time is " + System.currentTimeMillis());
                         oldLoc = location;
-                        if (minimapClicked) {
-                            locationSkippedTo = WavPlayer.getLocation();
-                        } else if (paused) {
+                        if (paused && !minimapClicked) {
                             location = oldLoc;
                         } else {
-                            location = (int) Math.min(System.currentTimeMillis() - playback - totalTimePaused - locationSkippedTo, WavPlayer.getDuration());
+                            location = (int)(System.currentTimeMillis() - (totalTimePaused + startTime));
                             minimapClicked = false;
                         }
 
@@ -376,12 +388,6 @@ public class RecordingScreen extends Activity {
                         minimap.setMiniMarkerLoc(locPercentage * minimap.getWidth());
                         if (mainCanvas.isDoneDrawing()) {
                             manager.drawWaveformDuringPlayback(location);
-                            if (System.currentTimeMillis() >= 3000 + startTime) {
-                               // System.out.println("FPS is:" + mainCanvas.getFps() / (double) ((System.currentTimeMillis() - startTime) / 1000.0));
-                                //System.out.println("Frames are " + mainCanvas.getFps());
-                                mainCanvas.resetFPS();
-                                startTime = System.currentTimeMillis();
-                            }
                         }
 
                         //System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
@@ -398,6 +404,7 @@ public class RecordingScreen extends Activity {
                     paused = false;
                     resetPlaybackThread = true;
                     totalTimePaused = 0;
+                    startTime = 0;
                     minimapClicked = false;
                     System.out.println("Out of playback thread");
                 }

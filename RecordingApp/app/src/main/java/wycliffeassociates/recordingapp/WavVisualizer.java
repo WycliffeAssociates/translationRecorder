@@ -22,7 +22,6 @@ public class WavVisualizer {
         this.buffer = buffer;
         this.preprocessedBuffer = preprocessedBuffer;
         samples = new float[screenWidth*8];
-
     }
 
     public float[] getDataToDraw(int location, int screenWidth, int screenHeight, int largest){

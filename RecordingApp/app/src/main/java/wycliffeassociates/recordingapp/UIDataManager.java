@@ -69,7 +69,9 @@ public class UIDataManager {
                         isPaused = message.isPaused();
 
                         if (!isPaused && message.getData() != null) {
+                            lock.acquire();
                             byte[] buffer = message.getData();
+                            lock.release();
 
                             double max = getPeakVolume(buffer);
                             double db = computeDB(max);
@@ -93,7 +95,9 @@ public class UIDataManager {
                             //changeVolumeBar(ctx, db);
                         }
                         if (isStopped) {
+                            lock.acquire();
                             mainWave.setBuffer(null);
+                            lock.release();
                             mainWave.postInvalidate();
                             return;
                         }
@@ -136,8 +140,13 @@ public class UIDataManager {
         mainWave.setIsDoneDrawing(false);
         //System.out.println("Time taken to generate samples to draw: " + (System.nanoTime()-startTime));
         //System.out.println("Size of buffer to draw is "+samples.size());
-
+        try {
+            lock.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         mainWave.setWaveformDataForPlayback(samples);
+        lock.release();
         mainWave.postInvalidate();
         Runtime.getRuntime().freeMemory();
     }

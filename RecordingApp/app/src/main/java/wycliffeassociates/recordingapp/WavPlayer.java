@@ -15,10 +15,11 @@ public class WavPlayer {
 
     private static MediaPlayer m;
     private static boolean paused = false;
-    private static boolean prepared = false;
+    private static volatile boolean prepared = false;
     private static boolean stopped = false;
     private static boolean started = true;
     private static boolean loaded = false;
+    private static int duration = 0;
 
 
     public static void play(){
@@ -66,6 +67,7 @@ public class WavPlayer {
             stopped = false;
             paused = false;
             loaded = true;
+            duration = m.getDuration();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -137,7 +139,7 @@ public class WavPlayer {
         if(m == null || !prepared)
             return 0;
         else
-            return m.getDuration();
+            return duration;
     }
 
 }
