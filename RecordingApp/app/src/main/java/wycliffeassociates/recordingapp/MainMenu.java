@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-public class MainMenuListener extends Activity{
+public class MainMenu extends Activity{
 
     private ImageButton btnRecord;
     private ImageButton btnFiles;

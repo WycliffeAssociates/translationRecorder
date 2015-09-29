@@ -21,6 +21,9 @@ public class MinimapView extends CanvasView {
     private Canvas mCanvas = null;
     private Drawable background;
     private boolean initialized = false;
+    private boolean playSelectedSection;
+    private int startOfPlaybackSection;
+    private int endOfPlaybackSection;
 
 
     public MinimapView(Context c, AttributeSet attrs) {
@@ -32,10 +35,23 @@ public class MinimapView extends CanvasView {
         super.onDraw(canvas);
         if(initialized){
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
-            minimapMaker(canvas);
+            minimapMarker(canvas);
+            if(playSelectedSection){
+                drawPlaybackSection(canvas, startOfPlaybackSection, endOfPlaybackSection);
+            }
         }
+    }
 
+    public void setPlaySelectedSection(boolean x){
+        playSelectedSection = x;
+    }
 
+    public void setStartOfPlaybackSection(int x){
+        startOfPlaybackSection = x;
+    }
+
+    public void setEndOfPlaybackSection(int x){
+        endOfPlaybackSection = x;
     }
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
@@ -61,28 +77,14 @@ public class MinimapView extends CanvasView {
         this.invalidate();
     }
 
-  /*public void getMinimap(){
-        //samples = wavLoader.getMinimap(this.getWidth());
-        xScale = wavVis.getXScaleFactor(this.getWidth(), 0);
-        //yScale = wavVis.getYScaleFactor(this.getHeight());
-        wavLoader = null;
-        wavVis = null;
-        Runtime.getRuntime().freeMemory();
-        System.out.println("Saving minimap to BMP...");
-        mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-        System.out.println("Created a BMP...");
-        mCanvas = new Canvas(mBitmap);
-        Drawable background = getBackground();
-        if(background!= null){
-            background.draw(mCanvas);
-        }
-        else
-            mCanvas.drawColor(Color.TRANSPARENT);
-        draw(mCanvas);
-        this.invalidate();
-    }*/
+    public void drawPlaybackSection(Canvas c, int start, int end){
+        mPaint.setColor(Color.BLUE);
+        c.drawLine(start, 0, start, mCanvas.getHeight(), mPaint);
+        mPaint.setColor(Color.RED);
+        c.drawLine(end, 0, end, mCanvas.getHeight(), mPaint);
+    }
 
-    public void minimapMaker(Canvas canvas){
+    public void minimapMarker(Canvas canvas){
         mPaint.setColor(Color.GREEN);
         canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
     }

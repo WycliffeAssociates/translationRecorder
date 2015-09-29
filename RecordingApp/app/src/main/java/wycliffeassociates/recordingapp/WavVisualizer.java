@@ -125,7 +125,7 @@ public class WavVisualizer {
     private int millisecondsPerPixel(int screenWidth, int numSecondsOnScreen){
         //not entirely sure why the 2 needs to be there for the second case, but it appears to be necessary
         //the math may be wrong for the first case, as using the uncompressed file works perfectly during playback
-        int millisecondsPerPixel  = (useCompressedFile)? (int)(((compressedSecondsOnScreen * 1000) / screenWidth * (numSecondsOnScreen / compressedSecondsOnScreen))  * AudioInfo.SIZE_OF_SHORT):
+        int millisecondsPerPixel  = (useCompressedFile)? (int)Math.ceil(((compressedSecondsOnScreen * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)compressedSecondsOnScreen))  * AudioInfo.SIZE_OF_SHORT):
                 (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen*2) / (double)screenWidth);
         return millisecondsPerPixel;
     }
@@ -133,7 +133,8 @@ public class WavVisualizer {
     private int initializeSamples(float[] samples, int startPosition, int increment){
         if(startPosition <= 0) {
             int numberOfZeros = Math.abs(startPosition) / increment;
-
+            System.out.println("number of zeros is " + numberOfZeros);
+            System.out.println("Start position is " + startPosition + " increment is " + increment);
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;
@@ -150,6 +151,7 @@ public class WavVisualizer {
     private int computeOffsetForPlaybackLine(int screenWidth, int numSecondsOnScreen, int startPosition){
         int pixelsBeforeLine = (screenWidth/8);
         int mspp = millisecondsPerPixel(screenWidth, numSecondsOnScreen);
+        System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
         return startPosition - (mspp * pixelsBeforeLine);
     }
 

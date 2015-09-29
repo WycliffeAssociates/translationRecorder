@@ -16,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
@@ -60,6 +59,9 @@ public class Settings extends Activity {
         //context
         c = this;
         final PreferencesManager pref = new PreferencesManager(c);
+        Intent intent = new Intent(c, LanguageNamesRequest.class);
+        intent.putExtra("pressedSync", false);
+        startActivityForResult(intent, 0);
 
         //initializing items that need to be printed to screen
         displayFileName = (TextView)findViewById(R.id.defaultFileName);
@@ -82,7 +84,7 @@ public class Settings extends Activity {
     }
 
     public void onBackPressed() {
-        Intent intent = new Intent(Settings.this, MainMenuListener.class);
+        Intent intent = new Intent(Settings.this, MainMenu.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
 
@@ -109,6 +111,7 @@ public class Settings extends Activity {
 
         if(flag){
             Intent intent = new Intent(c, LanguageNamesRequest.class);
+            intent.putExtra("pressedSync", true);
             startActivityForResult(intent, 0);
         }else {
             try {
@@ -121,6 +124,7 @@ public class Settings extends Activity {
                 audiorecorder.close();
             } catch (Exception e) {
                 Intent intent = new Intent(c, LanguageNamesRequest.class);
+                intent.putExtra("pressedSync", false);
                 startActivityForResult(intent, 0);
 
             }
