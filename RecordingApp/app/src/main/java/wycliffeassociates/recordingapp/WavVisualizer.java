@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+ package wycliffeassociates.recordingapp;
 
 import android.provider.MediaStore;
 import android.util.Pair;
@@ -29,7 +29,9 @@ public class WavVisualizer {
         int numSecondsOnScreen = getNumSecondsOnScreen(userScale);
         //System.out.println("numSeconds on screen is " + numSecondsOnScreen);
         //based on the user scale, determine which buffer waveData should be
+
         useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
+
         MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
         int increment = getIncrement(numSecondsOnScreen, screenWidth);
         int leftOff = 0;
@@ -37,17 +39,15 @@ public class WavVisualizer {
         int lastIndex = getLastIndex(location, numSecondsOnScreen, screenWidth);
         double yScale = getYScaleFactor(screenHeight, largest);
 
-        //startPosition -= computeOffsetForPlaybackLine(screenWidth, numSecondsOnScreen);
+        startPosition = computeOffsetForPlaybackLine(screenWidth, numSecondsOnScreen, startPosition);
+        int index = initializeSamples(samples, startPosition, increment);
         //startPosition = Math.max(0, startPosition);
         //initializeSamples(samples, screenWidth, numSecondsOnScreen, location);
         startPosition = Math.max(0, startPosition);
         //System.out.println("Size of padding for drawing buffer = "+samples.size());
         //System.out.println("Start position is " +  startPosition+ " lastIndex is " + lastIndex + " capacity is " +  waveData.capacity() + " increment is " + increment);
 
-
-
-        int index = 0;
-        sampleSize = 0;
+        sampleSize = index;
         for(int i = startPosition; i < Math.min(waveData.capacity(), lastIndex); i += increment){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
@@ -123,26 +123,34 @@ public class WavVisualizer {
     }
 
     private int millisecondsPerPixel(int screenWidth, int numSecondsOnScreen){
-        int millisecondsPerPixel  = (useCompressedFile)? (int)((compressedSecondsOnScreen * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)compressedSecondsOnScreen)) : (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen) / (double)screenWidth);
+        //not entirely sure why the 2 needs to be there for the second case, but it appears to be necessary
+        //the math may be wrong for the first case, as using the uncompressed file works perfectly during playback
+        int millisecondsPerPixel  = (useCompressedFile)? (int)(((compressedSecondsOnScreen * 1000) / screenWidth * (numSecondsOnScreen / compressedSecondsOnScreen))  * AudioInfo.SIZE_OF_SHORT):
+                (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen*2) / (double)screenWidth);
         return millisecondsPerPixel;
     }
 
-    private void initializeSamples(ArrayList<Pair<Double, Double>> samples, int screenWidth, int numSecondsOnScreen, int location){
-        int positionOfPlaybackLine = screenWidth / 8;
-        int millisecondsPerPixel = millisecondsPerPixel(screenWidth, numSecondsOnScreen);
-        int positionOfPlaybackLocation = (location / millisecondsPerPixel);
-        if (positionOfPlaybackLine > positionOfPlaybackLocation){
-            for (int i = 0; i < (positionOfPlaybackLine - positionOfPlaybackLocation); i++){
-                samples.add(new Pair<>(0.0,0.0));
+    private int initializeSamples(float[] samples, int startPosition, int increment){
+        if(startPosition <= 0) {
+            int numberOfZeros = Math.abs(startPosition) / increment;
+
+            int index = 0;
+            for (int i = 0; i < numberOfZeros; i++) {
+                samples[index] = index/4;
+                samples[index+1] = 0;
+                samples[index+2] =  index/4;
+                samples[index+3] = 0;
+                index+=4;
             }
+            return index;
         }
+        return 0;
     }
 
-    private int computeOffsetForPlaybackLine(int screenWidth, int numSecondsOnScreen){
-        int lineInPixels = (screenWidth/8);
-        int lineInMilliseconds = millisecondsPerPixel(screenWidth, numSecondsOnScreen);
-        int positionInBuffer = (useCompressedFile)? lineInMilliseconds * 4 : lineInMilliseconds * 2;
-        return positionInBuffer;
+    private int computeOffsetForPlaybackLine(int screenWidth, int numSecondsOnScreen, int startPosition){
+        int pixelsBeforeLine = (screenWidth/8);
+        int mspp = millisecondsPerPixel(screenWidth, numSecondsOnScreen);
+        return startPosition - (mspp * pixelsBeforeLine);
     }
 
     private int computeSampleStartPosition(int startMillisecond, int numSecondsOnScreen, int screenWidth){

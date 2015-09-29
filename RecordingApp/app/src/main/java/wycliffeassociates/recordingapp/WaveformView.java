@@ -47,6 +47,7 @@ public class WaveformView extends CanvasView {
                 UIDataManager.lock.acquire();
                 drawWaveform(samples, canvas);
                 UIDataManager.lock.release();
+                drawMarker(canvas);
             } catch (Exception e) {
                 e.printStackTrace();
             }
