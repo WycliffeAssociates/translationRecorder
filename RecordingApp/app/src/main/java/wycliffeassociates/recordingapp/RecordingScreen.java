@@ -43,6 +43,7 @@ public class RecordingScreen extends Activity {
     private ScaleGestureDetector SGD;
     private GestureDetector gestureDetector;
     private GestureDetector clickMinimap;
+    private boolean hasNotYetRecorded = true;
     private boolean paused = false;
     private boolean isSaved = false;
     private boolean isPlaying = false;
@@ -72,6 +73,9 @@ public class RecordingScreen extends Activity {
         private int endPosition = 0;
         @Override
         public boolean onDown(MotionEvent e) {
+            if(isRecording || hasNotYetRecorded){
+                return true;
+            }
             if(WavPlayer.exists() && e.getY() <= minimap.getHeight() ) {
                 minimap.setPlaySelectedSection(false);
                 float xPos = e.getX() / mainCanvas.getWidth();
@@ -92,6 +96,9 @@ public class RecordingScreen extends Activity {
 
         @Override
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+            if(isRecording || hasNotYetRecorded){
+                return true;
+            }
             startPosition = (int)event1.getX();
             endPosition -= (int)distanceX;
             minimap.setPlaySelectedSection(true);
@@ -164,6 +171,7 @@ public class RecordingScreen extends Activity {
 
         filenameView = (TextView)findViewById(R.id.filenameView);
         filenameView.setText(outputName);
+        hasNotYetRecorded = true;
     }
 
 
@@ -354,6 +362,7 @@ public class RecordingScreen extends Activity {
     private void stopRecording() {
         isRecording = false;
         isPausedRecording = false;
+        hasNotYetRecorded = false;
         if (isPlaying) {
             isPlaying = false;
             WavPlayer.stop();
