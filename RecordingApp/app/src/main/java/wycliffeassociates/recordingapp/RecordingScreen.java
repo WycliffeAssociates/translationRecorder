@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.view.GestureDetectorCompat;
 import android.text.InputType;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -59,17 +60,69 @@ public class RecordingScreen extends Activity {
     Thread playback;
     private long startTime = System.currentTimeMillis();
 
+    boolean playSection = false;
+    int playbackSectionStart = 0;
+    int playbackSectionEnd = 0;
+
+    private GestureDetectorCompat mDetector;
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private int startPosition = 0;
+        private int endPosition = 0;
+        @Override
+        public boolean onDown(MotionEvent e) {
+            if(WavPlayer.exists() && e.getY() <= minimap.getHeight() ) {
+                minimap.setPlaySelectedSection(false);
+                float xPos = e.getX() / mainCanvas.getWidth();
+                int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
+                WavPlayer.seekTo(timeToSeekTo);
+                startTime = System.currentTimeMillis() - timeToSeekTo;
+                totalTimePaused = 0;
+                if(paused){
+                    timePaused = System.currentTimeMillis();
+                }
+                minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
+                manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
+            }
+            endPosition = (int)e.getX();
+            minimapClicked = true;
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+            startPosition = (int)event1.getX();
+            endPosition -= (int)distanceX;
+            minimap.setPlaySelectedSection(true);
+            minimap.setStartOfPlaybackSection(startPosition);
+            minimap.setEndOfPlaybackSection(endPosition);
+            playbackSectionStart = (int)((startPosition / (double)mainCanvas.getWidth()) * WavPlayer.getDuration());
+            playbackSectionEnd = (int)((endPosition / (double)mainCanvas.getWidth()) * WavPlayer.getDuration());
+            if(startPosition > endPosition) {
+                int temp = playbackSectionEnd;
+                playbackSectionEnd = playbackSectionStart;
+                playbackSectionStart = temp;
+            }
+            WavPlayer.seekTo(playbackSectionStart);
+            startTime = System.currentTimeMillis() - playbackSectionStart;
+            totalTimePaused = 0;
+            if(paused){
+                timePaused = System.currentTimeMillis();
+            }
+            minimap.setMiniMarkerLoc((float) (startPosition * minimap.getWidth()));
+            manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
+            minimapClicked = true;
+            minimap.postInvalidate();
+            playSection = true;
+            return true;
+        }
+    }
 
 
     public boolean onTouchEvent(MotionEvent ev) {
-        if(ev.getPointerCount() > 1.0){
-            SGD.onTouchEvent(ev);
-        }
-        else {
-            //gestureDetector.onTouchEvent(ev);
-            clickMinimap.onTouchEvent(ev);
-        }
-        return true;
+        this.mDetector.onTouchEvent(ev);
+        return super.onTouchEvent(ev);
     }
 
     @Override
@@ -86,48 +139,7 @@ public class RecordingScreen extends Activity {
         setContentView(R.layout.recording_screen);
         userScale = 1.f;
 
-        GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                xTranslation += distanceX;
-                mainCanvas.invalidate();
-                return true;
-            }
-
-        };
-
-        GestureDetector.SimpleOnGestureListener clickListener = new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) {
-                if(WavPlayer.exists() && e.getY() <= minimap.getHeight() ) {
-                    float xPos = e.getX() / mainCanvas.getWidth();
-                    int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
-                    WavPlayer.seekTo(timeToSeekTo);
-                    startTime = System.currentTimeMillis() - timeToSeekTo;
-                    totalTimePaused = 0;
-                    if(paused){
-                        timePaused = System.currentTimeMillis();
-                    }
-                    minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
-                    manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
-                }
-                minimapClicked = true;
-                return true;
-            }
-
-        };
-
-        ScaleGestureDetector.SimpleOnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener(){
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                userScale *= detector.getScaleFactor();
-                return true;
-            }
-        };
-
-        //gestureDetector = new GestureDetector(this, gestureListener);
-        SGD = new ScaleGestureDetector(this, scaleListener);
-        clickMinimap = new GestureDetector(this, clickListener);
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas) instanceof WaveformView ? ((WaveformView) findViewById(R.id.main_canvas)) : null;
         minimap = (CanvasView) findViewById(R.id.minimap) instanceof MinimapView ? ((MinimapView) findViewById(R.id.minimap)) : null;
@@ -401,7 +413,7 @@ public class RecordingScreen extends Activity {
                     if(!minimapClicked){
                         startTime = System.currentTimeMillis();
                     }
-                    while (location < duration +10) {
+                    while ((!playSection  && location < duration +10) || (playSection && location < playbackSectionEnd)) {
                         System.out.println("location is " + location + " start time is " + startTime + " total time paused is " + totalTimePaused + " current time is " + System.currentTimeMillis());
                         oldLoc = location;
                         if (paused && !minimapClicked) {
@@ -433,6 +445,7 @@ public class RecordingScreen extends Activity {
                     totalTimePaused = 0;
                     startTime = 0;
                     minimapClicked = false;
+                    playSection = false;
                     System.out.println("Out of playback thread");
                 }
             });
