@@ -50,7 +50,7 @@ public class UIDataManager {
             System.out.println("There was an error with mapping the files");
             e.printStackTrace();
         }
-        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth());
+        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
     }
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
     public void listenForRecording(boolean drawWaveform){
@@ -135,7 +135,7 @@ public class UIDataManager {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        float[] samples = wavVis.getDataToDraw(location, mainWave.getWidth(), mainWave.getHeight(), largest);
+        float[] samples = wavVis.getDataToDraw(location, largest);
         lock.release();
         mainWave.setIsDoneDrawing(false);
         //System.out.println("Time taken to generate samples to draw: " + (System.nanoTime()-startTime));
