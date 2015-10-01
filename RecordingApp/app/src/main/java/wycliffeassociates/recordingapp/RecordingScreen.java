@@ -59,10 +59,10 @@ public class RecordingScreen extends Activity {
     private boolean resetPlaybackThread = true;
     Thread playback;
     private long startTime = System.currentTimeMillis();
-
     boolean playSection = false;
     int playbackSectionStart = 0;
     int playbackSectionEnd = 0;
+    String playbackTime;
 
     private GestureDetectorCompat mDetector;
 
@@ -156,8 +156,12 @@ public class RecordingScreen extends Activity {
 
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(false);
-        timerView = (TextView)findViewById(R.id.timerView);
+
+
+        timerView = (TextView) findViewById(R.id.timerView);
         timerView.invalidate();
+
+
         filenameView = (TextView)findViewById(R.id.filenameView);
         filenameView.setText(outputName);
     }
@@ -414,7 +418,7 @@ public class RecordingScreen extends Activity {
                         startTime = System.currentTimeMillis();
                     }
                     while ((!playSection  && location < duration +10) || (playSection && location < playbackSectionEnd)) {
-                        System.out.println("location is " + location + " start time is " + startTime + " total time paused is " + totalTimePaused + " current time is " + System.currentTimeMillis());
+                        //System.out.println("location is " + location + " start time is " + startTime + " total time paused is " + totalTimePaused + " current time is " + System.currentTimeMillis());
                         oldLoc = location;
                         if (paused && !minimapClicked) {
                             location = oldLoc;
@@ -430,6 +434,14 @@ public class RecordingScreen extends Activity {
                         }
 
                         //System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
+                        final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                timerView.setText(time);
+                                timerView.invalidate();
+                            }
+                        });
 
                     }
                     runOnUiThread(new Runnable() {

@@ -124,8 +124,8 @@ public class WavVisualizer {
     private int initializeSamples(float[] samples, int startPosition, int increment){
         if(startPosition <= 0) {
             int numberOfZeros = Math.abs(startPosition) / increment;
-            System.out.println("number of zeros is " + numberOfZeros);
-            System.out.println("Start position is " + startPosition + " increment is " + increment);
+            //System.out.println("number of zeros is " + numberOfZeros);
+            //System.out.println("Start position is " + startPosition + " increment is " + increment);
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;
@@ -142,7 +142,7 @@ public class WavVisualizer {
     private int computeOffsetForPlaybackLine(int numSecondsOnScreen, int startPosition){
         int pixelsBeforeLine = (screenWidth/8);
         int mspp = millisecondsPerPixel(numSecondsOnScreen);
-        System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
+        //System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
         return startPosition - (mspp * pixelsBeforeLine);
     }
 
