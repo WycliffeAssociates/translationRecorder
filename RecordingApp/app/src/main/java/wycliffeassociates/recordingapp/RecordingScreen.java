@@ -159,6 +159,9 @@ public class RecordingScreen extends Activity {
         findViewById(R.id.btnSave).setOnClickListener(btnClick);
         findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnPause).setOnClickListener(btnClick);
+        findViewById(R.id.btnSkipBack).setOnClickListener(btnClick);
+        findViewById(R.id.btnSkipForward).setOnClickListener(btnClick);
+
     }
 
     private void enableButton(int id,boolean isEnable){
@@ -249,6 +252,30 @@ public class RecordingScreen extends Activity {
         findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
         WavPlayer.pause();
     }
+
+    private void skipForward(){
+        WavPlayer.seekTo(WavPlayer.getDuration());
+        startTime = System.currentTimeMillis() - WavPlayer.getDuration();
+        totalTimePaused = 0;
+        if(paused){
+            timePaused = System.currentTimeMillis();
+        }
+        minimap.setMiniMarkerLoc((float) (minimap.getWidth()));
+        manager.drawWaveformDuringPlayback((int) (System.currentTimeMillis() - startTime));
+        minimapClicked = true;
+    }
+    private void skipBack(){
+        WavPlayer.seekToStart();
+        startTime = System.currentTimeMillis();
+        totalTimePaused = 0;
+        if(paused){
+            timePaused = System.currentTimeMillis();
+        }
+        minimap.setMiniMarkerLoc(0.f);
+        manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
+        minimapClicked = true;
+    }
+
 
     private void startRecording(){
         stopService(new Intent(this, WavRecorder.class));
@@ -468,6 +495,16 @@ public class RecordingScreen extends Activity {
                 case R.id.btnPauseRecording:{
                     enableButtons(false);
                     pauseRecording();
+                    break;
+                }
+                case R.id.btnSkipForward:{
+                    enableButtons(false);
+                    skipForward();
+                    break;
+                }
+                case R.id.btnSkipBack:{
+                    enableButtons(false);
+                    skipBack();
                     break;
                 }
             }
