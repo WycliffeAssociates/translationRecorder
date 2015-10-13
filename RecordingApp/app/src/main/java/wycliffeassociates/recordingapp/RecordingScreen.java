@@ -64,6 +64,8 @@ public class RecordingScreen extends Activity {
     int playbackSectionStart = 0;
     int playbackSectionEnd = 0;
     String playbackTime;
+    boolean backWasPressed = false;
+    int numThreads = 0;
 
     private GestureDetectorCompat mDetector;
 
@@ -296,7 +298,7 @@ public class RecordingScreen extends Activity {
             timePaused = System.currentTimeMillis();
         }
         minimap.setMiniMarkerLoc(0.f);
-        manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
+        manager.drawWaveformDuringPlayback((int) (System.currentTimeMillis() - startTime));
         minimapClicked = true;
     }
 
@@ -395,6 +397,7 @@ public class RecordingScreen extends Activity {
 
     }
     private void playRecording(){
+        backWasPressed = false;
         findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
         findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
         System.out.println("paused is " + paused + " reset is " + resetPlaybackThread);
@@ -421,6 +424,7 @@ public class RecordingScreen extends Activity {
             playback = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    numThreads++;
                     int location = 0;
                     int oldLoc = 0;
                     if(!minimapClicked){
@@ -452,6 +456,11 @@ public class RecordingScreen extends Activity {
                             }
                         });
 
+                        if(backWasPressed){
+                            break;
+                        }
+                        System.out.println("number of threads running is " + numThreads);
+
                     }
                     runOnUiThread(new Runnable() {
                         @Override
@@ -460,7 +469,7 @@ public class RecordingScreen extends Activity {
                             WavPlayer.seekToStart();
                         }
                     });
-
+                    numThreads--;
                     paused = false;
                     resetPlaybackThread = true;
                     totalTimePaused = 0;
@@ -476,6 +485,7 @@ public class RecordingScreen extends Activity {
 
     @Override
     public void onBackPressed() {
+        backWasPressed = true;
         if(!isSaved) {
             exitdialog dialog = new exitdialog(this, R.style.Theme_UserDialog);
             if(isRecording){

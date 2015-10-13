@@ -105,22 +105,6 @@ public class WavVisualizer {
         return index;
     }
 
-
-    private boolean shouldUseCompressedFile(int numSecondsOnScreen){
-        if(numSecondsOnScreen >= compressedSecondsOnScreen){
-            return true;
-        }
-        else return false;
-    }
-
-    private int millisecondsPerPixel(int numSecondsOnScreen){
-        //not entirely sure why the 2 needs to be there for the second case, but it appears to be necessary
-        //the math may be wrong for the first case, as using the uncompressed file works perfectly during playback
-        int millisecondsPerPixel  = (useCompressedFile)? (int)Math.ceil(((compressedSecondsOnScreen * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)compressedSecondsOnScreen))  * AudioInfo.SIZE_OF_SHORT):
-                (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen*2) / (double)screenWidth);
-        return millisecondsPerPixel;
-    }
-
     private int initializeSamples(float[] samples, int startPosition, int increment){
         if(startPosition <= 0) {
             int numberOfZeros = Math.abs(startPosition) / increment;
@@ -137,6 +121,21 @@ public class WavVisualizer {
             return index;
         }
         return 0;
+    }
+
+    private boolean shouldUseCompressedFile(int numSecondsOnScreen){
+        if(numSecondsOnScreen >= compressedSecondsOnScreen){
+            return true;
+        }
+        else return false;
+    }
+
+    private int millisecondsPerPixel(int numSecondsOnScreen){
+        //not entirely sure why the 2 needs to be there for the second case, but it appears to be necessary
+        //the math may be wrong for the first case, as using the uncompressed file works perfectly during playback
+        int millisecondsPerPixel  = (useCompressedFile)? (int)Math.ceil(((compressedSecondsOnScreen * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)compressedSecondsOnScreen))  * AudioInfo.SIZE_OF_SHORT):
+                (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen*2) / (double)screenWidth);
+        return millisecondsPerPixel;
     }
 
     private int computeOffsetForPlaybackLine(int numSecondsOnScreen, int startPosition){
@@ -168,7 +167,6 @@ public class WavVisualizer {
         return Math.max(numSecondsOnScreen, 1);
     }
 
-
     private MappedByteBuffer selectBufferToUse(boolean useCompressedFile){
         if (useCompressedFile){
             return preprocessedBuffer;
@@ -181,7 +179,6 @@ public class WavVisualizer {
         //System.out.println(largest + " for calculating y scale");
         return ((canvasHeight*.8)/ (largest * 2.0));
     }
-
 
     private int computeSpaceToAllocateForSamples(int startPosition, int endPosition, int increment){
         //the 2 is to give a little extra room, and the 4 is to account for x1, y1, x2, y2 for each

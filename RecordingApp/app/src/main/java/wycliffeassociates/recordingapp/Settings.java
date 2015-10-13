@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class Settings extends Activity {
      * Request code for Android version under 5.0 on saving a directory
      */
     final int SET_SAVE_DIR2 = 22;
+    private boolean pingMeBack = false;
 
 
     @Override
@@ -59,9 +61,6 @@ public class Settings extends Activity {
         //context
         c = this;
         final PreferencesManager pref = new PreferencesManager(c);
-        Intent intent = new Intent(c, LanguageNamesRequest.class);
-        intent.putExtra("pressedSync", false);
-        startActivityForResult(intent, 0);
 
         //initializing items that need to be printed to screen
         displayFileName = (TextView)findViewById(R.id.defaultFileName);
@@ -111,7 +110,6 @@ public class Settings extends Activity {
 
         if(flag){
             Intent intent = new Intent(c, LanguageNamesRequest.class);
-            intent.putExtra("pressedSync", true);
             startActivityForResult(intent, 0);
         }else {
             try {
@@ -124,7 +122,6 @@ public class Settings extends Activity {
                 audiorecorder.close();
             } catch (Exception e) {
                 Intent intent = new Intent(c, LanguageNamesRequest.class);
-                intent.putExtra("pressedSync", false);
                 startActivityForResult(intent, 0);
 
             }
@@ -239,10 +236,10 @@ public class Settings extends Activity {
      * @param pref the preference manager that holds the target language
      */
     private void updateFileName(PreferencesManager pref){
-            String name = pref.getPreferences("targetLanguage") + "-" +
-                    pref.getPreferences("book");
-            pref.setPreferences("fileName", name);
-            printFileName(pref);
+        String name = pref.getPreferences("targetLanguage") + "-" +
+                pref.getPreferences("book");
+        pref.setPreferences("fileName", name);
+        printFileName(pref);
     }
 
 
@@ -423,7 +420,7 @@ public class Settings extends Activity {
      * @param pref The preference manager
      */
     private void ftpListener(final PreferencesManager pref) {
-      ImageButton setFtp = (ImageButton)findViewById(R.id.setFtp);
+        ImageButton setFtp = (ImageButton)findViewById(R.id.setFtp);
         setFtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
