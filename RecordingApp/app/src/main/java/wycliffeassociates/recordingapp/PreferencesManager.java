@@ -185,6 +185,7 @@ public class PreferencesManager {
 
         prefs.put("targetLanguage", "en");
         prefs.put("book","mat");
+        prefs.put("chapter", 1);
         prefs.put("displaySort", 5);
 
         //ftp defaults
