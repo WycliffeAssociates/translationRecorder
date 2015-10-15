@@ -488,6 +488,7 @@ public class RecordingScreen extends Activity {
         backWasPressed = true;
         if(!isSaved) {
             exitdialog dialog = new exitdialog(this, R.style.Theme_UserDialog);
+            dialog.setFilename(recordedFilename);
             if(isRecording){
                 dialog.setIsRecording(true);
                 isRecording = false;
@@ -585,8 +586,9 @@ public class RecordingScreen extends Activity {
         if (!file.exists()) {
             file.mkdirs();
         }
-        if(recordedFilename != null)
+        if(recordedFilename != null) {
             return (file.getAbsolutePath() + "/" + recordedFilename);
+        }
         else {
             recordedFilename = (file.getAbsolutePath() + "/" + UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV);
             System.out.println("filename is " + recordedFilename);

@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import java.io.File;
+
 /**
  * Created by Emmanuel on 8/5/2015.
  */
@@ -16,6 +18,7 @@ public class exitdialog extends Dialog implements View.OnClickListener {
     private boolean isRecording = false;
     private boolean isPlaying = false;
     private boolean isPausedRecording = false;
+    private String filename = null;
 
 
     private Activity activity;
@@ -49,6 +52,9 @@ public class exitdialog extends Dialog implements View.OnClickListener {
     public void setIsPausedRecording(boolean isPausedRecording) {
         this.isPausedRecording = isPausedRecording;
     }
+    public void setFilename(String filename){
+        this.filename = filename;
+    }
 
 
     @Override
@@ -75,7 +81,7 @@ public class exitdialog extends Dialog implements View.OnClickListener {
                         e.printStackTrace();
                     }
                 }
-                else if (isPlaying){
+                else if (isPlaying) {
                     WavPlayer.stop();
                     WavPlayer.release();
                 }
@@ -92,6 +98,10 @@ public class exitdialog extends Dialog implements View.OnClickListener {
                             e.printStackTrace();
                         }
                     }
+                }
+                if (filename != null){
+                    File file = new File(filename);
+                    file.delete();
                 }
                 activity.finish();
                 break;
