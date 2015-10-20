@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,6 +17,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+import wycliffeassociates.recordingapp.PreferencesManager;
+import wycliffeassociates.recordingapp.R;
 
 /**
  * Class to export files between directories

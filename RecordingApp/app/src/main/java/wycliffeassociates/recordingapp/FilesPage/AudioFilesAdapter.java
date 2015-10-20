@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 
+import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.model.AudioItem;
 
 /**

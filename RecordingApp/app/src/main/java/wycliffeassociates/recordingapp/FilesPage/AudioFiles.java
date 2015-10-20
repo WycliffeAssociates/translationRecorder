@@ -1,8 +1,7 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.widget.DrawerLayout;
@@ -16,6 +15,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.net.Uri;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
+import com.amazonaws.mobileconnectors.cognito.Dataset;
+import com.amazonaws.mobileconnectors.cognito.DefaultSyncCallback;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -26,10 +38,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
+import wycliffeassociates.recordingapp.PreferencesManager;
+import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.model.AudioItem;
 
 public class AudioFiles extends Activity {
@@ -41,8 +56,10 @@ public class AudioFiles extends Activity {
     private ImageButton
                 btnSortName, btnSortDuration, btnSortDate, btnDelete,
             btnExport,
-                btnExportApp, btnExportFTP, btnExportFolder;
+                btnExportApp, btnExportFTP, btnExportFolder, btnExportS3;
 
+
+    private Menu mMenu;
     private ListView audioFileView;
     private TextView file_path;
     private static String currentDir;
@@ -238,6 +255,108 @@ public class AudioFiles extends Activity {
                 }
             });
 
+            btnExportS3 = (ImageButton) findViewById(R.id.btnAmazonS3);
+            btnExportS3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Initialize the Amazon Cognito credentials provider
+                    CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                            getApplicationContext(),
+                            "us-east-1:9930710e-a037-4432-b1dd-e95087fc6bdc", // Identity Pool ID
+                            Regions.US_EAST_1 // Region
+                    );
+
+                    // Initialize the Cognito Sync client
+                    CognitoSyncManager syncClient = new CognitoSyncManager(
+                            getApplicationContext(),
+                            Regions.US_EAST_1, // Region
+                            credentialsProvider);
+
+                    // Create an S3 client
+                    AmazonS3 s3 = new AmazonS3Client(credentialsProvider);
+
+                    // Set the region of your S3 bucket
+                    s3.setRegion(Region.getRegion(Regions.US_EAST_1));
+
+                    TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
+
+                    String append = "";
+                    File newFile = null;
+                    String name = "";
+                    exportList = new ArrayList<String>();
+                    if ((file == null)) {
+                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                            if (adapter.checkBoxState[i] == true) {
+                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+                            }
+                        }
+                        if (exportList.size() > 0) {
+                            totalFiles = exportList.size();
+                            thisPath = exportList.get(0);
+                            if (exportList.size() > 1) {
+                                //we want a zip file since there are multiple files
+                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+                                //files to zip
+                                String[] toZip = new String[totalFiles];
+                                for (int i = 0; i < totalFiles; i++) {
+                                    toZip[i] = exportList.get(i);
+                                }
+                                try {
+                                    zip(toZip, zipPath);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                name = zipPath;
+                                newFile = new File(name);
+                            } else {//export single file over
+
+                                name = thisPath;
+                                newFile = new File(name);
+                            }
+
+                            System.out.println("file is " + thisPath+  " and it is " + newFile.exists());
+
+                            TransferObserver observer = transferUtility.upload(
+                                    "translationrecorderbucket",     /* The bucket to upload to */
+                                    name,    /* The key for the uploaded object */
+                                    newFile        /* The file where the data to upload exists */
+                            );
+                            observer.setTransferListener(new TransferListener(){
+
+                                @Override
+                                public void onStateChanged(int id, TransferState state) {
+                                    // do something
+                                }
+
+                                @Override
+                                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                                    int percentage = (int) (bytesCurrent/bytesTotal * 100);
+                                    System.out.println( new Integer(percentage).toString());
+                                    //Display percentage transfered to user
+                                    if(percentage == 100){
+                                        if(mMenu != null)
+                                            mMenu.close();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(int id, Exception ex) {
+                                   System.out.println( "Failed Something S3 Related, ID" + id + " EX: " + ex.toString());
+                                }
+
+                            });
+                        } else {
+                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+
+
+                }
+            });
+
             btnExportApp = (ImageButton) findViewById(R.id.btnExportApp);
             btnExportApp.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -371,6 +490,7 @@ public class AudioFiles extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        mMenu = menu;
         return true;
     }
 

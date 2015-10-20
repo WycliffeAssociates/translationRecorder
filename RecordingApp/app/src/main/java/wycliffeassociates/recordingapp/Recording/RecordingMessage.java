@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.Recording;
 
 /**
  * Created by jsarabia on 7/24/15.

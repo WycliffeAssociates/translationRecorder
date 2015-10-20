@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
+
 public class MainMenu extends Activity{
 
     private ImageButton btnRecord;

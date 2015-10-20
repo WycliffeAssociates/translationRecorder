@@ -3,10 +3,13 @@ package wycliffeassociates.recordingapp;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+
+import wycliffeassociates.recordingapp.Recording.RecordingMessage;
+import wycliffeassociates.recordingapp.Recording.RecordingQueues;
+import wycliffeassociates.recordingapp.Recording.WavRecorder;
 
 /**
  * Created by Emmanuel on 8/5/2015.

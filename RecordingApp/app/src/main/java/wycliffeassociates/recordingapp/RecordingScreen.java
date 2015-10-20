@@ -23,6 +23,10 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.UUID;
 
+import wycliffeassociates.recordingapp.Recording.RecordingMessage;
+import wycliffeassociates.recordingapp.Recording.RecordingQueues;
+import wycliffeassociates.recordingapp.Recording.WavFileWriter;
+import wycliffeassociates.recordingapp.Recording.WavRecorder;
 import wycliffeassociates.recordingapp.model.RecordingTimer;
 
 public class RecordingScreen extends Activity {
@@ -435,18 +439,20 @@ public class RecordingScreen extends Activity {
                         oldLoc = location;
                         if (paused && !minimapClicked) {
                             location = oldLoc;
-                        } else {
-                            location = (int)(System.currentTimeMillis() - (totalTimePaused + startTime));
+                        } else if(minimapClicked = true){
+                            location = WavPlayer.getLocation();
+                            //(int)(System.currentTimeMillis() - (totalTimePaused + startTime));
                             minimapClicked = false;
                         }
 
-                        float locPercentage = (float) location / (float) WavPlayer.getDuration();
+                        float locPercentage = (float) (location / duration);
                         minimap.setMiniMarkerLoc(locPercentage * minimap.getWidth());
                         if (mainCanvas.isDoneDrawing()) {
+                            location = WavPlayer.getLocation();
                             manager.drawWaveformDuringPlayback(location);
                         }
 
-                        //System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration() + "average is :" + average);
+                        System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration());
                         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
                         runOnUiThread(new Runnable() {
                             @Override

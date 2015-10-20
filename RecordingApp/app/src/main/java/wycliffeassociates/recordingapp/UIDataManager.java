@@ -8,6 +8,8 @@ import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+import wycliffeassociates.recordingapp.Recording.RecordingMessage;
+import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 
 
 /**

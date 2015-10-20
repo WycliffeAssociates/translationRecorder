@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.Recording;
 
 import android.app.Service;
 import android.content.Intent;
@@ -8,11 +8,28 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+
+import wycliffeassociates.recordingapp.AudioInfo;
+
+
 
 
 public class WavFileWriter extends Service{
 
+    private class ByteArray{
+        byte[] bytes;
+        ByteArray(byte[] bytes){
+            this.bytes = bytes;
+        }
+        public byte[] getBytes(){
+            return bytes;
+        }
+    }
+
     private String filename = null;
+    private String visTempFile = "/storage/emulated/0/AudioRecorder/visualization.tmp";
+
 
     @Override
     public void onCreate(){
@@ -22,6 +39,7 @@ public class WavFileWriter extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         filename = intent.getStringExtra("audioFileName");
+        final int screenWidth = intent.getIntExtra("screenWidth", 0);
         System.out.println("Passed in string name " + filename);
         Thread writingThread = new Thread(new Runnable() {
             @Override
@@ -61,9 +79,66 @@ public class WavFileWriter extends Service{
 
             }
         });
+
+        Thread compressionThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth);
+                ArrayList<ByteArray> list = new ArrayList<>();
+                boolean stopped = false;
+                try {
+                    FileOutputStream compressedFile = new FileOutputStream(visTempFile);
+                    while(!stopped){
+                        RecordingMessage message = RecordingQueues.writingQueue.take();
+                        if(message.isStopped()){
+                            stopped = true;
+                        }
+                        else {
+                            if (!message.isPaused()){
+                                //compressedFile.write(message.getData());
+                                list.add(new ByteArray(message.getData()));
+                                //writeDataRecievedSoFar(compressedFile, list, increment);
+                            }
+                            else
+                                System.out.println("paused writing");
+                        }
+                    }
+                    System.out.println("writing to file");
+                    compressedFile.close();
+                    RecordingQueues.writingQueue.clear();
+                    RecordingQueues.doneWriting.put(new Boolean(true));
+                    stopSelf();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (IOException e ) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+        compressionThread.start();
         writingThread.start();
 
         return START_STICKY;
+    }
+
+    private void writeDataRevievedSoFar(FileOutputStream compressedFile, ArrayList<ByteArray> list, int increment){
+        byte[] data = new byte[increment];
+        int leftOff = 0;
+        while(list.size() > 0){
+            byte[] temp = list.remove(0).getBytes();
+            int idx = 0;
+            for(int i = 0; i < increment; i++){
+                data[i] = temp[idx];
+                idx++;
+                leftOff = i;
+                if(idx == temp.length){
+                    
+                }
+            }
+        }
     }
 
     @Override

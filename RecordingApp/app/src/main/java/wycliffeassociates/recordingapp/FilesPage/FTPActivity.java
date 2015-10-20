@@ -1,28 +1,23 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.*;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPSClient;
-import org.apache.commons.net.io.CopyStreamAdapter;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
+
+import wycliffeassociates.recordingapp.PreferencesManager;
+import wycliffeassociates.recordingapp.R;
 
 
 public class FTPActivity extends Activity {

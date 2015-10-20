@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.Recording;
 
 
 import android.app.Service;
@@ -7,7 +7,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.IBinder;
 
-
+import wycliffeassociates.recordingapp.AudioInfo;
 
 
 /**
@@ -82,6 +82,7 @@ public class WavRecorder extends Service {
                 try {
                     RecordingQueues.UIQueue.put(temp);
                     RecordingQueues.writingQueue.put(temp);
+                    RecordingQueues.compressionQueue.put(temp);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

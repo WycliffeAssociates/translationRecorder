@@ -16,11 +16,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 
+import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
+import wycliffeassociates.recordingapp.FilesPage.MyAutoCompleteTextView;
 import wycliffeassociates.recordingapp.connectivity.LanguageNamesRequest;
 import wycliffeassociates.recordingapp.model.Language;
 

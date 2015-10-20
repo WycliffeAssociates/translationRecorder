@@ -5,11 +5,14 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Button;
+
+import wycliffeassociates.recordingapp.Recording.RecordingMessage;
+import wycliffeassociates.recordingapp.Recording.RecordingQueues;
+import wycliffeassociates.recordingapp.Recording.WavRecorder;
 
 /**
  * Created by Abi on 7/21/2015.
