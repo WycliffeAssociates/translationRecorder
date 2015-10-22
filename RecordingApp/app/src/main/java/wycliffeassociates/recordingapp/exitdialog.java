@@ -1,5 +1,5 @@
 package wycliffeassociates.recordingapp;
-
+import wycliffeassociates.recordingapp.Recording.*;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -7,9 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-import wycliffeassociates.recordingapp.Recording.RecordingMessage;
-import wycliffeassociates.recordingapp.Recording.RecordingQueues;
-import wycliffeassociates.recordingapp.Recording.WavRecorder;
+import java.io.File;
 
 /**
  * Created by Emmanuel on 8/5/2015.
@@ -19,6 +17,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
     private boolean isRecording = false;
     private boolean isPlaying = false;
     private boolean isPausedRecording = false;
+    private String filename = null;
 
 
     private Activity activity;
@@ -52,6 +51,9 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
     public void setIsPausedRecording(boolean isPausedRecording) {
         this.isPausedRecording = isPausedRecording;
     }
+    public void setFilename(String filename){
+        this.filename = filename;
+    }
 
 
     @Override
@@ -73,12 +75,14 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                     try {
                         RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
                         RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
+                        RecordingQueues.compressionQueue.put(new RecordingMessage(null, false, true));
                         Boolean done = RecordingQueues.doneWriting.take();
+                        Boolean done2 = RecordingQueues.doneWritingCompressed.take();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                else if (isPlaying){
+                else if (isPlaying) {
                     WavPlayer.stop();
                     WavPlayer.release();
                 }
@@ -90,11 +94,17 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                             boolean serviceStopped = activity.stopService(new Intent(activity, WavRecorder.class));
                             RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
                             RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
+                            RecordingQueues.compressionQueue.put(new RecordingMessage(null, false, true));
                             Boolean done = RecordingQueues.doneWriting.take();
+                            Boolean done2 = RecordingQueues.doneWritingCompressed.take();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
+                }
+                if (filename != null){
+                    File file = new File(filename);
+                    file.delete();
                 }
                 activity.finish();
                 break;

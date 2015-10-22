@@ -504,6 +504,7 @@ public class RecordingScreen extends Activity {
         backWasPressed = true;
         if(!isSaved) {
             ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
+            dialog.setFilename(recordedFilename);
             if(isRecording){
                 dialog.setIsRecording(true);
                 isRecording = false;
