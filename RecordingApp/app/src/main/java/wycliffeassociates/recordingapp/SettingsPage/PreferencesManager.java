@@ -179,12 +179,13 @@ public class PreferencesManager {
         prefs.put("fileDirectory", (Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + context.getString(R.string.folder_name)));
         //prefs.put("fileFolder", "deprecated");
         prefs.put("exportDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + context.getString(R.string.folder_name));
-                //R.string.app_name);
+        //R.string.app_name);
         //prefs.put("fileFolder", "AudioRecorder");
         prefs.put("Language", "EN");
 
         prefs.put("targetLanguage", "en");
         prefs.put("book","mat");
+        prefs.put("chapter", 1);
         prefs.put("displaySort", 5);
 
         //ftp defaults
@@ -219,7 +220,6 @@ public class PreferencesManager {
 
        /* UUID deviceUUID = new UUID(android.provider.Settings.Secure.ANDROID_ID.hashCode(),
                 Settings.Secure.ANDROID_ID.hashCode());
-
         return deviceUUID.toString();*/
         //return "test";
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);

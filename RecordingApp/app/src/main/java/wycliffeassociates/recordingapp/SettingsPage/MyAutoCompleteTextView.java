@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.FilesPage;
+package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.content.Context;
 import android.graphics.Rect;

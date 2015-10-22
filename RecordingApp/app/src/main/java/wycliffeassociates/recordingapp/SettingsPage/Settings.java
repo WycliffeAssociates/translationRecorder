@@ -21,7 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
-import wycliffeassociates.recordingapp.FilesPage.MyAutoCompleteTextView;
 import wycliffeassociates.recordingapp.MainMenu;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.connectivity.LanguageNamesRequest;
@@ -36,7 +35,7 @@ public class Settings extends Activity {
     private Button hardReset;
     private String sampleName;
     private TextView displayFileName, showSaveDirectory;
-    private EditText tReset;
+    private EditText tReset, chapterReset;
     MyAutoCompleteTextView setLangCode,setBookCode;
 
     /**
@@ -53,7 +52,6 @@ public class Settings extends Activity {
      * Request code for Android version under 5.0 on saving a directory
      */
     final int SET_SAVE_DIR2 = 22;
-    private boolean pingMeBack = false;
 
 
     @Override
@@ -69,17 +67,20 @@ public class Settings extends Activity {
         displayFileName = (TextView)findViewById(R.id.defaultFileName);
         showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
         tReset = (EditText)findViewById(R.id.tReset);
+        chapterReset = (EditText)findViewById(R.id.setChapter);
 
         //display defaults in their fields
         printFileName(pref);
         printSaveDirectory(pref);
         printCounter(pref);
+        printChapter(pref);
 
         //setting up listeners on all buttons
         langCodeListener(pref);
         bookCodeListener(pref);
         counterListener(pref);
         resetListener(pref);
+        chapterListener(pref);
         saveDirectoryListener();
         ftpListener(pref);
         syncListener(pref);
@@ -196,7 +197,7 @@ public class Settings extends Activity {
      */
     private void printFileName(PreferencesManager pref){
         sampleName = (String) pref.getPreferences("fileName");
-        displayFileName.setText(sampleName+ "-" + pref.getPreferences("fileCounter"));
+        displayFileName.setText(sampleName + "-" + pref.getPreferences("fileCounter"));
     }
 
     /**
@@ -215,6 +216,14 @@ public class Settings extends Activity {
     private void printCounter(PreferencesManager pref){
         String counter = pref.getPreferences("fileCounter").toString();
         tReset.setText(counter);
+    }
+    /**
+     * Prints the current chapter on the chapter button
+     * @param pref the preference manager that holds the current chapter
+     */
+    private void printChapter(PreferencesManager pref){
+        String chapter = pref.getPreferences("chapter").toString();
+        chapterReset.setText(chapter);
     }
 
     /**
@@ -240,7 +249,7 @@ public class Settings extends Activity {
      */
     private void updateFileName(PreferencesManager pref){
         String name = pref.getPreferences("targetLanguage") + "-" +
-                pref.getPreferences("book");
+                pref.getPreferences("book") + "-" + pref.getPreferences("chapter");
         pref.setPreferences("fileName", name);
         printFileName(pref);
     }
@@ -361,6 +370,37 @@ public class Settings extends Activity {
     }
 
     /**
+     * Sets a listener on the chapter editText
+     * @param pref the preference manager
+     */
+    private void chapterListener(final PreferencesManager pref) {
+        chapterReset = (EditText)findViewById(R.id.setChapter);
+        chapterReset.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newVal = s.toString();
+                int chapter = (int)pref.getPreferences("chapter");//set default
+                try {//should never have an error since input will always be a number
+                    chapter = Integer.parseInt(newVal);
+                }
+                catch(NumberFormatException e){
+                    e.printStackTrace();
+                }
+                pref.setPreferences("chapter", chapter);//save to preferences
+                updateFileName(pref);
+                printFileName(pref);//update file name
+            }
+        });
+    }
+
+    /**
      * Sets a listener on the reset button
      * @param pref the preference manager
      */
@@ -377,6 +417,7 @@ public class Settings extends Activity {
                 printCounter(pref);
                 printLanguage(pref);
                 printBook(pref);
+                printChapter(pref);
             }
         });
     }

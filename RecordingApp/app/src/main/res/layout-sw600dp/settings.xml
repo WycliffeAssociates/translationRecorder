@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/File_Name_Buttons">
 
-                <wycliffeassociates.recordingapp.FilesPage.MyAutoCompleteTextView
+                <wycliffeassociates.recordingapp.SettingsPage.MyAutoCompleteTextView
                     android:inputType="textNoSuggestions"
                     android:id="@+id/setLangCode"
                     android:layout_width="300dp"
@@ -51,7 +51,7 @@
                     android:layout_height="match_parent"
                     android:id="@+id/space"></LinearLayout>
 
-                <wycliffeassociates.recordingapp.FilesPage.MyAutoCompleteTextView
+                <wycliffeassociates.recordingapp.SettingsPage.MyAutoCompleteTextView
                     android:inputType="textNoSuggestions"
                     android:id="@+id/setBookCode"
                     android:layout_width="300dp"
@@ -69,6 +69,24 @@
                     android:layout_width="5dp"
                     android:layout_height="match_parent"
                     android:id="@+id/space2"></LinearLayout>
+
+                <EditText
+                    android:id="@+id/setChapter"
+                    android:text="Reset"
+                    android:gravity="center"
+                    android:layout_width="300dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:inputType="number"
+                    android:backgroundTint="#ffffff"
+                    android:background="#ffffff" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="5dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/space3" />
 
                 <EditText
                     android:id="@+id/tReset"
