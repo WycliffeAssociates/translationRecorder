@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
+import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 
 public class MainMenu extends Activity{
 

@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.Recording;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,10 +23,18 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.UUID;
 
+import wycliffeassociates.recordingapp.CanvasView;
+import wycliffeassociates.recordingapp.MinimapView;
+import wycliffeassociates.recordingapp.PreferencesManager;
+import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Recording.WavRecorder;
+import wycliffeassociates.recordingapp.UIDataManager;
+import wycliffeassociates.recordingapp.WavPlayer;
+import wycliffeassociates.recordingapp.WaveformView;
+import wycliffeassociates.recordingapp.exitdialog;
 import wycliffeassociates.recordingapp.model.RecordingTimer;
 
 public class RecordingScreen extends Activity {
@@ -269,6 +277,7 @@ public class RecordingScreen extends Activity {
         stopService(new Intent(this, WavRecorder.class));
         try {
             RecordingQueues.writingQueue.put(new RecordingMessage(null, true, false));
+            RecordingQueues.compressionQueue.put(new RecordingMessage(null, true, false));
             RecordingQueues.UIQueue.put(new RecordingMessage(null, true, false));
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -321,8 +330,10 @@ public class RecordingScreen extends Activity {
             timer.startTimer();
     	    isSaved = false;
     	    RecordingQueues.writingQueue.clear();
+            RecordingQueues.compressionQueue.clear();
             Intent intent = new Intent(this, WavFileWriter.class);
             intent.putExtra("audioFileName", getFilename());
+            intent.putExtra("screenWidth", mainCanvas.getWidth());
             startService(new Intent(this, WavRecorder.class));
             System.out.println("Started the service");
             startService(intent);
@@ -382,14 +393,17 @@ public class RecordingScreen extends Activity {
             try {
                 RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
                 RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
+                RecordingQueues.compressionQueue.put(new RecordingMessage(null, false, true));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             try {
+                System.out.println("Trying to acquire both messages");
                 Boolean done = RecordingQueues.doneWriting.take();
-                if (done.booleanValue()) {
-
+                Boolean done2 = RecordingQueues.doneWritingCompressed.take();
+                if (done.booleanValue() && done2.booleanValue()) {
+                    System.out.println("Acquired both messages, done writing both files");
                     WavPlayer.loadFile(recordedFilename);
                     manager.loadWavFromFile(recordedFilename);
                     manager.drawWaveformDuringPlayback(0);

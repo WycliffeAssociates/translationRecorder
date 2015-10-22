@@ -17,19 +17,12 @@ import wycliffeassociates.recordingapp.AudioInfo;
 
 public class WavFileWriter extends Service{
 
-    private class ByteArray{
-        byte[] bytes;
-        ByteArray(byte[] bytes){
-            this.bytes = bytes;
-        }
-        public byte[] getBytes(){
-            return bytes;
-        }
-    }
-
+    ArrayList<Byte> byteArrayList;
+    byte[] dataFromQueue;
     private String filename = null;
     private String visTempFile = "/storage/emulated/0/AudioRecorder/visualization.tmp";
-
+    private boolean stoppedRecording = false;
+    public static int largest = 0;
 
     @Override
     public void onCreate(){
@@ -83,30 +76,37 @@ public class WavFileWriter extends Service{
         Thread compressionThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth);
-                ArrayList<ByteArray> list = new ArrayList<>();
+                int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth)*AudioInfo.SIZE_OF_SHORT;
+                System.out.println("Increment is " + increment);
                 boolean stopped = false;
+                byteArrayList = new ArrayList<>(10000);
                 try {
                     FileOutputStream compressedFile = new FileOutputStream(visTempFile);
                     while(!stopped){
-                        RecordingMessage message = RecordingQueues.writingQueue.take();
+                        RecordingMessage message = RecordingQueues.compressionQueue.take();
                         if(message.isStopped()){
                             stopped = true;
+                            stoppedRecording = true;
+                            writeDataReceivedSoFar(compressedFile, byteArrayList, increment);
+                            compressedFile.close();
                         }
                         else {
                             if (!message.isPaused()){
                                 //compressedFile.write(message.getData());
-                                list.add(new ByteArray(message.getData()));
-                                //writeDataRecievedSoFar(compressedFile, list, increment);
+                                dataFromQueue = message.getData();
+                                for(byte x : dataFromQueue){
+                                    byteArrayList.add(new Byte(x));
+                                }
+
+                                writeDataReceivedSoFar(compressedFile, byteArrayList, increment);
                             }
                             else
                                 System.out.println("paused writing");
                         }
                     }
                     System.out.println("writing to file");
-                    compressedFile.close();
-                    RecordingQueues.writingQueue.clear();
-                    RecordingQueues.doneWriting.put(new Boolean(true));
+                    RecordingQueues.compressionQueue.clear();
+                    RecordingQueues.doneWritingCompressed.put(new Boolean(true));
                     stopSelf();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -124,19 +124,37 @@ public class WavFileWriter extends Service{
         return START_STICKY;
     }
 
-    private void writeDataRevievedSoFar(FileOutputStream compressedFile, ArrayList<ByteArray> list, int increment){
+
+    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment){
         byte[] data = new byte[increment];
-        int leftOff = 0;
-        while(list.size() > 0){
-            byte[] temp = list.remove(0).getBytes();
-            int idx = 0;
+        byte[] minAndMax = new byte[2*AudioInfo.SIZE_OF_SHORT];
+        //while there is more data in the arraylist than one increment
+        while(list.size() >= increment){
+            //remove that data and put it in an array for min/max computation
             for(int i = 0; i < increment; i++){
-                data[i] = temp[idx];
-                idx++;
-                leftOff = i;
-                if(idx == temp.length){
-                    
-                }
+                data[i] = list.remove(0);
+            }
+            //write the min/max to the minAndMax array
+            getMinAndMaxFromArray(data, minAndMax);
+            try {
+                //write the minAndMax array to the compressed file
+                compressedFile.write(minAndMax);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        //if the recording was stopped and there is less data than a full increment, grab the remaining data
+        if(stoppedRecording){
+            byte[] remaining = new byte[list.size()];
+            for(int i = 0; i < list.size(); i++){
+                remaining[i] = list.remove(0);
+            }
+            getMinAndMaxFromArray(remaining, minAndMax);
+            try {
+                compressedFile.write(minAndMax);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -144,6 +162,36 @@ public class WavFileWriter extends Service{
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private void getMinAndMaxFromArray(byte[] data, byte[] minAndMax){
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+        int minIdx = 0;
+        int maxIdx = 0;
+        for(int j = 0; j < data.length; j+=AudioInfo.SIZE_OF_SHORT){
+            if((j+1) < data.length) {
+                byte low = data[j];
+                byte hi = data[j + 1];
+                short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                if(max < value){
+                    max = value;
+                    maxIdx = j;
+                    if(value > largest){
+                        largest = value;
+                    }
+                }
+                if(min > value) {
+                    min = value;
+                    minIdx = j;
+                }
+            }
+        }
+        minAndMax[0] = data[minIdx];
+        minAndMax[1] = data[minIdx+1];
+        minAndMax[2] = data[maxIdx];
+        minAndMax[3] = data[maxIdx+1];
+
     }
 
     private void overwriteHeaderData(String filepath, long totalDataLen){

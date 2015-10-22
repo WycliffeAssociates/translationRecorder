@@ -10,6 +10,7 @@ import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
+import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 
 
 /**
@@ -17,7 +18,6 @@ import wycliffeassociates.recordingapp.Recording.RecordingQueues;
  */
 public class UIDataManager {
 
-    private int largest;
     private final WaveformView mainWave;
     private final MinimapView minimap;
     private final Activity ctx;
@@ -45,8 +45,8 @@ public class UIDataManager {
             wavLoader = new WavFileLoader(path, mainWave.getWidth());
             buffer = wavLoader.getMappedFile();
             preprocessedBuffer = wavLoader.getMappedCacheFile();
-            largest = wavLoader.getLargest();
             System.out.println("Mapped files completed.");
+            System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
             minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
         } catch (IOException e) {
             System.out.println("There was an error with mapping the files");
@@ -137,7 +137,7 @@ public class UIDataManager {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        float[] samples = wavVis.getDataToDraw(location, largest);
+        float[] samples = wavVis.getDataToDraw(location, WavFileWriter.largest);
         lock.release();
         mainWave.setIsDoneDrawing(false);
         //System.out.println("Time taken to generate samples to draw: " + (System.nanoTime()-startTime));

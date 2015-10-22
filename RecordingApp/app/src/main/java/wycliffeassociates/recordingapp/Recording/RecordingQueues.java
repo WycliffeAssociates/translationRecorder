@@ -11,6 +11,8 @@ public class RecordingQueues {
     public static volatile BlockingQueue<RecordingMessage> writingQueue = new ArrayBlockingQueue<>(32768);
     public static volatile BlockingQueue<RecordingMessage> compressionQueue = new ArrayBlockingQueue<>(32768);
     public static volatile BlockingQueue<Boolean> doneWriting = new ArrayBlockingQueue<>(1);
+    public static volatile BlockingQueue<Boolean> doneWritingCompressed = new ArrayBlockingQueue<>(1);
+
 
     private RecordingQueues(){}
 

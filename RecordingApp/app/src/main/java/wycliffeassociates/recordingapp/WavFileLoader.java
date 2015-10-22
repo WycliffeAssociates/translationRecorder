@@ -20,7 +20,7 @@ public class WavFileLoader {
     private int max;
     private final int DATA_CHUNK = 2*AudioInfo.SAMPLERATE / 1000; //number of datapoints per second that should actually be useful: 44100 samples per sec, div by 20 = 2205 * 2 channels = 4410
     //this is enough for a resolution of 2k pixel width to display one second of wav across
-    private int largest = 0;
+    private int largest = 10000;
     private MappedByteBuffer buffer;
     private MappedByteBuffer preprocessedBuffer;
     private int startIndex;
@@ -39,8 +39,13 @@ public class WavFileLoader {
         RandomAccessFile raf = new RandomAccessFile(file, "r");
         FileChannel fc = raf.getChannel();
         buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
-        generateTempFile();
-        RandomAccessFile rafCached = new RandomAccessFile(visTempFile, "r");
+        //generateTempFile();
+
+        File test = new File(visTempFile);
+        if(test.exists()){
+            System.out.println("file is size " + test.length());
+        }
+        RandomAccessFile rafCached = new RandomAccessFile(test, "r");
         FileChannel fcCached = rafCached.getChannel();
         preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
         System.out.println("Largest value from file is " + largest);
