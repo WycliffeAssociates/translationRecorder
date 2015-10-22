@@ -1,9 +1,11 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.AudioVisualization;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
+
+import wycliffeassociates.recordingapp.AudioInfo;
 
 /**
  * Created by sarabiaj on 9/10/2015.

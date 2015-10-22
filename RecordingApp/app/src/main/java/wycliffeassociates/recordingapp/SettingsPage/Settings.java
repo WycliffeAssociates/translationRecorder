@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -22,7 +22,9 @@ import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
 import wycliffeassociates.recordingapp.FilesPage.MyAutoCompleteTextView;
-import wycliffeassociates.recordingapp.connectivity.LanguageNamesRequest;
+import wycliffeassociates.recordingapp.MainMenu;
+import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.SettingsPage.connectivity.LanguageNamesRequest;
 import wycliffeassociates.recordingapp.model.Language;
 
 /**

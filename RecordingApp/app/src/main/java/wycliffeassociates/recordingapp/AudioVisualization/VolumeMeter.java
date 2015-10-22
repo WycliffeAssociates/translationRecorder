@@ -1,6 +1,8 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.AudioVisualization;
 
 import android.app.Activity;
+
+import wycliffeassociates.recordingapp.R;
 
 /**
  * Created by sarabiaj on 9/22/2015.

@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.model;
+package wycliffeassociates.recordingapp.AudioVisualization;
 
 /**
  * Created by sarabiaj on 9/4/2015.

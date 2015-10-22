@@ -1,15 +1,15 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.SettingsPage;
 
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
-import android.provider.*;
 import android.provider.Settings;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+
+import wycliffeassociates.recordingapp.R;
 
 /**
  *

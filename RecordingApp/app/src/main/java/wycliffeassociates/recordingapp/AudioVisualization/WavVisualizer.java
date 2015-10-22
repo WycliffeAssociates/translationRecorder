@@ -1,6 +1,8 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.AudioVisualization;
 
 import java.nio.MappedByteBuffer;
+
+import wycliffeassociates.recordingapp.AudioInfo;
 
 public class WavVisualizer {
 
@@ -84,7 +86,7 @@ public class WavVisualizer {
         double min = Double.MAX_VALUE;
 
         //loop over the indicated chunk of data to extract out the high and low in that section, then store it in samples
-        for(int i = beginIdx; i < Math.min(waveData.capacity(), endIdx); i+=AudioInfo.SIZE_OF_SHORT){
+        for(int i = beginIdx; i < Math.min(waveData.capacity(), endIdx); i+= AudioInfo.SIZE_OF_SHORT){
             if((i+1) < waveData.capacity()) {
                 byte low = waveData.get(i);
                 byte hi = waveData.get(i + 1);

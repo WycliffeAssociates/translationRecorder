@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.AudioVisualization;
 
 import android.app.Activity;
 import android.util.Pair;
@@ -8,9 +8,11 @@ import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
+import wycliffeassociates.recordingapp.WavFileLoader;
 
 
 /**

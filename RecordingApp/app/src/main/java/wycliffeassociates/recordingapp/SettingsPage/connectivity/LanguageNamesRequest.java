@@ -1,11 +1,9 @@
-package wycliffeassociates.recordingapp.connectivity;
+package wycliffeassociates.recordingapp.SettingsPage.connectivity;
 
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.Settings;
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.model.Language;
 
 public class LanguageNamesRequest extends Activity {
