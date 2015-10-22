@@ -56,7 +56,7 @@
             <view
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                class="wycliffeassociates.recordingapp.CanvasView"
+                class="wycliffeassociates.recordingapp.AudioVisualization.CanvasView"
                 android:id="@+id/minimap" />
         </LinearLayout>
 
@@ -76,7 +76,7 @@
         <view
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            class="wycliffeassociates.recordingapp.CanvasView"
+            class="wycliffeassociates.recordingapp.AudioVisualization.CanvasView"
             android:id="@+id/main_canvas"
             android:layout_toStartOf="@+id/linearLayout7"
             android:layout_above="@+id/linearLayout9" />

@@ -23,19 +23,15 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.UUID;
 
-import wycliffeassociates.recordingapp.CanvasView;
-import wycliffeassociates.recordingapp.MinimapView;
-import wycliffeassociates.recordingapp.PreferencesManager;
+import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
+import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.Recording.RecordingMessage;
-import wycliffeassociates.recordingapp.Recording.RecordingQueues;
-import wycliffeassociates.recordingapp.Recording.WavFileWriter;
-import wycliffeassociates.recordingapp.Recording.WavRecorder;
-import wycliffeassociates.recordingapp.UIDataManager;
+import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.WavPlayer;
-import wycliffeassociates.recordingapp.WaveformView;
-import wycliffeassociates.recordingapp.exitdialog;
-import wycliffeassociates.recordingapp.model.RecordingTimer;
+import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
+import wycliffeassociates.recordingapp.ExitDialog;
+import wycliffeassociates.recordingapp.AudioVisualization.RecordingTimer;
 
 public class RecordingScreen extends Activity {
     //Constants for WAV format
@@ -507,7 +503,7 @@ public class RecordingScreen extends Activity {
     public void onBackPressed() {
         backWasPressed = true;
         if(!isSaved) {
-            exitdialog dialog = new exitdialog(this, R.style.Theme_UserDialog);
+            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
             if(isRecording){
                 dialog.setIsRecording(true);
                 isRecording = false;

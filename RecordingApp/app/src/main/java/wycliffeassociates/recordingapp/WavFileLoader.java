@@ -1,16 +1,14 @@
 package wycliffeassociates.recordingapp;
 
-import android.util.Pair;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Array;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
+
+import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
 
 public class WavFileLoader {
 

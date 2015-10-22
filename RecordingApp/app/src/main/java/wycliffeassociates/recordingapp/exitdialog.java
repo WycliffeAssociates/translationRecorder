@@ -14,7 +14,7 @@ import wycliffeassociates.recordingapp.Recording.WavRecorder;
 /**
  * Created by Emmanuel on 8/5/2015.
  */
-public class exitdialog extends Dialog implements View.OnClickListener {
+public class ExitDialog extends Dialog implements View.OnClickListener {
 
     private boolean isRecording = false;
     private boolean isPlaying = false;
@@ -25,7 +25,7 @@ public class exitdialog extends Dialog implements View.OnClickListener {
 
     private ImageButton btnSave, btnDelete;
 
-    public exitdialog(Activity a, int theme) {
+    public ExitDialog(Activity a, int theme) {
         super(a, theme);
         this.activity = a;
 
