@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.Playback;
 
 import android.media.MediaPlayer;
 
@@ -20,6 +20,9 @@ public class WavPlayer {
     private static boolean started = true;
     private static boolean loaded = false;
     private static int duration = 0;
+    private static long timePaused = 0;
+    private static long startTime = 0;
+    private static long totalTimePaused = 0;
 
 
     public static void play(){
@@ -60,13 +63,14 @@ public class WavPlayer {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     prepared = true;
+
                 }
             });
             m.prepare();
+            loaded = true;
             started = false;
             stopped = false;
             paused = false;
-            loaded = true;
             duration = m.getDuration();
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,6 +79,7 @@ public class WavPlayer {
 
     public static void pause(){
         if(m != null && (started || paused)) {
+            timePaused = System.currentTimeMillis();
             paused = true;
             started = false;
             stopped = false;
@@ -91,13 +96,25 @@ public class WavPlayer {
     }
 
     public static void seekToStart(){
-        if(m != null && prepared)
+        if(m != null && prepared) {
+            startTime = System.currentTimeMillis();
+            totalTimePaused = 0;
+            if(paused){
+                timePaused = System.currentTimeMillis();
+            }
             m.seekTo(0);
+        }
     }
 
     public static void seekTo(int x){
-        if(m != null &&  x < m.getDuration() && prepared)
+        if(m != null &&  x <= m.getDuration() && prepared) {
+            startTime = System.currentTimeMillis() - x;
+            totalTimePaused = 0;
+            if(paused){
+                timePaused = System.currentTimeMillis();
+            }
             m.seekTo(x);
+        }
     }
 
     public static void stop(){
@@ -133,13 +150,13 @@ public class WavPlayer {
         if(m == null || !prepared)
             return 0;
         else
-            return m.getCurrentPosition();
+            return (int) m.getCurrentPosition();
     }
     public static int getDuration(){
         if(m == null || !prepared)
             return 0;
         else
-            return duration;
+            return m.getDuration();
     }
 
 }

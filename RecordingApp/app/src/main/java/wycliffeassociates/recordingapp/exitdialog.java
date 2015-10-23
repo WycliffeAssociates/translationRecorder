@@ -1,4 +1,5 @@
 package wycliffeassociates.recordingapp;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Recording.*;
 import android.app.Activity;
 import android.app.Dialog;
@@ -72,15 +73,9 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                     else {
                         System.out.println("Could not stop the service.");
                     }
-                    try {
-                        RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
-                        RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
-                        RecordingQueues.compressionQueue.put(new RecordingMessage(null, false, true));
-                        Boolean done = RecordingQueues.doneWriting.take();
-                        Boolean done2 = RecordingQueues.doneWritingCompressed.take();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
+                    RecordingQueues.stopQueues();
+
                 }
                 else if (isPlaying) {
                     WavPlayer.stop();
@@ -90,16 +85,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                     WavPlayer.stop();
                     WavPlayer.release();
                     if(isPausedRecording){
-                        try {
-                            boolean serviceStopped = activity.stopService(new Intent(activity, WavRecorder.class));
-                            RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
-                            RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
-                            RecordingQueues.compressionQueue.put(new RecordingMessage(null, false, true));
-                            Boolean done = RecordingQueues.doneWriting.take();
-                            Boolean done2 = RecordingQueues.doneWritingCompressed.take();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        RecordingQueues.stopQueues();
                     }
                 }
                 if (filename != null){

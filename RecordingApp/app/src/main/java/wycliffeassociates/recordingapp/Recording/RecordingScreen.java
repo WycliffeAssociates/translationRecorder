@@ -25,10 +25,11 @@ import java.util.UUID;
 
 import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.Playback.PlaybackLogic;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
-import wycliffeassociates.recordingapp.WavPlayer;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.AudioVisualization.RecordingTimer;
@@ -74,8 +75,8 @@ public class RecordingScreen extends Activity {
     String playbackTime;
     boolean backWasPressed = false;
     int numThreads = 0;
-
     private GestureDetectorCompat mDetector;
+    private boolean isPausedPlayback = false;
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
@@ -136,7 +137,6 @@ public class RecordingScreen extends Activity {
         }
     }
 
-
     public boolean onTouchEvent(MotionEvent ev) {
         this.mDetector.onTouchEvent(ev);
         return super.onTouchEvent(ev);
@@ -149,7 +149,7 @@ public class RecordingScreen extends Activity {
 
         outputName = (String)pref.getPreferences("fileName")+"-" +pref.getPreferences("fileCounter").toString();
 
-        //recordedFilename = savedInstanceState.getString("outputFileName", null);
+//        recordedFilename = savedInstanceState.getString("outputFileName", null);
 
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -158,18 +158,17 @@ public class RecordingScreen extends Activity {
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
+
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas) instanceof WaveformView ? ((WaveformView) findViewById(R.id.main_canvas)) : null;
         minimap = (CanvasView) findViewById(R.id.minimap) instanceof MinimapView ? ((MinimapView) findViewById(R.id.minimap)) : null;
+
         manager = new UIDataManager(mainCanvas, minimap, this);
 
         findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
         setButtonHandlers();
         enableButtons(false);
-        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        anim.setInterpolator(new LinearInterpolator());
-        anim.setRepeatCount(Animation.INFINITE);
-        anim.setDuration(1500);
+
 
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(false);
@@ -182,9 +181,8 @@ public class RecordingScreen extends Activity {
         filenameView = (TextView)findViewById(R.id.filenameView);
         filenameView.setText(outputName);
         hasNotYetRecorded = true;
+        manager.useRecordingToolbar(true);
     }
-
-
 
     private void setButtonHandlers() {
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
@@ -263,160 +261,76 @@ public class RecordingScreen extends Activity {
     public String getName(){return outputName;}
 
     private void pauseRecording(){
-        paused = true;
-        timer.pause();
-        isRecording = false;
-        findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
-        findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
-        findViewById(R.id.btnPauseRecording).setAnimation(null);
-
-        stopService(new Intent(this, WavRecorder.class));
-        try {
-            RecordingQueues.writingQueue.put(new RecordingMessage(null, true, false));
-            RecordingQueues.compressionQueue.put(new RecordingMessage(null, true, false));
-            RecordingQueues.UIQueue.put(new RecordingMessage(null, true, false));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         isPausedRecording = true;
+        manager.pauseTimer();
+        isRecording = false;
+        manager.swapPauseAndPlayRecording(true);
+        stopService(new Intent(this, WavRecorder.class));
+        RecordingQueues.pauseQueues();
     }
+
     private void pausePlayback(){
-        paused = true;
-        timePaused = System.currentTimeMillis();
-        findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
-        findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+        isPausedPlayback = true;
+        manager.swapPauseAndPlayPlayback(true);
         WavPlayer.pause();
     }
 
     private void skipForward(){
         WavPlayer.seekTo(WavPlayer.getDuration());
-        startTime = System.currentTimeMillis() - WavPlayer.getDuration();
-        totalTimePaused = 0;
-        if(paused){
-            timePaused = System.currentTimeMillis();
-        }
-        minimap.setMiniMarkerLoc((float) (minimap.getWidth()));
-        manager.drawWaveformDuringPlayback((int) (System.currentTimeMillis() - startTime));
-        minimapClicked = true;
+        manager.updateUI(true);
     }
+
     private void skipBack(){
         WavPlayer.seekToStart();
-        startTime = System.currentTimeMillis();
-        totalTimePaused = 0;
-        if(paused){
-            timePaused = System.currentTimeMillis();
-        }
-        minimap.setMiniMarkerLoc(0.f);
-        manager.drawWaveformDuringPlayback((int) (System.currentTimeMillis() - startTime));
-        minimapClicked = true;
+        manager.updateUI(true);
     }
 
-
-    private void startRecording(){
+    private void startRecording() {
         stopService(new Intent(this, WavRecorder.class));
-        findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
-        findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
-        findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
-        findViewById(R.id.btnPauseRecording).setAnimation(anim);
+        manager.swapPauseAndPlayRecording(false);
         isRecording = true;
         manager.setIsRecording(true);
 
-        if(!paused) {
-            timer = new RecordingTimer();
-            timer.startTimer();
+        if(!isPausedRecording) {
+            manager.startTimer();
     	    isSaved = false;
-    	    RecordingQueues.writingQueue.clear();
-            RecordingQueues.compressionQueue.clear();
+    	    RecordingQueues.clearQueues();
             Intent intent = new Intent(this, WavFileWriter.class);
             intent.putExtra("audioFileName", getFilename());
             intent.putExtra("screenWidth", mainCanvas.getWidth());
             startService(new Intent(this, WavRecorder.class));
-            System.out.println("Started the service");
             startService(intent);
             manager.listenForRecording(true);
-
-            //mainCanvas.listenForRecording(this);
         }
         else {
-            timer.resume();
-            paused = false;
+            manager.resumeTimer();
             isPausedRecording = false;
             startService(new Intent(this, WavRecorder.class));
         }
 
-        Thread timerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (isRecording) {
-                    if(timerView!= null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(timer != null) {
-                                    long t = timer.getTimeElapsed();
-                                    String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
-                                    timerView.setText(time);
-                                    timerView.invalidate();
-                                }
-                            }
-                        });
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        timerThread.start();
-
     }
+
     private void stopRecording() {
         isRecording = false;
         isPausedRecording = false;
         hasNotYetRecorded = false;
-        if (isPlaying) {
-            isPlaying = false;
-            WavPlayer.stop();
-        }
-        else {
-            timer = null;
-            findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
-            findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
-            findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
-            stopService(new Intent(this, WavRecorder.class));
-            try {
-                RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
-                RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
-                RecordingQueues.compressionQueue.put(new RecordingMessage(null, false, true));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
-            try {
-                System.out.println("Trying to acquire both messages");
-                Boolean done = RecordingQueues.doneWriting.take();
-                Boolean done2 = RecordingQueues.doneWritingCompressed.take();
-                if (done.booleanValue() && done2.booleanValue()) {
-                    System.out.println("Acquired both messages, done writing both files");
-                    WavPlayer.loadFile(recordedFilename);
-                    manager.loadWavFromFile(recordedFilename);
-                    manager.drawWaveformDuringPlayback(0);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        //Switch the toolbar to display
+        manager.useRecordingToolbar(false);
 
+        //Stop recording, load the recorded file, and draw
+        stopService(new Intent(this, WavRecorder.class));
+        RecordingQueues.stopQueues();
+        WavPlayer.loadFile(recordedFilename);
+        manager.loadWavFromFile(recordedFilename);
+        manager.updateUI(false);
     }
+
     private void playRecording(){
         backWasPressed = false;
-        findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
-        findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
-        System.out.println("paused is " + paused + " reset is " + resetPlaybackThread);
+        manager.swapPauseAndPlayRecording(false);
         isPlaying = true;
-        if(paused && !resetPlaybackThread && !minimapClicked){
+        if(isPausedRecording && !resetPlaybackThread && !minimapClicked){
             totalTimePaused += System.currentTimeMillis() - timePaused;
             paused = false;
             WavPlayer.play();
@@ -444,22 +358,17 @@ public class RecordingScreen extends Activity {
                     if(!minimapClicked){
                         startTime = System.currentTimeMillis();
                     }
-                    while ((!playSection  && location < duration +10) || (playSection && location < playbackSectionEnd)) {
-                        //System.out.println("location is " + location + " start time is " + startTime + " total time paused is " + totalTimePaused + " current time is " + System.currentTimeMillis());
+                    while ((!playSection  && location < duration) || (playSection && location < playbackSectionEnd)) {
                         oldLoc = location;
-                        if (paused && !minimapClicked) {
+                        if (isPausedPlayback && !minimapClicked) {
                             location = oldLoc;
-                        } else if(minimapClicked = true){
+                        }
+                        else {
                             location = WavPlayer.getLocation();
-                            //(int)(System.currentTimeMillis() - (totalTimePaused + startTime));
-                            minimapClicked = false;
                         }
 
-                        float locPercentage = (float) (location / duration);
-                        minimap.setMiniMarkerLoc(locPercentage * minimap.getWidth());
                         if (mainCanvas.isDoneDrawing()) {
-                            location = WavPlayer.getLocation();
-                            manager.drawWaveformDuringPlayback(location);
+                            manager.updateUI(minimapClicked);
                         }
 
                         System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration());
@@ -524,6 +433,7 @@ public class RecordingScreen extends Activity {
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
+
         @Override
         public void onClick(View v) {
             System.out.println("Pressed something");

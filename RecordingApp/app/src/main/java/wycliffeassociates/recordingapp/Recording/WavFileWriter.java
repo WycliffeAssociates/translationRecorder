@@ -165,6 +165,7 @@ public class WavFileWriter extends Service{
     }
 
     private void getMinAndMaxFromArray(byte[] data, byte[] minAndMax){
+        if(data.length < 4){ return; }
         int max = Integer.MIN_VALUE;
         int min = Integer.MAX_VALUE;
         int minIdx = 0;

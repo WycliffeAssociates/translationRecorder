@@ -2,17 +2,25 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 
 import android.app.Activity;
 import android.util.Pair;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
+import java.util.Timer;
 import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
-import wycliffeassociates.recordingapp.WavFileLoader;
+import wycliffeassociates.recordingapp.Playback.WavFileLoader;
 
 
 /**
@@ -30,16 +38,115 @@ public class UIDataManager {
     private MappedByteBuffer buffer;
     private MappedByteBuffer preprocessedBuffer;
     private int secondsOnScreen = 5;
+    private Animation anim;
+    RecordingTimer timer;
+    private final TextView timerView;
 
     public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx){
         this.mainWave = mainWave;
         this.minimap = minimap;
+        timerView = (TextView)ctx.findViewById(R.id.timerView);
         this.ctx = ctx;
         lock = new Semaphore(1);
+
+        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        anim.setInterpolator(new LinearInterpolator());
+        anim.setRepeatCount(Animation.INFINITE);
+        anim.setDuration(1500);
+        timer = new RecordingTimer();
     }
+
+    public void startTimer(){
+        timer.startTimer();
+    }
+    public void pauseTimer(){
+        timer.pause();
+    }
+    public void resumeTimer(){
+        timer.resume();
+    }
+
 
     public void setIsRecording(boolean isRecording){
         this.isRecording = isRecording;
+    }
+
+    public void useRecordingToolbar(boolean useRecordingToolbar){
+        if(useRecordingToolbar){
+            ctx.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
+                    ctx.findViewById(R.id.linearLayout10).setVisibility(View.INVISIBLE);
+                    ctx.findViewById(R.id.toolbar).setVisibility(View.VISIBLE);
+                    ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
+
+                }
+            });
+
+        }
+        else {
+            ctx.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
+                    ctx.findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
+                    ctx.findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
+                    ctx.findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
+                }
+            });
+        }
+    }
+
+    public void updateUI(boolean minimapClicked){
+        //Marker is set to the percentage of playback times the width of the minimap
+        minimap.setMiniMarkerLoc((float) (( WavPlayer.getLocation() / (double)WavPlayer.getDuration()) * minimap.getWidth()));
+        System.out.println(WavPlayer.getDuration() +  " " + WavPlayer.getLocation());
+        drawWaveformDuringPlayback(WavPlayer.getLocation());
+    }
+
+    public void swapPauseAndPlayPlayback(boolean showPlay){
+        if(showPlay) {
+            ctx.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
+                    ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+                }
+            });
+        }
+        else{
+            ctx.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
+                    ctx.findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    }
+
+    public void swapPauseAndPlayRecording(boolean showPlay){
+        if(showPlay) {
+            ctx.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
+                    ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
+                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(null);
+                }
+            });
+        }
+        else{
+            ctx.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
+                    ctx.findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
+                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(anim);
+                }
+            });
+        }
     }
 
     public void loadWavFromFile(String path){
@@ -95,6 +202,18 @@ public class UIDataManager {
                             //System.out.println("db is "+db);
                             if(isRecording) {
                                 mainWave.postInvalidate();
+
+                                if(timer != null) {
+                                    long t = timer.getTimeElapsed();
+                                    final String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
+                                    ctx.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            timerView.setText(time);
+                                            timerView.invalidate();
+                                        }
+                                    });
+                                }
                             }
                             //changeVolumeBar(ctx, db);
                         }
