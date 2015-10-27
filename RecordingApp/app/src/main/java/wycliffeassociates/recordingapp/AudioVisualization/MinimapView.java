@@ -60,20 +60,26 @@ public class MinimapView extends CanvasView {
 
     private void computeTimecodeInterval(){
         timecodeInterval = 1.0;
+        if(timecodeInterval / secondsPerPixel >= 50){
+            return;
+        }
+        else{
+            timecodeInterval = 0.d;
+        }
         while(timecodeInterval / secondsPerPixel < 50){
-            timecodeInterval*=2.0;
+            timecodeInterval += 5.0;
         }
     }
 
     public void setAudioLength(int length){
-        System.out.println("length is " + length);
+        //System.out.println("length is " + length);
         this.audioLength = (int)(length/1000.0);
         this.secondsPerPixel = audioLength / (double)getWidth();
         computeTimecodeInterval();
     }
 
     public void drawTimeCode(Canvas canvas){
-        System.out.println("secondsPerPixel is " + secondsPerPixel + " interval is " + timecodeInterval);
+        //System.out.println("secondsPerPixel is " + secondsPerPixel + " interval is " + timecodeInterval);
         float mDensity = 2.0f;
         mPaint.setColor(Color.GREEN);
         mPaint.setTextSize(18.f);
@@ -92,7 +98,7 @@ public class MinimapView extends CanvasView {
             if (integerTimecodeNew != integerTimecode) {
                 integerTimecode = integerTimecodeNew;
 
-                System.out.println("integer is " + integerSecs);
+                //System.out.println("integer is " + integerSecs);
                 // Turn, e.g. 67 seconds into "1:07"
                 String timecodeMinutes = "" + (integerSecs / 60);
                 String timecodeSeconds = "" + (integerSecs % 60);

@@ -320,9 +320,12 @@ public class RecordingScreen extends Activity {
 
         //Stop recording, load the recorded file, and draw
         stopService(new Intent(this, WavRecorder.class));
+        long start = System.currentTimeMillis();
+        System.out.println("Stopping");
         RecordingQueues.stopQueues();
         WavPlayer.loadFile(recordedFilename);
         manager.loadWavFromFile(recordedFilename);
+        System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
         manager.updateUI(false);
     }
 

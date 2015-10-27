@@ -9,7 +9,7 @@ public class WavVisualizer {
     private final MappedByteBuffer preprocessedBuffer;
     private final MappedByteBuffer buffer;
     private float userScale = 1f;
-    private final int compressedSecondsOnScreen = 5;
+    //private final int AudioInfo.COMPRESSED_SECONDS_ON_SCREEN = 5;
     private final int defaultSecondsOnScreen = 10;
     private boolean useCompressedFile = false;
     private float[] samples;
@@ -125,8 +125,8 @@ public class WavVisualizer {
         return 0;
     }
 
-    private boolean shouldUseCompressedFile(int numSecondsOnScreen){
-        if(numSecondsOnScreen >= compressedSecondsOnScreen){
+    public static boolean shouldUseCompressedFile(int numSecondsOnScreen){
+        if(numSecondsOnScreen >= AudioInfo.COMPRESSED_SECONDS_ON_SCREEN){
             return true;
         }
         else return false;
@@ -135,7 +135,7 @@ public class WavVisualizer {
     private int millisecondsPerPixel(int numSecondsOnScreen){
         //not entirely sure why the 2 needs to be there for the second case, but it appears to be necessary
         //the math may be wrong for the first case, as using the uncompressed file works perfectly during playback
-        int millisecondsPerPixel  = (useCompressedFile)? (int)Math.ceil(((compressedSecondsOnScreen * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)compressedSecondsOnScreen))  * AudioInfo.SIZE_OF_SHORT):
+        int millisecondsPerPixel  = (useCompressedFile)? (int)Math.ceil(((AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)AudioInfo.COMPRESSED_SECONDS_ON_SCREEN))  * AudioInfo.SIZE_OF_SHORT):
                 (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen*2) / (double)screenWidth);
         return millisecondsPerPixel;
     }
@@ -150,12 +150,12 @@ public class WavVisualizer {
     private int computeSampleStartPosition(int startMillisecond){
         // multiplied by 2 because of a hi and low for each sample in the compressed file
         //System.out.println("start millisecond is " + startMillisecond + " numSecondsOnScreen is " + numSecondsOnScreen);
-        int sampleStartPosition = (useCompressedFile)? (int)(startMillisecond * (screenWidth/(double)(1000*compressedSecondsOnScreen))) * 2 *AudioInfo.SIZE_OF_SHORT : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        int sampleStartPosition = (useCompressedFile)? (int)(startMillisecond * (screenWidth/(double)(1000*AudioInfo.COMPRESSED_SECONDS_ON_SCREEN))) * 2 *AudioInfo.SIZE_OF_SHORT : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
         return sampleStartPosition;
     }
 
     private int getIncrement(int numSecondsOnScreen){
-        int increment = (useCompressedFile)?  (int)Math.floor((numSecondsOnScreen / compressedSecondsOnScreen)) * 2 * AudioInfo.SIZE_OF_SHORT : (numSecondsOnScreen * AudioInfo.SAMPLERATE / screenWidth) * AudioInfo.SIZE_OF_SHORT;
+        int increment = (useCompressedFile)?  (int)Math.floor((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT : (numSecondsOnScreen * AudioInfo.SAMPLERATE / screenWidth) * AudioInfo.SIZE_OF_SHORT;
         return increment;
     }
 
