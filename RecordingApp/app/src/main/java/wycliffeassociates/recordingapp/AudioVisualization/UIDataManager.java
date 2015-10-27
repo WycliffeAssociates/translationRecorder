@@ -26,6 +26,8 @@ import wycliffeassociates.recordingapp.Playback.WavFileLoader;
 /**
  * Created by sarabiaj on 9/10/2015.
  */
+
+
 public class UIDataManager {
 
     private final WaveformView mainWave;
@@ -43,6 +45,8 @@ public class UIDataManager {
     private final TextView timerView;
 
     public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx){
+        mainWave.setUIDataManager(this);
+        minimap.setUIDataManager(this);
         this.mainWave = mainWave;
         this.minimap = minimap;
         timerView = (TextView)ctx.findViewById(R.id.timerView);
@@ -99,11 +103,25 @@ public class UIDataManager {
     }
 
     public void updateUI(boolean minimapClicked){
+        if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
+            return;
+        }
         //Marker is set to the percentage of playback times the width of the minimap
-        minimap.setMiniMarkerLoc((float) (( WavPlayer.getLocation() / (double)WavPlayer.getDuration()) * minimap.getWidth()));
-        System.out.println(WavPlayer.getDuration() +  " " + WavPlayer.getLocation());
-        drawWaveformDuringPlayback(WavPlayer.getLocation());
+        int location = WavPlayer.getLocation();
+        minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
+        System.out.println(WavPlayer.getDuration() + " " + location);
+        drawWaveformDuringPlayback(location);
+        final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
+        ctx.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                timerView.setText(time);
+                timerView.invalidate();
+            }
+        });
+
     }
+
 
     public void swapPauseAndPlayPlayback(boolean showPlay){
         if(showPlay) {

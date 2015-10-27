@@ -41,17 +41,11 @@ public class RecordingScreen extends Activity {
 
 
     private String recordedFilename = null;
-    private WavRecorder recorder = null;
     final Context context = this;
     private String outputName = null;
     private WaveformView mainCanvas;
     private MinimapView minimap;
     private UIDataManager manager;
-    private float userScale;
-    private float xTranslation;
-    private ScaleGestureDetector SGD;
-    private GestureDetector gestureDetector;
-    private GestureDetector clickMinimap;
     private boolean hasNotYetRecorded = true;
     private boolean paused = false;
     private boolean isSaved = false;
@@ -59,22 +53,14 @@ public class RecordingScreen extends Activity {
     private boolean isRecording = false;
     private boolean minimapClicked = false;
     private PreferencesManager pref;
-    RotateAnimation anim;
     private boolean isPausedRecording = false;
-    private RecordingTimer timer;
     private TextView timerView;
     private TextView filenameView;
-    private long timePaused = 0;
-    private long totalTimePaused = 0;
-    private boolean resetPlaybackThread = true;
-    Thread playback;
     private long startTime = System.currentTimeMillis();
     boolean playSection = false;
     int playbackSectionStart = 0;
     int playbackSectionEnd = 0;
-    String playbackTime;
     boolean backWasPressed = false;
-    int numThreads = 0;
     private GestureDetectorCompat mDetector;
     private boolean isPausedPlayback = false;
 
@@ -93,10 +79,6 @@ public class RecordingScreen extends Activity {
                 int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                 WavPlayer.seekTo(timeToSeekTo);
                 startTime = System.currentTimeMillis() - timeToSeekTo;
-                totalTimePaused = 0;
-                if(paused){
-                    timePaused = System.currentTimeMillis();
-                }
                 minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
                 manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
             }
@@ -124,10 +106,6 @@ public class RecordingScreen extends Activity {
             }
             WavPlayer.seekTo(playbackSectionStart);
             startTime = System.currentTimeMillis() - playbackSectionStart;
-            totalTimePaused = 0;
-            if(paused){
-                timePaused = System.currentTimeMillis();
-            }
             minimap.setMiniMarkerLoc((float) (startPosition * minimap.getWidth()));
             manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
             minimapClicked = true;
@@ -154,7 +132,6 @@ public class RecordingScreen extends Activity {
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.recording_screen);
-        userScale = 1.f;
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
@@ -333,82 +310,9 @@ public class RecordingScreen extends Activity {
         backWasPressed = false;
         manager.swapPauseAndPlayRecording(false);
         isPlaying = true;
-        if(isPausedRecording && !resetPlaybackThread && !minimapClicked){
-            totalTimePaused += System.currentTimeMillis() - timePaused;
-            paused = false;
-            WavPlayer.play();
-        }
-        else if(!resetPlaybackThread && !minimapClicked) {
-            startTime = System.currentTimeMillis();
-            paused = false;
-            WavPlayer.play();
-        }
-        else{
-            if(paused && minimapClicked){
-                totalTimePaused += System.currentTimeMillis() - timePaused;
-            }
-            paused = false;
-            WavPlayer.play();
-            final int duration = WavPlayer.getDuration();
-            System.out.println("Recreating playback thread");
-            resetPlaybackThread = false;
-            playback = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    numThreads++;
-                    int location = 0;
-                    int oldLoc = 0;
-                    if(!minimapClicked){
-                        startTime = System.currentTimeMillis();
-                    }
-                    while ((!playSection  && location < duration) || (playSection && location < playbackSectionEnd)) {
-                        oldLoc = location;
-                        if (isPausedPlayback && !minimapClicked) {
-                            location = oldLoc;
-                        }
-                        else {
-                            location = WavPlayer.getLocation();
-                        }
-
-                        if (mainCanvas.isDoneDrawing()) {
-                            manager.updateUI(minimapClicked);
-                        }
-
-                        System.out.println("location is :" + location + "duration is :" + WavPlayer.getDuration());
-                        final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                timerView.setText(time);
-                                timerView.invalidate();
-                            }
-                        });
-
-                        if(backWasPressed){
-                            break;
-                        }
-                        System.out.println("number of threads running is " + numThreads);
-
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            pausePlayback();
-                            WavPlayer.seekToStart();
-                        }
-                    });
-                    numThreads--;
-                    paused = false;
-                    resetPlaybackThread = true;
-                    totalTimePaused = 0;
-                    startTime = 0;
-                    minimapClicked = false;
-                    playSection = false;
-                    System.out.println("Out of playback thread");
-                }
-            });
-            playback.start();
-        }
+        paused = false;
+        WavPlayer.play();
+        manager.updateUI(minimapClicked);
     }
 
     @Override

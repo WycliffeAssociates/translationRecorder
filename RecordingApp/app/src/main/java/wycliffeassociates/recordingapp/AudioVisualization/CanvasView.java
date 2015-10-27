@@ -23,11 +23,14 @@ import android.view.View;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
+
 public abstract class CanvasView extends View {
 
     protected Paint mPaint;
     int fps = 0;
     protected boolean doneDrawing = false;
+    UIDataManager manager;
 
     public boolean isDoneDrawing(){
         return doneDrawing;
@@ -44,6 +47,7 @@ public abstract class CanvasView extends View {
     public int getFps(){
         return fps;
     }
+
     public void resetFPS(){
         fps = 0;
     }
@@ -76,6 +80,15 @@ public abstract class CanvasView extends View {
         fps++;
         doneDrawing = true;
 
+    }
+
+    public void redraw(){
+        if(WavPlayer.isPlaying())
+        manager.updateUI(false);
+    }
+
+    public void setUIDataManager(UIDataManager manager){
+        this.manager = manager;
     }
 
 }

@@ -54,6 +54,7 @@ public class WaveformView extends CanvasView {
                 e.printStackTrace();
             }
         }
+        redraw();
     }
 
 
