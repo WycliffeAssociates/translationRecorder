@@ -113,7 +113,7 @@ public class MinimapView extends CanvasView {
                         (int)(12 * mDensity),
                         mPaint);
                 mPaint.setColor(Color.GRAY);
-                canvas.drawLine(i - offset, 0.f, i - offset, getHeight(), mPaint);
+                canvas.drawLine(i, 0.f, i, getHeight(), mPaint);
             }
         }
 
