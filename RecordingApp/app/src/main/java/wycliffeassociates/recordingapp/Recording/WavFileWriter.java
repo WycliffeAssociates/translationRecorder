@@ -20,7 +20,7 @@ public class WavFileWriter extends Service{
     ArrayList<Byte> byteArrayList;
     byte[] dataFromQueue;
     private String filename = null;
-    private String visTempFile = "/storage/emulated/0/AudioRecorder/visualization.tmp";
+    private String visTempFile = "visualization.tmp";
     private boolean stoppedRecording = false;
     public static int largest = 0;
 
@@ -81,7 +81,12 @@ public class WavFileWriter extends Service{
                 boolean stopped = false;
                 byteArrayList = new ArrayList<>(10000);
                 try {
-                    FileOutputStream compressedFile = new FileOutputStream(visTempFile);
+                    AudioInfo.pathToVisFile = getBaseContext().getFilesDir().getAbsolutePath();
+                    File file = new File(getBaseContext().getFilesDir() + visTempFile);
+                    if(!file.exists()){
+                        file.createNewFile();
+                    }
+                    FileOutputStream compressedFile = new FileOutputStream(file);
                     while(!stopped){
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
                         if(message.isStopped()){

@@ -62,8 +62,8 @@ public class WavPlayer {
             m.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
+                    duration = m.getDuration();
                     prepared = true;
-
                 }
             });
             m.prepare();
@@ -153,10 +153,7 @@ public class WavPlayer {
             return (int) m.getCurrentPosition();
     }
     public static int getDuration(){
-        if(m == null || !prepared)
-            return 0;
-        else
-            return m.getDuration();
+        return duration;
     }
 
 }

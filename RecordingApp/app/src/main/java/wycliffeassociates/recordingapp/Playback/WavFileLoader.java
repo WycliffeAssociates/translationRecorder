@@ -23,7 +23,7 @@ public class WavFileLoader {
     private MappedByteBuffer buffer;
     private MappedByteBuffer preprocessedBuffer;
     private int startIndex;
-    private String visTempFile = "/storage/emulated/0/AudioRecorder/visualization.tmp";
+    private String visTempFile = "visualization.tmp";
     private int screenWidth = 2560;
 
     public MappedByteBuffer getMappedFile(){
@@ -40,7 +40,7 @@ public class WavFileLoader {
         buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
         //generateTempFile();
 
-        File test = new File(visTempFile);
+        File test = new File(AudioInfo.pathToVisFile + visTempFile);
         if(test.exists()){
             System.out.println("file is size " + test.length());
         }

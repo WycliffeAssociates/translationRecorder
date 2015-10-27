@@ -20,7 +20,9 @@ public class MinimapView extends CanvasView {
     private boolean playSelectedSection;
     private int startOfPlaybackSection;
     private int endOfPlaybackSection;
-
+    private int audioLength = 0;
+    private double secondsPerPixel = 0;
+    private double timecodeInterval = 1.0;
 
     public MinimapView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -32,6 +34,7 @@ public class MinimapView extends CanvasView {
         if(initialized){
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
             minimapMarker(canvas);
+            drawTimeCode(canvas);
             if(playSelectedSection){
                 drawPlaybackSection(canvas, startOfPlaybackSection, endOfPlaybackSection);
             }
@@ -53,6 +56,61 @@ public class MinimapView extends CanvasView {
     public void setMiniMarkerLoc(float miniMarkerLoc) {
         this.miniMarkerLoc = miniMarkerLoc;
         this.postInvalidate();
+    }
+
+    private void computeTimecodeInterval(){
+        timecodeInterval = 1.0;
+        while(timecodeInterval / secondsPerPixel < 50){
+            timecodeInterval*=2.0;
+        }
+    }
+
+    public void setAudioLength(int length){
+        System.out.println("length is " + length);
+        this.audioLength = (int)(length/1000.0);
+        this.secondsPerPixel = audioLength / (double)getWidth();
+        computeTimecodeInterval();
+    }
+
+    public void drawTimeCode(Canvas canvas){
+        System.out.println("secondsPerPixel is " + secondsPerPixel + " interval is " + timecodeInterval);
+        float mDensity = 2.0f;
+        mPaint.setColor(Color.GREEN);
+        mPaint.setTextSize(18.f);
+        int i = 0;
+        double fractionalSecs = secondsPerPixel;
+        int integerTimecode = (int) (fractionalSecs / timecodeInterval);
+        while (i < getWidth()){
+            mPaint.setColor(Color.GREEN);
+
+            i++;
+            fractionalSecs += secondsPerPixel;
+            int integerSecs = (int) fractionalSecs;
+
+            int integerTimecodeNew = (int) (fractionalSecs /
+                    timecodeInterval);
+            if (integerTimecodeNew != integerTimecode) {
+                integerTimecode = integerTimecodeNew;
+
+                System.out.println("integer is " + integerSecs);
+                // Turn, e.g. 67 seconds into "1:07"
+                String timecodeMinutes = "" + (integerSecs / 60);
+                String timecodeSeconds = "" + (integerSecs % 60);
+                if ((integerSecs % 60) < 10) {
+                    timecodeSeconds = "0" + timecodeSeconds;
+                }
+                String timecodeStr = timecodeMinutes + ":" + timecodeSeconds;
+                float offset = (float) (
+                        0.5 * mPaint.measureText(timecodeStr));
+                canvas.drawText(timecodeStr,
+                        i - offset,
+                        (int)(12 * mDensity),
+                        mPaint);
+                mPaint.setColor(Color.GRAY);
+                canvas.drawLine(i - offset, 0.f, i - offset, getHeight(), mPaint);
+            }
+        }
+
     }
 
     public void init(float[] samples){
