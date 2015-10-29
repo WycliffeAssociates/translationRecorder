@@ -42,7 +42,7 @@ import java.util.zip.ZipOutputStream;
 
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.model.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 
 public class AudioFiles extends Activity {
 

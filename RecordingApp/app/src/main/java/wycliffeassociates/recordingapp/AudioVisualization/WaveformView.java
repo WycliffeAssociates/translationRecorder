@@ -6,11 +6,14 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 /**
  * Created by sarabiaj on 9/10/2015.
  */
 public class WaveformView extends CanvasView {
+
+
 
     private byte[] buffer;
     private boolean drawingFromBuffer = false;
@@ -55,6 +58,7 @@ public class WaveformView extends CanvasView {
             }
         }
         redraw();
+        WavPlayer.checkIfShouldStop();
     }
 
 

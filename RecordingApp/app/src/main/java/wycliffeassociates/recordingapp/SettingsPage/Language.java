@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.model;
+package wycliffeassociates.recordingapp.SettingsPage;
 
 public class Language {
 

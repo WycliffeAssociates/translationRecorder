@@ -1,8 +1,10 @@
-package wycliffeassociates.recordingapp.model;
+package wycliffeassociates.recordingapp.FileManagerUtils;
 
 import android.app.Application;
 
 import java.util.ArrayList;
+
+import wycliffeassociates.recordingapp.SettingsPage.Language;
 
 public class LanguageHolder extends Application {
     private ArrayList<Language> languageList;

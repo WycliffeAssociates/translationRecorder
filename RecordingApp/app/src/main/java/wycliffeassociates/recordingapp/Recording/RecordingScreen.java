@@ -40,28 +40,21 @@ public class RecordingScreen extends Activity {
     private static final String AUDIO_RECORDER_FOLDER = "TranslationRecorder";
 
 
-    private String recordedFilename = null;
-    final Context context = this;
-    private String outputName = null;
+    private final Context context = this;
+    private GestureDetectorCompat mDetector;
+    private TextView filenameView;
     private WaveformView mainCanvas;
     private MinimapView minimap;
     private UIDataManager manager;
+    private PreferencesManager pref;
+    private String recordedFilename = null;
+    private String suggestedFilename = null;
     private boolean hasNotYetRecorded = true;
-    private boolean paused = false;
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isRecording = false;
     private boolean minimapClicked = false;
-    private PreferencesManager pref;
     private boolean isPausedRecording = false;
-    private TextView timerView;
-    private TextView filenameView;
-    private long startTime = System.currentTimeMillis();
-    boolean playSection = false;
-    int playbackSectionStart = 0;
-    int playbackSectionEnd = 0;
-    boolean backWasPressed = false;
-    private GestureDetectorCompat mDetector;
     private boolean isPausedPlayback = false;
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -75,12 +68,10 @@ public class RecordingScreen extends Activity {
             }
             if(WavPlayer.exists() && e.getY() <= minimap.getHeight() ) {
                 minimap.setPlaySelectedSection(false);
-                float xPos = e.getX() / mainCanvas.getWidth();
+                float xPos = e.getX() / minimap.getWidth();
                 int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                 WavPlayer.seekTo(timeToSeekTo);
-                startTime = System.currentTimeMillis() - timeToSeekTo;
-                minimap.setMiniMarkerLoc((float) (xPos * minimap.getWidth()));
-                manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
+                manager.updateUI(true);
             }
             endPosition = (int)e.getX();
             minimapClicked = true;
@@ -97,20 +88,17 @@ public class RecordingScreen extends Activity {
             minimap.setPlaySelectedSection(true);
             minimap.setStartOfPlaybackSection(startPosition);
             minimap.setEndOfPlaybackSection(endPosition);
-            playbackSectionStart = (int)((startPosition / (double)mainCanvas.getWidth()) * WavPlayer.getDuration());
-            playbackSectionEnd = (int)((endPosition / (double)mainCanvas.getWidth()) * WavPlayer.getDuration());
+            int playbackSectionStart = (int)((startPosition / (double)minimap.getWidth()) * WavPlayer.getDuration());
+            int playbackSectionEnd = (int)((endPosition / (double)minimap.getWidth()) * WavPlayer.getDuration());
             if(startPosition > endPosition) {
                 int temp = playbackSectionEnd;
                 playbackSectionEnd = playbackSectionStart;
                 playbackSectionStart = temp;
             }
             WavPlayer.seekTo(playbackSectionStart);
-            startTime = System.currentTimeMillis() - playbackSectionStart;
-            minimap.setMiniMarkerLoc((float) (startPosition * minimap.getWidth()));
-            manager.drawWaveformDuringPlayback((int)(System.currentTimeMillis() - startTime));
-            minimapClicked = true;
-            minimap.postInvalidate();
-            playSection = true;
+            WavPlayer.stopAt(playbackSectionEnd);
+            //WavPlayer.selectionStart(playbackSectionStart);
+            manager.updateUI(true);
             return true;
         }
     }
@@ -124,17 +112,13 @@ public class RecordingScreen extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
-
-        outputName = (String)pref.getPreferences("fileName")+"-" +pref.getPreferences("fileCounter").toString();
-
+        suggestedFilename = (String)pref.getPreferences("fileName")+"-" +pref.getPreferences("fileCounter").toString();
 //        recordedFilename = savedInstanceState.getString("outputFileName", null);
-
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.recording_screen);
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
-
 
         mainCanvas = (CanvasView) findViewById(R.id.main_canvas) instanceof WaveformView ? ((WaveformView) findViewById(R.id.main_canvas)) : null;
         minimap = (CanvasView) findViewById(R.id.minimap) instanceof MinimapView ? ((MinimapView) findViewById(R.id.minimap)) : null;
@@ -150,41 +134,10 @@ public class RecordingScreen extends Activity {
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(false);
 
-
-        timerView = (TextView) findViewById(R.id.timerView);
-        timerView.invalidate();
-
-
         filenameView = (TextView)findViewById(R.id.filenameView);
-        filenameView.setText(outputName);
+        filenameView.setText(suggestedFilename);
         hasNotYetRecorded = true;
         manager.useRecordingToolbar(true);
-    }
-
-    private void setButtonHandlers() {
-        findViewById(R.id.btnRecording).setOnClickListener(btnClick);
-        findViewById(R.id.btnStop).setOnClickListener(btnClick);
-        findViewById(R.id.btnPlay).setOnClickListener(btnClick);
-        findViewById(R.id.btnSave).setOnClickListener(btnClick);
-        findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
-        findViewById(R.id.btnPause).setOnClickListener(btnClick);
-        findViewById(R.id.btnSkipBack).setOnClickListener(btnClick);
-        findViewById(R.id.btnSkipForward).setOnClickListener(btnClick);
-
-    }
-
-    private void enableButton(int id,boolean isEnable){
-        findViewById(id).setEnabled(isEnable);
-    }
-
-    private void enableButtons(boolean isRecording) {
-
-        enableButton(R.id.btnRecording, !isRecording);
-        enableButton(R.id.btnStop, true);
-        enableButton(R.id.btnPlay, true);
-        enableButton(R.id.btnSave, true);
-        enableButton(R.id.btnPauseRecording, isRecording);
-        enableButton(R.id.btnPause, true);
     }
 
     private void saveRecording(){
@@ -201,7 +154,7 @@ public class RecordingScreen extends Activity {
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
 
         //pref.getPreferences("fileName");
-        toSave.setText(outputName, TextView.BufferType.EDITABLE);
+        toSave.setText(suggestedFilename, TextView.BufferType.EDITABLE);
 
         //prepare the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(c);
@@ -229,13 +182,13 @@ public class RecordingScreen extends Activity {
     }
 
     public void setName(String newName){
-        outputName = newName;
+        suggestedFilename = newName;
         isSaved = true;
-        recordedFilename = saveFile(outputName);
-        filenameView.setText(outputName);
+        recordedFilename = saveFile(suggestedFilename);
+        filenameView.setText(suggestedFilename);
     }
 
-    public String getName(){return outputName;}
+    public String getName(){return suggestedFilename;}
 
     private void pauseRecording(){
         isPausedRecording = true;
@@ -307,17 +260,15 @@ public class RecordingScreen extends Activity {
     }
 
     private void playRecording(){
-        backWasPressed = false;
         manager.swapPauseAndPlayRecording(false);
         isPlaying = true;
-        paused = false;
+        isPausedPlayback = false;
         WavPlayer.play();
         manager.updateUI(minimapClicked);
     }
 
     @Override
     public void onBackPressed() {
-        backWasPressed = true;
         if(!isSaved) {
             ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
             dialog.setFilename(recordedFilename);
@@ -337,6 +288,70 @@ public class RecordingScreen extends Activity {
         else
             super.onBackPressed();
 
+    }
+
+    /**
+     * Names the currently recorded .wav file.
+     *
+     * @param name a string with the desired output filename. Should not include the .wav extension.
+     * @return the absolute path of the file created
+     */
+    public String saveFile(String name) {
+        File dir = new File(pref.getPreferences("fileDirectory").toString());
+        // System.out.println(recordedFilename);
+        File from = new File(recordedFilename);
+        File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
+        Boolean out = from.renameTo(to);
+        recordedFilename = to.getAbsolutePath();
+        pref.setPreferences("fileCounter", ((int)pref.getPreferences("fileCounter")+1));
+        return to.getAbsolutePath();
+    }
+
+    /**
+     * Retrieves the filename of the recorded audio file.
+     * If the AudioRecorder folder does not exist, it is created.
+     *
+     * @return the absolute filepath to the recorded .wav file
+     */
+    public String getFilename() {
+        String filepath = Environment.getExternalStorageDirectory().getPath();
+        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        if(recordedFilename != null)
+            return (file.getAbsolutePath() + "/" + recordedFilename);
+        else {
+            recordedFilename = (file.getAbsolutePath() + "/" + UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV);
+            System.out.println("filename is " + recordedFilename);
+            return recordedFilename;
+        }
+    }
+
+    private void setButtonHandlers() {
+        findViewById(R.id.btnRecording).setOnClickListener(btnClick);
+        findViewById(R.id.btnStop).setOnClickListener(btnClick);
+        findViewById(R.id.btnPlay).setOnClickListener(btnClick);
+        findViewById(R.id.btnSave).setOnClickListener(btnClick);
+        findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
+        findViewById(R.id.btnPause).setOnClickListener(btnClick);
+        findViewById(R.id.btnSkipBack).setOnClickListener(btnClick);
+        findViewById(R.id.btnSkipForward).setOnClickListener(btnClick);
+    }
+
+    private void enableButton(int id,boolean isEnable){
+        findViewById(id).setEnabled(isEnable);
+    }
+
+    private void enableButtons(boolean isRecording) {
+
+        enableButton(R.id.btnRecording, !isRecording);
+        enableButton(R.id.btnStop, true);
+        enableButton(R.id.btnPlay, true);
+        enableButton(R.id.btnSave, true);
+        enableButton(R.id.btnPauseRecording, isRecording);
+        enableButton(R.id.btnPause, true);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -388,43 +403,4 @@ public class RecordingScreen extends Activity {
             }
         }
     };
-
-    /**
-     * Names the currently recorded .wav file.
-     *
-     * @param name a string with the desired output filename. Should not include the .wav extension.
-     * @return the absolute path of the file created
-     */
-    public String saveFile(String name) {
-        File dir = new File(pref.getPreferences("fileDirectory").toString());
-       // System.out.println(recordedFilename);
-        File from = new File(recordedFilename);
-        File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
-        Boolean out = from.renameTo(to);
-        recordedFilename = to.getAbsolutePath();
-        pref.setPreferences("fileCounter", ((int)pref.getPreferences("fileCounter")+1));
-        return to.getAbsolutePath();
-    }
-
-    /**
-     * Retrieves the filename of the recorded audio file.
-     * If the AudioRecorder folder does not exist, it is created.
-     *
-     * @return the absolute filepath to the recorded .wav file
-     */
-    public String getFilename() {
-        String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
-
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        if(recordedFilename != null)
-            return (file.getAbsolutePath() + "/" + recordedFilename);
-        else {
-            recordedFilename = (file.getAbsolutePath() + "/" + UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV);
-            System.out.println("filename is " + recordedFilename);
-            return recordedFilename;
-        }
-    }
 }

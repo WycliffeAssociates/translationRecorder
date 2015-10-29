@@ -23,6 +23,9 @@ public class WavPlayer {
     private static long timePaused = 0;
     private static long startTime = 0;
     private static long totalTimePaused = 0;
+    private static boolean onlyPlayingSection = false;
+    private static int endPlaybackPosition = 0;
+    private static int startPlaybackPosition = 0;
 
 
     public static void play(){
@@ -124,6 +127,23 @@ public class WavPlayer {
             stopped = true;
             started = false;
             paused = false;
+        }
+    }
+
+    public static void stopAt(int endPlaybackPosition){
+        WavPlayer.endPlaybackPosition = endPlaybackPosition;
+        onlyPlayingSection = true;
+    }
+
+    public static void selectionStart(int startPlaybackPosition){
+        WavPlayer.startPlaybackPosition = startPlaybackPosition;
+    }
+
+    public static void checkIfShouldStop(){
+        if(onlyPlayingSection && WavPlayer.getLocation() >= endPlaybackPosition){
+            WavPlayer.pause();
+            //WavPlayer.seekTo(WavPlayer.startPlaybackPosition);
+            onlyPlayingSection = false;
         }
     }
 

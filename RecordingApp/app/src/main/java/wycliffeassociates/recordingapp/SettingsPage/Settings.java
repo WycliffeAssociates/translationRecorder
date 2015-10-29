@@ -24,7 +24,6 @@ import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
 import wycliffeassociates.recordingapp.MainMenu;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.connectivity.LanguageNamesRequest;
-import wycliffeassociates.recordingapp.model.Language;
 
 /**
  *

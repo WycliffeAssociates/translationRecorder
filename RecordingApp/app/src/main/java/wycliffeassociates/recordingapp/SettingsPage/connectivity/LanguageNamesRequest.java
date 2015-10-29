@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
-import wycliffeassociates.recordingapp.model.Language;
+import wycliffeassociates.recordingapp.SettingsPage.Language;
 
 public class LanguageNamesRequest extends Activity {
 

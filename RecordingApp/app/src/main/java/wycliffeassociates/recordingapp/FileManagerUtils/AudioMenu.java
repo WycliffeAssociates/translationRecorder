@@ -1,9 +1,7 @@
-package wycliffeassociates.recordingapp.model;
+package wycliffeassociates.recordingapp.FileManagerUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import wycliffeassociates.recordingapp.model.AudioItem;
 
 //Unused
 public class AudioMenu {
