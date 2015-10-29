@@ -59,7 +59,6 @@ public abstract class CanvasView extends View {
         mPaint.setStrokeWidth(1f);
     }
 
-
     // override onSizeChanged
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -84,7 +83,7 @@ public abstract class CanvasView extends View {
 
     public void redraw(){
         if(WavPlayer.isPlaying())
-        manager.updateUI(false);
+        manager.updateUI();
     }
 
     public void setUIDataManager(UIDataManager manager){

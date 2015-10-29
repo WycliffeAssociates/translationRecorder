@@ -13,12 +13,9 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
  */
 public class WaveformView extends CanvasView {
 
-
-
     private byte[] buffer;
     private boolean drawingFromBuffer = false;
     private float[] samples;
-
 
     public void drawMarker(Canvas canvas){
         mPaint.setStrokeWidth(2.f);
@@ -59,8 +56,10 @@ public class WaveformView extends CanvasView {
         }
         redraw();
         WavPlayer.checkIfShouldStop();
+        if(!WavPlayer.isPlaying()){
+            manager.enablePlay();
+        }
     }
-
 
     public void setBuffer(byte[] buffer){
         this.buffer = buffer;

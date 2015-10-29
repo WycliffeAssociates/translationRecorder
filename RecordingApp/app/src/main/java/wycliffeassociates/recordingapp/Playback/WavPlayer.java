@@ -139,12 +139,14 @@ public class WavPlayer {
         WavPlayer.startPlaybackPosition = startPlaybackPosition;
     }
 
-    public static void checkIfShouldStop(){
+    public static boolean checkIfShouldStop(){
         if(onlyPlayingSection && WavPlayer.getLocation() >= endPlaybackPosition){
             WavPlayer.pause();
             //WavPlayer.seekTo(WavPlayer.startPlaybackPosition);
             onlyPlayingSection = false;
+            return true;
         }
+        return false;
     }
 
     public static void release(){

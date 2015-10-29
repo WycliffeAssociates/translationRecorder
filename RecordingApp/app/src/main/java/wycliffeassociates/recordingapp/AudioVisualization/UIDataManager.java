@@ -102,7 +102,7 @@ public class UIDataManager {
         }
     }
 
-    public void updateUI(boolean minimapClicked){
+    public void updateUI(){
         if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
             return;
         }
@@ -122,9 +122,13 @@ public class UIDataManager {
 
     }
 
+    public void enablePlay(){
+        ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
+        ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+    }
 
-    public void swapPauseAndPlayPlayback(boolean showPlay){
-        if(showPlay) {
+    public void swapPauseAndPlay(){
+        if(ctx.findViewById(R.id.btnPause).getVisibility() == View.VISIBLE) {
             ctx.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -144,8 +148,8 @@ public class UIDataManager {
         }
     }
 
-    public void swapPauseAndPlayRecording(boolean showPlay){
-        if(showPlay) {
+    public void swapPauseAndRecord(){
+        if(ctx.findViewById(R.id.btnRecording).getVisibility() == View.INVISIBLE) {
             ctx.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -185,6 +189,8 @@ public class UIDataManager {
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
     public void listenForRecording(boolean drawWaveform){
         mainWave.setDrawingFromBuffer(true);
+        ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
+        ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
