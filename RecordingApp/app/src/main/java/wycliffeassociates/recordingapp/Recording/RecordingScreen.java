@@ -124,8 +124,8 @@ public class RecordingScreen extends Activity {
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
-        mainCanvas = (CanvasView) findViewById(R.id.main_canvas) instanceof WaveformView ? ((WaveformView) findViewById(R.id.main_canvas)) : null;
-        minimap = (CanvasView) findViewById(R.id.minimap) instanceof MinimapView ? ((MinimapView) findViewById(R.id.minimap)) : null;
+        mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
+        minimap = ((MinimapView) findViewById(R.id.minimap));
         manager = new UIDataManager(mainCanvas, minimap, this);
 
         setButtonHandlers();
@@ -138,11 +138,6 @@ public class RecordingScreen extends Activity {
         filenameView.setText(suggestedFilename);
         hasNotYetRecorded = true;
         manager.useRecordingToolbar(true);
-
-        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        anim.setInterpolator(new LinearInterpolator());
-        anim.setRepeatCount(Animation.INFINITE);
-        anim.setDuration(1500);
     }
 
     private void pauseRecording() {
@@ -242,7 +237,7 @@ public class RecordingScreen extends Activity {
 
     }
 
-    public boolean getSaveName(Context c) {
+    private boolean getSaveName(Context c) {
         final EditText toSave = new EditText(c);
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
 
@@ -274,7 +269,7 @@ public class RecordingScreen extends Activity {
         return true;
     }
 
-    public void setName(String newName) {
+    private void setName(String newName) {
         suggestedFilename = newName;
         isSaved = true;
         recordedFilename = saveFile(suggestedFilename);
