@@ -109,7 +109,6 @@ public class UIDataManager {
         //Marker is set to the percentage of playback times the width of the minimap
         int location = WavPlayer.getLocation();
         minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
-        System.out.println(WavPlayer.getDuration() + " " + location);
         drawWaveformDuringPlayback(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
         ctx.runOnUiThread(new Runnable() {

@@ -44,7 +44,7 @@ public class MinimapView extends CanvasView {
                 drawPlaybackSection(canvas, startOfPlaybackSection, endOfPlaybackSection);
             }
         }
-        redraw();
+        //redraw();
     }
 
     public void setPlaySelectedSection(boolean x){
