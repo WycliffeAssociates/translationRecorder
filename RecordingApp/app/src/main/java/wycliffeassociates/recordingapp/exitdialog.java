@@ -1,9 +1,9 @@
 package wycliffeassociates.recordingapp;
-
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Recording.*;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -13,7 +13,7 @@ import java.io.File;
 /**
  * Created by Emmanuel on 8/5/2015.
  */
-public class exitdialog extends Dialog implements View.OnClickListener {
+public class ExitDialog extends Dialog implements View.OnClickListener {
 
     private boolean isRecording = false;
     private boolean isPlaying = false;
@@ -25,7 +25,7 @@ public class exitdialog extends Dialog implements View.OnClickListener {
 
     private ImageButton btnSave, btnDelete;
 
-    public exitdialog(Activity a, int theme) {
+    public ExitDialog(Activity a, int theme) {
         super(a, theme);
         this.activity = a;
 
@@ -73,13 +73,9 @@ public class exitdialog extends Dialog implements View.OnClickListener {
                     else {
                         System.out.println("Could not stop the service.");
                     }
-                    try {
-                        RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
-                        RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
-                        Boolean done = RecordingQueues.doneWriting.take();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
+                    RecordingQueues.stopQueues();
+
                 }
                 else if (isPlaying) {
                     WavPlayer.stop();
@@ -89,14 +85,7 @@ public class exitdialog extends Dialog implements View.OnClickListener {
                     WavPlayer.stop();
                     WavPlayer.release();
                     if(isPausedRecording){
-                        try {
-                            boolean serviceStopped = activity.stopService(new Intent(activity, WavRecorder.class));
-                            RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
-                            RecordingQueues.writingQueue.put(new RecordingMessage(null, false, true));
-                            Boolean done = RecordingQueues.doneWriting.take();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        RecordingQueues.stopQueues();
                     }
                 }
                 if (filename != null){
