@@ -11,11 +11,8 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.text.InputType;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -23,16 +20,13 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.UUID;
 
-import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
-import wycliffeassociates.recordingapp.Playback.PlaybackLogic;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
-import wycliffeassociates.recordingapp.AudioVisualization.RecordingTimer;
 
 public class RecordingScreen extends Activity {
     //Constants for WAV format
