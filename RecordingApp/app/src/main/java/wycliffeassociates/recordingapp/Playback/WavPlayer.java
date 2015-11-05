@@ -28,6 +28,7 @@ public class WavPlayer {
     private static boolean keepPlaying = false;
     private static Thread playbackThread;
     private static int playbackStart = 0;
+    //private static volatile int location= 0;
 
     public static void play(){
         if(WavPlayer.isPlaying()){
@@ -43,8 +44,9 @@ public class WavPlayer {
                 int limit =audioData.capacity();
                 short[] mBuffer = new short[minBufferSize/2];
                 byte[] bytes = new byte[minBufferSize];
-                while(audioData.position() < (limit - minBufferSize) && keepPlaying){
+                while(audioData.position() < limit && keepPlaying){
                     checkIfShouldStop();
+                    //location = audioData.position();
                     int numSamplesLeft = limit - audioData.position();
                     if(numSamplesLeft >= mBuffer.length) {
                         //need to grab data from the mapped file, then convert it into a short array
@@ -61,7 +63,11 @@ public class WavPlayer {
                         bytesBuffer.asShortBuffer().get(mBuffer);
                     }
                     player.write(mBuffer, 0, mBuffer.length);
+                    System.out.println("location is " + getLocation() + " out of " + getDuration());
                 }
+                while(getLocation() != getDuration()){}
+                System.out.println("end thread");
+                //System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
         };
         playbackThread.start();
@@ -142,7 +148,8 @@ public class WavPlayer {
     }
 
     public static boolean checkIfShouldStop(){
-        if(onlyPlayingSection && WavMediaPlayer.getLocation() >= endPlaybackPosition){
+        if(onlyPlayingSection && WavMediaPlayer.getLocation() >= endPlaybackPosition
+                || getDuration() == getLocation()){
             pause();
             //WavMediaPlayer.seekTo(WavMediaPlayer.startPlaybackPosition);
             onlyPlayingSection = false;
@@ -174,13 +181,16 @@ public class WavPlayer {
 
     public static int getLocation(){
         if(player != null)
-            return 0;
+            return Math.min((int)((playbackStart + player.getPlaybackHeadPosition()) *
+                    (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
         else
-            return (int)((playbackStart + player.getPlaybackHeadPosition()) *
-                (1000.0 / AudioInfo.SAMPLERATE));
+            return 0;
     }
     public static int getDuration(){
-        return (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
+        if(player != null)
+            return (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
+        else
+            return 0;
     }
 
 }

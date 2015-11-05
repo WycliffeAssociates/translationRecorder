@@ -21,11 +21,15 @@ public class WavFileLoader {
     //this is enough for a resolution of 2k pixel width to display one second of wav across
     private int largest = 10000;
     private MappedByteBuffer buffer;
+    private MappedByteBuffer mappedAudioFile;
     private MappedByteBuffer preprocessedBuffer;
     private int startIndex;
     private String visTempFile = "visualization.tmp";
     private int screenWidth = 2560;
 
+    public MappedByteBuffer getMappedAudioFile(){
+        return mappedAudioFile;
+    }
     public MappedByteBuffer getMappedFile(){
         return buffer;
     }
@@ -38,6 +42,7 @@ public class WavFileLoader {
         RandomAccessFile raf = new RandomAccessFile(file, "r");
         FileChannel fc = raf.getChannel();
         buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
+        mappedAudioFile = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
         //generateTempFile();
 
         File test = new File(AudioInfo.pathToVisFile + visTempFile);

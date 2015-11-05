@@ -6,7 +6,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.Playback.WavMediaPlayer;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 /**
  * Created by sarabiaj on 9/10/2015.
@@ -55,8 +55,8 @@ public class WaveformView extends CanvasView {
             }
         }
         redraw();
-        WavMediaPlayer.checkIfShouldStop();
-        if(!WavMediaPlayer.isPlaying()){
+        WavPlayer.checkIfShouldStop();
+        if(!WavPlayer.isPlaying()){
             manager.enablePlay();
         }
     }

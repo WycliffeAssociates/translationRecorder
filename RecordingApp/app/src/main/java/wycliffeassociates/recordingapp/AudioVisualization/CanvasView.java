@@ -8,7 +8,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
-import wycliffeassociates.recordingapp.Playback.WavMediaPlayer;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 public abstract class CanvasView extends View {
 
@@ -67,7 +67,7 @@ public abstract class CanvasView extends View {
     }
 
     public void redraw(){
-        if(WavMediaPlayer.isPlaying())
+        if(WavPlayer.isPlaying())
         manager.updateUI();
     }
 
