@@ -11,11 +11,10 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
-import java.util.Timer;
 import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Playback.WavMediaPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
@@ -70,6 +69,9 @@ public class UIDataManager {
         timer.resume();
     }
 
+    public MappedByteBuffer getMappedAudioFile(){
+        return buffer;
+    }
 
     public void setIsRecording(boolean isRecording){
         this.isRecording = isRecording;
@@ -103,12 +105,12 @@ public class UIDataManager {
     }
 
     public void updateUI(){
-        if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
+        if(minimap == null || mainWave == null || WavMediaPlayer.getDuration() == 0){
             return;
         }
         //Marker is set to the percentage of playback times the width of the minimap
-        int location = WavPlayer.getLocation();
-        minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
+        int location = WavMediaPlayer.getLocation();
+        minimap.setMiniMarkerLoc((float) ((location / (double) WavMediaPlayer.getDuration()) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
         ctx.runOnUiThread(new Runnable() {
@@ -178,7 +180,7 @@ public class UIDataManager {
             System.out.println("Mapped files completed.");
             System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
             minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
-            minimap.setAudioLength(WavPlayer.getDuration());
+            minimap.setAudioLength(WavMediaPlayer.getDuration());
         } catch (IOException e) {
             System.out.println("There was an error with mapping the files");
             e.printStackTrace();
