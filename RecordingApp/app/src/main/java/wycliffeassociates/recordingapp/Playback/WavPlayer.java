@@ -28,9 +28,12 @@ public class WavPlayer {
     private static boolean keepPlaying = false;
     private static Thread playbackThread;
     private static int playbackStart = 0;
+    private static boolean forceBreakOut = false;
+    private static boolean alreadySet = false;
     //private static volatile int location= 0;
 
     public static void play(){
+        forceBreakOut = false;
         if(WavPlayer.isPlaying()){
             return;
         }
@@ -41,11 +44,14 @@ public class WavPlayer {
             public void run(){
                 int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
                 audioData.position(position);
+
                 int limit = audioData.capacity();
                 short[] shorts = new short[minBufferSize/2];
                 byte[] bytes = new byte[minBufferSize];
                 while(audioData.position() < limit && keepPlaying){
-                    checkIfShouldStop();
+                    if(checkIfShouldStop()){
+                        break;
+                    }
                     //location = audioData.position();
                     int numSamplesLeft = limit - audioData.position();
                     if(numSamplesLeft >= bytes.length) {
@@ -66,9 +72,9 @@ public class WavPlayer {
                         bytesBuffer.asShortBuffer().get(shorts);
                     }
                     player.write(shorts, 0, shorts.length);
-                    System.out.println("location is " + getLocation() + " out of " + getDuration());
+                    //System.out.println("location is " + getLocation() + " out of " + getDuration());
                 }
-                while(getLocation() != getDuration()){}
+                while((getLocation() != getDuration()) && !forceBreakOut){}
                 System.out.println("end thread");
                 //System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
@@ -92,6 +98,19 @@ public class WavPlayer {
         player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 minBufferSize, AudioTrack.MODE_STREAM);
+
+        player.setNotificationMarkerPosition(audioData.capacity() - 1);  // Set the marker to the end.
+        player.setPlaybackPositionUpdateListener(
+                new AudioTrack.OnPlaybackPositionUpdateListener() {
+                    @Override
+                    public void onPeriodicNotification(AudioTrack track) {}
+
+                    @Override
+                    public void onMarkerReached(AudioTrack track) {
+                        stop();
+                        System.out.println("now at " + player.getPlaybackHeadPosition());
+                    }
+                });
     }
 
     public static void pause(){
@@ -103,8 +122,7 @@ public class WavPlayer {
     public static boolean exists(){
         if(player != null){
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -118,7 +136,11 @@ public class WavPlayer {
         boolean wasPlaying = isPlaying();
         stop();
         playbackStart = (int)(x * (AudioInfo.SAMPLERATE/1000.0));
-        player.setNotificationMarkerPosition(duration - playbackStart - 1);
+        if (playbackStart > audioData.capacity()/2) {
+            playbackStart = audioData.capacity()/2;  // Nothing to play...
+        }
+        System.out.println("return value of seek is " + player.setNotificationMarkerPosition(audioData.capacity()/2 - 1 - playbackStart) + " trying to be at " + (audioData.capacity()/2 - 1 - playbackStart));
+        System.out.println("now at " + player.getPlaybackHeadPosition());
         if(wasPlaying){
             play();
         }
@@ -131,6 +153,7 @@ public class WavPlayer {
             player.stop();
             if(playbackThread != null){
                 try {
+                    forceBreakOut = true;
                     playbackThread.join();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -151,10 +174,14 @@ public class WavPlayer {
     }
 
     public static boolean checkIfShouldStop(){
-        if(onlyPlayingSection && WavMediaPlayer.getLocation() >= endPlaybackPosition
-                || getDuration() == getLocation()){
+        if(getDuration() == getLocation()) {
             pause();
-            //WavMediaPlayer.seekTo(WavMediaPlayer.startPlaybackPosition);
+            return true;
+        }
+        if(onlyPlayingSection && getLocation() >= endPlaybackPosition){
+            pause();
+            //WavPlayer.seekTo(endPlaybackPosition);
+            playbackStart = endPlaybackPosition;
             onlyPlayingSection = false;
             return true;
         }
@@ -164,8 +191,17 @@ public class WavPlayer {
     public static void release(){
         stop();
         audioData = null;
-        player.release();
+        if(player != null)
+            player.release();
         player = null;
+        if(playbackThread!= null){
+            keepPlaying = false;
+            try {
+                playbackThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static boolean isPlaying(){

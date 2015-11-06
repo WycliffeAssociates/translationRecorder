@@ -226,9 +226,10 @@ public class RecordingScreen extends Activity {
                 dialog.setIsPausedRecording(true);
             }
             dialog.show();
-        } else
+        } else {
+            WavPlayer.release();
             super.onBackPressed();
-
+        }
     }
 
     private boolean getSaveName(Context c) {

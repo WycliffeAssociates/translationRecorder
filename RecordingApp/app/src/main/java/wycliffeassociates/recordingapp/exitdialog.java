@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp;
 import wycliffeassociates.recordingapp.Playback.WavMediaPlayer;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Recording.*;
 import android.app.Activity;
 import android.app.Dialog;
@@ -78,12 +79,10 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
 
                 }
                 else if (isPlaying) {
-                    WavMediaPlayer.stop();
-                    WavMediaPlayer.release();
+                    WavPlayer.release();
                 }
                 else {
-                    WavMediaPlayer.stop();
-                    WavMediaPlayer.release();
+                    WavPlayer.release();
                     if(isPausedRecording){
                         RecordingQueues.stopQueues();
                     }
