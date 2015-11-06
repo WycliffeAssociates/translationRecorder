@@ -41,28 +41,31 @@ public class WavPlayer {
             public void run(){
                 int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
                 audioData.position(position);
-                int limit =audioData.capacity();
-                short[] mBuffer = new short[minBufferSize/2];
+                int limit = audioData.capacity();
+                short[] shorts = new short[minBufferSize/2];
                 byte[] bytes = new byte[minBufferSize];
                 while(audioData.position() < limit && keepPlaying){
                     checkIfShouldStop();
                     //location = audioData.position();
                     int numSamplesLeft = limit - audioData.position();
-                    if(numSamplesLeft >= mBuffer.length) {
+                    if(numSamplesLeft >= bytes.length) {
                         //need to grab data from the mapped file, then convert it into a short array
                         //since AudioTrack requires writing shorts for playing PCM16
                         audioData.get(bytes);
                         ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-                        bytesBuffer.asShortBuffer().get(mBuffer);
+                        bytesBuffer.asShortBuffer().get(shorts);
                     } else {
-                        for(int i=numSamplesLeft; i<mBuffer.length; i++) {
-                            mBuffer[i] = 0;
+                        for(int i=numSamplesLeft; i<shorts.length; i++) {
+                            shorts[i] = 0;
+                        }
+                        for(int i=numSamplesLeft; i<bytes.length; i++) {
+                            bytes[i] = 0;
                         }
                         audioData.get(bytes, 0, numSamplesLeft);
                         ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-                        bytesBuffer.asShortBuffer().get(mBuffer);
+                        bytesBuffer.asShortBuffer().get(shorts);
                     }
-                    player.write(mBuffer, 0, mBuffer.length);
+                    player.write(shorts, 0, shorts.length);
                     System.out.println("location is " + getLocation() + " out of " + getDuration());
                 }
                 while(getLocation() != getDuration()){}
