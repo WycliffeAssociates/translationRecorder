@@ -45,17 +45,21 @@ public class WavPlayer {
                 short[] shorts = new short[minBufferSize/2];
                 byte[] bytes = new byte[minBufferSize];
                 while(audioData.position() < limit && keepPlaying){
+
+                    //checks to see if we're in a selected section and should end
                     if(checkIfShouldStop()){
                         break;
                     }
+
                     int numSamplesLeft = limit - audioData.position();
+                    //if the number of samples left is large enough, just copy the data
                     if(numSamplesLeft >= bytes.length) {
                         //need to grab data from the mapped file, then convert it into a short array
                         //since AudioTrack requires writing shorts for playing PCM16
                         audioData.get(bytes);
-                        ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-                        bytesBuffer.asShortBuffer().get(shorts);
-                    } else {
+                    }
+                    //if the number of samples left wont fill the buffer, zero out the end
+                    else {
                         for(int i=numSamplesLeft; i<shorts.length; i++) {
                             shorts[i] = 0;
                         }
@@ -63,9 +67,12 @@ public class WavPlayer {
                             bytes[i] = 0;
                         }
                         audioData.get(bytes, 0, numSamplesLeft);
-                        ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-                        bytesBuffer.asShortBuffer().get(shorts);
                     }
+                    //copy the bytes from the audio file into a short buffer, need to flip byte order
+                    //as wav files are little endian
+                    ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+                    bytesBuffer.asShortBuffer().get(shorts);
+                    //write the buffer to the audiotrack; the write is blocking
                     player.write(shorts, 0, shorts.length);
                 }
                 //location doesn't usually end up going to the end before audio playback stops.
@@ -89,16 +96,18 @@ public class WavPlayer {
         minBufferSize = AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-        System.out.println("buffer size for playback is "+ minBufferSize);
+        System.out.println("buffer size for playback is " + minBufferSize);
 
         player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 minBufferSize, AudioTrack.MODE_STREAM);
     }
 
+    //Pause calls flush so as to eliminate data that may have been written right after the pause
     public static void pause(){
         if(player != null){
             player.pause();
+            player.flush();
         }
     }
 
@@ -162,7 +171,6 @@ public class WavPlayer {
         }
         if(onlyPlayingSection && getLocation() >= endPlaybackPosition){
             pause();
-            //WavPlayer.seekTo(endPlaybackPosition);
             playbackStart = endPlaybackPosition;
             onlyPlayingSection = false;
             return true;
