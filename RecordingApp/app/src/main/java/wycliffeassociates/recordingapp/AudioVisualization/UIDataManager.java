@@ -11,7 +11,6 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
-import java.util.Timer;
 import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.AudioInfo;
@@ -38,6 +37,7 @@ public class UIDataManager {
     private WavFileLoader wavLoader;
     private WavVisualizer wavVis;
     private MappedByteBuffer buffer;
+    private MappedByteBuffer mappedAudioFile;
     private MappedByteBuffer preprocessedBuffer;
     private int secondsOnScreen = 5;
     private Animation anim;
@@ -70,6 +70,9 @@ public class UIDataManager {
         timer.resume();
     }
 
+    public MappedByteBuffer getMappedAudioFile(){
+        return mappedAudioFile;
+    }
 
     public void setIsRecording(boolean isRecording){
         this.isRecording = isRecording;
@@ -108,6 +111,7 @@ public class UIDataManager {
         }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = WavPlayer.getLocation();
+        System.out.println("location is " + WavPlayer.getLocation() + " out of " + WavPlayer.getDuration());
         minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
@@ -175,9 +179,11 @@ public class UIDataManager {
             wavLoader = new WavFileLoader(path, mainWave.getWidth());
             buffer = wavLoader.getMappedFile();
             preprocessedBuffer = wavLoader.getMappedCacheFile();
+            mappedAudioFile = wavLoader.getMappedAudioFile();
             System.out.println("Mapped files completed.");
             System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
             minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+            WavPlayer.loadFile(getMappedAudioFile());
             minimap.setAudioLength(WavPlayer.getDuration());
         } catch (IOException e) {
             System.out.println("There was an error with mapping the files");

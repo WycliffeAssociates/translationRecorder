@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape"/>
+        <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape" android:noHistory="true"/>
         <activity android:name=".FilesPage.AudioFiles" android:screenOrientation="portrait" />
         <activity android:name=".SettingsPage.Settings" android:screenOrientation="portrait"
             android:windowSoftInputMode="stateUnchanged"/>

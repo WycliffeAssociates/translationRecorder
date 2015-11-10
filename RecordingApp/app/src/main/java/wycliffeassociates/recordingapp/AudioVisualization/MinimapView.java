@@ -5,12 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 /**
  * Created by sarabiaj on 9/10/2015.
@@ -78,7 +73,7 @@ public class MinimapView extends CanvasView {
     }
 
     public void setAudioLength(int length){
-        //System.out.println("length is " + length);
+        System.out.println("Audio data length for timecode is " + length);
         this.audioLength = (int)(length/1000.0);
         this.secondsPerPixel = audioLength / (double)getWidth();
         computeTimecodeInterval();

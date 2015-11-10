@@ -1,27 +1,12 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Environment;
 import android.util.AttributeSet;
-import android.util.Pair;
-import android.view.ScaleGestureDetector;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
