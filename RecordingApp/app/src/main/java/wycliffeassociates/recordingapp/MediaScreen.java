@@ -34,21 +34,21 @@ public class MediaScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        pref = new PreferencesManager(this);
-        //make sure the tablet does not go to sleep while on the recording screen
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        outputName = (String)pref.getPreferences("fileName")+"-" +pref.getPreferences("fileCounter").toString();
-
-        timerView = (TextView) findViewById(R.id.timerView);
-        timerView.invalidate();
-
-        filenameView = (TextView)findViewById(R.id.filenameView);
-        filenameView.setText(recordedFilename);
-
-        mainCanvas = (CanvasView) findViewById(R.id.main_canvas) instanceof WaveformView ? ((WaveformView) findViewById(R.id.main_canvas)) : null;
-        minimap = (CanvasView) findViewById(R.id.minimap) instanceof MinimapView ? ((MinimapView) findViewById(R.id.minimap)) : null;
-        manager = new UIDataManager(mainCanvas, minimap, this);
+//        pref = new PreferencesManager(this);
+//        //make sure the tablet does not go to sleep while on the recording screen
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//
+//        outputName = (String)pref.getPreferences("fileName")+"-" +pref.getPreferences("fileCounter").toString();
+//
+//        timerView = (TextView) findViewById(R.id.timerView);
+//        timerView.invalidate();
+//
+//        filenameView = (TextView)findViewById(R.id.filenameView);
+//        filenameView.setText(recordedFilename);
+//
+//        mainCanvas = (CanvasView) findViewById(R.id.main_canvas) instanceof WaveformView ? ((WaveformView) findViewById(R.id.main_canvas)) : null;
+//        minimap = (CanvasView) findViewById(R.id.minimap) instanceof MinimapView ? ((MinimapView) findViewById(R.id.minimap)) : null;
+//        manager = new UIDataManager(mainCanvas, minimap, this);
 
 
     }

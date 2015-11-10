@@ -56,7 +56,7 @@ public class WaveformView extends CanvasView {
         }
         redraw();
         WavPlayer.checkIfShouldStop();
-        if(!WavPlayer.isPlaying()){
+        if(WavPlayer.exists() && !WavPlayer.isPlaying()){
             manager.enablePlay();
         }
     }

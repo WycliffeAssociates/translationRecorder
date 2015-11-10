@@ -32,7 +32,7 @@
                 android:layout_alignParentTop="false"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true"
-                android:visibility="invisible">
+                android:visibility="visible">
 
                 <ImageButton
                     android:layout_width="wrap_content"
@@ -44,7 +44,8 @@
                     android:layout_gravity="center"
                     android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
-                    android:layout_marginStart="59dp" />
+                    android:layout_marginStart="59dp"
+                    android:clickable="false" />
 
                 <ImageButton
                     android:layout_width="wrap_content"

@@ -29,6 +29,8 @@ import wycliffeassociates.recordingapp.Playback.WavFileLoader;
 
 public class UIDataManager {
 
+    static public final boolean PLAYBACK_MODE = true;
+    static public final boolean RECORDING_MODE = false;
     private final WaveformView mainWave;
     private final MinimapView minimap;
     private final Activity ctx;
@@ -43,8 +45,10 @@ public class UIDataManager {
     private Animation anim;
     RecordingTimer timer;
     private final TextView timerView;
+    private boolean mode;
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx){
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx, boolean mode){
+        this.mode = mode;
         mainWave.setUIDataManager(this);
         minimap.setUIDataManager(this);
         this.mainWave = mainWave;
@@ -78,33 +82,6 @@ public class UIDataManager {
         this.isRecording = isRecording;
     }
 
-    public void useRecordingToolbar(boolean useRecordingToolbar){
-        if(useRecordingToolbar){
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.linearLayout10).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.toolbar).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
-
-                }
-            });
-
-        }
-        else {
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
-                }
-            });
-        }
-    }
-
     public void updateUI(){
         if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
             return;
@@ -126,8 +103,10 @@ public class UIDataManager {
     }
 
     public void enablePlay(){
-        ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
-        ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+        if(mode == PLAYBACK_MODE) {
+            ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
+            ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+        }
     }
 
     public void swapPauseAndPlay(){
