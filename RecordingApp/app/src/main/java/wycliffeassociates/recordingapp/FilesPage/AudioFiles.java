@@ -40,6 +40,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
+import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
@@ -114,6 +115,7 @@ public class AudioFiles extends Activity {
         //pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
         currentDir = (String) pref.getPreferences("fileDirectory");
+        AudioInfo.fileDir = currentDir;
         sort = (int) pref.getPreferences("displaySort");
 
 

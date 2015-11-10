@@ -14,11 +14,6 @@ import wycliffeassociates.recordingapp.AudioInfo;
  */
 public class WavPlayer {
 
-    private static boolean paused = false;
-    private static boolean stopped = false;
-    private static boolean started = true;
-    private static boolean loaded = false;
-    private static int duration = 0;
     private static boolean onlyPlayingSection = false;
     private static int endPlaybackPosition = 0;
     private static int startPlaybackPosition = 0;
@@ -29,8 +24,6 @@ public class WavPlayer {
     private static Thread playbackThread;
     private static int playbackStart = 0;
     private static boolean forceBreakOut = false;
-    private static boolean alreadySet = false;
-    //private static volatile int location= 0;
 
     public static void play(){
         forceBreakOut = false;
@@ -42,9 +35,12 @@ public class WavPlayer {
         player.play();
         playbackThread = new Thread(){
             public void run(){
-                int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
-                audioData.position(position);
 
+                //the starting position needs to beginning of the 16bit PCM data, not in the middle
+                int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
+
+                //position in the buffer keeps track of where we are for playback
+                audioData.position(position);
                 int limit = audioData.capacity();
                 short[] shorts = new short[minBufferSize/2];
                 byte[] bytes = new byte[minBufferSize];

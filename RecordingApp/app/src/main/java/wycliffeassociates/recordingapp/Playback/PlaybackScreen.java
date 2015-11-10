@@ -48,6 +48,7 @@ public class PlaybackScreen extends Activity {
     private String suggestedFilename = null;
     private boolean isSaved = false;
     private boolean isPlaying = false;
+    private boolean isALoadedFile = false;
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
@@ -104,6 +105,7 @@ public class PlaybackScreen extends Activity {
         pref = new PreferencesManager(this);
         suggestedFilename = pref.getPreferences("fileName") + "-" + pref.getPreferences("fileCounter").toString();
         recordedFilename = getIntent().getStringExtra("recordedFilename");
+        isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         System.out.println("Loaded file name is " + recordedFilename);
 
         //make sure the tablet does not go to sleep while on the recording screen
@@ -129,7 +131,6 @@ public class PlaybackScreen extends Activity {
                 mainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
-
 
         filenameView = (TextView) findViewById(R.id.filenameView);
         filenameView.setText(suggestedFilename);
@@ -162,6 +163,7 @@ public class PlaybackScreen extends Activity {
         if (!isSaved) {
             ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
             dialog.setFilename(recordedFilename);
+            dialog.setLoadedFile(isALoadedFile);
             if (isPlaying) {
                 dialog.setIsPlaying(true);
                 isPlaying = false;

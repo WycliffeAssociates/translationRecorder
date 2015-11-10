@@ -31,7 +31,7 @@ public class WavVisualizer {
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
         int numSecondsOnScreen = getNumSecondsOnScreen(userScale);
         //based on the user scale, determine which buffer waveData should be
-        useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
+        //useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
         MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
 
 

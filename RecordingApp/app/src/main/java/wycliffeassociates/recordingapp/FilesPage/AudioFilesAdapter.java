@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 
+import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 
@@ -122,7 +125,12 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                //AudioFiles.AudioPlay(audioItems[position].getName());
+
+                String filename = audioItems[position].getName();
+                Intent intent = new Intent(getContext(), PlaybackScreen.class);
+                intent.putExtra("recordedFilename",  AudioInfo.fileDir+"/"+filename);
+                intent.putExtra("loadFile", true);
+                getContext().startActivity(intent);
             }
 
         });

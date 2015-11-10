@@ -49,9 +49,13 @@ public class WavFileLoader {
         if(test.exists()){
             System.out.println("file is size " + test.length());
         }
-        RandomAccessFile rafCached = new RandomAccessFile(test, "r");
-        FileChannel fcCached = rafCached.getChannel();
-        preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+//        RandomAccessFile rafCached = new RandomAccessFile(test, "r");
+//        FileChannel fcCached = rafCached.getChannel();
+
+        /* This is a temporary fix to loading files that weren't just recorded */
+        //preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+        preprocessedBuffer = buffer;
+
         System.out.println("Largest value from file is " + largest);
 
     }
