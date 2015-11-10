@@ -73,7 +73,7 @@ public class MinimapView extends CanvasView {
     }
 
     public void setAudioLength(int length){
-        //System.out.println("length is " + length);
+        System.out.println("Audio data length for timecode is " + length);
         this.audioLength = (int)(length/1000.0);
         this.secondsPerPixel = audioLength / (double)getWidth();
         computeTimecodeInterval();

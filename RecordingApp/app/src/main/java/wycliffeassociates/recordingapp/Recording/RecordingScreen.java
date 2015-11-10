@@ -196,7 +196,6 @@ public class RecordingScreen extends Activity {
         System.out.println("Stopping");
         RecordingQueues.stopQueues();
         manager.loadWavFromFile(recordedFilename);
-        WavPlayer.loadFile(manager.getMappedAudioFile());
         System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
         manager.updateUI();
     }

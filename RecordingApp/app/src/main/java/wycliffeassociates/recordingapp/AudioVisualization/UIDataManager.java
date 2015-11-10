@@ -183,6 +183,7 @@ public class UIDataManager {
             System.out.println("Mapped files completed.");
             System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
             minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+            WavPlayer.loadFile(getMappedAudioFile());
             minimap.setAudioLength(WavPlayer.getDuration());
         } catch (IOException e) {
             System.out.println("There was an error with mapping the files");
