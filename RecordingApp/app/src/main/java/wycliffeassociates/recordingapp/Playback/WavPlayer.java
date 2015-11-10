@@ -52,7 +52,6 @@ public class WavPlayer {
                     if(checkIfShouldStop()){
                         break;
                     }
-                    //location = audioData.position();
                     int numSamplesLeft = limit - audioData.position();
                     if(numSamplesLeft >= bytes.length) {
                         //need to grab data from the mapped file, then convert it into a short array
@@ -72,8 +71,9 @@ public class WavPlayer {
                         bytesBuffer.asShortBuffer().get(shorts);
                     }
                     player.write(shorts, 0, shorts.length);
-                    //System.out.println("location is " + getLocation() + " out of " + getDuration());
                 }
+                //location doesn't usually end up going to the end before audio playback stops.
+                //continue to loop until the end is reached.
                 while((getLocation() != getDuration()) && !forceBreakOut){}
                 System.out.println("end thread");
                 //System.out.println("location is " + getLocation() + " out of " + getDuration());
@@ -98,19 +98,6 @@ public class WavPlayer {
         player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 minBufferSize, AudioTrack.MODE_STREAM);
-
-        player.setNotificationMarkerPosition(audioData.capacity() - 1);  // Set the marker to the end.
-        player.setPlaybackPositionUpdateListener(
-                new AudioTrack.OnPlaybackPositionUpdateListener() {
-                    @Override
-                    public void onPeriodicNotification(AudioTrack track) {}
-
-                    @Override
-                    public void onMarkerReached(AudioTrack track) {
-                        stop();
-                        System.out.println("now at " + player.getPlaybackHeadPosition());
-                    }
-                });
     }
 
     public static void pause(){
@@ -135,12 +122,11 @@ public class WavPlayer {
     public static void seekTo(int x){
         boolean wasPlaying = isPlaying();
         stop();
-        playbackStart = (int)(x * (AudioInfo.SAMPLERATE/1000.0));
-        if (playbackStart > audioData.capacity()/2) {
-            playbackStart = audioData.capacity()/2;  // Nothing to play...
-        }
-        System.out.println("return value of seek is " + player.setNotificationMarkerPosition(audioData.capacity()/2 - 1 - playbackStart) + " trying to be at " + (audioData.capacity()/2 - 1 - playbackStart));
-        System.out.println("now at " + player.getPlaybackHeadPosition());
+        //500 instead of 1000 because the position should be double here- there's two bytes
+        //per data point in the audio array
+        playbackStart = (int)(x * (AudioInfo.SAMPLERATE/500.0));
+        //make sure the playback start is within the bounds of the file's capacity
+        playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
         if(wasPlaying){
             play();
         }
@@ -220,7 +206,7 @@ public class WavPlayer {
 
     public static int getLocation(){
         if(player != null)
-            return Math.min((int)((playbackStart + player.getPlaybackHeadPosition()) *
+            return Math.min((int)((playbackStart/2 + player.getPlaybackHeadPosition()) *
                     (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
         else
             return 0;
