@@ -20,7 +20,7 @@ public class WavFileWriter extends Service{
     ArrayList<Byte> byteArrayList;
     byte[] dataFromQueue;
     private String filename = null;
-    private String visTempFile = "visualization.tmp";
+    private String visTempFile = "visualization.vis";
     private boolean stoppedRecording = false;
     public static int largest = 0;
 
@@ -81,8 +81,7 @@ public class WavFileWriter extends Service{
                 boolean stopped = false;
                 byteArrayList = new ArrayList<>(10000);
                 try {
-                    AudioInfo.pathToVisFile = getBaseContext().getFilesDir().getAbsolutePath();
-                    File file = new File(getBaseContext().getFilesDir() + visTempFile);
+                    File file = new File(AudioInfo.pathToVisFile + visTempFile);
                     if(!file.exists()){
                         file.createNewFile();
                     }
@@ -113,6 +112,7 @@ public class WavFileWriter extends Service{
                     RecordingQueues.compressionQueue.clear();
                     RecordingQueues.doneWritingCompressed.put(new Boolean(true));
                     stopSelf();
+                    System.out.println(file.exists() + " " + file.getAbsolutePath());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {

@@ -6,12 +6,13 @@ import wycliffeassociates.recordingapp.AudioInfo;
 
 public class WavVisualizer {
 
-    private final MappedByteBuffer preprocessedBuffer;
-    private final MappedByteBuffer buffer;
+    private MappedByteBuffer preprocessedBuffer;
+    private MappedByteBuffer buffer;
     private float userScale = 1f;
     //private final int AudioInfo.COMPRESSED_SECONDS_ON_SCREEN = 5;
     private final int defaultSecondsOnScreen = 10;
     private boolean useCompressedFile = false;
+    private boolean canSwitch = false;
     private float[] samples;
     double yScale;
     int screenHeight;
@@ -22,7 +23,14 @@ public class WavVisualizer {
         this.screenHeight = screenHeight;
         this.screenWidth = screenWidth;
         this.preprocessedBuffer = preprocessedBuffer;
+        canSwitch = (preprocessedBuffer == null)? false : true;
         samples = new float[screenWidth*8];
+    }
+
+    public void enableCompressedFileNextDraw(MappedByteBuffer preprocessedBuffer){
+        System.out.println("Swapping buffers now");
+        this.preprocessedBuffer = preprocessedBuffer;
+        this.canSwitch = true;
     }
 
     public float[] getDataToDraw(int location, int largest){
@@ -31,9 +39,9 @@ public class WavVisualizer {
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
         int numSecondsOnScreen = getNumSecondsOnScreen(userScale);
         //based on the user scale, determine which buffer waveData should be
-        //useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
+        useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
         MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
-
+        System.out.println("use compressed file is " + useCompressedFile);
 
 
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
@@ -125,8 +133,8 @@ public class WavVisualizer {
         return 0;
     }
 
-    public static boolean shouldUseCompressedFile(int numSecondsOnScreen){
-        if(numSecondsOnScreen >= AudioInfo.COMPRESSED_SECONDS_ON_SCREEN){
+    public boolean shouldUseCompressedFile(int numSecondsOnScreen){
+        if(numSecondsOnScreen >= AudioInfo.COMPRESSED_SECONDS_ON_SCREEN && canSwitch){
             return true;
         }
         else return false;

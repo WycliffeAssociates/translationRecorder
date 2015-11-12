@@ -1,20 +1,12 @@
 package wycliffeassociates.recordingapp.Recording;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.view.GestureDetectorCompat;
-import android.text.InputType;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.RotateAnimation;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.File;
@@ -22,7 +14,6 @@ import java.util.UUID;
 
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
@@ -59,7 +50,7 @@ public class RecordingScreen extends Activity {
 
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
-        manager = new UIDataManager(mainCanvas, minimap, this, UIDataManager.RECORDING_MODE);
+        manager = new UIDataManager(mainCanvas, minimap, this, UIDataManager.RECORDING_MODE, true);
 
         setButtonHandlers();
         enableButtons();

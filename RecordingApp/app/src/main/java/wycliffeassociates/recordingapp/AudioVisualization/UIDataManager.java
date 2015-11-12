@@ -46,8 +46,11 @@ public class UIDataManager {
     RecordingTimer timer;
     private final TextView timerView;
     private boolean mode;
+    private boolean isALoadedFile = false;
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx, boolean mode){
+
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx, boolean mode, boolean isALoadedFile){
+        this.isALoadedFile = isALoadedFile;
         this.mode = mode;
         mainWave.setUIDataManager(this);
         minimap.setUIDataManager(this);
@@ -86,9 +89,11 @@ public class UIDataManager {
         if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
             return;
         }
+        if(wavLoader.visFileLoaded()){
+            wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
+        }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = WavPlayer.getLocation();
-        System.out.println("location is " + WavPlayer.getLocation() + " out of " + WavPlayer.getDuration());
         minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
@@ -155,12 +160,12 @@ public class UIDataManager {
 
     public void loadWavFromFile(String path){
         try {
-            wavLoader = new WavFileLoader(path, mainWave.getWidth());
+            wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
             buffer = wavLoader.getMappedFile();
             preprocessedBuffer = wavLoader.getMappedCacheFile();
             mappedAudioFile = wavLoader.getMappedAudioFile();
             System.out.println("Mapped files completed.");
-            System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
+//            System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
             minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
             WavPlayer.loadFile(getMappedAudioFile());
             minimap.setAudioLength(WavPlayer.getDuration());

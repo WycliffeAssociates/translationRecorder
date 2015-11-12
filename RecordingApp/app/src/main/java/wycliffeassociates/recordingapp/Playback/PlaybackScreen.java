@@ -18,8 +18,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
+import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
@@ -124,7 +126,7 @@ public class PlaybackScreen extends Activity {
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                manager = new UIDataManager(mainCanvas, minimap, ctx, UIDataManager.PLAYBACK_MODE);
+                manager = new UIDataManager(mainCanvas, minimap, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
                 System.out.println("and I'm sending in " + recordedFilename);
                 manager.loadWavFromFile(recordedFilename);
                 manager.updateUI();
@@ -238,6 +240,17 @@ public class PlaybackScreen extends Activity {
         File from = new File(recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         Boolean out = from.renameTo(to);
+        System.out.println("result of saving file " + out);
+        File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
+        File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
+        try {
+            toVis.createNewFile();
+            toVis.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        out = fromVis.renameTo(toVis);
+        System.out.println("result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
         recordedFilename = to.getAbsolutePath();
         pref.setPreferences("fileCounter", ((int) pref.getPreferences("fileCounter") + 1));
         return to.getAbsolutePath();

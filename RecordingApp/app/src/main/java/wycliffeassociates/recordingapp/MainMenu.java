@@ -21,6 +21,7 @@ public class MainMenu extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        AudioInfo.pathToVisFile = "/storage/emulated/0/TranslationRecorder/Visualization/";
         btnRecord = (ImageButton) findViewById(R.id.record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
