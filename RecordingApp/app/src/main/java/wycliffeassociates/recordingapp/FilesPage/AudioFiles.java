@@ -128,6 +128,9 @@ public class AudioFiles extends Activity {
         tempItemList = new ArrayList<AudioItem>();
         audioHash = new Hashtable<Date, String>();
 
+        //cleanup any leftover visualization files
+        removeUnusedVisualizationFiles(currentDir);
+
         //get files in the directory
         File f = new File(currentDir);
         file = f.listFiles();
@@ -483,6 +486,39 @@ public class AudioFiles extends Activity {
                 }
             });
         }
+    }
+
+    private void removeUnusedVisualizationFiles(String filesDir){
+        File audioFilesLocation = new File(filesDir);
+        File visFilesLocation = new File(AudioInfo.pathToVisFile);
+        File[] visFiles = visFilesLocation.listFiles();
+        File[] audioFiles = audioFilesLocation.listFiles();
+        for(File v : visFiles){
+            boolean found = false;
+            for(File a : audioFiles){
+                //check if the names match up; exclude the path to get to them or the file extention
+                if(extractFilename(a).equals(extractFilename(v))){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                System.out.println("Removing " + v.getName());
+                v.delete();
+            }
+        }
+    }
+
+    private String extractFilename(File a){
+        if(a.isDirectory()){
+            return "";
+        }
+        String nameWithExtention = a.getName();
+        if(nameWithExtention.lastIndexOf('.') < 0 || nameWithExtention.lastIndexOf('.') > nameWithExtention.length()){
+            return "";
+        }
+        String filename = nameWithExtention.substring(0, nameWithExtention.lastIndexOf('.'));
+        return filename;
     }
 
     @Override

@@ -20,10 +20,10 @@ public class WavPlayer {
     private static MappedByteBuffer audioData = null;
     private static AudioTrack player = null;
     private static int minBufferSize = 0;
-    private static boolean keepPlaying = false;
+    private static volatile boolean keepPlaying = false;
     private static Thread playbackThread;
     private static int playbackStart = 0;
-    private static boolean forceBreakOut = false;
+    private static volatile boolean forceBreakOut = false;
 
     public static void play(){
         forceBreakOut = false;
