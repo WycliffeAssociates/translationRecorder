@@ -95,18 +95,20 @@ public class RecordingScreen extends Activity {
     }
 
     private void stopRecording() {
-        isRecording = false;
-        isPausedRecording = false;
-        //Stop recording, load the recorded file, and draw
-        stopService(new Intent(this, WavRecorder.class));
-        long start = System.currentTimeMillis();
-        System.out.println("Stopping");
-        RecordingQueues.stopQueues();
-        System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
-        Intent intent = new Intent(this, PlaybackScreen.class);
-        System.out.println("passing as extra " + recordedFilename);
-        intent.putExtra("recordedFilename", recordedFilename);
-        startActivity(intent);
+        if(isPausedRecording || isRecording) {
+            //Stop recording, load the recorded file, and draw
+            stopService(new Intent(this, WavRecorder.class));
+            long start = System.currentTimeMillis();
+            System.out.println("Stopping");
+            RecordingQueues.stopQueues();
+            System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
+            Intent intent = new Intent(this, PlaybackScreen.class);
+            System.out.println("passing as extra " + recordedFilename);
+            intent.putExtra("recordedFilename", recordedFilename);
+            isRecording = false;
+            isPausedRecording = false;
+            startActivity(intent);
+        }
     }
 
 
