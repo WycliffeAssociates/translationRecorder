@@ -29,6 +29,8 @@ import wycliffeassociates.recordingapp.Playback.WavFileLoader;
 
 public class UIDataManager {
 
+    static public final boolean PLAYBACK_MODE = true;
+    static public final boolean RECORDING_MODE = false;
     private final WaveformView mainWave;
     private final MinimapView minimap;
     private final Activity ctx;
@@ -43,8 +45,13 @@ public class UIDataManager {
     private Animation anim;
     RecordingTimer timer;
     private final TextView timerView;
+    private boolean mode;
+    private boolean isALoadedFile = false;
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx){
+
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx, boolean mode, boolean isALoadedFile){
+        this.isALoadedFile = isALoadedFile;
+        this.mode = mode;
         mainWave.setUIDataManager(this);
         minimap.setUIDataManager(this);
         this.mainWave = mainWave;
@@ -78,40 +85,15 @@ public class UIDataManager {
         this.isRecording = isRecording;
     }
 
-    public void useRecordingToolbar(boolean useRecordingToolbar){
-        if(useRecordingToolbar){
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.linearLayout10).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.toolbar).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
-
-                }
-            });
-
-        }
-        else {
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.linearLayout10).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.toolbar).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.volumeBar).setVisibility(View.INVISIBLE);
-                }
-            });
-        }
-    }
-
     public void updateUI(){
         if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
             return;
         }
+        if(wavLoader.visFileLoaded()){
+            wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
+        }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = WavPlayer.getLocation();
-        System.out.println("location is " + WavPlayer.getLocation() + " out of " + WavPlayer.getDuration());
         minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
@@ -126,8 +108,10 @@ public class UIDataManager {
     }
 
     public void enablePlay(){
-        ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
-        ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+        if(mode == PLAYBACK_MODE) {
+            ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
+            ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+        }
     }
 
     public void swapPauseAndPlay(){
@@ -176,12 +160,12 @@ public class UIDataManager {
 
     public void loadWavFromFile(String path){
         try {
-            wavLoader = new WavFileLoader(path, mainWave.getWidth());
+            wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
             buffer = wavLoader.getMappedFile();
             preprocessedBuffer = wavLoader.getMappedCacheFile();
             mappedAudioFile = wavLoader.getMappedAudioFile();
             System.out.println("Mapped files completed.");
-            System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
+//            System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
             minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
             WavPlayer.loadFile(getMappedAudioFile());
             minimap.setAudioLength(WavPlayer.getDuration());

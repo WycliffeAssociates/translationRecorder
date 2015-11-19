@@ -20,7 +20,8 @@ public class AudioInfo{
     public static final int SIZE_OF_SHORT = 2;
     public static final int AMPLITUDE_RANGE = 32767;
     public static String pathToVisFile = "";
-    public static int COMPRESSED_SECONDS_ON_SCREEN = 5;
+    public static int COMPRESSED_SECONDS_ON_SCREEN = 1;
+    public static String fileDir = "";
 
     private AudioInfo(){}
 }

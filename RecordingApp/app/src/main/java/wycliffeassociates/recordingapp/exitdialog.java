@@ -20,6 +20,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
     private boolean isPlaying = false;
     private boolean isPausedRecording = false;
     private String filename = null;
+    private boolean isALoadedFile = false;
 
 
     private Activity activity;
@@ -44,6 +45,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
 
     }
 
+    public void setLoadedFile(boolean loadedFile){ this.isALoadedFile = loadedFile;}
     public void setIsRecording(boolean isRecording) {
         this.isRecording = isRecording;
     }
@@ -87,7 +89,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                         RecordingQueues.stopQueues();
                     }
                 }
-                if (filename != null){
+                if (filename != null && !isALoadedFile){
                     File file = new File(filename);
                     file.delete();
                 }
