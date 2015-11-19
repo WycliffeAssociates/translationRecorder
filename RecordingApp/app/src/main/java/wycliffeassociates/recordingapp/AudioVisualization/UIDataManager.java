@@ -210,13 +210,11 @@ public class UIDataManager {
                                 timeDelay = System.currentTimeMillis();
                             }
 
-                            lock.acquire();
-                            mainWave.setBuffer(buffer);
-                            lock.release();
-                            //System.out.println("db is "+db);
                             if(isRecording) {
+                                lock.acquire();
+                                mainWave.setBuffer(buffer);
+                                lock.release();
                                 mainWave.postInvalidate();
-
                                 if(timer != null) {
                                     long t = timer.getTimeElapsed();
                                     final String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
