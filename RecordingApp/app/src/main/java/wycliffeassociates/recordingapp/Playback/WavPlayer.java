@@ -97,6 +97,7 @@ public class WavPlayer {
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
         System.out.println("buffer size for playback is " + minBufferSize);
+        System.out.println("length of audio data buffer is " +audioData.capacity());
 
         player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,

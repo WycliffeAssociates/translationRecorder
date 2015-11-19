@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 public class WavVisualizer {
 
@@ -47,8 +48,8 @@ public class WavVisualizer {
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
         int increment = getIncrement(numSecondsOnScreen);
         //compute the starting and ending index based on the current audio playback position, and ultimately how much time is represented in one pixel
-        int startPosition = computeSampleStartPosition(location);
-        int lastIndex = getLastIndex(location, numSecondsOnScreen);
+        int startPosition = computeSampleStartPosition(location, numSecondsOnScreen);
+        int lastIndex = Math.min(getLastIndex(location, numSecondsOnScreen), computeSampleStartPosition(WavPlayer.getDuration(), numSecondsOnScreen));
         //jumping in increments will likely not line up with the end of the file, so store where it stops
         int leftOff = 0;
 
@@ -140,36 +141,31 @@ public class WavVisualizer {
         else return false;
     }
 
-    private int millisecondsPerPixel(int numSecondsOnScreen){
-        //not entirely sure why the 2 needs to be there for the second case, but it appears to be necessary
-        //the math may be wrong for the first case, as using the uncompressed file works perfectly during playback
-        int millisecondsPerPixel  = (useCompressedFile)? (int)Math.ceil(((AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)AudioInfo.COMPRESSED_SECONDS_ON_SCREEN))  * AudioInfo.SIZE_OF_SHORT):
-                (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen*2) / (double)screenWidth);
-        return millisecondsPerPixel;
-    }
-
     private int computeOffsetForPlaybackLine(int numSecondsOnScreen, int startPosition){
         int pixelsBeforeLine = (screenWidth/8);
-        int mspp = millisecondsPerPixel(numSecondsOnScreen);
+        int mspp = getIncrement(numSecondsOnScreen);
         //System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
         return startPosition - (mspp * pixelsBeforeLine);
     }
 
-    private int computeSampleStartPosition(int startMillisecond){
+    private int computeSampleStartPosition(int startMillisecond, int numSecondsOnScreen){
         // multiplied by 2 because of a hi and low for each sample in the compressed file
-        //System.out.println("start millisecond is " + startMillisecond + " numSecondsOnScreen is " + numSecondsOnScreen);
-        int sampleStartPosition = (useCompressedFile)? (int)(startMillisecond * (screenWidth/(double)(1000*AudioInfo.COMPRESSED_SECONDS_ON_SCREEN))) * 2 *AudioInfo.SIZE_OF_SHORT : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        System.out.println("Duration of file is " + WavPlayer.getDuration());
+        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)Math.floor((startMillisecond * ((numSecondsOnScreen*screenWidth)/(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/(double)(numSecondsOnScreen*1000) )))
+                : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        System.out.println("start is " + startMillisecond + " width is " + screenWidth + "startPos is " +  sampleStartPosition + " length of data is " + preprocessedBuffer.capacity());
         return sampleStartPosition;
     }
 
     private int getIncrement(int numSecondsOnScreen){
         int increment = (useCompressedFile)?  (int)Math.floor((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT : (numSecondsOnScreen * AudioInfo.SAMPLERATE / screenWidth) * AudioInfo.SIZE_OF_SHORT;
+        increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     private int getLastIndex(int startMillisecond, int numSecondsOnScreen) {
         int endMillisecond = startMillisecond + (numSecondsOnScreen)*1000;
-        return computeSampleStartPosition(endMillisecond);
+        return computeSampleStartPosition(endMillisecond, numSecondsOnScreen);
     }
 
     private int getNumSecondsOnScreen(float userScale){

@@ -29,7 +29,7 @@ public class WavFileLoader {
     private MappedByteBuffer preprocessedBuffer;
     private int startIndex;
     private String visTempFile = "visualization.tmp";
-    private int screenWidth = 2560;
+    private int screenWidth = 1;
     private File audioVisFile;
 
     public MappedByteBuffer getMappedAudioFile(){
@@ -98,8 +98,8 @@ public class WavFileLoader {
             File file  = new File(AudioInfo.pathToVisFile + loadedFilename.substring(loadedFilename.lastIndexOf('/'), loadedFilename.lastIndexOf('.')) + ".vis");
             System.out.println("loaded filename is " + file.getAbsolutePath());
             FileOutputStream temp = new FileOutputStream(file);
-            //generate a file that can show 5 seconds on the screen without compromising resolution
-            int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth);
+            int increment = (int)Math.floor((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/screenWidth);
+            increment = (increment % 2 == 0)? increment : increment+1;
             System.out.println(increment + "increment ");
 
             for(int i = 0; i < buffer.capacity(); i+=AudioInfo.SIZE_OF_SHORT*increment){

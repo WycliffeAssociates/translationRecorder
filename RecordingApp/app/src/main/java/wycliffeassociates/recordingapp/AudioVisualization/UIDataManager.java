@@ -214,8 +214,6 @@ public class UIDataManager {
                             mainWave.setBuffer(buffer);
                             lock.release();
                             //System.out.println("db is "+db);
-                            System.out.println("data in queue is " + RecordingQueues.UIQueue.size());
-                            System.out.println("data left before queue will block is " + RecordingQueues.UIQueue.remainingCapacity());
                             if(isRecording) {
                                 mainWave.postInvalidate();
 

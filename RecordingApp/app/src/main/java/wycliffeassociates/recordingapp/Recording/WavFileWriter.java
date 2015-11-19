@@ -3,6 +3,8 @@ package wycliffeassociates.recordingapp.Recording;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.provider.MediaStore;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -17,11 +19,8 @@ import wycliffeassociates.recordingapp.AudioInfo;
 
 public class WavFileWriter extends Service{
 
-    ArrayList<Byte> byteArrayList;
-    byte[] dataFromQueue;
     private String filename = null;
     private String visTempFile = "visualization.vis";
-    private boolean stoppedRecording = false;
     public static int largest = 0;
 
     @Override
@@ -76,10 +75,14 @@ public class WavFileWriter extends Service{
         Thread compressionThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth)*AudioInfo.SIZE_OF_SHORT;
+                int increment = (int)Math.floor((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * AudioInfo.SIZE_OF_SHORT) / screenWidth);
+                increment = (increment % 2 == 0)? increment : increment+1;
                 System.out.println("Increment is " + increment);
                 boolean stopped = false;
-                byteArrayList = new ArrayList<>(10000);
+                //int numRemoved = 0;
+                //int count = 0;
+                boolean stoppedRecording = false;
+                ArrayList<Byte> byteArrayList = new ArrayList<>();
                 try {
                     File file = new File(AudioInfo.pathToVisFile + visTempFile);
                     if(!file.exists()){
@@ -91,28 +94,28 @@ public class WavFileWriter extends Service{
                         if(message.isStopped()){
                             stopped = true;
                             stoppedRecording = true;
-                            writeDataReceivedSoFar(compressedFile, byteArrayList, increment);
+                            writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                             compressedFile.close();
                         }
                         else {
                             if (!message.isPaused()){
-                                //compressedFile.write(message.getData());
-                                dataFromQueue = message.getData();
+                                byte[] dataFromQueue = message.getData();
                                 for(byte x : dataFromQueue){
                                     byteArrayList.add(new Byte(x));
+                                    //count++;
                                 }
-
-                                writeDataReceivedSoFar(compressedFile, byteArrayList, increment);
+                                if(byteArrayList.size() >= increment)
+                                    writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                             }
                             else
                                 System.out.println("paused writing");
                         }
                     }
                     System.out.println("writing to file");
+                    //System.out.println("total count was " + count + " num removed is " + numRemoved);
                     RecordingQueues.compressionQueue.clear();
                     RecordingQueues.doneWritingCompressed.put(new Boolean(true));
                     stopSelf();
-                    System.out.println(file.exists() + " " + file.getAbsolutePath());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -130,7 +133,7 @@ public class WavFileWriter extends Service{
     }
 
 
-    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment){
+    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording){
         byte[] data = new byte[increment];
         byte[] minAndMax = new byte[2*AudioInfo.SIZE_OF_SHORT];
         //while there is more data in the arraylist than one increment
@@ -151,6 +154,7 @@ public class WavFileWriter extends Service{
         }
         //if the recording was stopped and there is less data than a full increment, grab the remaining data
         if(stoppedRecording){
+            System.out.println("Stopped recording, writing some remaining data");
             byte[] remaining = new byte[list.size()];
             for(int i = 0; i < list.size(); i++){
                 remaining[i] = list.remove(0);
