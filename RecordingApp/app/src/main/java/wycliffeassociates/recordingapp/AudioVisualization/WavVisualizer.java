@@ -10,7 +10,6 @@ public class WavVisualizer {
     private MappedByteBuffer preprocessedBuffer;
     private MappedByteBuffer buffer;
     private float userScale = 1f;
-    //private final int AudioInfo.COMPRESSED_SECONDS_ON_SCREEN = 5;
     private final int defaultSecondsOnScreen = 10;
     private boolean useCompressedFile = false;
     private boolean canSwitch = false;
@@ -153,7 +152,6 @@ public class WavVisualizer {
         System.out.println("Duration of file is " + WavPlayer.getDuration());
         int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)Math.floor((startMillisecond * ((numSecondsOnScreen*screenWidth)/(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/(double)(numSecondsOnScreen*1000) )))
                 : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
-        System.out.println("start is " + startMillisecond + " width is " + screenWidth + "startPos is " +  sampleStartPosition + " length of data is " + preprocessedBuffer.capacity());
         return sampleStartPosition;
     }
 
