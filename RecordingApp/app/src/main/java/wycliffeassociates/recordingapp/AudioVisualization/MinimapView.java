@@ -5,7 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 /**
  * Created by sarabiaj on 9/10/2015.
@@ -17,16 +22,57 @@ public class MinimapView extends CanvasView {
     private Canvas mCanvas = null;
     private Drawable background;
     private boolean initialized = false;
-    private boolean playSelectedSection;
-    private int startOfPlaybackSection;
-    private int endOfPlaybackSection;
     private int audioLength = 0;
     private double secondsPerPixel = 0;
     private double timecodeInterval = 1.0;
 
     public MinimapView(Context c, AttributeSet attrs) {
         super(c, attrs);
+        mDetector = new GestureDetectorCompat(getContext(), new MyGestureListener());
     }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private int startPosition = 0;
+        private int endPosition = 0;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            if (WavPlayer.exists() && e.getY() <= getHeight()) {
+                markers.setPlaySelectedSection(false);
+                float xPos = e.getX() / getWidth();
+                int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
+                WavPlayer.seekTo(timeToSeekTo);
+                manager.updateUI();
+                endPosition = (int) e.getX();
+                WavPlayer.stopAt(WavPlayer.getDuration());
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+            if (WavPlayer.exists()) {
+                startPosition = (int) event1.getX();
+                endPosition -= (int) distanceX;
+                markers.setMinimapMarkers(startPosition, endPosition);
+                int playbackSectionStart = (int) ((startPosition / (double) getWidth()) * WavPlayer.getDuration());
+                int playbackSectionEnd = (int) ((endPosition / (double) getWidth()) * WavPlayer.getDuration());
+                if (startPosition > endPosition) {
+                    int temp = playbackSectionEnd;
+                    playbackSectionEnd = playbackSectionStart;
+                    playbackSectionStart = temp;
+                }
+                markers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
+                WavPlayer.seekTo(playbackSectionStart);
+                WavPlayer.stopAt(playbackSectionEnd);
+                //WavPlayer.selectionStart(playbackSectionStart);
+                manager.updateUI();
+            }
+            return true;
+        }
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas){
@@ -35,23 +81,11 @@ public class MinimapView extends CanvasView {
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
             minimapMarker(canvas);
             drawTimeCode(canvas);
-            if(playSelectedSection){
-                drawPlaybackSection(canvas, startOfPlaybackSection, endOfPlaybackSection);
+            if(markers.shouldDrawMarkers() ){
+                drawPlaybackSection(canvas, markers.getMinimapMarkerStart(), markers.getMinimapMarkerEnd());
             }
         }
         //redraw();
-    }
-
-    public void setPlaySelectedSection(boolean x){
-        playSelectedSection = x;
-    }
-
-    public void setStartOfPlaybackSection(int x){
-        startOfPlaybackSection = x;
-    }
-
-    public void setEndOfPlaybackSection(int x){
-        endOfPlaybackSection = x;
     }
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
@@ -136,13 +170,6 @@ public class MinimapView extends CanvasView {
         setBackground(background);
         initialized = true;
         this.invalidate();
-    }
-
-    public void drawPlaybackSection(Canvas c, int start, int end){
-        mPaint.setColor(Color.BLUE);
-        c.drawLine(start, 0, start, mCanvas.getHeight(), mPaint);
-        mPaint.setColor(Color.RED);
-        c.drawLine(end, 0, end, mCanvas.getHeight(), mPaint);
     }
 
     public void minimapMarker(Canvas canvas){

@@ -3,7 +3,12 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
@@ -16,6 +21,51 @@ public class WaveformView extends CanvasView {
     private byte[] buffer;
     private boolean drawingFromBuffer = false;
     private float[] samples;
+    private ScaleGestureDetector sgd;
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+            System.out.println("here trying to scroll");
+            if (WavPlayer.exists() && event1.getY() <= getHeight()) {
+                int playbackSectionStart = (int) ((distanceX*3) + WavPlayer.getLocation());
+                System.out.println("playback start is " + playbackSectionStart + " distance is " + distanceX);
+                WavPlayer.seekTo(playbackSectionStart);
+                System.out.println("here in the if trying to scroll");
+                manager.updateUI();
+            }
+            return true;
+        }
+    }
+    class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            System.out.println("scaled");
+            return true;
+        }
+    }
+
+    public void placeStartMarker(int start){
+        markers.setStartTime(start, getWidth());
+        invalidate();
+        redraw();
+    }
+
+    public void placeEndMarker(int end){
+        markers.setEndTime(end, getWidth());
+        invalidate();
+        redraw();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if(mDetector!= null)
+            mDetector.onTouchEvent(ev);
+        if(sgd != null)
+            sgd.onTouchEvent(ev);
+        return true;
+    }
 
     public void drawMarker(Canvas canvas){
         mPaint.setStrokeWidth(2.f);
@@ -25,11 +75,27 @@ public class WaveformView extends CanvasView {
 
     public WaveformView(Context c, AttributeSet attrs) {
         super(c, attrs);
+        mDetector = new GestureDetectorCompat(getContext(), new MyGestureListener());
+        sgd = new ScaleGestureDetector(getContext(), new ScaleListener());
         init();
     }
 
     public void setDrawingFromBuffer(boolean c){
         this.drawingFromBuffer = c;
+    }
+
+    public void drawSectionMarkers(Canvas c){
+        float mspp = 1000*10/(float)getWidth();
+        int offset = (getWidth() / 8);
+        float xLoc1 = offset + (markers.getStartTime() - WavPlayer.getLocation())/mspp;
+        float xLoc2 = offset + (markers.getEndTime() - WavPlayer.getLocation())/mspp;
+        mPaint.setStrokeWidth(2.f);
+        mPaint.setColor(Color.RED);
+        System.out.println(xLoc1 + " " + offset + " offset" + markers.getStartTime() + " start time" + WavPlayer.getLocation() + " start loc" + mspp + " mspp");
+        c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaint);
+        mPaint.setStrokeWidth(2.f);
+        mPaint.setColor(Color.BLUE);
+        c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaint);
     }
 
     @Override
@@ -55,6 +121,9 @@ public class WaveformView extends CanvasView {
             }
         }
         redraw();
+        if(markers.shouldDrawMarkers()){
+            drawSectionMarkers(canvas);
+        }
         WavPlayer.checkIfShouldStop();
         if(WavPlayer.exists() && !WavPlayer.isPlaying()){
             manager.enablePlay();

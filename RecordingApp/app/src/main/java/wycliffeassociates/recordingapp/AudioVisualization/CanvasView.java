@@ -5,7 +5,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
@@ -15,7 +18,16 @@ public abstract class CanvasView extends View {
     protected Paint mPaint;
     int fps = 0;
     protected boolean doneDrawing = false;
-    UIDataManager manager;
+    protected UIDataManager manager;
+    protected static SectionMarkers markers = null;
+    protected GestureDetectorCompat mDetector;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if(mDetector!= null)
+            mDetector.onTouchEvent(ev);
+        return true;
+    }
 
     public boolean isDoneDrawing(){
         return doneDrawing;
@@ -42,6 +54,7 @@ public abstract class CanvasView extends View {
         mPaint.setColor(Color.DKGRAY);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
+        markers = new SectionMarkers();
     }
 
     // override onSizeChanged
@@ -63,12 +76,18 @@ public abstract class CanvasView extends View {
         canvas.drawLines(samples, mPaint);
         fps++;
         doneDrawing = true;
-
     }
 
     public void redraw(){
         if(WavPlayer.isPlaying())
         manager.updateUI();
+    }
+
+    public void drawPlaybackSection(Canvas c, int start, int end){
+        mPaint.setColor(Color.BLUE);
+        c.drawLine(start, 0, start, c.getHeight(), mPaint);
+        mPaint.setColor(Color.RED);
+        c.drawLine(end, 0, end, c.getHeight(), mPaint);
     }
 
     public void setUIDataManager(UIDataManager manager){

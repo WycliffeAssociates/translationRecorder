@@ -40,7 +40,6 @@ public class PlaybackScreen extends Activity {
 
 
     private final Context context = this;
-    private GestureDetectorCompat mDetector;
     private TextView filenameView;
     private WaveformView mainCanvas;
     private MinimapView minimap;
@@ -51,55 +50,9 @@ public class PlaybackScreen extends Activity {
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isALoadedFile = false;
+    
 
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        private int startPosition = 0;
-        private int endPosition = 0;
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            if (WavPlayer.exists() && e.getY() <= minimap.getHeight()) {
-                minimap.setPlaySelectedSection(false);
-                float xPos = e.getX() / minimap.getWidth();
-                int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
-                WavPlayer.seekTo(timeToSeekTo);
-                manager.updateUI();
-                endPosition = (int) e.getX();
-                WavPlayer.stopAt(WavPlayer.getDuration());
-            }
-
-            return true;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
-            if (WavPlayer.exists() && event1.getY() <= minimap.getHeight()) {
-                startPosition = (int) event1.getX();
-                endPosition -= (int) distanceX;
-                minimap.setPlaySelectedSection(true);
-                minimap.setStartOfPlaybackSection(startPosition);
-                minimap.setEndOfPlaybackSection(endPosition);
-                int playbackSectionStart = (int) ((startPosition / (double) minimap.getWidth()) * WavPlayer.getDuration());
-                int playbackSectionEnd = (int) ((endPosition / (double) minimap.getWidth()) * WavPlayer.getDuration());
-                if (startPosition > endPosition) {
-                    int temp = playbackSectionEnd;
-                    playbackSectionEnd = playbackSectionStart;
-                    playbackSectionStart = temp;
-                }
-                WavPlayer.seekTo(playbackSectionStart);
-                WavPlayer.stopAt(playbackSectionEnd);
-                //WavPlayer.selectionStart(playbackSectionStart);
-                manager.updateUI();
-            }
-            return true;
-        }
-    }
-
-    public boolean onTouchEvent(MotionEvent ev) {
-        this.mDetector.onTouchEvent(ev);
-        return super.onTouchEvent(ev);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +70,6 @@ public class PlaybackScreen extends Activity {
         setButtonHandlers();
         enableButtons();
 
-        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
 
@@ -158,6 +110,14 @@ public class PlaybackScreen extends Activity {
         isPlaying = true;
         WavPlayer.play();
         manager.updateUI();
+    }
+
+    private void placeStartMarker(){
+        mainCanvas.placeStartMarker(WavPlayer.getLocation());
+    }
+
+    private void placeEndMarker(){
+        mainCanvas.placeEndMarker(WavPlayer.getLocation());
     }
 
     @Override
@@ -284,6 +244,8 @@ public class PlaybackScreen extends Activity {
         findViewById(R.id.btnPause).setOnClickListener(btnClick);
         findViewById(R.id.btnSkipBack).setOnClickListener(btnClick);
         findViewById(R.id.btnSkipForward).setOnClickListener(btnClick);
+        findViewById(R.id.btnStartMark).setOnClickListener(btnClick);
+        findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -320,6 +282,14 @@ public class PlaybackScreen extends Activity {
                 }
                 case R.id.btnSkipBack: {
                     skipBack();
+                    break;
+                }
+                case R.id.btnStartMark: {
+                    placeStartMarker();
+                    break;
+                }
+                case R.id.btnEndMark: {
+                    placeEndMarker();
                     break;
                 }
             }

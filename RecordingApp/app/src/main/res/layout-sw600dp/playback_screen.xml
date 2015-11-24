@@ -139,6 +139,35 @@
             android:layout_alignParentStart="true"
             android:textColor="#010101" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Marker"
+            android:id="@+id/btnEndMark"
+            android:layout_marginBottom="133dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Marker"
+            android:id="@+id/btnStartMark"
+            android:layout_alignTop="@+id/btnEndMark"
+            android:layout_toEndOf="@+id/filenameView"
+            android:layout_marginStart="157dp" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cut"
+            android:id="@+id/btnCut"
+            android:layout_marginStart="204dp"
+            android:layout_alignTop="@+id/btnEndMark"
+            android:layout_toEndOf="@+id/btnEndMark" />
+
     </RelativeLayout>
 
 </RelativeLayout>
