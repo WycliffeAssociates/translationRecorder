@@ -204,12 +204,11 @@ public class WavFileWriter extends Service{
 
     }
 
-    private void overwriteHeaderData(String filepath, long totalDataLen){
+    public static void overwriteHeaderData(String filepath, long totalDataLen){
         long totalAudioLen = totalDataLen - 36; //While the header is 44 bytes, 8 consist of the data subchunk header
         totalDataLen -= 8; //this subtracts out the data subchunk header
         try {
             RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
-            System.out.println("Passed in string name " + filename);
             //seek to header[4] to overwrite data length
             long longSampleRate = AudioInfo.SAMPLERATE;
             long byteRate = AudioInfo.BPP * AudioInfo.SAMPLERATE * AudioInfo.NUM_CHANNELS;

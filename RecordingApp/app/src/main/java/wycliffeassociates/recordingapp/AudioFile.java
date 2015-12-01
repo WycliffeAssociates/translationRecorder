@@ -1,8 +1,10 @@
-package wycliffeassociates.recordingapp.Playback;
+package wycliffeassociates.recordingapp;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
@@ -11,8 +13,10 @@ import java.nio.channels.FileChannel;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 
-public class WavFileLoader {
+public class AudioFile {
 
     private volatile boolean threadFinished = false;
     private boolean LOADED_FILE = true;
@@ -31,6 +35,7 @@ public class WavFileLoader {
     private String visTempFile = "visualization.tmp";
     private int screenWidth = 1;
     private File audioVisFile;
+    final String loadedFilename;
 
     public MappedByteBuffer getMappedAudioFile(){
         return mappedAudioFile;
@@ -56,11 +61,15 @@ public class WavFileLoader {
         return threadFinished;
     }
 
-    public WavFileLoader(String file, int screenWidth, boolean loadedFile) throws IOException {
-        final String loadedFilename = file;
+    public AudioFile(String file, int screenWidth, boolean loadedFile) {
+        System.out.println("creating a new file after a cut, file is " + file);
+        loadedFilename = file;
         this.screenWidth = screenWidth;
         threadFinished = false;
-        RandomAccessFile raf = new RandomAccessFile(file, "r");
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(file, "r");
+
         FileChannel fc = raf.getChannel();
         buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
         mappedAudioFile = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
@@ -90,7 +99,11 @@ public class WavFileLoader {
             writeVisFile.start();
         }
         System.out.println("Largest value from file is " + largest);
-
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     private void generateTempFile(String loadedFilename){
@@ -155,7 +168,6 @@ public class WavFileLoader {
 
     }
 
-
     public float[] getMinimap(int canvasWidth, int canvasHeight) {
         System.out.println("minimap width is " + canvasWidth + " height is " + canvasHeight);
         //*4 because 2x values and 2y values for each pixel of width
@@ -185,10 +197,45 @@ public class WavFileLoader {
             }
             idx+=4;
         }
-        System.out.println("idx is "+idx);
+        System.out.println("idx is " + idx);
         return minimap;
     }
 
+    public AudioFile cut(int start, int end){
+        WavPlayer.stop();
+        try {
+            File tempAudioFile = new File(AudioInfo.fileDir, loadedFilename+"c-");
+            FileOutputStream fos = new FileOutputStream(tempAudioFile);
+            System.out.println("Trying to cut from " +start+ " to " + end);
+            for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
+                fos.write(0);
+            }
+            for(int i = 0; i < start; i++){
+                fos.write(mappedAudioFile.get(i));
+            }
+            for(int i = end; i < mappedAudioFile.capacity(); i++){
+                fos.write(mappedAudioFile.get(i));
+            }
+            fos.close();
+            System.out.println("new size is " + tempAudioFile.length() + " was originally " + (mappedAudioFile.capacity()+44));
+            WavFileWriter.overwriteHeaderData(tempAudioFile.getAbsolutePath(), tempAudioFile.length());
+            mappedAudioFile = null;
+            buffer = null;
+            preprocessedBuffer = null;
+            File original = new File(AudioInfo.fileDir, loadedFilename);
+            System.out.println(original.delete() + " to deleteing the file");
+            System.out.println(tempAudioFile.renameTo(new File(AudioInfo.fileDir, loadedFilename)));
+            System.out.println(tempAudioFile.getAbsolutePath());
+            AudioFile cutFile = new AudioFile(AudioInfo.fileDir + loadedFilename, screenWidth, false);
+            WavPlayer.loadFile(cutFile.getMappedAudioFile());
+            return cutFile;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     private void setSampleStartIndex(int startSecond, int increment){
         int incInSec = (int)Math.floor(AudioInfo.SAMPLERATE / increment);

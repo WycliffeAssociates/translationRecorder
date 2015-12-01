@@ -83,6 +83,7 @@ public class MinimapView extends CanvasView {
             drawTimeCode(canvas);
             if(markers.shouldDrawMarkers() ){
                 drawPlaybackSection(canvas, markers.getMinimapMarkerStart(), markers.getMinimapMarkerEnd());
+                System.out.println("should have drawn markers on minimap at " + markers.getMinimapMarkerStart());
             }
         }
         //redraw();

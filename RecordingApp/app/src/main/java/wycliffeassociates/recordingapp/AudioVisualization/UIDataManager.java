@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Logger;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
@@ -19,7 +20,7 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
-import wycliffeassociates.recordingapp.Playback.WavFileLoader;
+import wycliffeassociates.recordingapp.AudioFile;
 
 
 /**
@@ -36,7 +37,7 @@ public class UIDataManager {
     private final Activity ctx;
     private boolean isRecording;
     public static Semaphore lock;
-    private WavFileLoader wavLoader;
+    private AudioFile wavLoader;
     private WavVisualizer wavVis;
     private MappedByteBuffer buffer;
     private MappedByteBuffer mappedAudioFile;
@@ -158,21 +159,31 @@ public class UIDataManager {
         }
     }
 
+    public void cutAndUpdate(){
+        int start = CanvasView.getStartMarker();
+        int end = CanvasView.getEndMarker();
+        System.out.println("got the markers");
+        wavLoader = wavLoader.cut(start, end);
+        System.out.println("Should have created a new wav Loader");
+        buffer = wavLoader.getMappedFile();
+        preprocessedBuffer = wavLoader.getMappedCacheFile();
+        mappedAudioFile = wavLoader.getMappedAudioFile();
+        //WavPlayer.loadFile(mappedAudioFile);
+        updateUI();
+    }
+
     public void loadWavFromFile(String path){
-        try {
-            wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
-            buffer = wavLoader.getMappedFile();
-            preprocessedBuffer = wavLoader.getMappedCacheFile();
-            mappedAudioFile = wavLoader.getMappedAudioFile();
-            System.out.println("Mapped files completed.");
-//            System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
-            minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
-            WavPlayer.loadFile(getMappedAudioFile());
-            minimap.setAudioLength(WavPlayer.getDuration());
-        } catch (IOException e) {
-            System.out.println("There was an error with mapping the files");
-            e.printStackTrace();
-        }
+
+        wavLoader = new AudioFile(path, mainWave.getWidth(), isALoadedFile);
+        buffer = wavLoader.getMappedFile();
+        preprocessedBuffer = wavLoader.getMappedCacheFile();
+        mappedAudioFile = wavLoader.getMappedAudioFile();
+        System.out.println("Mapped files completed.");
+//      System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
+        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+        WavPlayer.loadFile(getMappedAudioFile());
+        minimap.setAudioLength(WavPlayer.getDuration());
+        System.out.println("There was an error with mapping the files");
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
     }
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!

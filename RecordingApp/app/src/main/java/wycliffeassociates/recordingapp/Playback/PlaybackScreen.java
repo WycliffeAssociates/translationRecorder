@@ -120,6 +120,10 @@ public class PlaybackScreen extends Activity {
         mainCanvas.placeEndMarker(WavPlayer.getLocation());
     }
 
+    private void cut() {
+        manager.cutAndUpdate();
+    }
+
     @Override
     public void onBackPressed() {
         if (!isSaved) {
@@ -246,6 +250,7 @@ public class PlaybackScreen extends Activity {
         findViewById(R.id.btnSkipForward).setOnClickListener(btnClick);
         findViewById(R.id.btnStartMark).setOnClickListener(btnClick);
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
+        findViewById(R.id.btnCut).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -290,6 +295,10 @@ public class PlaybackScreen extends Activity {
                 }
                 case R.id.btnEndMark: {
                     placeEndMarker();
+                    break;
+                }
+                case R.id.btnCut: {
+                    cut();
                     break;
                 }
             }

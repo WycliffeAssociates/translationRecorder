@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -85,13 +84,14 @@ public class WaveformView extends CanvasView {
     }
 
     public void drawSectionMarkers(Canvas c){
+        //need to change this to match number of seconds on the screen instead of constant 10
         float mspp = 1000*10/(float)getWidth();
         int offset = (getWidth() / 8);
-        float xLoc1 = offset + (markers.getStartTime() - WavPlayer.getLocation())/mspp;
-        float xLoc2 = offset + (markers.getEndTime() - WavPlayer.getLocation())/mspp;
+        float xLoc1 = offset + (markers.getStartLocation() - WavPlayer.getLocation())/mspp;
+        float xLoc2 = offset + (markers.getEndLocation() - WavPlayer.getLocation())/mspp;
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.RED);
-        System.out.println(xLoc1 + " " + offset + " offset" + markers.getStartTime() + " start time" + WavPlayer.getLocation() + " start loc" + mspp + " mspp");
+        System.out.println(xLoc1 + " " + offset + " offset" + markers.getStartLocation() + " start time" + WavPlayer.getLocation() + " start loc" + mspp + " mspp");
         c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaint);
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.BLUE);
@@ -118,6 +118,7 @@ public class WaveformView extends CanvasView {
                 drawMarker(canvas);
             } catch (Exception e) {
                 e.printStackTrace();
+
             }
         }
         redraw();

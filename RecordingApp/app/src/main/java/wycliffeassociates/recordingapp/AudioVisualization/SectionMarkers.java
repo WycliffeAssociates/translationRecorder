@@ -38,7 +38,7 @@ public class SectionMarkers {
 
     public void setStartTime(int x, int width){
         mainStart = x;
-        minimapStart = (int)((x / (double) width) * WavPlayer.getDuration());
+        minimapStart = (int)((x / (double) WavPlayer.getDuration()) * width);
         setStart = true;
         if(setStart && setEnd){
             playSelectedSection = true;
@@ -47,7 +47,7 @@ public class SectionMarkers {
 
     public void setEndTime(int x, int width){
         mainEnd = x;
-        minimapEnd = (int)((x / (double) width) * WavPlayer.getDuration());
+        minimapEnd = (int)((x / (double) WavPlayer.getDuration()) * width);
         setEnd = true;
         if(setStart && setEnd){
             playSelectedSection = true;
@@ -65,11 +65,11 @@ public class SectionMarkers {
         mainEnd = end;
     }
 
-    public int getStartTime(){
+    public int getStartLocation(){
         return mainStart;
     }
 
-    public int getEndTime(){
+    public int getEndLocation(){
         return mainEnd;
     }
 }

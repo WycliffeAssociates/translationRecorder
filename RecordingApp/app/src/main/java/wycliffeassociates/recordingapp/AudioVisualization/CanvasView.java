@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -94,5 +93,14 @@ public abstract class CanvasView extends View {
         this.manager = manager;
     }
 
+    public static int getStartMarker(){
+        int loc = (int)(markers.getStartLocation()*88.2);
+        return (loc % 2 == 0)? loc : loc + 1;
+    }
+
+    public static int getEndMarker(){
+        int loc = (int)(markers.getEndLocation()*88.2);
+        return (loc % 2 == 0)? loc : loc + 1;
+    }
 }
 
