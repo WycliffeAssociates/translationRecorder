@@ -19,4 +19,10 @@
     <color name="snow">#A6ffffff</color>
     <color name="frost">#A6000000</color>
 
+
+
+    <color name="deep_pink">#E91E63</color>
+    <color name="deep_pink_dark">#C2185B</color>
+    <color name="deep_sky_blue">#4CC8FF</color>
+
 </resources>

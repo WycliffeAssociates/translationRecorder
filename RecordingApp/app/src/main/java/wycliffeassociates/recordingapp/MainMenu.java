@@ -31,11 +31,12 @@ public class MainMenu extends Activity{
         File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
         System.out.println("Result of making vis directory "+visDir.mkdir());
         AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
-        btnRecord = (ImageButton) findViewById(R.id.record);
+        btnRecord = (ImageButton) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Runtime.getRuntime().freeMemory();
+//              TODO: clicking new_record button should trigger a new_project activity instead of the recording
                 Intent intent = new Intent(v.getContext(), RecordingScreen.class);
                 startActivityForResult(intent, 0);
             }
