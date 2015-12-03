@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
@@ -96,7 +97,7 @@ public class PlaybackScreen extends Activity {
     }
 
     private void skipForward() {
-        WavPlayer.seekTo(WavPlayer.getDuration());
+        WavPlayer.seekToEnd();
         manager.updateUI();
     }
 
@@ -122,6 +123,10 @@ public class PlaybackScreen extends Activity {
 
     private void cut() {
         manager.cutAndUpdate();
+    }
+
+    private void clearMarkers(){
+        CanvasView.clearMarkers();
     }
 
     @Override
@@ -251,6 +256,8 @@ public class PlaybackScreen extends Activity {
         findViewById(R.id.btnStartMark).setOnClickListener(btnClick);
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
+        findViewById(R.id.btnClear).setOnClickListener(btnClick);
+
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -299,6 +306,10 @@ public class PlaybackScreen extends Activity {
                 }
                 case R.id.btnCut: {
                     cut();
+                    break;
+                }
+                case R.id.btnClear: {
+                    clearMarkers();
                     break;
                 }
             }

@@ -30,7 +30,18 @@ public class WaveformView extends CanvasView {
             if (WavPlayer.exists() && event1.getY() <= getHeight()) {
                 int playbackSectionStart = (int) ((distanceX*3) + WavPlayer.getLocation());
                 System.out.println("playback start is " + playbackSectionStart + " distance is " + distanceX);
-                WavPlayer.seekTo(playbackSectionStart);
+                if(markers.getEndLocation() < playbackSectionStart){
+                    WavPlayer.selectionStart(markers.getEndLocation());
+                    WavPlayer.seekTo(markers.getEndLocation());
+                }
+                else if(markers.getStartLocation() > playbackSectionStart){
+                    WavPlayer.selectionStart(markers.getStartLocation());
+                    WavPlayer.seekTo(markers.getStartLocation());
+                }
+                else {
+                    WavPlayer.selectionStart(playbackSectionStart);
+                    WavPlayer.seekTo(playbackSectionStart);
+                }
                 System.out.println("here in the if trying to scroll");
                 manager.updateUI();
             }
@@ -90,11 +101,11 @@ public class WaveformView extends CanvasView {
         float xLoc1 = offset + (markers.getStartLocation() - WavPlayer.getLocation())/mspp;
         float xLoc2 = offset + (markers.getEndLocation() - WavPlayer.getLocation())/mspp;
         mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(Color.BLUE);
         System.out.println(xLoc1 + " " + offset + " offset" + markers.getStartLocation() + " start time" + WavPlayer.getLocation() + " start loc" + mspp + " mspp");
         c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaint);
         mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(Color.BLUE);
+        mPaint.setColor(Color.RED);
         c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaint);
     }
 

@@ -86,7 +86,6 @@ public class MinimapView extends CanvasView {
                 System.out.println("should have drawn markers on minimap at " + markers.getMinimapMarkerStart());
             }
         }
-        //redraw();
     }
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {

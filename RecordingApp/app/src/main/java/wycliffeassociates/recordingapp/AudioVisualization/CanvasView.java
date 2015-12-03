@@ -102,5 +102,9 @@ public abstract class CanvasView extends View {
         int loc = (int)(markers.getEndLocation()*88.2);
         return (loc % 2 == 0)? loc : loc + 1;
     }
+
+    public static void clearMarkers(){
+        markers.clearMarkers();
+    }
 }
 

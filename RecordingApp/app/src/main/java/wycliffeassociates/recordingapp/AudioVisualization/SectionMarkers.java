@@ -7,21 +7,20 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
  */
 public class SectionMarkers {
 
-    private  int minimapStart = 0;
-    private  int minimapEnd = 0;
+    private  int minimapStart = Integer.MIN_VALUE;
+    private  int minimapEnd = Integer.MAX_VALUE;
     private boolean playSelectedSection = false;
-    private int mainEnd;
-    private int mainStart;
-    private boolean setStart = false;
-    private boolean setEnd = false;
-
+    private int mainEnd = Integer.MAX_VALUE;
+    private int mainStart = Integer.MIN_VALUE;
+    private boolean startSet = false;
+    private boolean endSet = false;
 
     public boolean shouldPlaySelectedSection() {
         return playSelectedSection;
     }
 
     public boolean shouldDrawMarkers(){
-        return playSelectedSection || setStart || setEnd;
+        return playSelectedSection || startSet || endSet;
     }
 
     public int getMinimapMarkerStart() {
@@ -39,8 +38,9 @@ public class SectionMarkers {
     public void setStartTime(int x, int width){
         mainStart = x;
         minimapStart = (int)((x / (double) WavPlayer.getDuration()) * width);
-        setStart = true;
-        if(setStart && setEnd){
+        startSet = true;
+        swapIfNeeded();
+        if(startSet && endSet){
             playSelectedSection = true;
         }
     }
@@ -48,9 +48,21 @@ public class SectionMarkers {
     public void setEndTime(int x, int width){
         mainEnd = x;
         minimapEnd = (int)((x / (double) WavPlayer.getDuration()) * width);
-        setEnd = true;
-        if(setStart && setEnd){
+        endSet = true;
+        swapIfNeeded();
+        if(startSet && endSet){
             playSelectedSection = true;
+        }
+    }
+
+    public void swapIfNeeded(){
+        if(mainStart > mainEnd){
+            int temp = mainEnd;
+            mainEnd = mainStart;
+            mainStart = temp;
+            temp = minimapEnd;
+            minimapEnd = minimapStart;
+            minimapEnd = temp;
         }
     }
 
@@ -71,5 +83,15 @@ public class SectionMarkers {
 
     public int getEndLocation(){
         return mainEnd;
+    }
+
+    public void clearMarkers(){
+        playSelectedSection = false;
+        endSet = false;
+        startSet = false;
+        minimapEnd = Integer.MAX_VALUE;
+        minimapStart = Integer.MIN_VALUE;
+        mainEnd = Integer.MAX_VALUE;
+        mainStart = Integer.MIN_VALUE;
     }
 }

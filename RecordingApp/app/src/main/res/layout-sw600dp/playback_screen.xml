@@ -144,9 +144,10 @@
             android:layout_height="wrap_content"
             android:text="End Marker"
             android:id="@+id/btnEndMark"
-            android:layout_marginBottom="133dp"
+            android:layout_marginBottom="128dp"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_toEndOf="@+id/btnStartMark"
+            android:layout_marginStart="76dp" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
@@ -164,9 +165,19 @@
             android:layout_height="wrap_content"
             android:text="Cut"
             android:id="@+id/btnCut"
-            android:layout_marginStart="204dp"
+            android:layout_marginStart="326dp"
             android:layout_alignTop="@+id/btnEndMark"
             android:layout_toEndOf="@+id/btnEndMark" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear Markers"
+            android:id="@+id/btnClear"
+            android:layout_alignTop="@+id/btnCut"
+            android:layout_toEndOf="@+id/btnEndMark"
+            android:layout_marginStart="122dp" />
 
     </RelativeLayout>
 

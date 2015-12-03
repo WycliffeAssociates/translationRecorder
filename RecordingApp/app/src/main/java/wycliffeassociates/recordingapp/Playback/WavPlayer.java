@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 
 /**
  * Plays .Wav audio files
@@ -15,14 +16,14 @@ import wycliffeassociates.recordingapp.AudioInfo;
 public class WavPlayer {
 
     private static boolean onlyPlayingSection = false;
-    private static int endPlaybackPosition = 0;
-    private static int startPlaybackPosition = 0;
+    private static volatile int endPlaybackPosition = 0;
+    private static volatile int startPlaybackPosition = 0;
     private static MappedByteBuffer audioData = null;
     private static AudioTrack player = null;
     private static int minBufferSize = 0;
     private static volatile boolean keepPlaying = false;
     private static Thread playbackThread;
-    private static int playbackStart = 0;
+    private static volatile int playbackStart = 0;
     private static volatile boolean forceBreakOut = false;
 
     public static void play(){
@@ -121,7 +122,23 @@ public class WavPlayer {
 
     public static void seekToStart(){
         if(player != null ) {
-            seekTo(0);
+            if(onlyPlayingSection){
+                seekTo(startPlaybackPosition);
+            }
+            else {
+                seekTo(0);
+            }
+        }
+    }
+
+    public static void seekToEnd(){
+        if(player != null ) {
+            if(onlyPlayingSection){
+                seekTo(endPlaybackPosition);
+            }
+            else {
+                seekTo(WavPlayer.getDuration());
+            }
         }
     }
 
@@ -172,8 +189,8 @@ public class WavPlayer {
         }
         if(onlyPlayingSection && getLocation() >= endPlaybackPosition){
             pause();
-            playbackStart = endPlaybackPosition;
-            onlyPlayingSection = false;
+            playbackStart = startPlaybackPosition;
+            seekTo(startPlaybackPosition);
             return true;
         }
         return false;

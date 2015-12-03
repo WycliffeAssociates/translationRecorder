@@ -164,11 +164,18 @@ public class UIDataManager {
         int end = CanvasView.getEndMarker();
         System.out.println("got the markers");
         wavLoader = wavLoader.cut(start, end);
+        buffer = null;
+        preprocessedBuffer = null;
+        mappedAudioFile = null;
+        wavVis = null;
         System.out.println("Should have created a new wav Loader");
         buffer = wavLoader.getMappedFile();
         preprocessedBuffer = wavLoader.getMappedCacheFile();
         mappedAudioFile = wavLoader.getMappedAudioFile();
+        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
         //WavPlayer.loadFile(mappedAudioFile);
+        CanvasView.clearMarkers();
         updateUI();
     }
 
