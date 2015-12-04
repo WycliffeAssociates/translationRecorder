@@ -15,18 +15,39 @@ import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
  */
 public class WavPlayer {
 
-    private static boolean onlyPlayingSection = false;
-    private static volatile int endPlaybackPosition = 0;
-    private static volatile int startPlaybackPosition = 0;
     private static MappedByteBuffer audioData = null;
     private static AudioTrack player = null;
+    private static Thread playbackThread;
+    private static volatile boolean onlyPlayingSection = false;
+    private static volatile int endPlaybackPosition = 0;
+    private static volatile int startPlaybackPosition = 0;
     private static int minBufferSize = 0;
     private static volatile boolean keepPlaying = false;
-    private static Thread playbackThread;
     private static volatile int playbackStart = 0;
     private static volatile boolean forceBreakOut = false;
+    private static volatile boolean playbackReset = false;
+
+    public static void setOnlyPlayingSection(Boolean onlyPlayingSection){
+        WavPlayer.onlyPlayingSection = onlyPlayingSection;
+    }
+
+    public static void resetState(){
+       onlyPlayingSection = false;
+       endPlaybackPosition = 0;
+       startPlaybackPosition = 0;
+       minBufferSize = 0;
+       keepPlaying = false;
+       playbackStart = 0;
+       forceBreakOut = false;
+       playbackReset = false;
+    }
+
+    public static boolean hasPlaybackReset(){
+        return playbackReset;
+    }
 
     public static void play(){
+        playbackReset = true;
         forceBreakOut = false;
         if(WavPlayer.isPlaying()){
             return;
@@ -80,7 +101,7 @@ public class WavPlayer {
                 //continue to loop until the end is reached.
                 while((getLocation() != getDuration()) && !forceBreakOut){}
                 System.out.println("end thread");
-                //System.out.println("location is " + getLocation() + " out of " + getDuration());
+                System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
         };
         playbackThread.start();
@@ -93,6 +114,7 @@ public class WavPlayer {
      * @param file
      */
     public static void loadFile(MappedByteBuffer file){
+        resetState();
         audioData = file;
         minBufferSize = AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -190,7 +212,8 @@ public class WavPlayer {
         if(onlyPlayingSection && getLocation() >= endPlaybackPosition){
             pause();
             playbackStart = startPlaybackPosition;
-            seekTo(startPlaybackPosition);
+            //seekTo(startPlaybackPosition);
+            playbackReset = true;
             return true;
         }
         return false;
@@ -238,6 +261,10 @@ public class WavPlayer {
             return (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
         else
             return 0;
+    }
+
+    public static int getSelectionEnd(){
+        return endPlaybackPosition;
     }
 
 }

@@ -39,13 +39,21 @@ public class MinimapView extends CanvasView {
         @Override
         public boolean onDown(MotionEvent e) {
             if (WavPlayer.exists() && e.getY() <= getHeight()) {
-                markers.setPlaySelectedSection(false);
+                if(markers.bothSet()){
+                    float xPos = e.getX() / getWidth();
+                    int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
+                    if(timeToSeekTo < markers.getStartLocation()){
+                        return true;
+                    }
+                    else if(timeToSeekTo > markers.getEndLocation()){
+                        return true;
+                    }
+                }
                 float xPos = e.getX() / getWidth();
                 int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                 WavPlayer.seekTo(timeToSeekTo);
                 manager.updateUI();
                 endPosition = (int) e.getX();
-                WavPlayer.stopAt(WavPlayer.getDuration());
             }
             return true;
         }

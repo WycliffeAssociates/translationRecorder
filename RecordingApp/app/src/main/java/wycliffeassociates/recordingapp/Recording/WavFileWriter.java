@@ -3,8 +3,6 @@ package wycliffeassociates.recordingapp.Recording;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.provider.MediaStore;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

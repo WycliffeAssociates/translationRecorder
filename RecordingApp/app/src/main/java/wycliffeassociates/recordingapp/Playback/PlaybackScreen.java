@@ -6,14 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.view.GestureDetectorCompat;
 import android.text.InputType;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -103,6 +99,7 @@ public class PlaybackScreen extends Activity {
 
     private void skipBack() {
         WavPlayer.seekToStart();
+        System.out.println("Location after seek is " + WavPlayer.getLocation());
         manager.updateUI();
     }
 

@@ -31,6 +31,7 @@ public abstract class CanvasView extends View {
     public boolean isDoneDrawing(){
         return doneDrawing;
     }
+
     public void setIsDoneDrawing(boolean c){
         doneDrawing = c;
     }

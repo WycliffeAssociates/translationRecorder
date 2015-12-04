@@ -31,15 +31,12 @@ public class WaveformView extends CanvasView {
                 int playbackSectionStart = (int) ((distanceX*3) + WavPlayer.getLocation());
                 System.out.println("playback start is " + playbackSectionStart + " distance is " + distanceX);
                 if(markers.getEndLocation() < playbackSectionStart){
-                    WavPlayer.selectionStart(markers.getEndLocation());
                     WavPlayer.seekTo(markers.getEndLocation());
                 }
                 else if(markers.getStartLocation() > playbackSectionStart){
-                    WavPlayer.selectionStart(markers.getStartLocation());
                     WavPlayer.seekTo(markers.getStartLocation());
                 }
                 else {
-                    WavPlayer.selectionStart(playbackSectionStart);
                     WavPlayer.seekTo(playbackSectionStart);
                 }
                 System.out.println("here in the if trying to scroll");
@@ -58,14 +55,25 @@ public class WaveformView extends CanvasView {
 
     public void placeStartMarker(int start){
         markers.setStartTime(start, getWidth());
+        if(markers.bothSet()){
+            notifyWavPlayer();
+        }
         invalidate();
         redraw();
     }
 
     public void placeEndMarker(int end){
         markers.setEndTime(end, getWidth());
+        if(markers.bothSet()){
+            notifyWavPlayer();
+        }
         invalidate();
         redraw();
+    }
+
+    public void notifyWavPlayer(){
+        WavPlayer.selectionStart(markers.getStartLocation());
+        WavPlayer.stopAt(markers.getEndLocation());
     }
 
     @Override
@@ -95,6 +103,7 @@ public class WaveformView extends CanvasView {
     }
 
     public void drawSectionMarkers(Canvas c){
+        System.out.println(WavPlayer.getLocation() + " is the location for the last section marker draw");
         //need to change this to match number of seconds on the screen instead of constant 10
         float mspp = 1000*10/(float)getWidth();
         int offset = (getWidth() / 8);

@@ -15,7 +15,7 @@ public class SectionMarkers {
     private boolean startSet = false;
     private boolean endSet = false;
 
-    public boolean shouldPlaySelectedSection() {
+    public boolean bothSet() {
         return playSelectedSection;
     }
 
@@ -93,5 +93,6 @@ public class SectionMarkers {
         minimapStart = Integer.MIN_VALUE;
         mainEnd = Integer.MAX_VALUE;
         mainStart = Integer.MIN_VALUE;
+        WavPlayer.setOnlyPlayingSection(false);
     }
 }

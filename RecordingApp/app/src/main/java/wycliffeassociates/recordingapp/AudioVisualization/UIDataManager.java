@@ -8,11 +8,9 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Logger;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
@@ -20,13 +18,11 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
-import wycliffeassociates.recordingapp.AudioFile;
-
+import wycliffeassociates.recordingapp.WavFileLoader;
 
 /**
  * Created by sarabiaj on 9/10/2015.
  */
-
 
 public class UIDataManager {
 
@@ -37,7 +33,7 @@ public class UIDataManager {
     private final Activity ctx;
     private boolean isRecording;
     public static Semaphore lock;
-    private AudioFile wavLoader;
+    private WavFileLoader wavLoader;
     private WavVisualizer wavVis;
     private MappedByteBuffer buffer;
     private MappedByteBuffer mappedAudioFile;
@@ -173,7 +169,7 @@ public class UIDataManager {
         preprocessedBuffer = wavLoader.getMappedCacheFile();
         mappedAudioFile = wavLoader.getMappedAudioFile();
         minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
-        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
+        wavVis = new WavVisualizer(buffer, null, mainWave.getWidth(), mainWave.getHeight());
         //WavPlayer.loadFile(mappedAudioFile);
         CanvasView.clearMarkers();
         updateUI();
@@ -181,7 +177,7 @@ public class UIDataManager {
 
     public void loadWavFromFile(String path){
 
-        wavLoader = new AudioFile(path, mainWave.getWidth(), isALoadedFile);
+        wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
         buffer = wavLoader.getMappedFile();
         preprocessedBuffer = wavLoader.getMappedCacheFile();
         mappedAudioFile = wavLoader.getMappedAudioFile();
