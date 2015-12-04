@@ -1,6 +1,9 @@
 package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -107,6 +110,9 @@ public class AudioFiles extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
+
+        // Hide the fragment to start with
+        hideActionsFragment();
 
         // Pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
@@ -407,8 +413,10 @@ public class AudioFiles extends Activity {
                                 adapter.notifyDataSetChanged();
                             }
                             btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_empty);
+                            hideActionsFragment();
                         } else {
                             btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_selected);
+                            showActionsFragment();
                         }
                         checkAll = !checkAll;
                     }
@@ -429,7 +437,7 @@ public class AudioFiles extends Activity {
                 }
             });
 
-                    btnSortDuration = (ImageButton) findViewById(R.id.btnSortDuration);
+            btnSortDuration = (ImageButton) findViewById(R.id.btnSortDuration);
             btnSortDuration.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -457,27 +465,28 @@ public class AudioFiles extends Activity {
                 }
             });
 
-//            btnDelete = (ImageButton) findViewById(R.id.btnDelete);
-//            btnDelete.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    exportList = new ArrayList<String>();
-//                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
-//                        if (adapter.checkBoxState[i] == true) {
-//                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-//                        }
-//                    }
-//
-//                    //if something is checked
-//                    if (exportList.size() > 0) {
-//                        deleteFiles(exportList);
-//                    } else {
-//                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-//                    }
-//                    sort = (int) pref.getPreferences("displaySort");
-//                    generateAdapterView(tempItemList, sort);
-//                }
-//            });
+            btnDelete = (ImageButton) findViewById(R.id.btnDelete);
+            btnDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    exportList = new ArrayList<String>();
+                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
+                        if (adapter.checkBoxState[i] == true) {
+                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+                        }
+                    }
+
+                    // If something is checked...
+                    if (exportList.size() > 0) {
+                        deleteFiles(exportList);
+                    } else {
+                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                    sort = (int) pref.getPreferences("displaySort");
+                    generateAdapterView(tempItemList, sort);
+                    hideActionsFragment();
+                }
+            });
         }
     }
 
@@ -952,5 +961,21 @@ public class AudioFiles extends Activity {
             out.close();
         }
     }
-}
 
+
+
+    public void hideActionsFragment() {
+        View fragment = findViewById(R.id.file_actions);
+        if (fragment.getVisibility() == View.VISIBLE) {
+            fragment.setVisibility(View.GONE);
+        }
+    }
+
+    public void showActionsFragment() {
+        View fragment = findViewById(R.id.file_actions);
+        if (fragment.getVisibility() == View.GONE) {
+            fragment.setVisibility(View.VISIBLE);
+        }
+    }
+
+}

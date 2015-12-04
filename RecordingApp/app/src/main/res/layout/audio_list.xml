@@ -1,5 +1,6 @@
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -95,7 +96,7 @@
             android:paddingBottom="16dp"
             android:clipToPadding="false"
             android:animateLayoutChanges="true"
-            >
+            android:layout_above="@+id/file_actions">
         </ListView>
 
         <!--<LinearLayout-->
@@ -112,6 +113,15 @@
             <!--android:layout_height="wrap_content"-->
             <!--android:id="@+id/btnExport"-->
             <!--android:background="@drawable/ic_export_icon_share_83" />-->
+
+        <fragment
+            android:name="wycliffeassociates.recordingapp.FilesPage.FragmentActions"
+            android:id="@+id/file_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:layout_alignParentBottom="true" />
+            <!--tools:layout="@layout/fragment_file_actions" />-->
 
     </RelativeLayout>
 
