@@ -27,10 +27,10 @@
 
         <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape" android:noHistory="true"/>
         <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape" android:noHistory="true"/>
-        <activity android:name=".FilesPage.AudioFiles" android:screenOrientation="portrait" />
-        <activity android:name=".SettingsPage.Settings" android:screenOrientation="portrait"
+        <activity android:name=".FilesPage.AudioFiles" />
+        <activity android:name=".SettingsPage.Settings"
             android:windowSoftInputMode="stateUnchanged"/>
-        <activity android:name=".FilesPage.ExportFiles" android:screenOrientation="portrait" />
+        <activity android:name=".FilesPage.ExportFiles" />
         <service android:name=".Recording.WavRecorder" />
         <service android:name=".Recording.WavFileWriter" />
         <activity android:name=".FilesPage.FTPActivity" android:theme="@style/Theme.UserDialog"/>

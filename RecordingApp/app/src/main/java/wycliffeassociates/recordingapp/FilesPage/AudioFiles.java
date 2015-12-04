@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.net.Uri;
 
@@ -56,10 +55,9 @@ public class AudioFiles extends Activity {
             btnExport,
                 btnExportApp, btnExportFTP, btnExportFolder, btnExportS3;
 
-
     private Menu mMenu;
     private ListView audioFileView;
-    private TextView file_path;
+    // private TextView file_path;
     private static String currentDir;
     private File file[];
 
@@ -69,18 +67,17 @@ public class AudioFiles extends Activity {
 
     private boolean checkAll = true;
 
-    //0, Z-A
-    //1, A-Z
-    //2, 0:00 - 9:99
-    //3, 9:99 - 0:00
-    //4, Oldest First
-    //5, Recent First
+    // 0: Z-A
+    // 1: A-Z
+    // 2: 0:00 - 9:99
+    // 3: 9:99 - 0:00
+    // 4: Oldest First
+    // 5: Recent First
     int sort = 5;
 
     public AudioFilesAdapter adapter;
 
     Hashtable<Date, String> audioHash;
-
 
     /**
      * URI of the document in storage where it was exported by the user
@@ -111,34 +108,32 @@ public class AudioFiles extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
 
-
-        //pull file directory and sorting preferences
+        // Pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
         currentDir = (String) pref.getPreferences("fileDirectory");
         AudioInfo.fileDir = currentDir;
         sort = (int) pref.getPreferences("displaySort");
 
+        audioFileView = (ListView) findViewById(R.id.main_content);
+        // file_path = (TextView)findViewById(R.id.filepath);
+        // file_path.setText(currentDir);
 
-        audioFileView = (ListView) findViewById(R.id.listViewExport);
-        file_path = (TextView)findViewById(R.id.filepath);
-        file_path.setText(currentDir);
-
-        //initialization
+        // Initialization
         audioItemList = new ArrayList<AudioItem>();
         tempItemList = new ArrayList<AudioItem>();
         audioHash = new Hashtable<Date, String>();
 
-        //cleanup any leftover visualization files
+        // Cleanup any leftover visualization files
         removeUnusedVisualizationFiles(currentDir);
 
         //get files in the directory
         File f = new File(currentDir);
         file = f.listFiles();
-        //no files
+        // No files
         if (file == null) {
             Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
         }
-        //get audio files
+        // Get audio files
         else {
             for (int i = 0; i < file.length; i++) {
                 int len = file[i].getName().length();
@@ -147,7 +142,7 @@ public class AudioFiles extends Activity {
 
                     if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
                             || sub.equalsIgnoreCase(".mp3")) {
-                        //add file names
+                        // Add file names
                         Date lastModDate = new Date(file[i].lastModified());
 
                         File tFile = new File(currentDir + "/" + file[i].getName());
@@ -156,13 +151,13 @@ public class AudioFiles extends Activity {
                         //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
 
                         //TODO : DURATION
-                    /*MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                        /*MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
-                    mmr.setDataSource(this, uri);
-                    String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                    //System.out.println(duration);
-                    int time = (Integer.parseInt(duration) / 1000);
-                    mmr.release();*/
+                        mmr.setDataSource(this, uri);
+                        String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                        //System.out.println(duration);
+                        int time = (Integer.parseInt(duration) / 1000);
+                        mmr.release();*/
 
                         long time = (((tFile.length() - 44) / 2) / 44100);
                         //System.out.println("pppp" + time);
@@ -171,9 +166,7 @@ public class AudioFiles extends Activity {
                         tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
                     }
 
-
                 }
-
 
                 //audioFileView.setAdapter(
                 generateAdapterView(tempItemList, sort);
@@ -184,13 +177,13 @@ public class AudioFiles extends Activity {
 
             //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
 
-            btnExport = (ImageButton) findViewById(R.id.btnExport);
-            btnExport.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mDrawerLayout.openDrawer(Gravity.RIGHT);
-                }
-            });
+//            btnExport = (ImageButton) findViewById(R.id.btnExport);
+//            btnExport.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    mDrawerLayout.openDrawer(Gravity.RIGHT);
+//                }
+//            });
 
             btnExportFTP = (ImageButton) findViewById(R.id.btnExportFTP);
             btnExportFTP.setOnClickListener(new View.OnClickListener() {
@@ -201,7 +194,7 @@ public class AudioFiles extends Activity {
                         Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                     } else {
                         for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                            if (adapter.checkBoxState[i] == true) {
+                            if (adapter.checkBoxState[i]) {
                                 exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                             }
                         }
@@ -353,9 +346,6 @@ public class AudioFiles extends Activity {
                             Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
                         }
                     }
-
-
-
                 }
             });
 
@@ -368,12 +358,12 @@ public class AudioFiles extends Activity {
                     //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
                     exportList = new ArrayList<String>();
                     for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                        if (adapter.checkBoxState[i] == true) {
+                        if (adapter.checkBoxState[i]) {
                             exportList.add(currentDir + "/" + audioItemList.get(i).getName());
                         }
                     }
 
-                    //if something is checked
+                    // If something is checked...
                     if (exportList.size() > 0) {
                         if (exportList.size() > 1) {//export multiple files as a single zip file
                             String toExport[] = new String[exportList.size()];
@@ -382,9 +372,10 @@ public class AudioFiles extends Activity {
                                 toExport[i] = exportList.get(i);
                             }
                             try {
-                                //this could cause problems if the directory list contains matches
+                                // This could cause problems if the directory list contains matches
                                 zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                                zip(toExport, zipPath);//TODO: learn how to delete this file after upload
+                                zip(toExport, zipPath);
+                                // TODO: learn how to delete this file after upload
                                 exportZipApplications(zipPath);
                             } catch (IOException e) {
                                 exportApplications(exportList, append);
@@ -403,18 +394,21 @@ public class AudioFiles extends Activity {
                 @Override
                 public void onClick(View v) {
                     if (file == null) {
-
-                    } else {
+                    }
+                    else {
                         for (int i = 0; i < audioFileView.getCount(); i++) {
                             adapter.checkBoxState[i] = checkAll;
                             adapter.notifyDataSetChanged();
                         }
-                        if (checkAll == false) {
+                        if (!checkAll) {
                             exportList = new ArrayList<String>();
                             if(adapter != null && adapter.checkBoxState != null){
                                 Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
                                 adapter.notifyDataSetChanged();
                             }
+                            btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_empty);
+                        } else {
+                            btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_selected);
                         }
                         checkAll = !checkAll;
                     }
@@ -435,7 +429,7 @@ public class AudioFiles extends Activity {
                 }
             });
 
-            btnSortDuration = (ImageButton) findViewById(R.id.btnSortDuration);
+                    btnSortDuration = (ImageButton) findViewById(R.id.btnSortDuration);
             btnSortDuration.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -463,28 +457,27 @@ public class AudioFiles extends Activity {
                 }
             });
 
-
-            btnDelete = (ImageButton) findViewById(R.id.btnDelete);
-            btnDelete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    exportList = new ArrayList<String>();
-                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                        if (adapter.checkBoxState[i] == true) {
-                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                        }
-                    }
-
-                    //if something is checked
-                    if (exportList.size() > 0) {
-                        deleteFiles(exportList);
-                    } else {
-                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                    }
-                    sort = (int) pref.getPreferences("displaySort");
-                    generateAdapterView(tempItemList, sort);
-                }
-            });
+//            btnDelete = (ImageButton) findViewById(R.id.btnDelete);
+//            btnDelete.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    exportList = new ArrayList<String>();
+//                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
+//                        if (adapter.checkBoxState[i] == true) {
+//                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+//                        }
+//                    }
+//
+//                    //if something is checked
+//                    if (exportList.size() > 0) {
+//                        deleteFiles(exportList);
+//                    } else {
+//                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                    }
+//                    sort = (int) pref.getPreferences("displaySort");
+//                    generateAdapterView(tempItemList, sort);
+//                }
+//            });
         }
     }
 
@@ -543,39 +536,40 @@ public class AudioFiles extends Activity {
     }
 
     private void generateAdapterView(ArrayList<AudioItem> tempItemList, int sort){
+        //
         ArrayList<AudioItem> cleanList = new ArrayList<AudioItem>();
-        for( int a = 0 ; a < tempItemList.size() ; a ++ ){
+        for (int a = 0; a < tempItemList.size(); a++){
             cleanList.add(tempItemList.get(a));
         }
 
-        //clear list
+        // Clear list
         audioItemList = new ArrayList<AudioItem>();
-
         audioItemList = sortAudioItem(cleanList, sort);
 
-        //temp array for Adapter
+        // Temp array for Adapter
         AudioItem[] tempArr = new AudioItem[audioItemList.size()];
         for(int a = 0; a < audioItemList.size(); a++){
             tempArr[a] = audioItemList.get(a);
 
         }
-        //set Adapter view
+
+        // Set Adapter view
         adapter = (new AudioFilesAdapter(this, tempArr));
         audioFileView.setAdapter(adapter);
     }
 
-    //TODO : after merge, ezpz implement
+    // TODO : after merge, ezpz implement
     private void deleteFiles(ArrayList<String> exportList){
         //int count = 0;
 
-        for(int i = 0 ; i < exportList.size() ; i++) {
+        for (int i = 0; i < exportList.size(); i++) {
             File file = new File(exportList.get(i));
-            boolean deleted = file.delete();
-            if(deleted){
-
+//            boolean deleted = file.delete();
+//            if (deleted){
+            if (file.delete()) {
                 String value = exportList.get(i).replace(currentDir + "/", "");
-                for(int a = 0 ; a < tempItemList.size() ; a++){
-                    if(tempItemList.get(a).getName().equals(value)){
+                for (int a = 0; a < tempItemList.size(); a++) {
+                    if (tempItemList.get(a).getName().equals(value)){
                         tempItemList.remove(a);
                         a = tempItemList.size() + 2;
                     }
@@ -588,8 +582,8 @@ public class AudioFiles extends Activity {
     }
 
     private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
-
-            ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
+        //
+        ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
         if (nList.size() > 0) {
             boolean flag = false;
             switch (sort) {
@@ -612,13 +606,14 @@ public class AudioFiles extends Activity {
             if (sort == 0 || sort == 1) {
                 String cmp = "";
 
-                //as long as there are items
+                // As long as there are items...
                 do {
+                    //
                     size = nList.size() - 1;
                     cmp = nList.get(size).getName().toLowerCase();
                     val = size;
 
-                    //compare with other items
+                    // Compare with other items
                     for (int x = 0; x < size; x++) {
                         if (cmp.compareTo(nList.get(x).getName().toLowerCase()) < 0) {
                             if (flag) {
@@ -639,20 +634,23 @@ public class AudioFiles extends Activity {
                         }
                     }
 
+                    //
                     outputList.add(nList.get(val));
                     nList.remove(val);
 
                 } while (size > 0);
 
             } else if (sort == 2 || sort == 3) {
+                //
                 Integer cmp = 0;
-                //as long as there are items
+
+                // As long as there are items...
                 do {
                     size = nList.size() - 1;
                     cmp = nList.get(size).getDuration();
                     val = size;
 
-                    //compare with other items
+                    // Compare with other items
                     for (int x = 0; x < size; x++) {
                         if (cmp > nList.get(x).getDuration()) {
                             if (flag) {
@@ -673,21 +671,25 @@ public class AudioFiles extends Activity {
                         }
                     }
 
+                    //
                     outputList.add(nList.get(val));
                     nList.remove(val);
 
                 } while (size > 0);
+
             } else {
+                //
                 ArrayList<Date> tempList = new ArrayList<Date>();
                 Date cmp = new Date();
 
-                //as long as there are items
+                // As long as there are items
                 do {
+                    //
                     size = nList.size() - 1;
                     cmp = nList.get(size).getDate();
                     val = size;
 
-                    //compare with other items
+                    // Compare with other items
                     for (int x = 0; x < size; x++) {
                         if (cmp.after(nList.get(x).getDate())) {
                             if (flag) {
@@ -699,25 +701,27 @@ public class AudioFiles extends Activity {
                             }
                         } else {
                             if (flag) {
-                                //A-Z
+                                // A-Z
                                 val = x;
                                 cmp = nList.get(x).getDate();
                             } else {
-                                //Z-A
+                                // Z-A
                             }
                         }
                     }
 
+                    //
                     outputList.add(nList.get(val));
                     nList.remove(val);
 
                 } while (size > 0);
             }
 
-
-        } else {System.out.println("empty");
+        } else {
+            System.out.println("empty");
         }
-            return outputList;
+
+        return outputList;
     }
 
     //==================================

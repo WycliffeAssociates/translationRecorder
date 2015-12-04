@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 
@@ -29,23 +30,20 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
     /**
      * Populate with audio items
      */
-    AudioItem[] audioItems= null;
+    AudioItem[] audioItems = null;
 
     /**
      * Store the current context
      */
     Context aContext;
 
-
-    // boolean array for storing
-    //the state of each CheckBox
+    // Boolean array for storing the state of each CheckBox
     boolean[] checkBoxState;
 
     ViewHolder viewHolder;
 
     //class for caching the views in a row
-    private class ViewHolder
-    {
+    private class ViewHolder {
         TextView filename, date, duration;
         CheckBox checkBox;
     }
@@ -61,8 +59,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         super(context, R.layout.audio_list_item, resource);
         this.aContext = context;
         this.audioItems = resource;
-        //create the boolean array with
-        //initial state as false
+        // Create the boolean array with initial state as false
         checkBoxState = new boolean[resource.length];
     }
 
@@ -84,32 +81,32 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
 
             viewHolder = new ViewHolder();
 
-            //cache the views
+            // Cache the views
             viewHolder.filename = (TextView) convertView.findViewById(R.id.filename);
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
-
             viewHolder.duration = (TextView) convertView.findViewById(R.id.duration);
-            viewHolder.duration.setGravity(Gravity.RIGHT);
-
-
+//            viewHolder.duration.setGravity(Gravity.RIGHT);
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
-            viewHolder.date.setGravity(Gravity.RIGHT);
+//            viewHolder.date.setGravity(Gravity.RIGHT);
+//            viewHolder.filename.setTextSize(20f);
 
-            viewHolder.filename.setTextSize(20f);
-
-
-            //link the cached views to the convertview
+            // link the cached views to the convertView
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        // set items to be displayed
-        viewHolder.filename.setText(audioItems[position].getName());
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+        // Set items to be displayed
+        // TODO: Remove extenstion using Regex
+        viewHolder.filename.setText(audioItems[position].getName().replace(".wav", ""));
+
+        //
+        // SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
         String output = format.format(audioItems[position].getDate());
         viewHolder.date.setText(output);
 
+        //
         int length = audioItems[position].getDuration();
         int hours = (length / (60 * 60));
         int minutes = ((length - (60 * 60 * hours)) / 60);
@@ -117,18 +114,24 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         String duration = String.format("%02d",hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
         viewHolder.duration.setText(duration);
 
+        //
         viewHolder.checkBox.setChecked(checkBoxState[position]);
+        if (checkBoxState[position]) {
+            viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_selected);
+        }
+        else {
+            viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_empty);
+        }
 
-        //======
-        //AudioFilesListener
-        //======
+        //===================
+        // AudioFilesListener
+        //===================
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
                 String filename = audioItems[position].getName();
                 Intent intent = new Intent(getContext(), PlaybackScreen.class);
-                intent.putExtra("recordedFilename",  AudioInfo.fileDir+"/"+filename);
+                intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + filename);
                 intent.putExtra("loadFile", true);
                 getContext().startActivity(intent);
             }
@@ -136,17 +139,18 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         });
 
 
-        // for managing the state of the boolean array according to the state of the
-        //CheckBox
+        // For managing the state of the boolean array according to the state of the
+        //    checkBox
         viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (((CheckBox) v).isChecked()) {
                     checkBoxState[position] = true;
+                    ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_selected);
                 }
                 else {
                     checkBoxState[position] = false;
+                    ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_empty);
                 }
-
             }
         });
 
