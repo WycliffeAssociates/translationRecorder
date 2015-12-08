@@ -189,12 +189,12 @@ public class WavPlayer {
         }
     }
 
-    public static void stopAt(int end){
+    public static void stopSectionAt(int end){
         endPlaybackPosition = end;
         onlyPlayingSection = true;
     }
 
-    public static void selectionStart(int startMS){
+    public static void startSectionAt(int startMS){
         startPlaybackPosition = startMS;
     }
 

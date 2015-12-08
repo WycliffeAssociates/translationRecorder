@@ -36,7 +36,7 @@ public class SectionMarkers {
     }
 
     public void setStartTime(int x, int width){
-        WavPlayer.selectionStart(x);
+        WavPlayer.startSectionAt(x);
         mainStart = x;
         minimapStart = (int)((x / (double) WavPlayer.getDuration()) * width);
         startSet = true;

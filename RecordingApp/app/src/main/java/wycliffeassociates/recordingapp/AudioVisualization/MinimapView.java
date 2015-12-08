@@ -72,9 +72,9 @@ public class MinimapView extends CanvasView {
                     playbackSectionStart = temp;
                 }
                 sMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
-                WavPlayer.selectionStart(playbackSectionStart);
+                WavPlayer.startSectionAt(playbackSectionStart);
                 WavPlayer.seekTo(playbackSectionStart);
-                WavPlayer.stopAt(playbackSectionEnd);
+                WavPlayer.stopSectionAt(playbackSectionEnd);
                 //WavPlayer.selectionStart(playbackSectionStart);
                 mManager.updateUI();
             }
