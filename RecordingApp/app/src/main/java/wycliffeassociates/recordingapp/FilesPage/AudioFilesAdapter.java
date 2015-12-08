@@ -134,10 +134,10 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_empty);
         }
         if (isAllFalse(checkBoxState)) {
-            ((AudioFiles) aContext). hideFragment("file_actions");
+            ((AudioFiles) aContext). hideFragment(R.id.file_actions);
         }
         else {
-            ((AudioFiles) aContext).showFragment("file_actions");
+            ((AudioFiles) aContext).showFragment(R.id.file_actions);
         }
 
         //
@@ -170,10 +170,10 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
 
                 // Check whether to display actions or not
                 if (isAllFalse(checkBoxState)) {
-                    ((AudioFiles) aContext). hideFragment("file_actions");
+                    ((AudioFiles) aContext).hideFragment(R.id.file_actions);
                 }
                 else {
-                    ((AudioFiles) aContext).showFragment("file_actions");
+                    ((AudioFiles) aContext).showFragment(R.id.file_actions);
                 }
             }
         });

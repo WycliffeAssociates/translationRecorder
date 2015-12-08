@@ -113,7 +113,7 @@ public class AudioFiles extends Activity {
         setContentView(R.layout.audio_list);
 
         // Hide the fragment to start with
-        hideFragment("file_actions");
+        hideFragment(R.id.file_actions);
 
         // Pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
@@ -181,15 +181,6 @@ public class AudioFiles extends Activity {
 //            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
             //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
-
-//            btnExport = (ImageButton) findViewById(R.id.btnShare);
-//            btnExport.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    System.out.println("SHOW SHARE ACTIONS");
-//                    showFragment("share_actions");
-//                }
-//            });
 
 //            btnExportFTP = (ImageButton) findViewById(R.id.btnExportFTP);
 //            btnExportFTP.setOnClickListener(new View.OnClickListener() {
@@ -412,10 +403,10 @@ public class AudioFiles extends Activity {
                                 adapter.notifyDataSetChanged();
                             }
                             btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_empty);
-                            hideFragment("file_actions");
+                            hideFragment(R.id.file_actions);
                         } else {
                             btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_selected);
-                            showFragment("file_actions");
+                            showFragment(R.id.file_actions);
                         }
                         checkAll = !checkAll;
                     }
@@ -483,7 +474,7 @@ public class AudioFiles extends Activity {
                     }
                     sort = (int) pref.getPreferences("displaySort");
                     generateAdapterView(tempItemList, sort);
-                    hideFragment("file_action");
+                    hideFragment(R.id.file_actions);
                 }
             });
         }
@@ -971,17 +962,15 @@ public class AudioFiles extends Activity {
 
 
 
-    public void hideFragment(String view) {
-//        View fragment = findViewById(R.id.file_actions);
-        View fragment = findViewById(getResources().getIdentifier(view, "id", getPackageName()));
+    public void hideFragment(int view) {
+        View fragment = findViewById(view);
         if (fragment.getVisibility() == View.VISIBLE) {
             fragment.setVisibility(View.GONE);
         }
     }
 
-    public void showFragment(String view) {
-//        View fragment = findViewById(R.id.file_actions);
-        View fragment = findViewById(getResources().getIdentifier(view, "id", getPackageName()));
+    public void showFragment(int view) {
+        View fragment = findViewById(view);
         if (fragment.getVisibility() == View.GONE) {
             fragment.setVisibility(View.VISIBLE);
         }
