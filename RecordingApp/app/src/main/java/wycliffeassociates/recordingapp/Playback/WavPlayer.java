@@ -8,22 +8,38 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 
 /**
  * Plays .Wav audio files
  */
 public class WavPlayer {
 
-    private static boolean onlyPlayingSection = false;
-    private static int endPlaybackPosition = 0;
-    private static int startPlaybackPosition = 0;
     private static MappedByteBuffer audioData = null;
     private static AudioTrack player = null;
+    private static Thread playbackThread;
+    private static volatile boolean onlyPlayingSection = false;
+    private static volatile int endPlaybackPosition = 0;
+    private static volatile int startPlaybackPosition = 0;
     private static int minBufferSize = 0;
     private static volatile boolean keepPlaying = false;
-    private static Thread playbackThread;
-    private static int playbackStart = 0;
+    private static volatile int playbackStart = 0;
     private static volatile boolean forceBreakOut = false;
+
+    public static void setOnlyPlayingSection(Boolean onlyPlayingSection){
+        WavPlayer.onlyPlayingSection = onlyPlayingSection;
+    }
+
+    public static void resetState(){
+       onlyPlayingSection = false;
+       endPlaybackPosition = 0;
+       startPlaybackPosition = 0;
+       minBufferSize = 0;
+       keepPlaying = false;
+       playbackStart = 0;
+       forceBreakOut = false;
+    }
+
 
     public static void play(){
         forceBreakOut = false;
@@ -38,7 +54,7 @@ public class WavPlayer {
 
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
                 int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
-
+                System.out.println("starting from position " + playbackStart);
                 //position in the buffer keeps track of where we are for playback
                 audioData.position(position);
                 int limit = audioData.capacity();
@@ -79,7 +95,7 @@ public class WavPlayer {
                 //continue to loop until the end is reached.
                 while((getLocation() != getDuration()) && !forceBreakOut){}
                 System.out.println("end thread");
-                //System.out.println("location is " + getLocation() + " out of " + getDuration());
+                System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
         };
         playbackThread.start();
@@ -92,6 +108,7 @@ public class WavPlayer {
      * @param file
      */
     public static void loadFile(MappedByteBuffer file){
+        resetState();
         audioData = file;
         minBufferSize = AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -121,7 +138,23 @@ public class WavPlayer {
 
     public static void seekToStart(){
         if(player != null ) {
-            seekTo(0);
+            if(onlyPlayingSection){
+                seekTo(startPlaybackPosition);
+            }
+            else {
+                seekTo(0);
+            }
+        }
+    }
+
+    public static void seekToEnd(){
+        if(player != null ) {
+            if(onlyPlayingSection){
+                seekTo(endPlaybackPosition);
+            }
+            else {
+                seekTo(WavPlayer.getDuration());
+            }
         }
     }
 
@@ -156,13 +189,13 @@ public class WavPlayer {
         }
     }
 
-    public static void stopAt(int end){
+    public static void stopSectionAt(int end){
         endPlaybackPosition = end;
         onlyPlayingSection = true;
     }
 
-    public static void selectionStart(int start){
-        startPlaybackPosition = start;
+    public static void startSectionAt(int startMS){
+        startPlaybackPosition = startMS;
     }
 
     public static boolean checkIfShouldStop(){
@@ -170,10 +203,9 @@ public class WavPlayer {
             pause();
             return true;
         }
-        if(onlyPlayingSection && getLocation() >= endPlaybackPosition){
-            pause();
-            playbackStart = endPlaybackPosition;
-            onlyPlayingSection = false;
+        if(onlyPlayingSection && (getLocation() >= endPlaybackPosition)){
+            stop();
+            seekTo(startPlaybackPosition);
             return true;
         }
         return false;
@@ -221,6 +253,10 @@ public class WavPlayer {
             return (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
         else
             return 0;
+    }
+
+    public static int getSelectionEnd(){
+        return endPlaybackPosition;
     }
 
 }
