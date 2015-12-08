@@ -19,10 +19,12 @@ import wycliffeassociates.recordingapp.R;
 public class FragmentShareDialog extends DialogFragment implements View.OnClickListener {
 
     ImageButton sd_card, dir, bluetooth, wifi, amazon, other;
+    AudioFiles af = (AudioFiles) getActivity();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_share_options, null);
+
 
         sd_card = (ImageButton) view.findViewById(R.id.share_sd_card);
         dir = (ImageButton) view.findViewById(R.id.share_dir);
@@ -63,6 +65,10 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         }
     }
 
+    //=================
+    // CUSTOM FUNCTIONS
+    //=================
+
     public void exportToSDCard() {
         Toast.makeText(getActivity(), "SD CARD WAS CLICKED", Toast.LENGTH_LONG).show();
         // Insert code to export here
@@ -70,7 +76,7 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
 
     public void exportToDir() {
         Toast.makeText(getActivity(), "DIRECTORY WAS CLICKED", Toast.LENGTH_LONG).show();
-        // Insert code to export here
+
     }
 
     public void exportViaBluetooth() {
