@@ -25,7 +25,6 @@ public class WavPlayer {
     private static volatile boolean keepPlaying = false;
     private static volatile int playbackStart = 0;
     private static volatile boolean forceBreakOut = false;
-    private static volatile boolean playbackReset = false;
 
     public static void setOnlyPlayingSection(Boolean onlyPlayingSection){
         WavPlayer.onlyPlayingSection = onlyPlayingSection;
@@ -39,15 +38,10 @@ public class WavPlayer {
        keepPlaying = false;
        playbackStart = 0;
        forceBreakOut = false;
-       playbackReset = false;
     }
 
-    public static boolean hasPlaybackReset(){
-        return playbackReset;
-    }
 
     public static void play(){
-        playbackReset = true;
         forceBreakOut = false;
         if(WavPlayer.isPlaying()){
             return;
@@ -60,7 +54,7 @@ public class WavPlayer {
 
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
                 int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
-
+                System.out.println("starting from position " + playbackStart);
                 //position in the buffer keeps track of where we are for playback
                 audioData.position(position);
                 int limit = audioData.capacity();
@@ -200,8 +194,8 @@ public class WavPlayer {
         onlyPlayingSection = true;
     }
 
-    public static void selectionStart(int start){
-        startPlaybackPosition = start;
+    public static void selectionStart(int startMS){
+        startPlaybackPosition = startMS;
     }
 
     public static boolean checkIfShouldStop(){
@@ -209,11 +203,9 @@ public class WavPlayer {
             pause();
             return true;
         }
-        if(onlyPlayingSection && getLocation() >= endPlaybackPosition){
-            pause();
-            playbackStart = startPlaybackPosition;
-            //seekTo(startPlaybackPosition);
-            playbackReset = true;
+        if(onlyPlayingSection && (getLocation() >= endPlaybackPosition)){
+            stop();
+            seekTo(startPlaybackPosition);
             return true;
         }
         return false;

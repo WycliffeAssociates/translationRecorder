@@ -93,6 +93,7 @@ public class UIDataManager {
         int location = WavPlayer.getLocation();
         minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
+        mainWave.setTimeToDraw(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
         ctx.runOnUiThread(new Runnable() {
             @Override
@@ -284,6 +285,8 @@ public class UIDataManager {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        mainWave.setMarkerToDrawStart(CanvasView.getMarkerStartTime());
+        mainWave.setMarkerToDrawEnd(CanvasView.getMarkerEndTime());
         float[] samples = wavVis.getDataToDraw(location, WavFileWriter.largest);
         lock.release();
         mainWave.setIsDoneDrawing(false);

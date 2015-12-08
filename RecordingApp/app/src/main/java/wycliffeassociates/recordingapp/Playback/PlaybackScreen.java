@@ -47,9 +47,6 @@ public class PlaybackScreen extends Activity {
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isALoadedFile = false;
-    
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +121,7 @@ public class PlaybackScreen extends Activity {
 
     private void clearMarkers(){
         CanvasView.clearMarkers();
+        manager.updateUI();
     }
 
     @Override

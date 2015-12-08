@@ -39,20 +39,20 @@ public class MinimapView extends CanvasView {
         @Override
         public boolean onDown(MotionEvent e) {
             if (WavPlayer.exists() && e.getY() <= getHeight()) {
-                if(markers.bothSet()){
+                if(sMarkers.bothSet()){
                     float xPos = e.getX() / getWidth();
                     int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
-                    if(timeToSeekTo < markers.getStartLocation()){
+                    if(timeToSeekTo < sMarkers.getStartLocation()){
                         return true;
                     }
-                    else if(timeToSeekTo > markers.getEndLocation()){
+                    else if(timeToSeekTo > sMarkers.getEndLocation()){
                         return true;
                     }
                 }
                 float xPos = e.getX() / getWidth();
                 int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                 WavPlayer.seekTo(timeToSeekTo);
-                manager.updateUI();
+                mManager.updateUI();
                 endPosition = (int) e.getX();
             }
             return true;
@@ -63,7 +63,7 @@ public class MinimapView extends CanvasView {
             if (WavPlayer.exists()) {
                 startPosition = (int) event1.getX();
                 endPosition -= (int) distanceX;
-                markers.setMinimapMarkers(startPosition, endPosition);
+                sMarkers.setMinimapMarkers(startPosition, endPosition);
                 int playbackSectionStart = (int) ((startPosition / (double) getWidth()) * WavPlayer.getDuration());
                 int playbackSectionEnd = (int) ((endPosition / (double) getWidth()) * WavPlayer.getDuration());
                 if (startPosition > endPosition) {
@@ -71,11 +71,12 @@ public class MinimapView extends CanvasView {
                     playbackSectionEnd = playbackSectionStart;
                     playbackSectionStart = temp;
                 }
-                markers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
+                sMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
+                WavPlayer.selectionStart(playbackSectionStart);
                 WavPlayer.seekTo(playbackSectionStart);
                 WavPlayer.stopAt(playbackSectionEnd);
                 //WavPlayer.selectionStart(playbackSectionStart);
-                manager.updateUI();
+                mManager.updateUI();
             }
             return true;
         }
@@ -89,9 +90,9 @@ public class MinimapView extends CanvasView {
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
             minimapMarker(canvas);
             drawTimeCode(canvas);
-            if(markers.shouldDrawMarkers() ){
-                drawPlaybackSection(canvas, markers.getMinimapMarkerStart(), markers.getMinimapMarkerEnd());
-                System.out.println("should have drawn markers on minimap at " + markers.getMinimapMarkerStart());
+            if(sMarkers.shouldDrawMarkers() ){
+                drawPlaybackSection(canvas, sMarkers.getMinimapMarkerStart(), sMarkers.getMinimapMarkerEnd());
+                System.out.println("should have drawn sMarkers on minimap at " + sMarkers.getMinimapMarkerStart());
             }
         }
     }

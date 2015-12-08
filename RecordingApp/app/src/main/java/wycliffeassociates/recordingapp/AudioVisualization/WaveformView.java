@@ -20,31 +20,62 @@ public class WaveformView extends CanvasView {
     private byte[] buffer;
     private boolean drawingFromBuffer = false;
     private float[] samples;
+    private int timeToDraw;
+    private int mMarkerStartLoc;
+    private int mMarkerEndLoc;
     private ScaleGestureDetector sgd;
 
+    public void setMarkerToDrawStart(int markerStart) {
+        this.mMarkerStartLoc = markerStart;
+    }
+
+    public void setMarkerToDrawEnd(int markerEnd) {
+        this.mMarkerEndLoc = markerEnd;
+    }
+
+
+    /**
+     * Detects gestures on the main canvas
+     */
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
+        /**
+         * Detects if the user is scrolling the main waveform horizontally
+         * @param distX refers to how far the user scrolled horizontally
+         * @param distY is ignored for this use as we are only allowing horizontal scrolling
+         * @param event1 not accessed, contains information about the start of the gesture
+         * @param event2 not used, contains information about the end of the gesture
+         * @return must be true for gesture detection
+         */
         @Override
-        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
-            System.out.println("here trying to scroll");
-            if (WavPlayer.exists() && event1.getY() <= getHeight()) {
-                int playbackSectionStart = (int) ((distanceX*3) + WavPlayer.getLocation());
-                System.out.println("playback start is " + playbackSectionStart + " distance is " + distanceX);
-                if(markers.getEndLocation() < playbackSectionStart){
-                    WavPlayer.seekTo(markers.getEndLocation());
+        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
+            //Should only perform a scroll if the WavPlayer exists, since scrolling performs a seek
+            if (WavPlayer.exists()) {
+                //moves playback by the distance (distX is multiplied so as to scroll at a more
+                //reasonable speed. 3 seems to work well, but is mostly arbitrary.
+                int playbackSectionStart = (int) ((distX*3) + WavPlayer.getLocation());
+
+                //Ensure scrolling cannot pass an end marker if markers are set.
+                //The seek is to ensure responsiveness; without it the waveform will not scroll
+                //at all if the user slides their finger too far
+                if(sMarkers.getEndLocation() < playbackSectionStart){
+                    WavPlayer.seekTo(sMarkers.getEndLocation());
                 }
-                else if(markers.getStartLocation() > playbackSectionStart){
-                    WavPlayer.seekTo(markers.getStartLocation());
+                //Same as above but the check is to make sure scrolling will not go before a marker
+                else if(sMarkers.getStartLocation() > playbackSectionStart){
+                    WavPlayer.seekTo(sMarkers.getStartLocation());
                 }
                 else {
                     WavPlayer.seekTo(playbackSectionStart);
                 }
-                System.out.println("here in the if trying to scroll");
-                manager.updateUI();
+                //Redraw in order to display the waveform in the scrolled position
+                mManager.updateUI();
             }
             return true;
         }
     }
+
+    //TODO: scale should adjust userscale in the WavVisualizer class
     class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -53,18 +84,30 @@ public class WaveformView extends CanvasView {
         }
     }
 
-    public void placeStartMarker(int start){
-        markers.setStartTime(start, getWidth());
-        if(markers.bothSet()){
+    /**
+     * Updates the start position in the marker object. If this means both markers are now set,
+     * WavPlayer needs to set start and stop locations
+     * @param startTimeMS
+     */
+    public void placeStartMarker(int startTimeMS){
+        sMarkers.setStartTime(startTimeMS, getWidth());
+        //if both markers are set, then set the start and end markers in WavPlayer via notify
+        if(sMarkers.bothSet()){
             notifyWavPlayer();
         }
+        //draw the placed marker
         invalidate();
         redraw();
     }
 
-    public void placeEndMarker(int end){
-        markers.setEndTime(end, getWidth());
-        if(markers.bothSet()){
+    /**
+     * Updates the end position in the marker object. If this means both markers are now set,
+     * WavPlayer needs to set start and end locations
+     * @param endTimeMS
+     */
+    public void placeEndMarker(int endTimeMS){
+        sMarkers.setEndTime(endTimeMS, getWidth());
+        if(sMarkers.bothSet()){
             notifyWavPlayer();
         }
         invalidate();
@@ -72,8 +115,8 @@ public class WaveformView extends CanvasView {
     }
 
     public void notifyWavPlayer(){
-        WavPlayer.selectionStart(markers.getStartLocation());
-        WavPlayer.stopAt(markers.getEndLocation());
+        WavPlayer.selectionStart(sMarkers.getStartLocation());
+        WavPlayer.stopAt(sMarkers.getEndLocation());
     }
 
     @Override
@@ -107,15 +150,21 @@ public class WaveformView extends CanvasView {
         //need to change this to match number of seconds on the screen instead of constant 10
         float mspp = 1000*10/(float)getWidth();
         int offset = (getWidth() / 8);
-        float xLoc1 = offset + (markers.getStartLocation() - WavPlayer.getLocation())/mspp;
-        float xLoc2 = offset + (markers.getEndLocation() - WavPlayer.getLocation())/mspp;
+//        float xLoc1 = offset + (markers.getStartLocation() - WavPlayer.getLocation())/mspp;
+//        float xLoc2 = offset + (markers.getEndLocation() - WavPlayer.getLocation())/mspp;
+        float xLoc1 = offset + (mMarkerStartLoc - timeToDraw)/mspp;
+        float xLoc2 = offset + (mMarkerEndLoc - timeToDraw)/mspp;
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.BLUE);
-        System.out.println(xLoc1 + " " + offset + " offset" + markers.getStartLocation() + " start time" + WavPlayer.getLocation() + " start loc" + mspp + " mspp");
+        System.out.println(xLoc1 + " " + offset + " offset" + sMarkers.getStartLocation() + " start time" + WavPlayer.getLocation() + " start loc" + mspp + " mspp");
         c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaint);
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.RED);
         c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaint);
+    }
+
+    public void setTimeToDraw(int timeMS){
+        this.timeToDraw = timeMS;
     }
 
     @Override
@@ -142,12 +191,12 @@ public class WaveformView extends CanvasView {
             }
         }
         redraw();
-        if(markers.shouldDrawMarkers()){
+        if(sMarkers.shouldDrawMarkers()){
             drawSectionMarkers(canvas);
         }
         WavPlayer.checkIfShouldStop();
         if(WavPlayer.exists() && !WavPlayer.isPlaying()){
-            manager.enablePlay();
+            mManager.enablePlay();
         }
     }
 
