@@ -102,16 +102,19 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         // Set items to be displayed
         // TODO: Remove extenstion using Regex
         viewHolder.filename.setText(audioItems[position].getName().replace(".wav", ""));
+        viewHolder.filename.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
         //
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
         String output = format.format(audioItems[position].getDate());
         viewHolder.date.setText(output);
+        viewHolder.date.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
         //
         format = new SimpleDateFormat("hh:mm:ss");
         output = format.format(audioItems[position].getDate());
         viewHolder.time.setText(output);
+        viewHolder.time.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
         //
         int length = audioItems[position].getDuration();
@@ -120,6 +123,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         int seconds = length - (60 * 60 * hours) - (60 * minutes);
         String duration = String.format("%02d",hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
         viewHolder.duration.setText(duration);
+        viewHolder.duration.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
         //
         viewHolder.checkBox.setChecked(checkBoxState[position]);
@@ -130,10 +134,10 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_empty);
         }
         if (isAllFalse(checkBoxState)) {
-            ((AudioFiles) aContext). hideActionsFragment();
+            ((AudioFiles) aContext). hideFragment("file_actions");
         }
         else {
-            ((AudioFiles) aContext).showActionsFragment();
+            ((AudioFiles) aContext).showFragment("file_actions");
         }
 
         //
@@ -166,10 +170,10 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
 
                 // Check whether to display actions or not
                 if (isAllFalse(checkBoxState)) {
-                    ((AudioFiles) aContext). hideActionsFragment();
+                    ((AudioFiles) aContext). hideFragment("file_actions");
                 }
                 else {
-                    ((AudioFiles) aContext).showActionsFragment();
+                    ((AudioFiles) aContext).showFragment("file_actions");
                 }
             }
         });

@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -112,7 +113,7 @@ public class AudioFiles extends Activity {
         setContentView(R.layout.audio_list);
 
         // Hide the fragment to start with
-        hideActionsFragment();
+        hideFragment("file_actions");
 
         // Pull file directory and sorting preferences
         final PreferencesManager pref = new PreferencesManager(this);
@@ -121,8 +122,6 @@ public class AudioFiles extends Activity {
         sort = (int) pref.getPreferences("displaySort");
 
         audioFileView = (ListView) findViewById(R.id.main_content);
-        // file_path = (TextView)findViewById(R.id.filepath);
-        // file_path.setText(currentDir);
 
         // Initialization
         audioItemList = new ArrayList<AudioItem>();
@@ -179,220 +178,220 @@ public class AudioFiles extends Activity {
                 //);
 
             }
-            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+//            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
             //move this to AudioFilesAdapter -- ultimately to AudioFilesListener
 
-//            btnExport = (ImageButton) findViewById(R.id.btnExport);
+//            btnExport = (ImageButton) findViewById(R.id.btnShare);
 //            btnExport.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
-//                    mDrawerLayout.openDrawer(Gravity.RIGHT);
+//                    System.out.println("SHOW SHARE ACTIONS");
+//                    showFragment("share_actions");
 //                }
 //            });
 
-            btnExportFTP = (ImageButton) findViewById(R.id.btnExportFTP);
-            btnExportFTP.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    exportList = new ArrayList<String>();
-                    if ((file == null)) {
-                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                    } else {
-                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                            if (adapter.checkBoxState[i]) {
-                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                            }
-                        }
-                        if (exportList.size() > 0) {
-                            Intent intent = new Intent(v.getContext(), FTPActivity.class);
-                            startActivityForResult(intent, 0);
-                        } else {
-                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            });
+//            btnExportFTP = (ImageButton) findViewById(R.id.btnExportFTP);
+//            btnExportFTP.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    exportList = new ArrayList<String>();
+//                    if ((file == null)) {
+//                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
+//                            if (adapter.checkBoxState[i]) {
+//                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+//                            }
+//                        }
+//                        if (exportList.size() > 0) {
+//                            Intent intent = new Intent(v.getContext(), FTPActivity.class);
+//                            startActivityForResult(intent, 0);
+//                        } else {
+//                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                }
+//            });
 
-            btnExportFolder = (ImageButton) findViewById(R.id.btnExportFolder);
-            btnExportFolder.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+//            btnExportFolder = (ImageButton) findViewById(R.id.btnExportFolder);
+//            btnExportFolder.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    String append = "";
+//                    //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
+//                    exportList = new ArrayList<String>();
+//                    if ((file == null)) {
+//                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
+//                            if (adapter.checkBoxState[i] == true) {
+//                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+//                            }
+//                        }
+//                        if (exportList.size() > 0) {
+//                            totalFiles = exportList.size();
+//                            thisPath = exportList.get(0);
+//                            if (exportList.size() > 1) {
+//                                //we want a zip file since there are multiple files
+//                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+//                                //files to zip
+//                                String[] toZip = new String[totalFiles];
+//                                for (int i = 0; i < totalFiles; i++) {
+//                                    toZip[i] = exportList.get(i);
+//                                }
+//                                try {
+//                                    zip(toZip, zipPath);
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                createFile("application/zip", append + getNameFromPath(zipPath));
+//                            } else//export single file over
+//                                createFile("audio/*", append + getNameFromPath(thisPath));
+//                        } else {
+//                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                }
+//            });
 
-                    String append = "";
-                    //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
-                    exportList = new ArrayList<String>();
-                    if ((file == null)) {
-                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                    } else {
-                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                            if (adapter.checkBoxState[i] == true) {
-                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                            }
-                        }
-                        if (exportList.size() > 0) {
-                            totalFiles = exportList.size();
-                            thisPath = exportList.get(0);
-                            if (exportList.size() > 1) {
-                                //we want a zip file since there are multiple files
-                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                                //files to zip
-                                String[] toZip = new String[totalFiles];
-                                for (int i = 0; i < totalFiles; i++) {
-                                    toZip[i] = exportList.get(i);
-                                }
-                                try {
-                                    zip(toZip, zipPath);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                createFile("application/zip", append + getNameFromPath(zipPath));
-                            } else//export single file over
-                                createFile("audio/*", append + getNameFromPath(thisPath));
-                        } else {
-                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            });
+//            btnExportS3 = (ImageButton) findViewById(R.id.btnAmazonS3);
+//            btnExportS3.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    // Initialize the Amazon Cognito credentials provider
+//                    CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+//                            getApplicationContext(),
+//                            "us-east-1:9930710e-a037-4432-b1dd-e95087fc6bdc", // Identity Pool ID
+//                            Regions.US_EAST_1 // Region
+//                    );
+//
+//                    // Initialize the Cognito Sync client
+//                    CognitoSyncManager syncClient = new CognitoSyncManager(
+//                            getApplicationContext(),
+//                            Regions.US_EAST_1, // Region
+//                            credentialsProvider);
+//
+//                    // Create an S3 client
+//                    AmazonS3 s3 = new AmazonS3Client(credentialsProvider);
+//
+//                    // Set the region of your S3 bucket
+//                    s3.setRegion(Region.getRegion(Regions.US_EAST_1));
+//
+//                    TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
+//
+//                    String append = "";
+//                    File newFile = null;
+//                    String name = "";
+//                    exportList = new ArrayList<String>();
+//                    if ((file == null)) {
+//                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
+//                            if (adapter.checkBoxState[i] == true) {
+//                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+//                            }
+//                        }
+//                        if (exportList.size() > 0) {
+//                            totalFiles = exportList.size();
+//                            thisPath = exportList.get(0);
+//                            if (exportList.size() > 1) {
+//                                //we want a zip file since there are multiple files
+//                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+//                                //files to zip
+//                                String[] toZip = new String[totalFiles];
+//                                for (int i = 0; i < totalFiles; i++) {
+//                                    toZip[i] = exportList.get(i);
+//                                }
+//                                try {
+//                                    zip(toZip, zipPath);
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                name = zipPath;
+//                                newFile = new File(name);
+//                            } else {//export single file over
+//
+//                                name = thisPath;
+//                                newFile = new File(name);
+//                            }
+//
+//                            System.out.println("file is " + thisPath+  " and it is " + newFile.exists());
+//
+//                            TransferObserver observer = transferUtility.upload(
+//                                    "translationrecorderbucket",     /* The bucket to upload to */
+//                                    name,    /* The key for the uploaded object */
+//                                    newFile        /* The file where the data to upload exists */
+//                            );
+//                            observer.setTransferListener(new TransferListener(){
+//
+//                                @Override
+//                                public void onStateChanged(int id, TransferState state) {
+//                                    // do something
+//                                }
+//
+//                                @Override
+//                                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+//                                    int percentage = (int) (bytesCurrent/bytesTotal * 100);
+//                                    System.out.println( new Integer(percentage).toString());
+//                                    //Display percentage transfered to user
+//                                    if(percentage == 100){
+//                                        if(mMenu != null)
+//                                            mMenu.close();
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onError(int id, Exception ex) {
+//                                   System.out.println( "Failed Something S3 Related, ID" + id + " EX: " + ex.toString());
+//                                }
+//
+//                            });
+//                        } else {
+//                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                }
+//            });
 
-            btnExportS3 = (ImageButton) findViewById(R.id.btnAmazonS3);
-            btnExportS3.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Initialize the Amazon Cognito credentials provider
-                    CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                            getApplicationContext(),
-                            "us-east-1:9930710e-a037-4432-b1dd-e95087fc6bdc", // Identity Pool ID
-                            Regions.US_EAST_1 // Region
-                    );
-
-                    // Initialize the Cognito Sync client
-                    CognitoSyncManager syncClient = new CognitoSyncManager(
-                            getApplicationContext(),
-                            Regions.US_EAST_1, // Region
-                            credentialsProvider);
-
-                    // Create an S3 client
-                    AmazonS3 s3 = new AmazonS3Client(credentialsProvider);
-
-                    // Set the region of your S3 bucket
-                    s3.setRegion(Region.getRegion(Regions.US_EAST_1));
-
-                    TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
-
-                    String append = "";
-                    File newFile = null;
-                    String name = "";
-                    exportList = new ArrayList<String>();
-                    if ((file == null)) {
-                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                    } else {
-                        for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                            if (adapter.checkBoxState[i] == true) {
-                                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                            }
-                        }
-                        if (exportList.size() > 0) {
-                            totalFiles = exportList.size();
-                            thisPath = exportList.get(0);
-                            if (exportList.size() > 1) {
-                                //we want a zip file since there are multiple files
-                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                                //files to zip
-                                String[] toZip = new String[totalFiles];
-                                for (int i = 0; i < totalFiles; i++) {
-                                    toZip[i] = exportList.get(i);
-                                }
-                                try {
-                                    zip(toZip, zipPath);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                name = zipPath;
-                                newFile = new File(name);
-                            } else {//export single file over
-
-                                name = thisPath;
-                                newFile = new File(name);
-                            }
-
-                            System.out.println("file is " + thisPath+  " and it is " + newFile.exists());
-
-                            TransferObserver observer = transferUtility.upload(
-                                    "translationrecorderbucket",     /* The bucket to upload to */
-                                    name,    /* The key for the uploaded object */
-                                    newFile        /* The file where the data to upload exists */
-                            );
-                            observer.setTransferListener(new TransferListener(){
-
-                                @Override
-                                public void onStateChanged(int id, TransferState state) {
-                                    // do something
-                                }
-
-                                @Override
-                                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                                    int percentage = (int) (bytesCurrent/bytesTotal * 100);
-                                    System.out.println( new Integer(percentage).toString());
-                                    //Display percentage transfered to user
-                                    if(percentage == 100){
-                                        if(mMenu != null)
-                                            mMenu.close();
-                                    }
-                                }
-
-                                @Override
-                                public void onError(int id, Exception ex) {
-                                   System.out.println( "Failed Something S3 Related, ID" + id + " EX: " + ex.toString());
-                                }
-
-                            });
-                        } else {
-                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            });
-
-            btnExportApp = (ImageButton) findViewById(R.id.btnExportApp);
-            btnExportApp.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    String append = "";
-                    //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
-                    exportList = new ArrayList<String>();
-                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                        if (adapter.checkBoxState[i]) {
-                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                        }
-                    }
-
-                    // If something is checked...
-                    if (exportList.size() > 0) {
-                        if (exportList.size() > 1) {//export multiple files as a single zip file
-                            String toExport[] = new String[exportList.size()];
-                            thisPath = exportList.get(0);
-                            for (int i = 0; i < exportList.size(); i++) {
-                                toExport[i] = exportList.get(i);
-                            }
-                            try {
-                                // This could cause problems if the directory list contains matches
-                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-                                zip(toExport, zipPath);
-                                // TODO: learn how to delete this file after upload
-                                exportZipApplications(zipPath);
-                            } catch (IOException e) {
-                                exportApplications(exportList, append);
-                                e.printStackTrace();
-                            }
-                        } else exportApplications(exportList, append);
-                    } else {
-                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+//            btnExportApp = (ImageButton) findViewById(R.id.btnExportApp);
+//            btnExportApp.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//
+//                    String append = "";
+//                    //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
+//                    exportList = new ArrayList<String>();
+//                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
+//                        if (adapter.checkBoxState[i]) {
+//                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+//                        }
+//                    }
+//
+//                    // If something is checked...
+//                    if (exportList.size() > 0) {
+//                        if (exportList.size() > 1) {//export multiple files as a single zip file
+//                            String toExport[] = new String[exportList.size()];
+//                            thisPath = exportList.get(0);
+//                            for (int i = 0; i < exportList.size(); i++) {
+//                                toExport[i] = exportList.get(i);
+//                            }
+//                            try {
+//                                // This could cause problems if the directory list contains matches
+//                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+//                                zip(toExport, zipPath);
+//                                // TODO: learn how to delete this file after upload
+//                                exportZipApplications(zipPath);
+//                            } catch (IOException e) {
+//                                exportApplications(exportList, append);
+//                                e.printStackTrace();
+//                            }
+//                        } else exportApplications(exportList, append);
+//                    } else {
+//                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            });
 
 
             btnCheckAll = (CheckBox) findViewById(R.id.btnCheckAll);
@@ -413,10 +412,10 @@ public class AudioFiles extends Activity {
                                 adapter.notifyDataSetChanged();
                             }
                             btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_empty);
-                            hideActionsFragment();
+                            hideFragment("file_actions");
                         } else {
                             btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_selected);
-                            showActionsFragment();
+                            showFragment("file_actions");
                         }
                         checkAll = !checkAll;
                     }
@@ -484,10 +483,18 @@ public class AudioFiles extends Activity {
                     }
                     sort = (int) pref.getPreferences("displaySort");
                     generateAdapterView(tempItemList, sort);
-                    hideActionsFragment();
+                    hideFragment("file_action");
                 }
             });
         }
+    }
+
+    public void showShareDialog(View v){
+        System.out.println("SHOW SHARE DIALOG");
+        FragmentManager fm = getFragmentManager();
+        FragmentShareDialog d = new FragmentShareDialog();
+        d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+        d.show(fm, "Test");
     }
 
     private void removeUnusedVisualizationFiles(String filesDir){
@@ -964,15 +971,17 @@ public class AudioFiles extends Activity {
 
 
 
-    public void hideActionsFragment() {
-        View fragment = findViewById(R.id.file_actions);
+    public void hideFragment(String view) {
+//        View fragment = findViewById(R.id.file_actions);
+        View fragment = findViewById(getResources().getIdentifier(view, "id", getPackageName()));
         if (fragment.getVisibility() == View.VISIBLE) {
             fragment.setVisibility(View.GONE);
         }
     }
 
-    public void showActionsFragment() {
-        View fragment = findViewById(R.id.file_actions);
+    public void showFragment(String view) {
+//        View fragment = findViewById(R.id.file_actions);
+        View fragment = findViewById(getResources().getIdentifier(view, "id", getPackageName()));
         if (fragment.getVisibility() == View.GONE) {
             fragment.setVisibility(View.VISIBLE);
         }
