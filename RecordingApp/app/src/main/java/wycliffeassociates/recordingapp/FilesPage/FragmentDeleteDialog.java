@@ -8,10 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 
 /**
  * Created by leongv on 12/8/2015.
@@ -39,23 +36,14 @@ public class FragmentDeleteDialog extends DialogFragment implements View.OnClick
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.delete_confirm) {
-            deleteFiles();
+            Toast.makeText(getActivity(), "Deleting files ...", Toast.LENGTH_SHORT).show();
+            af.confirmDelete();
             this.dismiss();
         }
         else {
             Toast.makeText(getActivity(), "No file has been deleted", Toast.LENGTH_SHORT).show();
             this.dismiss();
         }
-    }
-
-    //=================
-    // CUSTOM FUNCTIONS
-    //=================
-
-    public void deleteFiles() {
-        Toast.makeText(getActivity(), "Deleting files ...", Toast.LENGTH_SHORT).show();
-        // Insert code to delete files here
-        af.confirmDelete();
     }
 
 }

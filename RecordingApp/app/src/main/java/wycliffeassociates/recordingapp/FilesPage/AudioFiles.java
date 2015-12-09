@@ -458,14 +458,6 @@ public class AudioFiles extends Activity {
                     generateAdapterView(tempItemList, sort);
                 }
             });
-
-            btnDelete = (ImageButton) findViewById(R.id.btnDelete);
-            btnDelete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showDeleteConfirmDialog(v);
-                }
-            });
         }
     }
 
