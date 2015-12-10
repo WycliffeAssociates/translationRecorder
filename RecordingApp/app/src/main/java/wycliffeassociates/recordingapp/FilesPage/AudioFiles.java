@@ -209,7 +209,7 @@ public class AudioFiles extends Activity {
 //                }
 //            });
 
-//            btnExportFolder = (ImageButton) findViewById(R.id.btnExportFolder);
+//            btnExportFolder = (ImageButton) findViewById(R.id.share_dir);
 //            btnExportFolder.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
@@ -228,9 +228,9 @@ public class AudioFiles extends Activity {
 //                            totalFiles = exportList.size();
 //                            thisPath = exportList.get(0);
 //                            if (exportList.size() > 1) {
-//                                //we want a zip file since there are multiple files
+//                                // We want a zip file since there are multiple files
 //                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-//                                //files to zip
+//                                // Files to zip
 //                                String[] toZip = new String[totalFiles];
 //                                for (int i = 0; i < totalFiles; i++) {
 //                                    toZip[i] = exportList.get(i);
@@ -249,8 +249,8 @@ public class AudioFiles extends Activity {
 //                    }
 //                }
 //            });
-
-//            btnExportS3 = (ImageButton) findViewById(R.id.btnAmazonS3);
+//
+//            btnExportS3 = (ImageButton) findViewById(R.id.share_amazon);
 //            btnExportS3.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
@@ -345,45 +345,6 @@ public class AudioFiles extends Activity {
 //                        } else {
 //                            Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
 //                        }
-//                    }
-//                }
-//            });
-
-//            btnExportApp = (ImageButton) findViewById(R.id.btnExportApp);
-//            btnExportApp.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//
-//                    String append = "";
-//                    //(String) pref.getPreferences("appName") + "/" + pref.getPreferences("deviceUUID") + "/";
-//                    exportList = new ArrayList<String>();
-//                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
-//                        if (adapter.checkBoxState[i]) {
-//                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-//                        }
-//                    }
-//
-//                    // If something is checked...
-//                    if (exportList.size() > 0) {
-//                        if (exportList.size() > 1) {//export multiple files as a single zip file
-//                            String toExport[] = new String[exportList.size()];
-//                            thisPath = exportList.get(0);
-//                            for (int i = 0; i < exportList.size(); i++) {
-//                                toExport[i] = exportList.get(i);
-//                            }
-//                            try {
-//                                // This could cause problems if the directory list contains matches
-//                                zipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-//                                zip(toExport, zipPath);
-//                                // TODO: learn how to delete this file after upload
-//                                exportZipApplications(zipPath);
-//                            } catch (IOException e) {
-//                                exportApplications(exportList, append);
-//                                e.printStackTrace();
-//                            }
-//                        } else exportApplications(exportList, append);
-//                    } else {
-//                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
 //                    }
 //                }
 //            });

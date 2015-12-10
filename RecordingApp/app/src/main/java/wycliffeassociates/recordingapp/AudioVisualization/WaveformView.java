@@ -40,7 +40,6 @@ public class WaveformView extends CanvasView {
         this.mMarkerEndLoc = markerEnd;
     }
 
-
     /**
      * Detects gestures on the main canvas
      */

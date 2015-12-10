@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.Recording;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -111,20 +113,32 @@ public class RecordingScreen extends Activity {
         }
     }
 
-
     @Override
     public void onBackPressed() {
         if (!isSaved) {
-            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
-            dialog.setFilename(recordedFilename);
+            FragmentManager fm = getFragmentManager();
+            FragmentExitDialog d = new FragmentExitDialog();
+            d.setFilename(recordedFilename);
             if (isRecording) {
-                dialog.setIsRecording(true);
+                d.setIsRecording(true);
                 isRecording = false;
             }
             if (isPausedRecording) {
-                dialog.setIsPausedRecording(true);
+                d.setIsPausedRecording(true);
             }
-            dialog.show();
+            d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+            d.show(fm, "Exit Dialog");
+
+//            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
+//            dialog.setFilename(recordedFilename);
+//            if (isRecording) {
+//                dialog.setIsRecording(true);
+//                isRecording = false;
+//            }
+//            if (isPausedRecording) {
+//                dialog.setIsPausedRecording(true);
+//            }
+//            dialog.show();
         } else {
             super.onBackPressed();
         }

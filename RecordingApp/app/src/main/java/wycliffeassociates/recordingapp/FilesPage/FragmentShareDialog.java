@@ -40,6 +40,8 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         amazon.setOnClickListener(this);
         other.setOnClickListener(this);
 
+
+
         return view;
     }
 
@@ -76,7 +78,6 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
 
     public void exportToDir() {
         Toast.makeText(getActivity(), "DIRECTORY WAS CLICKED", Toast.LENGTH_LONG).show();
-
     }
 
     public void exportViaBluetooth() {
