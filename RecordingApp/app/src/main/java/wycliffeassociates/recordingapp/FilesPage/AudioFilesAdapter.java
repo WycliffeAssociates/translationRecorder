@@ -52,6 +52,10 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         ImageButton playButton;
     }
 
+    public boolean[] getCheckBoxState(){
+        return checkBoxState;
+    }
+
     /**
      *
      * @param context
