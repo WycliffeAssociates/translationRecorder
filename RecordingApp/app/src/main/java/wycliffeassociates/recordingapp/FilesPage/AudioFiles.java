@@ -108,6 +108,9 @@ public class AudioFiles extends Activity {
      */
     private int fileNum =0;
 
+    PreferencesManager pref;
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
@@ -115,8 +118,9 @@ public class AudioFiles extends Activity {
         // Hide the fragment to start with
         hideFragment(R.id.file_actions);
 
+
         // Pull file directory and sorting preferences
-        final PreferencesManager pref = new PreferencesManager(this);
+        pref = new PreferencesManager(this);
         currentDir = (String) pref.getPreferences("fileDirectory");
         AudioInfo.fileDir = currentDir;
         sort = (int) pref.getPreferences("displaySort");
@@ -454,38 +458,39 @@ public class AudioFiles extends Activity {
                     generateAdapterView(tempItemList, sort);
                 }
             });
-
-            btnDelete = (ImageButton) findViewById(R.id.btnDelete);
-            btnDelete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    exportList = new ArrayList<String>();
-                    for (int i = 0; i < adapter.checkBoxState.length; i++) {
-                        if (adapter.checkBoxState[i] == true) {
-                            exportList.add(currentDir + "/" + audioItemList.get(i).getName());
-                        }
-                    }
-
-                    // If something is checked...
-                    if (exportList.size() > 0) {
-                        deleteFiles(exportList);
-                    } else {
-                        Toast.makeText(AudioFiles.this, "Failed", Toast.LENGTH_SHORT).show();
-                    }
-                    sort = (int) pref.getPreferences("displaySort");
-                    generateAdapterView(tempItemList, sort);
-                    hideFragment(R.id.file_actions);
-                }
-            });
         }
     }
 
     public void showShareDialog(View v){
-        System.out.println("SHOW SHARE DIALOG");
         FragmentManager fm = getFragmentManager();
         FragmentShareDialog d = new FragmentShareDialog();
         d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        d.show(fm, "Test");
+        d.show(fm, "Share Dialog");
+    }
+
+    public void showDeleteConfirmDialog(View v) {
+        FragmentManager fm = getFragmentManager();
+        FragmentDeleteDialog d = new FragmentDeleteDialog();
+        d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+        d.show(fm, "Delete Confirm Dialog");
+    }
+
+    public void confirmDelete() {
+        exportList = new ArrayList<String>();
+        for (int i = 0; i < adapter.checkBoxState.length; i++) {
+            if (adapter.checkBoxState[i]) {
+                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+            }
+        }
+        if (exportList.size() > 0) {
+            deleteFiles(exportList);
+            Toast.makeText(AudioFiles.this, "File has been deleted", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(AudioFiles.this, "Select a file to delete", Toast.LENGTH_SHORT).show();
+        }
+        sort = (int) pref.getPreferences("displaySort");
+        generateAdapterView(tempItemList, sort);
+        hideFragment(R.id.file_actions);
     }
 
     private void removeUnusedVisualizationFiles(String filesDir){
