@@ -10,8 +10,8 @@ public class WavVisualizer {
     private MappedByteBuffer preprocessedBuffer;
     private MappedByteBuffer buffer;
     private float userScale = 1f;
-    //private final int AudioInfo.COMPRESSED_SECONDS_ON_SCREEN = 5;
     private final int defaultSecondsOnScreen = 10;
+    public static int numSecondsOnScreen;
     private boolean useCompressedFile = false;
     private boolean canSwitch = false;
     private float[] samples;
@@ -24,6 +24,7 @@ public class WavVisualizer {
         this.screenHeight = screenHeight;
         this.screenWidth = screenWidth;
         this.preprocessedBuffer = preprocessedBuffer;
+        numSecondsOnScreen = defaultSecondsOnScreen;
         canSwitch = (preprocessedBuffer == null)? false : true;
         samples = new float[screenWidth*8];
     }
@@ -38,7 +39,7 @@ public class WavVisualizer {
 
 
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
-        int numSecondsOnScreen = getNumSecondsOnScreen(userScale);
+        numSecondsOnScreen = getNumSecondsOnScreen(userScale);
         //based on the user scale, determine which buffer waveData should be
         useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
         MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
@@ -153,7 +154,6 @@ public class WavVisualizer {
         System.out.println("Duration of file is " + WavPlayer.getDuration());
         int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)Math.floor((startMillisecond * ((numSecondsOnScreen*screenWidth)/(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/(double)(numSecondsOnScreen*1000) )))
                 : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
-        System.out.println("start is " + startMillisecond + " width is " + screenWidth + "startPos is " +  sampleStartPosition + " length of data is " + preprocessedBuffer.capacity());
         return sampleStartPosition;
     }
 
@@ -172,6 +172,11 @@ public class WavVisualizer {
         int numSecondsOnScreen = (int)(defaultSecondsOnScreen * userScale);
         return Math.max(numSecondsOnScreen, 1);
     }
+
+    public static float millisecondsPerPixel(int width, int numSecondsOnScreen){
+        return numSecondsOnScreen * 1000/(float)width;
+    }
+
 
     private MappedByteBuffer selectBufferToUse(boolean useCompressedFile){
         if (useCompressedFile){

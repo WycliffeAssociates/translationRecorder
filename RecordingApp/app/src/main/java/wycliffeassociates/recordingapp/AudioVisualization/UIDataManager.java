@@ -8,7 +8,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -19,13 +18,11 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
-import wycliffeassociates.recordingapp.Playback.WavFileLoader;
-
+import wycliffeassociates.recordingapp.WavFileLoader;
 
 /**
  * Created by sarabiaj on 9/10/2015.
  */
-
 
 public class UIDataManager {
 
@@ -96,6 +93,7 @@ public class UIDataManager {
         int location = WavPlayer.getLocation();
         minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
+        mainWave.setTimeToDraw(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
         ctx.runOnUiThread(new Runnable() {
             @Override
@@ -158,21 +156,38 @@ public class UIDataManager {
         }
     }
 
+    public void cutAndUpdate(){
+        int start = CanvasView.getStartMarker();
+        int end = CanvasView.getEndMarker();
+        System.out.println("got the markers");
+        wavLoader = wavLoader.cut(start, end);
+        buffer = null;
+        preprocessedBuffer = null;
+        mappedAudioFile = null;
+        wavVis = null;
+        System.out.println("Should have created a new wav Loader");
+        buffer = wavLoader.getMappedFile();
+        preprocessedBuffer = wavLoader.getMappedCacheFile();
+        mappedAudioFile = wavLoader.getMappedAudioFile();
+        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+        wavVis = new WavVisualizer(buffer, null, mainWave.getWidth(), mainWave.getHeight());
+        //WavPlayer.loadFile(mappedAudioFile);
+        CanvasView.clearMarkers();
+        updateUI();
+    }
+
     public void loadWavFromFile(String path){
-        try {
-            wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
-            buffer = wavLoader.getMappedFile();
-            preprocessedBuffer = wavLoader.getMappedCacheFile();
-            mappedAudioFile = wavLoader.getMappedAudioFile();
-            System.out.println("Mapped files completed.");
-//            System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
-            minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
-            WavPlayer.loadFile(getMappedAudioFile());
-            minimap.setAudioLength(WavPlayer.getDuration());
-        } catch (IOException e) {
-            System.out.println("There was an error with mapping the files");
-            e.printStackTrace();
-        }
+
+        wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
+        buffer = wavLoader.getMappedFile();
+        preprocessedBuffer = wavLoader.getMappedCacheFile();
+        mappedAudioFile = wavLoader.getMappedAudioFile();
+        System.out.println("Mapped files completed.");
+//      System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
+        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+        WavPlayer.loadFile(getMappedAudioFile());
+        minimap.setAudioLength(WavPlayer.getDuration());
+        System.out.println("There was an error with mapping the files");
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
     }
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
@@ -270,6 +285,8 @@ public class UIDataManager {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        mainWave.setMarkerToDrawStart(CanvasView.getMarkerStartTime());
+        mainWave.setMarkerToDrawEnd(CanvasView.getMarkerEndTime());
         float[] samples = wavVis.getDataToDraw(location, WavFileWriter.largest);
         lock.release();
         mainWave.setIsDoneDrawing(false);

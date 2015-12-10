@@ -11,60 +11,6 @@
             android:layout_height="match_parent"
             android:background="#fffda93d">
 
-            <RelativeLayout
-                android:orientation="horizontal"
-                android:layout_width="500dp"
-                android:layout_height="130dp"
-                android:background="@drawable/toolbartest"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:id="@+id/toolbar"
-                android:visibility="visible">
-
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnPauseRecording"
-                    android:src="@drawable/ic_8"
-                    android:layout_weight="1"
-                    android:background="#00000000"
-                    android:layout_gravity="center"
-                    android:layout_alignParentStart="true"
-                    android:visibility="invisible"
-                    android:focusableInTouchMode="false"
-                    android:layout_marginStart="108dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentTop="true" />
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnRecording"
-                    android:src="@drawable/ic_1"
-                    android:layout_weight="1"
-                    android:background="#00000000"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="108dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentStart="true"
-                    android:visibility="visible"
-                    android:layout_alignParentTop="true" />
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnStop"
-                    android:src="@drawable/stop"
-                    android:layout_weight="1"
-                    android:background="#00000000"
-                    android:layout_gravity="center"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@+id/btnPauseRecording"
-                    android:layout_marginEnd="108dp"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
             <view
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -153,6 +99,60 @@
             android:layout_alignParentStart="true"
             android:textColor="#010101" />
 
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="500dp"
+        android:layout_height="130dp"
+        android:background="@drawable/toolbartest"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/toolbar"
+        android:visibility="visible">
+
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnPauseRecording"
+            android:src="@drawable/ic_8"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:layout_gravity="center"
+            android:layout_alignParentStart="true"
+            android:visibility="invisible"
+            android:focusableInTouchMode="false"
+            android:layout_marginStart="108dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnRecording"
+            android:src="@drawable/ic_1"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:layout_gravity="center"
+            android:layout_marginStart="108dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:visibility="visible"
+            android:layout_alignParentTop="true" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnStop"
+            android:src="@drawable/stop"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:layout_gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/btnPauseRecording"
+            android:layout_marginEnd="108dp"
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
 </RelativeLayout>
