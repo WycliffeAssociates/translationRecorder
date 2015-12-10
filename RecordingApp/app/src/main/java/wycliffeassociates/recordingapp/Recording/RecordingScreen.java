@@ -139,6 +139,7 @@ public class RecordingScreen extends Activity {
 //                dialog.setIsPausedRecording(true);
 //            }
 //            dialog.show();
+
         } else {
             super.onBackPressed();
         }
