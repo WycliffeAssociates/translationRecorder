@@ -27,7 +27,6 @@ public class RecordingScreen extends Activity {
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String AUDIO_RECORDER_FOLDER = "TranslationRecorder";
 
-
     private final Context context = this;
     private TextView filenameView;
     private WaveformView mainCanvas;
@@ -129,6 +128,8 @@ public class RecordingScreen extends Activity {
             d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             d.show(fm, "Exit Dialog");
 
+            // NOTE: Old code to be removed by Joe
+
 //            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
 //            dialog.setFilename(recordedFilename);
 //            if (isRecording) {
@@ -158,6 +159,7 @@ public class RecordingScreen extends Activity {
         if (!file.exists()) {
             file.mkdirs();
         }
+
         if (recordedFilename != null)
             return (file.getAbsolutePath() + "/" + recordedFilename);
         else {

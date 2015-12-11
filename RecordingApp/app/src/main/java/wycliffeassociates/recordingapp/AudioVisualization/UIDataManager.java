@@ -29,7 +29,7 @@ public class UIDataManager {
     static public final boolean PLAYBACK_MODE = true;
     static public final boolean RECORDING_MODE = false;
     private final WaveformView mainWave;
-//    private final MinimapView minimap;
+    private final MinimapView minimap;
     private final Activity ctx;
     private boolean isRecording;
     public static Semaphore lock;
@@ -50,9 +50,9 @@ public class UIDataManager {
         this.isALoadedFile = isALoadedFile;
         this.mode = mode;
         mainWave.setUIDataManager(this);
-//        minimap.setUIDataManager(this);
+        minimap.setUIDataManager(this);
         this.mainWave = mainWave;
-//        this.minimap = minimap;
+        this.minimap = minimap;
         timerView = (TextView)ctx.findViewById(R.id.timerView);
         this.ctx = ctx;
         lock = new Semaphore(1);
@@ -83,15 +83,15 @@ public class UIDataManager {
     }
 
     public void updateUI(){
-//        if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
-//            return;
-//        }
+        if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
+            return;
+        }
         if(wavLoader.visFileLoaded()){
             wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = WavPlayer.getLocation();
-//        minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
+        minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         mainWave.setTimeToDraw(location);
         final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
@@ -171,7 +171,7 @@ public class UIDataManager {
         buffer = wavLoader.getMappedFile();
         preprocessedBuffer = wavLoader.getMappedCacheFile();
         mappedAudioFile = wavLoader.getMappedAudioFile();
-//        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
         wavVis = new WavVisualizer(buffer, null, mainWave.getWidth(), mainWave.getHeight());
         //WavPlayer.loadFile(mappedAudioFile);
         CanvasView.clearMarkers();
@@ -186,9 +186,9 @@ public class UIDataManager {
         mappedAudioFile = wavLoader.getMappedAudioFile();
         System.out.println("Mapped files completed.");
 //      System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
-//        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
         WavPlayer.loadFile(getMappedAudioFile());
-//        minimap.setAudioLength(WavPlayer.getDuration());
+        minimap.setAudioLength(WavPlayer.getDuration());
         System.out.println("There was an error with mapping the files");
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
     }

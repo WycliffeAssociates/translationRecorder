@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import wycliffeassociates.recordingapp.R;
 
@@ -15,6 +18,7 @@ import wycliffeassociates.recordingapp.R;
  */
 public class FragmentDeleteDialog extends DialogFragment implements View.OnClickListener {
 
+    TextView title;
     Button delete, cancel;
     AudioFiles af;
 
@@ -24,11 +28,16 @@ public class FragmentDeleteDialog extends DialogFragment implements View.OnClick
 
         af = (AudioFiles) getActivity();
 
+        title = (TextView) view.findViewById(R.id.delete_title);
         delete = (Button) view.findViewById(R.id.delete_confirm);
         cancel = (Button) view.findViewById(R.id.delete_cancel);
 
         delete.setOnClickListener(this);
         cancel.setOnClickListener(this);
+
+        title.setTextSize(16 * getResources().getDisplayMetrics().density);
+        delete.setTextSize(16 * getResources().getDisplayMetrics().density);
+        cancel.setTextSize(16 * getResources().getDisplayMetrics().density);
 
         return view;
     }
