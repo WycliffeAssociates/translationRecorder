@@ -22,16 +22,66 @@ public class MinimapView extends CanvasView {
     private Canvas mCanvas = null;
     private Drawable background;
     private boolean initialized = false;
-    private boolean playSelectedSection;
-    private int startOfPlaybackSection;
-    private int endOfPlaybackSection;
     private int audioLength = 0;
     private double secondsPerPixel = 0;
     private double timecodeInterval = 1.0;
 
     public MinimapView(Context c, AttributeSet attrs) {
         super(c, attrs);
+        mDetector = new GestureDetectorCompat(getContext(), new MyGestureListener());
     }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private int startPosition = 0;
+        private int endPosition = 0;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            if (WavPlayer.exists() && e.getY() <= getHeight()) {
+                if(sMarkers.bothSet()){
+                    float xPos = e.getX() / getWidth();
+                    int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
+                    if(timeToSeekTo < sMarkers.getStartLocation()){
+                        return true;
+                    }
+                    else if(timeToSeekTo > sMarkers.getEndLocation()){
+                        return true;
+                    }
+                }
+                float xPos = e.getX() / getWidth();
+                int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
+                WavPlayer.seekTo(timeToSeekTo);
+                mManager.updateUI();
+                endPosition = (int) e.getX();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+            if (WavPlayer.exists()) {
+                startPosition = (int) event1.getX();
+                endPosition -= (int) distanceX;
+                sMarkers.setMinimapMarkers(startPosition, endPosition);
+                int playbackSectionStart = (int) ((startPosition / (double) getWidth()) * WavPlayer.getDuration());
+                int playbackSectionEnd = (int) ((endPosition / (double) getWidth()) * WavPlayer.getDuration());
+                if (startPosition > endPosition) {
+                    int temp = playbackSectionEnd;
+                    playbackSectionEnd = playbackSectionStart;
+                    playbackSectionStart = temp;
+                }
+                sMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
+                WavPlayer.startSectionAt(playbackSectionStart);
+                WavPlayer.seekTo(playbackSectionStart);
+                WavPlayer.stopSectionAt(playbackSectionEnd);
+                //WavPlayer.selectionStart(playbackSectionStart);
+                mManager.updateUI();
+            }
+            return true;
+        }
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas){
@@ -40,23 +90,11 @@ public class MinimapView extends CanvasView {
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
             minimapMarker(canvas);
             drawTimeCode(canvas);
-            if(playSelectedSection){
-                drawPlaybackSection(canvas, startOfPlaybackSection, endOfPlaybackSection);
+            if(sMarkers.shouldDrawMarkers() ){
+                drawPlaybackSection(canvas, sMarkers.getMinimapMarkerStart(), sMarkers.getMinimapMarkerEnd());
+                System.out.println("should have drawn sMarkers on minimap at " + sMarkers.getMinimapMarkerStart());
             }
         }
-        //redraw();
-    }
-
-    public void setPlaySelectedSection(boolean x){
-        playSelectedSection = x;
-    }
-
-    public void setStartOfPlaybackSection(int x){
-        startOfPlaybackSection = x;
-    }
-
-    public void setEndOfPlaybackSection(int x){
-        endOfPlaybackSection = x;
     }
 
     public void setMiniMarkerLoc(float miniMarkerLoc) {
@@ -78,7 +116,7 @@ public class MinimapView extends CanvasView {
     }
 
     public void setAudioLength(int length){
-        //System.out.println("length is " + length);
+        System.out.println("Audio data length for timecode is " + length);
         this.audioLength = (int)(length/1000.0);
         this.secondsPerPixel = audioLength / (double)getWidth();
         computeTimecodeInterval();
@@ -141,13 +179,6 @@ public class MinimapView extends CanvasView {
         setBackground(background);
         initialized = true;
         this.invalidate();
-    }
-
-    public void drawPlaybackSection(Canvas c, int start, int end){
-        mPaint.setColor(Color.BLUE);
-        c.drawLine(start, 0, start, mCanvas.getHeight(), mPaint);
-        mPaint.setColor(Color.RED);
-        c.drawLine(end, 0, end, mCanvas.getHeight(), mPaint);
     }
 
     public void minimapMarker(Canvas canvas){

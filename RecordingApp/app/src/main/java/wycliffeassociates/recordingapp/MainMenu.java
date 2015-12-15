@@ -4,8 +4,11 @@ package wycliffeassociates.recordingapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.ImageButton;
+
+import java.io.File;
 
 import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
@@ -21,10 +24,19 @@ public class MainMenu extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        btnRecord = (ImageButton) findViewById(R.id.record);
+        System.out.println("internal files dir is " + getApplicationContext().getFilesDir());
+        System.out.println("External files dir is " + Environment.getExternalStoragePublicDirectory("TranslationRecorder"));
+
+
+        File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
+        System.out.println("Result of making vis directory "+visDir.mkdir());
+        AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
+        btnRecord = (ImageButton) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Runtime.getRuntime().freeMemory();
+//              TODO: clicking new_record button should trigger a new_project activity instead of the recording
                 Intent intent = new Intent(v.getContext(), RecordingScreen.class);
                 startActivityForResult(intent, 0);
             }

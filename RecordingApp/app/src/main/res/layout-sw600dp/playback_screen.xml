@@ -32,7 +32,7 @@
                 android:layout_alignParentTop="false"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true"
-                android:visibility="invisible">
+                android:visibility="visible">
 
                 <ImageButton
                     android:layout_width="wrap_content"
@@ -44,7 +44,8 @@
                     android:layout_gravity="center"
                     android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
-                    android:layout_marginStart="59dp" />
+                    android:layout_marginStart="59dp"
+                    android:clickable="false" />
 
                 <ImageButton
                     android:layout_width="wrap_content"
@@ -137,6 +138,46 @@
             android:layout_below="@+id/timerView"
             android:layout_alignParentStart="true"
             android:textColor="#010101" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Marker"
+            android:id="@+id/btnEndMark"
+            android:layout_marginBottom="128dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/btnStartMark"
+            android:layout_marginStart="76dp" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Marker"
+            android:id="@+id/btnStartMark"
+            android:layout_alignTop="@+id/btnEndMark"
+            android:layout_toEndOf="@+id/filenameView"
+            android:layout_marginStart="157dp" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cut"
+            android:id="@+id/btnCut"
+            android:layout_marginStart="326dp"
+            android:layout_alignTop="@+id/btnEndMark"
+            android:layout_toEndOf="@+id/btnEndMark" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear Markers"
+            android:id="@+id/btnClear"
+            android:layout_alignTop="@+id/btnCut"
+            android:layout_toEndOf="@+id/btnEndMark"
+            android:layout_marginStart="122dp" />
 
     </RelativeLayout>
 
