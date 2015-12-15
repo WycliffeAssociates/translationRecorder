@@ -34,6 +34,7 @@ public class FolderExport extends Export{
      */
     public void export(){
         Intent i = new Intent(mCtx.getActivity(), StorageAccess.class);
+        System.out.println("size of export list is " + mExportList.size());
         i.putStringArrayListExtra("exportList", mExportList);
         i.putExtra("zipPath", mZipPath);
         mCtx.startActivity(i);
@@ -53,8 +54,9 @@ public class FolderExport extends Export{
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mExportList = savedInstanceState.getStringArrayList("exportList");
-            mZipPath = savedInstanceState.getString("zipPath");
+            Intent intent = getIntent();
+            mExportList = intent.getStringArrayListExtra("exportList");
+            mZipPath = intent.getStringExtra("zipPath");
 
             mThisPath = mExportList.get(0);
             mNumFilesToExport = mExportList.size();
