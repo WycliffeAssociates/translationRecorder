@@ -27,11 +27,23 @@ public class S3Export extends Export {
     AmazonS3 mS3;
     TransferUtility mTransferUtility;
 
+    /**
+     * Creates an Export object to target AmazonS3
+     * @param audioItemList
+     * @param adapter
+     * @param currentDir
+     * @param ctx
+     */
     public S3Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir, Fragment ctx){
         super(audioItemList, adapter, currentDir, ctx);
         init();
     }
 
+    /**
+     * Initializes credentials to export to Door43
+     */
+    //TODO: set up credentials for door43
+    //TODO: store credentials in a text file that has a git ignore
     private void init(){
         mCredentialsProvider = new CognitoCachingCredentialsProvider(
                 mCtx.getActivity().getApplicationContext(),
@@ -55,8 +67,11 @@ public class S3Export extends Export {
 
     }
 
+    /**
+     * Uploads the selected files to AmazonS3 using the credentials set up in init()
+     */
     @Override
-    public boolean export(){
+    public void export(){
         String name = null;
         if(mExportList.size() > 0){
             if(mZipPath == null){
@@ -96,9 +111,6 @@ public class S3Export extends Export {
                 }
 
             });
-            return true;
-        } else {
-            return false;
         }
     }
 }

@@ -133,14 +133,12 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         viewHolder.checkBox.setChecked(checkBoxState[position]);
         if (checkBoxState[position]) {
             viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_selected);
-        }
-        else {
+        } else {
             viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_empty);
         }
         if (isAllFalse(checkBoxState)) {
             ((AudioFiles) aContext). hideFragment(R.id.file_actions);
-        }
-        else {
+        } else {
             ((AudioFiles) aContext).showFragment(R.id.file_actions);
         }
 
@@ -149,12 +147,12 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         viewHolder.playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                String filename = audioItems[position].getName();
-                System.out.println("FILENAME: " + filename);
-                Intent intent = new Intent(getContext(), PlaybackScreen.class);
-                intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + filename);
-                intent.putExtra("loadFile", true);
-                getContext().startActivity(intent);
+            String filename = audioItems[position].getName();
+            System.out.println("FILENAME: " + filename);
+            Intent intent = new Intent(getContext(), PlaybackScreen.class);
+            intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + filename);
+            intent.putExtra("loadFile", true);
+            getContext().startActivity(intent);
             }
         });
 
@@ -162,23 +160,21 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         //    checkBox
         viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Check state and icon
-                if (((CheckBox) v).isChecked()) {
-                    checkBoxState[position] = true;
-                    ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_selected);
-                }
-                else {
-                    checkBoxState[position] = false;
-                    ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_empty);
-                }
+            // Check state and icon
+            if (((CheckBox) v).isChecked()) {
+                checkBoxState[position] = true;
+                ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_selected);
+            } else {
+                checkBoxState[position] = false;
+                ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_empty);
+            }
 
-                // Check whether to display actions or not
-                if (isAllFalse(checkBoxState)) {
-                    ((AudioFiles) aContext).hideFragment(R.id.file_actions);
-                }
-                else {
-                    ((AudioFiles) aContext).showFragment(R.id.file_actions);
-                }
+            // Check whether to display actions or not
+            if (isAllFalse(checkBoxState)) {
+                ((AudioFiles) aContext).hideFragment(R.id.file_actions);
+            } else {
+                ((AudioFiles) aContext).showFragment(R.id.file_actions);
+            }
             }
         });
 
@@ -186,7 +182,11 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
     }
 
     public static boolean isAllFalse(boolean[] array) {
-        for (boolean b : array) if (b) return false;
+        for (boolean b : array){
+            if (b){
+                return false;
+            }
+        }
         return true;
     }
 

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
@@ -75,7 +74,7 @@ public class AudioFiles extends Activity {
     /**
      * the number of the current file being exported (corresponds with allMoving)
      */
-    private int fileNum =0;
+    private int fileNum = 0;
 
     PreferencesManager pref;
 
@@ -85,7 +84,6 @@ public class AudioFiles extends Activity {
 
         // Hide the fragment to start with
         hideFragment(R.id.file_actions);
-
 
         // Pull file directory and sorting preferences
         pref = new PreferencesManager(this);
@@ -109,118 +107,114 @@ public class AudioFiles extends Activity {
         // No files
         if (file == null) {
             Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
-        }
         // Get audio files
-        else {
-            for (int i = 0; i < file.length; i++) {
-                int len = file[i].getName().length();
-                if (len > 3) {
-                    String sub = file[i].getName().substring(len - 4);
-
-                    if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
-                            || sub.equalsIgnoreCase(".mp3")) {
-                        // Add file names
-                        Date lastModDate = new Date(file[i].lastModified());
-
-                        File tFile = new File(currentDir + "/" + file[i].getName());
-                        Uri uri = Uri.fromFile(tFile);
-
-                        //String mediaPath = Uri.parse("android.resource://<your-package-name>/raw/filename").getPath();
-
-                        //TODO : DURATION
-                        /*MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-
-                        mmr.setDataSource(this, uri);
-                        String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                        //System.out.println(duration);
-                        int time = (Integer.parseInt(duration) / 1000);
-                        mmr.release();*/
-
-                        long time = (((tFile.length() - 44) / 2) / 44100);
-                        //System.out.println("pppp" + time);
-
-                        //create an Audio Item
-                        tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
-                    }
-
-                }
-
-                //audioFileView.setAdapter(
-                generateAdapterView(tempItemList, sort);
-                //);
-
-            }
-
-            btnCheckAll = (CheckBox) findViewById(R.id.btnCheckAll);
-            btnCheckAll.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (file == null) {
-                    }
-                    else {
-                        for (int i = 0; i < audioFileView.getCount(); i++) {
-                            adapter.checkBoxState[i] = checkAll;
-                            adapter.notifyDataSetChanged();
-                        }
-                        if (!checkAll) {
-                            exportList = new ArrayList<String>();
-                            if(adapter != null && adapter.checkBoxState != null){
-                                Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
-                                adapter.notifyDataSetChanged();
-                            }
-                            btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_empty);
-                            hideFragment(R.id.file_actions);
-                        } else {
-                            btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_selected);
-                            showFragment(R.id.file_actions);
-                        }
-                        checkAll = !checkAll;
-                    }
-                }
-            });
-
-            btnSortName = (ImageButton) findViewById(R.id.btnSortName);
-            btnSortName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (sort == 1) {
-                        pref.setPreferences("displaySort", 0);
-                    } else {
-                        pref.setPreferences("displaySort", 1);
-                    }
-                    sort = (int) pref.getPreferences("displaySort");
-                    generateAdapterView(tempItemList, sort);
-                }
-            });
-
-            btnSortDuration = (ImageButton) findViewById(R.id.btnSortDuration);
-            btnSortDuration.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (sort == 3) {
-                        pref.setPreferences("displaySort", 2);
-                    } else {
-                        pref.setPreferences("displaySort", 3);
-                    }
-                    sort = (int) pref.getPreferences("displaySort");
-                    generateAdapterView(tempItemList, sort);
-                }
-            });
-
-            btnSortDate = (ImageButton) findViewById(R.id.btnSortDate);
-            btnSortDate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (sort == 5) {
-                        pref.setPreferences("displaySort", 4);
-                    } else {
-                        pref.setPreferences("displaySort", 5);
-                    }
-                    sort = (int) pref.getPreferences("displaySort");
-                    generateAdapterView(tempItemList, sort);
-                }
-            });
+        } else {
+            initFiles(file);
         }
+        setButtonHandlers();
+    }
+
+    private void initFiles(File[] file){
+        for (int i = 0; i < file.length; i++) {
+            int len = file[i].getName().length();
+            if (len > 3) {
+                String sub = file[i].getName().substring(len - 4);
+                if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
+                        || sub.equalsIgnoreCase(".mp3")) {
+                    // Add file names
+                    Date lastModDate = new Date(file[i].lastModified());
+                    File tFile = new File(currentDir + "/" + file[i].getName());
+                    long time = (((tFile.length() - 44) / 2) / 44100);
+                    //create an Audio Item
+                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
+                }
+            }
+            generateAdapterView(tempItemList, sort);
+        }
+    }
+
+    private void setButtonHandlers() {
+        findViewById(R.id.btnCheckAll).setOnClickListener(btnClick);
+        findViewById(R.id.btnSortName).setOnClickListener(btnClick);
+        findViewById(R.id.btnSortDuration).setOnClickListener(btnClick);
+        findViewById(R.id.btnSortDate).setOnClickListener(btnClick);
+    }
+
+    private View.OnClickListener btnClick = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnCheckAll: {
+                checkAll();
+                break;
+            }
+            case R.id.btnSortName: {
+                sortName();
+                break;
+            }
+            case R.id.btnSortDuration: {
+                sortDuration();
+                break;
+            }
+            case R.id.btnSortDate: {
+                sortDate();
+                break;
+            }
+        }
+        }
+    };
+
+    private void checkAll(){
+        if (file != null) {
+            for (int i = 0; i < audioFileView.getCount(); i++) {
+                adapter.checkBoxState[i] = checkAll;
+                adapter.notifyDataSetChanged();
+            }
+            if (!checkAll) {
+                exportList = new ArrayList<String>();
+                if(adapter != null && adapter.checkBoxState != null){
+                    Arrays.fill(adapter.checkBoxState, Boolean.FALSE);
+                    adapter.notifyDataSetChanged();
+                }
+                btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_empty);
+                hideFragment(R.id.file_actions);
+            } else {
+                btnCheckAll.setButtonDrawable(R.drawable.ic_select_all_selected);
+                showFragment(R.id.file_actions);
+            }
+            checkAll = !checkAll;
+        }
+    }
+
+    private void sortName(){
+        if (sort == 1) {
+            pref.setPreferences("displaySort", 0);
+        } else {
+            pref.setPreferences("displaySort", 1);
+        }
+        sort = (int) pref.getPreferences("displaySort");
+        generateAdapterView(tempItemList, sort);
+    }
+
+    private void sortDuration(){
+        if (sort == 3) {
+            pref.setPreferences("displaySort", 2);
+        } else {
+            pref.setPreferences("displaySort", 3);
+        }
+        sort = (int) pref.getPreferences("displaySort");
+        generateAdapterView(tempItemList, sort);
+    }
+
+    private void sortDate(){
+        if (sort == 5) {
+            pref.setPreferences("displaySort", 4);
+        } else {
+            pref.setPreferences("displaySort", 5);
+        }
+        sort = (int) pref.getPreferences("displaySort");
+        generateAdapterView(tempItemList, sort);
     }
 
     public void showShareDialog(View v){
@@ -333,7 +327,6 @@ public class AudioFiles extends Activity {
         audioFileView.setAdapter(adapter);
     }
 
-    // TODO : after merge, ezpz implement
     private void deleteFiles(ArrayList<String> exportList){
         //int count = 0;
 

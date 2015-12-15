@@ -1,13 +1,8 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
 import android.app.Fragment;
-import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +24,13 @@ public abstract class Export {
     int mNumFilesToExport = 0;
     String mCurrentDir;
 
+    /**
+     * Initializes the basic shared data all export operations use
+     * @param audioItemList List of audio items contained on the Files page, used to determine checked items
+     * @param adapter
+     * @param currentDir Directory containing the files
+     * @param ctx Context of the fragment which contained the export options
+     */
     public Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir, Fragment ctx){
         mCtx = ctx;
         populateExportList(audioItemList, adapter, currentDir);
@@ -39,8 +41,15 @@ public abstract class Export {
         }
     }
 
-    public abstract boolean export();
+    /**
+     * Guarantees that all Export objects will have an export method
+     */
+    public abstract void export();
 
+
+    /**
+     * Zips files if more than one file is selected
+     */
     //TODO: Zip file appears to just use the name of the first file, what should this change to?
     private void zipFiles(){
         //files should only be zipped if more than one are selected
@@ -120,50 +129,4 @@ public abstract class Export {
         }
     }
 
-    /**
-     * Copies a file from a path to a uri
-     * @param destUri The destination of the file
-     * @param path The original path to the file
-     */
-    public static void savefile(String fromPath, ParcelFileDescriptor toPath) {
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-        try {
-            String sourceFilename = fromPath;
-            bis = new BufferedInputStream(new FileInputStream(sourceFilename));
-            bos = new BufferedOutputStream(new FileOutputStream(toPath.getFileDescriptor()));
-            byte[] buf = new byte[1024];
-            bis.read(buf);
-            do {
-                bos.write(buf);
-            } while(bis.read(buf) != -1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (bis != null) bis.close();
-                if (bos != null) bos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //not very well abstracted, but if we are working with non-zip-files
-            //keep saving files
-//            if(!fromPath.contains(".zip")) {
-//                iteratePath();
-//                if (mFileNum < mNumFilesToExport) {
-//                    thisPath = mExportList.get(mFileNum);
-//                    createFile("audio/*", getNameFromPath(mExportList.get(0)));
-//                }
-//                //we just transferred a zip file, the old file needs to be deleted
-//            } else {
-//                File toDelete = new File(path);
-//                try {
-//                    toDelete.getCanonicalFile().delete();
-//                } catch(IOException e){
-//                    e.printStackTrace();
-//                }
-//            }
-        }
-    }
 }

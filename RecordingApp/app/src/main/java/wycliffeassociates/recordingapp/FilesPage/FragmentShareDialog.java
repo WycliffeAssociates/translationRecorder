@@ -117,27 +117,5 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         ae.export();
     }
 
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
-
-        String fromPath = resultData.getStringExtra("toPath");
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == 43) {
-                Uri currentUri = resultData.getData();
-                try {
-                    ParcelFileDescriptor toPath = getActivity().getContentResolver().openFileDescriptor(currentUri, "w");
-
-                        Export.savefile(fromPath, toPath);
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if(requestCode == 3){//delete zip file, needs to be done after upload
-                //zipPath = null;//set null for next time
-            }
-        }
-    }
 
 }

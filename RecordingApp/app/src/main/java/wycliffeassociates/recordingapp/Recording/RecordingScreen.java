@@ -172,22 +172,20 @@ public class RecordingScreen extends Activity {
 
         @Override
         public void onClick(View v) {
-            System.out.println("Pressed something");
-            switch (v.getId()) {
-                case R.id.btnRecording: {
-                    System.out.println("Pressed Record");
-                    startRecording();
-                    break;
-                }
-                case R.id.btnStop: {
-                    stopRecording();
-                    break;
-                }
-                case R.id.btnPauseRecording: {
-                    pauseRecording();
-                    break;
-                }
+        switch (v.getId()) {
+            case R.id.btnRecording: {
+                startRecording();
+                break;
             }
+            case R.id.btnStop: {
+                stopRecording();
+                break;
+            }
+            case R.id.btnPauseRecording: {
+                pauseRecording();
+                break;
+            }
+        }
         }
     };
 }

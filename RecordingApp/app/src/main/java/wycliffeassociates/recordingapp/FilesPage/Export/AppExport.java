@@ -22,14 +22,12 @@ public class AppExport extends Export {
     }
 
     @Override
-    public boolean export(){
+    public void export(){
         if(mExportList.size() > 1) {
             exportZipApplications(mZipPath);
-
         } else {
             exportApplications(mExportList);
         }
-        return true;
     }
 
     /**
@@ -57,9 +55,8 @@ public class AppExport extends Export {
 
             //send individual URI
             sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);
-
-            //multiple files
-        }else{
+        //multiple files
+        } else {
 
             ArrayList<Uri> audioUris = new ArrayList<Uri>();
             for(int i=0; i<exportList.size(); i++){

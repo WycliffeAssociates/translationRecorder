@@ -17,10 +17,13 @@ public class FtpExport extends Export{
         super(audioItemList, adapter, currentDir, ctx);
     }
 
+    /**
+     * Uploads files via FTP using the the existing FTP Activity
+     */
+    //TODO: Test this to see if it still works through this refactoring
     @Override
-    public boolean export() {
+    public void export() {
         Intent intent = new Intent(mCtx.getActivity(), FTPActivity.class);
         mCtx.startActivityForResult(intent, 0);
-        return false;
     }
 }
