@@ -3,16 +3,19 @@ package wycliffeassociates.recordingapp.FilesPage;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
@@ -26,28 +29,31 @@ import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
  */
 public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInterface
 {
+
     /**
      * Populate with audio items
      */
-    AudioItem[] audioItems= null;
+    AudioItem[] audioItems = null;
 
     /**
      * Store the current context
      */
     Context aContext;
 
-
-    // boolean array for storing
-    //the state of each CheckBox
+    // Boolean array for storing the state of each CheckBox
     boolean[] checkBoxState;
 
     ViewHolder viewHolder;
 
     //class for caching the views in a row
-    private class ViewHolder
-    {
-        TextView filename, date, duration;
+    private class ViewHolder {
+        TextView filename, date, time, duration;
         CheckBox checkBox;
+        ImageButton playButton;
+    }
+
+    public boolean[] getCheckBoxState(){
+        return checkBoxState;
     }
 
     /**
@@ -61,8 +67,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         super(context, R.layout.audio_list_item, resource);
         this.aContext = context;
         this.audioItems = resource;
-        //create the boolean array with
-        //initial state as false
+        // Create the boolean array with initial state as false
         checkBoxState = new boolean[resource.length];
     }
 
@@ -84,72 +89,105 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
 
             viewHolder = new ViewHolder();
 
-            //cache the views
+            // Cache the views
             viewHolder.filename = (TextView) convertView.findViewById(R.id.filename);
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
-
             viewHolder.duration = (TextView) convertView.findViewById(R.id.duration);
-            viewHolder.duration.setGravity(Gravity.RIGHT);
-
-
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
-            viewHolder.date.setGravity(Gravity.RIGHT);
+            viewHolder.time = (TextView) convertView.findViewById(R.id.time);
+            viewHolder.playButton = (ImageButton) convertView.findViewById(R.id.playButton);
 
-            viewHolder.filename.setTextSize(20f);
-
-
-            //link the cached views to the convertview
+            // Link the cached views to the convertView
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        // set items to be displayed
-        viewHolder.filename.setText(audioItems[position].getName());
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+        // Set items to be displayed
+        // TODO: Remove extenstion using Regex
+        viewHolder.filename.setText(audioItems[position].getName().replace(".wav", ""));
+        viewHolder.filename.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
+
+        //
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
         String output = format.format(audioItems[position].getDate());
         viewHolder.date.setText(output);
+        viewHolder.date.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
+        //
+        format = new SimpleDateFormat("hh:mm:ss");
+        output = format.format(audioItems[position].getDate());
+        viewHolder.time.setText(output);
+        viewHolder.time.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
+
+        //
         int length = audioItems[position].getDuration();
         int hours = (length / (60 * 60));
         int minutes = ((length - (60 * 60 * hours)) / 60);
         int seconds = length - (60 * 60 * hours) - (60 * minutes);
         String duration = String.format("%02d",hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
         viewHolder.duration.setText(duration);
+        viewHolder.duration.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
+        //
         viewHolder.checkBox.setChecked(checkBoxState[position]);
+        if (checkBoxState[position]) {
+            viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_selected);
+        } else {
+            viewHolder.checkBox.setButtonDrawable(R.drawable.ic_check_box_empty);
+        }
+        if (isAllFalse(checkBoxState)) {
+            ((AudioFiles) aContext). hideFragment(R.id.file_actions);
+        } else {
+            ((AudioFiles) aContext).showFragment(R.id.file_actions);
+        }
 
-        //======
-        //AudioFilesListener
-        //======
-        convertView.setOnClickListener(new View.OnClickListener() {
+        //
+        // convertView.setOnClickListener(new View.OnClickListener() {
+        viewHolder.playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
-                String filename = audioItems[position].getName();
-                Intent intent = new Intent(getContext(), PlaybackScreen.class);
-                intent.putExtra("recordedFilename",  AudioInfo.fileDir+"/"+filename);
-                intent.putExtra("loadFile", true);
-                getContext().startActivity(intent);
+            String filename = audioItems[position].getName();
+            System.out.println("FILENAME: " + filename);
+            Intent intent = new Intent(getContext(), PlaybackScreen.class);
+            intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + filename);
+            intent.putExtra("loadFile", true);
+            getContext().startActivity(intent);
             }
-
         });
 
-
-        // for managing the state of the boolean array according to the state of the
-        //CheckBox
+        // For managing the state of the boolean array according to the state of the
+        //    checkBox
         viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (((CheckBox) v).isChecked()) {
-                    checkBoxState[position] = true;
-                }
-                else {
-                    checkBoxState[position] = false;
-                }
+            // Check state and icon
+            if (((CheckBox) v).isChecked()) {
+                checkBoxState[position] = true;
+                ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_selected);
+            } else {
+                checkBoxState[position] = false;
+                ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_empty);
+            }
 
+            // Check whether to display actions or not
+            if (isAllFalse(checkBoxState)) {
+                ((AudioFiles) aContext).hideFragment(R.id.file_actions);
+            } else {
+                ((AudioFiles) aContext).showFragment(R.id.file_actions);
+            }
             }
         });
 
-            return convertView;
-        }
+        return convertView;
     }
+
+    public static boolean isAllFalse(boolean[] array) {
+        for (boolean b : array){
+            if (b){
+                return false;
+            }
+        }
+        return true;
+    }
+
+}

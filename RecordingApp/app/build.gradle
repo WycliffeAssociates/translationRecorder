@@ -28,4 +28,7 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-cognito:2.+'
     compile 'com.amazonaws:aws-android-sdk-s3:2.+'
     compile 'com.amazonaws:aws-android-sdk-ddb:2.+'
+    compile "com.android.support:appcompat-v7:22.0.+"
+    compile "com.android.support:cardview-v7:22.0.+"
+    compile "com.android.support:recyclerview-v7:22.0.+"
 }

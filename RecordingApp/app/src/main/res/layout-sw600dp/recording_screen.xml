@@ -17,14 +17,16 @@
                 class="wycliffeassociates.recordingapp.AudioVisualization.WaveformView"
                 android:id="@+id/main_canvas"
                 android:layout_alignParentBottom="true"
-                android:layout_below="@+id/linearLayout13" />
+                android:layout_below="@+id/linearLayout13"
+            />
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:id="@+id/linearLayout13"
-                android:background="#57575757"></LinearLayout>
+                android:background="#57575757">
+            </LinearLayout>
 
             <LinearLayout
                 android:orientation="vertical"
@@ -43,7 +45,7 @@
                     android:layout_weight="1"
                     android:layout_gravity="right"
                     android:id="@+id/volumeBar"
-                    android:visibility="visible" />
+                    android:visibility="visible"></LinearLayout>
 
                 <LinearLayout
                     android:orientation="horizontal"
