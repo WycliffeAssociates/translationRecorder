@@ -259,6 +259,7 @@ public class WavFileLoader {
         return null;
     }
 
+/*
     private void setSampleStartIndex(int startSecond, int increment){
         int incInSec = (int)Math.floor(AudioInfo.SAMPLERATE / increment);
         startIndex = incInSec * startSecond;
@@ -280,8 +281,6 @@ public class WavFileLoader {
             byte hi = chunk[i+1];
             //wav file written in little endian
             short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-            max = (i==0)? value : max;
-            min = (i==0)? value : min;
             max = (value > max)? value : max;
             min = (value < min)?  value : min;
         }
@@ -330,6 +329,6 @@ public class WavFileLoader {
     public int getLargest() {
         return largest;
     }
-
+*/
 
 }
