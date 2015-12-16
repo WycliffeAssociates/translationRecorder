@@ -1,4 +1,5 @@
 package wycliffeassociates.recordingapp;
+import wycliffeassociates.recordingapp.Playback.WavMediaPlayer;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Recording.*;
 import android.app.Activity;
@@ -19,6 +20,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
     private boolean isPlaying = false;
     private boolean isPausedRecording = false;
     private String filename = null;
+    private boolean isALoadedFile = false;
 
 
     private Activity activity;
@@ -43,6 +45,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
 
     }
 
+    public void setLoadedFile(boolean loadedFile){ this.isALoadedFile = loadedFile;}
     public void setIsRecording(boolean isRecording) {
         this.isRecording = isRecording;
     }
@@ -78,17 +81,15 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
 
                 }
                 else if (isPlaying) {
-                    WavPlayer.stop();
                     WavPlayer.release();
                 }
                 else {
-                    WavPlayer.stop();
                     WavPlayer.release();
                     if(isPausedRecording){
                         RecordingQueues.stopQueues();
                     }
                 }
-                if (filename != null){
+                if (filename != null && !isALoadedFile){
                     File file = new File(filename);
                     file.delete();
                 }

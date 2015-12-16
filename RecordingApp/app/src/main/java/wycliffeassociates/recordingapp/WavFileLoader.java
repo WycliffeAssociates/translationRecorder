@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.Playback;
+package wycliffeassociates.recordingapp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,24 +8,35 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 
 public class WavFileLoader {
 
+    private volatile boolean threadFinished = false;
+    private boolean LOADED_FILE = true;
+    private boolean RECORDED_FILE = false;
     private byte[] wavFile;
     public short[] audioData;
     private int min;
     private int max;
-    private final int DATA_CHUNK = 2* AudioInfo.SAMPLERATE / 1000; //number of datapoints per second that should actually be useful: 44100 samples per sec, div by 20 = 2205 * 2 channels = 4410
+    //number of datapoints per second that should actually be useful: 44100 samples per sec, div by 20 = 2205 * 2 channels = 4410
     //this is enough for a resolution of 2k pixel width to display one second of wav across
+    private final int DATA_CHUNK = 2* AudioInfo.SAMPLERATE / 1000;
     private int largest = 10000;
     private MappedByteBuffer buffer;
+    private MappedByteBuffer mappedAudioFile;
     private MappedByteBuffer preprocessedBuffer;
     private int startIndex;
     private String visTempFile = "visualization.tmp";
-    private int screenWidth = 2560;
+    private int screenWidth = 1;
+    private File audioVisFile;
+    final String loadedFilename;
 
+    public MappedByteBuffer getMappedAudioFile(){
+        return mappedAudioFile;
+    }
     public MappedByteBuffer getMappedFile(){
         return buffer;
     }
@@ -33,29 +44,89 @@ public class WavFileLoader {
         return preprocessedBuffer;
     }
 
-    public WavFileLoader(String file, int screenWidth) throws IOException {
-        this.screenWidth = screenWidth;
-        RandomAccessFile raf = new RandomAccessFile(file, "r");
-        FileChannel fc = raf.getChannel();
-        buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE, raf.length() - AudioInfo.HEADER_SIZE);
-        //generateTempFile();
-
-        File test = new File(AudioInfo.pathToVisFile + visTempFile);
-        if(test.exists()){
-            System.out.println("file is size " + test.length());
+    /**
+     * Maps the visualization file to memory if the thread is finished, and returns true
+     * returns false if the thread is not finished
+     * @return returns whether or not the thread generating the visualization file is finished
+     */
+    public boolean visFileLoaded(){
+        if(threadFinished){
+            try {
+                RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");
+                FileChannel fcCached = rafCached.getChannel();
+                preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        RandomAccessFile rafCached = new RandomAccessFile(test, "r");
-        FileChannel fcCached = rafCached.getChannel();
-        preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
-        System.out.println("Largest value from file is " + largest);
-
+        return threadFinished;
     }
 
-    private void generateTempFile(){
+    /**
+     * Constructs an object to load a wav file and set up memory mapped access to it as well as to
+     * visualization files. Creates a map of the uncompressed file for drawing and a separate map
+     * for audio playback. If a visualization file exists, it is loaded and mapped, otherwise
+     * a thread is spawned to generate one in the background.
+     * @param file name of the file to be loaded
+     * @param screenWidth width of the screen for use in visualization
+     * @param loadedFile whether or not the file was loaded or had just been recorded
+     */
+    public WavFileLoader(String file, int screenWidth, boolean loadedFile) {
+        System.out.println("creating a new file after a cut, file is " + file);
+        loadedFilename = file;
+        this.screenWidth = screenWidth;
+        threadFinished = false;
+        RandomAccessFile raf = null;
         try {
-            FileOutputStream temp = new FileOutputStream(new File(visTempFile));
-            //generate a file that can show 5 seconds on the screen without compromising resolution
-            int increment = (int)Math.floor((AudioInfo.SAMPLERATE * 5)/screenWidth);
+            raf = new RandomAccessFile(file, "r");
+            FileChannel fc = raf.getChannel();
+            buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
+                    raf.length() - AudioInfo.HEADER_SIZE);
+            mappedAudioFile = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
+                    raf.length() - AudioInfo.HEADER_SIZE);
+
+            //If the file was loaded, look for a .vis file with the same name
+            if(loadedFile == LOADED_FILE) {
+                audioVisFile = new File(AudioInfo.pathToVisFile + file.substring(file.lastIndexOf('/'),
+                        file.lastIndexOf('.')) + ".vis");
+            //Otherwise use visualization.vis
+            } else{
+                audioVisFile = new File(AudioInfo.pathToVisFile, "visualization.vis");
+            }
+            //If the visualization file exists, map it to memory
+            if(audioVisFile.exists()) {
+                RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");
+                FileChannel fcCached = rafCached.getChannel();
+                preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+            //otherwise spawn a thread to generate the vis file file
+            } else {
+                preprocessedBuffer = null;
+                Thread writeVisFile = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        generateTempFile(loadedFilename);
+                        threadFinished = true;
+                    }
+                });
+                writeVisFile.start();
+            }
+            //TODO: find where largest should be updating, currently it seems to stay at 10k
+            System.out.println("Largest value from file is " + largest);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void generateTempFile(String loadedFilename){
+        try {
+            audioVisFile  = new File(AudioInfo.pathToVisFile + loadedFilename.substring(loadedFilename.lastIndexOf('/'), loadedFilename.lastIndexOf('.')) + ".vis");
+            System.out.println("loaded filename is " + audioVisFile.getAbsolutePath());
+            FileOutputStream temp = new FileOutputStream(audioVisFile);
+            int increment = (int)Math.floor((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/screenWidth);
+            increment = (increment % 2 == 0)? increment : increment+1;
             System.out.println(increment + "increment ");
 
             for(int i = 0; i < buffer.capacity(); i+=AudioInfo.SIZE_OF_SHORT*increment){
@@ -111,7 +182,6 @@ public class WavFileLoader {
 
     }
 
-
     public float[] getMinimap(int canvasWidth, int canvasHeight) {
         System.out.println("minimap width is " + canvasWidth + " height is " + canvasHeight);
         //*4 because 2x values and 2y values for each pixel of width
@@ -141,11 +211,55 @@ public class WavFileLoader {
             }
             idx+=4;
         }
-        System.out.println("idx is "+idx);
+        System.out.println("idx is " + idx);
         return minimap;
     }
 
+    public WavFileLoader cut(int start, int end){
+        WavPlayer.stop();
+        try {
+            File tempAudioFile = new File(AudioInfo.fileDir, loadedFilename+"c-");
+            FileOutputStream fos = new FileOutputStream(tempAudioFile);
+            System.out.println("Trying to cut from " +start+ " to " + end);
+            for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
+                fos.write(0);
+            }
+            for(int i = 0; i < start; i++){
+                fos.write(mappedAudioFile.get(i));
+            }
+            for(int i = end; i < mappedAudioFile.capacity(); i++){
+                fos.write(mappedAudioFile.get(i));
+            }
+            fos.close();
+            System.out.println("new size is " + tempAudioFile.length() + " was originally " + (mappedAudioFile.capacity()+44));
+            WavFileWriter.overwriteHeaderData(tempAudioFile.getAbsolutePath(), tempAudioFile.length());
+            mappedAudioFile = null;
+            buffer = null;
+            preprocessedBuffer = null;
+            File original = new File(AudioInfo.fileDir, loadedFilename);
+            File originalVis = new File(AudioInfo.pathToVisFile, loadedFilename.substring(0, loadedFilename.lastIndexOf('.'))+".vis");
+            if(originalVis.exists()){
+                originalVis.delete();
+            }
+            File tempVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
+            if(tempVis.exists()) {
+                tempVis.delete();
+            }
+            System.out.println(original.delete() + " to deleteing the file");
+            System.out.println(tempAudioFile.renameTo(new File(AudioInfo.fileDir, loadedFilename)));
+            System.out.println(tempAudioFile.getAbsolutePath());
+            WavFileLoader cutFile = new WavFileLoader(AudioInfo.fileDir + loadedFilename, screenWidth, false);
+            WavPlayer.loadFile(cutFile.getMappedAudioFile());
+            return cutFile;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
+/*
     private void setSampleStartIndex(int startSecond, int increment){
         int incInSec = (int)Math.floor(AudioInfo.SAMPLERATE / increment);
         startIndex = incInSec * startSecond;
@@ -167,8 +281,6 @@ public class WavFileLoader {
             byte hi = chunk[i+1];
             //wav file written in little endian
             short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-            max = (i==0)? value : max;
-            min = (i==0)? value : min;
             max = (value > max)? value : max;
             min = (value < min)?  value : min;
         }
@@ -217,6 +329,6 @@ public class WavFileLoader {
     public int getLargest() {
         return largest;
     }
-
+*/
 
 }

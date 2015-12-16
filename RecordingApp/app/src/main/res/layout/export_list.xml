@@ -10,7 +10,7 @@
         android:layout_weight="0.1"
         >
         <ListView
-            android:id="@+id/listViewExport"
+            android:id="@+id/main_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:dividerHeight="0.1dp"

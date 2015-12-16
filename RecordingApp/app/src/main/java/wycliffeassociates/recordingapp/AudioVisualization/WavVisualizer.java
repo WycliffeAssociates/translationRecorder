@@ -3,15 +3,17 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 public class WavVisualizer {
 
-    private final MappedByteBuffer preprocessedBuffer;
-    private final MappedByteBuffer buffer;
+    private MappedByteBuffer preprocessedBuffer;
+    private MappedByteBuffer buffer;
     private float userScale = 1f;
-    //private final int AudioInfo.COMPRESSED_SECONDS_ON_SCREEN = 5;
     private final int defaultSecondsOnScreen = 10;
+    public static int numSecondsOnScreen;
     private boolean useCompressedFile = false;
+    private boolean canSwitch = false;
     private float[] samples;
     double yScale;
     int screenHeight;
@@ -22,25 +24,33 @@ public class WavVisualizer {
         this.screenHeight = screenHeight;
         this.screenWidth = screenWidth;
         this.preprocessedBuffer = preprocessedBuffer;
+        numSecondsOnScreen = defaultSecondsOnScreen;
+        canSwitch = (preprocessedBuffer == null)? false : true;
         samples = new float[screenWidth*8];
+    }
+
+    public void enableCompressedFileNextDraw(MappedByteBuffer preprocessedBuffer){
+        System.out.println("Swapping buffers now");
+        this.preprocessedBuffer = preprocessedBuffer;
+        this.canSwitch = true;
     }
 
     public float[] getDataToDraw(int location, int largest){
 
 
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
-        int numSecondsOnScreen = getNumSecondsOnScreen(userScale);
+        numSecondsOnScreen = getNumSecondsOnScreen(userScale);
         //based on the user scale, determine which buffer waveData should be
         useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
         MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
-
+        System.out.println("use compressed file is " + useCompressedFile);
 
 
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
         int increment = getIncrement(numSecondsOnScreen);
         //compute the starting and ending index based on the current audio playback position, and ultimately how much time is represented in one pixel
-        int startPosition = computeSampleStartPosition(location);
-        int lastIndex = getLastIndex(location, numSecondsOnScreen);
+        int startPosition = computeSampleStartPosition(location, numSecondsOnScreen);
+        int lastIndex = Math.min(getLastIndex(location, numSecondsOnScreen), computeSampleStartPosition(WavPlayer.getDuration(), numSecondsOnScreen));
         //jumping in increments will likely not line up with the end of the file, so store where it stops
         int leftOff = 0;
 
@@ -125,49 +135,48 @@ public class WavVisualizer {
         return 0;
     }
 
-    public static boolean shouldUseCompressedFile(int numSecondsOnScreen){
-        if(numSecondsOnScreen >= AudioInfo.COMPRESSED_SECONDS_ON_SCREEN){
+    public boolean shouldUseCompressedFile(int numSecondsOnScreen){
+        if(numSecondsOnScreen >= AudioInfo.COMPRESSED_SECONDS_ON_SCREEN && canSwitch){
             return true;
         }
         else return false;
     }
 
-    private int millisecondsPerPixel(int numSecondsOnScreen){
-        //not entirely sure why the 2 needs to be there for the second case, but it appears to be necessary
-        //the math may be wrong for the first case, as using the uncompressed file works perfectly during playback
-        int millisecondsPerPixel  = (useCompressedFile)? (int)Math.ceil(((AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * 1000) / (double)screenWidth * (numSecondsOnScreen / (double)AudioInfo.COMPRESSED_SECONDS_ON_SCREEN))  * AudioInfo.SIZE_OF_SHORT):
-                (int)((AudioInfo.SAMPLERATE*numSecondsOnScreen*2) / (double)screenWidth);
-        return millisecondsPerPixel;
-    }
-
     private int computeOffsetForPlaybackLine(int numSecondsOnScreen, int startPosition){
         int pixelsBeforeLine = (screenWidth/8);
-        int mspp = millisecondsPerPixel(numSecondsOnScreen);
+        int mspp = getIncrement(numSecondsOnScreen);
         //System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
         return startPosition - (mspp * pixelsBeforeLine);
     }
 
-    private int computeSampleStartPosition(int startMillisecond){
+    private int computeSampleStartPosition(int startMillisecond, int numSecondsOnScreen){
         // multiplied by 2 because of a hi and low for each sample in the compressed file
-        //System.out.println("start millisecond is " + startMillisecond + " numSecondsOnScreen is " + numSecondsOnScreen);
-        int sampleStartPosition = (useCompressedFile)? (int)(startMillisecond * (screenWidth/(double)(1000*AudioInfo.COMPRESSED_SECONDS_ON_SCREEN))) * 2 *AudioInfo.SIZE_OF_SHORT : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        System.out.println("Duration of file is " + WavPlayer.getDuration());
+        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)Math.floor((startMillisecond * ((numSecondsOnScreen*screenWidth)/(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/(double)(numSecondsOnScreen*1000) )))
+                : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
         return sampleStartPosition;
     }
 
     private int getIncrement(int numSecondsOnScreen){
         int increment = (useCompressedFile)?  (int)Math.floor((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT : (numSecondsOnScreen * AudioInfo.SAMPLERATE / screenWidth) * AudioInfo.SIZE_OF_SHORT;
+        increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     private int getLastIndex(int startMillisecond, int numSecondsOnScreen) {
         int endMillisecond = startMillisecond + (numSecondsOnScreen)*1000;
-        return computeSampleStartPosition(endMillisecond);
+        return computeSampleStartPosition(endMillisecond, numSecondsOnScreen);
     }
 
     private int getNumSecondsOnScreen(float userScale){
         int numSecondsOnScreen = (int)(defaultSecondsOnScreen * userScale);
         return Math.max(numSecondsOnScreen, 1);
     }
+
+    public static float millisecondsPerPixel(int width, int numSecondsOnScreen){
+        return numSecondsOnScreen * 1000/(float)width;
+    }
+
 
     private MappedByteBuffer selectBufferToUse(boolean useCompressedFile){
         if (useCompressedFile){
