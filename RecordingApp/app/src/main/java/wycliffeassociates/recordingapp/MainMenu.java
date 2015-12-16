@@ -2,6 +2,8 @@ package wycliffeassociates.recordingapp;
 
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
+import wycliffeassociates.recordingapp.Reporting.BugReportDialog;
 import wycliffeassociates.recordingapp.Reporting.GithubReporter;
 import wycliffeassociates.recordingapp.Reporting.GlobalExceptionHandler;
 import wycliffeassociates.recordingapp.Reporting.Logger;
@@ -28,6 +31,9 @@ public class MainMenu extends Activity{
     private ImageButton btnFiles;
     private ImageButton btnSettings;
 
+    public static final String KEY_PREF_LOGGING_LEVEL = "logging_level";
+    public static final String PREF_DEFAULT_LOGGING_LEVEL = "1";
+    public static final String STACKTRACE_DIR = "stacktrace";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +49,7 @@ public class MainMenu extends Activity{
         File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
         System.out.println("Result of making vis directory " + visDir.mkdir());
 
-
+        initApp();
 
         AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
         btnRecord = (ImageButton) findViewById(R.id.new_record);
@@ -76,6 +82,73 @@ public class MainMenu extends Activity{
                 overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
             }
         });
+    }
+
+    public void report(final String message) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                reportCrash(message);
+            }
+        });
+        t.start();
+    }
+
+    private void reportCrash(String message){
+        File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
+        String githubTokenIdentifier = getResources().getString(R.string.github_token);
+        String githubUrl = getResources().getString(R.string.github_bug_report_repo);
+
+        // TRICKY: make sure the github_oauth2 token has been set
+        if (githubTokenIdentifier != null) {
+            GithubReporter reporter = new GithubReporter(this, githubUrl, githubTokenIdentifier);
+            if (stacktraces.length > 0) {
+                // upload most recent stacktrace
+                reporter.reportCrash(message, new File(stacktraces[0]), Logger.getLogFile());
+                // empty the log
+                try {
+                    FileUtils.write(Logger.getLogFile(), "");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                clearStackTraces();
+            }
+        }
+    }
+
+    public void clearStackTraces(){
+        File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
+        // delete stacktraces
+        for (String filePath : stacktraces) {
+            File traceFile = new File(filePath);
+            if (traceFile.exists()) {
+                traceFile.delete();
+            }
+        }
+    }
+
+    private void initApp(){
+        // configure logger
+        File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        GlobalExceptionHandler.register(dir);
+        int minLogLevel = Integer.parseInt(getUserPreferences().getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
+        configureLogger(minLogLevel);
+
+        // check if we crashed
+        String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
+        if (stacktraces.length > 0) {
+            FragmentManager fm = getFragmentManager();
+            BugReportDialog brd = new BugReportDialog();
+            brd.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+            brd.show(fm, "Bug Report Dialog");
+        }
+
+        // set up Visualization folder
+        File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
+        System.out.println("Result of making vis directory " + visDir.mkdir());
+        AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
     }
 
     public void configureLogger(int minLogLevel) {
