@@ -74,7 +74,8 @@ public abstract class CanvasView extends View {
     }
 
     public void drawWaveform(float[] samples, Canvas canvas){
-        mPaint.setColor(Color.WHITE);
+        mPaint.setStrokeWidth(1.5f);
+        mPaint.setColor(getResources().getColor(R.color.off_white));
         canvas.drawLines(samples, mPaint);
         fps++;
         doneDrawing = true;
