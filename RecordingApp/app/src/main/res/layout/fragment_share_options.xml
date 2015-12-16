@@ -135,7 +135,7 @@
         android:padding="16dp">
 
         <ImageButton
-            android:id="@+id/share_other"
+            android:id="@+id/share_app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#00000000"
@@ -145,7 +145,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Other"
+            android:text="App"
             android:textSize="16sp"/>
 
     </LinearLayout>
