@@ -10,9 +10,14 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageButton;
 
-import java.io.File;
+import org.apache.commons.io.FileUtils;
 
-import Reporting.Logger;
+import java.io.File;
+import java.io.IOException;
+
+import wycliffeassociates.recordingapp.Reporting.GithubReporter;
+import wycliffeassociates.recordingapp.Reporting.GlobalExceptionHandler;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -22,18 +27,14 @@ public class MainMenu extends Activity{
     private ImageButton btnRecord;
     private ImageButton btnFiles;
     private ImageButton btnSettings;
-    public static final String KEY_PREF_LOGGING_LEVEL = "logging_level";
-    public static final String PREF_DEFAULT_LOGGING_LEVEL = "1";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // configure logger
-        int minLogLevel = Integer.parseInt(getUserPreferences().getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
-        configureLogger(minLogLevel);
-        Logger.i(MainMenu.class.toString(), "Initialized logger");
+
 
         System.out.println("internal files dir is " + getApplicationContext().getFilesDir());
         System.out.println("External files dir is " + Environment.getExternalStoragePublicDirectory("TranslationRecorder"));

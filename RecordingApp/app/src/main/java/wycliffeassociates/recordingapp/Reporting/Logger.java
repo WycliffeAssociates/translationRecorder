@@ -1,4 +1,4 @@
-package Reporting;
+package wycliffeassociates.recordingapp.Reporting;
 
 
         import android.util.Log;
@@ -271,13 +271,11 @@ public class Logger {
                     mLogFile.getParentFile().mkdirs();
                     mLogFile.createNewFile();
                 }
-                System.out.println(mLogFile.getAbsolutePath());
 
                 // append log message
                 String log = FileUtils.readFileToString(mLogFile);
                 log = String.format("%1s %2s/%3s: %4s\r\n%5s", getDateTimeStamp(), level.getLabel(), logMessageTag, logMessage, log);
                 mLogFile.delete();
-                System.out.println(mLogFile.getAbsolutePath());
                 FileUtils.writeStringToFile(mLogFile, log);
 
                 // truncate the log if it gets too big.
