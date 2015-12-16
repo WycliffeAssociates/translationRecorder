@@ -51,8 +51,6 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         amazon.setOnClickListener(this);
         app.setOnClickListener(this);
 
-
-
         return view;
     }
 
@@ -75,29 +73,24 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         }
     }
 
+    //=================
+    // CUSTOM FUNCTIONS
+    //=================
+
     public void setFilesForExporting(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
         mCurrentDir = currentDir;
         mAdapter = adapter;
         mAudioItemList = audioItemList;
     }
 
-    //=================
-    // CUSTOM FUNCTIONS
-    //=================
-
     public void exportToSdCard() {
-        Toast.makeText(getActivity(), "SD CARD WAS CLICKED", Toast.LENGTH_LONG).show();
         FolderExport se = new FolderExport(mAudioItemList, mAdapter, mCurrentDir, this);
         se.export();
     }
 
     public void exportToDir() {
-        Toast.makeText(getActivity(), "DIRECTORY WAS CLICKED", Toast.LENGTH_LONG).show();
-<<<<<<< HEAD
-=======
         FolderExport de = new FolderExport(mAudioItemList, mAdapter, mCurrentDir, this);
         de.export();
->>>>>>> b2aa6f93d2bce59d74c14ea218cfd3dc53b4e88d
     }
 
     public void exportViaBluetooth() {
