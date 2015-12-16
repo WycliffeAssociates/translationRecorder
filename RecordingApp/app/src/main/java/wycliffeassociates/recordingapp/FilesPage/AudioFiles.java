@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.net.Uri;
@@ -24,9 +23,6 @@ import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 public class AudioFiles extends Activity {
 
     private CheckBox btnCheckAll;
-
-    private ImageButton btnSortName, btnSortDuration, btnSortDate;
-
     private Menu mMenu;
     private ListView audioFileView;
     // private TextView file_path;
@@ -97,6 +93,7 @@ public class AudioFiles extends Activity {
         audioItemList = new ArrayList<AudioItem>();
         tempItemList = new ArrayList<AudioItem>();
         audioHash = new Hashtable<Date, String>();
+        btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
 
         // Cleanup any leftover visualization files
         removeUnusedVisualizationFiles(currentDir);
