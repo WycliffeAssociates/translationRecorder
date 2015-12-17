@@ -36,29 +36,33 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.exitdialog);
+        setContentView(R.layout.fragment_exit_record);
 
         btnSave = (ImageButton) findViewById(R.id.btnSave);
-        btnSave.setOnClickListener(this);
         btnDelete = (ImageButton) findViewById(R.id.btnDelete);
+
+        btnSave.setOnClickListener(this);
         btnDelete.setOnClickListener(this);
 
     }
 
     public void setLoadedFile(boolean loadedFile){ this.isALoadedFile = loadedFile;}
+
     public void setIsRecording(boolean isRecording) {
         this.isRecording = isRecording;
     }
+
     public void setIsPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
     }
+
     public void setIsPausedRecording(boolean isPausedRecording) {
         this.isPausedRecording = isPausedRecording;
     }
+
     public void setFilename(String filename){
         this.filename = filename;
     }
-
 
     @Override
     public void onClick(View v) {

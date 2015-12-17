@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.Recording;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,7 +26,6 @@ public class RecordingScreen extends Activity {
     //Constants for WAV format
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String AUDIO_RECORDER_FOLDER = "TranslationRecorder";
-
 
     private final Context context = this;
     private TextView filenameView;
@@ -111,20 +112,35 @@ public class RecordingScreen extends Activity {
         }
     }
 
-
     @Override
     public void onBackPressed() {
         if (!isSaved) {
-            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
-            dialog.setFilename(recordedFilename);
+            FragmentManager fm = getFragmentManager();
+            FragmentExitDialog d = new FragmentExitDialog();
+            d.setFilename(recordedFilename);
             if (isRecording) {
-                dialog.setIsRecording(true);
+                d.setIsRecording(true);
                 isRecording = false;
             }
             if (isPausedRecording) {
-                dialog.setIsPausedRecording(true);
+                d.setIsPausedRecording(true);
             }
-            dialog.show();
+            d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+            d.show(fm, "Exit Dialog");
+
+            // NOTE: Old code to be removed by Joe
+
+//            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
+//            dialog.setFilename(recordedFilename);
+//            if (isRecording) {
+//                dialog.setIsRecording(true);
+//                isRecording = false;
+//            }
+//            if (isPausedRecording) {
+//                dialog.setIsPausedRecording(true);
+//            }
+//            dialog.show();
+
         } else {
             super.onBackPressed();
         }
@@ -143,6 +159,7 @@ public class RecordingScreen extends Activity {
         if (!file.exists()) {
             file.mkdirs();
         }
+
         if (recordedFilename != null)
             return (file.getAbsolutePath() + "/" + recordedFilename);
         else {

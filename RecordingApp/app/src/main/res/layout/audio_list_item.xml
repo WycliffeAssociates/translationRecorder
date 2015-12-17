@@ -39,7 +39,6 @@
                 android:layout_weight="28"
                 android:text="aa-bbbb-c"
                 android:textColor="@color/primary_dark_font"
-                android:textSize="24sp"
                 android:gravity="center_vertical|left"
                 android:paddingLeft="8dp" />
 
@@ -50,7 +49,6 @@
                 android:layout_weight="25"
                 android:text="00:00:00"
                 android:textColor="@color/primary_dark_font"
-                android:textSize="24sp"
                 android:gravity="center_vertical|left"
                 android:textIsSelectable="false"
                 android:paddingLeft="8dp" />
@@ -67,7 +65,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2015/10/30"
-                    android:textSize="24sp"
                     android:textColor="@color/primary_dark_font" />
 
                 <TextView
@@ -75,7 +72,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="12:00:00"
-                    android:textSize="18sp"
                     android:layout_below="@id/date"
                     android:textColor="@color/primary_dark_font" />
 

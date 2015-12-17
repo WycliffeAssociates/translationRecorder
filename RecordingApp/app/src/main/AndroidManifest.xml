@@ -24,8 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape" android:noHistory="true"/>
+        <!--<activity android:name=".MainMenu" />-->
+        <activity android:name=".Recording.RecordingScreen" android:noHistory="true"/>
         <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape" android:noHistory="true"/>
         <activity android:name=".FilesPage.AudioFiles" />
         <activity android:name=".SettingsPage.Settings"

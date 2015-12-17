@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.R;
 
 /**
  * A canvas view intended for use as the main waveform
@@ -39,7 +40,6 @@ public class WaveformView extends CanvasView {
     public void setMarkerToDrawEnd(int markerEnd) {
         this.mMarkerEndLoc = markerEnd;
     }
-
 
     /**
      * Detects gestures on the main canvas
@@ -149,8 +149,8 @@ public class WaveformView extends CanvasView {
      * @param canvas the canvas to be drawn to
      */
     public void drawMarker(Canvas canvas){
-        mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(Color.RED);
+        mPaint.setStrokeWidth(1.f);
+        mPaint.setColor(getResources().getColor(R.color.tertiary));
         //positions the playback line 1/8th of the total width from the left of the screen
         canvas.drawLine((canvas.getWidth() / 8), 0,
                 (canvas.getWidth() / 8), canvas.getHeight(), mPaint);
@@ -271,6 +271,7 @@ public class WaveformView extends CanvasView {
      * @param blocksize the size of a block of audio data; 2 for 16 bit mono PCM
      */
     public void drawBuffer(Canvas canvas, byte[] buffer, int blocksize){
+        mPaint.setStrokeWidth(1.5f);
         mPaint.setColor(Color.WHITE);
         if (buffer == null || canvas == null) {
             return;

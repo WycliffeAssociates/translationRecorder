@@ -141,24 +141,24 @@ public class AudioFiles extends Activity {
 
         @Override
         public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnCheckAll: {
-                checkAll();
-                break;
+            switch (v.getId()) {
+                case R.id.btnCheckAll: {
+                    checkAll();
+                    break;
+                }
+                case R.id.btnSortName: {
+                    sortName();
+                    break;
+                }
+                case R.id.btnSortDuration: {
+                    sortDuration();
+                    break;
+                }
+                case R.id.btnSortDate: {
+                    sortDate();
+                    break;
+                }
             }
-            case R.id.btnSortName: {
-                sortName();
-                break;
-            }
-            case R.id.btnSortDuration: {
-                sortDuration();
-                break;
-            }
-            case R.id.btnSortDate: {
-                sortDate();
-                break;
-            }
-        }
         }
     };
 
