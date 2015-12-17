@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.R;
 
 public abstract class CanvasView extends View {
 
@@ -67,12 +68,14 @@ public abstract class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mPaint.setColor(Color.DKGRAY);
-        canvas.drawLine(0.f, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
+        mPaint.setColor(getResources().getColor(R.color.bright_blue));
+        mPaint.setStrokeWidth(3f);
+        canvas.drawLine(0.f, this.getMeasuredHeight() / 2, this.getMeasuredWidth(), this.getMeasuredHeight() / 2, mPaint);
     }
 
     public void drawWaveform(float[] samples, Canvas canvas){
-        mPaint.setColor(Color.WHITE);
+        mPaint.setStrokeWidth(1.5f);
+        mPaint.setColor(getResources().getColor(R.color.off_white));
         canvas.drawLines(samples, mPaint);
         fps++;
         doneDrawing = true;

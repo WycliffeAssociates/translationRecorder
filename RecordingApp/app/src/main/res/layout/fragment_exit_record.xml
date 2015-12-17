@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/card_bg"
+    android:divider="@drawable/divider_dialog"
+    android:showDividers="middle"
+    android:dividerPadding="1dp"
+    android:orientation="horizontal" >
+
+    <ImageButton
+        android:id="@+id/btnDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_ic_delete_black_48dp"
+        android:background="#00000000"
+        android:padding="32dp"
+        android:adjustViewBounds="false"
+        android:clickable="true"
+        android:layout_gravity="center"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp" />
+
+    <ImageButton
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_project_continue"
+        android:background="#00000000"
+        android:padding="32dp"
+        android:clickable="true"
+        android:layout_gravity="center" />
+
+</LinearLayout>

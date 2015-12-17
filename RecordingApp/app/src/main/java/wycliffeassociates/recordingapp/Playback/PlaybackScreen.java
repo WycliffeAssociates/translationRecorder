@@ -35,7 +35,6 @@ public class PlaybackScreen extends Activity {
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String AUDIO_RECORDER_FOLDER = "TranslationRecorder";
 
-
     private final Context context = this;
     private TextView filenameView;
     private WaveformView mainCanvas;
@@ -50,14 +49,19 @@ public class PlaybackScreen extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        System.out.println("Creating PlaybackScreen...");
+
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
+
         suggestedFilename = pref.getPreferences("fileName") + "-" + pref.getPreferences("fileCounter").toString();
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
-        System.out.println("Loaded file name is " + recordedFilename);
+        System.out.println("suggestedFileName: " + suggestedFilename);
+        System.out.println("Loaded file: " + recordedFilename);
+        System.out.println("isALoadedFile: " + isALoadedFile);
 
-        //make sure the tablet does not go to sleep while on the recording screen
+        // Make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.playback_screen);
 
@@ -73,7 +77,7 @@ public class PlaybackScreen extends Activity {
             @Override
             public void onGlobalLayout() {
                 manager = new UIDataManager(mainCanvas, minimap, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
-                System.out.println("and I'm sending in " + recordedFilename);
+                System.out.println("Sending in " + recordedFilename + " to loadWavFromFile()");
                 manager.loadWavFromFile(recordedFilename);
                 manager.updateUI();
                 mainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -262,7 +266,7 @@ public class PlaybackScreen extends Activity {
     private void enableButtons() {
         enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, true);
-        enableButton(R.id.btnPause, true);
+//        enableButton(R.id.btnPause, true);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {

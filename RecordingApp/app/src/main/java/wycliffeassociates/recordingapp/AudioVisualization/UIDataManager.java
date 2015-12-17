@@ -40,7 +40,7 @@ public class UIDataManager {
     private MappedByteBuffer mappedAudioFile;
     private MappedByteBuffer preprocessedBuffer;
     private int secondsOnScreen = 5;
-    private Animation anim;
+//    private Animation anim;
     RecordingTimer timer;
     private final TextView timerView;
     private boolean playbackOrRecording;
@@ -60,10 +60,10 @@ public class UIDataManager {
         this.ctx = ctx;
         lock = new Semaphore(1);
 
-        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        anim.setInterpolator(new LinearInterpolator());
-        anim.setRepeatCount(Animation.INFINITE);
-        anim.setDuration(1500);
+//        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+//        anim.setInterpolator(new LinearInterpolator());
+//        anim.setRepeatCount(Animation.INFINITE);
+//        anim.setDuration(1500);
         timer = new RecordingTimer();
     }
 
@@ -87,9 +87,11 @@ public class UIDataManager {
 
     public void updateUI(){
         if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
+            System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
         if(wavLoader.visFileLoaded()){
+            System.out.println("visFileLoaded() is true");
             wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
@@ -142,8 +144,9 @@ public class UIDataManager {
                 @Override
                 public void run() {
                     ctx.findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
+                    ctx.findViewById(R.id.btnStop).setVisibility(View.VISIBLE);
                     ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(null);
+//                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(null);
                 }
             });
         }
@@ -153,7 +156,8 @@ public class UIDataManager {
                 public void run() {
                     ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
                     ctx.findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(anim);
+                    ctx.findViewById(R.id.btnStop).setVisibility(View.INVISIBLE);
+//                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(anim);
                 }
             });
         }
@@ -195,6 +199,8 @@ public class UIDataManager {
         WavPlayer.loadFile(getMappedAudioFile());
         minimap.setAudioLength(WavPlayer.getDuration());
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
+//        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
+
     }
 
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple

@@ -131,6 +131,7 @@ public class MinimapView extends CanvasView {
         double fractionalSecs = secondsPerPixel;
         int integerTimecode = (int) (fractionalSecs / timecodeInterval);
         while (i < getWidth()){
+            mPaint.setStrokeWidth(1f);
             mPaint.setColor(Color.GREEN);
 
             i++;
@@ -157,6 +158,7 @@ public class MinimapView extends CanvasView {
                         (int)(12 * mDensity),
                         mPaint);
                 mPaint.setColor(Color.GRAY);
+                mPaint.setStrokeWidth(1f);
                 canvas.drawLine(i, 0.f, i, getHeight(), mPaint);
             }
         }
@@ -182,6 +184,7 @@ public class MinimapView extends CanvasView {
     }
 
     public void minimapMarker(Canvas canvas){
+        mPaint.setStrokeWidth(1f);
         mPaint.setColor(Color.GREEN);
         canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
     }
