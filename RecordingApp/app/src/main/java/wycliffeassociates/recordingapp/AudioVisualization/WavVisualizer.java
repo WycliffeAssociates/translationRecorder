@@ -43,7 +43,6 @@ public class WavVisualizer {
         //based on the user scale, determine which buffer waveData should be
         useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
         MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
-        System.out.println("use compressed file is " + useCompressedFile);
 
 
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
@@ -151,7 +150,7 @@ public class WavVisualizer {
 
     private int computeSampleStartPosition(int startMillisecond, int numSecondsOnScreen){
         // multiplied by 2 because of a hi and low for each sample in the compressed file
-        System.out.println("Duration of file is " + WavPlayer.getDuration());
+        //System.out.println("Duration of file is " + WavPlayer.getDuration());
         int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)Math.floor((startMillisecond * ((numSecondsOnScreen*screenWidth)/(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/(double)(numSecondsOnScreen*1000) )))
                 : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
         return sampleStartPosition;
