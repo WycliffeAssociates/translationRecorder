@@ -84,9 +84,11 @@ public class UIDataManager {
 
     public void updateUI(){
         if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
+            System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
         if(wavLoader.visFileLoaded()){
+            System.out.println("visFileLoaded() is true");
             wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
@@ -179,18 +181,29 @@ public class UIDataManager {
     }
 
     public void loadWavFromFile(String path){
+        System.out.println("loadWavFromFile is called with " + path);
 
         wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
         buffer = wavLoader.getMappedFile();
         preprocessedBuffer = wavLoader.getMappedCacheFile();
         mappedAudioFile = wavLoader.getMappedAudioFile();
+
         System.out.println("Mapped files completed.");
 //      System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
+
         minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
         WavPlayer.loadFile(getMappedAudioFile());
         minimap.setAudioLength(WavPlayer.getDuration());
-        System.out.println("There was an error with mapping the files");
+
+//        System.out.println("There was an error with mapping the files");
+        System.out.println("BUFFER: " + buffer);
+        System.out.println("PREPROCESSED: " + preprocessedBuffer);
+        System.out.println("WIDTH: " + mainWave.getWidth());
+        System.out.println("HEIGHT: " + mainWave.getHeight());
+
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
+//        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
+
     }
     //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
     public void listenForRecording(boolean drawWaveform){

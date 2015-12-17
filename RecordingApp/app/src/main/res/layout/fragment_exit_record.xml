@@ -18,7 +18,9 @@
         android:padding="32dp"
         android:adjustViewBounds="false"
         android:clickable="true"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp" />
 
     <ImageButton
         android:id="@+id/btnSave"
