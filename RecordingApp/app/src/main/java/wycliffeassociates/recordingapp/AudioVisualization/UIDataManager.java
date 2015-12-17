@@ -18,6 +18,7 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.WavFileLoader;
 
 /**
@@ -42,13 +43,15 @@ public class UIDataManager {
 //    private Animation anim;
     RecordingTimer timer;
     private final TextView timerView;
-    private boolean mode;
+    private boolean playbackOrRecording;
     private boolean isALoadedFile = false;
 
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx, boolean mode, boolean isALoadedFile){
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile){
+        Logger.i(UIDataManager.class.toString(), "Is a loaded file: " + isALoadedFile);
         this.isALoadedFile = isALoadedFile;
-        this.mode = mode;
+        this.playbackOrRecording = playbackOrRecording;
+        Logger.i(UIDataManager.class.toString(), "Playback mode: " + playbackOrRecording);
         mainWave.setUIDataManager(this);
         minimap.setUIDataManager(this);
         this.mainWave = mainWave;
@@ -108,7 +111,7 @@ public class UIDataManager {
     }
 
     public void enablePlay(){
-        if(mode == PLAYBACK_MODE) {
+        if(playbackOrRecording == PLAYBACK_MODE) {
             ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
             ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
         }
@@ -181,31 +184,27 @@ public class UIDataManager {
     }
 
     public void loadWavFromFile(String path){
-        System.out.println("loadWavFromFile is called with " + path);
-
         wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
         buffer = wavLoader.getMappedFile();
         preprocessedBuffer = wavLoader.getMappedCacheFile();
         mappedAudioFile = wavLoader.getMappedAudioFile();
-
-        System.out.println("Mapped files completed.");
-//      System.out.println("Compressed file is size: " + preprocessedBuffer.capacity() + " Regular file is size: " + buffer.capacity() + " increment is " + (int)Math.floor((AudioInfo.SAMPLERATE * 5)/mainWave.getWidth()));
-
+        if(buffer == null){
+            Logger.e(UIDataManager.class.toString(), "Buffer is null.");
+        }
+        if(preprocessedBuffer == null){
+            Logger.w(UIDataManager.class.toString(), "Visualization buffer is null.");
+        }
+        Logger.i(UIDataManager.class.toString(), "MainWave height: " + mainWave.getHeight() + " width: " + mainWave.getWidth());
         minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
         WavPlayer.loadFile(getMappedAudioFile());
         minimap.setAudioLength(WavPlayer.getDuration());
-
-//        System.out.println("There was an error with mapping the files");
-        System.out.println("BUFFER: " + buffer);
-        System.out.println("PREPROCESSED: " + preprocessedBuffer);
-        System.out.println("WIDTH: " + mainWave.getWidth());
-        System.out.println("HEIGHT: " + mainWave.getHeight());
-
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
 
     }
-    //NOTE: Only one instance of canvas view can call this; otherwise two threads will be pulling from the same queue!!
+
+    //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
+    //canvas views to listen for recording on the same activity
     public void listenForRecording(boolean drawWaveform){
         mainWave.setDrawingFromBuffer(true);
         ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
@@ -257,7 +256,6 @@ public class UIDataManager {
                                     });
                                 }
                             }
-                            //changeVolumeBar(ctx, db);
                         }
                         if (isStopped) {
                             lock.acquire();
@@ -294,28 +292,15 @@ public class UIDataManager {
 
     public void drawWaveformDuringPlayback(int location){
         mainWave.setDrawingFromBuffer(false);
-        long startTime = System.nanoTime();
-        try {
-            lock.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        float[] samples = null;
         mainWave.setMarkerToDrawStart(CanvasView.getMarkerStartTime());
         mainWave.setMarkerToDrawEnd(CanvasView.getMarkerEndTime());
-        float[] samples = wavVis.getDataToDraw(location, WavFileWriter.largest);
-        lock.release();
+        //FIXME: 10000 works in general, was WavFileWriter.largest. which doesn't work when loading files
+        //Scaling should be based on db levels anyway?
+        samples = wavVis.getDataToDraw(location, 10000);
         mainWave.setIsDoneDrawing(false);
-        //System.out.println("Time taken to generate samples to draw: " + (System.nanoTime()-startTime));
-        //System.out.println("Size of buffer to draw is "+samples.size());
-        try {
-            lock.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         mainWave.setWaveformDataForPlayback(samples);
-        lock.release();
         mainWave.postInvalidate();
-        Runtime.getRuntime().freeMemory();
     }
 
     private float[] convertToArray(ArrayList<Pair<Double,Double>> samples){
