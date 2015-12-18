@@ -7,8 +7,8 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
  */
 public class SectionMarkers {
 
-    private  int minimapStart = Integer.MIN_VALUE;
-    private  int minimapEnd = Integer.MAX_VALUE;
+    private int minimapStart = Integer.MIN_VALUE;
+    private int minimapEnd = Integer.MAX_VALUE;
     private boolean playSelectedSection = false;
     private int mainEnd = Integer.MAX_VALUE;
     private int mainStart = Integer.MIN_VALUE;

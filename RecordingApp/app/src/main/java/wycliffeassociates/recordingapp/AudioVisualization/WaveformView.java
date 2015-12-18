@@ -185,7 +185,7 @@ public class WaveformView extends CanvasView {
      * @param c
      */
     public void drawSectionMarkers(Canvas c){
-        //need to change this to match number of seconds on the screen instead of constant 10
+        //FIXME: need to change this to match number of seconds on the screen instead of constant 10
         //compute the number of milliseconds in one pixel
         float mspp = 1000*10/(float)getWidth();
         //offset refers to the location where playback actually starts (at the playback line)
@@ -233,9 +233,7 @@ public class WaveformView extends CanvasView {
         //Samples is a sampled section of the waveform extracted at mTimeToDraw
         } else if (mSamples != null ){
             try {
-                UIDataManager.lock.acquire();
                 drawWaveform(mSamples, canvas);
-                UIDataManager.lock.release();
                 drawMarker(canvas);
             } catch (Exception e) {
                 e.printStackTrace();

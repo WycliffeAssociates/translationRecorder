@@ -26,6 +26,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+        <wycliffeassociates.recordingapp.Playback.MarkerView
+            android:id="@+id/startmarker"
+            android:nextFocusDown="@+id/endmarker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/marker_left"/>
+
+        <wycliffeassociates.recordingapp.Playback.MarkerView
+            android:id="@+id/endmarker"
+            android:nextFocusUp="@+id/startmarker"
+            android:nextFocusDown="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/marker_right"/>
+
     </RelativeLayout>
 
     <LinearLayout

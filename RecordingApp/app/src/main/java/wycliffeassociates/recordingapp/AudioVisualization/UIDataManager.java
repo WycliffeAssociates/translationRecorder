@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.MarkerView;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
@@ -32,6 +33,8 @@ public class UIDataManager {
     private final WaveformView mainWave;
     private final MinimapView minimap;
     private final Activity ctx;
+    private final MarkerView mStartMarker;
+    private final MarkerView mEndMarker;
     private boolean isRecording;
     public static Semaphore lock;
     private WavFileLoader wavLoader;
@@ -47,7 +50,7 @@ public class UIDataManager {
     private boolean isALoadedFile = false;
 
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile){
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile){
         Logger.i(UIDataManager.class.toString(), "Is a loaded file: " + isALoadedFile);
         this.isALoadedFile = isALoadedFile;
         this.playbackOrRecording = playbackOrRecording;
@@ -56,6 +59,11 @@ public class UIDataManager {
         minimap.setUIDataManager(this);
         this.mainWave = mainWave;
         this.minimap = minimap;
+        this.mStartMarker = start;
+        this.mEndMarker = end;
+        if(mEndMarker != null){
+            mEndMarker.setY(mainWave.getHeight() - mEndMarker.getHeight()*2);
+        }
         timerView = (TextView)ctx.findViewById(R.id.timerView);
         this.ctx = ctx;
         lock = new Semaphore(1);
@@ -107,7 +115,18 @@ public class UIDataManager {
                 timerView.invalidate();
             }
         });
-
+        if(mStartMarker != null){
+            int xStart = timeToScreenSpace(WavPlayer.getLocation(),
+                    CanvasView.getMarkerStartTime(), wavVis.millisecondsPerPixel());
+            mStartMarker.setX(xStart + mStartMarker.getWidth()*5/4);
+            int xEnd = timeToScreenSpace(WavPlayer.getLocation(),
+                    CanvasView.getMarkerEndTime(), wavVis.millisecondsPerPixel());
+            mEndMarker.setX(xEnd + mEndMarker.getWidth()*5/4);
+            Logger.i(this.toString(), "location is " + WavPlayer.getLocation());
+            Logger.i(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
+            Logger.i(this.toString(), "Start marker at: " + xStart);
+            Logger.i(this.toString(), "End marker at: " + xEnd);
+        }
     }
 
     public void enablePlay(){
@@ -200,6 +219,13 @@ public class UIDataManager {
         minimap.setAudioLength(WavPlayer.getDuration());
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
+
+    }
+
+    public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, float mspp){
+        Logger.i(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
+        Logger.i(this.toString(), "mspp is " + mspp);
+        return Math.round((-markerTimeMs + timeAtPlaybackLineMs) / mspp);
 
     }
 
