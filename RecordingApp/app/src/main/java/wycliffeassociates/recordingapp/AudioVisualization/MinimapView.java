@@ -39,13 +39,13 @@ public class MinimapView extends CanvasView {
         @Override
         public boolean onDown(MotionEvent e) {
             if (WavPlayer.exists() && e.getY() <= getHeight()) {
-                if(sMarkers.bothSet()){
+                if(SectionMarkers.bothSet()){
                     float xPos = e.getX() / getWidth();
                     int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
-                    if(timeToSeekTo < sMarkers.getStartLocation()){
+                    if(timeToSeekTo < SectionMarkers.getStartLocationMs()){
                         return true;
                     }
-                    else if(timeToSeekTo > sMarkers.getEndLocation()){
+                    else if(timeToSeekTo > SectionMarkers.getEndLocationMs()){
                         return true;
                     }
                 }
@@ -63,7 +63,7 @@ public class MinimapView extends CanvasView {
             if (WavPlayer.exists()) {
                 startPosition = (int) event1.getX();
                 endPosition -= (int) distanceX;
-                sMarkers.setMinimapMarkers(startPosition, endPosition);
+                SectionMarkers.setMinimapMarkers(startPosition, endPosition);
                 int playbackSectionStart = (int) ((startPosition / (double) getWidth()) * WavPlayer.getDuration());
                 int playbackSectionEnd = (int) ((endPosition / (double) getWidth()) * WavPlayer.getDuration());
                 if (startPosition > endPosition) {
@@ -71,7 +71,7 @@ public class MinimapView extends CanvasView {
                     playbackSectionEnd = playbackSectionStart;
                     playbackSectionStart = temp;
                 }
-                sMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
+                SectionMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
                 WavPlayer.startSectionAt(playbackSectionStart);
                 WavPlayer.seekTo(playbackSectionStart);
                 WavPlayer.stopSectionAt(playbackSectionEnd);
@@ -90,9 +90,9 @@ public class MinimapView extends CanvasView {
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
             minimapMarker(canvas);
             drawTimeCode(canvas);
-            if(sMarkers.shouldDrawMarkers() ){
-                drawPlaybackSection(canvas, sMarkers.getMinimapMarkerStart(), sMarkers.getMinimapMarkerEnd());
-                System.out.println("should have drawn sMarkers on minimap at " + sMarkers.getMinimapMarkerStart());
+            if(SectionMarkers.shouldDrawMarkers() ){
+                drawPlaybackSection(canvas, SectionMarkers.getMinimapMarkerStart(), SectionMarkers.getMinimapMarkerEnd());
+                System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
             }
         }
     }

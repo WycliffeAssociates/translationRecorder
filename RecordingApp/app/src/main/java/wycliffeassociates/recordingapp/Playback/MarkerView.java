@@ -17,14 +17,16 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
+
 
 /**
  * Represents a draggable start or end marker.
@@ -38,9 +40,46 @@ import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
  */
 public class MarkerView extends ImageView {
 
-    private UIDataManager mManager;
-    private int mVelocity;
+    public static boolean LEFT = false;
+    public static boolean RIGHT = true;
+    public boolean mOrientation;
+    /**
+     * Detects gestures on the main canvas
+     */
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
+        /**
+         * Detects if the user is scrolling the main waveform horizontally
+         * @param distX refers to how far the user scrolled horizontally
+         * @param distY is ignored for this use as we are only allowing horizontal scrolling
+         * @param event1 not accessed, contains information about the start of the gesture
+         * @param event2 not used, contains information about the end of the gesture
+         * @return must be true for gesture detection
+         */
+        @Override
+        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
+            if (WavPlayer.exists()) {
+                if(mOrientation == RIGHT){
+                    SectionMarkers.setEndTime(
+                            Math.max((int) (Math.min((SectionMarkers.getEndLocationMs() - 4 * distX), (float) WavPlayer.getDuration())), Math.max(SectionMarkers.getStartLocationMs(), 0)),
+                            AudioInfo.SCREEN_WIDTH
+                    );
+                    WavPlayer.stopSectionAt(SectionMarkers.getEndLocationMs());
+                } else {
+                    SectionMarkers.setStartTime(
+                            Math.min((int) (Math.max((SectionMarkers.getStartLocationMs() - 4 * distX), 0)), Math.min(SectionMarkers.getEndLocationMs(), WavPlayer.getDuration())),
+                            AudioInfo.SCREEN_WIDTH
+                    );
+                    WavPlayer.startSectionAt(SectionMarkers.getStartLocationMs());
+                }
+                mManager.updateUI();
+            }
+            return true;
+        }
+    }
+
+    private UIDataManager mManager;
+    protected GestureDetectorCompat mDetector;
 
     public void setManager(UIDataManager m){
         this.mManager = m;
@@ -48,34 +87,25 @@ public class MarkerView extends ImageView {
 
     public MarkerView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        // Make sure we get keys
-        setFocusable(true);
-
-        mVelocity = 0;
+        mDetector = new GestureDetectorCompat(getContext(), new MyGestureListener());
     }
 
+    /**
+     * Passes a touch event to the scroll and scale gesture detectors, if they exist
+     * @param ev the gesture detected
+     * @return returns true to signify the event was handled
+     */
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch(event.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-            //requestFocus();
-            //markerTouchStart(this, event.getRawX());
-            break;
-        case MotionEvent.ACTION_MOVE:
-            // We use raw x because this window itself is going to
-            // move, which will screw up the "local" coordinates
-            //markerTouchMove(this, event.getRawX());
-            break;
-        case MotionEvent.ACTION_UP:
-           // markerTouchEnd(this);
-            break;
+    public boolean onTouchEvent(MotionEvent ev) {
+        if(mDetector!= null) {
+            mDetector.onTouchEvent(ev);
         }
         return true;
     }
 
-
-
+    public void setOrientation(boolean o){
+        mOrientation = o;
+    }
 
 
 }

@@ -62,6 +62,8 @@ public class UIDataManager {
         this.mStartMarker = start;
         this.mEndMarker = end;
         if(mEndMarker != null){
+            start.setManager(this);
+            end.setManager(this);
             mEndMarker.setY(mainWave.getHeight() - mEndMarker.getHeight()*2);
         }
         timerView = (TextView)ctx.findViewById(R.id.timerView);
@@ -115,12 +117,12 @@ public class UIDataManager {
                 timerView.invalidate();
             }
         });
-        if(mStartMarker != null){
+        if(mStartMarker != null ){
             int xStart = timeToScreenSpace(WavPlayer.getLocation(),
-                    CanvasView.getMarkerStartTime(), wavVis.millisecondsPerPixel());
+                    SectionMarkers.getStartLocationMs(), wavVis.millisecondsPerPixel());
             mStartMarker.setX(xStart + mStartMarker.getWidth()*5/4);
             int xEnd = timeToScreenSpace(WavPlayer.getLocation(),
-                    CanvasView.getMarkerEndTime(), wavVis.millisecondsPerPixel());
+                    SectionMarkers.getEndLocationMs(), wavVis.millisecondsPerPixel());
             mEndMarker.setX(xEnd + mEndMarker.getWidth()*5/4);
             Logger.i(this.toString(), "location is " + WavPlayer.getLocation());
             Logger.i(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
@@ -183,8 +185,8 @@ public class UIDataManager {
     }
 
     public void cutAndUpdate(){
-        int start = CanvasView.getStartMarker();
-        int end = CanvasView.getEndMarker();
+        int start = SectionMarkers.getStartMarker();
+        int end = SectionMarkers.getStartMarker();
         System.out.println("got the markers");
         wavLoader = wavLoader.cut(start, end);
         buffer = null;
@@ -198,7 +200,7 @@ public class UIDataManager {
         minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
         wavVis = new WavVisualizer(buffer, null, mainWave.getWidth(), mainWave.getHeight());
         //WavPlayer.loadFile(mappedAudioFile);
-        CanvasView.clearMarkers();
+        SectionMarkers.clearMarkers();
         updateUI();
     }
 
@@ -227,6 +229,10 @@ public class UIDataManager {
         Logger.i(this.toString(), "mspp is " + mspp);
         return Math.round((-markerTimeMs + timeAtPlaybackLineMs) / mspp);
 
+    }
+
+    public float getMspp(){
+        return wavVis.millisecondsPerPixel();
     }
 
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
@@ -293,7 +299,6 @@ public class UIDataManager {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
                 }
                 mainWave.setDrawingFromBuffer(false);
             }
@@ -319,8 +324,8 @@ public class UIDataManager {
     public void drawWaveformDuringPlayback(int location){
         mainWave.setDrawingFromBuffer(false);
         float[] samples = null;
-        mainWave.setMarkerToDrawStart(CanvasView.getMarkerStartTime());
-        mainWave.setMarkerToDrawEnd(CanvasView.getMarkerEndTime());
+        mainWave.setMarkerToDrawStart(SectionMarkers.getStartLocationMs());
+        mainWave.setMarkerToDrawEnd(SectionMarkers.getEndLocationMs());
         //FIXME: 10000 works in general, was WavFileWriter.largest. which doesn't work when loading files
         //Scaling should be based on db levels anyway?
         samples = wavVis.getDataToDraw(location, 10000);

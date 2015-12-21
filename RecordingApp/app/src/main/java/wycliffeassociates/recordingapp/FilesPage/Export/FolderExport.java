@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 12/10/2015.
@@ -97,7 +98,7 @@ public class FolderExport extends Export{
                         savefile(mCurrentUri, mThisPath);
                 }
 
-                if(requestCode ==3){//delete zip file, needs to be done after upload
+                if(requestCode == 3){//delete zip file, needs to be done after upload
                     mZipPath = null;//set null for next time
                 }
             } else {
@@ -117,8 +118,11 @@ public class FolderExport extends Export{
             try {
                 String sourceFilename = path;
                 ParcelFileDescriptor destFilename = getContentResolver().openFileDescriptor(destUri, "w");
-                bis = new BufferedInputStream(new FileInputStream(sourceFilename));
-                bos = new BufferedOutputStream(new FileOutputStream(destFilename.getFileDescriptor()));
+                FileInputStream fis = new FileInputStream(sourceFilename);
+                bis = new BufferedInputStream(fis);
+                Logger.w(this.toString(), "Source file is " + sourceFilename);
+                FileOutputStream fos = new FileOutputStream(destFilename.getFileDescriptor());
+                bos = new BufferedOutputStream(fos);
                 byte[] buf = new byte[1024];
                 bis.read(buf);
                 do {

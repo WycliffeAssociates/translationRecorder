@@ -22,6 +22,7 @@ import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
@@ -75,7 +76,9 @@ public class PlaybackScreen extends Activity{
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
         mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
+        mStartMarker.setOrientation(MarkerView.LEFT);
         mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
+        mEndMarker.setOrientation(MarkerView.RIGHT);
 
         final Activity ctx = this;
         ViewTreeObserver vto = mainCanvas.getViewTreeObserver();
@@ -119,10 +122,12 @@ public class PlaybackScreen extends Activity{
 
     private void placeStartMarker(){
         mainCanvas.placeStartMarker(WavPlayer.getLocation());
+        manager.updateUI();
     }
 
     private void placeEndMarker(){
         mainCanvas.placeEndMarker(WavPlayer.getLocation());
+        manager.updateUI();
     }
 
     private void cut() {
@@ -130,7 +135,7 @@ public class PlaybackScreen extends Activity{
     }
 
     private void clearMarkers(){
-        CanvasView.clearMarkers();
+        SectionMarkers.clearMarkers();
         manager.updateUI();
     }
 
