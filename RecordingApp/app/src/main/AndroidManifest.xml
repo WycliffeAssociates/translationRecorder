@@ -34,6 +34,7 @@
         <service android:name=".Recording.WavRecorder" />
         <service android:name=".Recording.WavFileWriter" />
         <activity android:name=".FilesPage.Export.FolderExport$StorageAccess" />
+        <activity android:name=".FilesPage.Export.AppExport$ShareZipToApps"/>
         <activity android:name=".FilesPage.FTPActivity" android:theme="@style/Theme.UserDialog"/>
         <activity android:name=".SettingsPage.connectivity.LanguageNamesRequest" />
         <service

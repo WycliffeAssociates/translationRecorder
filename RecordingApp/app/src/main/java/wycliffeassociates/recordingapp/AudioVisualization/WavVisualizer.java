@@ -172,8 +172,8 @@ public class WavVisualizer {
         return Math.max(numSecondsOnScreen, 1);
     }
 
-    public static float millisecondsPerPixel(int width, int numSecondsOnScreen){
-        return numSecondsOnScreen * 1000/(float)width;
+    public float millisecondsPerPixel(){
+        return numSecondsOnScreen * 1000/(float)screenWidth;
     }
 
 
