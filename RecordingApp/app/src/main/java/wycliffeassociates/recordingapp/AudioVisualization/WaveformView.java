@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -92,10 +93,10 @@ public class WaveformView extends CanvasView {
     /**
      * Updates the start position in the marker object. If this means both markers are now set,
      * WavPlayer needs to set start and stop locations
-     * @param startTimeMS time in milliseconds of where to place a start marker
+     * @param startTimeMs time in milliseconds of where to place a start marker
      */
-    public void placeStartMarker(int startTimeMS){
-        SectionMarkers.setStartTime(startTimeMS, getWidth());
+    public void placeStartMarker(int startTimeMs){
+        SectionMarkers.setStartTime(startTimeMs, getWidth());
         //if both markers are set, then set the start and end markers in WavPlayer
         if(SectionMarkers.bothSet()){
             setWavPlayerSelectionMarkers();
@@ -200,16 +201,21 @@ public class WaveformView extends CanvasView {
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.RED);
         c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaint);
+        mPaint.setColor(Color.BLUE);
+        mPaint.setAlpha(50);
+        mPaint.setStyle(Paint.Style.FILL);
+        c.drawRect(xLoc1, 0, xLoc2, getHeight(), mPaint);
+        mPaint.setAlpha(255);
     }
 
     /**
      * Sets the time in playback to draw this frame
      * This is set so that both the waveform and the markers make use of the same time,
      * rather than each querying WavPlayer when they get to draw their component.
-     * @param timeMS Current time during playback, in milliseconds
+     * @param timeMs Current time during playback, in milliseconds
      */
-    public void setTimeToDraw(int timeMS){
-        this.mTimeToDraw = timeMS;
+    public void setTimeToDraw(int timeMs){
+        this.mTimeToDraw = timeMs;
     }
 
     //TODO: remove the semaphore, replace with either synchronous or try to remove concurrency
