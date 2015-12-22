@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
@@ -63,14 +64,19 @@ public class MinimapView extends CanvasView {
             if (WavPlayer.exists()) {
                 startPosition = (int) event1.getX();
                 endPosition -= (int) distanceX;
-                SectionMarkers.setMinimapMarkers(startPosition, endPosition);
+                int startPositionMinimap = startPosition;
+                int endPositionMinimap = endPosition;
                 int playbackSectionStart = (int) ((startPosition / (double) getWidth()) * WavPlayer.getDuration());
                 int playbackSectionEnd = (int) ((endPosition / (double) getWidth()) * WavPlayer.getDuration());
                 if (startPosition > endPosition) {
                     int temp = playbackSectionEnd;
                     playbackSectionEnd = playbackSectionStart;
                     playbackSectionStart = temp;
+                    temp = endPositionMinimap;
+                    endPositionMinimap = startPositionMinimap;
+                    startPositionMinimap = temp;
                 }
+                SectionMarkers.setMinimapMarkers(startPositionMinimap, endPositionMinimap);
                 SectionMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
                 WavPlayer.startSectionAt(playbackSectionStart);
                 WavPlayer.seekTo(playbackSectionStart);
@@ -93,6 +99,11 @@ public class MinimapView extends CanvasView {
             if(SectionMarkers.shouldDrawMarkers() ){
                 drawPlaybackSection(canvas, SectionMarkers.getMinimapMarkerStart(), SectionMarkers.getMinimapMarkerEnd());
                 System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
+                mPaint.setColor(Color.BLUE);
+                mPaint.setAlpha(25);
+                mPaint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(SectionMarkers.getMinimapMarkerStart(), 0, SectionMarkers.getMinimapMarkerEnd(), getHeight(), mPaint);
+                mPaint.setAlpha(255);
             }
         }
     }
