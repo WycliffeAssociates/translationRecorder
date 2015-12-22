@@ -28,6 +28,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.Timer;
 
 /**
  * Created by sarabiaj on 11/10/2015.
@@ -55,7 +56,6 @@ public class PlaybackScreen extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         System.out.println("Creating PlaybackScreen...");
-
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
 

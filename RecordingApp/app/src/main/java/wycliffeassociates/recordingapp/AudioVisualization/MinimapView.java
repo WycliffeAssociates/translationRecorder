@@ -12,6 +12,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 9/10/2015.
@@ -21,11 +22,11 @@ public class MinimapView extends CanvasView {
     private Bitmap mBitmap;
     private float miniMarkerLoc;
     private Canvas mCanvas = null;
-    private Drawable background;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
     private int audioLength = 0;
     private double secondsPerPixel = 0;
     private double timecodeInterval = 1.0;
+    private float[] mSamples;
 
     public MinimapView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -92,19 +93,21 @@ public class MinimapView extends CanvasView {
     @Override
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
-        if(initialized){
+        if(initialized) {
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
-            minimapMarker(canvas);
-            drawTimeCode(canvas);
-            if(SectionMarkers.shouldDrawMarkers() ){
-                drawPlaybackSection(canvas, SectionMarkers.getMinimapMarkerStart(), SectionMarkers.getMinimapMarkerEnd());
-                System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
-                mPaint.setColor(Color.BLUE);
-                mPaint.setAlpha(25);
-                mPaint.setStyle(Paint.Style.FILL);
-                canvas.drawRect(SectionMarkers.getMinimapMarkerStart(), 0, SectionMarkers.getMinimapMarkerEnd(), getHeight(), mPaint);
-                mPaint.setAlpha(255);
-            }
+        } else if(mSamples != null) {
+            drawWaveform(mSamples, canvas);
+        }
+        minimapMarker(canvas);
+        drawTimeCode(canvas);
+        if(SectionMarkers.shouldDrawMarkers() ){
+            drawPlaybackSection(canvas, SectionMarkers.getMinimapMarkerStart(), SectionMarkers.getMinimapMarkerEnd());
+            System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
+            mPaint.setColor(Color.BLUE);
+            mPaint.setAlpha(25);
+            mPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRect(SectionMarkers.getMinimapMarkerStart(), 0, SectionMarkers.getMinimapMarkerEnd(), getHeight(), mPaint);
+            mPaint.setAlpha(255);
         }
     }
 
@@ -176,22 +179,27 @@ public class MinimapView extends CanvasView {
 
     }
 
-    public void init(float[] samples){
-        mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-        Runtime.getRuntime().freeMemory();
-        System.out.println("Saving minimap to BMP...");
-        System.out.println("Created a BMP...");
-        mCanvas = new Canvas(mBitmap);
-        Drawable background = getBackground();
-        if(background != null){
-            background.draw(mCanvas);
-        }
-        else
-            mCanvas.drawColor(Color.TRANSPARENT);
-        drawWaveform(samples, mCanvas);
-        setBackground(background);
-        initialized = true;
-        this.invalidate();
+    public void init(final float[] samples){
+        mSamples = samples;
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Logger.w(MinimapView.class.toString(), "Saving minimap to BMP");
+                mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+                mCanvas = new Canvas(mBitmap);
+                Drawable background = getBackground();
+                if(background != null){
+                    background.draw(mCanvas);
+                }
+                else
+                    mCanvas.drawColor(Color.TRANSPARENT);
+                drawWaveform(samples, mCanvas);
+                setBackground(background);
+                Logger.w(MinimapView.class.toString(), "Created a BMP");
+                initialized = true;
+            }
+        });
+        t.start();
     }
 
     public void minimapMarker(Canvas canvas){

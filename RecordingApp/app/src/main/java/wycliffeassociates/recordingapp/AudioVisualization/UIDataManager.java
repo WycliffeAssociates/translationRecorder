@@ -20,6 +20,7 @@ import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.Timer;
 import wycliffeassociates.recordingapp.WavFileLoader;
 
 /**
@@ -216,12 +217,17 @@ public class UIDataManager {
             Logger.w(UIDataManager.class.toString(), "Visualization buffer is null.");
         }
         Logger.i(UIDataManager.class.toString(), "MainWave height: " + mainWave.getHeight() + " width: " + mainWave.getWidth());
-        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
+            }
+        });
+        t.start();
         WavPlayer.loadFile(getMappedAudioFile());
         minimap.setAudioLength(WavPlayer.getDuration());
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight());
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
-
     }
 
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, float mspp){

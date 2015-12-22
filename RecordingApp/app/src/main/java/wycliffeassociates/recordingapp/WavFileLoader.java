@@ -86,7 +86,6 @@ public class WavFileLoader {
                     raf.length() - AudioInfo.HEADER_SIZE);
             mappedAudioFile = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
                     raf.length() - AudioInfo.HEADER_SIZE);
-
             //If the file was loaded, look for a .vis file with the same name
             if(loadedFile == LOADED_FILE) {
                 audioVisFile = new File(AudioInfo.pathToVisFile + file.substring(file.lastIndexOf('/'),

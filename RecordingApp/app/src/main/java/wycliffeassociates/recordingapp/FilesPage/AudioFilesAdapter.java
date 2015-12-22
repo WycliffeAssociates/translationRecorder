@@ -22,6 +22,7 @@ import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.Timer;
 
 /**
  *
