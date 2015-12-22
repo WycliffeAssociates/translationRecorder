@@ -9,6 +9,7 @@ import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 
 /**
  * Plays .Wav audio files
@@ -25,6 +26,11 @@ public class WavPlayer {
     private static volatile boolean keepPlaying = false;
     private static volatile int playbackStart = 0;
     private static volatile boolean forceBreakOut = false;
+    private static CutOp sCutOp;
+
+    public static void setCutOp(CutOp cut){
+        sCutOp = cut;
+    }
 
     public static void setOnlyPlayingSection(Boolean onlyPlayingSection){
         WavPlayer.onlyPlayingSection = onlyPlayingSection;
@@ -40,6 +46,23 @@ public class WavPlayer {
        forceBreakOut = false;
     }
 
+    public static void skipCutSection(){
+        final int skipSection = sCutOp.skip((int)(audioData.position()/88.2));
+        if(skipSection != -1) {
+            player.pause();
+            player.flush();
+            //500 instead of 1000 because the position should be double here- there's two bytes
+            //per data point in the audio array
+            playbackStart = (int) (skipSection * (AudioInfo.SAMPLERATE / 500.0));
+            //make sure the playback start is within the bounds of the file's capacity
+            playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
+            int position = (playbackStart % 2 == 0) ? playbackStart : playbackStart + 1;
+            System.out.println("starting from position " + playbackStart);
+            //position in the buffer keeps track of where we are for playback
+            audioData.position(position);
+            player.play();
+        }
+    }
 
     public static void play(){
         forceBreakOut = false;
@@ -50,8 +73,8 @@ public class WavPlayer {
         player.flush();
         player.play();
         playbackThread = new Thread(){
-            public void run(){
 
+            public void run(){
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
                 int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
                 System.out.println("starting from position " + playbackStart);
@@ -66,7 +89,7 @@ public class WavPlayer {
                     if(checkIfShouldStop()){
                         break;
                     }
-
+                    skipCutSection();
                     int numSamplesLeft = limit - audioData.position();
                     //if the number of samples left is large enough, just copy the data
                     if(numSamplesLeft >= bytes.length) {

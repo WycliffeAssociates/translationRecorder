@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.MarkerView;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
@@ -49,6 +50,7 @@ public class UIDataManager {
     private final TextView timerView;
     private boolean playbackOrRecording;
     private boolean isALoadedFile = false;
+    private CutOp mCutOp;
 
 
     public UIDataManager(WaveformView mainWave, MinimapView minimap, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile){
@@ -70,7 +72,8 @@ public class UIDataManager {
         timerView = (TextView)ctx.findViewById(R.id.timerView);
         this.ctx = ctx;
         lock = new Semaphore(1);
-
+        mCutOp = new CutOp();
+        WavPlayer.setCutOp(mCutOp);
 //        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 //        anim.setInterpolator(new LinearInterpolator());
 //        anim.setRepeatCount(Animation.INFINITE);
@@ -185,22 +188,15 @@ public class UIDataManager {
         }
     }
 
+    public int skipCutSection(){
+        return -1;
+    }
+
     public void cutAndUpdate(){
-        int start = SectionMarkers.getStartMarker();
-        int end = SectionMarkers.getStartMarker();
-        System.out.println("got the markers");
-        wavLoader = wavLoader.cut(start, end);
-        buffer = null;
-        preprocessedBuffer = null;
-        mappedAudioFile = null;
-        wavVis = null;
-        System.out.println("Should have created a new wav Loader");
-        buffer = wavLoader.getMappedFile();
-        preprocessedBuffer = wavLoader.getMappedCacheFile();
-        mappedAudioFile = wavLoader.getMappedAudioFile();
-        minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
-        wavVis = new WavVisualizer(buffer, null, mainWave.getWidth(), mainWave.getHeight());
-        //WavPlayer.loadFile(mappedAudioFile);
+        int start = SectionMarkers.getStartLocationMs();
+        int end = SectionMarkers.getEndLocationMs();
+        mCutOp.cut(start, end);
+        Logger.w(UIDataManager.class.toString(), "Cutting from " + start + " to " + end);
         SectionMarkers.clearMarkers();
         updateUI();
     }
