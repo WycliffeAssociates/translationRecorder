@@ -27,6 +27,7 @@ public class WavPlayer {
     private static volatile int playbackStart = 0;
     private static volatile boolean forceBreakOut = false;
     private static CutOp sCutOp;
+    private static volatile boolean sPressedSeek = true;
 
     public static void setCutOp(CutOp cut){
         sCutOp = cut;
@@ -72,6 +73,10 @@ public class WavPlayer {
         keepPlaying = true;
         player.flush();
         player.play();
+        if(!onlyPlayingSection && !sPressedSeek){
+            playbackStart = 0;
+        }
+        sPressedSeek = false;
         playbackThread = new Thread(){
 
             public void run(){
@@ -183,6 +188,7 @@ public class WavPlayer {
 
     public static void seekTo(int x){
         boolean wasPlaying = isPlaying();
+        sPressedSeek = true;
         stop();
         //500 instead of 1000 because the position should be double here- there's two bytes
         //per data point in the audio array
@@ -227,8 +233,9 @@ public class WavPlayer {
             return true;
         }
         if(onlyPlayingSection && (getLocation() >= endPlaybackPosition)){
-            stop();
+            pause();
             seekTo(startPlaybackPosition);
+            stop();
             return true;
         }
         return false;
