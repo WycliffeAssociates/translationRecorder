@@ -40,6 +40,20 @@ public class CutOp {
         return max;
     }
 
+    /**
+     * Computes the total time removed from cutting, for use in ACTUAL capacity computations.
+     * Also generates a private simplified and ordered version of this stack, eliminating nested
+     * cuts.
+     *
+     * Begins by sorting the stack by starting cuts in a copied stack. Beginning with the earliest
+     * cut, it is added to a list and removed from the stack. For each cut in this list (beginning
+     * only with one cut) cuts are added if they start between the current cut's start and end. Each
+     * cut that is added is removed from the stack. When the list has been iterated over, the min
+     * and max are computed, which forms a new pair to be added to mFlattenedStack. The difference
+     * between min and max are added to a sum. This process is repeated until the stack is empty.
+     *
+     * @return the total time removed from cuts.
+     */
     private int totalDataRemoved(){
         Vector<Pair<Integer,Integer>> copy = new Vector<>(mStack.capacity());
         mFlattenedStack = new Vector<>();
@@ -83,6 +97,19 @@ public class CutOp {
         return sum;
     }
 
+    /**
+     * Since the marker position takes into account total data played by audiotrack, the position
+     * is agnostic of the "actual" position. This method computs the time to add back to it,
+     * it takes the original time, looks to see if it's greater than or equal to a start cut. If so
+     * it adds total time cut out, and adds this to time. Time is then compared to the next cut, and
+     * the process is repeated. Break when the next cut takes place at a later time than we're at.
+     *
+     * mFlattenedStack is a representation of the cut stack WITHOUT any nested cuts, and based on
+     * the way it is computed, we can assume this list is sorted.
+     *
+     * @param timeMs location that was computed from WavPlayer before considering cuts
+     * @return inflated time acounting for cuts
+     */
     public int timeAdjusted(int timeMs){
         if(mFlattenedStack == null) {
             return timeMs;
@@ -91,6 +118,8 @@ public class CutOp {
         for(Pair<Integer,Integer> p : mFlattenedStack){
             if(time >= p.first) {
                 time += p.second - p.first;
+            } else {
+                break;
             }
         }
         return time;
