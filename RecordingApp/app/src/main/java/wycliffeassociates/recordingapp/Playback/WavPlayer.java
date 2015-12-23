@@ -3,13 +3,17 @@ package wycliffeassociates.recordingapp.Playback;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.util.Pair;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
+import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Plays .Wav audio files
@@ -28,6 +32,7 @@ public class WavPlayer {
     private static volatile boolean forceBreakOut = false;
     private static CutOp sCutOp;
     private static volatile boolean sPressedSeek = true;
+    private static volatile Vector<Pair<Integer,Integer>> sSkippedStack;
 
     public static void setCutOp(CutOp cut){
         sCutOp = cut;
@@ -94,24 +99,24 @@ public class WavPlayer {
                     if(checkIfShouldStop()){
                         break;
                     }
-                    skipCutSection();
-                    int numSamplesLeft = limit - audioData.position();
-                    //if the number of samples left is large enough, just copy the data
-                    if(numSamplesLeft >= bytes.length) {
-                        //need to grab data from the mapped file, then convert it into a short array
-                        //since AudioTrack requires writing shorts for playing PCM16
-                        audioData.get(bytes);
-                    }
-                    //if the number of samples left wont fill the buffer, zero out the end
-                    else {
-                        for(int i=numSamplesLeft; i<shorts.length; i++) {
-                            shorts[i] = 0;
-                        }
-                        for(int i=numSamplesLeft; i<bytes.length; i++) {
-                            bytes[i] = 0;
-                        }
-                        audioData.get(bytes, 0, numSamplesLeft);
-                    }
+//                        int numSamplesLeft = limit - audioData.position();
+//                        //if the number of samples left is large enough, just copy the data
+//                        if(numSamplesLeft >= bytes.length) {
+//                            //need to grab data from the mapped file, then convert it into a short array
+//                            //since AudioTrack requires writing shorts for playing PCM16
+//                            audioData.get(bytes);
+//                        }
+//                        //if the number of samples left wont fill the buffer, zero out the end
+//                        else {
+//                            for(int i=numSamplesLeft; i<shorts.length; i++) {
+//                                shorts[i] = 0;
+//                            }
+//                            for(int i=numSamplesLeft; i<bytes.length; i++) {
+//                                bytes[i] = 0;
+//                            }
+//                            audioData.get(bytes, 0, numSamplesLeft);
+//                        }
+                    get(bytes);
                     //copy the bytes from the audio file into a short buffer, need to flip byte order
                     //as wav files are little endian
                     ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
@@ -127,6 +132,36 @@ public class WavPlayer {
             }
         };
         playbackThread.start();
+    }
+
+    private static void get(byte[] bytes){
+        int size = bytes.length;
+        int skip = 0;
+        int end = 0;
+        boolean brokeEarly = false;
+        for(int i = 0; i < size; i++){
+            if(!audioData.hasRemaining()){
+                brokeEarly = true;
+                end = i;
+                break;
+            }
+            skip = sCutOp.skip((int)(audioData.position()/88.2));
+            if(skip != -1 && i % 2 == 0){
+                Logger.i(WavPlayer.class.toString(), "Location is " + getLocation() + "position is " + audioData.position());
+                int start = (int) (skip * (AudioInfo.SAMPLERATE / 500.0));
+                //make sure the playback start is within the bounds of the file's capacity
+                start = Math.max(Math.min(audioData.capacity(), start), 0);
+                int position = (start % 2 == 0) ? start : start + 1;
+                audioData.position(position);
+                Logger.i(WavPlayer.class.toString(), "Location is now " + getLocation()  + "position is " + audioData.position());
+            }
+            bytes[i] = audioData.get();
+        }
+        if(brokeEarly){
+            for(int i = end; i < size; i++){
+                bytes[i] = 0;
+            }
+        }
     }
 
     /**
@@ -272,11 +307,15 @@ public class WavPlayer {
     }
 
     public static int getLocation(){
-        if(player != null)
-            return Math.min((int)((playbackStart/2 + player.getPlaybackHeadPosition()) *
+        if(player != null) {
+            int loc = Math.min((int) ((playbackStart / 2 + player.getPlaybackHeadPosition()) *
                     (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
-        else
+            loc = sCutOp.timeAdjusted(loc);
+            return loc;
+        }
+        else {
             return 0;
+        }
     }
     public static int getDuration(){
         if(player != null)

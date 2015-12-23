@@ -101,11 +101,11 @@ public class UIDataManager {
 
     public void updateUI(){
         if(minimap == null || mainWave == null || WavPlayer.getDuration() == 0){
-            System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
+            //System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
         if(wavLoader.visFileLoaded()){
-            System.out.println("visFileLoaded() is true");
+            //System.out.println("visFileLoaded() is true");
             wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
@@ -128,10 +128,10 @@ public class UIDataManager {
             int xEnd = timeToScreenSpace(WavPlayer.getLocation(),
                     SectionMarkers.getEndLocationMs(), wavVis.millisecondsPerPixel());
             mEndMarker.setX(xEnd + mEndMarker.getWidth()*5/4);
-            Logger.i(this.toString(), "location is " + WavPlayer.getLocation());
-            Logger.i(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
-            Logger.i(this.toString(), "Start marker at: " + xStart);
-            Logger.i(this.toString(), "End marker at: " + xEnd);
+//            Logger.i(this.toString(), "location is " + WavPlayer.getLocation());
+//            Logger.i(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
+//            Logger.i(this.toString(), "Start marker at: " + xStart);
+//            Logger.i(this.toString(), "End marker at: " + xEnd);
         }
     }
 
