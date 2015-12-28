@@ -126,7 +126,7 @@ public class WavPlayer {
                 }
                 //location doesn't usually end up going to the end before audio playback stops.
                 //continue to loop until the end is reached.
-                while((getLocation() != getDuration()) && !forceBreakOut){}
+                while((getLocation() <= getDuration()) && !forceBreakOut){}
                 System.out.println("end thread");
                 System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
@@ -225,6 +225,10 @@ public class WavPlayer {
         boolean wasPlaying = isPlaying();
         sPressedSeek = true;
         stop();
+        int seekTo = sCutOp.skip(x);
+        if(seekTo != -1){
+            x = seekTo;
+        }
         //500 instead of 1000 because the position should be double here- there's two bytes
         //per data point in the audio array
         playbackStart = (int)(x * (AudioInfo.SAMPLERATE/500.0));
@@ -311,6 +315,7 @@ public class WavPlayer {
             int loc = Math.min((int) ((playbackStart / 2 + player.getPlaybackHeadPosition()) *
                     (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
             loc = sCutOp.timeAdjusted(loc);
+            assert loc < WavPlayer.getDuration();
             return loc;
         }
         else {

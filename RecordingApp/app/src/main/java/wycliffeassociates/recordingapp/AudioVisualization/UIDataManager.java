@@ -330,7 +330,7 @@ public class UIDataManager {
         mainWave.setMarkerToDrawEnd(SectionMarkers.getEndLocationMs());
         //FIXME: 10000 works in general, was WavFileWriter.largest. which doesn't work when loading files
         //Scaling should be based on db levels anyway?
-        samples = wavVis.getDataToDraw(location, 10000);
+        samples = wavVis.getDataToDraw(location, 10000, mCutOp);
         mainWave.setIsDoneDrawing(false);
         mainWave.setWaveformDataForPlayback(samples);
         mainWave.postInvalidate();

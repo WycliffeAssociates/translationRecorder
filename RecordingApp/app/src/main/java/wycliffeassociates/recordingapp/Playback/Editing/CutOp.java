@@ -19,6 +19,10 @@ public class CutOp {
         mStack = new Vector<>();
     }
 
+    public Vector<Pair<Integer,Integer>> getFlattenedStack(){
+        return mFlattenedStack;
+    }
+
     public void cut(int start, int end){
         Pair<Integer, Integer> temp = new Pair<>(start, end);
         mStack.add(temp);
@@ -99,7 +103,7 @@ public class CutOp {
 
     /**
      * Since the marker position takes into account total data played by audiotrack, the position
-     * is agnostic of the "actual" position. This method computs the time to add back to it,
+     * is agnostic of the "actual" position. This method computes the time to add back to it,
      * it takes the original time, looks to see if it's greater than or equal to a start cut. If so
      * it adds total time cut out, and adds this to time. Time is then compared to the next cut, and
      * the process is repeated. Break when the next cut takes place at a later time than we're at.

@@ -1,8 +1,13 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
+import android.util.Log;
+import android.util.Pair;
+
 import java.nio.MappedByteBuffer;
+import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 public class WavVisualizer {
@@ -35,9 +40,9 @@ public class WavVisualizer {
         this.canSwitch = true;
     }
 
-    public float[] getDataToDraw(int location, int largest){
+    public float[] getDataToDraw(int location, int largest, CutOp cut){
 
-
+System.out.println("location is " + location + " out of " + WavPlayer.getDuration());
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
         numSecondsOnScreen = getNumSecondsOnScreen(userScale);
         //based on the user scale, determine which buffer waveData should be
@@ -49,6 +54,7 @@ public class WavVisualizer {
         int increment = getIncrement(numSecondsOnScreen);
         //compute the starting and ending index based on the current audio playback position, and ultimately how much time is represented in one pixel
         int startPosition = computeSampleStartPosition(location, numSecondsOnScreen);
+        startPosition = Math.min(startPosition, waveData.capacity());
         int lastIndex = Math.min(getLastIndex(location, numSecondsOnScreen), computeSampleStartPosition(WavPlayer.getDuration(), numSecondsOnScreen));
         //jumping in increments will likely not line up with the end of the file, so store where it stops
         int leftOff = 0;
@@ -58,7 +64,7 @@ public class WavVisualizer {
         //scale the waveform down based on the largest peak of the waveform
         yScale = getYScaleFactor(screenHeight, largest);
 
-
+    int end = WavPlayer.getDuration();
 
         //modify the starting position due to wanting the current position to start at the playback line
         //this means data prior to this location should be drawn, in which samples needs to be initialized to provide some empty space if
@@ -70,17 +76,33 @@ public class WavVisualizer {
         startPosition = Math.max(0, startPosition);
 
 
-
+        Vector<Pair<Integer,Integer>> cutStack = cut.getFlattenedStack();
+        //find where we are in the cuts
+        int cutIdx = 0;
+        if(cutStack != null) {
+            for (int i = 1; i < cutStack.size(); i++) {
+                if (location > cutStack.elementAt(i).first) {
+                    cutIdx = i;
+                }
+            }
+        }
         //beginning with the starting position, the width of each increment represents the data one pixel width is showing
         for(int i = startPosition; i < Math.min(waveData.capacity(), lastIndex); i += increment){
+            if(cutStack != null && i >= computeSampleStartPosition(cutStack.elementAt(cutIdx).first, numSecondsOnScreen)
+                    && i < computeSampleStartPosition(cutStack.elementAt(cutIdx).second, numSecondsOnScreen)){
+                int newI = computeSampleStartPosition(cutStack.elementAt(cutIdx).second, numSecondsOnScreen);
+                lastIndex += newI - i;
+                i = newI;
+                if(i >= Math.min(waveData.capacity(), lastIndex)){
+                    break;
+                }
+                if(cutIdx+1 < cutStack.size()){
+                    cutIdx++;
+                }
+            }
             index = addHighAndLowToDrawingArray(waveData, samples, i, i+increment, index);
-            leftOff = i; //keeps track of where we got to in the buffer, in case the last pixel doesn't have a full increment worth of data
         }
-        //if we ended the loop with data left, but jumping another increment would go over capacity or the last index....
-        if(leftOff < Math.min(waveData.capacity(), lastIndex)){
-            //Same as the previous loop, except it loops from where the last left off until the last index
-            index = addHighAndLowToDrawingArray(waveData, samples, leftOff, lastIndex, index);
-        }
+
         //zero out the rest of the array
         for (int i = index; i < samples.length; i++){
             samples[i] = 0;
@@ -151,7 +173,12 @@ public class WavVisualizer {
     private int computeSampleStartPosition(int startMillisecond, int numSecondsOnScreen){
         // multiplied by 2 because of a hi and low for each sample in the compressed file
         //System.out.println("Duration of file is " + WavPlayer.getDuration());
-        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)Math.floor((startMillisecond * ((numSecondsOnScreen*screenWidth)/(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/(double)(numSecondsOnScreen*1000) )))
+        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)(Math.floor((
+                                                                                                        (startMillisecond/(double)WavPlayer.getDuration())
+                                                                                                                *(preprocessedBuffer.capacity()/4)
+                                                                                                        )
+                                                                                                    ))
+        //int sampleStartPosition = (useCompressedFile)? (int)Math.floor((startMillisecond/(double)WavPlayer.getDuration())*(preprocessedBuffer.capacity()/4.0)*4)
                 : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
         return sampleStartPosition;
     }
