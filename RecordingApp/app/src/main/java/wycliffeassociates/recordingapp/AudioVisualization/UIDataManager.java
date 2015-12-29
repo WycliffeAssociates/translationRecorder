@@ -227,8 +227,8 @@ public class UIDataManager {
     }
 
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, float mspp){
-        Logger.i(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
-        Logger.i(this.toString(), "mspp is " + mspp);
+        //Logger.i(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
+        //Logger.i(this.toString(), "mspp is " + mspp);
         return Math.round((-markerTimeMs + timeAtPlaybackLineMs) / mspp);
 
     }

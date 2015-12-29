@@ -126,7 +126,7 @@ public class WavPlayer {
                 }
                 //location doesn't usually end up going to the end before audio playback stops.
                 //continue to loop until the end is reached.
-                while((getLocation() <= getDuration()) && !forceBreakOut){}
+                while((getLocation() <= (WavPlayer.getDuration())) && !forceBreakOut){}
                 System.out.println("end thread");
                 System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
@@ -216,7 +216,7 @@ public class WavPlayer {
                 seekTo(endPlaybackPosition);
             }
             else {
-                seekTo(WavPlayer.getDuration());
+                seekTo(sCutOp.timeAdjusted(WavPlayer.getDuration() - sCutOp.getSizeCut()));
             }
         }
     }
@@ -267,7 +267,7 @@ public class WavPlayer {
     }
 
     public static boolean checkIfShouldStop(){
-        if(getDuration() == getLocation()) {
+        if((WavPlayer.getDuration()) <= getLocation()) {
             pause();
             return true;
         }
@@ -314,18 +314,22 @@ public class WavPlayer {
         if(player != null) {
             int loc = Math.min((int) ((playbackStart / 2 + player.getPlaybackHeadPosition()) *
                     (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
-            //loc = sCutOp.timeAdjusted(loc);
+            loc = sCutOp.timeAdjusted(loc);
             return loc;
         }
         else {
+            forceBreakOut = true;
             return 0;
         }
     }
     public static int getDuration(){
-        if(player != null)
-            return (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
-        else
+        if(player != null){
+            int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
+            return duration;
+        }
+        else {
             return 0;
+        }
     }
 
     public static int getSelectionEnd(){

@@ -115,7 +115,7 @@ public class CutOp {
      * the way it is computed, we can assume this list is sorted.
      *
      * @param timeMs location that was computed from WavPlayer before considering cuts
-     * @return inflated time acounting for cuts
+     * @return inflated time accounting for cuts
      */
     public int timeAdjusted(int timeMs){
         if(mFlattenedStack == null) {

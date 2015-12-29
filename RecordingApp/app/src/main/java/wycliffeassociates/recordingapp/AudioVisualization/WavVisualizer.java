@@ -42,8 +42,9 @@ public class WavVisualizer {
 
     public float[] getDataToDraw(int location, int largest, CutOp cut){
 
+        Log.i(this.toString(), "loc is " + location + " duration is " + WavPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (WavPlayer.getDuration() - cut.getSizeCut()));
         float locPerc = location/(float)cut.timeAdjusted(WavPlayer.getDuration());
-        location = (int)(locPerc * WavPlayer.getDuration());
+        //location = (int)(locPerc * WavPlayer.getDuration());
 
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
         numSecondsOnScreen = getNumSecondsOnScreen(userScale);
@@ -70,8 +71,8 @@ public class WavVisualizer {
         //modify the starting position due to wanting the current position to start at the playback line
         //this means data prior to this location should be drawn, in which samples needs to be initialized to provide some empty space if
         //the current playback position is in the early parts of the file and there is no earlier data to read
-        startPosition = computeOffsetForPlaybackLine(numSecondsOnScreen, startPosition);
-        int index = initializeSamples(samples, startPosition, increment);
+        //startPosition = computeOffsetForPlaybackLine(numSecondsOnScreen, startPosition);
+        int index = 0;//initializeSamples(samples, startPosition, increment);
         //in the event that the actual start position ends up being negative (such as from shifting forward due to playback being at the start of the file)
         //it should be set to zero (and the buffer will already be initialized with some zeros, with index being the index of where to resume placing data
         startPosition = Math.max(0, startPosition);
@@ -84,6 +85,8 @@ public class WavVisualizer {
             int mappedTime = mapLocationToTime(startPosition, cut);
             int skip = cut.skip(mappedTime);
             if(skip != -1){
+                Log.i(this.toString(), "mapped time is " + mappedTime);
+                Log.i(this.toString(), "skip to " + skip + " iteration is " + i);
                 startPosition = computeSampleStartPosition(skip, 10);
             }
             if(startPosition+increment > waveData.capacity()){
@@ -103,7 +106,7 @@ public class WavVisualizer {
     private int mapLocationToTime(int idx, CutOp cut){
         float idxP = (useCompressedFile)? idx/(float)preprocessedBuffer.capacity()
                 : idx/(float)buffer.capacity();
-        int ms = (int)(idxP * cut.timeAdjusted(WavPlayer.getDuration()));
+        int ms = (int)(idxP * WavPlayer.getDuration());
         return ms;
     }
 
