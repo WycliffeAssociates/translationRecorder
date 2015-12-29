@@ -71,8 +71,10 @@ public class WavVisualizer {
         //modify the starting position due to wanting the current position to start at the playback line
         //this means data prior to this location should be drawn, in which samples needs to be initialized to provide some empty space if
         //the current playback position is in the early parts of the file and there is no earlier data to read
-        //startPosition = computeOffsetForPlaybackLine(numSecondsOnScreen, startPosition);
-        int index = 0;//initializeSamples(samples, startPosition, increment);
+        startPosition = computeOffsetForPlaybackLine(numSecondsOnScreen, startPosition);
+        int tempStartTime = mapLocationToTime(startPosition, cut);
+        startPosition = computeSampleStartPosition(cut.reverseTimeAdjusted(tempStartTime), 21);
+        int index = initializeSamples(samples, startPosition, increment);
         //in the event that the actual start position ends up being negative (such as from shifting forward due to playback being at the start of the file)
         //it should be set to zero (and the buffer will already be initialized with some zeros, with index being the index of where to resume placing data
         startPosition = Math.max(0, startPosition);

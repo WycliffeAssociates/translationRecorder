@@ -132,6 +132,21 @@ public class CutOp {
         return time;
     }
 
+    public int reverseTimeAdjusted(int timeMs){
+        if(mFlattenedStack == null) {
+            return timeMs;
+        }
+        int time = timeMs;
+        for(Pair<Integer,Integer> p : mFlattenedStack){
+            if(time >= p.first && time <= p.second) {
+                time -= p.second - p.first;
+            } else {
+                break;
+            }
+        }
+        return time;
+    }
+
     public int getSizeCut(){
         return mSizeCut;
     }
