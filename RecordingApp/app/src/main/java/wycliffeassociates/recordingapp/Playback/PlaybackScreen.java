@@ -134,6 +134,10 @@ public class PlaybackScreen extends Activity{
         manager.cutAndUpdate();
     }
 
+    private void undo() {
+        manager.undoCut();
+    }
+
     private void clearMarkers(){
         SectionMarkers.clearMarkers();
         manager.updateUI();
@@ -267,7 +271,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
-
+        findViewById(R.id.btnUndo).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -320,6 +324,10 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnClear: {
                     clearMarkers();
+                    break;
+                }
+                case R.id.btnUndo: {
+                    undo();
                     break;
                 }
             }

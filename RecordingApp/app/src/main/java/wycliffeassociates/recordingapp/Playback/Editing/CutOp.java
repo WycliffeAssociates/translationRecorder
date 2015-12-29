@@ -30,7 +30,10 @@ public class CutOp {
     }
 
     public void undo(){
-        mStack.remove(mStack.capacity() - 1);
+        if(mStack.size() == 0){
+            return;
+        }
+        mStack.remove(mStack.size() - 1);
         mSizeCut = totalDataRemoved();
     }
 

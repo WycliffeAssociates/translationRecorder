@@ -314,8 +314,7 @@ public class WavPlayer {
         if(player != null) {
             int loc = Math.min((int) ((playbackStart / 2 + player.getPlaybackHeadPosition()) *
                     (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
-            loc = sCutOp.timeAdjusted(loc);
-            assert loc < WavPlayer.getDuration();
+            //loc = sCutOp.timeAdjusted(loc);
             return loc;
         }
         else {

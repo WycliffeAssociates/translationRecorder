@@ -42,7 +42,9 @@ public class WavVisualizer {
 
     public float[] getDataToDraw(int location, int largest, CutOp cut){
 
-System.out.println("location is " + location + " out of " + WavPlayer.getDuration());
+        float locPerc = location/(float)cut.timeAdjusted(WavPlayer.getDuration());
+        location = (int)(locPerc * WavPlayer.getDuration());
+
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
         numSecondsOnScreen = getNumSecondsOnScreen(userScale);
         //based on the user scale, determine which buffer waveData should be
@@ -54,7 +56,6 @@ System.out.println("location is " + location + " out of " + WavPlayer.getDuratio
         int increment = getIncrement(numSecondsOnScreen);
         //compute the starting and ending index based on the current audio playback position, and ultimately how much time is represented in one pixel
         int startPosition = computeSampleStartPosition(location, numSecondsOnScreen);
-        startPosition = Math.min(startPosition, waveData.capacity());
         int lastIndex = Math.min(getLastIndex(location, numSecondsOnScreen), computeSampleStartPosition(WavPlayer.getDuration(), numSecondsOnScreen));
         //jumping in increments will likely not line up with the end of the file, so store where it stops
         int leftOff = 0;
@@ -64,7 +65,7 @@ System.out.println("location is " + location + " out of " + WavPlayer.getDuratio
         //scale the waveform down based on the largest peak of the waveform
         yScale = getYScaleFactor(screenHeight, largest);
 
-    int end = WavPlayer.getDuration();
+
 
         //modify the starting position due to wanting the current position to start at the playback line
         //this means data prior to this location should be drawn, in which samples needs to be initialized to provide some empty space if
@@ -76,33 +77,21 @@ System.out.println("location is " + location + " out of " + WavPlayer.getDuratio
         startPosition = Math.max(0, startPosition);
 
 
-        Vector<Pair<Integer,Integer>> cutStack = cut.getFlattenedStack();
-        //find where we are in the cuts
-        int cutIdx = 0;
-        if(cutStack != null) {
-            for (int i = 1; i < cutStack.size(); i++) {
-                if (location > cutStack.elementAt(i).first) {
-                    cutIdx = i;
-                }
-            }
-        }
-        //beginning with the starting position, the width of each increment represents the data one pixel width is showing
-        for(int i = startPosition; i < Math.min(waveData.capacity(), lastIndex); i += increment){
-            if(cutStack != null && i >= computeSampleStartPosition(cutStack.elementAt(cutIdx).first, numSecondsOnScreen)
-                    && i < computeSampleStartPosition(cutStack.elementAt(cutIdx).second, numSecondsOnScreen)){
-                int newI = computeSampleStartPosition(cutStack.elementAt(cutIdx).second, numSecondsOnScreen);
-                lastIndex += newI - i;
-                i = newI;
-                if(i >= Math.min(waveData.capacity(), lastIndex)){
-                    break;
-                }
-                if(cutIdx+1 < cutStack.size()){
-                    cutIdx++;
-                }
-            }
-            index = addHighAndLowToDrawingArray(waveData, samples, i, i+increment, index);
-        }
 
+        int end = samples.length/4;
+        //beginning with the starting position, the width of each increment represents the data one pixel width is showing
+        for(int i = 0; i < end; i ++){
+            int mappedTime = mapLocationToTime(startPosition, cut);
+            int skip = cut.skip(mappedTime);
+            if(skip != -1){
+                startPosition = computeSampleStartPosition(skip, 10);
+            }
+            if(startPosition+increment > waveData.capacity()){
+                break;
+            }
+            index = addHighAndLowToDrawingArray(waveData, samples, startPosition, startPosition+increment, index);
+            startPosition += increment;
+        }
         //zero out the rest of the array
         for (int i = index; i < samples.length; i++){
             samples[i] = 0;
@@ -110,6 +99,14 @@ System.out.println("location is " + location + " out of " + WavPlayer.getDuratio
 
         return samples;
     }
+
+    private int mapLocationToTime(int idx, CutOp cut){
+        float idxP = (useCompressedFile)? idx/(float)preprocessedBuffer.capacity()
+                : idx/(float)buffer.capacity();
+        int ms = (int)(idxP * cut.timeAdjusted(WavPlayer.getDuration()));
+        return ms;
+    }
+
 
     private int addHighAndLowToDrawingArray(MappedByteBuffer waveData, float[] samples, int beginIdx, int endIdx, int index){
 
@@ -190,7 +187,7 @@ System.out.println("location is " + location + " out of " + WavPlayer.getDuratio
     }
 
     private int getLastIndex(int startMillisecond, int numSecondsOnScreen) {
-        int endMillisecond = startMillisecond + (numSecondsOnScreen)*1000;
+        int endMillisecond = startMillisecond + (numSecondsOnScreen) * 1000;
         return computeSampleStartPosition(endMillisecond, numSecondsOnScreen);
     }
 
@@ -222,7 +219,7 @@ System.out.println("location is " + location + " out of " + WavPlayer.getDuratio
         return Math.abs(((endPosition+2*increment*AudioInfo.SIZE_OF_SHORT)-startPosition*AudioInfo.SIZE_OF_SHORT)) * 4;
     }
 
-    private int mapLocationToClosestSecond(int location){
+    private int mapTimeToClosestSecond(int location){
         return (int)Math.round((double)location/(double)1000);
     }
 }

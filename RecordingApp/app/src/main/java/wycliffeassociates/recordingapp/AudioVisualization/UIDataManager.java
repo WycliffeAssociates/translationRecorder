@@ -346,4 +346,9 @@ public class UIDataManager {
         }
         return path;
     }
+
+    public void undoCut(){
+        mCutOp.undo();
+        updateUI();
+    }
 }
