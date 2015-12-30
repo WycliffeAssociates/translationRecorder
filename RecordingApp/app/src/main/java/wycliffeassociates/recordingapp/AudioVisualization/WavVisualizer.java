@@ -42,7 +42,7 @@ public class WavVisualizer {
 
     public float[] getDataToDraw(int location, int largest, CutOp cut){
 
-        Log.i(this.toString(), "loc is " + location + " duration is " + WavPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (WavPlayer.getDuration() - cut.getSizeCut()));
+        //Log.i(this.toString(), "loc is " + location + " duration is " + WavPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (WavPlayer.getDuration() - cut.getSizeCut()));
         //float locPerc = location/(float)cut.timeAdjusted(WavPlayer.getDuration());
         //location = (int)(locPerc * WavPlayer.getDuration());
 

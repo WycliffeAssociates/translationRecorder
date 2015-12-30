@@ -73,12 +73,12 @@ public class WaveformView extends CanvasView {
                 if(distX > 0) {
                     int skip = mCut.skip(playbackSectionStart);
                     if (skip != -1) {
-                        playbackSectionStart = skip;
+                        playbackSectionStart = skip + 2;
                     }
                 } else {
                     int skip = mCut.skipReverse(playbackSectionStart);
                     if(skip != Integer.MAX_VALUE){
-                        playbackSectionStart = skip;
+                        playbackSectionStart = skip - 2;
                     }
                 }
 

@@ -329,7 +329,8 @@ public class WavPlayer {
 //            if(mMovedBackwards){
 //                loc = sCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
 //            } else {
-                loc = sCutOp.timeAdjusted(loc, (int) (playbackStart / 88.2));
+            //Ignore cuts prior to playback start: assume they're already accounted for
+            loc = sCutOp.timeAdjusted(loc, (int) (playbackStart / 88.2));
            // }
             return loc;
         }
