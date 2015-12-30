@@ -43,7 +43,7 @@ public class WavVisualizer {
     public float[] getDataToDraw(int location, int largest, CutOp cut){
 
         Log.i(this.toString(), "loc is " + location + " duration is " + WavPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (WavPlayer.getDuration() - cut.getSizeCut()));
-        float locPerc = location/(float)cut.timeAdjusted(WavPlayer.getDuration());
+        //float locPerc = location/(float)cut.timeAdjusted(WavPlayer.getDuration());
         //location = (int)(locPerc * WavPlayer.getDuration());
 
         //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
@@ -87,8 +87,8 @@ public class WavVisualizer {
             int mappedTime = mapLocationToTime(startPosition, cut);
             int skip = cut.skip(mappedTime);
             if(skip != -1){
-                Log.i(this.toString(), "mapped time is " + mappedTime);
-                Log.i(this.toString(), "skip to " + skip + " iteration is " + i);
+                //Log.i(this.toString(), "mapped time is " + mappedTime);
+                //Log.i(this.toString(), "skip to " + skip + " iteration is " + i);
                 startPosition = computeSampleStartPosition(skip, 10);
             }
             if(startPosition+increment > waveData.capacity()){

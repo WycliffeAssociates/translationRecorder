@@ -74,6 +74,7 @@ public class UIDataManager {
         lock = new Semaphore(1);
         mCutOp = new CutOp();
         WavPlayer.setCutOp(mCutOp);
+        mainWave.setCut(mCutOp);
 //        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 //        anim.setInterpolator(new LinearInterpolator());
 //        anim.setRepeatCount(Animation.INFINITE);

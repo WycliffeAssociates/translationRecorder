@@ -47,6 +47,16 @@ public class CutOp {
         return max;
     }
 
+    public int skipReverse(int time){
+        int min = Integer.MAX_VALUE;
+        for(Pair<Integer,Integer> cut : mStack) {
+            if (time >= cut.first && time < cut.second) {
+                min = Math.min(cut.first, min);
+            }
+        }
+        return min;
+    }
+
     /**
      * Computes the total time removed from cutting, for use in ACTUAL capacity computations.
      * Also generates a private simplified and ordered version of this stack, eliminating nested
@@ -127,6 +137,23 @@ public class CutOp {
                 time += p.second - p.first;
             } else {
                 break;
+            }
+        }
+        return time;
+    }
+
+    public int timeAdjusted(int timeMs, int playbackStart){
+        if(mFlattenedStack == null) {
+            return timeMs;
+        }
+        int time = timeMs;
+        for(Pair<Integer,Integer> p : mFlattenedStack){
+            if(p.second > playbackStart) {
+                if (time >= p.first) {
+                    time += p.second - p.first;
+                } else {
+                    break;
+                }
             }
         }
         return time;

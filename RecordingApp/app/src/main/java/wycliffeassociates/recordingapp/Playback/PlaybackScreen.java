@@ -99,7 +99,7 @@ public class PlaybackScreen extends Activity{
 
     private void pausePlayback() {
         manager.swapPauseAndPlay();
-        WavPlayer.pause();
+        WavPlayer.pause(true);
     }
 
     private void skipForward() {

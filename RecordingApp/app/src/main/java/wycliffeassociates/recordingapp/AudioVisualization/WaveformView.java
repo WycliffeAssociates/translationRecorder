@@ -6,10 +6,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 
@@ -25,6 +27,11 @@ public class WaveformView extends CanvasView {
     private int mMarkerStartLoc;
     private int mMarkerEndLoc;
     private ScaleGestureDetector sgd;
+    private CutOp mCut;
+
+    public void setCut(CutOp cut){
+        mCut = cut;
+    }
 
     /**
      * Sets the location (in time (ms)) for the start marker
@@ -61,8 +68,21 @@ public class WaveformView extends CanvasView {
             if (WavPlayer.exists()) {
                 //moves playback by the distance (distX is multiplied so as to scroll at a more
                 //reasonable speed. 3 seems to work well, but is mostly arbitrary.
-                int playbackSectionStart = (int) ((distX*3) + WavPlayer.getLocation());
+                int playbackSectionStart = (int) (distX * 3) + WavPlayer.getLocation();
 
+                if(distX > 0) {
+                    int skip = mCut.skip(playbackSectionStart);
+                    if (skip != -1) {
+                        playbackSectionStart = skip;
+                    }
+                } else {
+                    int skip = mCut.skipReverse(playbackSectionStart);
+                    if(skip != Integer.MAX_VALUE){
+                        playbackSectionStart = skip;
+                    }
+                }
+
+                Log.i(this.toString(), "start is now " + playbackSectionStart + " duration is " + WavPlayer.getDuration() + " location was " + WavPlayer.getLocation());
                 //Ensure scrolling cannot pass an end marker if markers are set.
                 //The seek is to ensure responsiveness; without it the waveform will not scroll
                 //at all if the user slides their finger too far

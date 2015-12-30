@@ -32,6 +32,7 @@ public class WavPlayer {
     private static volatile boolean forceBreakOut = false;
     private static CutOp sCutOp;
     private static volatile boolean sPressedSeek = true;
+    private static volatile boolean sPressedPause = false;
     private static volatile Vector<Pair<Integer,Integer>> sSkippedStack;
 
     public static void setCutOp(CutOp cut){
@@ -78,9 +79,10 @@ public class WavPlayer {
         keepPlaying = true;
         player.flush();
         player.play();
-        if(!onlyPlayingSection && !sPressedSeek){
+        if(!onlyPlayingSection && !sPressedSeek && !sPressedPause){
             playbackStart = 0;
         }
+        sPressedPause = false;
         sPressedSeek = false;
         playbackThread = new Thread(){
 
@@ -185,10 +187,20 @@ public class WavPlayer {
     }
 
     //Pause calls flush so as to eliminate data that may have been written right after the pause
+    public static void pause(boolean fromButtonPress){
+        if(player != null){
+            playbackStart = (int)(getLocation() * 88.2);
+            sPressedPause = true;
+            pause();
+        }
+    }
+
     public static void pause(){
         if(player != null){
             player.pause();
             player.flush();
+            forceBreakOut = true;
+            keepPlaying = false;
         }
     }
 
@@ -225,10 +237,10 @@ public class WavPlayer {
         boolean wasPlaying = isPlaying();
         sPressedSeek = true;
         stop();
-        int seekTo = sCutOp.skip(x);
-        if(seekTo != -1){
-            x = seekTo;
-        }
+//        int seekTo = sCutOp.skip(x);
+//        if(seekTo != -1){
+//            x = seekTo;
+//        }
         //500 instead of 1000 because the position should be double here- there's two bytes
         //per data point in the audio array
         playbackStart = (int)(x * (AudioInfo.SAMPLERATE/500.0));
@@ -314,7 +326,11 @@ public class WavPlayer {
         if(player != null) {
             int loc = Math.min((int) ((playbackStart / 2 + player.getPlaybackHeadPosition()) *
                     (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
-            loc = sCutOp.timeAdjusted(loc);
+//            if(mMovedBackwards){
+//                loc = sCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
+//            } else {
+                loc = sCutOp.timeAdjusted(loc, (int) (playbackStart / 88.2));
+           // }
             return loc;
         }
         else {
