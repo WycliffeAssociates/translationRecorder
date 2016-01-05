@@ -42,7 +42,7 @@ public class WavVisualizer {
 
     public float[] getDataToDraw(int location, int largest, CutOp cut){
 
-        //Log.i(this.toString(), "loc is " + location + " duration is " + WavPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (WavPlayer.getDuration() - cut.getSizeCut()));
+        Log.i(this.toString(), "loc is " + location + " duration is " + WavPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (WavPlayer.getDuration() - cut.getSizeCut()));
         //float locPerc = location/(float)cut.timeAdjusted(WavPlayer.getDuration());
         //location = (int)(locPerc * WavPlayer.getDuration());
 
@@ -71,9 +71,10 @@ public class WavVisualizer {
         //modify the starting position due to wanting the current position to start at the playback line
         //this means data prior to this location should be drawn, in which samples needs to be initialized to provide some empty space if
         //the current playback position is in the early parts of the file and there is no earlier data to read
-        startPosition = computeOffsetForPlaybackLine(numSecondsOnScreen, startPosition);
-        int tempStartTime = mapLocationToTime(startPosition, cut);
-        startPosition = computeSampleStartPosition(cut.reverseTimeAdjusted(tempStartTime), 21);
+        int timeToSubtract = msBeforePlaybackLine(numSecondsOnScreen, startPosition);
+        int tempStartTime = backUpStartPos(location, timeToSubtract, cut);
+        startPosition = computeSampleStartPosition(tempStartTime, numSecondsOnScreen);
+        Log.i(this.toString(), "time to subtract " + timeToSubtract + " start time now " + tempStartTime + " start pos = " + startPosition);
         int index = initializeSamples(samples, startPosition, increment);
         //in the event that the actual start position ends up being negative (such as from shifting forward due to playback being at the start of the file)
         //it should be set to zero (and the buffer will already be initialized with some zeros, with index being the index of where to resume placing data
@@ -105,10 +106,22 @@ public class WavVisualizer {
         return samples;
     }
 
+    private int backUpStartPos(int start, int delta, CutOp cut){
+        int loc = start;
+        for(int i = 0; i < delta; i++){
+            loc--;
+            int skip = cut.skipReverse(loc);
+            if(skip != Integer.MAX_VALUE){
+                loc = skip;
+            }
+        }
+        return loc;
+    }
+
     private int mapLocationToTime(int idx, CutOp cut){
-        float idxP = (useCompressedFile)? idx/(float)preprocessedBuffer.capacity()
-                : idx/(float)buffer.capacity();
-        int ms = (int)(idxP * WavPlayer.getDuration());
+        double idxP = (useCompressedFile)? idx/(double)preprocessedBuffer.capacity()
+                : idx/(double)buffer.capacity();
+        int ms = (int)Math.round(idxP * WavPlayer.getDuration());
         return ms;
     }
 
@@ -143,7 +156,7 @@ public class WavVisualizer {
     private int initializeSamples(float[] samples, int startPosition, int increment){
         if(startPosition <= 0) {
             int numberOfZeros = Math.abs(startPosition) / increment;
-            //System.out.println("number of zeros is " + numberOfZeros);
+            System.out.println("number of zeros is " + numberOfZeros);
             //System.out.println("Start position is " + startPosition + " increment is " + increment);
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
@@ -165,28 +178,38 @@ public class WavVisualizer {
         else return false;
     }
 
-    private int computeOffsetForPlaybackLine(int numSecondsOnScreen, int startPosition){
+    private int msBeforePlaybackLine(int numSecondsOnScreen, int startPosition){
         int pixelsBeforeLine = (screenWidth/8);
-        int mspp = getIncrement(numSecondsOnScreen);
-        //System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
-        return startPosition - (mspp * pixelsBeforeLine);
+        double mspp = (numSecondsOnScreen * 1000) / (double)screenWidth;
+        System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
+        return (int)Math.round(mspp * pixelsBeforeLine);
     }
 
     private int computeSampleStartPosition(int startMillisecond, int numSecondsOnScreen){
         // multiplied by 2 because of a hi and low for each sample in the compressed file
         //System.out.println("Duration of file is " + WavPlayer.getDuration());
-        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)(Math.floor((
+/*
+        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)(Math.round((
+
                                                                                                         (startMillisecond/(double)WavPlayer.getDuration())
                                                                                                                 *(preprocessedBuffer.capacity()/4)
                                                                                                         )
                                                                                                     ))
+                //(int)Math.round(startMillisecond * (screenWidth/((double)(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * 1000)))) * 4
         //int sampleStartPosition = (useCompressedFile)? (int)Math.floor((startMillisecond/(double)WavPlayer.getDuration())*(preprocessedBuffer.capacity()/4.0)*4)
-                : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+                : (int)(Math.round((startMillisecond/1000.d) * AudioInfo.SAMPLERATE )) * AudioInfo.SIZE_OF_SHORT;
+*/
+        int sampleStartPosition = (int)Math.round((startMillisecond/1000.d) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        if(useCompressedFile){
+            int increment = (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)screenWidth)  * AudioInfo.SIZE_OF_SHORT;
+            sampleStartPosition = (int)Math.round(sampleStartPosition / (double)increment) * AudioInfo.SIZE_OF_SHORT * 2;
+        }
         return sampleStartPosition;
     }
 
     private int getIncrement(int numSecondsOnScreen){
-        int increment = (useCompressedFile)?  (int)Math.floor((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT : (numSecondsOnScreen * AudioInfo.SAMPLERATE / screenWidth) * AudioInfo.SIZE_OF_SHORT;
+        int increment = (useCompressedFile)?  (int)Math.round((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT
+                : (numSecondsOnScreen * AudioInfo.SAMPLERATE / screenWidth) * AudioInfo.SIZE_OF_SHORT;
         increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
@@ -197,12 +220,12 @@ public class WavVisualizer {
     }
 
     private int getNumSecondsOnScreen(float userScale){
-        int numSecondsOnScreen = (int)(defaultSecondsOnScreen * userScale);
+        int numSecondsOnScreen = (int)Math.round(defaultSecondsOnScreen * userScale);
         return Math.max(numSecondsOnScreen, 1);
     }
 
-    public float millisecondsPerPixel(){
-        return numSecondsOnScreen * 1000/(float)screenWidth;
+    public double millisecondsPerPixel(){
+        return numSecondsOnScreen * 1000/(double)screenWidth;
     }
 
 

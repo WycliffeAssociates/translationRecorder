@@ -227,14 +227,14 @@ public class UIDataManager {
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
     }
 
-    public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, float mspp){
+    public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, double mspp){
         //Logger.i(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
         //Logger.i(this.toString(), "mspp is " + mspp);
-        return Math.round((-markerTimeMs + timeAtPlaybackLineMs) / mspp);
+        return (int)Math.round((-markerTimeMs + timeAtPlaybackLineMs) / mspp);
 
     }
 
-    public float getMspp(){
+    public double getMspp(){
         return wavVis.millisecondsPerPixel();
     }
 
