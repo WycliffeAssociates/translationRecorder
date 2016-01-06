@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
 
+import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.WavPlayer;
+
 /**
  * Created by sarabiaj on 12/22/2015.
  */
@@ -14,6 +17,8 @@ public class CutOp {
     private Vector<Pair<Integer, Integer>> mStack;
     private Vector<Pair<Integer, Integer>> mFlattenedStack;
     private int mSizeCut = 0;
+    private Vector<Pair<Integer, Integer>> mCutStackUncmpLoc;
+    private Vector<Pair<Integer, Integer>> mCutStackCmpLoc;
 
     public CutOp(){
         mStack = new Vector<>();
@@ -27,6 +32,8 @@ public class CutOp {
         Pair<Integer, Integer> temp = new Pair<>(start, end);
         mStack.add(temp);
         mSizeCut = totalDataRemoved();
+        generateCutStackUncmpLoc();
+        generateCutStackCmpLoc();
     }
 
     public void undo(){
@@ -35,6 +42,8 @@ public class CutOp {
         }
         mStack.remove(mStack.size() - 1);
         mSizeCut = totalDataRemoved();
+        generateCutStackUncmpLoc();
+        generateCutStackCmpLoc();
     }
 
     public int skip(int time){
@@ -174,6 +183,42 @@ public class CutOp {
         return time;
     }
 
+    private void generateCutStackUncmpLoc(){
+        mCutStackUncmpLoc = new Vector<Pair<Integer,Integer>>();
+        for(Pair<Integer,Integer> p : mFlattenedStack){
+            Pair<Integer, Integer> y = new Pair<>(timeToUncmpLoc(p.first), timeToUncmpLoc(p.second));
+            mCutStackUncmpLoc.add(y);
+        }
+    }
+
+    private void generateCutStackCmpLoc(){
+        mCutStackCmpLoc = new Vector<Pair<Integer,Integer>>();
+        for(Pair<Integer,Integer> p : mFlattenedStack){
+            Pair<Integer, Integer> y = new Pair<>(timeToCmpLoc(p.first), timeToCmpLoc(p.second));
+            mCutStackCmpLoc.add(y);
+        }
+    }
+
+    public int timeToUncmpLoc(int timeMs){
+        return (int)Math.round(AudioInfo.SAMPLERATE * timeMs/1000.0) * 2;
+    }
+
+    public int timeToCmpLoc(int timeMs){
+        double compressionInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
+        return (int)Math.round((timeToUncmpLoc(timeMs) / compressionInc)/(double)AudioInfo.SCREEN_WIDTH) * 4;
+    }
+
+    public int skipLoc(int loc, boolean compressed){
+        int max = -1;
+        Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc; 
+        for(Pair<Integer,Integer> cut : stack) {
+            if (loc >= cut.first && loc < cut.second) {
+                max = Math.max(cut.second, max);
+            }
+        }
+        return max;
+    }
+    
     public int getSizeCut(){
         return mSizeCut;
     }

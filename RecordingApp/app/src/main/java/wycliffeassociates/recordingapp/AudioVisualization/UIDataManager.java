@@ -199,6 +199,7 @@ public class UIDataManager {
         mCutOp.cut(start, end);
         Logger.w(UIDataManager.class.toString(), "Cutting from " + start + " to " + end);
         SectionMarkers.clearMarkers();
+        minimap.init(wavVis.getMinimap(mCutOp, minimap.getHeight()));
         updateUI();
     }
 
@@ -350,6 +351,7 @@ public class UIDataManager {
 
     public void undoCut(){
         mCutOp.undo();
+        minimap.init(wavVis.getMinimap(mCutOp, minimap.getHeight()));
         updateUI();
     }
 }

@@ -3,6 +3,10 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.nio.MappedByteBuffer;
 import java.util.Vector;
 
@@ -38,6 +42,57 @@ public class WavVisualizer {
         System.out.println("Swapping buffers now");
         this.preprocessedBuffer = preprocessedBuffer;
         this.canSwitch = true;
+    }
+
+    public float[] getMinimap(CutOp cut, int minimapHeight){
+        boolean useCompressedFile = false;//shouldUseCompressedFile(WavPlayer.getDuration());
+        MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
+        int durationAfterCuts = WavPlayer.getDuration() - cut.getSizeCut();
+        //increment used to generate compressed file
+        double fileInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
+        int incUncmp = (int)Math.round(((AudioInfo.SAMPLERATE * durationAfterCuts)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
+        int incCmp = (int)Math.round((incUncmp / (double)fileInc) / (double)AudioInfo.SCREEN_WIDTH) * 4;
+        int increment = (useCompressedFile)? incCmp : incUncmp;
+        float[] minimap = new float[AudioInfo.SCREEN_WIDTH * 4];
+        int pos = 0;
+        int index = 0;
+        for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
+            double max = Double.MIN_VALUE;
+            double min = Double.MAX_VALUE;
+            for(int j = 0; j < increment; j++){
+                int skip = cut.skipLoc(pos, useCompressedFile);
+                if(skip != -1){
+                    pos = skip;
+                }
+                if(pos+1 >= waveData.capacity()) {
+                    break;
+                }
+                byte low = waveData.get(pos);
+                byte hi = waveData.get(pos + 1);
+                short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                max = (max < (double) value) ? value : max;
+                min = (min > (double) value) ? value : min;
+                pos++;
+            }
+            minimap[index] = index/4;
+            minimap[index+1] = (float)((max* .001) + minimapHeight / 2);
+            minimap[index+2] =  index/4;
+            minimap[index+3] = (float)((min * .001) + minimapHeight / 2);
+            System.out.print(minimap[index+1] +" " + minimap[index+3] + " ");
+            index+=4;
+        }
+        System.out.print("height is " +minimapHeight);
+        File file = new File(AudioInfo.pathToVisFile, "info");
+        try {
+            PrintWriter fos = new PrintWriter(file);
+            for(float x : minimap){
+                fos.println(x);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return minimap;
     }
 
     public float[] getDataToDraw(int location, int largest, CutOp cut){
@@ -83,7 +138,7 @@ public class WavVisualizer {
 
 
         int end = samples.length/4;
-        //beginning with the starting position, the width of each increment represents the data one pixel width is showing
+        //beginning with the starting position, the wi dth of each increment represents the data one pixel width is showing
         for(int i = 0; i < end; i ++){
             int mappedTime = mapLocationToTime(startPosition, cut);
             int skip = cut.skip(mappedTime);
@@ -241,6 +296,8 @@ public class WavVisualizer {
         //System.out.println(largest + " for calculating y scale");
         return ((canvasHeight*.8)/ (largest * 2.0));
     }
+
+
 
     private int computeSpaceToAllocateForSamples(int startPosition, int endPosition, int increment){
         //the 2 is to give a little extra room, and the 4 is to account for x1, y1, x2, y2 for each

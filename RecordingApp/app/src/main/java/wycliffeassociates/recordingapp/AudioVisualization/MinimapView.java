@@ -181,6 +181,7 @@ public class MinimapView extends CanvasView {
 
     public void init(final float[] samples){
         mSamples = samples;
+        initialized = false;
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
