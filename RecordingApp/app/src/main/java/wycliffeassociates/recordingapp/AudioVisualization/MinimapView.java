@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
@@ -27,6 +28,12 @@ public class MinimapView extends CanvasView {
     private double secondsPerPixel = 0;
     private double timecodeInterval = 1.0;
     private float[] mSamples;
+    private CutOp mCut;
+
+    public void setCut(CutOp cut){
+        mCut = cut;
+    }
+
 
     public MinimapView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -67,8 +74,8 @@ public class MinimapView extends CanvasView {
                 endPosition -= (int) distanceX;
                 int startPositionMinimap = startPosition;
                 int endPositionMinimap = endPosition;
-                int playbackSectionStart = (int) ((startPosition / (double) getWidth()) * WavPlayer.getDuration());
-                int playbackSectionEnd = (int) ((endPosition / (double) getWidth()) * WavPlayer.getDuration());
+                int playbackSectionStart = (int) mCut.timeAdjusted((int)Math.round((startPositionMinimap / (double) getWidth()) * (WavPlayer.getDuration() - mCut.getSizeCut())));
+                int playbackSectionEnd = (int) mCut.timeAdjusted((int)Math.round((endPositionMinimap / (double) getWidth()) * (WavPlayer.getDuration() - mCut.getSizeCut())));
                 if (startPosition > endPosition) {
                     int temp = playbackSectionEnd;
                     playbackSectionEnd = playbackSectionStart;
@@ -101,12 +108,16 @@ public class MinimapView extends CanvasView {
         minimapMarker(canvas);
         drawTimeCode(canvas);
         if(SectionMarkers.shouldDrawMarkers() ){
-            drawPlaybackSection(canvas, SectionMarkers.getMinimapMarkerStart(), SectionMarkers.getMinimapMarkerEnd());
+            int start = SectionMarkers.getMinimapMarkerStart();
+            int end = SectionMarkers.getMinimapMarkerEnd();
+//            int start = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerStart() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
+//            int end = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerEnd() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
+            drawPlaybackSection(canvas, start, end);
             System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
             mPaint.setColor(Color.BLUE);
             mPaint.setAlpha(25);
             mPaint.setStyle(Paint.Style.FILL);
-            canvas.drawRect(SectionMarkers.getMinimapMarkerStart(), 0, SectionMarkers.getMinimapMarkerEnd(), getHeight(), mPaint);
+            canvas.drawRect(start, 0, end, getHeight(), mPaint);
             mPaint.setAlpha(255);
         }
     }

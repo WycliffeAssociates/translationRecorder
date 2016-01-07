@@ -39,7 +39,7 @@ public class SectionMarkers {
     public static void setStartTime(int x, int width){
         WavPlayer.startSectionAt(x);
         mainStart = x;
-        minimapStart = (int)((x / (double) WavPlayer.getDuration()) * width);
+        minimapStart = (int)((x / (double) WavPlayer.getAdjustedDuration()) * width);
         startSet = true;
         swapIfNeeded();
         if(startSet && endSet){
@@ -49,7 +49,7 @@ public class SectionMarkers {
 
     public static void setEndTime(int x, int width){
         mainEnd = x;
-        minimapEnd = (int)((x / (double) WavPlayer.getDuration()) * width);
+        minimapEnd = (int)((x / (double) WavPlayer.getAdjustedDuration()) * width);
         endSet = true;
         swapIfNeeded();
         if(startSet && endSet){

@@ -75,6 +75,7 @@ public class UIDataManager {
         mCutOp = new CutOp();
         WavPlayer.setCutOp(mCutOp);
         mainWave.setCut(mCutOp);
+        minimap.setCut(mCutOp);
 //        anim = new RotateAnimation(0f, 350f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 //        anim.setInterpolator(new LinearInterpolator());
 //        anim.setRepeatCount(Animation.INFINITE);
@@ -111,10 +112,11 @@ public class UIDataManager {
         }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = WavPlayer.getLocation();
-        minimap.setMiniMarkerLoc((float) ((location / (double) WavPlayer.getDuration()) * minimap.getWidth()));
+        minimap.setMiniMarkerLoc((float) ((mCutOp.reverseTimeAdjusted(location) / ((double) WavPlayer.getDuration() - mCutOp.getSizeCut())) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         mainWave.setTimeToDraw(location);
-        final String time = String.format("%02d:%02d:%02d", location / 3600000, (location / 60000) % 60, (location / 1000) % 60);
+        int adjLoc = WavPlayer.getAdjustedLocation();
+        final String time = String.format("%02d:%02d:%02d", adjLoc / 3600000, (adjLoc / 60000) % 60, (adjLoc / 1000) % 60);
         ctx.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -200,6 +202,7 @@ public class UIDataManager {
         Logger.w(UIDataManager.class.toString(), "Cutting from " + start + " to " + end);
         SectionMarkers.clearMarkers();
         minimap.init(wavVis.getMinimap(mCutOp, minimap.getHeight()));
+        minimap.setAudioLength(WavPlayer.getDuration() - mCutOp.getSizeCut());
         updateUI();
     }
 
@@ -352,6 +355,7 @@ public class UIDataManager {
     public void undoCut(){
         mCutOp.undo();
         minimap.init(wavVis.getMinimap(mCutOp, minimap.getHeight()));
+        minimap.setAudioLength(WavPlayer.getDuration() - mCutOp.getSizeCut());
         updateUI();
     }
 }

@@ -59,7 +59,7 @@ public class WavVisualizer {
         for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
-            for(int j = 0; j < increment; j++){
+            for(int j = 0; j < increment; j+=2){
                 int skip = cut.skipLoc(pos, useCompressedFile);
                 if(skip != -1){
                     pos = skip;
@@ -72,13 +72,14 @@ public class WavVisualizer {
                 short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
                 max = (max < (double) value) ? value : max;
                 min = (min > (double) value) ? value : min;
-                pos++;
+                pos+=2;
             }
             minimap[index] = index/4;
-            minimap[index+1] = (float)((max* .001) + minimapHeight / 2);
+            minimap[index+1] = (float)((max* 168/15000) + minimapHeight / 2);
             minimap[index+2] =  index/4;
-            minimap[index+3] = (float)((min * .001) + minimapHeight / 2);
-            System.out.print(minimap[index+1] +" " + minimap[index+3] + " ");
+            minimap[index+3] = (float)((min * 168/15000) + minimapHeight / 2);
+            System.out.println(max +" " + min + " ");
+            System.out.println(minimap[index + 1] + " " + minimap[index + 3] + " ");
             index+=4;
         }
         System.out.print("height is " +minimapHeight);

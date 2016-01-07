@@ -339,6 +339,17 @@ public class WavPlayer {
             return 0;
         }
     }
+
+    public static int getAdjustedLocation(){
+        if(player != null) {
+            int loc = sCutOp.reverseTimeAdjusted(getLocation());
+            return loc;
+        }
+        else {
+            return 0;
+        }
+    }
+
     public static int getDuration(){
         if(player != null){
             int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
@@ -347,6 +358,10 @@ public class WavPlayer {
         else {
             return 0;
         }
+    }
+
+    public static int getAdjustedDuration(){
+        return getDuration() - sCutOp.getSizeCut();
     }
 
     public static int getSelectionEnd(){

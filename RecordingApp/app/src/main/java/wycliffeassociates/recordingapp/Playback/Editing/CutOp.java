@@ -174,12 +174,13 @@ public class CutOp {
         }
         int time = timeMs;
         for(Pair<Integer,Integer> p : mFlattenedStack){
-            if(time >= p.first && time <= p.second) {
+            if(timeMs >= p.second) {
                 time -= p.second - p.first;
             } else {
                 break;
             }
         }
+
         return time;
     }
 
