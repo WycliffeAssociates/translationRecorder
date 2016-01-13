@@ -128,7 +128,7 @@ public class WavPlayer {
                 }
                 //location doesn't usually end up going to the end before audio playback stops.
                 //continue to loop until the end is reached.
-                while((getLocation() <= (WavPlayer.getDuration())) && !forceBreakOut){}
+                while((getLocation() <= (getDuration())) && !forceBreakOut){}
                 System.out.println("end thread");
                 System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
