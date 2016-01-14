@@ -35,7 +35,7 @@ public class CutOp {
         Pair<Integer, Integer> temp = new Pair<>(start, end);
         mStack.add(temp);
         mSizeCut = totalDataRemoved();
-        Logger.w(this.toString(), "Generating location stacks")
+        Logger.w(this.toString(), "Generating location stacks");
         generateCutStackUncmpLoc();
         generateCutStackCmpLoc();
     }
