@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.FilesPage.Export;
 import android.app.Fragment;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,12 +47,18 @@ public abstract class Export {
      */
     public abstract void export();
 
+    public void cleanUp(){
+        if(mZipPath != null){
+            File file = new File(mZipPath);
+            file.delete();
+        }
+    }
 
     /**
      * Zips files if more than one file is selected
      */
     //TODO: Zip file appears to just use the name of the first file, what should this change to?
-    private void zipFiles(){
+    protected void zipFiles(){
         //files should only be zipped if more than one are selected
         if (mNumFilesToExport > 1) {
             String toExport[] = new String[mExportList.size()];
@@ -76,7 +83,7 @@ public abstract class Export {
      * @param currentDir String of the path of the current directory
      * @return Whether or not there are files to export
      */
-    private boolean populateExportList(ArrayList<AudioItem> audioItemList,
+    protected boolean populateExportList(ArrayList<AudioItem> audioItemList,
                                     AudioFilesAdapter adapter, String currentDir){
         mExportList = new ArrayList<>();
         if ((audioItemList.size() == 0)) {

@@ -73,8 +73,7 @@ public class WavFileWriter extends Service{
         Thread compressionThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int increment = (int)Math.floor((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * AudioInfo.SIZE_OF_SHORT) / screenWidth);
-                increment = (increment % 2 == 0)? increment : increment+1;
+                int increment = (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)screenWidth)  * AudioInfo.SIZE_OF_SHORT;
                 System.out.println("Increment is " + increment);
                 boolean stopped = false;
                 //int numRemoved = 0;

@@ -1,4 +1,5 @@
 package wycliffeassociates.recordingapp;
+import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.Playback.WavMediaPlayer;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Recording.*;
@@ -85,10 +86,12 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
 
                 }
                 else if (isPlaying) {
+                    SectionMarkers.clearMarkers();
                     WavPlayer.release();
                 }
                 else {
                     WavPlayer.release();
+                    SectionMarkers.clearMarkers();
                     if(isPausedRecording){
                         RecordingQueues.stopQueues();
                     }

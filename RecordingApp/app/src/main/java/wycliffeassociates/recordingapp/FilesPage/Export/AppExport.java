@@ -1,8 +1,10 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -80,23 +82,36 @@ public class AppExport extends Export {
      *      a list of filenames to be exported
      */
     private void exportZipApplications(String path){
+        Intent shareIntent = new Intent(this.mCtx.getActivity(), AppExport.ShareZipToApps.class);
+        shareIntent.putExtra("zipPath", path);
+        mCtx.startActivity(shareIntent);
+    }
 
-        Intent sendIntent = new Intent();
-        sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    public static class ShareZipToApps extends Activity{
+        File mFile;
 
-        //share it implementation
-        File tFile;
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            String path = getIntent().getStringExtra("zipPath");
+            Intent sendIntent = new Intent();
+            sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            mFile = new File (path);
+            Uri audioUri = Uri.fromFile(mFile);
+            sendIntent.setAction(Intent.ACTION_SEND);
+            //send individual URI
+            sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);
+            //open
+            sendIntent.setType("application/zip");
+            this.startActivityForResult(Intent.createChooser(sendIntent, "Export Zip"), 3);
+        }
 
-        Uri audioUri;
-
-        tFile = new File (path);
-        audioUri = Uri.fromFile(tFile);
-        sendIntent.setAction(Intent.ACTION_SEND);
-
-        //send individual URI
-        sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);
-
-        //open
-        sendIntent.setType("application/zip");
-        mCtx.startActivityForResult(Intent.createChooser(sendIntent, "Export Zip"), 3);
-    }}
+        @Override
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            if(mFile != null){
+                mFile.delete();
+            }
+        }
+    }
+}

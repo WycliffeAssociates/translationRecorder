@@ -51,7 +51,7 @@ public class RecordingScreen extends Activity {
 
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
-        manager = new UIDataManager(mainCanvas, minimap, this, UIDataManager.RECORDING_MODE, true);
+        manager = new UIDataManager(mainCanvas, minimap, null, null, this, UIDataManager.RECORDING_MODE, true);
 
         setButtonHandlers();
         enableButtons();
@@ -84,7 +84,7 @@ public class RecordingScreen extends Activity {
             RecordingQueues.clearQueues();
             Intent intent = new Intent(this, WavFileWriter.class);
             intent.putExtra("audioFileName", getFilename());
-            intent.putExtra("screenWidth", mainCanvas.getWidth());
+            intent.putExtra("screenWidth", minimap.getWidth());
             startService(new Intent(this, WavRecorder.class));
             startService(intent);
             manager.listenForRecording(true);

@@ -19,7 +19,6 @@ public abstract class CanvasView extends View {
     int fps = 0;
     protected boolean doneDrawing = false;
     protected UIDataManager mManager;
-    protected static SectionMarkers sMarkers = null;
     protected GestureDetectorCompat mDetector;
 
     @Override
@@ -55,7 +54,6 @@ public abstract class CanvasView extends View {
         mPaint.setColor(Color.DKGRAY);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
-        sMarkers = new SectionMarkers();
     }
 
     // override onSizeChanged
@@ -97,26 +95,5 @@ public abstract class CanvasView extends View {
         mManager = manager;
     }
 
-    public static int getStartMarker(){
-        int loc = (int)(sMarkers.getStartLocation()*88.2);
-        return (loc % 2 == 0)? loc : loc + 1;
-    }
-
-    public static int getEndMarker(){
-        int loc = (int)(sMarkers.getEndLocation()*88.2);
-        return (loc % 2 == 0)? loc : loc + 1;
-    }
-
-    public static int getMarkerStartTime(){
-        return sMarkers.getStartLocation();
-    }
-
-    public static int getMarkerEndTime(){
-        return sMarkers.getEndLocation();
-    }
-
-    public static void clearMarkers(){
-        sMarkers.clearMarkers();
-    }
 }
 

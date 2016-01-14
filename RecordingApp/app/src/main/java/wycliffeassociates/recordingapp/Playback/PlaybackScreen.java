@@ -13,6 +13,8 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.amazonaws.RequestClientOptions;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -20,16 +22,18 @@ import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.Timer;
 
 /**
  * Created by sarabiaj on 11/10/2015.
  */
-public class PlaybackScreen extends Activity {
+public class PlaybackScreen extends Activity{
 
     //Constants for WAV format
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
@@ -39,6 +43,8 @@ public class PlaybackScreen extends Activity {
     private TextView filenameView;
     private WaveformView mainCanvas;
     private MinimapView minimap;
+    private MarkerView mStartMarker;
+    private MarkerView mEndMarker;
     private UIDataManager manager;
     private PreferencesManager pref;
     private String recordedFilename = null;
@@ -50,7 +56,6 @@ public class PlaybackScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         System.out.println("Creating PlaybackScreen...");
-
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
 
@@ -70,13 +75,17 @@ public class PlaybackScreen extends Activity {
 
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
+        mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
+        mStartMarker.setOrientation(MarkerView.LEFT);
+        mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
+        mEndMarker.setOrientation(MarkerView.RIGHT);
 
         final Activity ctx = this;
         ViewTreeObserver vto = mainCanvas.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                manager = new UIDataManager(mainCanvas, minimap, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
+                manager = new UIDataManager(mainCanvas, minimap, mStartMarker, mEndMarker, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
                 System.out.println("Sending in " + recordedFilename + " to loadWavFromFile()");
                 manager.loadWavFromFile(recordedFilename);
                 manager.updateUI();
@@ -90,7 +99,7 @@ public class PlaybackScreen extends Activity {
 
     private void pausePlayback() {
         manager.swapPauseAndPlay();
-        WavPlayer.pause();
+        WavPlayer.pause(true);
     }
 
     private void skipForward() {
@@ -113,18 +122,24 @@ public class PlaybackScreen extends Activity {
 
     private void placeStartMarker(){
         mainCanvas.placeStartMarker(WavPlayer.getLocation());
+        manager.updateUI();
     }
 
     private void placeEndMarker(){
         mainCanvas.placeEndMarker(WavPlayer.getLocation());
+        manager.updateUI();
     }
 
     private void cut() {
         manager.cutAndUpdate();
     }
 
+    private void undo() {
+        manager.undoCut();
+    }
+
     private void clearMarkers(){
-        CanvasView.clearMarkers();
+        SectionMarkers.clearMarkers();
         manager.updateUI();
     }
 
@@ -256,7 +271,7 @@ public class PlaybackScreen extends Activity {
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
-
+        findViewById(R.id.btnUndo).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -309,6 +324,10 @@ public class PlaybackScreen extends Activity {
                 }
                 case R.id.btnClear: {
                     clearMarkers();
+                    break;
+                }
+                case R.id.btnUndo: {
+                    undo();
                     break;
                 }
             }

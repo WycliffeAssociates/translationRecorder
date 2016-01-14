@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -40,7 +41,9 @@ public class MainMenu extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        AudioInfo.SCREEN_WIDTH = metrics.widthPixels;
 
         System.out.println("internal files dir is " + getApplicationContext().getFilesDir());
         System.out.println("External files dir is " + Environment.getExternalStoragePublicDirectory("TranslationRecorder"));

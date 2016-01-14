@@ -3,12 +3,15 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 
@@ -24,6 +27,11 @@ public class WaveformView extends CanvasView {
     private int mMarkerStartLoc;
     private int mMarkerEndLoc;
     private ScaleGestureDetector sgd;
+    private CutOp mCut;
+
+    public void setCut(CutOp cut){
+        mCut = cut;
+    }
 
     /**
      * Sets the location (in time (ms)) for the start marker
@@ -60,16 +68,29 @@ public class WaveformView extends CanvasView {
             if (WavPlayer.exists()) {
                 //moves playback by the distance (distX is multiplied so as to scroll at a more
                 //reasonable speed. 3 seems to work well, but is mostly arbitrary.
-                int playbackSectionStart = (int) ((distX*3) + WavPlayer.getLocation());
+                int playbackSectionStart = (int) (distX * 3) + WavPlayer.getLocation();
 
+                if(distX > 0) {
+                    int skip = mCut.skip(playbackSectionStart);
+                    if (skip != -1) {
+                        playbackSectionStart = skip + 2;
+                    }
+                } else {
+                    int skip = mCut.skipReverse(playbackSectionStart);
+                    if(skip != Integer.MAX_VALUE){
+                        playbackSectionStart = skip - 2;
+                    }
+                }
+
+                //Log.i(this.toString(), "start is now " + playbackSectionStart + " duration is " + WavPlayer.getDuration() + " location was " + WavPlayer.getLocation());
                 //Ensure scrolling cannot pass an end marker if markers are set.
                 //The seek is to ensure responsiveness; without it the waveform will not scroll
                 //at all if the user slides their finger too far
-                if(sMarkers.getEndLocation() < playbackSectionStart){
-                    WavPlayer.seekTo(sMarkers.getEndLocation());
+                if(SectionMarkers.getEndLocationMs() < playbackSectionStart){
+                    WavPlayer.seekTo(SectionMarkers.getEndLocationMs());
                 //Same as above but the check is to make sure scrolling will not go before a marker
-                } else if(sMarkers.getStartLocation() > playbackSectionStart){
-                    WavPlayer.seekTo(sMarkers.getStartLocation());
+                } else if(SectionMarkers.getStartLocationMs() > playbackSectionStart){
+                    WavPlayer.seekTo(SectionMarkers.getStartLocationMs());
                 } else {
                     WavPlayer.seekTo(playbackSectionStart);
                 }
@@ -92,12 +113,12 @@ public class WaveformView extends CanvasView {
     /**
      * Updates the start position in the marker object. If this means both markers are now set,
      * WavPlayer needs to set start and stop locations
-     * @param startTimeMS time in milliseconds of where to place a start marker
+     * @param startTimeMs time in milliseconds of where to place a start marker
      */
-    public void placeStartMarker(int startTimeMS){
-        sMarkers.setStartTime(startTimeMS, getWidth());
+    public void placeStartMarker(int startTimeMs){
+        SectionMarkers.setStartTime(startTimeMs, getWidth());
         //if both markers are set, then set the start and end markers in WavPlayer
-        if(sMarkers.bothSet()){
+        if(SectionMarkers.bothSet()){
             setWavPlayerSelectionMarkers();
         }
         //draw the placed marker
@@ -111,8 +132,8 @@ public class WaveformView extends CanvasView {
      * @param endTimeMS time in milliseconds of where to place an end marker
      */
     public void placeEndMarker(int endTimeMS){
-        sMarkers.setEndTime(endTimeMS, getWidth());
-        if(sMarkers.bothSet()){
+        SectionMarkers.setEndTime(endTimeMS, getWidth());
+        if(SectionMarkers.bothSet()){
             setWavPlayerSelectionMarkers();
         }
         invalidate();
@@ -123,8 +144,8 @@ public class WaveformView extends CanvasView {
      * Sets the start and end markers in the WavPlayer
      */
     public void setWavPlayerSelectionMarkers(){
-        WavPlayer.startSectionAt(sMarkers.getStartLocation());
-        WavPlayer.stopSectionAt(sMarkers.getEndLocation());
+        WavPlayer.startSectionAt(SectionMarkers.getStartLocationMs());
+        WavPlayer.stopSectionAt(SectionMarkers.getEndLocationMs());
     }
 
     /**
@@ -185,7 +206,7 @@ public class WaveformView extends CanvasView {
      * @param c
      */
     public void drawSectionMarkers(Canvas c){
-        //need to change this to match number of seconds on the screen instead of constant 10
+        //FIXME: need to change this to match number of seconds on the screen instead of constant 10
         //compute the number of milliseconds in one pixel
         float mspp = 1000*10/(float)getWidth();
         //offset refers to the location where playback actually starts (at the playback line)
@@ -200,16 +221,21 @@ public class WaveformView extends CanvasView {
         mPaint.setStrokeWidth(2.f);
         mPaint.setColor(Color.RED);
         c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaint);
+        mPaint.setColor(Color.BLUE);
+        mPaint.setAlpha(50);
+        mPaint.setStyle(Paint.Style.FILL);
+        c.drawRect(xLoc1, 0, xLoc2, getHeight(), mPaint);
+        mPaint.setAlpha(255);
     }
 
     /**
      * Sets the time in playback to draw this frame
      * This is set so that both the waveform and the markers make use of the same time,
      * rather than each querying WavPlayer when they get to draw their component.
-     * @param timeMS Current time during playback, in milliseconds
+     * @param timeMs Current time during playback, in milliseconds
      */
-    public void setTimeToDraw(int timeMS){
-        this.mTimeToDraw = timeMS;
+    public void setTimeToDraw(int timeMs){
+        this.mTimeToDraw = timeMs;
     }
 
     //TODO: remove the semaphore, replace with either synchronous or try to remove concurrency
@@ -233,9 +259,7 @@ public class WaveformView extends CanvasView {
         //Samples is a sampled section of the waveform extracted at mTimeToDraw
         } else if (mSamples != null ){
             try {
-                UIDataManager.lock.acquire();
                 drawWaveform(mSamples, canvas);
-                UIDataManager.lock.release();
                 drawMarker(canvas);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -244,7 +268,7 @@ public class WaveformView extends CanvasView {
         }
         //Creates a drawing loop; redraws only will occur if audio is playing
         redraw();
-        if(sMarkers.shouldDrawMarkers()){
+        if(SectionMarkers.shouldDrawMarkers()){
             drawSectionMarkers(canvas);
         }
         WavPlayer.checkIfShouldStop();
