@@ -186,38 +186,38 @@ public class WavFileLoader {
 
     }
 
-    public float[] getMinimap(int canvasWidth, int canvasHeight) {
-        System.out.println("minimap width is " + canvasWidth + " height is " + canvasHeight);
-        //*4 because 2x values and 2y values for each pixel of width
-        float[] minimap = new float[canvasWidth*4];
-        int increment = (int)Math.floor((buffer.capacity()/2)/(double)canvasWidth);
-        int idx = 0;
-        for(int i = 0; i < buffer.capacity(); i+= increment*AudioInfo.SIZE_OF_SHORT){
-            double max = Double.MIN_VALUE;
-            double min = Double.MAX_VALUE;
-
-            //compute the average
-            for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
-                if((i+j+1) < buffer.capacity()) {
-                    //System.out.println("Capacity is: " + buffer.capacity() + ", i is : " + i + ", j is : " + j + ", i+j+1="+(i+j+1));
-                    byte low = buffer.get(i + j);
-                    byte hi = buffer.get(i + j + 1);
-                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                    max = (max < (double) value) ? value : max;
-                    min = (min > (double) value) ? value : min;
-                }
-            }
-            if(idx < minimap.length) {
-                minimap[idx] = idx/4;
-                minimap[idx + 1] = (float)((max* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
-                minimap[idx + 2] = idx/4;
-                minimap[idx + 3] = (float)((min* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
-            }
-            idx+=4;
-        }
-        System.out.println("idx is " + idx);
-        return minimap;
-    }
+//    public float[] getMinimap(int canvasWidth, int canvasHeight) {
+//        System.out.println("minimap width is " + canvasWidth + " height is " + canvasHeight);
+//        //*4 because 2x values and 2y values for each pixel of width
+//        float[] minimap = new float[canvasWidth*4];
+//        int increment = (int)Math.floor((buffer.capacity()/2)/(double)canvasWidth);
+//        int idx = 0;
+//        for(int i = 0; i < buffer.capacity(); i+= increment*AudioInfo.SIZE_OF_SHORT){
+//            double max = Double.MIN_VALUE;
+//            double min = Double.MAX_VALUE;
+//
+//            //compute the average
+//            for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
+//                if((i+j+1) < buffer.capacity()) {
+//                    //System.out.println("Capacity is: " + buffer.capacity() + ", i is : " + i + ", j is : " + j + ", i+j+1="+(i+j+1));
+//                    byte low = buffer.get(i + j);
+//                    byte hi = buffer.get(i + j + 1);
+//                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+//                    max = (max < (double) value) ? value : max;
+//                    min = (min > (double) value) ? value : min;
+//                }
+//            }
+//            if(idx < minimap.length) {
+//                minimap[idx] = idx/4;
+//                minimap[idx + 1] = (float)((max* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
+//                minimap[idx + 2] = idx/4;
+//                minimap[idx + 3] = (float)((min* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
+//            }
+//            idx+=4;
+//        }
+//        System.out.println("idx is " + idx);
+//        return minimap;
+//    }
 
     public WavFileLoader cut(int start, int end){
         WavPlayer.stop();

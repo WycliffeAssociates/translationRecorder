@@ -293,7 +293,7 @@ public class WaveformView extends CanvasView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawDbLines(canvas);
-        //DrawingFromBuffers will draw data recieved from the microphone during recording
+        //DrawingFromBuffers will draw data received from the microphone during recording
         if(mDrawingFromBuffer){
             try {
                 UIDataManager.lock.acquire();

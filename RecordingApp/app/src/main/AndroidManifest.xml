@@ -26,7 +26,7 @@
         </activity>
         <!--<activity android:name=".MainMenu" />-->
         <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape" android:noHistory="true"/>
-        <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape" android:noHistory="true"/>
+        <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape"/>
         <activity android:name=".FilesPage.AudioFiles" />
         <activity android:name=".SettingsPage.Settings"
             android:windowSoftInputMode="stateUnchanged"/>

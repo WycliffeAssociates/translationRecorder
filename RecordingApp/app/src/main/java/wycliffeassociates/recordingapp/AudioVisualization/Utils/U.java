@@ -17,7 +17,6 @@ public class U {
 
     public static float getValueForScreen(double value, int height){
         float out = (float)(value * (height/(double)(2*AudioInfo.AMPLITUDE_RANGE)) +height/2);
-        System.out.println(" val is " + value + " range is " + AudioInfo.AMPLITUDE_RANGE);
         return out;
     }
 
