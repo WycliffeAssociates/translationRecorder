@@ -11,6 +11,7 @@ import java.nio.MappedByteBuffer;
 import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
@@ -71,9 +72,9 @@ public class WavVisualizer {
                 pos+=2;
             }
             minimap[index] = index/4;
-            minimap[index+1] = (float)((max* 168/15000) + minimapHeight / 2);
+            minimap[index+1] = U.getValueForScreen(max, minimapHeight);
             minimap[index+2] =  index/4;
-            minimap[index+3] = (float)((min * 168/15000) + minimapHeight / 2);
+            minimap[index+3] = U.getValueForScreen(min, minimapHeight);
             System.out.println(max +" " + min + " ");
             System.out.println(minimap[index + 1] + " " + minimap[index + 3] + " ");
             index+=4;
@@ -162,9 +163,9 @@ public class WavVisualizer {
         }
         if(samples.length > index+4){
             samples[index] = index/4;
-            samples[index+1] = (float)((max* yScale) + screenHeight / 2);
+            samples[index+1] = U.getValueForScreen(max, screenHeight);
             samples[index+2] =  index/4;
-            samples[index+3] = (float)((min * yScale) + screenHeight / 2);
+            samples[index+3] = U.getValueForScreen(min, screenHeight);
             index+=4;
         }
 
@@ -257,7 +258,7 @@ public class WavVisualizer {
 
     public static double getYScaleFactor(int canvasHeight, int largest){
         //System.out.println(largest + " for calculating y scale");
-        return ((canvasHeight*.8)/ (largest * 2.0));
+        return ((canvasHeight*.8)/ (100 * 2.0));
     }
 
 

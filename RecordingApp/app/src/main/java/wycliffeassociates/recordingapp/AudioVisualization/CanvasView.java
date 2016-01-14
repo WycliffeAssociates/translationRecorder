@@ -20,6 +20,7 @@ public abstract class CanvasView extends View {
     protected boolean doneDrawing = false;
     protected UIDataManager mManager;
     protected GestureDetectorCompat mDetector;
+    protected Paint mPaintText;
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -54,6 +55,11 @@ public abstract class CanvasView extends View {
         mPaint.setColor(Color.DKGRAY);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
+
+        mPaintText = new Paint();
+        mPaintText.setTextSize(28.f);
+        mPaintText.setColor(Color.GREEN);
+
     }
 
     // override onSizeChanged

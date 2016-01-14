@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.MarkerView;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
@@ -244,16 +245,10 @@ public class UIDataManager {
             Logger.w(UIDataManager.class.toString(), "Visualization buffer is null.");
         }
         Logger.i(UIDataManager.class.toString(), "MainWave height: " + mainWave.getHeight() + " width: " + mainWave.getWidth());
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                minimap.init(wavLoader.getMinimap(minimap.getWidth(), minimap.getHeight()));
-            }
-        });
-        t.start();
         WavPlayer.loadFile(getMappedAudioFile());
         minimap.setAudioLength(WavPlayer.getDuration());
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight(), mCutOp);
+        minimap.init(wavVis.getMinimap(mCutOp, minimap.getHeight()));
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
     }
 
@@ -293,12 +288,12 @@ public class UIDataManager {
                             lock.release();
 
                             double max = getPeakVolume(buffer);
-                            double db = computeDB(max);
-                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 500)){
+                            double db = U.computeDb(max);
+                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 1500)){
                                 VolumeMeter.changeVolumeBar(ctx, db);
                                 maxDB = db;
                             }
-                            else if(((System.currentTimeMillis() - timeDelay) > 500)){
+                            else if(((System.currentTimeMillis() - timeDelay) > 1500)){
                                 VolumeMeter.changeVolumeBar(ctx, db);
                                 maxDB = db;
                                 timeDelay = System.currentTimeMillis();

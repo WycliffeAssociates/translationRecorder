@@ -40,34 +40,34 @@ public class VolumeMeter {
                 else if (db < -3.5 && db > -4){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_11);
                 }
-                else if (db < -4 && db > -4.5){
+                else if (db < -4 && db > -5){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_10);
                 }
-                else if (db < -4.5 && db > -5){
+                else if (db < -5 && db > -6){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_9);
                 }
-                else if (db < -5 && db > -5.5){
+                else if (db < -6 && db > -7){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_8);
                 }
-                else if (db < -5.5 && db > -6){
+                else if (db < -7 && db > -8){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_7);
                 }
-                else if (db < -6 && db > -6.5){
+                else if (db < -8 && db > -10){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_6);
                 }
-                else if (db < -6.5 && db > -7){
+                else if (db < -10 && db > -12){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_5);
                 }
-                else if (db < -7 && db > -9){
+                else if (db < -12 && db > -14){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_4);
                 }
-                else if (db < -9 && db > -10){
+                else if (db < -14 && db > -18){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_3);
                 }
-                else if (db < -10 && db > -11){
+                else if (db < -18 && db > -20){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_2);
                 }
-                else if (db < -11 && db > -12){
+                else if (db < -20 && db > -28){
                     ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.vol_1);
                 }
                 else {
