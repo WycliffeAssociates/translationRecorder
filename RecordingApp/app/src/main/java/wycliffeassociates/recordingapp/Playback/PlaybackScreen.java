@@ -28,6 +28,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.Timer;
 
 /**
  * Created by sarabiaj on 11/10/2015.
@@ -55,7 +56,6 @@ public class PlaybackScreen extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         System.out.println("Creating PlaybackScreen...");
-
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
 
@@ -99,7 +99,7 @@ public class PlaybackScreen extends Activity{
 
     private void pausePlayback() {
         manager.swapPauseAndPlay();
-        WavPlayer.pause();
+        WavPlayer.pause(true);
     }
 
     private void skipForward() {
@@ -132,6 +132,10 @@ public class PlaybackScreen extends Activity{
 
     private void cut() {
         manager.cutAndUpdate();
+    }
+
+    private void undo() {
+        manager.undoCut();
     }
 
     private void clearMarkers(){
@@ -267,7 +271,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
-
+        findViewById(R.id.btnUndo).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -320,6 +324,10 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnClear: {
                     clearMarkers();
+                    break;
+                }
+                case R.id.btnUndo: {
+                    undo();
                     break;
                 }
             }
