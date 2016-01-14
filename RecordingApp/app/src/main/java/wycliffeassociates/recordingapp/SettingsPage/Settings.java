@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -31,70 +35,72 @@ import wycliffeassociates.recordingapp.SettingsPage.connectivity.LanguageNamesRe
  *
  */
 public class Settings extends Activity {
+    private Context c;
     private Button hardReset;
     private String sampleName;
-    private TextView displayFileName, showSaveDirectory;
+    private TextView displayFileName, showSaveDirectory, action_bar_title;
     private EditText tReset, chapterReset;
+
     MyAutoCompleteTextView setLangCode,setBookCode;
 
     /**
-     * The context of this activity
-     */
-    private Context c;
-
-    /**
-     * Request code for Android version 5.0 on saving a directory
+     * Request code for Android 5.0+
      */
     final int SET_SAVE_DIR = 21;
 
     /**
-     * Request code for Android version under 5.0 on saving a directory
+     * Request code for Android <5.0
      */
     final int SET_SAVE_DIR2 = 22;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        //context
-        c = this;
-        final PreferencesManager pref = new PreferencesManager(c);
+//        //context
+//        c = this;
+//        final PreferencesManager pref = new PreferencesManager(c);
+        PreferenceManager.setDefaultValues(this, R.xml.preference, false);
+//
+//        //initializing items that need to be printed to screen
+//        displayFileName = (TextView)findViewById(R.id.defaultFileName);
+//        showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
+//        tReset = (EditText)findViewById(R.id.tReset);
+//        chapterReset = (EditText)findViewById(R.id.setChapter);
+//
+//        //display defaults in their fields
+//        printFileName(pref);
+//        printSaveDirectory(pref);
+//        printCounter(pref);
+//        printChapter(pref);
+//
+//        //setting up listeners on all buttons
+//        langCodeListener(pref);
+//        bookCodeListener(pref);
+//        counterListener(pref);
+//        resetListener(pref);
+//        chapterListener(pref);
+//        saveDirectoryListener();
+//        ftpListener(pref);
+//        syncListener(pref);
 
-        //initializing items that need to be printed to screen
-        displayFileName = (TextView)findViewById(R.id.defaultFileName);
-        showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
-        tReset = (EditText)findViewById(R.id.tReset);
-        chapterReset = (EditText)findViewById(R.id.setChapter);
+        action_bar_title = (TextView) findViewById(R.id.action_bar_title);
+        action_bar_title.setTextSize(16 * getResources().getDisplayMetrics().density);
 
-        //display defaults in their fields
-        printFileName(pref);
-        printSaveDirectory(pref);
-        printCounter(pref);
-        printChapter(pref);
-
-        //setting up listeners on all buttons
-        langCodeListener(pref);
-        bookCodeListener(pref);
-        counterListener(pref);
-        resetListener(pref);
-        chapterListener(pref);
-        saveDirectoryListener();
-        ftpListener(pref);
-        syncListener(pref);
     }
 
-    public void onBackPressed() {
+    public void resetPrefs() {
+
+    }
+
+    public void onBackPressed(View v) {
         Intent intent = new Intent(Settings.this, MainMenu.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-
     }
 
-
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         Uri currentUri;
         PreferencesManager preferences = new PreferencesManager(this);
         if (resultCode == Activity.RESULT_OK) {
@@ -216,6 +222,7 @@ public class Settings extends Activity {
         String counter = pref.getPreferences("fileCounter").toString();
         tReset.setText(counter);
     }
+
     /**
      * Prints the current chapter on the chapter button
      * @param pref the preference manager that holds the current chapter
@@ -242,6 +249,7 @@ public class Settings extends Activity {
         String counter = pref.getPreferences("book").toString();
         setBookCode.setText(counter);
     }
+
     /**
      * Updates the fileName based on the
      * @param pref the preference manager that holds the target language
@@ -336,7 +344,6 @@ public class Settings extends Activity {
             }
         });
     }
-
 
     /**
      * Sets a listener on the counter editText

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Storage"
+        android:key="pref_key_storage_settings">
+
+        <EditTextPreference
+            android:key="pref_default_folder"
+            android:title="Default Folder"
+            android:summary=""
+            android:defaultValue="@string/pref_default_folder_value"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="FTP"
+        android:key="pref_key_ftp_settings">
+
+        <EditTextPreference
+            android:key="pref_ftp_server"
+            android:title="Server"
+            android:summary=""
+            android:defaultValue="@string/pref_ftp_server_value"/>
+
+        <EditTextPreference
+            android:key="pref_ftp_directory"
+            android:title="Directory"
+            android:summary=""
+            android:defaultValue="@string/pref_ftp_directory_value"/>
+
+        <EditTextPreference
+            android:key="pref_ftp_username"
+            android:title="Username"
+            android:summary=""
+            android:defaultValue="@string/pref_ftp_username_value"/>
+
+        <EditTextPreference
+            android:key="pref_ftp_password"
+            android:title="Password"
+            android:summary=""
+            android:defaultValue="@string/pref_ftp_password_value" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Others"
+        android:key="pref_key_other_settings">
+
+        <Preference
+            android:key="pref_sync"
+            android:title="Sync"
+            android:summary="@string/pref_sync_summary" >
+            <!--<intent-->
+                <!--android:action="" />-->
+        </Preference>
+
+        <Preference
+            android:key="pref_restore_default"
+            android:title="Restore Default"
+            android:summary="@string/pref_restore_default_summary">
+            <!--<intent-->
+                <!--android:action="android.intent.action.MAIN" />-->
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
