@@ -58,6 +58,14 @@ public class CutOp {
         return max;
     }
 
+    public boolean hasCut(){
+        if(mStack.size() > 0){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public int skipReverse(int time){
         int min = Integer.MAX_VALUE;
         for(Pair<Integer,Integer> cut : mStack) {

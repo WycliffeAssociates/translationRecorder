@@ -2,11 +2,13 @@ package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -52,6 +54,7 @@ public class PlaybackScreen extends Activity{
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isALoadedFile = false;
+    private ProgressDialog mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,22 +222,29 @@ public class PlaybackScreen extends Activity{
      */
     public String saveFile(String name) {
         File dir = new File(pref.getPreferences("fileDirectory").toString());
-        // System.out.println(recordedFilename);
         File from = new File(recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
-        Boolean out = from.renameTo(to);
-        System.out.println("result of saving file " + out);
-        File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
-        File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
-        try {
-            toVis.createNewFile();
-            toVis.delete();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(manager.hasCut()){
+            try {
+                manager.writeCut(to);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Boolean out = from.renameTo(to);
+            Log.i(this.toString(), "result of saving file " + out);
+            File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
+            File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
+            try {
+                toVis.createNewFile();
+                toVis.delete();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            out = fromVis.renameTo(toVis);
+            Log.i(this.toString(), "result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
+            recordedFilename = to.getAbsolutePath();
         }
-        out = fromVis.renameTo(toVis);
-        System.out.println("result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
-        recordedFilename = to.getAbsolutePath();
         pref.setPreferences("fileCounter", ((int) pref.getPreferences("fileCounter") + 1));
         return to.getAbsolutePath();
     }

@@ -8,6 +8,9 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -196,6 +199,10 @@ public class UIDataManager {
     }
 
     public void cutAndUpdate(){
+        //FIXME: currently restricting cuts to one per file
+        if(mCutOp.hasCut()){
+            return;
+        }
         int start = SectionMarkers.getStartLocationMs();
         int end = SectionMarkers.getEndLocationMs();
         mCutOp.cut(start, end);
@@ -204,6 +211,25 @@ public class UIDataManager {
         minimap.init(wavVis.getMinimap(mCutOp, minimap.getHeight()));
         minimap.setAudioLength(WavPlayer.getDuration() - mCutOp.getSizeCut());
         updateUI();
+    }
+
+    public void writeCut(File to) throws IOException {
+        FileOutputStream fis = new FileOutputStream(to);
+        for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
+            fis.write(mappedAudioFile.get(i));
+        }
+        for(int i = 0; i < buffer.capacity(); i++){
+            int skip = mCutOp.skipLoc(i, false);
+            if(skip != -1){
+                i = skip;
+            }
+            fis.write(buffer.get(i));
+        }
+        return;
+    }
+
+    public boolean hasCut(){
+        return mCutOp.hasCut();
     }
 
     public void loadWavFromFile(String path){

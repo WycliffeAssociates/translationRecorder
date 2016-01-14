@@ -43,6 +43,7 @@ public class WavVisualizer {
     public void enableCompressedFileNextDraw(MappedByteBuffer preprocessedBuffer){
         System.out.println("Swapping buffers now");
         this.preprocessedBuffer = preprocessedBuffer;
+        mAccessor.setCompressed(preprocessedBuffer);
         this.canSwitch = true;
     }
 
