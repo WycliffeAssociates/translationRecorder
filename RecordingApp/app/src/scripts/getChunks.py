@@ -14,7 +14,7 @@ output = []
 #skip obs for now, loop over all books
 for x in range(1, 67):
 	#gives book name and order (the books are stored out of order in the json)
-	name = data[x]["slug"]
+	slug = data[x]["slug"]
 	sort = data[x]["sort"]
 
 	#Get languages.json
@@ -22,6 +22,8 @@ for x in range(1, 67):
 	response_lang_cat = urllib.request.urlopen(url_lang_cat)
 	lang_catalog = json.loads(response_lang_cat.read().decode('utf-8'))
 	
+	name = lang_catalog[0]["project"]["name"]
+
 	#Get resources.json
 	#0 is for udb, are chunks the same for both?
 	url_res = lang_catalog[0]["res_catalog"]
@@ -60,6 +62,7 @@ for x in range(1, 67):
 
 	#create a dictionary to store the book's data
 	book = {}
+	book['slug'] = slug
 	book['name'] = name
 	book['sort'] = sort
 	book['chapters'] = len(chunk_list_fixed)
