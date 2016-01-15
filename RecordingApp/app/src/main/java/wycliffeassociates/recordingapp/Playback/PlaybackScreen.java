@@ -219,6 +219,7 @@ public class PlaybackScreen extends Activity{
         if(manager.hasCut()){
             try {
                 manager.writeCut(to);
+                from.delete();
             } catch (IOException e) {
                 e.printStackTrace();
             }
