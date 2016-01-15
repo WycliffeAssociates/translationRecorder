@@ -2,69 +2,52 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
-        android:title="Storage"
-        android:key="pref_key_storage_settings">
+    <wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory
+        android:title="File Name"
+        android:key="pref_key_file_name_lang"
+        android:layout="@layout/custom_pref_category">
 
         <EditTextPreference
-            android:key="pref_default_folder"
-            android:title="Default Folder"
+            android:key="pref_lang"
+            android:layout="@layout/custom_pref"
+            android:title="Language"
             android:summary=""
-            android:defaultValue="@string/pref_default_folder_value"
-            />
+            android:defaultValue="@string/pref_default_lang"
+            android:inputType="text"
+            android:imeOptions="actionDone"/>
 
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="FTP"
-        android:key="pref_key_ftp_settings">
-
-        <EditTextPreference
-            android:key="pref_ftp_server"
-            android:title="Server"
+        <ListPreference
+            android:key="pref_book"
+            android:layout="@layout/custom_pref"
+            android:title="Book"
             android:summary=""
-            android:defaultValue="@string/pref_ftp_server_value"/>
+            android:entries="@array/bookCodes"
+            android:entryValues="@array/bookCodes"
+            android:defaultValue="gen" />
 
-        <EditTextPreference
-            android:key="pref_ftp_directory"
-            android:title="Directory"
+        <ListPreference
+            android:key="pref_chapter"
+            android:layout="@layout/custom_pref"
+            android:title="Chapter"
             android:summary=""
-            android:defaultValue="@string/pref_ftp_directory_value"/>
+            android:entries="@array/chapter_values"
+            android:entryValues="@array/chapter_values"
+            android:defaultValue="1" />
 
-        <EditTextPreference
-            android:key="pref_ftp_username"
-            android:title="Username"
-            android:summary=""
-            android:defaultValue="@string/pref_ftp_username_value"/>
+    </wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory>
 
-        <EditTextPreference
-            android:key="pref_ftp_password"
-            android:title="Password"
-            android:summary=""
-            android:defaultValue="@string/pref_ftp_password_value" />
+    <!--<wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory-->
+        <!--android:title="Misc"-->
+        <!--android:key="pref_key_misc"-->
+        <!--android:layout="@layout/custom_pref_category">-->
 
-    </PreferenceCategory>
+        <!--<SwitchPreference-->
+            <!--android:key="pref_decibel_lines"-->
+            <!--android:layout="@layout/custom_pref_switch"-->
+            <!--android:title="Decibel Lines"-->
+            <!--android:summary="Show decibel lines in the recording screen"-->
+            <!--android:defaultValue="true" />-->
 
-    <PreferenceCategory
-        android:title="Others"
-        android:key="pref_key_other_settings">
-
-        <Preference
-            android:key="pref_sync"
-            android:title="Sync"
-            android:summary="@string/pref_sync_summary" >
-            <!--<intent-->
-                <!--android:action="" />-->
-        </Preference>
-
-        <Preference
-            android:key="pref_restore_default"
-            android:title="Restore Default"
-            android:summary="@string/pref_restore_default_summary">
-            <!--<intent-->
-                <!--android:action="android.intent.action.MAIN" />-->
-        </Preference>
-
-    </PreferenceCategory>
+    <!--</wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory>-->
 
 </PreferenceScreen>

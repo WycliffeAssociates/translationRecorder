@@ -3,6 +3,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="default_padding_xxs">2dp</dimen>
+    <dimen name="default_padding_xs">4dp</dimen>
     <dimen name="default_padding_s">8dp</dimen>
     <dimen name="default_padding_m">16dp</dimen>
     <dimen name="default_padding_l">32dp</dimen>

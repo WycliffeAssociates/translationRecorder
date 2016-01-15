@@ -58,24 +58,24 @@ public class Settings extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-//        //context
-//        c = this;
-//        final PreferencesManager pref = new PreferencesManager(c);
         PreferenceManager.setDefaultValues(this, R.xml.preference, false);
-//
-//        //initializing items that need to be printed to screen
+
+        action_bar_title = (TextView) findViewById(R.id.action_bar_title);
+        action_bar_title.setTextSize(16 * getResources().getDisplayMetrics().density);
+
+        //initializing items that need to be printed to screen
 //        displayFileName = (TextView)findViewById(R.id.defaultFileName);
 //        showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
 //        tReset = (EditText)findViewById(R.id.tReset);
 //        chapterReset = (EditText)findViewById(R.id.setChapter);
-//
-//        //display defaults in their fields
+
+        //display defaults in their fields
 //        printFileName(pref);
 //        printSaveDirectory(pref);
 //        printCounter(pref);
 //        printChapter(pref);
-//
-//        //setting up listeners on all buttons
+
+        //setting up listeners on all buttons
 //        langCodeListener(pref);
 //        bookCodeListener(pref);
 //        counterListener(pref);
@@ -84,10 +84,6 @@ public class Settings extends Activity {
 //        saveDirectoryListener();
 //        ftpListener(pref);
 //        syncListener(pref);
-
-        action_bar_title = (TextView) findViewById(R.id.action_bar_title);
-        action_bar_title.setTextSize(16 * getResources().getDisplayMetrics().density);
-
     }
 
     public void resetPrefs() {

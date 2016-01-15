@@ -10,8 +10,12 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import java.security.Key;
 import java.util.Map;
@@ -26,48 +30,45 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     Context context;
 
-    public static final String KEY_PREF_DEFAULT_FOLDER = "pref_default_folder";
-    public static final String KEY_PREF_FTP_SERVER = "pref_ftp_server";
-    public static final String KEY_PREF_FTP_DIRECTORY = "pref_ftp_directory";
-    public static final String KEY_PREF_FTP_USERNAME = "pref_ftp_username";
-    public static final String KEY_PREF_FTP_PASSWORD = "pref_ftp_password";
+    public static final String KEY_PREF_LANG = "pref_lang";
+    public static final String KEY_PREF_BOOK = "pref_book";
+    public static final String KEY_PREF_CHAPTER = "pref_chapter";
 
-    private SharedPreferences sharedPref;
+//    sharedPref;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preference);
 
+        SharedPreferences sharedPref = getPreferenceScreen().getSharedPreferences();
+
         context = getActivity();
-        sharedPref = getPreferenceScreen().getSharedPreferences();
+
+        // Below is the code to clear the SharedPreferences. Use it wisely.
+        // sharedPref.edit().clear().commit();
 
         // Register listener(s)
         sharedPref.registerOnSharedPreferenceChangeListener(this);
 
         // Initial summary update to display the right values
         for (String k : sharedPref.getAll().keySet()) {
-            updateSummary(k);
+            System.out.println("UPDATING SUMMARY FOR: " + k);
+            updateSummaryText(sharedPref, k);
         }
 
-        // TODO: Refactor by taking this out of onCreate()
-        Preference restore_default = findPreference("pref_restore_default");
-        restore_default.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                // This is not working!!! :(
-//                System.out.println("Restoring settings");
-//                SharedPreferences defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-//                System.out.println("Default Pref: " + defaultPrefs);
-//                System.out.println("Current Pref: " + sharedPref);
-//                context.getSharedPreferences("pref_ftp_password", 0).edit().clear().commit();
-//                PreferenceManager.setDefaultValues(context, R.xml.preference, true);
-//                updateSummary("pref_ftp_password");
-                EditTextPreference listPreference = (EditTextPreference) findPreference("pref_ftp_password");
-//                listPreference.va("hahaha");
-                updateSummary("pref_ftp_password");
-                return true;
-            }
-        });
+        // Set custom text size
+//        TextView pref_category_title = (TextView) getActivity().findViewById(R.id.title);
+//        pref_category_title.setTextSize(16 * getResources().getDisplayMetrics().density);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+        if (v != null) {
+            ListView lv = (ListView) v.findViewById(android.R.id.list);
+            lv.setPadding(0, 0, 0, 0);
+        }
+        return v;
     }
 
     @Override
@@ -83,20 +84,22 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
-        updateSummary(key);
-    }
+        updateSummaryText(sharedPref, key);
 
-    public void updateSummary(String key) {
-        try {
-            String text  = getPreferenceScreen().getSharedPreferences().getString(key, "");
-            findPreference(key).setSummary(text);
-        } catch (ClassCastException err) {
-            System.out.println("Error in updating " + key + ": " + err);
+        // Closes the soft keyboard manually. Still buggy.
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
-    public static void closeSoftKeyboard(Context c, IBinder windowToken) {
-        InputMethodManager im = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
-        im.hideSoftInputFromWindow(windowToken, InputMethodManager.HIDE_NOT_ALWAYS);
+    public void updateSummaryText(SharedPreferences sharedPref, String key) {
+        try {
+            String text  = sharedPref.getString(key, "");
+            findPreference(key).setSummary(text);
+        } catch (ClassCastException err) {
+            System.out.println("IGNORING SUMMARY UPDATE FOR " + key);
+        }
     }
 }
