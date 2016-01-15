@@ -17,7 +17,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
@@ -74,6 +83,7 @@ public class Settings extends Activity {
         printCounter(pref);
         printChapter(pref);
 
+
         //setting up listeners on all buttons
         langCodeListener(pref);
         bookCodeListener(pref);
@@ -82,7 +92,6 @@ public class Settings extends Activity {
         chapterListener(pref);
         saveDirectoryListener();
         ftpListener(pref);
-        syncListener(pref);
     }
 
     public void onBackPressed() {
@@ -109,73 +118,32 @@ public class Settings extends Activity {
         }
     }
 
-    public void pullDB(Boolean flag){
-
-        if(flag){
-            Intent intent = new Intent(c, LanguageNamesRequest.class);
-            startActivityForResult(intent, 0);
-        }else {
-            try {
-                String tableName = "langnames";
-                SQLiteDatabase audiorecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
-
-                String querySelect = "SELECT * FROM " + tableName;
-
-                Cursor cursor = audiorecorder.rawQuery(querySelect, new String[]{});
-                audiorecorder.close();
-            } catch (Exception e) {
-                Intent intent = new Intent(c, LanguageNamesRequest.class);
-                startActivityForResult(intent, 0);
-
-            }
+    public String loadJSONFromAsset(String filename) {
+        String json = null;
+        try {
+            InputStream is = getAssets().open(filename);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        pullLangNames();
+        return json;
     }
 
-    public void pullLangNames(){
-
-        try {
-            //SELECT
-            String tableName = "langnames";
-            SQLiteDatabase audioRecorder = openOrCreateDatabase(tableName, MODE_PRIVATE, null);
-
-            String querySelect = "SELECT * FROM " + tableName;
-            String queryCount = "SELECT COUNT(*) FROM " + tableName;
-
-            //un-synchronized
-            Cursor cursor = audioRecorder.rawQuery(querySelect, new String[]{});
-
-
+    public void pullLangNames() throws JSONException{
             ArrayList<Language> languageList = new ArrayList<>();
-            String[] listHolder;
-            if (cursor != null) {
-                cursor.moveToFirst();
-                while (!cursor.isLast()) {
-                    //create language
-
-                    Boolean gw = false;
-                    if (cursor.getInt(0) == 0) {
-                        gw = true;
-                    }
-
-                    String ld = cursor.getString(1);
-                    String lc = cursor.getString(2);
-                    String ln = cursor.getString(3);
-                    String cc = cursor.getString(4); //temp
-                    int pk = cursor.getInt(5);
-
-                    Language temp = new Language(gw, ld, lc, ln, cc, pk);
-                    languageList.add(temp);
-                        /*System.out.println(cursor.getInt(0) + ", " + cursor.getString(1) + ", " +
-                                cursor.getString(2) + ", " + cursor.getString(3) + ", " +
-                                cursor.getString(4) + ", " + cursor.getInt(5));*/
-                    cursor.moveToNext();
-                }
+            String json = loadJSONFromAsset("langnames.json");
+            JSONArray langArray = new JSONArray(json);
+            for(int i = 0; i < langArray.length(); i++){
+                JSONObject langObj = langArray.getJSONObject(i);
+                Language ln = new Language(langObj.getString("lc"),langObj.getString("ln"));
+                languageList.add(ln);
             }
-
-            audioRecorder.close();
-
-            listHolder = new String[languageList.size()];
+            String[] listHolder = new String[languageList.size()];
             for (int a = 0; a < listHolder.length; a++) {
                 listHolder[a] = (languageList.get(a)).getCode() + " - " +
                         (languageList.get(a)).getName();
@@ -184,10 +152,6 @@ public class Settings extends Activity {
 
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listHolder);
             setLangCode.setAdapter(adapter);
-        }catch(RuntimeException e){
-            e.printStackTrace();
-            //No existing database
-        }
     }
 
     /**
@@ -262,8 +226,11 @@ public class Settings extends Activity {
         setLangCode = (MyAutoCompleteTextView)findViewById(R.id.setLangCode);
         setLangCode.setText(pref.getPreferences("targetLanguage").toString());//default
 
-        //update
-        pullDB(false);
+        try {
+            pullLangNames();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
         setLangCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -417,20 +384,6 @@ public class Settings extends Activity {
                 printLanguage(pref);
                 printBook(pref);
                 printChapter(pref);
-            }
-        });
-    }
-
-    /**
-     * Setting a listener on the sync button to sync with the langcodes on the server
-     * @param pref the preferences manager
-     */
-    private void syncListener(final PreferencesManager pref){
-        Button sync = (Button)findViewById(R.id.serverSync);
-        sync.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pullDB(true);//tries to pull db from url
             }
         });
     }
