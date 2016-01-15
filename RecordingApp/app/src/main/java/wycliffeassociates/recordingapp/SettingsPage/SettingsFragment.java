@@ -55,10 +55,6 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
             System.out.println("UPDATING SUMMARY FOR: " + k);
             updateSummaryText(sharedPref, k);
         }
-
-        // Set custom text size
-//        TextView pref_category_title = (TextView) getActivity().findViewById(R.id.title);
-//        pref_category_title.setTextSize(16 * getResources().getDisplayMetrics().density);
     }
 
     @Override

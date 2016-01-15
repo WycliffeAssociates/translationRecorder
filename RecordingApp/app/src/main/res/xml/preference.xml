@@ -2,7 +2,7 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory
+    <PreferenceCategory
         android:title="File Name"
         android:key="pref_key_file_name_lang"
         android:layout="@layout/custom_pref_category">
@@ -34,9 +34,27 @@
             android:entryValues="@array/chapter_values"
             android:defaultValue="1" />
 
-    </wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory>
+        <ListPreference
+            android:key="pref_chunk"
+            android:layout="@layout/custom_pref"
+            android:title="Chunk"
+            android:summary=""
+            android:entries="@array/chunk_values"
+            android:entryValues="@array/chunk_values"
+            android:defaultValue="1" />
 
-    <!--<wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory-->
+        <EditTextPreference
+            android:key="pref_take"
+            android:layout="@layout/custom_pref"
+            android:title="Take"
+            android:summary=""
+            android:defaultValue="@string/pref_default_take"
+            android:inputType="number"
+            android:imeOptions="actionDone"/>
+
+    </PreferenceCategory>
+
+    <!--<PreferenceCategory-->
         <!--android:title="Misc"-->
         <!--android:key="pref_key_misc"-->
         <!--android:layout="@layout/custom_pref_category">-->
@@ -48,6 +66,6 @@
             <!--android:summary="Show decibel lines in the recording screen"-->
             <!--android:defaultValue="true" />-->
 
-    <!--</wycliffeassociates.recordingapp.SettingsPage.CustomPrefCategory>-->
+    <!--</PreferenceCategory>-->
 
 </PreferenceScreen>

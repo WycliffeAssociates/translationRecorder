@@ -8,4 +8,10 @@
     <dimen name="default_padding_s">8dp</dimen>
     <dimen name="default_padding_m">16dp</dimen>
     <dimen name="default_padding_l">32dp</dimen>
+
+    <dimen name="heading_1">18sp</dimen>
+    <dimen name="heading_2">16sp</dimen>
+    <dimen name="heading_3">14sp</dimen>
+    <dimen name="heading_4">12sp</dimen>
+
 </resources>

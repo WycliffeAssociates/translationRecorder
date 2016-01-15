@@ -8,11 +8,12 @@
         android:id="@+id/list_item"
         android:layout_height="fill_parent"
         android:layout_width="fill_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@color/card_bg"
-        card_view:cardCornerRadius="2dp"
+        android:layout_marginLeft="@dimen/default_padding_m"
+        android:layout_marginTop="@dimen/default_padding_m"
+        android:layout_marginRight="@dimen/default_padding_m"
+        card_view:cardCornerRadius="@dimen/default_padding_xxs"
+        card_view:cardBackgroundColor="@color/card_bg"
+        card_view:cardUseCompatPadding="true"
         >
 
         <LinearLayout
@@ -39,8 +40,9 @@
                 android:layout_weight="28"
                 android:text="aa-bbbb-c"
                 android:textColor="@color/primary_dark_font"
+                android:textSize="@dimen/heading_1"
                 android:gravity="center_vertical|left"
-                android:paddingLeft="8dp" />
+                android:paddingLeft="@dimen/default_padding_s" />
 
             <TextView
                 android:id="@+id/duration"
@@ -49,23 +51,25 @@
                 android:layout_weight="25"
                 android:text="00:00:00"
                 android:textColor="@color/primary_dark_font"
+                android:textSize="@dimen/heading_1"
                 android:gravity="center_vertical|left"
                 android:textIsSelectable="false"
-                android:paddingLeft="8dp" />
+                android:paddingLeft="@dimen/default_padding_s" />
 
             <RelativeLayout
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
                 android:layout_weight="28"
                 android:gravity="center_vertical|left"
-                android:paddingLeft="8dp" >
+                android:paddingLeft="@dimen/default_padding_s" >
 
                 <TextView
                     android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2015/10/30"
-                    android:textColor="@color/primary_dark_font" />
+                    android:textColor="@color/primary_dark_font"
+                    android:textSize="@dimen/heading_1"/>
 
                 <TextView
                     android:id="@+id/time"
@@ -73,7 +77,8 @@
                     android:layout_height="wrap_content"
                     android:text="12:00:00"
                     android:layout_below="@id/date"
-                    android:textColor="@color/primary_dark_font" />
+                    android:textColor="@color/primary_dark_font"
+                    android:textSize="@dimen/heading_2"/>
 
             </RelativeLayout>
 

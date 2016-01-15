@@ -29,7 +29,8 @@
             android:text="Settings"
             android:textColor="@color/text_light"
             android:layout_toEndOf="@id/btnBack"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:textSize="18sp"/>
 
     </RelativeLayout>
 

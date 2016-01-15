@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:id="@android:id/title"
         android:padding="@dimen/default_padding_m"
-        android:textColor="@color/secondary"/>
+        android:textColor="@color/secondary"
+        android:textSize="@dimen/heading_1"/>
 
 </LinearLayout>
