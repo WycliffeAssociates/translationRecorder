@@ -28,6 +28,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
 import wycliffeassociates.recordingapp.MainMenu;
@@ -45,6 +48,7 @@ public class Settings extends Activity {
     private TextView displayFileName, showSaveDirectory;
     private EditText tReset, chapterReset;
     MyAutoCompleteTextView setLangCode,setBookCode;
+    ArrayList<Book> mBooks;
 
     /**
      * The context of this activity
@@ -154,6 +158,38 @@ public class Settings extends Activity {
             setLangCode.setAdapter(adapter);
     }
 
+    public void pullBookInfo() throws JSONException{
+        mBooks = new ArrayList<>();
+        String json = loadJSONFromAsset("chunks.json");
+        JSONArray booksJSON = new JSONArray(json);
+        for(int i = 0; i < booksJSON.length(); i++){
+            JSONObject bookObj = booksJSON.getJSONObject(i);
+            String name = bookObj.getString("name");
+            String slug = bookObj.getString("slug");
+            int chapters = bookObj.getInt("chapters");
+            int order = bookObj.getInt("sort");
+            JSONArray chunkArrayJSON = bookObj.getJSONArray("chunks");
+            ArrayList<Integer> chunks = new ArrayList<>();
+            for(int j = 0; j < chunkArrayJSON.length(); j++){
+                chunks.add(chunkArrayJSON.getInt(j));
+            }
+            Book book = new Book(slug, name, chapters, chunks, order);
+            mBooks.add(book);
+        }
+        Collections.sort(mBooks, new Comparator<Book>() {
+            @Override
+            public int compare(Book lhs, Book rhs) {
+                if(lhs.getOrder() > rhs.getOrder()) {
+                    return 1;
+                } else if(lhs.getOrder() < rhs.getOrder()){
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+    }
+
     /**
      * Prints the file name to the appropriate textview
      * @param pref the preference manager that holds the save file name
@@ -252,10 +288,7 @@ public class Settings extends Activity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String[] temp = s.toString().split(" - ");//we only want the language code
                 String newVal = temp[0];
-
-
                 newVal = newVal.replaceAll("![A-Za-z0-9]", "");//remove any strange characters
-
                 pref.setPreferences("targetLanguage", newVal);//add selecet language code to preferences
                 updateFileName(pref);
             }
@@ -267,10 +300,20 @@ public class Settings extends Activity {
      * @param pref preferences manager
      */
     private void bookCodeListener(final PreferencesManager pref) {
-        String[] bookArray = getResources().getStringArray(R.array.bookCodes);//resource of 3 letter Bible book codes
+
+        try {
+            pullBookInfo();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        String[] bookArray = new String[mBooks.size()];
+        for(int i = 0; i < mBooks.size(); i++){
+            bookArray[i] = mBooks.get(i).getSlug() + " - " + mBooks.get(i).getName();
+        }
 
         setBookCode = (MyAutoCompleteTextView)findViewById(R.id.setBookCode);
-        ArrayAdapter<String> bookAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,bookArray);
+        ArrayAdapter<String> bookAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bookArray);
         setBookCode.setAdapter(bookAdapter);
         setBookCode.setText(pref.getPreferences("book").toString());
 
@@ -285,15 +328,14 @@ public class Settings extends Activity {
             @Override
             public void afterTextChanged(Editable s) {
             }
-
             @Override
             public void beforeTextChanged(CharSequence s, int start,
                                           int count, int after) {
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newVal = s.toString();
+                String[] temp = s.toString().split(" - ");//we only want the language code
+                String newVal = temp[0];
                 newVal = newVal.replaceAll("![A-Za-z0-9]", "");//get rid of strange characters
                 pref.setPreferences("book", newVal);//save selection to preferences
                 updateFileName(pref);
