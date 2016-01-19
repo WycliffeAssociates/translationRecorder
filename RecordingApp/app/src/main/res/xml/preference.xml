@@ -7,7 +7,7 @@
         android:key="pref_key_file_name_lang"
         android:layout="@layout/custom_pref_category">
 
-        <EditTextPreference
+        <wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference
             android:key="pref_lang"
             android:layout="@layout/custom_pref"
             android:title="Language"
@@ -16,14 +16,14 @@
             android:inputType="text"
             android:imeOptions="actionDone"/>
 
-        <ListPreference
+        <wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference
             android:key="pref_book"
             android:layout="@layout/custom_pref"
             android:title="Book"
             android:summary=""
-            android:entries="@array/bookCodes"
-            android:entryValues="@array/bookCodes"
-            android:defaultValue="gen" />
+            android:defaultValue="@string/pref_default_book"
+            android:inputType="text"
+            android:imeOptions="actionDone"/>
 
         <ListPreference
             android:key="pref_chapter"

@@ -24,6 +24,9 @@
     <!-- SETTINGS (Values) -->
     <string name="pref_default_folder_value">/storage/emulated/0/translationRecorder</string>
     <string name="pref_default_lang">en</string>
+    <string name="pref_default_book">gen</string>
+    <string name="pref_default_chapter">1</string>
+    <string name="pref_default_chunk">1</string>
     <string name="pref_default_take">1</string>
     <string name="pref_ftp_server_value">ts.door43.org</string>
     <string name="pref_ftp_directory_value">/translationRecorder</string>

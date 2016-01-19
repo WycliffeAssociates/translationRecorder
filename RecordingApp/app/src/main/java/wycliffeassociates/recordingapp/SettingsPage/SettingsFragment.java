@@ -10,7 +10,11 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -59,6 +63,7 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Get rid of the extra padding in the settings page body (where it loads this fragment)
         View v = super.onCreateView(inflater, container, savedInstanceState);
         if (v != null) {
             ListView lv = (ListView) v.findViewById(android.R.id.list);
@@ -81,13 +86,6 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
         updateSummaryText(sharedPref, key);
-
-        // Closes the soft keyboard manually. Still buggy.
-        View view = getActivity().getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
     }
 
     public void updateSummaryText(SharedPreferences sharedPref, String key) {
@@ -97,5 +95,11 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         } catch (ClassCastException err) {
             System.out.println("IGNORING SUMMARY UPDATE FOR " + key);
         }
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+        System.out.println("ON PREFERENCE TREE CLICK: " + preference);
+        return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 }
