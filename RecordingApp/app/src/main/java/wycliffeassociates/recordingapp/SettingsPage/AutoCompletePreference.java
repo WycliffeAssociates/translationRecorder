@@ -18,7 +18,7 @@ import android.widget.EditText;
 public class AutoCompletePreference extends EditTextPreference {
 
 
-    private static AutoCompleteTextView mACTV = null;
+    private static AutoCompleteTextView mEditText = null;
     private final String TAG = "AutoCompletePreference";
     // NOTE: For example only
     private static final String[] COUNTRIES = new String[] {
@@ -52,23 +52,24 @@ public class AutoCompletePreference extends EditTextPreference {
         ViewGroup parent = (ViewGroup) editText.getParent();
         String currentValue = editText.getText().toString();
 
-        // NOTE: For example only. Insert a diff adapter here.
+        // NOTE: For example only. Insert a different adapter here.
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, COUNTRIES);
 
         // Construct a new editable autocomplete object with the appropriate params and id that the
         //    TextEditPreference is expecting
-        mACTV = new AutoCompleteTextView(getContext());
-        mACTV.setLayoutParams(params);
-        mACTV.setId(android.R.id.edit);
-        mACTV.setText(currentValue);
+        mEditText = new AutoCompleteTextView(getContext());
+        mEditText.setLayoutParams(params);
+        mEditText.setId(android.R.id.edit);
+        mEditText.setText(currentValue);
 
         // Further modification on editable autocomplete object
-        mACTV.setThreshold(1);
-        mACTV.setAdapter(adapter);
+        mEditText.setSingleLine(true);
+        mEditText.setThreshold(1);
+        mEditText.setAdapter(adapter);
 
         // Swap the old view with the new in the layout
         parent.removeView(editText);
-        parent.addView(mACTV);
+        parent.addView(mEditText);
     }
 
     /*
@@ -77,8 +78,8 @@ public class AutoCompletePreference extends EditTextPreference {
     @Override
     protected void onDialogClosed(boolean positiveResult) {
         super.onDialogClosed(positiveResult);
-        if (positiveResult && mACTV != null) {
-            String value = mACTV.getText().toString();
+        if (positiveResult && mEditText != null) {
+            String value = mEditText.getText().toString();
             if (callChangeListener(value)) {
                 setText(value);
             }
@@ -90,7 +91,7 @@ public class AutoCompletePreference extends EditTextPreference {
      */
     @Override
     public EditText getEditText() {
-        return mACTV;
+        return mEditText;
     }
 
     /*
