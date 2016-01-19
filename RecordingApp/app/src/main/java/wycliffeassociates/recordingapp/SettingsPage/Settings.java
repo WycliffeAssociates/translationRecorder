@@ -12,10 +12,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
 import wycliffeassociates.recordingapp.MainMenu;
@@ -46,9 +49,10 @@ public class Settings extends Activity {
     private Button hardReset;
     private String sampleName;
     private TextView displayFileName, showSaveDirectory;
-    private EditText tReset, chapterReset;
-    MyAutoCompleteTextView setLangCode,setBookCode;
+    Spinner chapterReset;
+    MyAutoCompleteTextView setLangCode,setBookCode, mChunkReset;
     ArrayList<Book> mBooks;
+    HashMap<String, Book> mCatalog;
 
     /**
      * The context of this activity
@@ -78,14 +82,12 @@ public class Settings extends Activity {
         //initializing items that need to be printed to screen
         displayFileName = (TextView)findViewById(R.id.defaultFileName);
         showSaveDirectory = (TextView)findViewById(R.id.showSaveDirectory);
-        tReset = (EditText)findViewById(R.id.tReset);
-        chapterReset = (EditText)findViewById(R.id.setChapter);
 
         //display defaults in their fields
         printFileName(pref);
         printSaveDirectory(pref);
-        printCounter(pref);
-        printChapter(pref);
+//        printCounter(pref);
+  //      printChapter(pref);
 
 
         //setting up listeners on all buttons
@@ -179,15 +181,31 @@ public class Settings extends Activity {
         Collections.sort(mBooks, new Comparator<Book>() {
             @Override
             public int compare(Book lhs, Book rhs) {
-                if(lhs.getOrder() > rhs.getOrder()) {
+                if (lhs.getOrder() > rhs.getOrder()) {
                     return 1;
-                } else if(lhs.getOrder() < rhs.getOrder()){
+                } else if (lhs.getOrder() < rhs.getOrder()) {
                     return -1;
                 } else {
                     return 0;
                 }
             }
         });
+        mCatalog = new HashMap<>();
+        for(Book b : mBooks) {
+            mCatalog.put(b.getSlug(), b);
+        }
+    }
+
+    public void pullChapterInfo(PreferencesManager pref) {
+        String selectedBook = (String)pref.getPreferences("book");
+        Book book = mCatalog.get(selectedBook);
+        Integer[] chapters = new Integer[book.getNumChapters()];
+        for(int i = 0; i < book.getNumChapters(); i++){
+            chapters[i] = i+1;
+        }
+        ArrayAdapter<Integer> chaptersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, chapters);
+        chaptersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chapterReset.setAdapter(chaptersAdapter);
     }
 
     /**
@@ -214,7 +232,7 @@ public class Settings extends Activity {
      */
     private void printCounter(PreferencesManager pref){
         String counter = pref.getPreferences("fileCounter").toString();
-        tReset.setText(counter);
+        //mChunkReset.setText(counter);
     }
     /**
      * Prints the current chapter on the chapter button
@@ -222,7 +240,7 @@ public class Settings extends Activity {
      */
     private void printChapter(PreferencesManager pref){
         String chapter = pref.getPreferences("chapter").toString();
-        chapterReset.setText(chapter);
+        //chapterReset.setText(chapter);
     }
 
     /**
@@ -317,6 +335,7 @@ public class Settings extends Activity {
         setBookCode.setAdapter(bookAdapter);
         setBookCode.setText(pref.getPreferences("book").toString());
 
+
         setBookCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -335,7 +354,12 @@ public class Settings extends Activity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String[] temp = s.toString().split(" - ");//we only want the language code
-                String newVal = temp[0];
+                String newVal;
+//                if(temp.length > 1) {
+//                    newVal = temp[1];
+//                } else {
+                    newVal = temp[0];
+                //}
                 newVal = newVal.replaceAll("![A-Za-z0-9]", "");//get rid of strange characters
                 pref.setPreferences("book", newVal);//save selection to preferences
                 updateFileName(pref);
@@ -352,29 +376,29 @@ public class Settings extends Activity {
      * @param pref the preference manager
      */
     private void counterListener(final PreferencesManager pref) {
-        tReset = (EditText)findViewById(R.id.tReset);
-        tReset.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newVal = s.toString();
-                int counter = (int)pref.getPreferences("fileCounter");//set default
-                try {//should never have an error since input will always be a number
-                    counter = Integer.parseInt(newVal);
-                }
-                catch(NumberFormatException e){
-                    e.printStackTrace();
-                }
-                pref.setPreferences("fileCounter", counter);//save to preferences
-                printFileName(pref);//update file name
-            }
-        });
+//        mChunkReset = (MyAutoCompleteTextView)findViewById(R.id.chunkReset);
+//        mChunkReset.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//            }
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start,
+//                                          int count, int after) {
+//            }
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                String newVal = s.toString();
+//                int counter = (int)pref.getPreferences("fileCounter");//set default
+//                try {//should never have an error since input will always be a number
+//                    counter = Integer.parseInt(newVal);
+//                }
+//                catch(NumberFormatException e){
+//                    e.printStackTrace();
+//                }
+//                pref.setPreferences("fileCounter", counter);//save to preferences
+//                printFileName(pref);//update file name
+//            }
+//        });
     }
 
     /**
@@ -382,30 +406,49 @@ public class Settings extends Activity {
      * @param pref the preference manager
      */
     private void chapterListener(final PreferencesManager pref) {
-        chapterReset = (EditText)findViewById(R.id.setChapter);
-        chapterReset.addTextChangedListener(new TextWatcher() {
+        chapterReset = (Spinner)findViewById(R.id.setChapter);
+        chapterReset.setEnabled(true);
+        chapterReset.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void afterTextChanged(Editable s) {
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newVal = s.toString();
-                int chapter = (int)pref.getPreferences("chapter");//set default
-                try {//should never have an error since input will always be a number
-                    chapter = Integer.parseInt(newVal);
-                }
-                catch(NumberFormatException e){
-                    e.printStackTrace();
-                }
-                pref.setPreferences("chapter", chapter);//save to preferences
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                pullChapterInfo(pref);
+                pref.setPreferences("chapter",(String)parent.getItemAtPosition(position));
                 updateFileName(pref);
-                printFileName(pref);//update file name
+                printFileName(pref);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                System.out.print("here in on nothing selected");
             }
         });
+//        chapterReset.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//            }
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start,
+//                                          int count, int after) {
+//            }
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                pullChapterInfo(pref);
+//                String newVal = s.toString();
+//                if(s.length() == 0){
+//                    chapterReset.showDropDown();
+//                }
+//                int chapter = (int)pref.getPreferences("chapter");//set default
+//                try {//should never have an error since input will always be a number
+//                    chapter = Integer.parseInt(newVal);
+//                }
+//                catch(NumberFormatException e){
+//                    e.printStackTrace();
+//                }
+//                pref.setPreferences("chapter", chapter);//save to preferences
+//                updateFileName(pref);
+//                printFileName(pref);//update file name
+//            }
+//        });
     }
 
     /**

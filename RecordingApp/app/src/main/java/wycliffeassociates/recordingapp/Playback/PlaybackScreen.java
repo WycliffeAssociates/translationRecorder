@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -139,7 +140,7 @@ public class PlaybackScreen extends Activity{
     @Override
     public void onBackPressed() {
         Logger.i(this.toString(), "Back was pressed.");
-        if (!isSaved) {
+        if (!isSaved && !isALoadedFile || isALoadedFile && manager.hasCut()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
             ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
             dialog.setFilename(recordedFilename);
@@ -216,6 +217,10 @@ public class PlaybackScreen extends Activity{
         File dir = new File(pref.getPreferences("fileDirectory").toString());
         File from = new File(recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
+        if(to.exists()){
+            AlertDialog dialog = new AlertDialog(context);
+
+        }
         if(manager.hasCut()){
             try {
                 manager.writeCut(to);

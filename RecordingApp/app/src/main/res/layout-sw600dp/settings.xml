@@ -70,9 +70,8 @@
                     android:layout_height="match_parent"
                     android:id="@+id/space2"></LinearLayout>
 
-                <EditText
+                <Spinner
                     android:id="@+id/setChapter"
-                    android:text="Reset"
                     android:gravity="center"
                     android:layout_width="300dp"
                     android:layout_height="60dp"
@@ -80,7 +79,9 @@
                     android:layout_gravity="center"
                     android:inputType="number"
                     android:backgroundTint="#ffffff"
-                    android:background="#ffffff" />
+                    android:background="#ffffff"
+                    android:spinnerMode="dropdown"
+                    android:clickable="true" />
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -88,9 +89,8 @@
                     android:layout_height="match_parent"
                     android:id="@+id/space3" />
 
-                <EditText
-                    android:id="@+id/tReset"
-                    android:text="Reset"
+                <wycliffeassociates.recordingapp.SettingsPage.MyAutoCompleteTextView
+                    android:id="@+id/chunkReset"
                     android:gravity="center"
                     android:layout_width="300dp"
                     android:layout_height="60dp"
