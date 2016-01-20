@@ -8,14 +8,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import org.apache.commons.net.ntp.TimeStamp;
+
 import java.io.File;
 import java.io.IOException;
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
@@ -26,6 +33,7 @@ import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
  * Created by sarabiaj on 11/10/2015.
@@ -56,9 +64,12 @@ public class PlaybackScreen extends Activity{
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
 
-        suggestedFilename = pref.getPreferences("fileName") + "-" + pref.getPreferences("fileCounter").toString();
+        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
+        if(isALoadedFile){
+            suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
+        }
         Logger.i(this.toString(), "Loading Playback screen. Recorded Filename is " + recordedFilename + " Suggested Filename is " + suggestedFilename + " Came from loading a file is:" + isALoadedFile);
 
         // Make sure the tablet does not go to sleep while on the recording screen
@@ -190,9 +201,41 @@ public class PlaybackScreen extends Activity{
 
     private void setName(String newName) {
         suggestedFilename = newName;
-        isSaved = true;
-        recordedFilename = saveFile(suggestedFilename);
-        filenameView.setText(suggestedFilename);
+
+        File dir = new File(pref.getPreferences("fileDirectory").toString());
+        File from = new File(recordedFilename);
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM:dd:yyyy:hh:mm:ss");
+        String format = simpleDateFormat.format(new Date());
+        //File to = new File(dir, suggestedFilename + "d_" + format + AUDIO_RECORDER_FILE_EXT_WAV);
+        File to = new File(dir, suggestedFilename + "d_" + AUDIO_RECORDER_FILE_EXT_WAV);
+        if(isALoadedFile) {
+            to = from;
+        }
+        if(to.exists()){
+            final File finalFrom = from;
+            final File finalTo = to;
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Would you like to overwrite the existing file?").setTitle("Warning");
+            builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    isSaved = true;
+                    recordedFilename = saveFile(finalFrom, finalTo, suggestedFilename);
+                    filenameView.setText(suggestedFilename);
+                }
+            });
+            builder.setNegativeButton("no", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        } else {
+            isSaved = true;
+            recordedFilename = saveFile(from, to, suggestedFilename);
+            filenameView.setText(suggestedFilename);
+        }
     }
 
     public String getName() {
@@ -213,14 +256,8 @@ public class PlaybackScreen extends Activity{
      * @param name a string with the desired output filename. Should not include the .wav extension.
      * @return the absolute path of the file created
      */
-    public String saveFile(String name) {
-        File dir = new File(pref.getPreferences("fileDirectory").toString());
-        File from = new File(recordedFilename);
-        File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
-        if(to.exists()){
-          //  AlertDialog dialog = new AlertDialog(context);
+    public String saveFile(File from, File to, String name) {
 
-        }
         if(manager.hasCut()){
             try {
                 manager.writeCut(to);
@@ -243,7 +280,9 @@ public class PlaybackScreen extends Activity{
             Logger.i(this.toString(), "result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
             recordedFilename = to.getAbsolutePath();
         }
-        pref.setPreferences("fileCounter", ((int) pref.getPreferences("fileCounter") + 1));
+        if(!isALoadedFile) {
+            Settings.incrementTake(this);
+        }
         return to.getAbsolutePath();
     }
 

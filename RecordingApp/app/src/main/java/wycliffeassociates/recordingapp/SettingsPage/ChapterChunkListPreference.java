@@ -123,7 +123,6 @@ public class ChapterChunkListPreference extends ListPreference {
 
     @Override
     protected void onDialogClosed(boolean positiveResult){
-        getSharedPreferences().edit().putString(KEY_PREF_FILENAME, Settings.generateFilename(getContext())).commit();
         super.onDialogClosed(positiveResult);
     }
 

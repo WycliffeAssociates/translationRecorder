@@ -92,7 +92,7 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         if(key.compareTo(KEY_PREF_TAKE) == 0){
             //sharedPref.edit().putString(KEY_PREF_TAKE, "1").commit();
         }
-        sharedPref.edit().putString(KEY_PREF_FILENAME, Settings.generateFilename(getActivity())).commit();
+        Settings.updateFilename(getActivity());
     }
 
     public void updateSummaryText(SharedPreferences sharedPref, String key) {

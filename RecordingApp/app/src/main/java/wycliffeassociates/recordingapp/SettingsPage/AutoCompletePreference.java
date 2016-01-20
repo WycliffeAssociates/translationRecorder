@@ -200,7 +200,6 @@ public class AutoCompletePreference extends EditTextPreference {
                     getSharedPreferences().edit().putString(key, stripCode).commit();
                     getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                     getSharedPreferences().edit().putString(KEY_PREF_CHUNK, "1").commit();
-                    getSharedPreferences().edit().putString(KEY_PREF_FILENAME, Settings.generateFilename(getContext())).commit();
                 }
             }
         }

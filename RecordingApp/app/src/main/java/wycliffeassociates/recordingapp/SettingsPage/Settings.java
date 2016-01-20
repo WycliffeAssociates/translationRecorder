@@ -58,8 +58,8 @@ public class Settings extends Activity {
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
-    private static final String KEY_PREF_FILENAME = "pref_filename";
-    private static final String KEY_PREF_TAKE = "pref_take";
+    public static final String KEY_PREF_FILENAME = "pref_filename";
+    public static final String KEY_PREF_TAKE = "pref_take";
 
     MyAutoCompleteTextView setLangCode,setBookCode;
 
@@ -73,7 +73,7 @@ public class Settings extends Activity {
      */
     final int SET_SAVE_DIR2 = 22;
 
-    public static String generateFilename(Context c){
+    public static void updateFilename(Context c){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
         String langCode = pref.getString(KEY_PREF_LANG, "en");
         String bookCode = pref.getString(KEY_PREF_BOOK, "mat");
@@ -81,9 +81,17 @@ public class Settings extends Activity {
         String chunk = pref.getString(KEY_PREF_CHUNK, "1");
         String take = pref.getString(KEY_PREF_TAKE, "1");
         String filename = langCode + "_" + bookCode + "_" + chapter + "-" + chunk + "_" + take;
-        return filename;
+        pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
     }
 
+    public static void incrementTake(Context c){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
+        String take = pref.getString(KEY_PREF_TAKE, "1");
+        int takeInt = Integer.parseInt(take);
+        takeInt++;
+        pref.edit().putString(KEY_PREF_TAKE, String.valueOf(takeInt)).commit();
+        updateFilename(c);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
