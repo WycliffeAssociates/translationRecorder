@@ -35,7 +35,7 @@ public class AutoCompletePreference extends EditTextPreference {
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
 
-    public HashMap<String, Book> mBooks;
+    public String[] mBooks;
     public String[] mLanguages;
     ArrayAdapter<String> adapter;
     String[] COUNTRIES = {"hi"};
@@ -116,9 +116,12 @@ public class AutoCompletePreference extends EditTextPreference {
                 }
             }
         });
-        mBooks = new HashMap<>();
-        for(Book b : books) {
-            mBooks.put(b.getSlug(), b);
+        int i = 0;
+        mBooks = new String[books.size()];
+
+        for(Book b : books){
+            mBooks[i] = b.getSlug() + " - " + b.getName();
+            i++;
         }
     }
 
@@ -146,13 +149,8 @@ public class AutoCompletePreference extends EditTextPreference {
         } else {
             try{
                 pullBookInfo();
-                String[] bookArray = new String[mBooks.size()];
-                int i = 0;
-                for(Book b : mBooks.values()){
-                    bookArray[i] = b.getSlug() + " - " + b.getName();
-                    i++;
-                }
-                adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, bookArray);
+
+                adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, mBooks);
             } catch (JSONException e){
                 e.printStackTrace();
             }
