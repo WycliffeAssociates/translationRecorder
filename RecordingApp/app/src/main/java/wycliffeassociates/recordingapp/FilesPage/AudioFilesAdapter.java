@@ -128,18 +128,18 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         viewHolder.duration.setText(duration);
 
         // Set text sizes based on orientation
-        float text_coeff;
-        if (aContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            text_coeff = 18;
-        }
-        else {
-            text_coeff = 16;
-        }
-        float textSize = text_coeff * aContext.getResources().getDisplayMetrics().density;
-        viewHolder.filename.setTextSize(textSize);
-        viewHolder.duration.setTextSize(textSize);
-        viewHolder.date.setTextSize(textSize);
-        viewHolder.time.setTextSize(textSize);
+//        float text_coeff;
+//        if (aContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            text_coeff = 18;
+//        }
+//        else {
+//            text_coeff = 16;
+//        }
+//        float textSize = text_coeff * aContext.getResources().getDisplayMetrics().density;
+//        viewHolder.filename.setTextSize(textSize);
+//        viewHolder.duration.setTextSize(textSize);
+//        viewHolder.date.setTextSize(textSize);
+//        viewHolder.time.setTextSize(textSize);
 
         //
         viewHolder.checkBox.setChecked(checkBoxState[position]);

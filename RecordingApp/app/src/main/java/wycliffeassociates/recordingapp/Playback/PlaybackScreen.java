@@ -218,7 +218,7 @@ public class PlaybackScreen extends Activity{
         File from = new File(recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
         if(to.exists()){
-            AlertDialog dialog = new AlertDialog(context);
+          //  AlertDialog dialog = new AlertDialog(context);
 
         }
         if(manager.hasCut()){
