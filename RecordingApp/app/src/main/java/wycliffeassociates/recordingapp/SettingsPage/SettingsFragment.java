@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.security.Key;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,7 +38,6 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
-
 //    sharedPref;
 
     public void onCreate(Bundle savedInstanceState) {

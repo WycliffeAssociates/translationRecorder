@@ -113,7 +113,7 @@ public class MinimapView extends CanvasView {
 //            int start = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerStart() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
 //            int end = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerEnd() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
             drawPlaybackSection(canvas, start, end);
-            System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
+            //System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
             mPaint.setColor(Color.BLUE);
             mPaint.setAlpha(25);
             mPaint.setStyle(Paint.Style.FILL);
@@ -141,7 +141,7 @@ public class MinimapView extends CanvasView {
     }
 
     public void setAudioLength(int length){
-        System.out.println("Audio data length for timecode is " + length);
+        //System.out.println("Audio data length for timecode is " + length);
         this.audioLength = (int)(length/1000.0);
         this.secondsPerPixel = audioLength / (double)getWidth();
         computeTimecodeInterval();

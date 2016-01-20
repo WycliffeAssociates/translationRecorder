@@ -43,6 +43,10 @@ public class AudioFileAccessor {
         }
     }
 
+    public void setCompressed(MappedByteBuffer compressed){
+        mCompressed = compressed;
+    }
+
     public byte get(int idx){
         int loc = mCut.relativeLocToAbsolute(idx, mUseCmp);
         byte val;

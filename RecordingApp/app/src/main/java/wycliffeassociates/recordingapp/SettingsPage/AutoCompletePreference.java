@@ -9,8 +9,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 
 /**
  * Created by leongv on 1/19/2016.
@@ -18,13 +28,17 @@ import android.widget.EditText;
 public class AutoCompletePreference extends EditTextPreference {
 
 
-    private static AutoCompleteTextView mEditText = null;
+    private static MyAutoCompleteTextView mEditText = null;
     private final String TAG = "AutoCompletePreference";
-    // NOTE: For example only
-    private static final String[] COUNTRIES = new String[] {
-            "German", "Germany", "Germ", "Geronimo", "Gelatin", "Garbage", "Goal", "Golf"
-    };
+    public static final String KEY_PREF_LANG = "pref_lang";
+    public static final String KEY_PREF_BOOK = "pref_book";
+    public static final String KEY_PREF_CHAPTER = "pref_chapter";
+    public static final String KEY_PREF_CHUNK = "pref_chunk";
 
+    public HashMap<String, Book> mBooks;
+    public String[] mLanguages;
+    ArrayAdapter<String> adapter;
+    String[] COUNTRIES = {"hi"};
 
     public AutoCompletePreference(Context context) {
         super(context);
@@ -38,6 +52,75 @@ public class AutoCompletePreference extends EditTextPreference {
         super(context, attrs, defStyle);
     }
 
+
+    public String loadJSONFromAsset(String filename) {
+        String json = null;
+        try {
+            InputStream is = getContext().getAssets().open(filename);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
+    public void pullLangNames() throws JSONException {
+        ArrayList<Language> languageList = new ArrayList<>();
+        String json = loadJSONFromAsset("langnames.json");
+        JSONArray langArray = new JSONArray(json);
+        for(int i = 0; i < langArray.length(); i++){
+            JSONObject langObj = langArray.getJSONObject(i);
+            Language ln = new Language(langObj.getString("lc"),langObj.getString("ln"));
+            languageList.add(ln);
+        }
+        mLanguages = new String[languageList.size()];
+        for (int a = 0; a < mLanguages.length; a++) {
+            mLanguages[a] = (languageList.get(a)).getCode() + " - " +
+                    (languageList.get(a)).getName();
+            //System.out.println(listHolder[a]);
+        }
+    }
+
+    public void pullBookInfo() throws JSONException{
+        ArrayList<Book> books = new ArrayList<>();
+        String json = loadJSONFromAsset("chunks.json");
+        JSONArray booksJSON = new JSONArray(json);
+        for(int i = 0; i < booksJSON.length(); i++){
+            JSONObject bookObj = booksJSON.getJSONObject(i);
+            String name = bookObj.getString("name");
+            String slug = bookObj.getString("slug");
+            int chapters = bookObj.getInt("chapters");
+            int order = bookObj.getInt("sort");
+            JSONArray chunkArrayJSON = bookObj.getJSONArray("chunks");
+            ArrayList<Integer> chunks = new ArrayList<>();
+            for(int j = 0; j < chunkArrayJSON.length(); j++){
+                chunks.add(chunkArrayJSON.getInt(j));
+            }
+            Book book = new Book(slug, name, chapters, chunks, order);
+            books.add(book);
+        }
+        Collections.sort(books, new Comparator<Book>() {
+            @Override
+            public int compare(Book lhs, Book rhs) {
+                if (lhs.getOrder() > rhs.getOrder()) {
+                    return 1;
+                } else if (lhs.getOrder() < rhs.getOrder()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+        mBooks = new HashMap<>();
+        for(Book b : books) {
+            mBooks.put(b.getSlug(), b);
+        }
+    }
 
     /*
      *
@@ -53,11 +136,32 @@ public class AutoCompletePreference extends EditTextPreference {
         String currentValue = editText.getText().toString();
 
         // NOTE: For example only. Insert a different adapter here.
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+        if(this.getKey().compareTo(KEY_PREF_LANG) == 0){
+            try {
+                pullLangNames();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, mLanguages);
+        } else {
+            try{
+                pullBookInfo();
+                String[] bookArray = new String[mBooks.size()];
+                int i = 0;
+                for(Book b : mBooks.values()){
+                    bookArray[i] = b.getSlug() + " - " + b.getName();
+                    i++;
+                }
+                adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, bookArray);
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, COUNTRIES);
 
         // Construct a new editable autocomplete object with the appropriate params and id that the
         //    TextEditPreference is expecting
-        mEditText = new AutoCompleteTextView(getContext());
+        mEditText = new MyAutoCompleteTextView(getContext());
         mEditText.setLayoutParams(params);
         mEditText.setId(android.R.id.edit);
         mEditText.setText(currentValue);
@@ -70,6 +174,8 @@ public class AutoCompletePreference extends EditTextPreference {
         // Swap the old view with the new in the layout
         parent.removeView(editText);
         parent.addView(mEditText);
+
+
     }
 
     /*
@@ -82,12 +188,26 @@ public class AutoCompletePreference extends EditTextPreference {
             String value = mEditText.getText().toString();
             if (callChangeListener(value)) {
                 setText(value);
+                String[] temp = value.toString().split(" - ");//we only want the language code
+                if(temp.length > 1) {
+                    String stripCode = temp[0];
+                    String key = "";
+                    if(this.getKey().compareTo(KEY_PREF_BOOK) == 0){
+                        key = KEY_PREF_BOOK;
+                    } else {
+                        key = KEY_PREF_LANG;
+                    }
+                    getSharedPreferences().edit().putString(key, stripCode).commit();
+                    getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
+                    getSharedPreferences().edit().putString(KEY_PREF_CHUNK, "1").commit();
+
+                }
             }
         }
     }
 
     /*
-     * Return the custom AutoCompleteTextView instead of the default one
+     * Return the custom MyAutoCompleteTextView instead of the default one
      */
     @Override
     public EditText getEditText() {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.provider.MediaStore;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
@@ -164,6 +166,49 @@ public class WaveformView extends CanvasView {
         return true;
     }
 
+    public void drawDbLines(Canvas c){
+        mPaint.setStrokeWidth(1.f);
+        mPaint.setColor(Color.GRAY);
+        int db3 = dBLine(23197);
+        int ndb3 = dBLine(-23197);
+        c.drawLine(0, db3, getWidth(), db3, mPaint);
+        c.drawLine(0, ndb3, getWidth(), ndb3, mPaint);
+        c.drawText(Integer.toString(-3), 0, db3, mPaintText);
+        c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
+
+        int db6 = dBLine(16422);
+        int ndb6 = dBLine(-16422);
+        c.drawLine(0, db6, getWidth(), db6, mPaint);
+        c.drawLine(0, ndb6, getWidth(), ndb6, mPaint);
+        c.drawText(Integer.toString(-6), 0, db6, mPaintText);
+        c.drawText(Integer.toString(-6), 0, ndb6, mPaintText);
+
+        int db12 = dBLine(8230);
+        int ndb12 = dBLine(-8230);
+        c.drawLine(0, db12, getWidth(), db12, mPaint);
+        c.drawLine(0, ndb12, getWidth(), ndb12, mPaint);
+        c.drawText(Integer.toString(-12), 0, db12, mPaintText);
+        c.drawText(Integer.toString(-12), 0, ndb12, mPaintText);
+
+        int db18 = dBLine(4125);
+        int ndb18 = dBLine(-4125);
+        c.drawLine(0, db18, getWidth(), db18, mPaint);
+        c.drawLine(0, ndb18, getWidth(), ndb18, mPaint);
+        c.drawText(Integer.toString(-18), 0, db18, mPaintText);
+        c.drawText(Integer.toString(-18), 0, ndb18, mPaintText);
+
+        int db24 = dBLine(2067);
+        int ndb24 = dBLine(-2067);
+        c.drawLine(0, db24, getWidth(), db24, mPaint);
+        c.drawLine(0, ndb24, getWidth(), ndb24, mPaint);
+        c.drawText(Integer.toString(-24), 0, db24, mPaintText);
+        c.drawText(Integer.toString(-24), 0, ndb24, mPaintText);
+    }
+
+    private int dBLine(int val){
+        return (int)(val/ (double)AudioInfo.AMPLITUDE_RANGE * getHeight()/2 + getHeight()/2);
+    }
+
     //TODO: make a paint variable for the playback line rather than use one and swap colors
     /**
      * Draws the playback line on the canvas passed in
@@ -247,7 +292,8 @@ public class WaveformView extends CanvasView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //DrawingFromBuffers will draw data recieved from the microphone during recording
+        drawDbLines(canvas);
+        //DrawingFromBuffers will draw data received from the microphone during recording
         if(mDrawingFromBuffer){
             try {
                 UIDataManager.lock.acquire();
@@ -315,8 +361,11 @@ public class WaveformView extends CanvasView {
         double xScale = width/(index *.999);
         double yScale = height/65536.0;
         for(int i = 0; i < temp.length-1; i++){
-            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2),
-                    (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
+//            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2),
+//                    (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
+            canvas.drawLine((int) (xScale * i), (int) U.getValueForScreen(temp[i], height),
+                    (int) (xScale * (i + 1)), (int) U.getValueForScreen(temp[i+1], height), mPaint);
+
         }
         this.postInvalidate();
     }

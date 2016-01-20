@@ -25,7 +25,7 @@
             android:inputType="text"
             android:imeOptions="actionDone"/>
 
-        <ListPreference
+        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
             android:key="pref_chapter"
             android:layout="@layout/custom_pref"
             android:title="Chapter"
@@ -34,7 +34,7 @@
             android:entryValues="@array/chapter_values"
             android:defaultValue="1" />
 
-        <ListPreference
+        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
             android:key="pref_chunk"
             android:layout="@layout/custom_pref"
             android:title="Chunk"

@@ -2,6 +2,8 @@ package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -12,23 +14,18 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.amazonaws.RequestClientOptions;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
-import wycliffeassociates.recordingapp.Timer;
 
 /**
  * Created by sarabiaj on 11/10/2015.
@@ -52,19 +49,17 @@ public class PlaybackScreen extends Activity{
     private boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isALoadedFile = false;
+    private ProgressDialog mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("Creating PlaybackScreen...");
         super.onCreate(savedInstanceState);
         pref = new PreferencesManager(this);
 
         suggestedFilename = pref.getPreferences("fileName") + "-" + pref.getPreferences("fileCounter").toString();
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
-        System.out.println("suggestedFileName: " + suggestedFilename);
-        System.out.println("Loaded file: " + recordedFilename);
-        System.out.println("isALoadedFile: " + isALoadedFile);
+        Logger.i(this.toString(), "Loading Playback screen. Recorded Filename is " + recordedFilename + " Suggested Filename is " + suggestedFilename + " Came from loading a file is:" + isALoadedFile);
 
         // Make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -85,8 +80,8 @@ public class PlaybackScreen extends Activity{
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                Logger.i(this.toString(), "Initializing UIDataManager in VTO callback");
                 manager = new UIDataManager(mainCanvas, minimap, mStartMarker, mEndMarker, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
-                System.out.println("Sending in " + recordedFilename + " to loadWavFromFile()");
                 manager.loadWavFromFile(recordedFilename);
                 manager.updateUI();
                 mainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -109,7 +104,6 @@ public class PlaybackScreen extends Activity{
 
     private void skipBack() {
         WavPlayer.seekToStart();
-        System.out.println("Location after seek is " + WavPlayer.getLocation());
         manager.updateUI();
     }
 
@@ -145,7 +139,9 @@ public class PlaybackScreen extends Activity{
 
     @Override
     public void onBackPressed() {
-        if (!isSaved) {
+        Logger.i(this.toString(), "Back was pressed.");
+        if (!isSaved && !isALoadedFile || isALoadedFile && manager.hasCut()) {
+            Logger.i(this.toString(), "Asking if user wants to save before going back");
             ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
             dialog.setFilename(recordedFilename);
             dialog.setLoadedFile(isALoadedFile);
@@ -219,22 +215,34 @@ public class PlaybackScreen extends Activity{
      */
     public String saveFile(String name) {
         File dir = new File(pref.getPreferences("fileDirectory").toString());
-        // System.out.println(recordedFilename);
         File from = new File(recordedFilename);
         File to = new File(dir, name + AUDIO_RECORDER_FILE_EXT_WAV);
-        Boolean out = from.renameTo(to);
-        System.out.println("result of saving file " + out);
-        File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
-        File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
-        try {
-            toVis.createNewFile();
-            toVis.delete();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(to.exists()){
+          //  AlertDialog dialog = new AlertDialog(context);
+
         }
-        out = fromVis.renameTo(toVis);
-        System.out.println("result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
-        recordedFilename = to.getAbsolutePath();
+        if(manager.hasCut()){
+            try {
+                manager.writeCut(to);
+                from.delete();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Boolean out = from.renameTo(to);
+            Logger.i(this.toString(), "result of saving file " + out);
+            File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
+            File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
+            try {
+                toVis.createNewFile();
+                toVis.delete();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            out = fromVis.renameTo(toVis);
+            Logger.i(this.toString(), "result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
+            recordedFilename = to.getAbsolutePath();
+        }
         pref.setPreferences("fileCounter", ((int) pref.getPreferences("fileCounter") + 1));
         return to.getAbsolutePath();
     }
@@ -256,7 +264,6 @@ public class PlaybackScreen extends Activity{
             return (file.getAbsolutePath() + "/" + recordedFilename);
         else {
             recordedFilename = (file.getAbsolutePath() + "/" + UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV);
-            System.out.println("filename is " + recordedFilename);
             return recordedFilename;
         }
     }
@@ -288,7 +295,6 @@ public class PlaybackScreen extends Activity{
 
         @Override
         public void onClick(View v) {
-            System.out.println("Pressed something");
             switch (v.getId()) {
                 case R.id.btnPlay: {
                     playRecording();

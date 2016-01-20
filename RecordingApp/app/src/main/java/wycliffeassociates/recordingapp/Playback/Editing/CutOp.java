@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 12/22/2015.
@@ -34,6 +35,7 @@ public class CutOp {
         Pair<Integer, Integer> temp = new Pair<>(start, end);
         mStack.add(temp);
         mSizeCut = totalDataRemoved();
+        Logger.w(this.toString(), "Generating location stacks");
         generateCutStackUncmpLoc();
         generateCutStackCmpLoc();
     }
@@ -56,6 +58,14 @@ public class CutOp {
             }
         }
         return max;
+    }
+
+    public boolean hasCut(){
+        if(mStack.size() > 0){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public int skipReverse(int time){
@@ -101,6 +111,7 @@ public class CutOp {
             }
         });
         int sum = 0;
+        Logger.w(this.toString(), "Generating flattened stack and computing time removed");
         while(!copy.isEmpty()){
             Pair<Integer,Integer> pair = copy.firstElement();
             ArrayList<Pair<Integer,Integer>> list = new ArrayList<>();
