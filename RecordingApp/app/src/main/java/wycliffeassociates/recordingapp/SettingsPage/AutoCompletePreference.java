@@ -34,6 +34,8 @@ public class AutoCompletePreference extends EditTextPreference {
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
+    private static final String KEY_PREF_FILENAME = "pref_filename";
+    private static final String KEY_PREF_DRAFT = "pref_draft";
 
     public String[] mBooks;
     public String[] mLanguages;
@@ -198,7 +200,7 @@ public class AutoCompletePreference extends EditTextPreference {
                     getSharedPreferences().edit().putString(key, stripCode).commit();
                     getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                     getSharedPreferences().edit().putString(KEY_PREF_CHUNK, "1").commit();
-
+                    getSharedPreferences().edit().putString(KEY_PREF_FILENAME, Settings.generateFilename(getContext())).commit();
                 }
             }
         }

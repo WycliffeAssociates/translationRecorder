@@ -38,6 +38,9 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
+    public static final String KEY_PREF_CHUNK = "pref_chunk";
+    private static final String KEY_PREF_FILENAME = "pref_filename";
+    private static final String KEY_PREF_TAKE = "pref_take";
 //    sharedPref;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -86,6 +89,10 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
         updateSummaryText(sharedPref, key);
+        if(key.compareTo(KEY_PREF_TAKE) == 0){
+            //sharedPref.edit().putString(KEY_PREF_TAKE, "1").commit();
+        }
+        sharedPref.edit().putString(KEY_PREF_FILENAME, Settings.generateFilename(getActivity())).commit();
     }
 
     public void updateSummaryText(SharedPreferences sharedPref, String key) {

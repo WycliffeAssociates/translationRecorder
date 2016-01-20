@@ -50,7 +50,17 @@
             android:summary=""
             android:defaultValue="@string/pref_default_take"
             android:inputType="number"
-            android:imeOptions="actionDone"/>
+            android:imeOptions="actionDone"
+            />
+
+        <EditTextPreference
+            android:key="pref_filename"
+            android:layout="@layout/custom_pref"
+            android:title="File Name"
+            android:defaultValue="en_mat_1-1"
+            android:editable="false"
+            android:enabled="false"
+            />
 
     </PreferenceCategory>
 

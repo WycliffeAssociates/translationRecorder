@@ -21,9 +21,12 @@ import java.util.HashMap;
  */
 public class ChapterChunkListPreference extends ListPreference {
 
+    public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
+    private static final String KEY_PREF_FILENAME = "pref_filename";
+    private static final String KEY_PREF_DRAFT = "pref_draft";
 
     public HashMap<String, Book> mBooks;
 
@@ -116,6 +119,12 @@ public class ChapterChunkListPreference extends ListPreference {
     protected View onCreateDialogView() {
         init();
         return super.onCreateDialogView();
+    }
+
+    @Override
+    protected void onDialogClosed(boolean positiveResult){
+        getSharedPreferences().edit().putString(KEY_PREF_FILENAME, Settings.generateFilename(getContext())).commit();
+        super.onDialogClosed(positiveResult);
     }
 
     public ChapterChunkListPreference(Context context) {

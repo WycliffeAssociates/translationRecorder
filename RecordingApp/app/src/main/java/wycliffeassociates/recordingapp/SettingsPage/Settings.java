@@ -54,6 +54,12 @@ public class Settings extends Activity {
     private Button hardReset;
     private String sampleName;
 
+    public static final String KEY_PREF_LANG = "pref_lang";
+    public static final String KEY_PREF_BOOK = "pref_book";
+    public static final String KEY_PREF_CHAPTER = "pref_chapter";
+    public static final String KEY_PREF_CHUNK = "pref_chunk";
+    private static final String KEY_PREF_FILENAME = "pref_filename";
+    private static final String KEY_PREF_TAKE = "pref_take";
 
     MyAutoCompleteTextView setLangCode,setBookCode;
 
@@ -67,13 +73,23 @@ public class Settings extends Activity {
      */
     final int SET_SAVE_DIR2 = 22;
 
+    public static String generateFilename(Context c){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
+        String langCode = pref.getString(KEY_PREF_LANG, "en");
+        String bookCode = pref.getString(KEY_PREF_BOOK, "mat");
+        String chapter = pref.getString(KEY_PREF_CHAPTER, "1");
+        String chunk = pref.getString(KEY_PREF_CHUNK, "1");
+        String take = pref.getString(KEY_PREF_TAKE, "1");
+        String filename = langCode + "_" + bookCode + "_" + chapter + "-" + chunk + "_" + take;
+        return filename;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
-
         PreferenceManager.setDefaultValues(this, R.xml.preference, false);
-
     }
 
     public void resetPrefs() {
