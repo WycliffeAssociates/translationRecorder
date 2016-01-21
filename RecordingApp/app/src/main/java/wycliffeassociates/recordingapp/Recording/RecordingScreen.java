@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
@@ -58,7 +59,7 @@ public class RecordingScreen extends Activity {
         enableButtons();
 
         startService(new Intent(this, WavRecorder.class));
-        manager.listenForRecording(false);
+        manager.listenForRecording();
 
         filenameView = (TextView) findViewById(R.id.filenameView);
         filenameView.setText(suggestedFilename);
@@ -71,6 +72,7 @@ public class RecordingScreen extends Activity {
         manager.swapPauseAndRecord();
         stopService(new Intent(this, WavRecorder.class));
         RecordingQueues.pauseQueues();
+        Logger.w(this.toString(), "Pausing recording");
     }
 
     private void startRecording() {
@@ -78,6 +80,7 @@ public class RecordingScreen extends Activity {
         manager.swapPauseAndRecord();
         isRecording = true;
         manager.setIsRecording(true);
+        Logger.w(this.toString(), "Starting recording");
 
         if (!isPausedRecording) {
             manager.startTimer();
@@ -88,7 +91,7 @@ public class RecordingScreen extends Activity {
             intent.putExtra("screenWidth", minimap.getWidth());
             startService(new Intent(this, WavRecorder.class));
             startService(intent);
-            manager.listenForRecording(true);
+            manager.listenForRecording();
         } else {
             manager.resumeTimer();
             isPausedRecording = false;
@@ -101,11 +104,10 @@ public class RecordingScreen extends Activity {
             //Stop recording, load the recorded file, and draw
             stopService(new Intent(this, WavRecorder.class));
             long start = System.currentTimeMillis();
-            System.out.println("Stopping");
+            Logger.w(this.toString(), "Stopping recording");
             RecordingQueues.stopQueues();
             System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
             Intent intent = new Intent(this, PlaybackScreen.class);
-            System.out.println("passing as extra " + recordedFilename);
             intent.putExtra("recordedFilename", recordedFilename);
             isRecording = false;
             isPausedRecording = false;

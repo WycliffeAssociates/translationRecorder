@@ -70,7 +70,7 @@ public class PlaybackScreen extends Activity{
         if(isALoadedFile){
             suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
         }
-        Logger.i(this.toString(), "Loading Playback screen. Recorded Filename is " + recordedFilename + " Suggested Filename is " + suggestedFilename + " Came from loading a file is:" + isALoadedFile);
+        Logger.w(this.toString(), "Loading Playback screen. Recorded Filename is " + recordedFilename + " Suggested Filename is " + suggestedFilename + " Came from loading a file is:" + isALoadedFile);
 
         // Make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -208,10 +208,11 @@ public class PlaybackScreen extends Activity{
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM:dd:yyyy:hh:mm:ss");
         String format = simpleDateFormat.format(new Date());
         //File to = new File(dir, suggestedFilename + "d_" + format + AUDIO_RECORDER_FILE_EXT_WAV);
-        File to = new File(dir, suggestedFilename + "d_" + AUDIO_RECORDER_FILE_EXT_WAV);
-        if(isALoadedFile) {
-            to = from;
+        if(isALoadedFile && suggestedFilename.contains(".wav")) {
+            suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf(".wav"));
         }
+        File to = new File(dir, suggestedFilename + AUDIO_RECORDER_FILE_EXT_WAV);
+
         if(to.exists()){
             final File finalFrom = from;
             final File finalTo = to;
@@ -283,6 +284,7 @@ public class PlaybackScreen extends Activity{
         if(!isALoadedFile) {
             Settings.incrementTake(this);
         }
+        this.finish();
         return to.getAbsolutePath();
     }
 

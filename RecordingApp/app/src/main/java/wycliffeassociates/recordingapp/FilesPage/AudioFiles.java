@@ -252,13 +252,18 @@ public class AudioFiles extends Activity {
         File visFilesLocation = new File(AudioInfo.pathToVisFile);
         File[] visFiles = visFilesLocation.listFiles();
         File[] audioFiles = audioFilesLocation.listFiles();
+        if(visFiles == null){
+            return;
+        }
         for(File v : visFiles){
             boolean found = false;
-            for(File a : audioFiles){
-                //check if the names match up; exclude the path to get to them or the file extention
-                if(extractFilename(a).equals(extractFilename(v))){
-                    found = true;
-                    break;
+            if(audioFiles != null) {
+                for (File a : audioFiles) {
+                    //check if the names match up; exclude the path to get to them or the file extention
+                    if (extractFilename(a).equals(extractFilename(v))) {
+                        found = true;
+                        break;
+                    }
                 }
             }
             if(!found){

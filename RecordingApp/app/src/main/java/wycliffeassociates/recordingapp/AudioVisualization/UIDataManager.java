@@ -220,6 +220,7 @@ public class UIDataManager {
             }
             fis.write(buffer.get(i));
         }
+        mCutOp.clear();
         return;
     }
 
@@ -241,6 +242,7 @@ public class UIDataManager {
         }
         Logger.w(UIDataManager.class.toString(), "MainWave height: " + mainWave.getHeight() + " width: " + mainWave.getWidth());
         WavPlayer.loadFile(getMappedAudioFile());
+        Logger.w(UIDataManager.class.toString(), "Loaded file duration in ms is: " + WavPlayer.getDuration());
         minimap.setAudioLength(WavPlayer.getDuration());
         Logger.w(this.toString(), "Setting up visualizer");
         wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight(), mCutOp);
@@ -257,7 +259,7 @@ public class UIDataManager {
 
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
     //canvas views to listen for recording on the same activity
-    public void listenForRecording(boolean drawWaveform){
+    public void listenForRecording(){
         mainWave.setDrawingFromBuffer(true);
         ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);

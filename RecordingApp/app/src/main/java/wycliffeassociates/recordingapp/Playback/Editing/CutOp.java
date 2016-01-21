@@ -40,6 +40,16 @@ public class CutOp {
         generateCutStackCmpLoc();
     }
 
+    public void clear(){
+        mStack.clear();
+        mFlattenedStack.clear();
+        mSizeCut = 0;
+        mCutStackCmpLoc.clear();
+        mCutStackUncmpLoc.clear();
+        mSizeCutCmp = 0;
+        mSizeCutUncmp = 0;
+    }
+
     public void undo(){
         if(mStack.size() == 0){
             return;
