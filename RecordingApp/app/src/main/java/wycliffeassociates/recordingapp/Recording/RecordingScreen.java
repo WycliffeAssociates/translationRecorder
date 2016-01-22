@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -114,6 +115,7 @@ public class RecordingScreen extends Activity {
             startActivity(intent);
         }
     }
+
 
     @Override
     public void onBackPressed() {

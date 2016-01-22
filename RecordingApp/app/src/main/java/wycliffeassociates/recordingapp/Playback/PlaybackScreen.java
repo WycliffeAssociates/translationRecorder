@@ -208,21 +208,26 @@ public class PlaybackScreen extends Activity{
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM:dd:yyyy:hh:mm:ss");
         String format = simpleDateFormat.format(new Date());
         //File to = new File(dir, suggestedFilename + "d_" + format + AUDIO_RECORDER_FILE_EXT_WAV);
+
         if(isALoadedFile && suggestedFilename.contains(".wav")) {
             suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf(".wav"));
         }
+        File toTemp = new File(dir, suggestedFilename +1+ AUDIO_RECORDER_FILE_EXT_WAV);
         File to = new File(dir, suggestedFilename + AUDIO_RECORDER_FILE_EXT_WAV);
 
         if(to.exists()){
             final File finalFrom = from;
             final File finalTo = to;
+            final File finalToTemp = toTemp;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Would you like to overwrite the existing file?").setTitle("Warning");
             builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     isSaved = true;
-                    recordedFilename = saveFile(finalFrom, finalTo, suggestedFilename);
+                    recordedFilename = saveFile(finalFrom, finalToTemp, suggestedFilename);
                     filenameView.setText(suggestedFilename);
+                    finalTo.delete();
+                    finalToTemp.renameTo(finalTo);
                 }
             });
             builder.setNegativeButton("no", new DialogInterface.OnClickListener() {
