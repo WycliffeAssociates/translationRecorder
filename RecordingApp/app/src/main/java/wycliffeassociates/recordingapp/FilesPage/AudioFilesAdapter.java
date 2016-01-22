@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.FilesPage;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.media.Image;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.Timer;
 
 /**
  *
@@ -104,21 +106,18 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         }
 
         // Set items to be displayed
-        // TODO: Remove extenstion using Regex
+        // TODO: Remove extension using Regex
         viewHolder.filename.setText(audioItems[position].getName().replace(".wav", ""));
-        viewHolder.filename.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
         //
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
         String output = format.format(audioItems[position].getDate());
         viewHolder.date.setText(output);
-        viewHolder.date.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
         //
-        format = new SimpleDateFormat("hh:mm:ss");
+        format = new SimpleDateFormat("hh:mm");
         output = format.format(audioItems[position].getDate());
         viewHolder.time.setText(output);
-        viewHolder.time.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
 
         //
         int length = audioItems[position].getDuration();
@@ -127,7 +126,20 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         int seconds = length - (60 * 60 * hours) - (60 * minutes);
         String duration = String.format("%02d",hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
         viewHolder.duration.setText(duration);
-        viewHolder.duration.setTextSize(16 * aContext.getResources().getDisplayMetrics().density);
+
+        // Set text sizes based on orientation
+//        float text_coeff;
+//        if (aContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            text_coeff = 18;
+//        }
+//        else {
+//            text_coeff = 16;
+//        }
+//        float textSize = text_coeff * aContext.getResources().getDisplayMetrics().density;
+//        viewHolder.filename.setTextSize(textSize);
+//        viewHolder.duration.setTextSize(textSize);
+//        viewHolder.date.setTextSize(textSize);
+//        viewHolder.time.setTextSize(textSize);
 
         //
         viewHolder.checkBox.setChecked(checkBoxState[position]);

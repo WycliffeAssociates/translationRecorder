@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 public class WavFileLoader {
 
@@ -73,19 +74,18 @@ public class WavFileLoader {
      * @param loadedFile whether or not the file was loaded or had just been recorded
      */
     public WavFileLoader(String file, int screenWidth, boolean loadedFile) {
-        System.out.println("creating a new file after a cut, file is " + file);
         loadedFilename = file;
         this.screenWidth = screenWidth;
         threadFinished = false;
         RandomAccessFile raf = null;
         try {
+            Logger.i(WavFileLoader.class.toString(), "Loading the file: " + file);
             raf = new RandomAccessFile(file, "r");
             FileChannel fc = raf.getChannel();
             buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
                     raf.length() - AudioInfo.HEADER_SIZE);
             mappedAudioFile = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
                     raf.length() - AudioInfo.HEADER_SIZE);
-
             //If the file was loaded, look for a .vis file with the same name
             if(loadedFile == LOADED_FILE) {
                 audioVisFile = new File(AudioInfo.pathToVisFile + file.substring(file.lastIndexOf('/'),
@@ -93,19 +93,24 @@ public class WavFileLoader {
             //Otherwise use visualization.vis
             } else{
                 audioVisFile = new File(AudioInfo.pathToVisFile, "visualization.vis");
+                Logger.i(WavFileLoader.class.toString(), "Using the default visualization file");
             }
             //If the visualization file exists, map it to memory
             if(audioVisFile.exists()) {
                 RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");
                 FileChannel fcCached = rafCached.getChannel();
                 preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+                Logger.i(WavFileLoader.class.toString(), "Found a matching visualization file: "
+                        + audioVisFile.getPath());
             //otherwise spawn a thread to generate the vis file file
             } else {
                 preprocessedBuffer = null;
                 Thread writeVisFile = new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        Logger.w(WavFileLoader.class.toString(), "Could not find a matching vis file, creating...");
                         generateTempFile(loadedFilename);
+                        Logger.w(WavFileLoader.class.toString(), "Finished creating a vis file");
                         threadFinished = true;
                     }
                 });
@@ -123,7 +128,6 @@ public class WavFileLoader {
     private void generateTempFile(String loadedFilename){
         try {
             audioVisFile  = new File(AudioInfo.pathToVisFile + loadedFilename.substring(loadedFilename.lastIndexOf('/'), loadedFilename.lastIndexOf('.')) + ".vis");
-            System.out.println("loaded filename is " + audioVisFile.getAbsolutePath());
             FileOutputStream temp = new FileOutputStream(audioVisFile);
             int increment = (int)Math.floor((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/screenWidth);
             increment = (increment % 2 == 0)? increment : increment+1;
@@ -182,38 +186,38 @@ public class WavFileLoader {
 
     }
 
-    public float[] getMinimap(int canvasWidth, int canvasHeight) {
-        System.out.println("minimap width is " + canvasWidth + " height is " + canvasHeight);
-        //*4 because 2x values and 2y values for each pixel of width
-        float[] minimap = new float[canvasWidth*4];
-        int increment = (int)Math.floor((buffer.capacity()/2)/(double)canvasWidth);
-        int idx = 0;
-        for(int i = 0; i < buffer.capacity(); i+= increment*AudioInfo.SIZE_OF_SHORT){
-            double max = Double.MIN_VALUE;
-            double min = Double.MAX_VALUE;
-
-            //compute the average
-            for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
-                if((i+j+1) < buffer.capacity()) {
-                    //System.out.println("Capacity is: " + buffer.capacity() + ", i is : " + i + ", j is : " + j + ", i+j+1="+(i+j+1));
-                    byte low = buffer.get(i + j);
-                    byte hi = buffer.get(i + j + 1);
-                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                    max = (max < (double) value) ? value : max;
-                    min = (min > (double) value) ? value : min;
-                }
-            }
-            if(idx < minimap.length) {
-                minimap[idx] = idx/4;
-                minimap[idx + 1] = (float)((max* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
-                minimap[idx + 2] = idx/4;
-                minimap[idx + 3] = (float)((min* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
-            }
-            idx+=4;
-        }
-        System.out.println("idx is " + idx);
-        return minimap;
-    }
+//    public float[] getMinimap(int canvasWidth, int canvasHeight) {
+//        System.out.println("minimap width is " + canvasWidth + " height is " + canvasHeight);
+//        //*4 because 2x values and 2y values for each pixel of width
+//        float[] minimap = new float[canvasWidth*4];
+//        int increment = (int)Math.floor((buffer.capacity()/2)/(double)canvasWidth);
+//        int idx = 0;
+//        for(int i = 0; i < buffer.capacity(); i+= increment*AudioInfo.SIZE_OF_SHORT){
+//            double max = Double.MIN_VALUE;
+//            double min = Double.MAX_VALUE;
+//
+//            //compute the average
+//            for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
+//                if((i+j+1) < buffer.capacity()) {
+//                    //System.out.println("Capacity is: " + buffer.capacity() + ", i is : " + i + ", j is : " + j + ", i+j+1="+(i+j+1));
+//                    byte low = buffer.get(i + j);
+//                    byte hi = buffer.get(i + j + 1);
+//                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+//                    max = (max < (double) value) ? value : max;
+//                    min = (min > (double) value) ? value : min;
+//                }
+//            }
+//            if(idx < minimap.length) {
+//                minimap[idx] = idx/4;
+//                minimap[idx + 1] = (float)((max* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
+//                minimap[idx + 2] = idx/4;
+//                minimap[idx + 3] = (float)((min* WavVisualizer.getYScaleFactor(canvasHeight, largest)) + canvasHeight / 2);
+//            }
+//            idx+=4;
+//        }
+//        System.out.println("idx is " + idx);
+//        return minimap;
+//    }
 
     public WavFileLoader cut(int start, int end){
         WavPlayer.stop();

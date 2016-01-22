@@ -3,103 +3,148 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 public class WavVisualizer {
 
-    private MappedByteBuffer preprocessedBuffer;
+    private MappedByteBuffer mCompressed;
     private MappedByteBuffer buffer;
-    private float userScale = 1f;
-    private final int defaultSecondsOnScreen = 10;
-    public static int numSecondsOnScreen;
-    private boolean useCompressedFile = false;
-    private boolean canSwitch = false;
-    private float[] samples;
-    double yScale;
-    int screenHeight;
-    int screenWidth;
+    private float mUserScale = 1f;
+    private final int mDefaultSecondsOnScreen = 10;
+    public static int mNumSecondsOnScreen;
+    private boolean mUseCompressedFile = false;
+    private boolean mCanSwitch = false;
+    private float[] mSamples;
+    private float[] mMinimap;
+    int mScreenHeight;
+    int mScreenWidth;
+    AudioFileAccessor mAccessor;
 
-    public WavVisualizer(MappedByteBuffer buffer, MappedByteBuffer preprocessedBuffer, int screenWidth, int screenHeight) {
+    public WavVisualizer(MappedByteBuffer buffer, MappedByteBuffer compressed, int screenWidth, int screenHeight, CutOp cut) {
         this.buffer = buffer;
-        this.screenHeight = screenHeight;
-        this.screenWidth = screenWidth;
-        this.preprocessedBuffer = preprocessedBuffer;
-        numSecondsOnScreen = defaultSecondsOnScreen;
-        canSwitch = (preprocessedBuffer == null)? false : true;
-        samples = new float[screenWidth*8];
+        mScreenHeight = screenHeight;
+        mScreenWidth = screenWidth;
+        mCompressed = compressed;
+        mNumSecondsOnScreen = mDefaultSecondsOnScreen;
+        mCanSwitch = (compressed == null)? false : true;
+        mSamples = new float[screenWidth*8];
+        mAccessor = new AudioFileAccessor(compressed, buffer, cut);
+        mMinimap = new float[AudioInfo.SCREEN_WIDTH * 4];
     }
 
-    public void enableCompressedFileNextDraw(MappedByteBuffer preprocessedBuffer){
-        System.out.println("Swapping buffers now");
-        this.preprocessedBuffer = preprocessedBuffer;
-        this.canSwitch = true;
+    public void enableCompressedFileNextDraw(MappedByteBuffer compressed){
+        //System.out.println("Swapping buffers now");
+        mCompressed = compressed;
+        mAccessor.setCompressed(compressed);
+        mCanSwitch = true;
     }
 
-    public float[] getDataToDraw(int location, int largest){
+    public float[] getMinimap(int minimapHeight){
+        //selects the proper buffer to use
+        boolean useCompressed = mCanSwitch && mNumSecondsOnScreen > AudioInfo.COMPRESSED_SECONDS_ON_SCREEN;
+        mAccessor.switchBuffers(useCompressed);
+
+        int pos = 0;
+        int index = 0;
+        int increment = mAccessor.getIncrement(WavPlayer.getAdjustedDuration()/(double)1000, useCompressed);
+        for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
+            double max = Double.MIN_VALUE;
+            double min = Double.MAX_VALUE;
+            for(int j = 0; j < increment; j+=2){
+                if(pos+1 >= mAccessor.size()){
+                    break;
+                }
+                byte low = mAccessor.get(pos);
+                byte hi = mAccessor.get(pos + 1);
+                short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                max = (max < (double) value) ? value : max;
+                min = (min > (double) value) ? value : min;
+                pos+=2;
+            }
+            mMinimap[index] = index/4;
+            mMinimap[index+1] = U.getValueForScreen(max, minimapHeight);
+            mMinimap[index+2] =  index/4;
+            mMinimap[index+3] = U.getValueForScreen(min, minimapHeight);
+            System.out.println(max +" " + min + " ");
+            System.out.println(mMinimap[index + 1] + " " + mMinimap[index + 3] + " ");
+            index+=4;
+        }
+        //System.out.print("height is " + minimapHeight);
+
+        return mMinimap;
+    }
 
 
-        //by default, the number of seconds on screen should be 10, but this should be multiplied by the zoom
-        numSecondsOnScreen = getNumSecondsOnScreen(userScale);
+
+    public float[] getDataToDraw(int location){
+
+        mNumSecondsOnScreen = getNumSecondsOnScreen(mUserScale);
         //based on the user scale, determine which buffer waveData should be
-        useCompressedFile = shouldUseCompressedFile(numSecondsOnScreen);
-        MappedByteBuffer waveData = selectBufferToUse(useCompressedFile);
-        System.out.println("use compressed file is " + useCompressedFile);
-
+        mUseCompressedFile = shouldUseCompressedFile(mNumSecondsOnScreen);
+        mAccessor.switchBuffers(mUseCompressedFile);
 
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
-        int increment = getIncrement(numSecondsOnScreen);
-        //compute the starting and ending index based on the current audio playback position, and ultimately how much time is represented in one pixel
-        int startPosition = computeSampleStartPosition(location, numSecondsOnScreen);
-        int lastIndex = Math.min(getLastIndex(location, numSecondsOnScreen), computeSampleStartPosition(WavPlayer.getDuration(), numSecondsOnScreen));
-        //jumping in increments will likely not line up with the end of the file, so store where it stops
-        int leftOff = 0;
+        int increment = getIncrement(mNumSecondsOnScreen);
+        int timeToSubtract = msBeforePlaybackLine(mNumSecondsOnScreen);
+        int startPosition = mAccessor.indexAfterSubtractingTime(timeToSubtract, location, mNumSecondsOnScreen);
 
-
-
-        //scale the waveform down based on the largest peak of the waveform
-        yScale = getYScaleFactor(screenHeight, largest);
-
-
-
-        //modify the starting position due to wanting the current position to start at the playback line
-        //this means data prior to this location should be drawn, in which samples needs to be initialized to provide some empty space if
-        //the current playback position is in the early parts of the file and there is no earlier data to read
-        startPosition = computeOffsetForPlaybackLine(numSecondsOnScreen, startPosition);
-        int index = initializeSamples(samples, startPosition, increment);
+        int index = initializeSamples(mSamples, startPosition, increment);
         //in the event that the actual start position ends up being negative (such as from shifting forward due to playback being at the start of the file)
         //it should be set to zero (and the buffer will already be initialized with some zeros, with index being the index of where to resume placing data
         startPosition = Math.max(0, startPosition);
+        int end = mSamples.length/4;
 
-
+//        Log.i(this.toString(), "loc is " + location + " duration is " + WavPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (WavPlayer.getDuration() - cut.getSizeCut()));
+//        Log.i(this.toString(), "start is " + startPosition);
 
         //beginning with the starting position, the width of each increment represents the data one pixel width is showing
-        for(int i = startPosition; i < Math.min(waveData.capacity(), lastIndex); i += increment){
-            index = addHighAndLowToDrawingArray(waveData, samples, i, i+increment, index);
-            leftOff = i; //keeps track of where we got to in the buffer, in case the last pixel doesn't have a full increment worth of data
-        }
-        //if we ended the loop with data left, but jumping another increment would go over capacity or the last index....
-        if(leftOff < Math.min(waveData.capacity(), lastIndex)){
-            //Same as the previous loop, except it loops from where the last left off until the last index
-            index = addHighAndLowToDrawingArray(waveData, samples, leftOff, lastIndex, index);
+        for(int i = index/4; i < end; i++){
+            if(startPosition+increment > mAccessor.size()){
+                break;
+            }
+            index = addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+increment, index);
+            startPosition += increment;
         }
         //zero out the rest of the array
-        for (int i = index; i < samples.length; i++){
-            samples[i] = 0;
+        for (int i = index; i < mSamples.length; i++){
+            mSamples[i] = 0;
         }
 
-        return samples;
+        return mSamples;
     }
 
-    private int addHighAndLowToDrawingArray(MappedByteBuffer waveData, float[] samples, int beginIdx, int endIdx, int index){
+    private int backUpStartPos(int start, int delta, CutOp cut){
+        int loc = start;
+        for(int i = 0; i < delta; i++){
+            loc--;
+            int skip = cut.skipReverse(loc);
+            if(skip != Integer.MAX_VALUE){
+                loc = skip;
+            }
+        }
+        return loc;
+    }
+
+    private int mapLocationToTime(int idx){
+        double idxP = (mUseCompressedFile)? idx/(double)mCompressed.capacity()
+                : idx/(double)buffer.capacity();
+        int ms = (int)Math.round(idxP * WavPlayer.getDuration());
+        return ms;
+    }
+
+
+    private int addHighAndLowToDrawingArray(AudioFileAccessor accessor, float[] samples, int beginIdx, int endIdx, int index){
 
         double max = Double.MIN_VALUE;
         double min = Double.MAX_VALUE;
 
         //loop over the indicated chunk of data to extract out the high and low in that section, then store it in samples
-        for(int i = beginIdx; i < Math.min(waveData.capacity(), endIdx); i+= AudioInfo.SIZE_OF_SHORT){
-            if((i+1) < waveData.capacity()) {
-                byte low = waveData.get(i);
-                byte hi = waveData.get(i + 1);
+        for(int i = beginIdx; i < Math.min(mAccessor.size(), endIdx); i+= AudioInfo.SIZE_OF_SHORT){
+            if((i+1) < accessor.size()) {
+                byte low = accessor.get(i);
+                byte hi = accessor.get(i + 1);
                 short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
                 max = (max < (double) value) ? value : max;
                 min = (min > (double) value) ? value : min;
@@ -107,9 +152,9 @@ public class WavVisualizer {
         }
         if(samples.length > index+4){
             samples[index] = index/4;
-            samples[index+1] = (float)((max* yScale) + screenHeight / 2);
+            samples[index+1] = U.getValueForScreen(max, mScreenHeight);
             samples[index+2] =  index/4;
-            samples[index+3] = (float)((min * yScale) + screenHeight / 2);
+            samples[index+3] = U.getValueForScreen(min, mScreenHeight);
             index+=4;
         }
 
@@ -119,7 +164,7 @@ public class WavVisualizer {
 
     private int initializeSamples(float[] samples, int startPosition, int increment){
         if(startPosition <= 0) {
-            int numberOfZeros = Math.abs(startPosition) / increment;
+            int numberOfZeros = (int)Math.round(Math.abs(startPosition) / (double)increment);
             //System.out.println("number of zeros is " + numberOfZeros);
             //System.out.println("Start position is " + startPosition + " increment is " + increment);
             int index = 0;
@@ -136,59 +181,68 @@ public class WavVisualizer {
     }
 
     public boolean shouldUseCompressedFile(int numSecondsOnScreen){
-        if(numSecondsOnScreen >= AudioInfo.COMPRESSED_SECONDS_ON_SCREEN && canSwitch){
+        if(numSecondsOnScreen >= AudioInfo.COMPRESSED_SECONDS_ON_SCREEN && mCanSwitch){
             return true;
         }
         else return false;
     }
 
-    private int computeOffsetForPlaybackLine(int numSecondsOnScreen, int startPosition){
-        int pixelsBeforeLine = (screenWidth/8);
-        int mspp = getIncrement(numSecondsOnScreen);
-        //System.out.println("First start position is " + startPosition + " " + pixelsBeforeLine + " " + mspp);
-        return startPosition - (mspp * pixelsBeforeLine);
+    private int msBeforePlaybackLine(int numSecondsOnScreen){
+        int pixelsBeforeLine = (mScreenWidth/8);
+        double mspp = (numSecondsOnScreen * 1000) / (double)mScreenWidth;
+        return (int)Math.round(mspp * pixelsBeforeLine);
     }
 
-    private int computeSampleStartPosition(int startMillisecond, int numSecondsOnScreen){
+    private int computeSampleStartPosition(int startMillisecond){
         // multiplied by 2 because of a hi and low for each sample in the compressed file
-        System.out.println("Duration of file is " + WavPlayer.getDuration());
-        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)Math.floor((startMillisecond * ((numSecondsOnScreen*screenWidth)/(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/(double)(numSecondsOnScreen*1000) )))
-                : (int)((startMillisecond/1000.0) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        //System.out.println("Duration of file is " + WavPlayer.getDuration());
+/*
+        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)(Math.round((
+
+                                                                                                        (startMillisecond/(double)WavPlayer.getDuration())
+                                                                                                                *(compressed.capacity()/4)
+                                                                                                        )
+                                                                                                    ))
+                //(int)Math.round(startMillisecond * (mScreenWidth/((double)(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * 1000)))) * 4
+        //int sampleStartPosition = (useCompressedFile)? (int)Math.floor((startMillisecond/(double)WavPlayer.getDuration())*(compressed.capacity()/4.0)*4)
+                : (int)(Math.round((startMillisecond/1000.d) * AudioInfo.SAMPLERATE )) * AudioInfo.SIZE_OF_SHORT;
+*/
+        int sampleStartPosition = (int)Math.round((startMillisecond/1000.d) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        if(mUseCompressedFile){
+            int increment = (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)mScreenWidth)  * AudioInfo.SIZE_OF_SHORT;
+            sampleStartPosition = (int)Math.round(sampleStartPosition / (double)increment) * AudioInfo.SIZE_OF_SHORT * 2;
+        }
         return sampleStartPosition;
     }
 
     private int getIncrement(int numSecondsOnScreen){
-        int increment = (useCompressedFile)?  (int)Math.floor((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT : (numSecondsOnScreen * AudioInfo.SAMPLERATE / screenWidth) * AudioInfo.SIZE_OF_SHORT;
+        int increment = (mUseCompressedFile)?  (int)Math.round((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT
+                : (numSecondsOnScreen * AudioInfo.SAMPLERATE / mScreenWidth) * AudioInfo.SIZE_OF_SHORT;
         increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     private int getLastIndex(int startMillisecond, int numSecondsOnScreen) {
-        int endMillisecond = startMillisecond + (numSecondsOnScreen)*1000;
-        return computeSampleStartPosition(endMillisecond, numSecondsOnScreen);
+        int endMillisecond = startMillisecond + (numSecondsOnScreen) * 1000;
+        return computeSampleStartPosition(endMillisecond);
     }
 
     private int getNumSecondsOnScreen(float userScale){
-        int numSecondsOnScreen = (int)(defaultSecondsOnScreen * userScale);
+        int numSecondsOnScreen = (int)Math.round(mDefaultSecondsOnScreen * userScale);
         return Math.max(numSecondsOnScreen, 1);
     }
 
-    public static float millisecondsPerPixel(int width, int numSecondsOnScreen){
-        return numSecondsOnScreen * 1000/(float)width;
+    public double millisecondsPerPixel(){
+        return mNumSecondsOnScreen * 1000/(double)mScreenWidth;
     }
 
 
     private MappedByteBuffer selectBufferToUse(boolean useCompressedFile){
         if (useCompressedFile){
-            return preprocessedBuffer;
+            return mCompressed;
         }
         else
             return buffer;
-    }
-
-    public static double getYScaleFactor(int canvasHeight, int largest){
-        //System.out.println(largest + " for calculating y scale");
-        return ((canvasHeight*.8)/ (largest * 2.0));
     }
 
     private int computeSpaceToAllocateForSamples(int startPosition, int endPosition, int increment){
@@ -196,7 +250,7 @@ public class WavVisualizer {
         return Math.abs(((endPosition+2*increment*AudioInfo.SIZE_OF_SHORT)-startPosition*AudioInfo.SIZE_OF_SHORT)) * 4;
     }
 
-    private int mapLocationToClosestSecond(int location){
+    private int mapTimeToClosestSecond(int location){
         return (int)Math.round((double)location/(double)1000);
     }
 }

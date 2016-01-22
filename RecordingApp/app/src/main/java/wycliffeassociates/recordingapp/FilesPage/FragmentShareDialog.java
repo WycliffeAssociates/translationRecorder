@@ -73,26 +73,26 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         }
     }
 
+    //=================
+    // CUSTOM FUNCTIONS
+    //=================
+
     public void setFilesForExporting(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
         mCurrentDir = currentDir;
         mAdapter = adapter;
         mAudioItemList = audioItemList;
     }
 
-    //=================
-    // CUSTOM FUNCTIONS
-    //=================
-
     public void exportToSdCard() {
-        Toast.makeText(getActivity(), "SD CARD WAS CLICKED", Toast.LENGTH_LONG).show();
         FolderExport se = new FolderExport(mAudioItemList, mAdapter, mCurrentDir, this);
         se.export();
+        //se.cleanUp();
     }
 
     public void exportToDir() {
-        Toast.makeText(getActivity(), "DIRECTORY WAS CLICKED", Toast.LENGTH_LONG).show();
         FolderExport de = new FolderExport(mAudioItemList, mAdapter, mCurrentDir, this);
         de.export();
+        //de.cleanUp();
     }
 
     public void exportViaBluetooth() {
@@ -103,18 +103,23 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
     public void exportViaWifi() {
         FtpExport fe = new FtpExport(mAudioItemList, mAdapter, mCurrentDir, this);
         fe.export();
+        //fe.cleanUp();
         Toast.makeText(getActivity(), "WIFI DIRECT WAS CLICKED", Toast.LENGTH_LONG).show();
         // Insert code to export here
     }
 
+    //TODO: Add s3 token
     public void exportToAmazon() {
-        Toast.makeText(getActivity(), "AMAOZON S3 WAS CLICKED", Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), "AMAZON S3 WAS CLICKED", Toast.LENGTH_LONG).show();
         S3Export s3 = new S3Export(mAudioItemList, mAdapter, mCurrentDir, this);
+        //s3.export();
+        //s3.cleanUp();
     }
 
     public void exportToApp() {
         AppExport ae = new AppExport(mAudioItemList, mAdapter, mCurrentDir, this);
         ae.export();
+        //ae.cleanUp();
     }
 
 

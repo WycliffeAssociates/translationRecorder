@@ -100,6 +100,7 @@ public class S3Export extends Export {
                     System.out.println( new Integer(percentage).toString());
                     //Display percentage transfered to user
                     if(percentage == 100){
+                        cleanUp();
 //                        if(mMenu != null)
 //                            mMenu.close();
                     }

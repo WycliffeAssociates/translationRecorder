@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.R;
 
 public abstract class CanvasView extends View {
 
@@ -18,8 +19,8 @@ public abstract class CanvasView extends View {
     int fps = 0;
     protected boolean doneDrawing = false;
     protected UIDataManager mManager;
-    protected static SectionMarkers sMarkers = null;
     protected GestureDetectorCompat mDetector;
+    protected Paint mPaintText;
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -54,7 +55,11 @@ public abstract class CanvasView extends View {
         mPaint.setColor(Color.DKGRAY);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
-        sMarkers = new SectionMarkers();
+
+        mPaintText = new Paint();
+        mPaintText.setTextSize(28.f);
+        mPaintText.setColor(Color.GREEN);
+
     }
 
     // override onSizeChanged
@@ -67,12 +72,14 @@ public abstract class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mPaint.setColor(Color.DKGRAY);
-        canvas.drawLine(0.f, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2, mPaint);
+        mPaint.setColor(getResources().getColor(R.color.bright_blue));
+        mPaint.setStrokeWidth(3f);
+        canvas.drawLine(0.f, this.getMeasuredHeight() / 2, this.getMeasuredWidth(), this.getMeasuredHeight() / 2, mPaint);
     }
 
     public void drawWaveform(float[] samples, Canvas canvas){
-        mPaint.setColor(Color.WHITE);
+        mPaint.setStrokeWidth(1.5f);
+        mPaint.setColor(getResources().getColor(R.color.off_white));
         canvas.drawLines(samples, mPaint);
         fps++;
         doneDrawing = true;
@@ -94,26 +101,5 @@ public abstract class CanvasView extends View {
         mManager = manager;
     }
 
-    public static int getStartMarker(){
-        int loc = (int)(sMarkers.getStartLocation()*88.2);
-        return (loc % 2 == 0)? loc : loc + 1;
-    }
-
-    public static int getEndMarker(){
-        int loc = (int)(sMarkers.getEndLocation()*88.2);
-        return (loc % 2 == 0)? loc : loc + 1;
-    }
-
-    public static int getMarkerStartTime(){
-        return sMarkers.getStartLocation();
-    }
-
-    public static int getMarkerEndTime(){
-        return sMarkers.getEndLocation();
-    }
-
-    public static void clearMarkers(){
-        sMarkers.clearMarkers();
-    }
 }
 

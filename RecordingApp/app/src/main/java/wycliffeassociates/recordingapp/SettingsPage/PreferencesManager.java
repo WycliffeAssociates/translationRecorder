@@ -19,7 +19,6 @@ import wycliffeassociates.recordingapp.R;
  */
 public class PreferencesManager {
 
-
     private static final String PREF_NAME = "wycliffeassociates.recordingapp.properties";
 
     private static PreferencesManager sInstance;

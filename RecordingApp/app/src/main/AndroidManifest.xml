@@ -17,17 +17,16 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".SplashScreen"
+            android:name=".MainMenu"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MainMenu" />
+        <!--<activity android:name=".MainMenu" />-->
         <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape" android:noHistory="true"/>
-        <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape" android:noHistory="true"/>
+        <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape"/>
         <activity android:name=".FilesPage.AudioFiles" />
         <activity android:name=".SettingsPage.Settings"
             android:windowSoftInputMode="stateUnchanged"/>
@@ -35,6 +34,7 @@
         <service android:name=".Recording.WavRecorder" />
         <service android:name=".Recording.WavFileWriter" />
         <activity android:name=".FilesPage.Export.FolderExport$StorageAccess" />
+        <activity android:name=".FilesPage.Export.AppExport$ShareZipToApps"/>
         <activity android:name=".FilesPage.FTPActivity" android:theme="@style/Theme.UserDialog"/>
         <activity android:name=".SettingsPage.connectivity.LanguageNamesRequest" />
         <service

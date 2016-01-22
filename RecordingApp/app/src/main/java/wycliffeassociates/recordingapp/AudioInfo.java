@@ -22,6 +22,7 @@ public class AudioInfo{
     public static String pathToVisFile = "";
     public static int COMPRESSED_SECONDS_ON_SCREEN = 1;
     public static String fileDir = "";
+    public static int SCREEN_WIDTH;
 
     private AudioInfo(){}
 }

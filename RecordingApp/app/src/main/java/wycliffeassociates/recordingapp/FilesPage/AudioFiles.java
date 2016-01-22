@@ -89,10 +89,7 @@ public class AudioFiles extends Activity {
 
         audioFileView = (ListView) findViewById(R.id.main_content);
 
-        // Initialization
-        audioItemList = new ArrayList<AudioItem>();
-        tempItemList = new ArrayList<AudioItem>();
-        audioHash = new Hashtable<Date, String>();
+
         btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
 
         // Cleanup any leftover visualization files
@@ -112,6 +109,11 @@ public class AudioFiles extends Activity {
     }
 
     private void initFiles(File[] file){
+        // Initialization
+        audioItemList = new ArrayList<AudioItem>();
+        tempItemList = new ArrayList<AudioItem>();
+        audioHash = new Hashtable<Date, String>();
+
         for (int i = 0; i < file.length; i++) {
             int len = file[i].getName().length();
             if (len > 3) {
@@ -141,24 +143,24 @@ public class AudioFiles extends Activity {
 
         @Override
         public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnCheckAll: {
-                checkAll();
-                break;
+            switch (v.getId()) {
+                case R.id.btnCheckAll: {
+                    checkAll();
+                    break;
+                }
+                case R.id.btnSortName: {
+                    sortName();
+                    break;
+                }
+                case R.id.btnSortDuration: {
+                    sortDuration();
+                    break;
+                }
+                case R.id.btnSortDate: {
+                    sortDate();
+                    break;
+                }
             }
-            case R.id.btnSortName: {
-                sortName();
-                break;
-            }
-            case R.id.btnSortDuration: {
-                sortDuration();
-                break;
-            }
-            case R.id.btnSortDate: {
-                sortDate();
-                break;
-            }
-        }
         }
     };
 
@@ -252,13 +254,18 @@ public class AudioFiles extends Activity {
         File visFilesLocation = new File(AudioInfo.pathToVisFile);
         File[] visFiles = visFilesLocation.listFiles();
         File[] audioFiles = audioFilesLocation.listFiles();
+        if(visFiles == null){
+            return;
+        }
         for(File v : visFiles){
             boolean found = false;
-            for(File a : audioFiles){
-                //check if the names match up; exclude the path to get to them or the file extention
-                if(extractFilename(a).equals(extractFilename(v))){
-                    found = true;
-                    break;
+            if(audioFiles != null) {
+                for (File a : audioFiles) {
+                    //check if the names match up; exclude the path to get to them or the file extention
+                    if (extractFilename(a).equals(extractFilename(v))) {
+                        found = true;
+                        break;
+                    }
                 }
             }
             if(!found){
@@ -286,6 +293,21 @@ public class AudioFiles extends Activity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         mMenu = menu;
         return true;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        //get files in the directory
+        File f = new File(currentDir);
+        file = f.listFiles();
+        // No files
+        if (file == null) {
+            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
+            // Get audio files
+        } else {
+            initFiles(file);
+        }
     }
 
     /**
