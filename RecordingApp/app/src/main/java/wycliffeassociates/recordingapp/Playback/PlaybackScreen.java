@@ -9,7 +9,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -58,6 +60,8 @@ public class PlaybackScreen extends Activity{
     private boolean isPlaying = false;
     private boolean isALoadedFile = false;
     private ProgressDialog mProgress;
+    boolean changedName = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,8 +171,33 @@ public class PlaybackScreen extends Activity{
         }
     }
 
-    private boolean getSaveName(Context c) {
+    private void changedName() {
+        changedName = true;
+    }
+
+    private void save() {
+        getSaveName(this);
+    }
+
+    private void getSaveName(Context c) {
+        TextWatcher tw = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changedName();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+
         final EditText toSave = new EditText(c);
+        toSave.addTextChangedListener(tw);
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
 
         //pref.getPreferences("fileName");
@@ -196,7 +225,6 @@ public class PlaybackScreen extends Activity{
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
-        return true;
     }
 
     private void setName(String newName) {
@@ -215,6 +243,7 @@ public class PlaybackScreen extends Activity{
         File toTemp = new File(dir, suggestedFilename +1+ AUDIO_RECORDER_FILE_EXT_WAV);
         File to = new File(dir, suggestedFilename + AUDIO_RECORDER_FILE_EXT_WAV);
 
+
         if(to.exists()){
             final File finalFrom = from;
             final File finalTo = to;
@@ -232,7 +261,7 @@ public class PlaybackScreen extends Activity{
             });
             builder.setNegativeButton("no", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    // User cancelled the dialog
+                    getSaveName(context);
                 }
             });
             AlertDialog dialog = builder.create();
@@ -248,13 +277,7 @@ public class PlaybackScreen extends Activity{
         return suggestedFilename;
     }
 
-    private void saveRecording() {
-        try {
-            getSaveName(context);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 
     /**
      * Names the currently recorded .wav file.
@@ -268,6 +291,8 @@ public class PlaybackScreen extends Activity{
             try {
                 manager.writeCut(to);
                 from.delete();
+                File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
+                toVis.delete();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -347,7 +372,7 @@ public class PlaybackScreen extends Activity{
                     break;
                 }
                 case R.id.btnSave: {
-                    saveRecording();
+                    save();
                     break;
                 }
                 case R.id.btnPause: {
