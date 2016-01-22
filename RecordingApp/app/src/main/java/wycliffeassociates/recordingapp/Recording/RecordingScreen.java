@@ -76,6 +76,18 @@ public class RecordingScreen extends Activity {
         Logger.w(this.toString(), "Pausing recording");
     }
 
+    @Override
+    public void onPause(){
+        super.onPause();
+        if(isRecording) {
+            stopService(new Intent(this, WavRecorder.class));
+            long start = System.currentTimeMillis();
+            Logger.w(this.toString(), "Stopping recording");
+            RecordingQueues.stopQueues();
+            isRecording = false;
+        }
+    }
+
     private void startRecording() {
         stopService(new Intent(this, WavRecorder.class));
         manager.swapPauseAndRecord();
