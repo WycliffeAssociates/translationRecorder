@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ntp.TimeStamp;
 
 import java.io.File;
@@ -253,7 +254,7 @@ public class PlaybackScreen extends Activity{
             builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     isSaved = true;
-                    recordedFilename = saveFile(finalFrom, finalToTemp, suggestedFilename);
+                    recordedFilename = saveFile(finalFrom, finalToTemp, suggestedFilename, true);
                     filenameView.setText(suggestedFilename);
                     finalTo.delete();
                     finalToTemp.renameTo(finalTo);
@@ -268,7 +269,12 @@ public class PlaybackScreen extends Activity{
             dialog.show();
         } else {
             isSaved = true;
-            recordedFilename = saveFile(from, to, suggestedFilename);
+            if(isALoadedFile) {
+                recordedFilename = saveFile(from, to, suggestedFilename, false);
+            //if not a loaded file, set overwrite so that the UUID file is deleted
+            } else {
+                recordedFilename = saveFile(from, to, suggestedFilename, true);
+            }
             filenameView.setText(suggestedFilename);
         }
     }
@@ -278,38 +284,58 @@ public class PlaybackScreen extends Activity{
     }
 
 
-
     /**
      * Names the currently recorded .wav file.
      *
      * @param name a string with the desired output filename. Should not include the .wav extension.
      * @return the absolute path of the file created
      */
-    public String saveFile(File from, File to, String name) {
+    public String saveFile(File from, File to, String name, boolean overwrite) {
 
         if(manager.hasCut()){
             try {
                 manager.writeCut(to);
-                from.delete();
+                if(overwrite) {
+                    from.delete();
+                }
                 File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
                 toVis.delete();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            Boolean out = from.renameTo(to);
-            Logger.i(this.toString(), "result of saving file " + out);
-            File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
-            File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
-            try {
-                toVis.createNewFile();
-                toVis.delete();
-            } catch (IOException e) {
-                e.printStackTrace();
+            //if overwrite, just rename the file to the new name since there are no cuts
+            if(overwrite) {
+                Boolean out = from.renameTo(to);
+                Logger.i(this.toString(), "result of saving file " + out);
+                //if the file was NOT loaded, move the visualization file over too
+                if(!isALoadedFile) {
+                    File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
+                    File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
+                    try {
+                        toVis.createNewFile();
+                        toVis.delete();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    out = fromVis.renameTo(toVis);
+                    Logger.i(this.toString(), "result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
+                }
+                recordedFilename = to.getAbsolutePath();
+            //if not overwriting, copy the file
+            } else {
+                try {
+                    FileUtils.copyFile(from, to);
+                    if(!isALoadedFile) {
+                        File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
+                        File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
+                        FileUtils.copyFile(fromVis, toVis);
+                    }
+                    recordedFilename = to.getAbsolutePath();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            out = fromVis.renameTo(toVis);
-            Logger.i(this.toString(), "result of saving vis file " + out + toVis.getAbsolutePath() + " path to vis file is " + AudioInfo.pathToVisFile);
-            recordedFilename = to.getAbsolutePath();
         }
         if(!isALoadedFile) {
             Settings.incrementTake(this);
