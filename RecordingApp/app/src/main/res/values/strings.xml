@@ -20,4 +20,25 @@
     <string name="files_content_desc">Files Button</string>
     <string name="settings_content_desc">Settings Button</string>
     <string name="record_content_desc">Record Button</string>
+
+    <!-- SETTINGS (Values) -->
+    <string name="pref_default_folder_value">/storage/emulated/0/translationRecorder</string>
+    <string name="pref_default_lang">en</string>
+    <string name="pref_default_book">gen</string>
+    <string name="pref_default_chapter">1</string>
+    <string name="pref_default_chunk">1</string>
+    <string name="pref_default_take">1</string>
+    <string name="pref_ftp_server_value">ts.door43.org</string>
+    <string name="pref_ftp_directory_value">/translationRecorder</string>
+    <string name="pref_ftp_username_value">unfoldingWord-1</string>
+    <string name="pref_ftp_password_value">trisawesome</string>
+
+    <!-- SETTINGS (Summaries) -->
+    <string name="pref_default_folder_summary">@string/pref_default_folder_value</string>
+    <string name="pref_ftp_server_summary">@string/pref_ftp_server_summary</string>
+    <string name="pref_ftp_directory_summary">@string/pref_ftp_directory_value</string>
+    <string name="pref_ftp_username_summary">@string/pref_ftp_username_value</string>
+    <string name="pref_ftp_password_summary">@string/pref_ftp_password_value</string>
+    <string name="pref_sync_summary">Sync data with server</string>
+    <string name="pref_restore_default_summary">Revert all settings to initial value</string>
 </resources>

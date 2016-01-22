@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="File Name"
+        android:key="pref_key_file_name_lang"
+        android:layout="@layout/custom_pref_category">
+
+        <wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference
+            android:key="pref_lang"
+            android:layout="@layout/custom_pref"
+            android:title="Language"
+            android:summary=""
+            android:defaultValue="@string/pref_default_lang"
+            android:inputType="text"
+            android:imeOptions="actionDone"/>
+
+        <wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference
+            android:key="pref_book"
+            android:layout="@layout/custom_pref"
+            android:title="Book"
+            android:summary=""
+            android:defaultValue="@string/pref_default_book"
+            android:inputType="text"
+            android:imeOptions="actionDone"/>
+
+        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
+            android:key="pref_chapter"
+            android:layout="@layout/custom_pref"
+            android:title="Chapter"
+            android:summary=""
+            android:entries="@array/chapter_values"
+            android:entryValues="@array/chapter_values"
+            android:defaultValue="1" />
+
+        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
+            android:key="pref_chunk"
+            android:layout="@layout/custom_pref"
+            android:title="Chunk"
+            android:summary=""
+            android:entries="@array/chunk_values"
+            android:entryValues="@array/chunk_values"
+            android:defaultValue="1" />
+
+        <EditTextPreference
+            android:key="pref_take"
+            android:layout="@layout/custom_pref"
+            android:title="Take"
+            android:summary=""
+            android:defaultValue="@string/pref_default_take"
+            android:inputType="number"
+            android:imeOptions="actionDone"
+            />
+
+        <EditTextPreference
+            android:key="pref_filename"
+            android:layout="@layout/custom_pref"
+            android:title="File Name"
+            android:defaultValue="en_mat_1-1"
+            android:editable="false"
+            android:enabled="false"
+            />
+
+    </PreferenceCategory>
+
+    <!--<PreferenceCategory-->
+        <!--android:title="Misc"-->
+        <!--android:key="pref_key_misc"-->
+        <!--android:layout="@layout/custom_pref_category">-->
+
+        <!--<SwitchPreference-->
+            <!--android:key="pref_decibel_lines"-->
+            <!--android:layout="@layout/custom_pref_switch"-->
+            <!--android:title="Decibel Lines"-->
+            <!--android:summary="Show decibel lines in the recording screen"-->
+            <!--android:defaultValue="true" />-->
+
+    <!--</PreferenceCategory>-->
+
+</PreferenceScreen>

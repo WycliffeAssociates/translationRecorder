@@ -41,4 +41,9 @@
     <color name="primary_dark_font">@color/very_dark_greyish_red</color>
     <color name="minimap_bg">@color/very_dark_gray</color>
 
+
+    <color name="setting_pref_category">@color/secondary</color>
+    <color name="setting_pref_title">@color/black</color>
+    <color name="setting_pref_summary">@color/very_dark_gray</color>
+
 </resources>

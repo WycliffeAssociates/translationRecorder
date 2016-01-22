@@ -155,7 +155,14 @@ public class MainMenu extends Activity{
     }
 
     public void configureLogger(int minLogLevel) {
-        Logger.configure(new File(getExternalCacheDir(), "log.txt"), Logger.Level.getLevel(minLogLevel));
+        File logFile = new File(getExternalCacheDir(), "log.txt");
+        Logger.configure(logFile, Logger.Level.getLevel(minLogLevel));
+        if(logFile.exists()){
+            Logger.w(this.toString(), "Log file initialized.");
+        } else {
+            Logger.e(this.toString(),"ERROR: could not initialize log file.");
+        }
+
     }
 
     /**
