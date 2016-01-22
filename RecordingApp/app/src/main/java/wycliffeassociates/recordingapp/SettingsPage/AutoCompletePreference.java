@@ -223,7 +223,7 @@ public class AutoCompletePreference extends EditTextPreference {
         View view = ((Activity) getContext()).getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 }

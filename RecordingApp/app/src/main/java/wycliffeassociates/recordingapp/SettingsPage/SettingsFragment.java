@@ -103,10 +103,4 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
             System.out.println("IGNORING SUMMARY UPDATE FOR " + key);
         }
     }
-
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        System.out.println("ON PREFERENCE TREE CLICK: " + preference);
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
-    }
 }
