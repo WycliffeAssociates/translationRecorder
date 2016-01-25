@@ -67,7 +67,6 @@ public class UIDataManager {
         }
         timerView = (TextView)ctx.findViewById(R.id.timerView);
         this.ctx = ctx;
-        lock = new Semaphore(1);
 
         Logger.w(this.toString(), "passing cut to WavPlayer and Canvases");
         mCutOp = new CutOp();
@@ -277,10 +276,7 @@ public class UIDataManager {
                         isPaused = message.isPaused();
 
                         if (!isPaused && message.getData() != null) {
-                            lock.acquire();
                             byte[] buffer = message.getData();
-                            lock.release();
-
                             double max = getPeakVolume(buffer);
                             double db = U.computeDb(max);
                             if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 1500)){
@@ -294,9 +290,7 @@ public class UIDataManager {
                             }
 
                             if(isRecording) {
-                                lock.acquire();
                                 mainWave.setBuffer(buffer);
-                                lock.release();
                                 mainWave.postInvalidate();
                                 if(timer != null) {
                                     long t = timer.getTimeElapsed();
@@ -312,10 +306,9 @@ public class UIDataManager {
                             }
                         }
                         if (isStopped) {
-                            lock.acquire();
                             mainWave.setBuffer(null);
-                            lock.release();
                             mainWave.postInvalidate();
+                            RecordingQueues.doneUI.put(new Boolean(true));
                             return;
                         }
                     } catch (InterruptedException e) {
@@ -325,6 +318,7 @@ public class UIDataManager {
                 mainWave.setDrawingFromBuffer(false);
             }
         });
+        uiThread.setName("UIThread");
         uiThread.start();
     }
 

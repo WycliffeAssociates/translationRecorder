@@ -21,7 +21,7 @@ public class WavRecorder extends Service {
     private AudioRecord recorder = null;
     private int bufferSize = 0;
     private Thread recordingThread = null;
-    private boolean isRecording = false;
+    private volatile boolean isRecording = false;
     private byte data[];
 
 

@@ -16,6 +16,7 @@ import java.io.File;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by leongv on 12/10/2015.
@@ -54,28 +55,33 @@ public class FragmentExitDialog extends DialogFragment implements View.OnClickLi
                 break;
             case R.id.btnDelete: {
                 if (isRecording) {
-                    System.out.println("trying to stop the recording service");
-                    boolean serviceStopped = rs.stopService(new Intent(rs, WavRecorder.class));
-                    if(serviceStopped){
-                        System.out.println("Successfully stopped the service.");
-                    }
-                    else {
-                        System.out.println("Could not stop the service.");
-                    }
-                    RecordingQueues.stopQueues();
+//                    System.out.println("trying to stop the recording service");
+//                    boolean serviceStopped = rs.stopService(new Intent(rs, WavRecorder.class));
+//                    if(serviceStopped){
+//                        System.out.println("Successfully stopped the service.");
+//                    }
+//                    else {
+//                        System.out.println("Could not stop the service.");
+//                    }
+//                    RecordingQueues.stopQueues();
                 }
                 else if (isPlaying) {
                     WavPlayer.release();
                 }
                 else {
                     WavPlayer.release();
-                    if(isPausedRecording){
-                        RecordingQueues.stopQueues();
-                    }
+//                    if(isPausedRecording){
+//                        RecordingQueues.stopQueues();
+//                    }
                 }
                 if (filename != null && !isALoadedFile){
                     File file = new File(filename);
-                    file.delete();
+                    if(file.exists()) {
+                        boolean result = file.delete();
+                        Logger.w(this.toString(), "deleted the temporary file before exiting: " + result);
+                    } else {
+                        Logger.w(this.toString(), "temp file did not exist?");
+                    }
                 }
                 rs.finish();
                 break;
