@@ -57,6 +57,9 @@ public class RecordingScreen extends Activity {
 
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
+
+        mainCanvas.disableGestures();
+
         manager = new UIDataManager(mainCanvas, minimap, null, null, this, UIDataManager.RECORDING_MODE, true);
 
         setButtonHandlers();

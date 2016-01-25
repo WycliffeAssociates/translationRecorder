@@ -30,6 +30,7 @@ public class WaveformView extends CanvasView {
     private int mMarkerEndLoc;
     private ScaleGestureDetector sgd;
     private CutOp mCut;
+    private boolean mGestures = false;
 
     public void setCut(CutOp cut){
         mCut = cut;
@@ -67,7 +68,7 @@ public class WaveformView extends CanvasView {
         @Override
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
             //Should only perform a scroll if the WavPlayer exists, since scrolling performs a seek
-            if (WavPlayer.exists()) {
+            if (WavPlayer.exists() && mGestures) {
                 //moves playback by the distance (distX is multiplied so as to scroll at a more
                 //reasonable speed. 3 seems to work well, but is mostly arbitrary.
                 int playbackSectionStart = (int) (distX * 3) + WavPlayer.getLocation();
@@ -110,6 +111,14 @@ public class WaveformView extends CanvasView {
             System.out.println("scaled");
             return true;
         }
+    }
+
+    public void disableGestures(){
+        mGestures = false;
+    }
+
+    public void enableGestures(){
+        mGestures = true;
     }
 
     /**
