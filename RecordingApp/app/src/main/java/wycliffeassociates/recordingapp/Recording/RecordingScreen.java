@@ -44,6 +44,7 @@ public class RecordingScreen extends Activity {
     private boolean isRecording = false;
     private boolean isPausedRecording = false;
     private boolean hasStartedRecording = false;
+    private boolean mDeleteTempFile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,7 @@ public class RecordingScreen extends Activity {
         filenameView.setText(suggestedFilename);
 
         hasStartedRecording = false;
+        mDeleteTempFile = false;
     }
 
     private void pauseRecording() {
@@ -94,6 +96,16 @@ public class RecordingScreen extends Activity {
         } else if(!hasStartedRecording){
             stopService(new Intent(this, WavRecorder.class));
             RecordingQueues.stopVolumeTest();
+        }
+        if(mDeleteTempFile){
+            mDeleteTempFile = false;
+            File file = new File(recordedFilename);
+            if(file.exists()) {
+                boolean result = file.delete();
+                Logger.w(this.toString(), "deleted the temporary file before exiting: " + result);
+            } else {
+                Logger.w(this.toString(), "temp file did not exist?");
+            }
         }
     }
 
@@ -139,6 +151,9 @@ public class RecordingScreen extends Activity {
         }
     }
 
+    public void deleteTempFile(){
+        mDeleteTempFile = true;
+    }
 
     @Override
     public void onBackPressed() {

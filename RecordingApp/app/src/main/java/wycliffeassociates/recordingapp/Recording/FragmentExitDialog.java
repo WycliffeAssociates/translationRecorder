@@ -75,13 +75,7 @@ public class FragmentExitDialog extends DialogFragment implements View.OnClickLi
 //                    }
                 }
                 if (filename != null && !isALoadedFile){
-                    File file = new File(filename);
-                    if(file.exists()) {
-                        boolean result = file.delete();
-                        Logger.w(this.toString(), "deleted the temporary file before exiting: " + result);
-                    } else {
-                        Logger.w(this.toString(), "temp file did not exist?");
-                    }
+                    rs.deleteTempFile();
                 }
                 rs.finish();
                 break;
