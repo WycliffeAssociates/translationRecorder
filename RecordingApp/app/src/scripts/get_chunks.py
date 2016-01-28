@@ -37,25 +37,56 @@ for x in range(1, 67):
     usfm_data = response_usfm.read().decode('utf-8')
     lines = usfm_data.splitlines()
 
+    def create_chunk(chapter_id, chunk_id, start_verse, end_verse):
+        """ Create a dictionary of chunk data """
+        chunk_data = {
+            "chapter_id": chapter_id,
+            "chunk_id": chunk_id,
+            "start_verse": start_verse,
+            "end_verse": end_verse}
+        print(chunk_data)
+        return chunk_data
+
+
     #keep a count of \c and \s5 tags (chapter and chunk respectively)
     chapter = 0
     num_chunks = 0
     chapters_in_book = []
     chunks_in_chapter = []
+    current_chunk_start_verse = 1
+    current_verse = 1
     for line in lines:
         print(line)
+        verse_match = re.search(r'^\\v (\d+) ', line)
+        if verse_match:
+            current_verse = int(verse_match.group(1))
         chunk_match = re.search(r'\\s5', line)
         #add to the number of chunks seen so far
         if chunk_match:
             num_chunks += 1
+            chunks_in_chapter.append(create_chunk(
+                chapter, num_chunks, current_chunk_start_verse, current_verse))
+            current_chunk_start_verse = current_verse + 1
         #on a new chapter, append the number of chunks tallied and reset the count
         chapter_match = re.search(r'\\c', line)
         if chapter_match:
-            chapters_in_book.append(num_chunks)
+            chapters_in_book.append(chunks_in_chapter)
             num_chunks = 0
             chapter += 1
+            current_verse = 1
+            current_chunk_start_verse = 1
+            chunks_in_chapter = []
+
+    #append the last chunk
+    print("Found chunk: verses "
+          + str(current_chunk_start_verse)
+          + "-"
+          + str(current_verse))
+    num_chunks += 1
+    chunks_in_chapter.append(create_chunk(
+        chapter, num_chunks, current_chunk_start_verse, current_verse))
     #append the last chapter
-    chapters_in_book.append(num_chunks+1)
+    chapters_in_book.append(chunks_in_chapter)
     #Account for the off by one introduced from chunks coming before chapters
     chunk_list_fixed = []
     length = len(chapters_in_book)-1
