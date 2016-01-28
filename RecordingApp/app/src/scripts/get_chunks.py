@@ -44,7 +44,6 @@ for x in range(1, 67):
             "chunk_id": chunk_id,
             "start_verse": start_verse,
             "end_verse": end_verse}
-        print(chunk_data)
         return chunk_data
 
 
@@ -56,7 +55,6 @@ for x in range(1, 67):
     current_chunk_start_verse = 1
     current_verse = 1
     for line in lines:
-        print(line)
         verse_match = re.search(r'^\\v (\d+) ', line)
         if verse_match:
             current_verse = int(verse_match.group(1))
@@ -78,10 +76,6 @@ for x in range(1, 67):
             chunks_in_chapter = []
 
     #append the last chunk
-    print("Found chunk: verses "
-          + str(current_chunk_start_verse)
-          + "-"
-          + str(current_verse))
     num_chunks += 1
     chunks_in_chapter.append(create_chunk(
         chapter, num_chunks, current_chunk_start_verse, current_verse))
@@ -103,8 +97,6 @@ for x in range(1, 67):
     book['chunks'] = chunk_list_fixed
     #add to the list of books
     OUTPUT.append(book)
-
-    break # DEBUG -- only process one book for testing
 
 #output all book data to a json file
 with open(RESULT_JSON_NAME, 'w') as outfile:
