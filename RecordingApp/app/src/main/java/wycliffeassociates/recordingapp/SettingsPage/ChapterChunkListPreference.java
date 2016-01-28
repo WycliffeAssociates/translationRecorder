@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by sarabiaj on 1/20/2016.
@@ -98,7 +100,12 @@ public class ChapterChunkListPreference extends ListPreference {
             pullBookInfo();
             String bookCode = getSharedPreferences().getString(KEY_PREF_BOOK, "gen");
             int chapter = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
-            int chunk = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHUNK, "1"));
+            String chunkString = getSharedPreferences().getString(KEY_PREF_CHUNK, "1");
+//            int chunk = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHUNK, "1"));
+            // Find first number in chunk description
+            Matcher matcher = Pattern.compile("\\d+").matcher(chunkString);
+            matcher.find();
+            int chunk = Integer.valueOf(matcher.group());
             if(this.getKey().compareTo(KEY_PREF_CHAPTER) == 0){
                 int numChapters = mBooks.get(bookCode).getNumChapters();
                 String[] chapterList = new String[numChapters];
