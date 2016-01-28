@@ -1,19 +1,14 @@
+# Ignore Intellij developer-specific files
+.idea
+*.iml
 
-RecordingApp/app/app.iml
+# Ignore Vim swap files
+*.swp
 
-RecordingApp/.idea/gradle.xml
-
-RecordingApp/.idea/misc.xml
-
-RecordingApp/.idea/gradle.xml
-
-RecordingApp/.idea/misc.xml
-
-RecordingApp/.idea/misc.xml
-
-RecordingApp/app/app.iml
-RecordingApp/app/app.iml
+# Ignore GitHub connection details
 RecordingApp/app/src/main/res/values/github.xml
+
+# Ignore (for now) marker images
 RecordingApp/app/src/main/res/drawable/marker_left_focused.png
 RecordingApp/app/src/main/res/drawable/marker_left_normal.png
 RecordingApp/app/src/main/res/drawable/marker_left_pressed.png
