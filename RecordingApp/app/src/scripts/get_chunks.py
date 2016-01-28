@@ -41,7 +41,9 @@ for x in range(1, 67):
     chapter = 0
     num_chunks = 0
     chapters_in_book = []
+    chunks_in_chapter = []
     for line in lines:
+        print(line)
         chunk_match = re.search(r'\\s5', line)
         #add to the number of chunks seen so far
         if chunk_match:
