@@ -99,9 +99,21 @@ public class AutoCompletePreference extends EditTextPreference {
             int chapters = bookObj.getInt("chapters");
             int order = bookObj.getInt("sort");
             JSONArray chunkArrayJSON = bookObj.getJSONArray("chunks");
-            ArrayList<Integer> chunks = new ArrayList<>();
+            ArrayList<ArrayList<Book.Chunk>> chunks = new ArrayList<>();
             for(int j = 0; j < chunkArrayJSON.length(); j++){
-                chunks.add(chunkArrayJSON.getInt(j));
+                ArrayList<Book.Chunk> chunksInChapter = new ArrayList<>();
+                // chunks.add(chunkArrayJSON.getInt(j));
+                JSONArray chunkListObj = chunkArrayJSON.getJSONArray(j);
+                for (int k = 0; k < chunkListObj.length(); k++) {
+                    JSONObject chunkObj = chunkListObj.getJSONObject(k);
+                    Book.Chunk chunk = new Book.Chunk();
+                    chunk.chapterId = chunkObj.getInt("chapter_id");
+                    chunk.chunkId = chunkObj.getInt("chunk_id");
+                    chunk.startVerse = chunkObj.getInt("start_verse");
+                    chunk.endVerse = chunkObj.getInt("end_verse");
+                    chunksInChapter.add(chunk);
+                }
+                chunks.add(chunksInChapter);
             }
             Book book = new Book(slug, name, chapters, chunks, order);
             books.add(book);
