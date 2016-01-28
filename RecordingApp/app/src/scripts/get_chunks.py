@@ -1,23 +1,25 @@
-#Script to generate a json file containing book name, number of chapters, number of chunks
+""" Script to generate a json file containing book name, number of
+    chapters, number of chunks """
+
 import json
 import urllib.request
 import re
 
-result_json_name = "chunks.json"
+RESULT_JSON_NAME = "chunks.json"
 
 with open("catalog.json") as file:
-    data = json.load(file)
+    DATA = json.load(file)
 
-output = []
+OUTPUT = []
 
 #skip obs for now, loop over all books
 for x in range(1, 67):
     #gives book name and order (the books are stored out of order in the json)
-    slug = data[x]["slug"]
-    sort = data[x]["sort"]
+    slug = DATA[x]["slug"]
+    sort = DATA[x]["sort"]
 
     #Get languages.json
-    url_lang_cat = data[x]["lang_catalog"]
+    url_lang_cat = DATA[x]["lang_catalog"]
     response_lang_cat = urllib.request.urlopen(url_lang_cat)
     lang_catalog = json.loads(response_lang_cat.read().decode('utf-8'))
 
@@ -67,9 +69,9 @@ for x in range(1, 67):
     book['chapters'] = len(chunk_list_fixed)
     book['chunks'] = chunk_list_fixed
     #add to the list of books
-    output.append(book)
+    OUTPUT.append(book)
 
 #output all book data to a json file
-with open(result_json_name, 'w') as outfile:
-    json.dump(output, outfile)
+with open(RESULT_JSON_NAME, 'w') as outfile:
+    json.dump(OUTPUT, outfile)
 
