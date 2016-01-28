@@ -40,7 +40,7 @@ for x in range(1, 67):
     #keep a count of \c and \s5 tags (chapter and chunk respectively)
     chapter = 0
     num_chunks = 0
-    chunk_list = []
+    chapters_in_book = []
     for line in lines:
         chunk_match = re.search(r'\\s5', line)
         #add to the number of chunks seen so far
@@ -49,17 +49,17 @@ for x in range(1, 67):
         #on a new chapter, append the number of chunks tallied and reset the count
         chapter_match = re.search(r'\\c', line)
         if chapter_match:
-            chunk_list.append(num_chunks)
+            chapters_in_book.append(num_chunks)
             num_chunks = 0
             chapter += 1
     #append the last chapter
-    chunk_list.append(num_chunks+1)
+    chapters_in_book.append(num_chunks+1)
     #Account for the off by one introduced from chunks coming before chapters
     chunk_list_fixed = []
-    length = len(chunk_list)-1
+    length = len(chapters_in_book)-1
     #eliminate chapter "0"
     for i in range(length):
-        chunk_list_fixed.append(chunk_list[i+1])
+        chunk_list_fixed.append(chapters_in_book[i+1])
 
     #create a dictionary to store the book's data
     book = {}
@@ -70,6 +70,8 @@ for x in range(1, 67):
     book['chunks'] = chunk_list_fixed
     #add to the list of books
     OUTPUT.append(book)
+
+    break # DEBUG -- only process one book for testing
 
 #output all book data to a json file
 with open(RESULT_JSON_NAME, 'w') as outfile:
