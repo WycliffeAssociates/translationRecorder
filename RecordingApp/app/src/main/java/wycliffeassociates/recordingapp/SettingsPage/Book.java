@@ -7,13 +7,20 @@ import java.util.ArrayList;
  */
 public class Book {
 
+    public static class Chunk {
+        public int chapterId;
+        public int chunkId;
+        public int startVerse;
+        public int endVerse;
+    }
+
     private int mNumChapters;
     private String mSlug;
     private String mName;
-    private ArrayList<Integer> mChunks;
+    private ArrayList<ArrayList<Chunk>> mChunks;
     private int mOrder;
 
-    public Book(String slug, String name, int chapters, ArrayList<Integer> chunks, int order){
+    public Book(String slug, String name, int chapters, ArrayList<ArrayList<Chunk>> chunks, int order){
         mNumChapters = chapters;
         mName = name;
         mSlug = slug;
@@ -33,7 +40,7 @@ public class Book {
         return mName;
     }
 
-    public ArrayList<Integer> getChunks() {
+    public ArrayList<ArrayList<Chunk>> getChunks() {
         return mChunks;
     }
 

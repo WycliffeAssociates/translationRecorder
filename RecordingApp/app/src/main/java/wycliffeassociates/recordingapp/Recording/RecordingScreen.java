@@ -16,6 +16,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.UUID;
 
+import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
@@ -42,6 +43,8 @@ public class RecordingScreen extends Activity {
     private boolean isSaved = false;
     private boolean isRecording = false;
     private boolean isPausedRecording = false;
+    private boolean hasStartedRecording = false;
+    private boolean mDeleteTempFile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,9 @@ public class RecordingScreen extends Activity {
 
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
+
+        mainCanvas.disableGestures();
+
         manager = new UIDataManager(mainCanvas, minimap, null, null, this, UIDataManager.RECORDING_MODE, true);
 
         setButtonHandlers();
@@ -64,6 +70,9 @@ public class RecordingScreen extends Activity {
 
         filenameView = (TextView) findViewById(R.id.filenameView);
         filenameView.setText(suggestedFilename);
+
+        hasStartedRecording = false;
+        mDeleteTempFile = false;
     }
 
     private void pauseRecording() {
@@ -80,15 +89,31 @@ public class RecordingScreen extends Activity {
     public void onPause(){
         super.onPause();
         if(isRecording) {
+            isRecording = false;
             stopService(new Intent(this, WavRecorder.class));
             long start = System.currentTimeMillis();
             Logger.w(this.toString(), "Stopping recording");
             RecordingQueues.stopQueues();
-            isRecording = false;
+        } else if(isPausedRecording){
+            RecordingQueues.stopQueues();
+        } else if(!hasStartedRecording){
+            stopService(new Intent(this, WavRecorder.class));
+            RecordingQueues.stopVolumeTest();
+        }
+        if(mDeleteTempFile){
+            mDeleteTempFile = false;
+            File file = new File(recordedFilename);
+            if(file.exists()) {
+                boolean result = file.delete();
+                Logger.w(this.toString(), "deleted the temporary file before exiting: " + result);
+            } else {
+                Logger.w(this.toString(), "temp file did not exist?");
+            }
         }
     }
 
     private void startRecording() {
+        hasStartedRecording = true;
         stopService(new Intent(this, WavRecorder.class));
         manager.swapPauseAndRecord();
         isRecording = true;
@@ -96,12 +121,13 @@ public class RecordingScreen extends Activity {
         Logger.w(this.toString(), "Starting recording");
 
         if (!isPausedRecording) {
+            RecordingQueues.stopVolumeTest();
             manager.startTimer();
             isSaved = false;
             RecordingQueues.clearQueues();
             Intent intent = new Intent(this, WavFileWriter.class);
             intent.putExtra("audioFileName", getFilename());
-            intent.putExtra("screenWidth", minimap.getWidth());
+            intent.putExtra("screenWidth", AudioInfo.SCREEN_WIDTH);
             startService(new Intent(this, WavRecorder.class));
             startService(intent);
             manager.listenForRecording();
@@ -128,16 +154,18 @@ public class RecordingScreen extends Activity {
         }
     }
 
+    public void deleteTempFile(){
+        mDeleteTempFile = true;
+    }
 
     @Override
     public void onBackPressed() {
-        if (!isSaved) {
+        if (!isSaved && hasStartedRecording) {
             FragmentManager fm = getFragmentManager();
             FragmentExitDialog d = new FragmentExitDialog();
             d.setFilename(recordedFilename);
             if (isRecording) {
                 d.setIsRecording(true);
-                isRecording = false;
             }
             if (isPausedRecording) {
                 d.setIsPausedRecording(true);

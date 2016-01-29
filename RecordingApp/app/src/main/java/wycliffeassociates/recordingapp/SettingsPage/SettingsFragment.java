@@ -25,6 +25,8 @@ import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import wycliffeassociates.recordingapp.R;
 
@@ -92,6 +94,11 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         if(key.compareTo(KEY_PREF_TAKE) == 0){
             //sharedPref.edit().putString(KEY_PREF_TAKE, "1").commit();
         }
+        String chunkString = sharedPref.getString(Settings.KEY_PREF_CHUNK, "1");
+        Matcher matcher = Pattern.compile("\\d+").matcher(chunkString);
+        matcher.find();
+        sharedPref.edit().putString(Settings.KEY_PREF_CHUNK, matcher.group()).commit();
+
         Settings.updateFilename(getActivity());
     }
 

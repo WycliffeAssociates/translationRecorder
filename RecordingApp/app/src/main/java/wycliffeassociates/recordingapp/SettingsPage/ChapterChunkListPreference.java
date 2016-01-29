@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by sarabiaj on 1/20/2016.
@@ -57,9 +59,21 @@ public class ChapterChunkListPreference extends ListPreference {
             int chapters = bookObj.getInt("chapters");
             int order = bookObj.getInt("sort");
             JSONArray chunkArrayJSON = bookObj.getJSONArray("chunks");
-            ArrayList<Integer> chunks = new ArrayList<>();
+            ArrayList<ArrayList<Book.Chunk>> chunks = new ArrayList<>();
             for(int j = 0; j < chunkArrayJSON.length(); j++){
-                chunks.add(chunkArrayJSON.getInt(j));
+                ArrayList<Book.Chunk> chunksInChapter = new ArrayList<>();
+                // chunks.add(chunkArrayJSON.getInt(j));
+                JSONArray chunkListObj = chunkArrayJSON.getJSONArray(j);
+                for (int k = 0; k < chunkListObj.length(); k++) {
+                    JSONObject chunkObj = chunkListObj.getJSONObject(k);
+                    Book.Chunk chunk = new Book.Chunk();
+                    chunk.chapterId = chunkObj.getInt("chapter_id");
+                    chunk.chunkId = chunkObj.getInt("chunk_id");
+                    chunk.startVerse = chunkObj.getInt("start_verse");
+                    chunk.endVerse = chunkObj.getInt("end_verse");
+                    chunksInChapter.add(chunk);
+                }
+                chunks.add(chunksInChapter);
             }
             Book book = new Book(slug, name, chapters, chunks, order);
             books.add(book);
@@ -86,7 +100,12 @@ public class ChapterChunkListPreference extends ListPreference {
             pullBookInfo();
             String bookCode = getSharedPreferences().getString(KEY_PREF_BOOK, "gen");
             int chapter = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
-            int chunk = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHUNK, "1"));
+            String chunkString = getSharedPreferences().getString(KEY_PREF_CHUNK, "1");
+//            int chunk = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHUNK, "1"));
+            // Find first number in chunk description
+            Matcher matcher = Pattern.compile("\\d+").matcher(chunkString);
+            matcher.find();
+            int chunk = Integer.valueOf(matcher.group());
             if(this.getKey().compareTo(KEY_PREF_CHAPTER) == 0){
                 int numChapters = mBooks.get(bookCode).getNumChapters();
                 String[] chapterList = new String[numChapters];
@@ -102,10 +121,13 @@ public class ChapterChunkListPreference extends ListPreference {
                     getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                     chapter = 1;
                 }
-                int numChunks = mBooks.get(bookCode).getChunks().get(chapter-1);
+                ArrayList<Book.Chunk> chunks = mBooks.get(bookCode).getChunks().get(chapter-1);
+                int numChunks = chunks.size();
                 String[] chunkList = new String[numChunks];
                 for(int i =0; i < numChunks; i++){
-                    chunkList[i] = String.valueOf(i+1);
+//                    chunkList[i] = String.valueOf(i+1);
+                    Book.Chunk chunkObj = chunks.get(i);
+                    chunkList[i] = chunkObj.chunkId + ": v" + chunkObj.startVerse + " - v" + chunkObj.endVerse;
                 }
                 super.setEntries(chunkList);
                 super.setEntryValues(chunkList);

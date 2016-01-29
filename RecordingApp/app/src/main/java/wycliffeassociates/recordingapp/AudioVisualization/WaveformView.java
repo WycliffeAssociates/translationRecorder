@@ -30,6 +30,7 @@ public class WaveformView extends CanvasView {
     private int mMarkerEndLoc;
     private ScaleGestureDetector sgd;
     private CutOp mCut;
+    private boolean mGestures = false;
 
     public void setCut(CutOp cut){
         mCut = cut;
@@ -67,7 +68,7 @@ public class WaveformView extends CanvasView {
         @Override
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
             //Should only perform a scroll if the WavPlayer exists, since scrolling performs a seek
-            if (WavPlayer.exists()) {
+            if (WavPlayer.exists() && mGestures) {
                 //moves playback by the distance (distX is multiplied so as to scroll at a more
                 //reasonable speed. 3 seems to work well, but is mostly arbitrary.
                 int playbackSectionStart = (int) (distX * 3) + WavPlayer.getLocation();
@@ -110,6 +111,14 @@ public class WaveformView extends CanvasView {
             System.out.println("scaled");
             return true;
         }
+    }
+
+    public void disableGestures(){
+        mGestures = false;
+    }
+
+    public void enableGestures(){
+        mGestures = true;
     }
 
     /**
@@ -295,13 +304,8 @@ public class WaveformView extends CanvasView {
         drawDbLines(canvas);
         //DrawingFromBuffers will draw data received from the microphone during recording
         if(mDrawingFromBuffer){
-            try {
-                UIDataManager.lock.acquire();
-                drawBuffer(canvas, mBuffer, AudioInfo.BLOCKSIZE);
-                UIDataManager.lock.release();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            drawBuffer(canvas, mBuffer, AudioInfo.BLOCKSIZE);
+
         //Samples is a sampled section of the waveform extracted at mTimeToDraw
         } else if (mSamples != null ){
             try {
@@ -329,7 +333,7 @@ public class WaveformView extends CanvasView {
      * Sets a byte buffer to be drawn to the screen
      * @param buffer a byte buffer containing 16 bit pcm data
      */
-    public void setBuffer(byte[] buffer){
+    public synchronized void setBuffer(byte[] buffer){
         mBuffer = buffer;
     }
 
@@ -340,7 +344,7 @@ public class WaveformView extends CanvasView {
      * @param buffer the byte buffer containing 16 bit pcm data to draw
      * @param blocksize the size of a block of audio data; 2 for 16 bit mono PCM
      */
-    public void drawBuffer(Canvas canvas, byte[] buffer, int blocksize){
+    public synchronized void drawBuffer(Canvas canvas, byte[] buffer, int blocksize){
         mPaint.setStrokeWidth(1.5f);
         mPaint.setColor(Color.WHITE);
         if (buffer == null || canvas == null) {
@@ -374,7 +378,7 @@ public class WaveformView extends CanvasView {
      * Sets sampled waveform data to draw to the screen
      * @param samples sampled waveform data to draw
      */
-    public void setWaveformDataForPlayback(float[] samples){
+    public synchronized void setWaveformDataForPlayback(float[] samples){
         this.mSamples = samples;
     }
 }

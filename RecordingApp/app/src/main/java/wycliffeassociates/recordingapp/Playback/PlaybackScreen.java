@@ -86,6 +86,9 @@ public class PlaybackScreen extends Activity{
 
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
+
+        mainCanvas.enableGestures();
+
         mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
         mStartMarker.setOrientation(MarkerView.LEFT);
         mEndMarker = ((MarkerView) findViewById(R.id.endmarker));

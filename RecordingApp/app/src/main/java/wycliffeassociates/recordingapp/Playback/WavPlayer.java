@@ -128,7 +128,9 @@ public class WavPlayer {
                 }
                 //location doesn't usually end up going to the end before audio playback stops.
                 //continue to loop until the end is reached.
-                while((getLocation() <= (getDuration())) && !forceBreakOut){}
+                while((getLocation() <= (getDuration())) && !forceBreakOut){
+                    Thread.yield();
+                }
                 System.out.println("end thread");
                 System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
@@ -257,12 +259,7 @@ public class WavPlayer {
             player.pause();
             player.stop();
             if(playbackThread != null){
-                try {
-                    forceBreakOut = true;
-                    playbackThread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                forceBreakOut = true;
                 playbackThread = null;
             }
             player.flush();
@@ -300,11 +297,7 @@ public class WavPlayer {
         player = null;
         if(playbackThread!= null){
             keepPlaying = false;
-            try {
-                playbackThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            forceBreakOut = true;
         }
     }
 
