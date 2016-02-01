@@ -121,7 +121,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Amazon S3"
+            android:text="Upload"
             android:textSize="16sp"/>
 
     </LinearLayout>
