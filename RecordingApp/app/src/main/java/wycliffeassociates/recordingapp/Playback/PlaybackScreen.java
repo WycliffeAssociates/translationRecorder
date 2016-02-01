@@ -113,8 +113,19 @@ public class PlaybackScreen extends Activity{
         filenameView.setText(suggestedFilename);
     }
 
+    private void playRecording() {
+        isPlaying = true;
+        WavPlayer.play();
+        int toShow[] = {R.id.btnPause};
+        int toHide[] = {R.id.btnPlay};
+        manager.swapViews(toShow, toHide);
+        manager.updateUI();
+    }
+
     private void pausePlayback() {
-        manager.swapPauseAndPlay();
+        int toShow[] = {R.id.btnPlay};
+        int toHide[] = {R.id.btnPause};
+        manager.swapViews(toShow, toHide);
         WavPlayer.pause(true);
     }
 
@@ -125,13 +136,6 @@ public class PlaybackScreen extends Activity{
 
     private void skipBack() {
         WavPlayer.seekToStart();
-        manager.updateUI();
-    }
-
-    private void playRecording() {
-        manager.swapPauseAndPlay();
-        isPlaying = true;
-        WavPlayer.play();
         manager.updateUI();
     }
 

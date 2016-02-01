@@ -79,7 +79,9 @@ public class RecordingScreen extends Activity {
         isPausedRecording = true;
         manager.pauseTimer();
         isRecording = false;
-        manager.swapPauseAndRecord();
+        int toShow[] = {R.id.btnRecording, R.id.btnStop};
+        int toHide[] = {R.id.btnPauseRecording};
+        manager.swapViews(toShow, toHide);
         stopService(new Intent(this, WavRecorder.class));
         RecordingQueues.pauseQueues();
         Logger.w(this.toString(), "Pausing recording");
@@ -115,7 +117,9 @@ public class RecordingScreen extends Activity {
     private void startRecording() {
         hasStartedRecording = true;
         stopService(new Intent(this, WavRecorder.class));
-        manager.swapPauseAndRecord();
+        int toShow[] = {R.id.btnPauseRecording};
+        int toHide[] = {R.id.btnRecording, R.id.btnStop};
+        manager.swapViews(toShow, toHide);
         isRecording = true;
         manager.setIsRecording(true);
         Logger.w(this.toString(), "Starting recording");

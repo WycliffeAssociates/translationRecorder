@@ -143,52 +143,6 @@ public class UIDataManager {
         }
     }
 
-    public void swapPauseAndPlay(){
-        Logger.w(this.toString(), "Switching pause and play");
-        if(ctx.findViewById(R.id.btnPause).getVisibility() == View.VISIBLE) {
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
-                }
-            });
-        }
-        else{
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
-                }
-            });
-        }
-    }
-
-    public void swapPauseAndRecord(){
-        Logger.w(this.toString(), "Switching pause and record");
-        if(ctx.findViewById(R.id.btnRecording).getVisibility() == View.INVISIBLE) {
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.btnStop).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
-                }
-            });
-        }
-        else{
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnStop).setVisibility(View.INVISIBLE);
-                }
-            });
-        }
-    }
-
     public void swapViews(int[] toShow, int[] toHide) {
         for (int v : toShow) {
             View view = ctx.findViewById(v);
