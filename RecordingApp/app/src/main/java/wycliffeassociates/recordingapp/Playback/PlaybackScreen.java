@@ -25,7 +25,9 @@ import java.io.File;
 import java.io.IOException;
 import java.security.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
@@ -135,24 +137,39 @@ public class PlaybackScreen extends Activity{
 
     private void placeStartMarker(){
         mainCanvas.placeStartMarker(WavPlayer.getLocation());
+        int toShow[] = {R.id.btnEndMark, R.id.btnClear};
+        int toHide[] = {R.id.btnStartMark};
+        manager.swapViews(toShow, toHide);
         manager.updateUI();
     }
 
     private void placeEndMarker(){
         mainCanvas.placeEndMarker(WavPlayer.getLocation());
+        int toShow[] = {R.id.btnCut};
+        int toHide[] = {R.id.btnEndMark};
+        manager.swapViews(toShow, toHide);
         manager.updateUI();
     }
 
     private void cut() {
+        int toShow[] = {R.id.btnStartMark, R.id.btnUndo};
+        int toHide[] = {R.id.btnCut, R.id.btnClear};
+        manager.swapViews(toShow, toHide);
         manager.cutAndUpdate();
     }
 
     private void undo() {
+        int toShow[] = {};
+        int toHide[] = {R.id.btnUndo};
+        manager.swapViews(toShow, toHide);
         manager.undoCut();
     }
 
     private void clearMarkers(){
         SectionMarkers.clearMarkers();
+        int toShow[] = {R.id.btnStartMark};
+        int toHide[] = {R.id.btnClear, R.id.btnEndMark, R.id.btnCut};
+        manager.swapViews(toShow, toHide);
         manager.updateUI();
     }
 
@@ -170,6 +187,7 @@ public class PlaybackScreen extends Activity{
             }
             dialog.show();
         } else {
+//            clearMarkers();
             WavPlayer.release();
             super.onBackPressed();
         }

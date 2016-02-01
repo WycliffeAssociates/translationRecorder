@@ -91,9 +91,9 @@ public abstract class CanvasView extends View {
     }
 
     public void drawPlaybackSection(Canvas c, int start, int end){
-        mPaint.setColor(Color.BLUE);
+        mPaint.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
         c.drawLine(start, 0, start, c.getHeight(), mPaint);
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(getResources().getColor(R.color.vivid_red));
         c.drawLine(end, 0, end, c.getHeight(), mPaint);
     }
 
