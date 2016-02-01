@@ -20,12 +20,13 @@
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:src="@drawable/ic_sdcard"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:contentDescription="@string/img_button_desc"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SD Card"
+            android:text="@string/export_sd_card"
             android:textSize="16sp"/>
 
     </LinearLayout>
@@ -44,12 +45,13 @@
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:src="@drawable/ic_choosedirectory"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:contentDescription="@string/img_button_desc"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose Directory"
+            android:text="@string/export_dir"
             android:textSize="16sp"/>
 
     </LinearLayout>
@@ -68,12 +70,13 @@
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:src="@drawable/ic_bluetooth"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:contentDescription="@string/img_button_desc"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bluetooth"
+            android:text="@string/export_bluetooth"
             android:textSize="16sp"/>
 
     </LinearLayout>
@@ -92,12 +95,13 @@
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:src="@drawable/ic_wifi"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:contentDescription="@string/img_button_desc"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Wifi Direct"
+            android:text="@string/export_wifi"
             android:textSize="16sp"/>
 
     </LinearLayout>
@@ -116,12 +120,13 @@
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:src="@drawable/ic_publish"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:contentDescription="@string/img_button_desc"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upload"
+            android:text="@string/export_upload"
             android:textSize="16sp"/>
 
     </LinearLayout>
@@ -140,12 +145,13 @@
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:src="@drawable/ic_other"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:contentDescription="@string/img_button_desc"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="App"
+            android:text="@string/export_other"
             android:textSize="16sp"/>
 
     </LinearLayout>

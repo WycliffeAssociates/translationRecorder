@@ -16,10 +16,19 @@
     <string name="exit">Are you sure you want to exit without saving?</string>
     <string name="record_over">Are you sure you want to record again without saving?</string>
 
-    <!-- MAIN -->
+    <!-- DESCRIPTIONS -->
     <string name="files_content_desc">Files Button</string>
     <string name="settings_content_desc">Settings Button</string>
     <string name="record_content_desc">Record Button</string>
+    <string name="img_button_desc">Image Button</string>
+
+    <!-- EXPORT/SHARE OPTIONS -->
+    <string name="export_sd_card">SD Card</string>
+    <string name="export_dir">Choose Directory</string>
+    <string name="export_bluetooth">Bluetooth</string>
+    <string name="export_wifi">Wi-Fi Direct</string>
+    <string name="export_upload">Upload</string>
+    <string name="export_other">App</string>
 
     <!-- SETTINGS (Values) -->
     <string name="pref_default_folder_value">/storage/emulated/0/translationRecorder</string>
