@@ -126,10 +126,10 @@ public class UIDataManager {
         if(mStartMarker != null ){
             int xStart = timeToScreenSpace(WavPlayer.getLocation(),
                     SectionMarkers.getStartLocationMs(), wavVis.millisecondsPerPixel());
-            mStartMarker.setX(xStart + mStartMarker.getWidth()*14/6);
+            mStartMarker.setX(xStart - mStartMarker.getWidth() + (AudioInfo.SCREEN_WIDTH/8.f));
             int xEnd = timeToScreenSpace(WavPlayer.getLocation(),
                     SectionMarkers.getEndLocationMs(), wavVis.millisecondsPerPixel());
-            mEndMarker.setX(xEnd + mEndMarker.getWidth()*20/6);
+            mEndMarker.setX(xEnd + (AudioInfo.SCREEN_WIDTH/8.f));
 //            Logger.w(this.toString(), "location is " + WavPlayer.getLocation());
 //            Logger.w(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
 //            Logger.w(this.toString(), "Start marker at: " + xStart);
