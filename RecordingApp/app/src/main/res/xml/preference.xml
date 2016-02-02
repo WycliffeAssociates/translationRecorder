@@ -16,6 +16,14 @@
             android:inputType="text"
             android:imeOptions="actionDone"/>
 
+        <ListPreference
+            android:key="pref_source"
+            android:layout="@layout/custom_pref"
+            android:title="Source"
+            android:entries="@array/source_entries"
+            android:entryValues="@array/source_values"
+            android:defaultValue="udb" />
+
         <wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference
             android:key="pref_book"
             android:layout="@layout/custom_pref"
@@ -57,7 +65,7 @@
             android:key="pref_filename"
             android:layout="@layout/custom_pref"
             android:title="File Name"
-            android:defaultValue="en_mat_1-1"
+            android:defaultValue="en_udb_mat_1_1-1"
             android:editable="false"
             android:enabled="false"
             />

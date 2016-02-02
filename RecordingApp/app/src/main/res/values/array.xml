@@ -101,4 +101,13 @@
         <item>12</item>
     </string-array>
 
+    <string-array name="source_entries">
+        <item>Unlocked Dynamic Bible</item>
+        <item>Unlocked Literal Bible</item>
+    </string-array>
+
+    <string-array name="source_values">
+        <item>udb</item>
+        <item>ulb</item>
+    </string-array>
 </resources>
