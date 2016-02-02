@@ -138,7 +138,6 @@ public class UIDataManager {
     }
 
     public void enablePlay(){
-        Logger.w(this.toString(), "Switching pause to play");
         if(playbackOrRecording == PLAYBACK_MODE) {
             ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
             ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
