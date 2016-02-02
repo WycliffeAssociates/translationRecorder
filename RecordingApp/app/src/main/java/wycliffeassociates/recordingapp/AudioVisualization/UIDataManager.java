@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
@@ -65,7 +67,6 @@ public class UIDataManager {
             Logger.w(this.toString(), "Connecting UImanager to marker views");
             start.setManager(this);
             end.setManager(this);
-            mEndMarker.setY(mainWave.getHeight() - mEndMarker.getHeight()*2);
         }
         timerView = (TextView)ctx.findViewById(R.id.timerView);
         this.ctx = ctx;
@@ -82,9 +83,11 @@ public class UIDataManager {
     public void startTimer(){
         timer.startTimer();
     }
+
     public void pauseTimer(){
         timer.pause();
     }
+
     public void resumeTimer(){
         timer.resume();
     }
@@ -123,10 +126,10 @@ public class UIDataManager {
         if(mStartMarker != null ){
             int xStart = timeToScreenSpace(WavPlayer.getLocation(),
                     SectionMarkers.getStartLocationMs(), wavVis.millisecondsPerPixel());
-            mStartMarker.setX(xStart + mStartMarker.getWidth()*5/4);
+            mStartMarker.setX(xStart + mStartMarker.getWidth()*14/6);
             int xEnd = timeToScreenSpace(WavPlayer.getLocation(),
                     SectionMarkers.getEndLocationMs(), wavVis.millisecondsPerPixel());
-            mEndMarker.setX(xEnd + mEndMarker.getWidth()*5/4);
+            mEndMarker.setX(xEnd + mEndMarker.getWidth()*20/6);
 //            Logger.w(this.toString(), "location is " + WavPlayer.getLocation());
 //            Logger.w(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
 //            Logger.w(this.toString(), "Start marker at: " + xStart);
@@ -142,51 +145,18 @@ public class UIDataManager {
         }
     }
 
-    public void swapPauseAndPlay(){
-        Logger.w(this.toString(), "Switching pause and play");
-        if(ctx.findViewById(R.id.btnPause).getVisibility() == View.VISIBLE) {
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
-                }
-            });
+    public void swapViews(int[] toShow, int[] toHide) {
+        for (int v : toShow) {
+            View view = ctx.findViewById(v);
+            if (view != null) {
+                view.setVisibility(View.VISIBLE);
+            }
         }
-        else{
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnPlay).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnPause).setVisibility(View.VISIBLE);
-                }
-            });
-        }
-    }
-
-    public void swapPauseAndRecord(){
-        Logger.w(this.toString(), "Switching pause and record");
-        if(ctx.findViewById(R.id.btnRecording).getVisibility() == View.INVISIBLE) {
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnRecording).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.btnStop).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.INVISIBLE);
-//                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(null);
-                }
-            });
-        }
-        else{
-            ctx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ctx.findViewById(R.id.btnPauseRecording).setVisibility(View.VISIBLE);
-                    ctx.findViewById(R.id.btnRecording).setVisibility(View.INVISIBLE);
-                    ctx.findViewById(R.id.btnStop).setVisibility(View.INVISIBLE);
-//                    ctx.findViewById(R.id.btnPauseRecording).setAnimation(anim);
-                }
-            });
+        for (int v : toHide) {
+            View view = ctx.findViewById(v);
+            if (view != null) {
+                view.setVisibility(View.INVISIBLE);
+            }
         }
     }
 

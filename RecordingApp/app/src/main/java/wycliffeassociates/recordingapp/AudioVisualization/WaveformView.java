@@ -14,6 +14,7 @@ import android.view.ScaleGestureDetector;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
+import wycliffeassociates.recordingapp.Playback.MarkerView;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 
@@ -270,10 +271,10 @@ public class WaveformView extends CanvasView {
         float xLoc1 = offset + (mMarkerStartLoc - mTimeToDraw)/mspp;
         float xLoc2 = offset + (mMarkerEndLoc - mTimeToDraw)/mspp;
         mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(Color.BLUE);
+        mPaint.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
         c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaint);
         mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(getResources().getColor(R.color.vivid_red));
         c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaint);
         mPaint.setColor(Color.BLUE);
         mPaint.setAlpha(50);
