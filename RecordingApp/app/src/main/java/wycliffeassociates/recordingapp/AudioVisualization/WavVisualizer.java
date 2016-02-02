@@ -67,8 +67,6 @@ public class WavVisualizer {
             mMinimap[index+1] = U.getValueForScreen(max, minimapHeight);
             mMinimap[index+2] =  index/4;
             mMinimap[index+3] = U.getValueForScreen(min, minimapHeight);
-            System.out.println(max +" " + min + " ");
-            System.out.println(mMinimap[index + 1] + " " + mMinimap[index + 3] + " ");
             index+=4;
         }
         //System.out.print("height is " + minimapHeight);

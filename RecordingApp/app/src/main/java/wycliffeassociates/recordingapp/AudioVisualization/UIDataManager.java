@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -101,7 +103,7 @@ public class UIDataManager {
             return;
         }
         if(wavLoader.visFileLoaded()){
-            //System.out.println("visFileLoaded() is true");
+            System.out.println("visFileLoaded() is true");
             wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
@@ -206,8 +208,10 @@ public class UIDataManager {
         updateUI();
     }
 
-    public void writeCut(File to) throws IOException {
+    public void writeCut(File to, ProgressDialog pd) throws IOException {
         Logger.w(this.toString(), "Rewriting file to disk due to cuts");
+        pd.setProgress(0);
+
         FileOutputStream fis = new FileOutputStream(to);
         for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
             fis.write(mappedAudioFile.get(i));
@@ -218,8 +222,10 @@ public class UIDataManager {
                 i = skip;
             }
             fis.write(buffer.get(i));
+            pd.setProgress((int)Math.round(i/(double)(buffer.capacity()) * 100));
         }
         mCutOp.clear();
+
         return;
     }
 
