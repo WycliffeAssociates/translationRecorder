@@ -15,6 +15,9 @@
     <string name="diag_export">Export Audio</string>
     <string name="exit">Are you sure you want to exit without saving?</string>
     <string name="record_over">Are you sure you want to record again without saving?</string>
+    <string name="dialog_confirm_delete">Delete recordings?</string>
+    <string name="dialog_confirm_delete_yes">YES</string>
+    <string name="dialog_confirm_delete_no">NO</string>
 
     <!-- DESCRIPTIONS -->
     <string name="files_content_desc">Files Button</string>
