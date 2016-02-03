@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -37,7 +38,6 @@ public class RecordingScreen extends Activity {
     private WaveformView mainCanvas;
     private MinimapView minimap;
     private UIDataManager manager;
-    private PreferencesManager pref;
     private String recordedFilename = null;
     private String suggestedFilename = null;
     private boolean isSaved = false;
@@ -218,10 +218,22 @@ public class RecordingScreen extends Activity {
         }
     }
 
+    private void incrementChunk(){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
+        chunk++;
+        pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+        pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
+        Settings.updateFilename(this);
+        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
+        filenameView.setText(suggestedFilename);
+    }
+
     private void setButtonHandlers() {
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
+        findViewById(R.id.btnIncChunk).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -232,6 +244,7 @@ public class RecordingScreen extends Activity {
         enableButton(R.id.btnRecording, true);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPauseRecording, true);
+        enableButton(R.id.btnIncChunk, true);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -249,6 +262,10 @@ public class RecordingScreen extends Activity {
             }
             case R.id.btnPauseRecording: {
                 pauseRecording();
+                break;
+            }
+            case R.id.btnIncChunk: {
+                incrementChunk();
                 break;
             }
         }
