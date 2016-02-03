@@ -35,6 +35,14 @@
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/volumeBar"/>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next Chunk"
+            android:id="@+id/btnIncChunk"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true" />
+
     </RelativeLayout>
 
     <RelativeLayout

@@ -3,9 +3,6 @@ package wycliffeassociates.recordingapp.FilesPage;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.media.Image;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,15 +11,12 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
-import wycliffeassociates.recordingapp.Timer;
 
 /**
  *
@@ -126,20 +120,6 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         int seconds = length - (60 * 60 * hours) - (60 * minutes);
         String duration = String.format("%02d",hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
         viewHolder.duration.setText(duration);
-
-        // Set text sizes based on orientation
-//        float text_coeff;
-//        if (aContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            text_coeff = 18;
-//        }
-//        else {
-//            text_coeff = 16;
-//        }
-//        float textSize = text_coeff * aContext.getResources().getDisplayMetrics().density;
-//        viewHolder.filename.setTextSize(textSize);
-//        viewHolder.duration.setTextSize(textSize);
-//        viewHolder.date.setTextSize(textSize);
-//        viewHolder.time.setTextSize(textSize);
 
         //
         viewHolder.checkBox.setChecked(checkBoxState[position]);

@@ -15,6 +15,9 @@
     <string name="diag_export">Export Audio</string>
     <string name="exit">Are you sure you want to exit without saving?</string>
     <string name="record_over">Are you sure you want to record again without saving?</string>
+    <string name="dialog_confirm_delete">Delete recordings?</string>
+    <string name="dialog_confirm_delete_yes">YES</string>
+    <string name="dialog_confirm_delete_no">NO</string>
 
     <!-- DESCRIPTIONS -->
     <string name="files_content_desc">Files Button</string>
@@ -37,6 +40,7 @@
     <string name="pref_default_chapter">1</string>
     <string name="pref_default_chunk">1</string>
     <string name="pref_default_take">1</string>
+    <string name="pref_default_filename">"en_udb_gen_1_1-1"</string>
     <string name="pref_ftp_server_value">ts.door43.org</string>
     <string name="pref_ftp_directory_value">/translationRecorder</string>
     <string name="pref_ftp_username_value">unfoldingWord-1</string>

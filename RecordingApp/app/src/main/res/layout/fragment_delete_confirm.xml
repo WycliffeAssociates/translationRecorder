@@ -9,21 +9,24 @@
         android:id="@+id/delete_confirm_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="@dimen/default_padding_s">
 
         <ImageView
             android:id="@+id/delete_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_play_blue" />
+            android:src="@drawable/ic_delete_black_36dp" />
 
         <TextView
             android:id="@+id/delete_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete Recording?"
+            android:text="@string/dialog_confirm_delete"
             android:layout_toEndOf="@id/delete_image"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:textSize="18sp"
+            android:layout_marginLeft="@dimen/default_padding_s" />
 
     </RelativeLayout>
 
@@ -45,19 +48,21 @@
             android:id="@+id/delete_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete"
+            android:text="@string/dialog_confirm_delete_yes"
             android:layout_alignParentEnd="true"
             style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-            android:textColor="@color/secondary"/>
+            android:textColor="@color/secondary"
+            android:textSize="18sp"/>
 
         <Button
             android:id="@+id/delete_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
+            android:text="@string/dialog_confirm_delete_no"
             android:layout_toStartOf="@id/delete_confirm"
             style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-            android:textColor="@color/secondary" />
+            android:textColor="@color/secondary"
+            android:textSize="18sp"/>
 
     </RelativeLayout>
 

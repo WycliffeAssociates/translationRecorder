@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
@@ -90,6 +91,10 @@ public class MinimapView extends CanvasView {
                 WavPlayer.seekTo(playbackSectionStart);
                 WavPlayer.stopSectionAt(playbackSectionEnd);
                 //WavPlayer.selectionStart(playbackSectionStart);
+                // TODO: Figure out a way to call PlaybackScreen.placeStartMarker and PlaybackScreen.placeEndMarker instead of re-writing the code here
+                int toShow[] = {R.id.btnClear, R.id.btnCut};
+                int toHide[] = {R.id.btnEndMark, R.id.btnStartMark};
+                mManager.swapViews(toShow, toHide);
                 mManager.updateUI();
             }
             return true;
@@ -216,7 +221,7 @@ public class MinimapView extends CanvasView {
 
     public void minimapMarker(Canvas canvas){
         mPaint.setStrokeWidth(1f);
-        mPaint.setColor(Color.GREEN);
+        mPaint.setColor(getResources().getColor(R.color.bright_yellow));
         canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
     }
 
