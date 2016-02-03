@@ -33,6 +33,7 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
     private String mCurrentDir;
     private AudioFilesAdapter mAdapter;
     private ArrayList<AudioItem> mAudioItemList;
+    S3Export s3;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_share_options, null);
@@ -110,10 +111,10 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
 
     //TODO: Add s3 token
     public void exportToAmazon() {
-        Toast.makeText(getActivity(), "AMAZON S3 WAS CLICKED", Toast.LENGTH_LONG).show();
-        S3Export s3 = new S3Export(mAudioItemList, mAdapter, mCurrentDir, this);
-        //s3.export();
-        //s3.cleanUp();
+        //s3 has to be declared as a member variable, otherwise the s3 progress listener will be
+        //garbage collected prior to reporting completion.
+        s3 = new S3Export(mAudioItemList, mAdapter, mCurrentDir, this);
+        s3.export();
     }
 
     public void exportToApp() {
