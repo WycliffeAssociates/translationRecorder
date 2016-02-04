@@ -26,12 +26,6 @@ public class ParseJSON {
 
     public ParseJSON(Context ctx){
         mCtx = ctx;
-        try {
-            pullBookInfo();
-            pullLangNames();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     private String loadJSONFromAsset(String filename) {
@@ -107,14 +101,29 @@ public class ParseJSON {
     }
 
     public HashMap<String, Book> getBooksMap(){
+        try {
+            pullBookInfo();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return mBooksMap;
     }
 
     public String[] getBooksList(){
+        try {
+            pullBookInfo();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return mBooksList;
     }
 
     public String[] getLanguages(){
+        try {
+            pullLangNames();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return mLanguages;
     }
 
