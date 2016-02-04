@@ -233,7 +233,7 @@ public class UIDataManager {
 
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
     //canvas views to listen for recording on the same activity
-    public void listenForRecording(){
+    public void listenForRecording(final boolean onlyVolumeTest){
         mainWave.setDrawingFromBuffer(true);
         ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
@@ -278,6 +278,10 @@ public class UIDataManager {
                                         }
                                     });
                                 }
+                            //if only running the volume meter, the queues need to be emptied
+                            } else if(onlyVolumeTest) {
+                                RecordingQueues.writingQueue.clear();
+                                RecordingQueues.compressionQueue.clear();
                             }
                         }
                         if (isStopped) {

@@ -72,7 +72,7 @@ public class RecordingScreen extends Activity {
         enableButtons();
 
         startService(new Intent(this, WavRecorder.class));
-        manager.listenForRecording();
+        manager.listenForRecording(true);
 
         filenameView = (TextView) findViewById(R.id.filenameView);
         filenameView.setText(suggestedFilename);
@@ -148,7 +148,7 @@ public class RecordingScreen extends Activity {
             intent.putExtra("screenWidth", AudioInfo.SCREEN_WIDTH);
             startService(new Intent(this, WavRecorder.class));
             startService(intent);
-            manager.listenForRecording();
+            manager.listenForRecording(false);
         } else {
             manager.resumeTimer();
             isPausedRecording = false;
