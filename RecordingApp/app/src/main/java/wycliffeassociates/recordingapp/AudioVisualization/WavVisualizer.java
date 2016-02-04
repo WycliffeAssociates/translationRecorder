@@ -163,8 +163,8 @@ public class WavVisualizer {
     private int initializeSamples(float[] samples, int startPosition, int increment){
         if(startPosition <= 0) {
             int numberOfZeros = (int)Math.round(Math.abs(startPosition) / (double)increment);
-            //System.out.println("number of zeros is " + numberOfZeros);
-            //System.out.println("Start position is " + startPosition + " increment is " + increment);
+            System.out.println("number of zeros is " + numberOfZeros);
+            System.out.println("Start position is " + startPosition + " increment is " + increment);
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;

@@ -7,6 +7,7 @@ import java.nio.MappedByteBuffer;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 1/12/2016.
@@ -47,12 +48,27 @@ public class AudioFileAccessor {
         mCompressed = compressed;
     }
 
+    //FIXME: should not be returning 0 if out of bounds access, there's a bigger issue here
     public byte get(int idx){
         int loc = mCut.relativeLocToAbsolute(idx, mUseCmp);
         byte val;
         if(mUseCmp){
+            if(loc < 0){
+                Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
+                return 0;
+            } else if(loc >= mCompressed.capacity()){
+                Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
+                return 0;
+            }
             val = mCompressed.get(loc);
         } else {
+            if(loc < 0){
+                Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
+                return 0;
+            } else if(loc >= mUncompressed.capacity()){
+                Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
+                return 0;
+            }
             val = mUncompressed.get(loc);
         }
         return val;
@@ -75,6 +91,7 @@ public class AudioFileAccessor {
             int skip = mCut.skipReverse(time);
             if(skip != Integer.MAX_VALUE){
                 time = skip;
+                System.out.println("here, skip back to " + time);
             }
         }
         int loc = absoluteIndexFromAbsoluteTime(time, numSecondsOnScreen);

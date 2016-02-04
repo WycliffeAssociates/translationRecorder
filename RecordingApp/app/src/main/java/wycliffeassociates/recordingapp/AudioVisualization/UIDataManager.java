@@ -162,11 +162,20 @@ public class UIDataManager {
     public void cutAndUpdate(){
         //FIXME: currently restricting cuts to one per file
         if(mCutOp.hasCut()){
+            SectionMarkers.clearMarkers();
+            updateUI();
             return;
         }
         int start = SectionMarkers.getStartLocationMs();
         int end = SectionMarkers.getEndLocationMs();
-        Logger.w(this.toString(), "Pushing cut to stack. Start is "+ start + " End is "+ end);
+        if(start < 0){
+            Logger.e(this.toString(), "Tried to cut from a negative start: " + start);
+            start = 0;
+        } else if(end > WavPlayer.getDuration()){
+            Logger.e(this.toString(), "Tried to cut from end: " + end + " which is greater than duration: " + WavPlayer.getDuration());
+            end = WavPlayer.getDuration();
+        }
+        Logger.w(this.toString(), "Pushing cut to stack. Start is " + start + " End is " + end);
         mCutOp.cut(start, end);
         Logger.w(UIDataManager.class.toString(), "Cutting from " + start + " to " + end);
         SectionMarkers.clearMarkers();

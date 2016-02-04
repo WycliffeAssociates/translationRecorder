@@ -228,7 +228,7 @@ public class CutOp {
     }
 
     public int timeToUncmpLoc(int timeMs){
-        return (int)Math.round(AudioInfo.SAMPLERATE * timeMs/1000.0) * 2;
+        return (int)Math.round(AudioInfo.SAMPLERATE * (timeMs/1000.0)) * 2;
     }
 
     public int timeToCmpLoc(int timeMs){
