@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -193,18 +194,29 @@ public class UIDataManager {
         Logger.w(this.toString(), "Rewriting file to disk due to cuts");
         pd.setProgress(0);
 
-        FileOutputStream fis = new FileOutputStream(to);
+        FileOutputStream fos = new FileOutputStream(to);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
         for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
-            fis.write(mappedAudioFile.get(i));
+            bos.write(mappedAudioFile.get(i));
         }
+        int percent = (int)Math.round((buffer.capacity()) /100.0);
+        int count = percent;
         for(int i = 0; i < buffer.capacity(); i++){
             int skip = mCutOp.skipLoc(i, false);
             if(skip != -1){
                 i = skip;
             }
-            fis.write(buffer.get(i));
-            pd.setProgress((int)Math.round(i/(double)(buffer.capacity()) * 100));
+            bos.write(buffer.get(i));
+            if(count <= 0) {
+                pd.incrementProgressBy(1);
+                count = percent;
+            }
+            count--;
         }
+        bos.flush();
+        bos.close();
+        fos.flush();
+        fos.close();
         mCutOp.clear();
 
         return;
