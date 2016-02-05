@@ -106,7 +106,7 @@ public class MinimapView extends CanvasView {
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
         if(initialized) {
-            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+            canvas.drawBitmap(mBitmap, 0, 0, mPaintGrid);
         } else if(mSamples != null) {
             drawWaveform(mSamples, canvas);
         }
@@ -119,11 +119,8 @@ public class MinimapView extends CanvasView {
 //            int end = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerEnd() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
             drawPlaybackSection(canvas, start, end);
             //System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
-            mPaint.setColor(Color.BLUE);
-            mPaint.setAlpha(25);
-            mPaint.setStyle(Paint.Style.FILL);
-            canvas.drawRect(start, 0, end, getHeight(), mPaint);
-            mPaint.setAlpha(255);
+
+            canvas.drawRect(start, 0, end, getHeight(), mPaintHighlight);
         }
     }
 
@@ -155,14 +152,12 @@ public class MinimapView extends CanvasView {
     public void drawTimeCode(Canvas canvas){
         //System.out.println("secondsPerPixel is " + secondsPerPixel + " interval is " + timecodeInterval);
         float mDensity = 2.0f;
-        mPaint.setColor(Color.GREEN);
-        mPaint.setTextSize(18.f);
+        mPaintText.setColor(Color.GREEN);
+        mPaintText.setTextSize(18.f);
         int i = 0;
         double fractionalSecs = secondsPerPixel;
         int integerTimecode = (int) (fractionalSecs / timecodeInterval);
         while (i < getWidth()){
-            mPaint.setStrokeWidth(1f);
-            mPaint.setColor(Color.GREEN);
 
             i++;
             fractionalSecs += secondsPerPixel;
@@ -182,14 +177,12 @@ public class MinimapView extends CanvasView {
                 }
                 String timecodeStr = timecodeMinutes + ":" + timecodeSeconds;
                 float offset = (float) (
-                        0.5 * mPaint.measureText(timecodeStr));
+                        0.5 * mPaintText.measureText(timecodeStr));
                 canvas.drawText(timecodeStr,
                         i - offset,
                         (int)(12 * mDensity),
-                        mPaint);
-                mPaint.setColor(Color.GRAY);
-                mPaint.setStrokeWidth(1f);
-                canvas.drawLine(i, 0.f, i, getHeight(), mPaint);
+                        mPaintText);
+                canvas.drawLine(i, 0.f, i, getHeight(), mPaintGrid);
             }
         }
 
@@ -220,9 +213,7 @@ public class MinimapView extends CanvasView {
     }
 
     public void minimapMarker(Canvas canvas){
-        mPaint.setStrokeWidth(1f);
-        mPaint.setColor(getResources().getColor(R.color.bright_yellow));
-        canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaint);
+        canvas.drawLine(miniMarkerLoc, 0, miniMarkerLoc, canvas.getHeight(), mPaintPlayback);
     }
 
 }
