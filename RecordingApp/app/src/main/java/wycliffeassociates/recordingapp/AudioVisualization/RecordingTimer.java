@@ -21,15 +21,21 @@ public class RecordingTimer {
     public long getTimeElapsed(){
         long elapsed;
         elapsed = System.currentTimeMillis() - startTime + timeStored;
-        return elapsed;
+        if(paused){
+            return timeStored;
+        } else {
+            return elapsed;
+        }
     }
 
     public void pause(){
         timeStored = System.currentTimeMillis() - startTime + timeStored;
+        paused = true;
     }
 
     public void resume(){
         startTime = System.currentTimeMillis();
+        paused = false;
     }
 
 }
