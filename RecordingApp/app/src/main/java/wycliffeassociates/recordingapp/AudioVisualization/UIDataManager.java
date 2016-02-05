@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -164,6 +166,7 @@ public class UIDataManager {
         if(mCutOp.hasCut()){
             SectionMarkers.clearMarkers();
             updateUI();
+            Toast.makeText(ctx, "Cut is limited to 1 operation at this time",Toast.LENGTH_SHORT).show();
             return;
         }
         int start = SectionMarkers.getStartLocationMs();

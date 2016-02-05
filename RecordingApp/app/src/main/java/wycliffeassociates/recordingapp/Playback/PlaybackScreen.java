@@ -163,6 +163,7 @@ public class PlaybackScreen extends Activity{
     }
 
     private void undo() {
+        // TODO: Check manager.hasCut() before hiding the undo button when cut is allowed more than one time.
         int toShow[] = {};
         int toHide[] = {R.id.btnUndo};
         manager.swapViews(toShow, toHide);
