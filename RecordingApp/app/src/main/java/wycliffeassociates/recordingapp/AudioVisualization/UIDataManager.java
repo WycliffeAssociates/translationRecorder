@@ -6,6 +6,9 @@ import android.app.ProgressDialog;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -162,11 +165,21 @@ public class UIDataManager {
     public void cutAndUpdate(){
         //FIXME: currently restricting cuts to one per file
         if(mCutOp.hasCut()){
+            SectionMarkers.clearMarkers();
+            updateUI();
+            Toast.makeText(ctx, "Cut is limited to 1 operation at this time",Toast.LENGTH_SHORT).show();
             return;
         }
         int start = SectionMarkers.getStartLocationMs();
         int end = SectionMarkers.getEndLocationMs();
-        Logger.w(this.toString(), "Pushing cut to stack. Start is "+ start + " End is "+ end);
+        if(start < 0){
+            Logger.e(this.toString(), "Tried to cut from a negative start: " + start);
+            start = 0;
+        } else if(end > WavPlayer.getDuration()){
+            Logger.e(this.toString(), "Tried to cut from end: " + end + " which is greater than duration: " + WavPlayer.getDuration());
+            end = WavPlayer.getDuration();
+        }
+        Logger.w(this.toString(), "Pushing cut to stack. Start is " + start + " End is " + end);
         mCutOp.cut(start, end);
         Logger.w(UIDataManager.class.toString(), "Cutting from " + start + " to " + end);
         SectionMarkers.clearMarkers();
@@ -181,18 +194,29 @@ public class UIDataManager {
         Logger.w(this.toString(), "Rewriting file to disk due to cuts");
         pd.setProgress(0);
 
-        FileOutputStream fis = new FileOutputStream(to);
+        FileOutputStream fos = new FileOutputStream(to);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
         for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
-            fis.write(mappedAudioFile.get(i));
+            bos.write(mappedAudioFile.get(i));
         }
+        int percent = (int)Math.round((buffer.capacity()) /100.0);
+        int count = percent;
         for(int i = 0; i < buffer.capacity(); i++){
             int skip = mCutOp.skipLoc(i, false);
             if(skip != -1){
                 i = skip;
             }
-            fis.write(buffer.get(i));
-            pd.setProgress((int)Math.round(i/(double)(buffer.capacity()) * 100));
+            bos.write(buffer.get(i));
+            if(count <= 0) {
+                pd.incrementProgressBy(1);
+                count = percent;
+            }
+            count--;
         }
+        bos.flush();
+        bos.close();
+        fos.flush();
+        fos.close();
         mCutOp.clear();
 
         return;
@@ -233,7 +257,7 @@ public class UIDataManager {
 
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
     //canvas views to listen for recording on the same activity
-    public void listenForRecording(){
+    public void listenForRecording(final boolean onlyVolumeTest){
         mainWave.setDrawingFromBuffer(true);
         ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
         ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
@@ -278,6 +302,10 @@ public class UIDataManager {
                                         }
                                     });
                                 }
+                            //if only running the volume meter, the queues need to be emptied
+                            } else if(onlyVolumeTest) {
+                                RecordingQueues.writingQueue.clear();
+                                RecordingQueues.compressionQueue.clear();
                             }
                         }
                         if (isStopped) {

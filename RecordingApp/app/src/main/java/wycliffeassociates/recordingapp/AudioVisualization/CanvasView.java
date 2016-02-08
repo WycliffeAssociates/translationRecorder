@@ -15,12 +15,18 @@ import wycliffeassociates.recordingapp.R;
 
 public abstract class CanvasView extends View {
 
-    protected Paint mPaint;
+    protected Paint mPaintGrid;
+    protected Paint mPaintText;
+    protected Paint mPaintStartMarker;
+    protected Paint mPaintEndMarker;
+    protected Paint mPaintHighlight;
+    protected Paint mPaintPlayback;
+    protected Paint mPaintWaveform;
+    protected Paint mPaintBaseLine;
     int fps = 0;
     protected boolean doneDrawing = false;
     protected UIDataManager mManager;
     protected GestureDetectorCompat mDetector;
-    protected Paint mPaintText;
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -51,15 +57,41 @@ public abstract class CanvasView extends View {
     }
 
     protected void init(){
-        mPaint = new Paint();
-        mPaint.setColor(Color.DKGRAY);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(1f);
+        mPaintGrid = new Paint();
+        mPaintGrid.setColor(Color.GRAY);
+        mPaintGrid.setStyle(Paint.Style.STROKE);
+        mPaintGrid.setStrokeWidth(1f);
 
         mPaintText = new Paint();
         mPaintText.setTextSize(28.f);
         mPaintText.setColor(Color.GREEN);
 
+        mPaintStartMarker = new Paint();
+        mPaintStartMarker.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
+        mPaintStartMarker.setStyle(Paint.Style.STROKE);
+        mPaintStartMarker.setStrokeWidth(2f);
+
+        mPaintEndMarker = new Paint();
+        mPaintEndMarker.setColor(getResources().getColor(R.color.vivid_red));
+        mPaintEndMarker.setStyle(Paint.Style.STROKE);
+        mPaintEndMarker.setStrokeWidth(2f);
+
+        mPaintHighlight = new Paint();
+        mPaintHighlight.setColor(Color.BLUE);
+        mPaintHighlight.setAlpha(35);
+        mPaintHighlight.setStyle(Paint.Style.FILL);
+
+        mPaintPlayback = new Paint();
+        mPaintPlayback.setStrokeWidth(1f);
+        mPaintPlayback.setColor(getResources().getColor(R.color.bright_yellow));
+
+        mPaintWaveform = new Paint();
+        mPaintWaveform.setStrokeWidth(1.5f);
+        mPaintWaveform.setColor(getResources().getColor(R.color.off_white));
+
+        mPaintBaseLine = new Paint();
+        mPaintBaseLine.setColor(getResources().getColor(R.color.bright_blue));
+        mPaintBaseLine.setStrokeWidth(3f);
     }
 
     // override onSizeChanged
@@ -72,15 +104,11 @@ public abstract class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mPaint.setColor(getResources().getColor(R.color.bright_blue));
-        mPaint.setStrokeWidth(3f);
-        canvas.drawLine(0.f, this.getMeasuredHeight() / 2, this.getMeasuredWidth(), this.getMeasuredHeight() / 2, mPaint);
+        canvas.drawLine(0.f, this.getMeasuredHeight() / 2, this.getMeasuredWidth(), this.getMeasuredHeight() / 2, mPaintBaseLine);
     }
 
     public synchronized void drawWaveform(float[] samples, Canvas canvas){
-        mPaint.setStrokeWidth(1.5f);
-        mPaint.setColor(getResources().getColor(R.color.off_white));
-        canvas.drawLines(samples, mPaint);
+        canvas.drawLines(samples, mPaintWaveform);
         fps++;
         doneDrawing = true;
     }
@@ -91,10 +119,8 @@ public abstract class CanvasView extends View {
     }
 
     public void drawPlaybackSection(Canvas c, int start, int end){
-        mPaint.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
-        c.drawLine(start, 0, start, c.getHeight(), mPaint);
-        mPaint.setColor(getResources().getColor(R.color.vivid_red));
-        c.drawLine(end, 0, end, c.getHeight(), mPaint);
+        c.drawLine(start, 0, start, c.getHeight(), mPaintStartMarker);
+        c.drawLine(end, 0, end, c.getHeight(), mPaintEndMarker);
     }
 
     public void setUIDataManager(UIDataManager manager){

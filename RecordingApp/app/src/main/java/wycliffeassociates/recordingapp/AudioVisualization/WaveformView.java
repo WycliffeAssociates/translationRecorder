@@ -177,40 +177,39 @@ public class WaveformView extends CanvasView {
     }
 
     public void drawDbLines(Canvas c){
-        mPaint.setStrokeWidth(1.f);
-        mPaint.setColor(Color.GRAY);
+
         int db3 = dBLine(23197);
         int ndb3 = dBLine(-23197);
-        c.drawLine(0, db3, getWidth(), db3, mPaint);
-        c.drawLine(0, ndb3, getWidth(), ndb3, mPaint);
+        c.drawLine(0, db3, getWidth(), db3, mPaintGrid);
+        c.drawLine(0, ndb3, getWidth(), ndb3, mPaintGrid);
         c.drawText(Integer.toString(-3), 0, db3, mPaintText);
         c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
 
         int db6 = dBLine(16422);
         int ndb6 = dBLine(-16422);
-        c.drawLine(0, db6, getWidth(), db6, mPaint);
-        c.drawLine(0, ndb6, getWidth(), ndb6, mPaint);
+        c.drawLine(0, db6, getWidth(), db6, mPaintGrid);
+        c.drawLine(0, ndb6, getWidth(), ndb6, mPaintGrid);
         c.drawText(Integer.toString(-6), 0, db6, mPaintText);
         c.drawText(Integer.toString(-6), 0, ndb6, mPaintText);
 
         int db12 = dBLine(8230);
         int ndb12 = dBLine(-8230);
-        c.drawLine(0, db12, getWidth(), db12, mPaint);
-        c.drawLine(0, ndb12, getWidth(), ndb12, mPaint);
+        c.drawLine(0, db12, getWidth(), db12, mPaintGrid);
+        c.drawLine(0, ndb12, getWidth(), ndb12, mPaintGrid);
         c.drawText(Integer.toString(-12), 0, db12, mPaintText);
         c.drawText(Integer.toString(-12), 0, ndb12, mPaintText);
 
         int db18 = dBLine(4125);
         int ndb18 = dBLine(-4125);
-        c.drawLine(0, db18, getWidth(), db18, mPaint);
-        c.drawLine(0, ndb18, getWidth(), ndb18, mPaint);
+        c.drawLine(0, db18, getWidth(), db18, mPaintGrid);
+        c.drawLine(0, ndb18, getWidth(), ndb18, mPaintGrid);
         c.drawText(Integer.toString(-18), 0, db18, mPaintText);
         c.drawText(Integer.toString(-18), 0, ndb18, mPaintText);
 
         int db24 = dBLine(2067);
         int ndb24 = dBLine(-2067);
-        c.drawLine(0, db24, getWidth(), db24, mPaint);
-        c.drawLine(0, ndb24, getWidth(), ndb24, mPaint);
+        c.drawLine(0, db24, getWidth(), db24, mPaintGrid);
+        c.drawLine(0, ndb24, getWidth(), ndb24, mPaintGrid);
         c.drawText(Integer.toString(-24), 0, db24, mPaintText);
         c.drawText(Integer.toString(-24), 0, ndb24, mPaintText);
     }
@@ -225,11 +224,9 @@ public class WaveformView extends CanvasView {
      * @param canvas the canvas to be drawn to
      */
     public void drawMarker(Canvas canvas){
-        mPaint.setStrokeWidth(1.f);
-        mPaint.setColor(getResources().getColor(R.color.tertiary));
         //positions the playback line 1/8th of the total width from the left of the screen
         canvas.drawLine((canvas.getWidth() / 8), 0,
-                (canvas.getWidth() / 8), canvas.getHeight(), mPaint);
+                (canvas.getWidth() / 8), canvas.getHeight(), mPaintPlayback);
     }
 
     /**
@@ -270,17 +267,9 @@ public class WaveformView extends CanvasView {
         //are both in ms
         float xLoc1 = offset + (mMarkerStartLoc - mTimeToDraw)/mspp;
         float xLoc2 = offset + (mMarkerEndLoc - mTimeToDraw)/mspp;
-        mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
-        c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaint);
-        mPaint.setStrokeWidth(2.f);
-        mPaint.setColor(getResources().getColor(R.color.vivid_red));
-        c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaint);
-        mPaint.setColor(Color.BLUE);
-        mPaint.setAlpha(50);
-        mPaint.setStyle(Paint.Style.FILL);
-        c.drawRect(xLoc1, 0, xLoc2, getHeight(), mPaint);
-        mPaint.setAlpha(255);
+        c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaintStartMarker);
+        c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaintEndMarker);
+        c.drawRect(xLoc1, 0, xLoc2, getHeight(), mPaintHighlight);
     }
 
     /**
@@ -346,8 +335,6 @@ public class WaveformView extends CanvasView {
      * @param blocksize the size of a block of audio data; 2 for 16 bit mono PCM
      */
     public synchronized void drawBuffer(Canvas canvas, byte[] buffer, int blocksize){
-        mPaint.setStrokeWidth(1.5f);
-        mPaint.setColor(Color.WHITE);
         if (buffer == null || canvas == null) {
             return;
         }
@@ -369,7 +356,7 @@ public class WaveformView extends CanvasView {
 //            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2),
 //                    (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
             canvas.drawLine((int) (xScale * i), (int) U.getValueForScreen(temp[i], height),
-                    (int) (xScale * (i + 1)), (int) U.getValueForScreen(temp[i+1], height), mPaint);
+                    (int) (xScale * (i + 1)), (int) U.getValueForScreen(temp[i+1], height), mPaintWaveform);
 
         }
         this.postInvalidate();

@@ -15,12 +15,16 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.SettingsPage.Book;
+import wycliffeassociates.recordingapp.SettingsPage.ParseJSON;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
@@ -45,6 +49,8 @@ public class RecordingScreen extends Activity {
     private boolean isPausedRecording = false;
     private boolean hasStartedRecording = false;
     private boolean mDeleteTempFile = false;
+    private volatile HashMap<String, Book> mBooks;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +72,21 @@ public class RecordingScreen extends Activity {
         enableButtons();
 
         startService(new Intent(this, WavRecorder.class));
-        manager.listenForRecording();
+        manager.listenForRecording(true);
 
         filenameView = (TextView) findViewById(R.id.filenameView);
         filenameView.setText(suggestedFilename);
 
         hasStartedRecording = false;
         mDeleteTempFile = false;
+        Thread getNumChunks = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ParseJSON parse = new ParseJSON(context);
+                mBooks = parse.getBooksMap();
+            }
+        });
+        getNumChunks.start();
     }
 
     private void pauseRecording() {
@@ -134,7 +148,7 @@ public class RecordingScreen extends Activity {
             intent.putExtra("screenWidth", AudioInfo.SCREEN_WIDTH);
             startService(new Intent(this, WavRecorder.class));
             startService(intent);
-            manager.listenForRecording();
+            manager.listenForRecording(false);
         } else {
             manager.resumeTimer();
             isPausedRecording = false;
@@ -219,14 +233,24 @@ public class RecordingScreen extends Activity {
     }
 
     private void incrementChunk(){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
-        chunk++;
-        pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
-        pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
-        Settings.updateFilename(this);
-        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
-        filenameView.setText(suggestedFilename);
+        if(mBooks != null) {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+            int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
+            chunk++;
+            Book book = mBooks.get(pref.getString(Settings.KEY_PREF_BOOK, "gen"));
+            int chapter = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1"));
+            ArrayList<Book.Chunk> chunks = book.getChunks().get(chapter - 1);
+            int numChunks = chunks.size();
+            if (chunk > numChunks) {
+                chunk = numChunks;
+            }
+
+            pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+            pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
+            Settings.updateFilename(this);
+            suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
+            filenameView.setText(suggestedFilename);
+        }
     }
 
     private void setButtonHandlers() {
