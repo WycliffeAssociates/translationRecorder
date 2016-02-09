@@ -54,6 +54,7 @@ public class RecordingScreen extends Activity {
     private volatile int mNumChunks;
     private volatile int mChunk;
     private volatile int lastNumber;
+    private ArrayList<Integer> mChunks;
     private NumberPicker numPicker;
 
 
@@ -93,12 +94,12 @@ public class RecordingScreen extends Activity {
                 final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
                 Book book = mBooks.get(pref.getString(Settings.KEY_PREF_BOOK, "gen"));
                 int chapter = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1"));
-                final ArrayList<Book.Chunk> chunks = book.getChunks().get(chapter - 1);
-                final String[] values = new String[chunks.size()];
-                for(int i = 0; i < chunks.size(); i++){
-                    values[i] = String.valueOf(chunks.get(i).startVerse);
+                mChunks = parse.getChunks(book.getSlug()).get(chapter - 1);
+                final String[] values = new String[mChunks.size()];
+                for(int i = 0; i < mChunks.size(); i++){
+                    values[i] = String.valueOf(mChunks.get(i));
                 }
-                mNumChunks = chunks.size();
+                mNumChunks = mChunks.size();
                 numPicker = (NumberPicker)findViewById(R.id.numberPicker);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -107,17 +108,17 @@ public class RecordingScreen extends Activity {
                         numPicker.setMinValue(1);
                         numPicker.setMaxValue(mNumChunks);
                         int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
-                        mChunk = getChunkIndex(chunks, chunk);
+                        mChunk = getChunkIndex(mChunks, chunk);
                         Settings.updateFilename(context);
                         suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
                         filenameView.setText(suggestedFilename);
                         numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
                             @Override
                             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                                addToChunk(newVal);
+                                setChunk(newVal);
                             }
                         });
-                        numPicker.setValue(getChunkIndex(chunks,chunks.get(mChunk).startVerse)+1);
+                        numPicker.setValue(mChunk+1);
 
                     }
                 });
@@ -126,9 +127,9 @@ public class RecordingScreen extends Activity {
         getNumChunks.start();
     }
 
-    private int getChunkIndex(ArrayList<Book.Chunk> chunks, int chunk){
+    private int getChunkIndex(ArrayList<Integer> chunks, int chunk){
         for(int i = 0; i < chunks.size(); i++){
-            if(chunks.get(i).startVerse == chunk){
+            if(chunks.get(i) == chunk){
                 return i;
             }
         }
@@ -237,19 +238,6 @@ public class RecordingScreen extends Activity {
             d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             d.show(fm, "Exit Dialog");
 
-            // NOTE: Old code to be removed by Joe
-
-//            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
-//            dialog.setFilename(recordedFilename);
-//            if (isRecording) {
-//                dialog.setIsRecording(true);
-//                isRecording = false;
-//            }
-//            if (isPausedRecording) {
-//                dialog.setIsPausedRecording(true);
-//            }
-//            dialog.show();
-
         } else {
             super.onBackPressed();
         }
@@ -278,21 +266,20 @@ public class RecordingScreen extends Activity {
         }
     }
 
-    private void addToChunk(int increment){
-        if(mBooks != null) {
+    /**
+     * Sets the chunk by indexing the chunk list with the provided index
+     * @param idx
+     */
+    private void setChunk(int idx){
+        if(mChunks != null) {
+            //Get the list of chunks by first getting the book and chapter from the preference
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-            Book book = mBooks.get(pref.getString(Settings.KEY_PREF_BOOK, "gen"));
-            int chapter = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1"));
-            final ArrayList<Book.Chunk> chunks = book.getChunks().get(chapter - 1);
-
-            int chunk = chunks.get(increment-1).startVerse;
-            //chunk += increment;
+            int chunk = mChunks.get(idx-1);
             pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
             pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
             Settings.updateFilename(context);
             suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
             filenameView.setText(suggestedFilename);
-            //numPicker.setValue(chunk);
             numPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         }
     }
@@ -301,7 +288,6 @@ public class RecordingScreen extends Activity {
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
-        //findViewById(R.id.btnIncChunk).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -312,7 +298,6 @@ public class RecordingScreen extends Activity {
         enableButton(R.id.btnRecording, true);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPauseRecording, true);
-        //enableButton(R.id.btnIncChunk, true);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -332,10 +317,6 @@ public class RecordingScreen extends Activity {
                 pauseRecording();
                 break;
             }
-//            case R.id.btnIncChunk: {
-//                addToChunk(1);
-//                break;
-//            }
         }
         }
     };

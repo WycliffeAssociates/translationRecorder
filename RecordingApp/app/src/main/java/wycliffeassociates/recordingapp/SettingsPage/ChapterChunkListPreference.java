@@ -38,14 +38,9 @@ public class ChapterChunkListPreference extends ListPreference {
         mBooks = parse.getBooksMap();
         String bookCode = getSharedPreferences().getString(KEY_PREF_BOOK, "gen");
         int chapter = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
-        String chunkString = getSharedPreferences().getString(KEY_PREF_CHUNK, "1");
-//            int chunk = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHUNK, "1"));
-        // Find first number in chunk description
-        Matcher matcher = Pattern.compile("\\d+").matcher(chunkString);
-        matcher.find();
-        int chunk = Integer.valueOf(matcher.group());
+        int numChapters = mBooks.get(bookCode).getNumChapters();
+        //if the selected preference was chapter
         if(this.getKey().compareTo(KEY_PREF_CHAPTER) == 0){
-            int numChapters = mBooks.get(bookCode).getNumChapters();
             String[] chapterList = new String[numChapters];
             for(int i =0; i < numChapters; i++){
                 chapterList[i] = String.valueOf(i+1);
@@ -53,19 +48,18 @@ public class ChapterChunkListPreference extends ListPreference {
             super.setEntries(chapterList);
             super.setEntryValues(chapterList);
             getSharedPreferences().edit().putString(KEY_PREF_CHUNK, "1").commit();
+        //else the selected preference is the chunk
         } else {
-            int numChapters = mBooks.get(bookCode).getNumChapters();
             if(chapter > numChapters){
                 getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                 chapter = 1;
             }
-            ArrayList<Book.Chunk> chunks = mBooks.get(bookCode).getChunks().get(chapter-1);
+            ArrayList<Integer> chunks = parse.getChunks(bookCode).get(chapter-1);
             int numChunks = chunks.size();
             String[] chunkList = new String[numChunks];
+            //Chunks are labeled by start verse, rather than sequential numbers
             for(int i =0; i < numChunks; i++){
-//                    chunkList[i] = String.valueOf(i+1);
-                Book.Chunk chunkObj = chunks.get(i);
-                chunkList[i] = chunkObj.startVerse + ": v" + chunkObj.startVerse + " - v" + chunkObj.endVerse;
+                chunkList[i] = String.valueOf(chunks.get(i));
             }
             super.setEntries(chunkList);
             super.setEntryValues(chunkList);
