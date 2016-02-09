@@ -108,13 +108,17 @@ public class RecordingScreen extends Activity {
                         numPicker.setMaxValue(mNumChunks);
                         int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
                         mChunk = getChunkIndex(chunks, chunk);
-                        numPicker.setValue(chunks.get(mChunk).startVerse);
+                        Settings.updateFilename(context);
+                        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
+                        filenameView.setText(suggestedFilename);
                         numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
                             @Override
                             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                                 addToChunk(newVal);
                             }
                         });
+                        numPicker.setValue(getChunkIndex(chunks,chunks.get(mChunk).startVerse)+1);
+
                     }
                 });
             }
