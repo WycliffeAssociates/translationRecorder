@@ -25,6 +25,13 @@ public class AppExport extends Export {
 
     @Override
     public void export(){
+        if(mNumFilesToExport > 1){
+            zipFiles(this);
+        }
+    }
+
+    @Override
+    protected void handleUserInput() {
         if(mExportList.size() > 1) {
             exportZipApplications(mZipPath);
         } else {
