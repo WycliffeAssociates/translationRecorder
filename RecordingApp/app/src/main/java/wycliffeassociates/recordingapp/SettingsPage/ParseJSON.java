@@ -100,6 +100,35 @@ public class ParseJSON {
         }
     }
 
+    /**
+     * Generates a 2d ArrayList of chunks indexed by chapters
+     * @param bookCode the code of the book to pull chunk info from
+     * @return a 2d ArrayList of chunks
+     * @throws JSONException
+     */
+    public ArrayList<ArrayList<Integer>> getChunks(String bookCode){
+        try {
+            String json = loadJSONFromAsset("chunks/" + bookCode + "/chunks.json");
+            JSONArray arrayOfChunks = new JSONArray(json);
+            ArrayList<ArrayList<Integer>> chunksInBook = new ArrayList<>();
+            //loop through the all the chunks
+            for (int i = 0; i < arrayOfChunks.length(); i++) {
+                JSONObject jsonChunk = arrayOfChunks.getJSONObject(i);
+                int chapter = jsonChunk.getInt("chp");
+                //if a chapter hasn't been appended yet, append it
+                if (chunksInBook.size() >= chapter - 1) {
+                    chunksInBook.add(new ArrayList<Integer>());
+                }
+                //add the chunk to that chapter
+                chunksInBook.get(chapter - 1).add(jsonChunk.getInt("firstvs"));
+            }
+            return chunksInBook;
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public HashMap<String, Book> getBooksMap(){
         try {
             pullBookInfo();
