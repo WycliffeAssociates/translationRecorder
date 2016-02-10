@@ -65,7 +65,7 @@ public class ChapterChunkListPreference extends ListPreference {
             for(int i =0; i < numChunks; i++){
 //                    chunkList[i] = String.valueOf(i+1);
                 Book.Chunk chunkObj = chunks.get(i);
-                chunkList[i] = chunkObj.chunkId + ": v" + chunkObj.startVerse + " - v" + chunkObj.endVerse;
+                chunkList[i] = chunkObj.startVerse + ": v" + chunkObj.startVerse + " - v" + chunkObj.endVerse;
             }
             super.setEntries(chunkList);
             super.setEntryValues(chunkList);
