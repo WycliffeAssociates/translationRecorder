@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import java.io.File;
@@ -50,6 +51,11 @@ public class RecordingScreen extends Activity {
     private boolean hasStartedRecording = false;
     private boolean mDeleteTempFile = false;
     private volatile HashMap<String, Book> mBooks;
+    private volatile int mNumChunks;
+    private volatile int mChunk;
+    private volatile int lastNumber;
+    private ArrayList<Integer> mChunks;
+    private NumberPicker numPicker;
 
 
     @Override
@@ -84,9 +90,50 @@ public class RecordingScreen extends Activity {
             public void run() {
                 ParseJSON parse = new ParseJSON(context);
                 mBooks = parse.getBooksMap();
+
+                final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+                Book book = mBooks.get(pref.getString(Settings.KEY_PREF_BOOK, "gen"));
+                int chapter = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1"));
+                mChunks = parse.getChunks(book.getSlug()).get(chapter - 1);
+                final String[] values = new String[mChunks.size()];
+                for(int i = 0; i < mChunks.size(); i++){
+                    values[i] = String.valueOf(mChunks.get(i));
+                }
+                mNumChunks = mChunks.size();
+                numPicker = (NumberPicker)findViewById(R.id.numberPicker);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        numPicker.setDisplayedValues(values);
+                        numPicker.setMinValue(1);
+                        numPicker.setMaxValue(mNumChunks);
+                        int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
+                        mChunk = getChunkIndex(mChunks, chunk);
+                        Settings.updateFilename(context);
+                        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
+                        filenameView.setText(suggestedFilename);
+                        numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                            @Override
+                            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                                setChunk(newVal);
+                            }
+                        });
+                        numPicker.setValue(mChunk+1);
+
+                    }
+                });
             }
         });
         getNumChunks.start();
+    }
+
+    private int getChunkIndex(ArrayList<Integer> chunks, int chunk){
+        for(int i = 0; i < chunks.size(); i++){
+            if(chunks.get(i) == chunk){
+                return i;
+            }
+        }
+        return 1;
     }
 
     private void pauseRecording() {
@@ -191,19 +238,6 @@ public class RecordingScreen extends Activity {
             d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             d.show(fm, "Exit Dialog");
 
-            // NOTE: Old code to be removed by Joe
-
-//            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
-//            dialog.setFilename(recordedFilename);
-//            if (isRecording) {
-//                dialog.setIsRecording(true);
-//                isRecording = false;
-//            }
-//            if (isPausedRecording) {
-//                dialog.setIsPausedRecording(true);
-//            }
-//            dialog.show();
-
         } else {
             super.onBackPressed();
         }
@@ -232,24 +266,21 @@ public class RecordingScreen extends Activity {
         }
     }
 
-    private void incrementChunk(){
-        if(mBooks != null) {
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-            int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
-            chunk++;
-            Book book = mBooks.get(pref.getString(Settings.KEY_PREF_BOOK, "gen"));
-            int chapter = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1"));
-            ArrayList<Book.Chunk> chunks = book.getChunks().get(chapter - 1);
-            int numChunks = chunks.size();
-            if (chunk > numChunks) {
-                chunk = numChunks;
-            }
-
+    /**
+     * Sets the chunk by indexing the chunk list with the provided index
+     * @param idx
+     */
+    private void setChunk(int idx){
+        if(mChunks != null) {
+            //Get the list of chunks by first getting the book and chapter from the preference
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+            int chunk = mChunks.get(idx-1);
             pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
             pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
-            Settings.updateFilename(this);
+            Settings.updateFilename(context);
             suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
             filenameView.setText(suggestedFilename);
+            numPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         }
     }
 
@@ -257,7 +288,6 @@ public class RecordingScreen extends Activity {
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
-        findViewById(R.id.btnIncChunk).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -268,7 +298,6 @@ public class RecordingScreen extends Activity {
         enableButton(R.id.btnRecording, true);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPauseRecording, true);
-        enableButton(R.id.btnIncChunk, true);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -286,10 +315,6 @@ public class RecordingScreen extends Activity {
             }
             case R.id.btnPauseRecording: {
                 pauseRecording();
-                break;
-            }
-            case R.id.btnIncChunk: {
-                incrementChunk();
                 break;
             }
         }
