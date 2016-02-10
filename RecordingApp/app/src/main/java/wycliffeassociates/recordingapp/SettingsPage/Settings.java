@@ -77,12 +77,17 @@ public class Settings extends Activity {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
         String langCode = pref.getString(KEY_PREF_LANG, "en");
         String bookCode = pref.getString(KEY_PREF_BOOK, "mat");
-        String chapter = pref.getString(KEY_PREF_CHAPTER, "1");
-        String chunk = pref.getString(KEY_PREF_CHUNK, "1");
-        String take = pref.getString(KEY_PREF_TAKE, "1");
+        String chapter = formatDigit(pref.getString(KEY_PREF_CHAPTER, "1"));
+        String chunk = formatDigit(pref.getString(KEY_PREF_CHUNK, "1"));
+        String take = formatDigit(pref.getString(KEY_PREF_TAKE, "1"));
         String source = pref.getString(KEY_PREF_SOURCE, "udb");
         String filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk + "_" + take;
         pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
+    }
+
+    public static String formatDigit(String number){
+        int value = Integer.parseInt(number);
+        return String.format("%02d", value);
     }
 
     public static void incrementTake(Context c){
