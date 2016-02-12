@@ -36,7 +36,7 @@ const int DATA_SIZE_LOC = 40;
 
 
 int le_to_d(unsigned char header[], int loc, int n);
-long long_le_to_de(unsigned char header[], int loc, int n);
+long long_le_to_d(unsigned char header[], int loc, int n);
 void verify_header(unsigned char header[], long size);
 int verify_size(unsigned char header[], long size);
 int verify_constants(unsigned char header[]);
@@ -91,8 +91,8 @@ void verify_header(unsigned char header[], long size){
 }
 
 int verify_size(unsigned char header[], long size){
-    long filesize = long_le_to_de(header, FILE_SIZE_LOC, 4);
-    long datasize = long_le_to_de(header, DATA_SIZE_LOC, 4);
+    long filesize = long_le_to_d(header, FILE_SIZE_LOC, 4);
+    long datasize = long_le_to_d(header, DATA_SIZE_LOC, 4);
     int pass = 0;
     if(filesize != (size-8)){
         printf("FAIL: overall file size - header size = %ld, should be %ld\n", filesize, (size-8));
@@ -198,7 +198,7 @@ int le_to_d(unsigned char header[], int loc, int n){
     return sum;
 }
 
-long long_le_to_de(unsigned char header[], int loc, int n){
+long long_le_to_d(unsigned char header[], int loc, int n){
     long sum = 0;
     for(int i = 0; i < n; i++){
         //can just shift in without masking because header is unsigned
