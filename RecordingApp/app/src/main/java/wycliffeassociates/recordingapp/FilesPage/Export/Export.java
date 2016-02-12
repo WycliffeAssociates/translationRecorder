@@ -110,8 +110,8 @@ public abstract class Export {
         final ProgressDialog pd = new ProgressDialog(mCtx.getActivity());
         pd.setTitle("Packaging files to export.");
         pd.setMessage("Please wait...");
-        pd.setCancelable(false);
-        pd.setIndeterminate(true);
+        pd.setProgress(0);
+        pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pd.show();
         Thread zipThread = new Thread(new Runnable() {
             @Override
@@ -123,7 +123,13 @@ public abstract class Export {
                     ZipOutputStream out = new ZipOutputStream(bos);
 
                     byte data[] = new byte[1024];
-
+                    long sizeOfFiles = 0;
+                    for(String s : files){
+                        File f = new File(s);
+                        sizeOfFiles+=f.getTotalSpace();
+                    }
+                    int percent = (int)(sizeOfFiles/(8.f)/100.f);
+                    int percentCount = percent;
                     for (int i = 0; i < files.length; i++) {
                         FileInputStream fi = new FileInputStream(files[i]);
                         origin = new BufferedInputStream(fi, 1024);
@@ -132,8 +138,19 @@ public abstract class Export {
                         int count;
                         while ((count = origin.read(data, 0, 1024)) != -1) {
                             out.write(data, 0, count);
+                            percentCount -= 1024;
+                            if(percentCount<=0){
+                                mCtx.getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        pd.incrementProgressBy(1);
+                                    }
+                                });
+                                percentCount = percent;
+                            }
                         }
                         origin.close();
+                        fi.close();
                     }
                     out.flush();
                     out.close();
