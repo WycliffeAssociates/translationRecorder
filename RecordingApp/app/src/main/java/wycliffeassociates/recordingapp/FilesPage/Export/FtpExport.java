@@ -25,6 +25,8 @@ public class FtpExport extends Export{
     public void export() {
         if(mNumFilesToExport > 1){
             zipFiles(this);
+        } else {
+            handleUserInput();
         }
     }
 

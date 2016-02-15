@@ -27,6 +27,8 @@ public class AppExport extends Export {
     public void export(){
         if(mNumFilesToExport > 1){
             zipFiles(this);
+        } else {
+            handleUserInput();
         }
     }
 

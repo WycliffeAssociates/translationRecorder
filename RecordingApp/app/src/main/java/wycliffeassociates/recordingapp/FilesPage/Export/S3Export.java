@@ -111,6 +111,8 @@ public class S3Export extends Export {
     public void export() {
         if (mNumFilesToExport > 1) {
             zipFiles(this);
+        } else {
+            handleUserInput();
         }
     }
 
