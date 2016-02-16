@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.FilesPage.Export;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothClass;
+import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -73,13 +74,17 @@ public class S3Export extends Export {
 
             @Override
             public void onStateChanged(int id, TransferState state) {
-                // do something
-                    if(state.equals(TransferState.COMPLETED)){
-                        Toast.makeText(mCtx.getActivity(), "Uploaded file successfully.", Toast.LENGTH_SHORT).show();
-                        Logger.w(this.toString(), "successfully sent file to s3");
-                        cleanUp();
-                        pd.dismiss();
-                    }
+                if(state.equals(TransferState.COMPLETED)){
+                    Toast.makeText(mCtx.getActivity(), "Uploaded file successfully.", Toast.LENGTH_SHORT).show();
+                    Logger.w(this.toString(), "successfully sent file to s3");
+                    cleanUp();
+                    mCtx.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pd.dismiss();
+                        }
+                    });
+                }
                 Logger.e(this.toString(), "state is " + state.toString());
             }
 
@@ -104,6 +109,19 @@ public class S3Export extends Export {
      */
     @Override
     public void export() {
+        if (mNumFilesToExport > 1) {
+            zipFiles(this);
+        } else {
+            handleUserInput();
+        }
+    }
+
+    @Override
+    protected void handleUserInput() {
+        upload();
+    }
+
+    protected void upload(){
         String name = null;
         if (mExportList.size() > 0) {
             if (mZipPath == null) {
@@ -121,6 +139,7 @@ public class S3Export extends Export {
             pd.setTitle("Uploading...");
             pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             pd.setProgress(0);
+            pd.setCancelable(false);
             pd.show();
 
             TransferObserver observer = mTransferUtility.upload(

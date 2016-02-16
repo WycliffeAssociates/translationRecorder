@@ -23,6 +23,15 @@ public class FtpExport extends Export{
     //TODO: Test this to see if it still works through this refactoring
     @Override
     public void export() {
+        if(mNumFilesToExport > 1){
+            zipFiles(this);
+        } else {
+            handleUserInput();
+        }
+    }
+
+    @Override
+    protected void handleUserInput() {
         Intent intent = new Intent(mCtx.getActivity(), FTPActivity.class);
         mCtx.startActivityForResult(intent, 0);
     }

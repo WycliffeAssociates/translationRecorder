@@ -34,6 +34,15 @@ public class FolderExport extends Export{
      * Exports to a folder or SD card by starting a wrapper activity around the Storage Access Framework
      */
     public void export(){
+        if(mNumFilesToExport > 1){
+            zipFiles(this);
+        } else {
+            handleUserInput();
+        }
+    }
+
+    @Override
+    protected void handleUserInput() {
         Intent i = new Intent(mCtx.getActivity(), StorageAccess.class);
         System.out.println("size of export list is " + mExportList.size());
         i.putStringArrayListExtra("exportList", mExportList);

@@ -25,6 +25,7 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
+import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.WavFileLoader;
 
@@ -196,16 +197,20 @@ public class UIDataManager {
 
         FileOutputStream fos = new FileOutputStream(to);
         BufferedOutputStream bos = new BufferedOutputStream(fos);
+        System.out.println("About to output the header");
         for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
             bos.write(mappedAudioFile.get(i));
         }
+        System.out.println("Done writing the header");
         int percent = (int)Math.round((buffer.capacity()) /100.0);
         int count = percent;
+        long sizeAfterCut = 0;
         for(int i = 0; i < buffer.capacity(); i++){
             int skip = mCutOp.skipLoc(i, false);
             if(skip != -1){
                 i = skip;
             }
+            sizeAfterCut++;
             bos.write(buffer.get(i));
             if(count <= 0) {
                 pd.incrementProgressBy(1);
@@ -217,6 +222,7 @@ public class UIDataManager {
         bos.close();
         fos.flush();
         fos.close();
+        WavFileWriter.overwriteHeaderData(to.getAbsolutePath(),sizeAfterCut+44);
         mCutOp.clear();
 
         return;
