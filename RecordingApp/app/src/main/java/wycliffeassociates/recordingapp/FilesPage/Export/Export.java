@@ -123,13 +123,7 @@ public abstract class Export {
                     ZipOutputStream out = new ZipOutputStream(bos);
 
                     byte data[] = new byte[1024];
-                    long sizeOfFiles = 0;
-                    for(String s : files){
-                        File f = new File(s);
-                        sizeOfFiles+=f.getTotalSpace();
-                    }
-                    int percent = (int)(sizeOfFiles/(8.f)/100.f);
-                    int percentCount = percent;
+
                     for (int i = 0; i < files.length; i++) {
                         FileInputStream fi = new FileInputStream(files[i]);
                         origin = new BufferedInputStream(fi, 1024);
@@ -138,17 +132,15 @@ public abstract class Export {
                         int count;
                         while ((count = origin.read(data, 0, 1024)) != -1) {
                             out.write(data, 0, count);
-                            percentCount -= 1024;
-                            if(percentCount<=0){
-                                mCtx.getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        pd.incrementProgressBy(1);
-                                    }
-                                });
-                                percentCount = percent;
-                            }
                         }
+                        final int progress = i;
+                        //Increment progress by number of files done
+                        mCtx.getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                pd.incrementProgressBy((int)((progress/(float)files.length) * 100));
+                            }
+                        });
                         origin.close();
                         fi.close();
                     }
