@@ -20,7 +20,7 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  */
 public class WavPlayer {
 
-    private static MappedByteBuffer audioData = null;
+    private static volatile MappedByteBuffer audioData = null;
     private static AudioTrack player = null;
     private static Thread playbackThread;
     private static volatile boolean onlyPlayingSection = false;
@@ -95,7 +95,7 @@ public class WavPlayer {
                 int limit = audioData.capacity();
                 short[] shorts = new short[minBufferSize/2];
                 byte[] bytes = new byte[minBufferSize];
-                while(audioData.position() < limit && keepPlaying){
+                while(audioData != null && audioData.position() < limit && keepPlaying){
 
                     //checks to see if we're in a selected section and should end
                     if(checkIfShouldStop()){
@@ -128,7 +128,7 @@ public class WavPlayer {
                 }
                 //location doesn't usually end up going to the end before audio playback stops.
                 //continue to loop until the end is reached.
-                while((getLocation() <= (getDuration())) && !forceBreakOut){
+                while(audioData != null && (getLocation() <= (getDuration())) && !forceBreakOut){
                     Thread.yield();
                 }
                 System.out.println("end thread");
@@ -344,7 +344,7 @@ public class WavPlayer {
     }
 
     public static int getDuration(){
-        if(player != null){
+        if(player != null && audioData != null){
             int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
             return duration;
         }
