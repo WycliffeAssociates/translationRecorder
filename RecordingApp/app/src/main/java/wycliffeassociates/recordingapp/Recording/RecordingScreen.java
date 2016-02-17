@@ -228,13 +228,6 @@ public class RecordingScreen extends Activity {
         if (!isSaved && hasStartedRecording) {
             FragmentManager fm = getFragmentManager();
             FragmentExitDialog d = new FragmentExitDialog();
-            d.setFilename(recordedFilename);
-            if (isRecording) {
-                d.setIsRecording(true);
-            }
-            if (isPausedRecording) {
-                d.setIsPausedRecording(true);
-            }
             d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             d.show(fm, "Exit Dialog");
 
