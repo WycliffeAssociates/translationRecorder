@@ -58,19 +58,23 @@ public class MarkerView extends ImageView {
          */
         @Override
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
-            if (WavPlayer.exists()) {
+            if (mManager != null) {
                 if(mOrientation == RIGHT){
                     SectionMarkers.setEndTime(
-                            Math.max((int) (Math.min((SectionMarkers.getEndLocationMs() - 4 * distX), (float) WavPlayer.getDuration())), Math.max(SectionMarkers.getStartLocationMs(), 0)),
-                            AudioInfo.SCREEN_WIDTH
+                            Math.max((int) (Math.min((SectionMarkers.getEndLocationMs() - 4 * distX), (float) mManager.getDuration())), Math.max(SectionMarkers.getStartLocationMs(), 0)),
+                            AudioInfo.SCREEN_WIDTH,
+                            mManager.getAdjustedDuration(),
+                            mManager
                     );
-                    WavPlayer.stopSectionAt(SectionMarkers.getEndLocationMs());
+                    mManager.stopSectionAt(SectionMarkers.getEndLocationMs());
                 } else {
                     SectionMarkers.setStartTime(
-                            Math.min((int) (Math.max((SectionMarkers.getStartLocationMs() - 4 * distX), 0)), Math.min(SectionMarkers.getEndLocationMs(), WavPlayer.getDuration())),
-                            AudioInfo.SCREEN_WIDTH
+                            Math.min((int) (Math.max((SectionMarkers.getStartLocationMs() - 4 * distX), 0)), Math.min(SectionMarkers.getEndLocationMs(), mManager.getDuration())),
+                            AudioInfo.SCREEN_WIDTH,
+                            mManager.getAdjustedDuration(),
+                            mManager
                     );
-                    WavPlayer.startSectionAt(SectionMarkers.getStartLocationMs());
+                    mManager.startSectionAt(SectionMarkers.getStartLocationMs());
                 }
                 mManager.updateUI();
             }

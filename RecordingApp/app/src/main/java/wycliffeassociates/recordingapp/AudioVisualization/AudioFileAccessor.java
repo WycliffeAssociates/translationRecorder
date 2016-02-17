@@ -1,12 +1,9 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
-import android.util.Log;
-
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
@@ -22,16 +19,18 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 public class AudioFileAccessor {
     MappedByteBuffer mCompressed;
     MappedByteBuffer mUncompressed;
+    UIDataManager mManager;
     CutOp mCut;
     int mWidth;
     int mUncmpToCmp;
     boolean mUseCmp = false;
 
-    public AudioFileAccessor(MappedByteBuffer compressed, MappedByteBuffer uncompressed, CutOp cut){
+    public AudioFileAccessor(MappedByteBuffer compressed, MappedByteBuffer uncompressed, CutOp cut, UIDataManager manager){
         mCompressed = compressed;
         mUncompressed = uncompressed;
         mCut = cut;
         mWidth = AudioInfo.SCREEN_WIDTH;
+        mManager = manager;
         //increment to write the compressed file. ~44 indices uncompressed = 2 compressed
         mUseCmp = (compressed == null)? false : true;
     }
@@ -103,7 +102,7 @@ public class AudioFileAccessor {
     public int indicesInAPixelMinimap(){
         //get the number of milliseconds in a pixel, map it to an absolute index, then convert to relative
         double fileInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
-        int incUncmp = (int)Math.round(((AudioInfo.SAMPLERATE * WavPlayer.getAdjustedDuration())/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
+        int incUncmp = (int)Math.round(((AudioInfo.SAMPLERATE * mManager.getAdjustedDuration())/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
         int incCmp = (int)Math.round((incUncmp / (double)44)) * 4;
         int increment = (mUseCmp)? incCmp : incUncmp;
         return increment;
@@ -130,8 +129,8 @@ public class AudioFileAccessor {
         return (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
     }
 
-    public static int uncompressedIncrement(double numSecondsOnScreen){
-        int increment = (int)Math.round(((AudioInfo.SAMPLERATE * WavPlayer.getAdjustedDuration())/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
+    public static int uncompressedIncrement(double numSecondsOnScreen, double adjustedDuration){
+        int increment = (int)Math.round(((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
         increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
@@ -142,11 +141,11 @@ public class AudioFileAccessor {
         return increment;
     }
 
-    public static int getIncrement(double numSecondsOnScreen, boolean useCmp){
+    public static int getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration){
         if(useCmp){
             return compressedIncrement(numSecondsOnScreen);
         } else {
-            return uncompressedIncrement(numSecondsOnScreen);
+            return uncompressedIncrement(numSecondsOnScreen, adjustedDuration);
         }
     }
 }
