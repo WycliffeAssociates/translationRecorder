@@ -48,7 +48,8 @@ public class ChapterChunkListPreference extends ListPreference {
             super.setEntries(chapterList);
             super.setEntryValues(chapterList);
             getSharedPreferences().edit().putString(KEY_PREF_CHUNK, "1").commit();
-        //else the selected preference is the chunk
+            super.setValue(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
+            //else the selected preference is the chunk
         } else {
             if(chapter > numChapters){
                 getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
@@ -63,6 +64,7 @@ public class ChapterChunkListPreference extends ListPreference {
             }
             super.setEntries(chunkList);
             super.setEntryValues(chunkList);
+            super.setValue(getSharedPreferences().getString(KEY_PREF_CHUNK, "1"));
         }
     }
 
