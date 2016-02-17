@@ -129,17 +129,17 @@ public class WavFileLoader {
         try {
             audioVisFile  = new File(AudioInfo.pathToVisFile + loadedFilename.substring(loadedFilename.lastIndexOf('/'), loadedFilename.lastIndexOf('.')) + ".vis");
             FileOutputStream temp = new FileOutputStream(audioVisFile);
-            int increment = (int)Math.floor((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/screenWidth);
-            increment = (increment % 2 == 0)? increment : increment+1;
+            int increment = (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)screenWidth)  * AudioInfo.SIZE_OF_SHORT;
+            //increment = (increment % 2 == 0)? increment : increment+1;
             System.out.println(increment + "increment ");
 
-            for(int i = 0; i < buffer.capacity(); i+=AudioInfo.SIZE_OF_SHORT*increment){
+            for(int i = 0; i < buffer.capacity(); i+=increment){
                 int max = Integer.MIN_VALUE;
                 int min = Integer.MAX_VALUE;
                 int minIdx = 0;
                 int maxIdx = 0;
 
-                for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
+                for(int j = 0; j < increment; j+=AudioInfo.SIZE_OF_SHORT){
                     if((i+j+1) < buffer.capacity()) {
                         byte low = buffer.get(i + j);
                         byte hi = buffer.get(i + j + 1);
