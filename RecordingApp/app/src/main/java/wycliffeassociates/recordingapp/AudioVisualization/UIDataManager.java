@@ -105,11 +105,11 @@ public class UIDataManager {
     }
 
     public void updateUI(){
-        if(minimap == null || mainWave == null || mPlayer.getDuration() == 0){
+        if(minimap == null || mainWave == null || mPlayer == null || mPlayer.getDuration() == 0){
             //System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
-        if(wavLoader.visFileLoaded()){
+        if(wavLoader != null && wavLoader.visFileLoaded()){
             System.out.println("visFileLoaded() is true");
             wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
         }
