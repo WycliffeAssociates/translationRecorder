@@ -10,7 +10,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 
 public abstract class CanvasView extends View {
@@ -114,7 +113,7 @@ public abstract class CanvasView extends View {
     }
 
     public void redraw(){
-        if(WavPlayer.isPlaying())
+        if(mManager.isPlaying())
         mManager.updateUI();
     }
 

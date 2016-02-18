@@ -36,10 +36,10 @@ public class SectionMarkers {
         playSelectedSection = x;
     }
 
-    public static void setStartTime(int x, int width){
-        WavPlayer.startSectionAt(x);
+    public static void setStartTime(int x, int width, int adjustedDuration, UIDataManager manager){
+        manager.startSectionAt(x);
         mainStart = x;
-        minimapStart = (int)((x / (double) WavPlayer.getAdjustedDuration()) * width);
+        minimapStart = (int)((x / (double)adjustedDuration) * width);
         startSet = true;
         swapIfNeeded();
         if(startSet && endSet){
@@ -47,9 +47,10 @@ public class SectionMarkers {
         }
     }
 
-    public static void setEndTime(int x, int width){
+    public static void setEndTime(int x, int width, int adjustedDuration, UIDataManager manager){
+        //manager.startSectionAt(x); //This line wasn't here originally?
         mainEnd = x;
-        minimapEnd = (int)((x / (double) WavPlayer.getAdjustedDuration()) * width);
+        minimapEnd = (int)((x / (double)adjustedDuration) * width);
         endSet = true;
         swapIfNeeded();
         if(startSet && endSet){
@@ -97,7 +98,7 @@ public class SectionMarkers {
         return (loc % 2 == 0)? loc : loc + 1;
     }
 
-    public static void clearMarkers(){
+    public static void clearMarkers(UIDataManager manager){
         Logger.i("static clear markers", "Cleared markers");
         playSelectedSection = false;
         endSet = false;
@@ -106,6 +107,6 @@ public class SectionMarkers {
         minimapStart = Integer.MIN_VALUE;
         mainEnd = Integer.MAX_VALUE;
         mainStart = Integer.MIN_VALUE;
-        WavPlayer.setOnlyPlayingSection(false);
+        manager.setOnlyPlayingSection(false);
     }
 }

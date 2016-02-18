@@ -5,7 +5,6 @@ import java.nio.MappedByteBuffer;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 
 public class WavVisualizer {
 
@@ -21,8 +20,9 @@ public class WavVisualizer {
     int mScreenHeight;
     int mScreenWidth;
     AudioFileAccessor mAccessor;
+    UIDataManager mManager;
 
-    public WavVisualizer(MappedByteBuffer buffer, MappedByteBuffer compressed, int screenWidth, int screenHeight, CutOp cut) {
+    public WavVisualizer(UIDataManager manager, MappedByteBuffer buffer, MappedByteBuffer compressed, int screenWidth, int screenHeight, CutOp cut) {
         this.buffer = buffer;
         mScreenHeight = screenHeight;
         mScreenWidth = screenWidth;
@@ -30,7 +30,8 @@ public class WavVisualizer {
         mNumSecondsOnScreen = mDefaultSecondsOnScreen;
         mCanSwitch = (compressed == null)? false : true;
         mSamples = new float[screenWidth*8];
-        mAccessor = new AudioFileAccessor(compressed, buffer, cut);
+        mManager = manager;
+        mAccessor = new AudioFileAccessor(compressed, buffer, cut, manager);
         mMinimap = new float[AudioInfo.SCREEN_WIDTH * 4];
     }
 
@@ -48,7 +49,7 @@ public class WavVisualizer {
 
         int pos = 0;
         int index = 0;
-        int increment = mAccessor.getIncrement(WavPlayer.getAdjustedDuration()/(double)1000, useCompressed);
+        int increment = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration());
         for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
@@ -128,7 +129,7 @@ public class WavVisualizer {
     private int mapLocationToTime(int idx){
         double idxP = (mUseCompressedFile)? idx/(double)mCompressed.capacity()
                 : idx/(double)buffer.capacity();
-        int ms = (int)Math.round(idxP * WavPlayer.getDuration());
+        int ms = (int)Math.round(idxP * mManager.getDuration());
         return ms;
     }
 
