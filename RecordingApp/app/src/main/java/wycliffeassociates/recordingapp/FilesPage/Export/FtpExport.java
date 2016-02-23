@@ -13,8 +13,8 @@ import wycliffeassociates.recordingapp.FilesPage.FTPActivity;
  */
 public class FtpExport extends Export{
 
-    public FtpExport(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir, Fragment ctx){
-        super(audioItemList, adapter, currentDir, ctx);
+    public FtpExport(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
+        super(audioItemList, adapter, currentDir);
     }
 
     /**

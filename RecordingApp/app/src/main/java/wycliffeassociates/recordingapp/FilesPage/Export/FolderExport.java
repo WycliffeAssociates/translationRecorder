@@ -26,8 +26,8 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 public class FolderExport extends Export{
 
     public FolderExport(ArrayList<AudioItem> audioItemList,
-                        AudioFilesAdapter adapter, String currentDir, Fragment ctx){
-        super(audioItemList, adapter, currentDir, ctx);
+                        AudioFilesAdapter adapter, String currentDir){
+        super(audioItemList, adapter, currentDir);
     }
 
     /**

@@ -21,25 +21,37 @@ import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
  */
 public abstract class Export {
 
+    public interface UpdateProgress{
+        void showProgress(boolean mode);
+        void incrementProgress(int progress);
+        void dismissProgress();
+        void setZipping(boolean zipping);
+        void setExporting(boolean exporting);
+    }
+
     ArrayList<String> mExportList;
     String mZipPath = null;
     Fragment mCtx;
     int mNumFilesToExport = 0;
     String mCurrentDir;
     volatile boolean mZipDone = false;
+    UpdateProgress mProgressCallback;
 
     /**
      * Initializes the basic shared data all export operations use
      * @param audioItemList List of audio items contained on the Files page, used to determine checked items
      * @param adapter
      * @param currentDir Directory containing the files
-     * @param ctx Context of the fragment which contained the export options
      */
-    public Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir, Fragment ctx){
-        mCtx = ctx;
+    public Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
         populateExportList(audioItemList, adapter, currentDir);
         mNumFilesToExport = mExportList.size();
         mCurrentDir = currentDir;
+    }
+
+    public void setFragmentContext(Fragment f){
+        mCtx = f;
+        mProgressCallback = (UpdateProgress)f;
     }
 
     /**
@@ -107,12 +119,8 @@ public abstract class Export {
      */
     private void zip(final String[] files, final String zipFile, final Export export){
         mZipDone = false;
-        final ProgressDialog pd = new ProgressDialog(mCtx.getActivity());
-        pd.setTitle("Packaging files to export.");
-        pd.setMessage("Please wait...");
-        pd.setProgress(0);
-        pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        pd.show();
+        mProgressCallback.showProgress(true);
+        mProgressCallback.setZipping(true);
         Thread zipThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -138,7 +146,7 @@ public abstract class Export {
                         mCtx.getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                pd.incrementProgressBy((int)((progress/(float)files.length) * 100));
+                                mProgressCallback.incrementProgress((int) ((progress / (float) files.length) * 100));
                             }
                         });
                         origin.close();
@@ -156,10 +164,11 @@ public abstract class Export {
                 mCtx.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        pd.dismiss();
+                        mProgressCallback.dismissProgress();
                         export.handleUserInput();
                     }
                 });
+                mProgressCallback.setZipping(false);
                 mZipDone = true;
             }
         });

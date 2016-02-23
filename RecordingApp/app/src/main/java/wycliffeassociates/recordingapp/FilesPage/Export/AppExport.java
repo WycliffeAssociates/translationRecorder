@@ -18,8 +18,8 @@ import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 public class AppExport extends Export {
     String mCurrentDir;
 
-    public AppExport(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir, Fragment ctx){
-        super(audioItemList, adapter, currentDir, ctx);
+    public AppExport(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
+        super(audioItemList, adapter, currentDir);
         mCurrentDir = currentDir;
     }
 

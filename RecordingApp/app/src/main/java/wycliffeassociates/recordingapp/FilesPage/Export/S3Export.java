@@ -46,11 +46,9 @@ public class S3Export extends Export {
      * @param audioItemList
      * @param adapter
      * @param currentDir
-     * @param ctx
      */
-    public S3Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir, Fragment ctx){
-        super(audioItemList, adapter, currentDir, ctx);
-        init();
+    public S3Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
+        super(audioItemList, adapter, currentDir);
     }
 
     /**
@@ -122,6 +120,7 @@ public class S3Export extends Export {
     }
 
     protected void upload(){
+        init();
         String name = null;
         if (mExportList.size() > 0) {
             if (mZipPath == null) {
