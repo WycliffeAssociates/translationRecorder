@@ -1,7 +1,6 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
 import android.app.Fragment;
-import android.app.ProgressDialog;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -21,7 +20,7 @@ import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
  */
 public abstract class Export {
 
-    public interface UpdateProgress{
+    public interface ProgressUpdateCallback {
         boolean UPLOAD = false;
         boolean ZIP = true;
 
@@ -39,7 +38,7 @@ public abstract class Export {
     int mNumFilesToExport = 0;
     String mCurrentDir;
     volatile boolean mZipDone = false;
-    UpdateProgress mProgressCallback;
+    ProgressUpdateCallback mProgressCallback;
 
     /**
      * Initializes the basic shared data all export operations use
@@ -55,7 +54,7 @@ public abstract class Export {
 
     public void setFragmentContext(Fragment f){
         mCtx = f;
-        mProgressCallback = (UpdateProgress)f;
+        mProgressCallback = (ProgressUpdateCallback)f;
     }
 
     /**
@@ -123,7 +122,7 @@ public abstract class Export {
      */
     private void zip(final String[] files, final String zipFile, final Export export){
         mZipDone = false;
-        mProgressCallback.showProgress(UpdateProgress.ZIP);
+        mProgressCallback.showProgress(ProgressUpdateCallback.ZIP);
         mProgressCallback.setZipping(true);
         Thread zipThread = new Thread(new Runnable() {
             @Override

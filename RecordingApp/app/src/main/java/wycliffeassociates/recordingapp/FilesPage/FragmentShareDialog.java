@@ -2,26 +2,19 @@ package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 import wycliffeassociates.recordingapp.FilesPage.Export.AppExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
-import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.FilesPage.Export.FolderExport;
-import wycliffeassociates.recordingapp.FilesPage.Export.FtpExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.S3Export;
 import wycliffeassociates.recordingapp.R;
 
@@ -30,26 +23,26 @@ import wycliffeassociates.recordingapp.R;
  */
 public class FragmentShareDialog extends DialogFragment implements View.OnClickListener {
 
-    public interface Exporter{
-        void onExport(Export exp);
+    public interface ExportDelegator {
+        void delegateExport(Export exp);
     }
 
     ImageButton sd_card, dir, bluetooth, wifi, amazon, app;
     private String mCurrentDir;
     private AudioFilesAdapter mAdapter;
     private ArrayList<AudioItem> mAudioItemList;
-    Exporter mExporterCallback;
+    ExportDelegator mExportDelegator;
 
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
-        mExporterCallback = (Exporter)activity;
+        mExportDelegator = (ExportDelegator)activity;
     }
 
     @Override
     public void onDetach(){
         super.onDetach();
-        mExporterCallback = null;
+        mExportDelegator = null;
     }
 
     @Override
@@ -96,7 +89,7 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
                 return;
         }
         //callback using the selected exporter
-        mExporterCallback.onExport(exp);
+        mExportDelegator.delegateExport(exp);
         this.dismiss();
     }
 
@@ -109,12 +102,4 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         mAdapter = adapter;
         mAudioItemList = audioItemList;
     }
-
-//    public void exportViaWifi() {
-//        FtpExport fe = new FtpExport(mAudioItemList, mAdapter, mCurrentDir, this);
-//        fe.export();
-//        //fe.cleanUp();
-//        Toast.makeText(getActivity(), "WIFI DIRECT WAS CLICKED", Toast.LENGTH_LONG).show();
-//        // Insert code to export here
-//    }
 }

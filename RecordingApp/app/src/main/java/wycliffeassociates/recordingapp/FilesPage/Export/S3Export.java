@@ -1,17 +1,9 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
-import android.app.Fragment;
-import android.app.ProgressDialog;
-import android.bluetooth.BluetoothClass;
-import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
-import com.amazonaws.mobileconnectors.s3.transfermanager.internal.TransferManagerUtils;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -23,8 +15,6 @@ import com.amazonaws.services.s3.AmazonS3Client;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import javax.xml.datatype.Duration;
 
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
@@ -138,7 +128,7 @@ public class S3Export extends Export {
             name = Settings.Secure.getString(mCtx.getActivity().getContentResolver(),
                     Settings.Secure.ANDROID_ID) + name;
 
-            mProgressCallback.showProgress(UpdateProgress.UPLOAD);
+            mProgressCallback.showProgress(ProgressUpdateCallback.UPLOAD);
 
             TransferObserver observer = mTransferUtility.upload(
                     mCtx.getResources().getString(R.string.door43_bucket),     /* The bucket to upload to */

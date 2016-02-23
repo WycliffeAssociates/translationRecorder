@@ -10,15 +10,15 @@ import wycliffeassociates.recordingapp.FilesPage.FragmentShareDialog;
 /**
  * Created by sarabiaj on 2/19/2016.
  */
-public class ExportTaskFragment extends Fragment implements FragmentShareDialog.Exporter, Export.UpdateProgress {
+public class ExportTaskFragment extends Fragment implements FragmentShareDialog.ExportDelegator, Export.ProgressUpdateCallback {
 
-    Export.UpdateProgress mProgressUpdateCallback;
+    Export.ProgressUpdateCallback mProgressUpdateCallback;
     private Export mExp;
 
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
-        mProgressUpdateCallback = (Export.UpdateProgress)activity;
+        mProgressUpdateCallback = (Export.ProgressUpdateCallback)activity;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ExportTaskFragment extends Fragment implements FragmentShareDialog.
     }
 
     @Override
-    public void onExport(Export exp) {
+    public void delegateExport(Export exp) {
         mExp = exp;
         mExp.export();
     }

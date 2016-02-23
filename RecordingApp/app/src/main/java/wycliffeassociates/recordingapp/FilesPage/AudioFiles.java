@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.net.Uri;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 
-public class AudioFiles extends Activity implements FragmentShareDialog.Exporter, Export.UpdateProgress{
+public class AudioFiles extends Activity implements FragmentShareDialog.ExportDelegator, Export.ProgressUpdateCallback {
 
     private CheckBox btnCheckAll;
     private Menu mMenu;
@@ -36,7 +36,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.Exporter
     private ArrayList<AudioItem> tempItemList;
     static ArrayList<String> exportList;
     private ProgressDialog mPd;
-    private FragmentShareDialog mExportFragment;
     private ExportTaskFragment mExportTaskFragment;
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
     private final String STATE_EXPORTING = "was_exporting";
@@ -593,8 +592,8 @@ public class AudioFiles extends Activity implements FragmentShareDialog.Exporter
     }
 
     @Override
-    public void onExport(Export exp) {
+    public void delegateExport(Export exp) {
         exp.setFragmentContext(mExportTaskFragment);
-        mExportTaskFragment.onExport(exp);
+        mExportTaskFragment.delegateExport(exp);
     }
 }
