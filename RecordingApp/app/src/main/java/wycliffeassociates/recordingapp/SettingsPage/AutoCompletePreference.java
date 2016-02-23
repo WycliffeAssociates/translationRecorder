@@ -1,8 +1,10 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.view.View;
@@ -61,38 +63,39 @@ public class AutoCompletePreference extends EditTextPreference {
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
 
-        // Find the current EditText object and copy its layout params
-        final EditText editText = (EditText)view.findViewById(android.R.id.edit);
-        ViewGroup.LayoutParams params = editText.getLayoutParams();
-        ViewGroup parent = (ViewGroup) editText.getParent();
-        String currentValue = editText.getText().toString();
-        ParseJSON parse = new ParseJSON(getContext());
-
-        // NOTE: For example only. Insert a different adapter here.
-        if(this.getKey().compareTo(KEY_PREF_LANG) == 0){
-            mLanguages = parse.getLanguages();
-            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, mLanguages);
-        } else {
-            mBooks = parse.getBooksList();
-            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, mBooks);
-        }
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, COUNTRIES);
-
-        // Construct a new editable autocomplete object with the appropriate params and id that the
-        //    TextEditPreference is expecting
-        mEditText = new MyAutoCompleteTextView(getContext());
-        mEditText.setLayoutParams(params);
-        mEditText.setId(android.R.id.edit);
-        mEditText.setText(currentValue);
-
-        // Further modification on editable autocomplete object
-        mEditText.setSingleLine(true);
-        mEditText.setThreshold(1);
-        mEditText.setAdapter(adapter);
-
-        // Swap the old view with the new in the layout
-        parent.removeView(editText);
-        parent.addView(mEditText);
+        getContext().startActivity(new Intent(getContext(), LanguageActivity.class));
+//        // Find the current EditText object and copy its layout params
+//        final EditText editText = (EditText)view.findViewById(android.R.id.edit);
+//        ViewGroup.LayoutParams params = editText.getLayoutParams();
+//        ViewGroup parent = (ViewGroup) editText.getParent();
+//        String currentValue = editText.getText().toString();
+//        ParseJSON parse = new ParseJSON(getContext());
+//
+//        // NOTE: For example only. Insert a different adapter here.
+//        if(this.getKey().compareTo(KEY_PREF_LANG) == 0){
+//            mLanguages = parse.getLanguages();
+//            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, mLanguages);
+//        } else {
+//            mBooks = parse.getBooksList();
+//            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, mBooks);
+//        }
+//        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+//
+//        // Construct a new editable autocomplete object with the appropriate params and id that the
+//        //    TextEditPreference is expecting
+//        mEditText = new MyAutoCompleteTextView(getContext());
+//        mEditText.setLayoutParams(params);
+//        mEditText.setId(android.R.id.edit);
+//        mEditText.setText(currentValue);
+//
+//        // Further modification on editable autocomplete object
+//        mEditText.setSingleLine(true);
+//        mEditText.setThreshold(1);
+//        mEditText.setAdapter(adapter);
+//
+//        // Swap the old view with the new in the layout
+//        parent.removeView(editText);
+//        parent.addView(mEditText);
 
 
     }

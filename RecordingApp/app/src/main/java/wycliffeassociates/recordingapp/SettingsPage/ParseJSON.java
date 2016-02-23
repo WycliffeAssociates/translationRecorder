@@ -156,7 +156,7 @@ public class ParseJSON {
         return mLanguages;
     }
 
-    private void pullLangNames() throws JSONException {
+    public Language[] pullLangNames() throws JSONException {
         ArrayList<Language> languageList = new ArrayList<>();
         String json = loadJSONFromAsset("langnames.json");
         JSONArray langArray = new JSONArray(json);
@@ -170,6 +170,11 @@ public class ParseJSON {
             mLanguages[a] = (languageList.get(a)).getCode() + " - " +
                     (languageList.get(a)).getName();
         }
+        Language[] languages = new Language[languageList.size()];
+        for(int i = 0; i < languageList.size(); i++){
+            languages[i] = languageList.get(i);
+        }
+        return languages;
     }
 
 }
