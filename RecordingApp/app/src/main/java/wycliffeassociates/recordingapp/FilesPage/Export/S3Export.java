@@ -1,17 +1,9 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
-import android.app.Fragment;
-import android.app.ProgressDialog;
-import android.bluetooth.BluetoothClass;
-import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
-import com.amazonaws.mobileconnectors.s3.transfermanager.internal.TransferManagerUtils;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -23,8 +15,6 @@ import com.amazonaws.services.s3.AmazonS3Client;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import javax.xml.datatype.Duration;
 
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
@@ -39,18 +29,17 @@ public class S3Export extends Export {
     AmazonS3 mS3;
     TransferUtility mTransferUtility;
     TransferListener mListener;
-    ProgressDialog pd;
+    Export mExp;
 
     /**
      * Creates an Export object to target AmazonS3
      * @param audioItemList
      * @param adapter
      * @param currentDir
-     * @param ctx
      */
-    public S3Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir, Fragment ctx){
-        super(audioItemList, adapter, currentDir, ctx);
-        init();
+    public S3Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
+        super(audioItemList, adapter, currentDir);
+        mExp = this;
     }
 
     /**
@@ -81,9 +70,10 @@ public class S3Export extends Export {
                     mCtx.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            pd.dismiss();
+                            mProgressCallback.dismissProgress();
                         }
                     });
+                    mProgressCallback.setExporting(false);
                 }
                 Logger.e(this.toString(), "state is " + state.toString());
             }
@@ -92,7 +82,7 @@ public class S3Export extends Export {
             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
                 if(bytesTotal > 0) {
                     int percentage = (int) (bytesCurrent / (float)bytesTotal * 100);
-                    pd.setProgress(percentage);
+                    mProgressCallback.setUploadProgress(percentage);
                 }
             }
 
@@ -100,6 +90,7 @@ public class S3Export extends Export {
             public void onError(int id, Exception ex) {
                 Logger.e(this.toString(), "Failed Something S3 Related, ID" + id + " EX: " + ex.toString());
                 Toast.makeText(mCtx.getActivity(), "ERROR: Upload file failed!", Toast.LENGTH_SHORT).show();
+                mProgressCallback.setExporting(false);
             }
         };
     }
@@ -122,6 +113,8 @@ public class S3Export extends Export {
     }
 
     protected void upload(){
+        mProgressCallback.setExporting(true);
+        init();
         String name = null;
         if (mExportList.size() > 0) {
             if (mZipPath == null) {
@@ -135,12 +128,7 @@ public class S3Export extends Export {
             name = Settings.Secure.getString(mCtx.getActivity().getContentResolver(),
                     Settings.Secure.ANDROID_ID) + name;
 
-            pd = new ProgressDialog(mCtx.getActivity());
-            pd.setTitle("Uploading...");
-            pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            pd.setProgress(0);
-            pd.setCancelable(false);
-            pd.show();
+            mProgressCallback.showProgress(ProgressUpdateCallback.UPLOAD);
 
             TransferObserver observer = mTransferUtility.upload(
                     mCtx.getResources().getString(R.string.door43_bucket),     /* The bucket to upload to */

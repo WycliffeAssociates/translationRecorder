@@ -4,7 +4,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:rowCount="2"
-    android:columnCount="3">
+    android:columnCount="3"
+    android:id="@+id/fragment_share_options">
 
     <LinearLayout
         android:layout_width="wrap_content"
