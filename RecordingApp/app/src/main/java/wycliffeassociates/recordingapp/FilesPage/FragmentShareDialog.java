@@ -38,7 +38,6 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
     private String mCurrentDir;
     private AudioFilesAdapter mAdapter;
     private ArrayList<AudioItem> mAudioItemList;
-    S3Export s3;
     Exporter mExporterCallback;
 
     @Override
@@ -98,6 +97,7 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
         }
         //callback using the selected exporter
         mExporterCallback.onExport(exp);
+        this.dismiss();
     }
 
     //=================

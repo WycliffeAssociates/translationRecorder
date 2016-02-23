@@ -22,8 +22,12 @@ import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 public abstract class Export {
 
     public interface UpdateProgress{
+        boolean UPLOAD = false;
+        boolean ZIP = true;
+
         void showProgress(boolean mode);
         void incrementProgress(int progress);
+        void setUploadProgress(int progress);
         void dismissProgress();
         void setZipping(boolean zipping);
         void setExporting(boolean exporting);
@@ -119,7 +123,7 @@ public abstract class Export {
      */
     private void zip(final String[] files, final String zipFile, final Export export){
         mZipDone = false;
-        mProgressCallback.showProgress(true);
+        mProgressCallback.showProgress(UpdateProgress.ZIP);
         mProgressCallback.setZipping(true);
         Thread zipThread = new Thread(new Runnable() {
             @Override

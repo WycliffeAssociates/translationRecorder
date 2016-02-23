@@ -12,14 +12,12 @@ import wycliffeassociates.recordingapp.FilesPage.FragmentShareDialog;
  */
 public class ExportTaskFragment extends Fragment implements FragmentShareDialog.Exporter, Export.UpdateProgress {
 
-    private Activity mActivity;
     Export.UpdateProgress mProgressUpdateCallback;
     private Export mExp;
 
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
-        mActivity = activity;
         mProgressUpdateCallback = (Export.UpdateProgress)activity;
     }
 
@@ -32,7 +30,6 @@ public class ExportTaskFragment extends Fragment implements FragmentShareDialog.
     @Override
     public void onDetach(){
         super.onDetach();
-        mActivity = null;
         mProgressUpdateCallback = null;
     }
 
@@ -43,11 +40,6 @@ public class ExportTaskFragment extends Fragment implements FragmentShareDialog.
     }
 
     @Override
-    public void onDestroy(){
-        System.out.println("fragment was destroyed");
-    }
-
-    @Override
     public void showProgress(boolean mode) {
         mProgressUpdateCallback.showProgress(mode);
     }
@@ -55,6 +47,11 @@ public class ExportTaskFragment extends Fragment implements FragmentShareDialog.
     @Override
     public void incrementProgress(int progress) {
         mProgressUpdateCallback.incrementProgress(progress);
+    }
+
+    @Override
+    public void setUploadProgress(int progress){
+        mProgressUpdateCallback.setUploadProgress(progress);
     }
 
     @Override

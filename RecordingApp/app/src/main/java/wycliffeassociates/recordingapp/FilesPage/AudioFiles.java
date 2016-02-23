@@ -137,6 +137,10 @@ public class AudioFiles extends Activity implements FragmentShareDialog.Exporter
         mPd.incrementProgressBy(progress);
     }
 
+    public void setUploadProgress(int progress){
+        mPd.setProgress(progress);
+    }
+
     public void showProgress(boolean mode){
         if(mode == true){
             zipProgress(0);
@@ -591,6 +595,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.Exporter
     @Override
     public void onExport(Export exp) {
         exp.setFragmentContext(mExportTaskFragment);
-        exp.export();
+        mExportTaskFragment.onExport(exp);
     }
 }

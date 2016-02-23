@@ -39,7 +39,7 @@ public class S3Export extends Export {
     AmazonS3 mS3;
     TransferUtility mTransferUtility;
     TransferListener mListener;
-    ProgressDialog pd;
+    Export mExp;
 
     /**
      * Creates an Export object to target AmazonS3
@@ -49,6 +49,7 @@ public class S3Export extends Export {
      */
     public S3Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
         super(audioItemList, adapter, currentDir);
+        mExp = this;
     }
 
     /**
@@ -79,9 +80,10 @@ public class S3Export extends Export {
                     mCtx.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            pd.dismiss();
+                            mProgressCallback.dismissProgress();
                         }
                     });
+                    mProgressCallback.setExporting(false);
                 }
                 Logger.e(this.toString(), "state is " + state.toString());
             }
@@ -90,7 +92,7 @@ public class S3Export extends Export {
             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
                 if(bytesTotal > 0) {
                     int percentage = (int) (bytesCurrent / (float)bytesTotal * 100);
-                    pd.setProgress(percentage);
+                    mProgressCallback.setUploadProgress(percentage);
                 }
             }
 
@@ -98,6 +100,7 @@ public class S3Export extends Export {
             public void onError(int id, Exception ex) {
                 Logger.e(this.toString(), "Failed Something S3 Related, ID" + id + " EX: " + ex.toString());
                 Toast.makeText(mCtx.getActivity(), "ERROR: Upload file failed!", Toast.LENGTH_SHORT).show();
+                mProgressCallback.setExporting(false);
             }
         };
     }
@@ -120,6 +123,7 @@ public class S3Export extends Export {
     }
 
     protected void upload(){
+        mProgressCallback.setExporting(true);
         init();
         String name = null;
         if (mExportList.size() > 0) {
@@ -134,12 +138,7 @@ public class S3Export extends Export {
             name = Settings.Secure.getString(mCtx.getActivity().getContentResolver(),
                     Settings.Secure.ANDROID_ID) + name;
 
-            pd = new ProgressDialog(mCtx.getActivity());
-            pd.setTitle("Uploading...");
-            pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            pd.setProgress(0);
-            pd.setCancelable(false);
-            pd.show();
+            mProgressCallback.showProgress(UpdateProgress.UPLOAD);
 
             TransferObserver observer = mTransferUtility.upload(
                     mCtx.getResources().getString(R.string.door43_bucket),     /* The bucket to upload to */
