@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
@@ -40,6 +41,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
+    private static final String TOP_LIST_ITEM = "top_list_item";
     private boolean checkAll = true;
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
@@ -86,6 +88,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         } else {
             initFiles(file);
         }
+
         setButtonHandlers();
 
         FragmentManager fm = getFragmentManager();
@@ -172,6 +175,20 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
+        savedInstanceState.putInt(TOP_LIST_ITEM, audioFileView.getFirstVisiblePosition());
+        Log.w("AudioFiles", "saved TOP_LIST_ITEM: " + savedInstanceState.getInt(TOP_LIST_ITEM));
+    }
+
+    @Override
+    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        audioFileView.post(new Runnable() {
+            @Override
+            public void run() {
+                audioFileView.setSelection(savedInstanceState.getInt(TOP_LIST_ITEM));
+                Log.w("AudioFiles", "restored TOP_LIST_ITEM: " + savedInstanceState.getInt(TOP_LIST_ITEM));
+            }
+        });
     }
 
     private void initFiles(File[] file){
