@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.SettingsPage;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +20,16 @@ import wycliffeassociates.recordingapp.R;
 /**
  * Created by joel on 9/4/2015.
  */
-public class LanguageListFragment extends Fragment {
+public class LanguageListFragment extends PreferenceFragment {
     private OnItemClickListener mListener;
     private TargetLanguageAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_language_list, container, false);
+        final PreferenceFragment ctx = this;
 
-        ListView list = (ListView) rootView.findViewById(R.id.list);
+        ListView list = (ListView) rootView.findViewWithTag("fragment_list_language");
         mAdapter = new TargetLanguageAdapter(getLanguages());
         list.setAdapter(mAdapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -39,11 +41,11 @@ public class LanguageListFragment extends Fragment {
 
         EditText searchView = (EditText) rootView.findViewById(R.id.search_text);
         searchView.setHint(R.string.choose_target_language);
-        searchView.setEnabled(false);
+        searchView.setEnabled(true);
         ImageButton searchBackButton = (ImageButton) rootView.findViewById(R.id.search_back_button);
-        searchBackButton.setVisibility(View.GONE);
+        //searchBackButton.setVisibility(View.GONE);
         ImageView searchIcon = (ImageView) rootView.findViewById(R.id.search_mag_icon);
-        searchIcon.setVisibility(View.GONE);
+        //searchIcon.setVisibility(View.GONE);
 
         return rootView;
     }

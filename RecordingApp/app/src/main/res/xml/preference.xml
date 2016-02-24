@@ -7,14 +7,24 @@
         android:key="pref_key_file_name_lang"
         android:layout="@layout/custom_pref_category">
 
-        <wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference
+        <PreferenceScreen
             android:key="pref_lang"
             android:layout="@layout/custom_pref"
             android:title="Language"
-            android:summary=""
-            android:defaultValue="@string/pref_default_lang"
-            android:inputType="text"
-            android:imeOptions="actionDone"/>
+            android:summary="@string/pref_default_lang">
+            <intent
+                android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
+            </intent>
+        </PreferenceScreen>
+
+        <!--<wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference-->
+            <!--android:key="pref_lang"-->
+            <!--android:layout="@layout/custom_pref"-->
+            <!--android:title="Language"-->
+            <!--android:summary=""-->
+            <!--android:defaultValue="@string/pref_default_lang"-->
+            <!--android:inputType="text"-->
+            <!--android:imeOptions="actionDone"/>-->
 
         <ListPreference
             android:key="pref_source"
