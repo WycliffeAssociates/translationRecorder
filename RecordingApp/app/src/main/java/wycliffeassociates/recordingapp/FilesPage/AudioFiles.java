@@ -5,7 +5,6 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
@@ -42,6 +41,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
     private static final String TOP_LIST_ITEM = "top_list_item";
+    private static final String TOP_LIST_ITEM_OFFSET = "top_list_item_offset";
     private boolean checkAll = true;
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
@@ -175,18 +175,30 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
+
+        // Remember the scroll position and offset of the list
+        // From: http://stackoverflow.com/a/3035521
+        int offset = 0;
+        View v = audioFileView.getChildAt(0);
+        if (v != null) {
+            offset = v.getTop() - audioFileView.getPaddingTop();
+        }
         savedInstanceState.putInt(TOP_LIST_ITEM, audioFileView.getFirstVisiblePosition());
-        Log.w("AudioFiles", "saved TOP_LIST_ITEM: " + savedInstanceState.getInt(TOP_LIST_ITEM));
+        savedInstanceState.putInt(TOP_LIST_ITEM_OFFSET, offset);
     }
 
     @Override
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore the scroll position and offset of the top list item
+        // From: http://stackoverflow.com/a/3035521
         audioFileView.post(new Runnable() {
             @Override
             public void run() {
-                audioFileView.setSelection(savedInstanceState.getInt(TOP_LIST_ITEM));
-                Log.w("AudioFiles", "restored TOP_LIST_ITEM: " + savedInstanceState.getInt(TOP_LIST_ITEM));
+                int index = savedInstanceState.getInt(TOP_LIST_ITEM);
+                int offset = savedInstanceState.getInt(TOP_LIST_ITEM_OFFSET);
+                audioFileView.setSelectionFromTop(index, offset);
             }
         });
     }
