@@ -378,21 +378,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         return true;
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        //get files in the directory
-        File f = new File(currentDir);
-        file = f.listFiles();
-        // No files
-        if (file == null) {
-            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
-            // Get audio files
-        } else {
-            initFiles(file);
-        }
-    }
-
     /**
      *Clears Check Box State when the back button is pressed
      */
