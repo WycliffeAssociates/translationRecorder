@@ -1,22 +1,16 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
-import android.app.Activity;
-import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
+
 
 import wycliffeassociates.recordingapp.R;
 
@@ -35,14 +29,7 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_language_selector);
 
-            if(savedInstanceState != null) {
-                mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_LANGUAGE_LIST);
-            } else {
-                mFragment = new LanguageListFragment();
-                ((LanguageListFragment) mFragment).setArguments(getIntent().getExtras());
-                getFragmentManager().beginTransaction().add((LanguageListFragment) mFragment, TAG_LANGUAGE_LIST).commit();
-            }
-
+        mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_LANGUAGE_LIST);
     }
 
     @Override
@@ -82,10 +69,7 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
     @Override
     public void onItemClick(Language targetLanguage) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        System.out.println("Language set to " + pref.getString(Settings.KEY_PREF_LANG, targetLanguage.getCode()));
-        System.out.println("Setting language to " + targetLanguage.getCode());
         pref.edit().putString(Settings.KEY_PREF_LANG, targetLanguage.getCode()).commit();
-        System.out.println("Language now " + pref.getString(Settings.KEY_PREF_LANG, targetLanguage.getCode()));
         Settings.updateFilename(this);
         this.finish();
     }

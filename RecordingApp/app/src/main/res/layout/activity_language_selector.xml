@@ -6,6 +6,7 @@
 
     <fragment android:name="wycliffeassociates.recordingapp.SettingsPage.LanguageListFragment"
         android:id="@+id/list"
+        android:tag="language_list_tag"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent" />

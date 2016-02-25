@@ -8,7 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,7 +71,6 @@ public class TargetLanguageAdapter extends BaseAdapter {
 
     @Override
     public void notifyDataSetChanged(){
-        System.out.println(mFilteredLanguages.length);
         super.notifyDataSetChanged();
     }
 
@@ -136,7 +134,6 @@ public class TargetLanguageAdapter extends BaseAdapter {
                 sortLanguages(filteredLanguages, charSequence);
             }
             mFilteredLanguages = filteredLanguages.toArray(new Language[filteredLanguages.size()]);
-            System.out.println("after size is " + mFilteredLanguages.length);
             notifyDataSetChanged();
         }
     }
