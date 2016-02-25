@@ -43,7 +43,7 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
     public boolean onPrepareOptionsMenu(Menu menu){
         super.onPrepareOptionsMenu(menu);
         if(mFragment instanceof LanguageListFragment) {
-            menu.findItem(R.id.action_update).setVisible(true);
+            menu.findItem(R.id.action_update).setVisible(false);
         } else {
             menu.findItem(R.id.action_update).setVisible(false);
         }

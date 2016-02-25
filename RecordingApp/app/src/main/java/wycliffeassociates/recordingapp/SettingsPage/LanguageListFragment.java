@@ -38,7 +38,7 @@ public class LanguageListFragment extends PreferenceFragment implements Searchab
 
         EditText searchView = (EditText) rootView.findViewById(R.id.search_text);
         searchView.setHint(R.string.choose_target_language);
-        searchView.setEnabled(true);
+        searchView.setEnabled(false);
         ImageButton searchBackButton = (ImageButton) rootView.findViewById(R.id.search_back_button);
         searchBackButton.setVisibility(View.GONE);
         ImageView searchIcon = (ImageView) rootView.findViewById(R.id.search_mag_icon);
