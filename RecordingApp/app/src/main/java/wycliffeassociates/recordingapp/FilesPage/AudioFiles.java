@@ -40,6 +40,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
+    private final String STATE_PROGRESS = "upload_progress";
     private boolean checkAll = true;
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
@@ -94,6 +95,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         if(savedInstanceState != null) {
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
             mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
+            mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
         }
         //check if fragment was retained from a screen rotation
         if(mExportTaskFragment == null){
@@ -170,6 +172,9 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
+        if(mPd != null) {
+            savedInstanceState.putInt(STATE_PROGRESS, mPd.getProgress());
+        }
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
     }
