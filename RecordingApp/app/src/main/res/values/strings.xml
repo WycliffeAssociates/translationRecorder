@@ -47,6 +47,8 @@
     <string name="pref_ftp_directory_value">/translationRecorder</string>
     <string name="pref_ftp_username_value">unfoldingWord-1</string>
     <string name="pref_ftp_password_value">trisawesome</string>
+    <string name="action_search">Search</string>
+    <string name="menu_update">Update</string>
 
     <!-- SETTINGS (Summaries) -->
     <string name="pref_default_folder_summary">@string/pref_default_folder_value</string>
