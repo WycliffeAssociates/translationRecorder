@@ -1,8 +1,10 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.view.View;

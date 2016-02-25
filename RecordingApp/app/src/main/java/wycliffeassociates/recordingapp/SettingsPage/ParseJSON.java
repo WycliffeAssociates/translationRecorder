@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class ParseJSON {
     private HashMap<String, Book> mBooksMap;
     private String[] mBooksList;
     private String[] mLanguages;
+    private Book[] mBooks;
 
     public ParseJSON(Context ctx){
         mCtx = ctx;
@@ -98,6 +100,7 @@ public class ParseJSON {
             mBooksList[i] = b.getSlug() + " - " + b.getName();
             i++;
         }
+        mBooks = books.toArray(new Book[books.size()]);
     }
 
     /**
@@ -147,6 +150,11 @@ public class ParseJSON {
         return mBooksList;
     }
 
+    public Book[] pullBooks(){
+        getBooksMap();
+        return mBooks;
+    }
+
     public String[] getLanguages(){
         try {
             pullLangNames();
@@ -156,7 +164,7 @@ public class ParseJSON {
         return mLanguages;
     }
 
-    private void pullLangNames() throws JSONException {
+    public Language[] pullLangNames() throws JSONException {
         ArrayList<Language> languageList = new ArrayList<>();
         String json = loadJSONFromAsset("langnames.json");
         JSONArray langArray = new JSONArray(json);
@@ -170,6 +178,11 @@ public class ParseJSON {
             mLanguages[a] = (languageList.get(a)).getCode() + " - " +
                     (languageList.get(a)).getName();
         }
+        Language[] languages = new Language[languageList.size()];
+        for(int i = 0; i < languageList.size(); i++){
+            languages[i] = languageList.get(i);
+        }
+        return languages;
     }
 
 }

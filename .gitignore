@@ -4,6 +4,7 @@
 
 # Ignore Vim swap files
 *.swp
+*.un~
 
 # Ignore GitHub connection details
 RecordingApp/app/src/main/res/values/github.xml
