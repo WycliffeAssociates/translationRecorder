@@ -1,5 +1,7 @@
 <resources>
     <string name="choose_target_language">Choose Target Language</string>
+    <string name="choose_target_book">Choose Target Book</string>
+
 
     <string name="app_name">Translation Recorder</string>
     <string name="hello_world">Hello world!</string>

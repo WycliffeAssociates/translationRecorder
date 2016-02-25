@@ -38,6 +38,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".SettingsPage.BookActivity">
+            <intent-filter>
+                <action android:name="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".FilesPage.ExportFiles" />
         <service android:name=".Recording.WavRecorder" />
         <service android:name=".Recording.WavFileWriter" />
