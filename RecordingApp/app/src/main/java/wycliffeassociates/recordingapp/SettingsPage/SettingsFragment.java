@@ -81,6 +81,9 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     public void onResume() {
         super.onResume();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_LANG);
+        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_BOOK);
+        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_FILENAME);
     }
 
     @Override

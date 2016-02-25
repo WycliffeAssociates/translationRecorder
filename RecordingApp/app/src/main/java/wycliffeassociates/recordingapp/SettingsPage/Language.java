@@ -1,6 +1,6 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
-public class Language {
+public class Language implements Comparable {
 
     private String mLanguageCode;
     private String mLanguageName;
@@ -8,6 +8,12 @@ public class Language {
     public Language(String lc, String ln){
         mLanguageCode = lc;
         mLanguageName = ln;
+    }
+
+    @Override
+    public int compareTo(Object another) {
+        String anotherCode = ((Language)another).getCode();
+        return mLanguageCode.compareToIgnoreCase(anotherCode);
     }
 
     public String getCode(){
