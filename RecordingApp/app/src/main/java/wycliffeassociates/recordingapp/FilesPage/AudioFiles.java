@@ -40,6 +40,8 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
+    private static final String TOP_LIST_ITEM = "top_list_item";
+    private static final String TOP_LIST_ITEM_OFFSET = "top_list_item_offset";
     private final String STATE_PROGRESS = "upload_progress";
     private boolean checkAll = true;
     private volatile int mProgress = 0;
@@ -87,6 +89,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         } else {
             initFiles(file);
         }
+
         setButtonHandlers();
 
         FragmentManager fm = getFragmentManager();
@@ -177,6 +180,32 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         }
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
+
+        // Remember the scroll position and offset of the list
+        // From: http://stackoverflow.com/a/3035521
+        int offset = 0;
+        View v = audioFileView.getChildAt(0);
+        if (v != null) {
+            offset = v.getTop() - audioFileView.getPaddingTop();
+        }
+        savedInstanceState.putInt(TOP_LIST_ITEM, audioFileView.getFirstVisiblePosition());
+        savedInstanceState.putInt(TOP_LIST_ITEM_OFFSET, offset);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore the scroll position and offset of the top list item
+        // From: http://stackoverflow.com/a/3035521
+        audioFileView.post(new Runnable() {
+            @Override
+            public void run() {
+                int index = savedInstanceState.getInt(TOP_LIST_ITEM);
+                int offset = savedInstanceState.getInt(TOP_LIST_ITEM_OFFSET);
+                audioFileView.setSelectionFromTop(index, offset);
+            }
+        });
     }
 
     private void initFiles(File[] file){
@@ -364,21 +393,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         getMenuInflater().inflate(R.menu.menu_main, menu);
         mMenu = menu;
         return true;
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        //get files in the directory
-        File f = new File(currentDir);
-        file = f.listFiles();
-        // No files
-        if (file == null) {
-            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
-            // Get audio files
-        } else {
-            initFiles(file);
-        }
     }
 
     /**
