@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class ParseJSON {
     private HashMap<String, Book> mBooksMap;
     private String[] mBooksList;
     private String[] mLanguages;
+    private Book[] mBooks;
 
     public ParseJSON(Context ctx){
         mCtx = ctx;
@@ -98,6 +100,7 @@ public class ParseJSON {
             mBooksList[i] = b.getSlug() + " - " + b.getName();
             i++;
         }
+        mBooks = books.toArray(new Book[books.size()]);
     }
 
     /**
@@ -145,6 +148,11 @@ public class ParseJSON {
             e.printStackTrace();
         }
         return mBooksList;
+    }
+
+    public Book[] pullBooks(){
+        getBooksMap();
+        return mBooks;
     }
 
     public String[] getLanguages(){
