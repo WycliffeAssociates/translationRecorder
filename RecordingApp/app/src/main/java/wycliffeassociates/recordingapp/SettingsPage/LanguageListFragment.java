@@ -1,9 +1,14 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,7 +31,7 @@ public class LanguageListFragment extends PreferenceFragment implements Searchab
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_language_list, container, false);
-        ListView list = (ListView) rootView.findViewById(R.id.list);
+        ListView list = (ListView) rootView.findViewById(R.id.list_view);
         mAdapter = new TargetLanguageAdapter(getLanguages());
         list.setAdapter(mAdapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {

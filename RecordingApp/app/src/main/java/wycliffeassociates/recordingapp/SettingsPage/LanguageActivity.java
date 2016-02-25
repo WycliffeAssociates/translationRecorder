@@ -23,6 +23,7 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
     LanguageListFragment mLanguageListFragment;
     public final String TAG_LANGUAGE_LIST = "language_list_tag";
     private Searchable mFragment;
+    private String mSearchText = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,9 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
         setContentView(R.layout.activity_language_selector);
 
         mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_LANGUAGE_LIST);
+        if(savedInstanceState != null){
+            mSearchText = savedInstanceState.getString("search_text", null);
+        }
     }
 
     @Override
@@ -37,6 +41,12 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.language_menu, menu);
         return true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saveInstanceState){
+        saveInstanceState.putString("search_text", mSearchText);
+        super.onSaveInstanceState(saveInstanceState);
     }
 
     @Override
@@ -58,11 +68,17 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
 
             @Override
             public boolean onQueryTextChange(String s) {
+                mSearchText = s;
                 mFragment.onSearchQuery(s);
                 return true;
             }
         });
         searchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        if(mSearchText != null){
+            System.out.println("should be setting the queury");
+            searchViewAction.setQuery(mSearchText, true);
+        }
         return true;
     }
 
