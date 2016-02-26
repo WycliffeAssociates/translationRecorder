@@ -27,6 +27,7 @@ public class ChapterChunkListPreference extends ListPreference {
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
+    public static final String KEY_PREF_VERSE = "pref_verse";
     private static final String KEY_PREF_FILENAME = "pref_filename";
     private static final String KEY_PREF_DRAFT = "pref_draft";
 
@@ -40,7 +41,7 @@ public class ChapterChunkListPreference extends ListPreference {
         int chapter = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
         int numChapters = mBooks.get(bookCode).getNumChapters();
         //if the selected preference was chapter
-        if(this.getKey().compareTo(KEY_PREF_CHAPTER) == 0){
+        if (this.getKey().compareTo(KEY_PREF_CHAPTER) == 0){
             String[] chapterList = new String[numChapters];
             for(int i =0; i < numChapters; i++){
                 chapterList[i] = String.valueOf(i+1);
@@ -48,9 +49,10 @@ public class ChapterChunkListPreference extends ListPreference {
             super.setEntries(chapterList);
             super.setEntryValues(chapterList);
             getSharedPreferences().edit().putString(KEY_PREF_CHUNK, "1").commit();
+            getSharedPreferences().edit().putString(KEY_PREF_VERSE, "1").commit();
             super.setValue(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
             //else the selected preference is the chunk
-        } else {
+        } else if (this.getKey().compareTo(KEY_PREF_CHAPTER) == 0){
             if(chapter > numChapters){
                 getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                 chapter = 1;
@@ -65,6 +67,8 @@ public class ChapterChunkListPreference extends ListPreference {
             super.setEntries(chunkList);
             super.setEntryValues(chunkList);
             super.setValue(getSharedPreferences().getString(KEY_PREF_CHUNK, "1"));
+        } else {
+
         }
     }
 

@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
@@ -43,6 +44,8 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     public static final String KEY_PREF_CHUNK = "pref_chunk";
     private static final String KEY_PREF_FILENAME = "pref_filename";
     private static final String KEY_PREF_TAKE = "pref_take";
+    private static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
+    private static final String KEY_PREF_VERSE = "pref_verse";
 //    sharedPref;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -84,6 +87,18 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_LANG);
         updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_BOOK);
         updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_FILENAME);
+        if(getPreferenceManager().getSharedPreferences().getString(KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0){
+            findPreference(KEY_PREF_CHUNK).setShouldDisableView(false);
+            findPreference(KEY_PREF_VERSE).setShouldDisableView(true);
+            findPreference(KEY_PREF_VERSE).setEnabled(false);
+            findPreference(KEY_PREF_CHUNK).setEnabled(true);
+        } else {
+            findPreference(KEY_PREF_CHUNK).setShouldDisableView(true);
+            findPreference(KEY_PREF_VERSE).setShouldDisableView(false);
+            findPreference(KEY_PREF_VERSE).setEnabled(true);
+            findPreference(KEY_PREF_CHUNK).setEnabled(false);
+
+        }
     }
 
     @Override
@@ -96,6 +111,17 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         updateSummaryText(sharedPref, key);
         if(key.compareTo(KEY_PREF_TAKE) == 0){
             //sharedPref.edit().putString(KEY_PREF_TAKE, "1").commit();
+        }
+        if(getPreferenceManager().getSharedPreferences().getString(KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0){
+            findPreference(KEY_PREF_CHUNK).setShouldDisableView(false);
+            findPreference(KEY_PREF_VERSE).setShouldDisableView(true);
+            findPreference(KEY_PREF_VERSE).setEnabled(false);
+            findPreference(KEY_PREF_CHUNK).setEnabled(true);
+        } else {
+            findPreference(KEY_PREF_CHUNK).setShouldDisableView(true);
+            findPreference(KEY_PREF_VERSE).setShouldDisableView(false);
+            findPreference(KEY_PREF_VERSE).setEnabled(true);
+            findPreference(KEY_PREF_CHUNK).setEnabled(false);
         }
         Settings.updateFilename(getActivity());
     }

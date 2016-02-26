@@ -101,6 +101,22 @@
         <item>12</item>
     </string-array>
 
+    <!-- TODO: PLACEHOLDER: Replace dynamically based on chapter selection -->
+    <string-array name="verse_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
+
     <string-array name="source_entries">
         <item>Unlocked Dynamic Bible</item>
         <item>Unlocked Literal Bible</item>
@@ -109,5 +125,15 @@
     <string-array name="source_values">
         <item>udb</item>
         <item>ulb</item>
+    </string-array>
+
+    <string-array name="chunk_verse_entries">
+        <item>Chunk</item>
+        <item>Verse</item>
+    </string-array>
+
+    <string-array name="chunk_verse_values">
+        <item>chunk</item>
+        <item>verse</item>
     </string-array>
 </resources>
