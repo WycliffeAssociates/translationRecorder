@@ -40,6 +40,8 @@ public class ChapterChunkListPreference extends ListPreference {
         String bookCode = getSharedPreferences().getString(KEY_PREF_BOOK, "gen");
         int chapter = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
         int numChapters = mBooks.get(bookCode).getNumChapters();
+        String src = getSharedPreferences().getString(Settings.KEY_PREF_SOURCE, "udb");
+
         //if the selected preference was chapter
         if (this.getKey().compareTo(KEY_PREF_CHAPTER) == 0){
             String[] chapterList = new String[numChapters];
@@ -56,7 +58,7 @@ public class ChapterChunkListPreference extends ListPreference {
                 getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                 chapter = 1;
             }
-            ArrayList<Integer> chunks = parse.getChunks(bookCode).get(chapter-1);
+            ArrayList<Integer> chunks = parse.getChunks(bookCode, src).get(chapter-1);
             int numChunks = chunks.size();
             String[] chunkList = new String[numChunks];
             //Chunks are labeled by start verse, rather than sequential numbers
@@ -72,7 +74,7 @@ public class ChapterChunkListPreference extends ListPreference {
                 getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                 chapter = 1;
             }
-            ArrayList<Integer> verses = parse.getVerses(bookCode).get(chapter-1);
+            ArrayList<Integer> verses = parse.getVerses(bookCode, src).get(chapter-1);
             int numVerses = verses.size();
             String[] verseList = new String[numVerses];
             //Chunks are labeled by start verse, rather than sequential numbers
