@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Translation Recorder Settings"
+        android:key="pref_key_app_settings"
+        android:layout="@layout/custom_pref_category">
+
+        <ListPreference
+            android:key="pref_chunk_verse"
+            android:layout="@layout/custom_pref"
+            android:title="Chunk or Verse"
+            android:entries="@array/chunk_verse_entries"
+            android:entryValues="@array/chunk_verse_values"
+            android:defaultValue="chunk" />
+    </PreferenceCategory>
+
+
 
     <PreferenceCategory
-        android:title="File Name"
+        android:title="File Name Settings"
         android:key="pref_key_file_name_lang"
         android:layout="@layout/custom_pref_category">
 
@@ -70,6 +85,16 @@
             android:entries="@array/chunk_values"
             android:entryValues="@array/chunk_values"
             android:defaultValue="1" />
+
+        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
+            android:key="pref_verse"
+            android:layout="@layout/custom_pref"
+            android:title="Verse"
+            android:summary=""
+            android:entries="@array/verse_values"
+            android:entryValues="@array/verse_values"
+            android:defaultValue="1"
+            android:enabled="false" />
 
         <EditTextPreference
             android:key="pref_take"

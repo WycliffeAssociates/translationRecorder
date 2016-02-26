@@ -109,15 +109,16 @@ public class ParseJSON {
      * @return a 2d ArrayList of chunks
      * @throws JSONException
      */
-    public ArrayList<ArrayList<Integer>> getChunks(String bookCode){
+    public ArrayList<ArrayList<Integer>> getChunks(String bookCode, String source){
         try {
-            String json = loadJSONFromAsset("chunks/" + bookCode + "/chunks.json");
+            String json = loadJSONFromAsset("chunks/" + bookCode + "/en/" + source + "/chunks.json");
             JSONArray arrayOfChunks = new JSONArray(json);
             ArrayList<ArrayList<Integer>> chunksInBook = new ArrayList<>();
             //loop through the all the chunks
             for (int i = 0; i < arrayOfChunks.length(); i++) {
                 JSONObject jsonChunk = arrayOfChunks.getJSONObject(i);
-                int chapter = jsonChunk.getInt("chp");
+                String id = jsonChunk.getString("id");
+                int chapter = Integer.parseInt(id.substring(0, id.lastIndexOf('-')));
                 //if a chapter hasn't been appended yet, append it
                 if (chunksInBook.size() >= chapter - 1) {
                     chunksInBook.add(new ArrayList<Integer>());
@@ -126,6 +127,51 @@ public class ParseJSON {
                 chunksInBook.get(chapter - 1).add(jsonChunk.getInt("firstvs"));
             }
             return chunksInBook;
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Generates a 2d ArrayList of verses indexed by chapters
+     * @param bookCode the code of the book to pull verse info from
+     * @return a 2d ArrayList of verses
+     * @throws JSONException
+     */
+    public ArrayList<ArrayList<Integer>> getVerses(String bookCode, String source){
+        try {
+            String json = loadJSONFromAsset("chunks/" + bookCode + "/en/" + source + "/chunks.json");
+            JSONArray arrayOfVerses = new JSONArray(json);
+            ArrayList<ArrayList<Integer>> versesInBook = new ArrayList<>();
+            int lastChapter = 0;
+            //loop through the all the verses
+            for (int i = 0; i < arrayOfVerses.length(); i++) {
+                JSONObject jsonChunk = arrayOfVerses.getJSONObject(i);
+                String id = jsonChunk.getString("id");
+                int chapter = Integer.parseInt(id.substring(0, id.lastIndexOf('-')));
+                //if a chapter hasn't been appended yet, append it
+                if (versesInBook.size() >= chapter - 1) {
+                    versesInBook.add(new ArrayList<Integer>());
+                }
+                //add the chunk to that chapter
+                versesInBook.get(chapter - 1).add(jsonChunk.getInt("lastvs"));
+                if(chapter > lastChapter){
+                    lastChapter = chapter;
+                }
+            }
+
+            ArrayList<ArrayList<Integer>> verses = new ArrayList<>();
+            for(int idx = 0; idx < lastChapter; idx++){
+                if(idx >= verses.size()){
+                    verses.add(new ArrayList<Integer>());
+                }
+                int numVerses = versesInBook.get(idx).get(versesInBook.get(idx).size()-1);
+                for(int i = 1; i <= numVerses; i++){
+                   verses.get(idx).add(i);
+                }
+            }
+            return verses;
         } catch (JSONException e){
             e.printStackTrace();
         }
