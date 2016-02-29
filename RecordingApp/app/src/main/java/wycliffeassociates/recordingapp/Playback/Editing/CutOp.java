@@ -60,6 +60,7 @@ public class CutOp {
         generateCutStackCmpLoc();
     }
 
+    //change to use flattened stack
     public int skip(int time){
         int max = -1;
         for(Pair<Integer,Integer> cut : mStack) {

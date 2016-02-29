@@ -258,7 +258,7 @@ public class WaveformView extends CanvasView {
         //compute the position on the screen to draw markers. Marker locations and mTimeToDraw
         //are both in ms
         float xLoc1 = offset + (mMarkerStartLoc - mTimeToDraw)/mspp;
-        float xLoc2 = offset + (mMarkerEndLoc - mTimeToDraw)/mspp;
+        float xLoc2 = offset + (mCut.reverseTimeAdjusted(mMarkerEndLoc) - mCut.reverseTimeAdjusted(mTimeToDraw))/mspp;
         c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaintStartMarker);
         c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaintEndMarker);
         c.drawRect(xLoc1, 0, xLoc2, getHeight(), mPaintHighlight);

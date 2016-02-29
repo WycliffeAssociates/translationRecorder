@@ -426,6 +426,10 @@ public class UIDataManager {
         mPlayer.setOnlyPlayingSection(onlyPlayingSection);
     }
 
+    public int timeAdjusted(int ms){
+        return mCutOp.timeAdjusted(ms);
+    }
+
     public boolean checkIfShouldStop(){
         if(mPlayer == null){
             return true;
