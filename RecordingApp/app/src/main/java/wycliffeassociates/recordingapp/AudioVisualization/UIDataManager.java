@@ -165,12 +165,7 @@ public class UIDataManager {
 
     public void cutAndUpdate(){
         //FIXME: currently restricting cuts to one per file
-        if(mCutOp.hasCut()){
-            SectionMarkers.clearMarkers(this);
-            updateUI();
-            Toast.makeText(ctx, "Cut is limited to 1 operation at this time",Toast.LENGTH_SHORT).show();
-            return;
-        }
+
         int start = SectionMarkers.getStartLocationMs();
         int end = SectionMarkers.getEndLocationMs();
         if(start < 0){
