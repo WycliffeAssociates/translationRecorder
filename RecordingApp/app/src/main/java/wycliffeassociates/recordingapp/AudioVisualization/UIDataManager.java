@@ -257,7 +257,7 @@ public class UIDataManager {
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, double mspp){
         //Logger.w(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
         //Logger.w(this.toString(), "mspp is " + mspp);
-        return (int)Math.round((-markerTimeMs + timeAtPlaybackLineMs) / mspp);
+        return (int)Math.round((-mCutOp.reverseTimeAdjusted(markerTimeMs) + mCutOp.reverseTimeAdjusted(timeAtPlaybackLineMs)) / mspp);
 
     }
 
