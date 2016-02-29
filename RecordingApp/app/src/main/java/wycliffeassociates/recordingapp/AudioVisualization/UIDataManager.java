@@ -430,10 +430,26 @@ public class UIDataManager {
         return mCutOp.timeAdjusted(ms);
     }
 
+    public int reverseTimeAdjusted(int ms){
+        return mCutOp.reverseTimeAdjusted(ms);
+    }
+
+    public int skip(int ms){
+        return mCutOp.skip(ms);
+    }
+
+    public int skipReverse(int ms){
+        return mCutOp.skipReverse(ms);
+    }
+
     public boolean checkIfShouldStop(){
         if(mPlayer == null){
             return true;
         }
         return mPlayer.checkIfShouldStop();
+    }
+
+    public double millisecondsPerPixel(){
+        return wavVis.millisecondsPerPixel();
     }
 }
