@@ -249,7 +249,11 @@ public class WavPlayer {
         //per data point in the audio array
         playbackStart = (int)(x * (AudioInfo.SAMPLERATE/500.0));
         //make sure the playback start is within the bounds of the file's capacity
-        playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
+        if(audioData != null) {
+            playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
+        } else {
+            playbackStart = 0;
+        }
         if(wasPlaying){
             play();
         }

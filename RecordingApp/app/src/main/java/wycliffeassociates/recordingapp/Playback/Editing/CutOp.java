@@ -130,7 +130,7 @@ public class CutOp {
             for(Pair<Integer,Integer> p : list){
                 copy.remove(p);
                 for(Pair<Integer,Integer> q : copy){
-                    if(q.first >= p.first || q.first <= p.second){
+                    if((q.first >= p.first && q.first <= p.second) || (p.first >= q.first && p.first <= p.second)){
                         list.add(q);
                         copy.remove(q);
                     }
