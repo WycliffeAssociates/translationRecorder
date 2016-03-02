@@ -229,12 +229,26 @@ public class CutOp {
     }
 
     public int timeToUncmpLoc(int timeMs){
-        return (int)Math.round(AudioInfo.SAMPLERATE * (timeMs/1000.0)) * 2;
+        int seconds = timeMs/1000;
+        int ms = (timeMs-(seconds*1000));
+        int tens = ms/10;
+
+
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        idx*=2;
+        return idx;
     }
 
     public int timeToCmpLoc(int timeMs){
-        double compressionInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
-        return (int)Math.round((timeToUncmpLoc(timeMs) / compressionInc)) * 4;
+        int seconds = timeMs/1000;
+        int ms = (timeMs-(seconds*1000));
+        int tens = ms/10;
+
+
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        idx /= 25;
+        idx*=2;
+        return idx;
     }
 
     public int skipLoc(int loc, boolean compressed){

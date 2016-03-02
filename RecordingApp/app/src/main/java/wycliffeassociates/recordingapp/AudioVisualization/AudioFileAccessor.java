@@ -135,22 +135,22 @@ public class AudioFileAccessor {
     }
 
     //used for minimap
-    public static int uncompressedIncrement(double adjustedDuration){
-        int increment = (int)Math.round(((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
+    public static double uncompressedIncrement(double adjustedDuration){
+        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     //used for minimap
-    public static int compressedIncrement(double adjustedDuration){
-        int increment = uncompressedIncrement(adjustedDuration) / 50;
+    public static double compressedIncrement(double adjustedDuration){
+        double increment = (uncompressedIncrement(adjustedDuration) / 50.f);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     //FIXME: rounding will compound error in long files, resulting in pixels being off
     //used for minimap- this is why the duration matters
-    public static int getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration){
+    public static double getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration){
         if(useCmp){
             return compressedIncrement(adjustedDuration);
         } else {

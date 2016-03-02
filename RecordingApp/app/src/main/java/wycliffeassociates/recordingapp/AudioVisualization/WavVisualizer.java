@@ -49,11 +49,20 @@ public class WavVisualizer {
 
         int pos = 0;
         int index = 0;
-        int increment = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration());
+        double incrementTemp = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration());
+        double leftover = incrementTemp - (int)Math.floor(incrementTemp);
+        double count = 0;
+        int increment = (int)Math.floor(incrementTemp);
+        boolean leapedInc = false;
         for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
-            for(int j = 0; j < increment*2; j+=2){
+            if(count > 1){
+                count-=1;
+                increment++;
+                leapedInc = true;
+            }
+            for(int j = 0; j < 2*increment; j+=2){
                 if(pos+1 >= mAccessor.size()){
                     break;
                 }
@@ -64,6 +73,11 @@ public class WavVisualizer {
                 min = (min > (double) value) ? value : min;
                 pos+=2;
             }
+            if(leapedInc){
+                increment--;
+                leapedInc = false;
+            }
+            count += leftover;
             mMinimap[index] = index/4;
             mMinimap[index+1] = U.getValueForScreen(max, minimapHeight);
             mMinimap[index+2] =  index/4;
@@ -100,11 +114,11 @@ public class WavVisualizer {
 
         //beginning with the starting position, the width of each increment represents the data one pixel width is showing
         for(int i = index/4; i < end; i++){
-            if(startPosition+increment*2 > mAccessor.size()){
+            if(startPosition+increment > mAccessor.size()){
                 break;
             }
-            index = addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment*2, index);
-            startPosition += increment*2;
+            index = addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment, index);
+            startPosition += increment;
         }
         //zero out the rest of the array
         for (int i = index; i < mSamples.length; i++){
@@ -163,7 +177,7 @@ public class WavVisualizer {
 
     private int initializeSamples(float[] samples, int startPosition, double increment){
         if(startPosition <= 0) {
-            int numberOfZeros = (int)Math.round(Math.abs(startPosition) / (2*(double)increment));
+            int numberOfZeros = (int)Math.round(Math.abs(startPosition) / ((double)increment));
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;
@@ -209,6 +223,7 @@ public class WavVisualizer {
         double increment = (int)(numSecondsOnScreen * AudioInfo.SAMPLERATE / (float)mScreenWidth) * AudioInfo.SIZE_OF_SHORT;
         if(mUseCompressedFile) {
             increment /= 50.d;
+            increment *= 2;
         }
         //increment = (increment % 2 == 0)? increment : increment+1;
         System.out.println("increment is " + increment);
