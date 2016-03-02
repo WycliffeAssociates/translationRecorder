@@ -53,6 +53,9 @@ public class WavVisualizer {
         double leftover = incrementTemp - (int)Math.floor(incrementTemp);
         double count = 0;
         int increment = (int)Math.floor(incrementTemp);
+        if(useCompressed){
+            increment*=2;
+        }
         boolean leapedInc = false;
         for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
             double max = Double.MIN_VALUE;
@@ -62,7 +65,7 @@ public class WavVisualizer {
                 increment++;
                 leapedInc = true;
             }
-            for(int j = 0; j < 2*increment; j+=2){
+            for(int j = 0; j < increment; j+=2){
                 if(pos+1 >= mAccessor.size()){
                     break;
                 }
