@@ -93,7 +93,7 @@ public class AudioFileAccessor {
                 System.out.println("here, skip back to " + time);
             }
         }
-        int loc = absoluteIndexFromAbsoluteTime(time, numSecondsOnScreen);
+        int loc = absoluteIndexFromAbsoluteTime(time);
         loc = absoluteIndexToRelative(loc);
 
         return loc;
@@ -108,12 +108,17 @@ public class AudioFileAccessor {
         return increment;
     }
 
-    public int absoluteIndexFromAbsoluteTime(int timeMs, double numSecondsOnScreen){
-        int idx = (int)Math.round(timeMs / 1000.0 * AudioInfo.SAMPLERATE) * 2;
-        if(mUseCmp){
+    public int absoluteIndexFromAbsoluteTime(int timeMs){
+        int seconds = timeMs/1000;
+        int ms = (timeMs-(seconds*1000));
+        int tens = ms/10;
 
-            idx = (int)Math.round(idx/(double)fileIncrement()) * 4;
+
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        if(mUseCmp){
+            idx /= 50;
         }
+        idx*=2;
         return idx;
     }
 
@@ -126,20 +131,20 @@ public class AudioFileAccessor {
     }
 
     public static int fileIncrement(){
-        return (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
+        return AudioInfo.COMPRESSION_RATE;
     }
 
     //used for minimap
-    public static int uncompressedIncrement(double numSecondsOnScreen, double adjustedDuration){
+    public static int uncompressedIncrement(double adjustedDuration){
         int increment = (int)Math.round(((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
-        increment = (increment % 2 == 0)? increment : increment+1;
+        //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     //used for minimap
-    public static int compressedIncrement(double numSecondsOnScreen){
-        int increment = (int)Math.round((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT;
-        increment = (increment % 2 == 0)? increment : increment+1;
+    public static int compressedIncrement(double adjustedDuration){
+        int increment = uncompressedIncrement(adjustedDuration) / 50;
+        //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
@@ -147,9 +152,9 @@ public class AudioFileAccessor {
     //used for minimap- this is why the duration matters
     public static int getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration){
         if(useCmp){
-            return compressedIncrement(numSecondsOnScreen);
+            return compressedIncrement(adjustedDuration);
         } else {
-            return uncompressedIncrement(numSecondsOnScreen, adjustedDuration);
+            return uncompressedIncrement(adjustedDuration);
         }
     }
 }

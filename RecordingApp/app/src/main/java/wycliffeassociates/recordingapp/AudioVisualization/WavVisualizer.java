@@ -85,7 +85,7 @@ public class WavVisualizer {
         mAccessor.switchBuffers(mUseCompressedFile);
 
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
-        int increment = getIncrement(mNumSecondsOnScreen);
+        double increment = getIncrement(mNumSecondsOnScreen);
         int timeToSubtract = msBeforePlaybackLine(mNumSecondsOnScreen);
         int startPosition = mAccessor.indexAfterSubtractingTime(timeToSubtract, location, mNumSecondsOnScreen);
 
@@ -100,11 +100,11 @@ public class WavVisualizer {
 
         //beginning with the starting position, the width of each increment represents the data one pixel width is showing
         for(int i = index/4; i < end; i++){
-            if(startPosition+increment > mAccessor.size()){
+            if(startPosition+increment*2 > mAccessor.size()){
                 break;
             }
-            index = addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+increment, index);
-            startPosition += increment;
+            index = addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment*2, index);
+            startPosition += increment*2;
         }
         //zero out the rest of the array
         for (int i = index; i < mSamples.length; i++){
@@ -161,11 +161,9 @@ public class WavVisualizer {
         return index;
     }
 
-    private int initializeSamples(float[] samples, int startPosition, int increment){
+    private int initializeSamples(float[] samples, int startPosition, double increment){
         if(startPosition <= 0) {
             int numberOfZeros = (int)Math.round(Math.abs(startPosition) / (double)increment);
-            System.out.println("number of zeros is " + numberOfZeros);
-            System.out.println("Start position is " + startPosition + " increment is " + increment);
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;
@@ -193,31 +191,27 @@ public class WavVisualizer {
     }
 
     private int computeSampleStartPosition(int startMillisecond){
-        // multiplied by 2 because of a hi and low for each sample in the compressed file
-        //System.out.println("Duration of file is " + WavPlayer.getDuration());
-/*
-        int sampleStartPosition = (useCompressedFile)? AudioInfo.SIZE_OF_SHORT * 2 * (int)(Math.round((
+        int seconds = startMillisecond/1000;
+        int ms = (startMillisecond-(seconds*1000));
+        int tens = ms/10;
 
-                                                                                                        (startMillisecond/(double)WavPlayer.getDuration())
-                                                                                                                *(compressed.capacity()/4)
-                                                                                                        )
-                                                                                                    ))
-                //(int)Math.round(startMillisecond * (mScreenWidth/((double)(AudioInfo.COMPRESSED_SECONDS_ON_SCREEN * 1000)))) * 4
-        //int sampleStartPosition = (useCompressedFile)? (int)Math.floor((startMillisecond/(double)WavPlayer.getDuration())*(compressed.capacity()/4.0)*4)
-                : (int)(Math.round((startMillisecond/1000.d) * AudioInfo.SAMPLERATE )) * AudioInfo.SIZE_OF_SHORT;
-*/
-        int sampleStartPosition = (int)Math.round((startMillisecond/1000.d) * AudioInfo.SAMPLERATE ) * AudioInfo.SIZE_OF_SHORT;
+        int sampleStartPosition = (AudioInfo.SAMPLERATE* 2 * seconds) + (ms * 88) + (tens*AudioInfo.SIZE_OF_SHORT);
         if(mUseCompressedFile){
-            int increment = (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)mScreenWidth)  * AudioInfo.SIZE_OF_SHORT;
-            sampleStartPosition = (int)Math.round(sampleStartPosition / (double)increment) * AudioInfo.SIZE_OF_SHORT * 2;
+            sampleStartPosition /= 50;
+            if(sampleStartPosition%2 != 0) {
+                sampleStartPosition++;
+            }
         }
         return sampleStartPosition;
     }
 
-    private int getIncrement(int numSecondsOnScreen){
-        int increment = (mUseCompressedFile)?  (int)Math.round((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT
-                : (numSecondsOnScreen * AudioInfo.SAMPLERATE / mScreenWidth) * AudioInfo.SIZE_OF_SHORT;
-        increment = (increment % 2 == 0)? increment : increment+1;
+    private double getIncrement(int numSecondsOnScreen){
+        double increment = (int)(numSecondsOnScreen * AudioInfo.SAMPLERATE / (float)mScreenWidth) * AudioInfo.SIZE_OF_SHORT;
+        if(mUseCompressedFile) {
+            increment /= 50.d;
+        }
+        //increment = (increment % 2 == 0)? increment : increment+1;
+        System.out.println("increment is " + increment);
         return increment;
     }
 
