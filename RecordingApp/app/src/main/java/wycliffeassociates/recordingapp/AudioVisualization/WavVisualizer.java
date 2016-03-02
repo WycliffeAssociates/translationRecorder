@@ -53,7 +53,7 @@ public class WavVisualizer {
         for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
-            for(int j = 0; j < increment; j+=2){
+            for(int j = 0; j < increment*2; j+=2){
                 if(pos+1 >= mAccessor.size()){
                     break;
                 }
@@ -163,7 +163,7 @@ public class WavVisualizer {
 
     private int initializeSamples(float[] samples, int startPosition, double increment){
         if(startPosition <= 0) {
-            int numberOfZeros = (int)Math.round(Math.abs(startPosition) / (double)increment);
+            int numberOfZeros = (int)Math.round(Math.abs(startPosition) / (2*(double)increment));
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;

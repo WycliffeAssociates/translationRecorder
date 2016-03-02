@@ -116,7 +116,7 @@ public class AudioFileAccessor {
 
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         if(mUseCmp){
-            idx /= 50;
+            idx /= 25;
         }
         idx*=2;
         return idx;
