@@ -103,10 +103,10 @@ public class WavVisualizer {
 
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
         int increment = getIncrement(mNumSecondsOnScreen);
-        int timeToSubtract = 0;//msBeforePlaybackLine(mNumSecondsOnScreen);
+        int timeToSubtract = msBeforePlaybackLine(mNumSecondsOnScreen);
         int startPosition = mAccessor.indexAfterSubtractingTime(timeToSubtract, location, mNumSecondsOnScreen);
 
-        int index = 0;//initializeSamples(mSamples, startPosition, increment);
+        int index = initializeSamples(mSamples, startPosition, increment, location-timeToSubtract);
         //in the event that the actual start position ends up being negative (such as from shifting forward due to playback being at the start of the file)
         //it should be set to zero (and the buffer will already be initialized with some zeros, with index being the index of where to resume placing data
         startPosition = Math.max(0, startPosition);
@@ -120,8 +120,9 @@ public class WavVisualizer {
         double count = 0;
         boolean addedLeftover = false;
         for(int i = index/4; i < end; i++){
-            if(leftover > 1){
+            if(count > 1){
                 increment = (mUseCompressedFile)? increment + 4 : increment + 2;
+                count--;
                 addedLeftover = true;
             }
             if(startPosition+increment > mAccessor.size()){
@@ -190,10 +191,14 @@ public class WavVisualizer {
         return index;
     }
 
-    private int initializeSamples(float[] samples, int startPosition, int increment){
+    private int initializeSamples(float[] samples, int startPosition, int increment, int timeUntilZero){
         if(startPosition <= 0) {
-            int numberOfZeros = (int)Math.round(Math.abs(startPosition) / ((double)increment));
-            numberOfZeros -= (int)Math.floor(getIncrementLeftover(mNumSecondsOnScreen)* numberOfZeros)/4;
+            int numberOfZeros = 0;
+            if(timeUntilZero < 0){
+                timeUntilZero *= -1;
+                double mspp = (mNumSecondsOnScreen * 1000) / (double)mScreenWidth;
+                numberOfZeros = (int)Math.round(timeUntilZero/mspp);
+            }
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;
@@ -255,7 +260,7 @@ public class WavVisualizer {
             increment /= 100.d;
         }
         double diff = increment-Math.floor(increment);
-        return diff*.5;
+        return diff*2;
     }
 
     private int getLastIndex(int startMillisecond, int numSecondsOnScreen) {
