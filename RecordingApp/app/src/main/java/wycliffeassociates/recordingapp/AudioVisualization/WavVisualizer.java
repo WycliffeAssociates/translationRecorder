@@ -102,11 +102,11 @@ public class WavVisualizer {
         mAccessor.switchBuffers(mUseCompressedFile);
 
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
-        double increment = getIncrement(mNumSecondsOnScreen);
-        int timeToSubtract = msBeforePlaybackLine(mNumSecondsOnScreen);
+        int increment = getIncrement(mNumSecondsOnScreen);
+        int timeToSubtract = 0;//msBeforePlaybackLine(mNumSecondsOnScreen);
         int startPosition = mAccessor.indexAfterSubtractingTime(timeToSubtract, location, mNumSecondsOnScreen);
 
-        int index = initializeSamples(mSamples, startPosition, increment);
+        int index = 0;//initializeSamples(mSamples, startPosition, increment);
         //in the event that the actual start position ends up being negative (such as from shifting forward due to playback being at the start of the file)
         //it should be set to zero (and the buffer will already be initialized with some zeros, with index being the index of where to resume placing data
         startPosition = Math.max(0, startPosition);
@@ -116,12 +116,24 @@ public class WavVisualizer {
 //        Log.i(this.toString(), "start is " + startPosition);
 
         //beginning with the starting position, the width of each increment represents the data one pixel width is showing
+        double leftover = getIncrementLeftover(mNumSecondsOnScreen);
+        double count = 0;
+        boolean addedLeftover = false;
         for(int i = index/4; i < end; i++){
+            if(leftover > 1){
+                increment = (mUseCompressedFile)? increment + 4 : increment + 2;
+                addedLeftover = true;
+            }
             if(startPosition+increment > mAccessor.size()){
                 break;
             }
             index = addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment, index);
             startPosition += increment;
+            count += leftover;
+            if(addedLeftover){
+                addedLeftover = false;
+                increment = (mUseCompressedFile)? increment - 4 : increment - 2;
+            }
         }
         //zero out the rest of the array
         for (int i = index; i < mSamples.length; i++){
@@ -178,9 +190,10 @@ public class WavVisualizer {
         return index;
     }
 
-    private int initializeSamples(float[] samples, int startPosition, double increment){
+    private int initializeSamples(float[] samples, int startPosition, int increment){
         if(startPosition <= 0) {
             int numberOfZeros = (int)Math.round(Math.abs(startPosition) / ((double)increment));
+            numberOfZeros -= (int)Math.floor(getIncrementLeftover(mNumSecondsOnScreen)* numberOfZeros)/4;
             int index = 0;
             for (int i = 0; i < numberOfZeros; i++) {
                 samples[index] = index/4;
@@ -214,23 +227,35 @@ public class WavVisualizer {
 
         int sampleStartPosition = (AudioInfo.SAMPLERATE* 2 * seconds) + (ms * 88) + (tens*AudioInfo.SIZE_OF_SHORT);
         if(mUseCompressedFile){
-            sampleStartPosition /= 50;
-            if(sampleStartPosition%2 != 0) {
-                sampleStartPosition++;
-            }
+            sampleStartPosition /= 100;
+            sampleStartPosition *= 2;
+
         }
         return sampleStartPosition;
     }
 
-    private double getIncrement(int numSecondsOnScreen){
-        double increment = (int)(numSecondsOnScreen * AudioInfo.SAMPLERATE / (float)mScreenWidth) * AudioInfo.SIZE_OF_SHORT;
+    private int getIncrement(int numSecondsOnScreen){
+        float increment = (int)(numSecondsOnScreen * AudioInfo.SAMPLERATE / (float)mScreenWidth);
         if(mUseCompressedFile) {
-            increment /= 50.d;
+            increment /= 100;
+        }
+        increment = (int)Math.floor(increment);
+        if(mUseCompressedFile){
+            increment *= 8;
+        } else {
             increment *= 2;
         }
-        //increment = (increment % 2 == 0)? increment : increment+1;
         System.out.println("increment is " + increment);
-        return increment;
+        return (int)increment;
+    }
+
+    private double getIncrementLeftover(int numSecondsOnScreen){
+        double increment = (int)(numSecondsOnScreen * AudioInfo.SAMPLERATE / (float)mScreenWidth);
+        if(mUseCompressedFile) {
+            increment /= 100.d;
+        }
+        double diff = increment-Math.floor(increment);
+        return diff*.5;
     }
 
     private int getLastIndex(int startMillisecond, int numSecondsOnScreen) {
