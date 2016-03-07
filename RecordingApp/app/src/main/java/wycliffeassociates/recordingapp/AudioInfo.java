@@ -19,6 +19,7 @@ public class AudioInfo{
     public static final int HEADER_SIZE = 44;
     public static final int SIZE_OF_SHORT = 2;
     public static final int AMPLITUDE_RANGE = 32767;
+    public static final int COMPRESSION_RATE = 100;
     public static String pathToVisFile = "";
     public static int COMPRESSED_SECONDS_ON_SCREEN = 1;
     public static String fileDir = "";

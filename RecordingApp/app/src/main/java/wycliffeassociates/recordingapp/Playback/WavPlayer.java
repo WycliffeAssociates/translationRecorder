@@ -245,11 +245,23 @@ public class WavPlayer {
 //        if(seekTo != -1){
 //            x = seekTo;
 //        }
+
+        int seconds = x/1000;
+        int ms = (x-(seconds*1000));
+        int tens = ms/10;
+
+
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        idx*=2;
         //500 instead of 1000 because the position should be double here- there's two bytes
         //per data point in the audio array
-        playbackStart = (int)(x * (AudioInfo.SAMPLERATE/500.0));
+        playbackStart = idx;
         //make sure the playback start is within the bounds of the file's capacity
-        playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
+        if(audioData != null) {
+            playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
+        } else {
+            playbackStart = 0;
+        }
         if(wasPlaying){
             play();
         }
@@ -319,13 +331,13 @@ public class WavPlayer {
 
     public int getLocation(){
         if(player != null) {
-            int loc = Math.min((int) ((playbackStart / 2 + player.getPlaybackHeadPosition()) *
-                    (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
+            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
+                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
 //            if(mMovedBackwards){
 //                loc = mCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
 //            } else {
             //Ignore cuts prior to playback start: assume they're already accounted for
-            loc = mCutOp.timeAdjusted(loc, (int) (playbackStart / 88.2));
+            loc = mCutOp.timeAdjusted(loc, (int) Math.round(playbackStart / 88.2));
            // }
             return loc;
         }

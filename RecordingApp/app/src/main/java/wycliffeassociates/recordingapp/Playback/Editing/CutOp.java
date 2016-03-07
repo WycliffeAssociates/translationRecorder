@@ -27,11 +27,11 @@ public class CutOp {
         mStack = new Vector<>();
     }
 
-    public Vector<Pair<Integer,Integer>> getFlattenedStack(){
+    public synchronized Vector<Pair<Integer,Integer>> getFlattenedStack(){
         return mFlattenedStack;
     }
 
-    public void cut(int start, int end){
+    public synchronized void cut(int start, int end){
         Pair<Integer, Integer> temp = new Pair<>(start, end);
         mStack.add(temp);
         mSizeCut = totalDataRemoved();
@@ -40,7 +40,7 @@ public class CutOp {
         generateCutStackCmpLoc();
     }
 
-    public void clear(){
+    public synchronized void clear(){
         mStack.clear();
         mFlattenedStack.clear();
         mSizeCut = 0;
@@ -50,7 +50,7 @@ public class CutOp {
         mSizeCutUncmp = 0;
     }
 
-    public void undo(){
+    public synchronized void undo(){
         if(mStack.size() == 0){
             return;
         }
@@ -60,7 +60,8 @@ public class CutOp {
         generateCutStackCmpLoc();
     }
 
-    public int skip(int time){
+    //change to use flattened stack
+    public synchronized int skip(int time){
         int max = -1;
         for(Pair<Integer,Integer> cut : mStack) {
             if (time >= cut.first && time < cut.second) {
@@ -70,7 +71,7 @@ public class CutOp {
         return max;
     }
 
-    public boolean hasCut(){
+    public synchronized boolean hasCut(){
         if(mStack.size() > 0){
             return true;
         } else {
@@ -78,7 +79,7 @@ public class CutOp {
         }
     }
 
-    public int skipReverse(int time){
+    public synchronized int skipReverse(int time){
         int min = Integer.MAX_VALUE;
         for(Pair<Integer,Integer> cut : mStack) {
             if (time > cut.first && time <= cut.second) {
@@ -102,7 +103,7 @@ public class CutOp {
      *
      * @return the total time removed from cuts.
      */
-    private int totalDataRemoved(){
+    private synchronized int totalDataRemoved(){
         Vector<Pair<Integer,Integer>> copy = new Vector<>(mStack.capacity());
         mFlattenedStack = new Vector<>();
         for(Pair<Integer,Integer> p : mStack){
@@ -110,7 +111,7 @@ public class CutOp {
         }
         Collections.sort(copy, new Comparator<Pair<Integer, Integer>>() {
             @Override
-            public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
+            public synchronized int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
                 if(lhs.first == rhs.first) {
                     return 0;
                 } else if (lhs.first > rhs.first){
@@ -126,10 +127,12 @@ public class CutOp {
             Pair<Integer,Integer> pair = copy.firstElement();
             ArrayList<Pair<Integer,Integer>> list = new ArrayList<>();
             list.add(pair);
-            for(Pair<Integer,Integer> p : list){
+            for(int i = 0; i < list.size(); i++){
+                Pair<Integer,Integer> p =  list.get(i);
                 copy.remove(p);
-                for(Pair<Integer,Integer> q : copy){
-                    if(q.first >= p.first || q.first <= p.second){
+                for(int j = copy.size()-1; j >= 0; j--){
+                    Pair<Integer,Integer> q = copy.get(j);
+                    if((q.first >= p.first && q.first <= p.second) || (p.first >= q.first && p.first <= q.second)){
                         list.add(q);
                         copy.remove(q);
                     }
@@ -159,7 +162,7 @@ public class CutOp {
      * @param timeMs location that was computed from WavPlayer before considering cuts
      * @return inflated time accounting for cuts
      */
-    public int timeAdjusted(int timeMs){
+    public synchronized int timeAdjusted(int timeMs){
         if(mFlattenedStack == null) {
             return timeMs;
         }
@@ -174,7 +177,7 @@ public class CutOp {
         return time;
     }
 
-    public int timeAdjusted(int timeMs, int playbackStart){
+    public synchronized int timeAdjusted(int timeMs, int playbackStart){
         if(mFlattenedStack == null) {
             return timeMs;
         }
@@ -191,7 +194,7 @@ public class CutOp {
         return time;
     }
 
-    public int reverseTimeAdjusted(int timeMs){
+    public synchronized int reverseTimeAdjusted(int timeMs){
         if(mFlattenedStack == null) {
             return timeMs;
         }
@@ -207,7 +210,7 @@ public class CutOp {
         return time;
     }
 
-    private void generateCutStackUncmpLoc(){
+    private synchronized void generateCutStackUncmpLoc(){
         mSizeCutUncmp = 0;
         mCutStackUncmpLoc = new Vector<Pair<Integer,Integer>>();
         for(Pair<Integer,Integer> p : mFlattenedStack){
@@ -217,7 +220,7 @@ public class CutOp {
         }
     }
 
-    private void generateCutStackCmpLoc(){
+    private synchronized void generateCutStackCmpLoc(){
         mSizeCutCmp = 0;
         mCutStackCmpLoc = new Vector<Pair<Integer,Integer>>();
         for(Pair<Integer,Integer> p : mFlattenedStack){
@@ -227,16 +230,30 @@ public class CutOp {
         }
     }
 
-    public int timeToUncmpLoc(int timeMs){
-        return (int)Math.round(AudioInfo.SAMPLERATE * (timeMs/1000.0)) * 2;
+    public synchronized int timeToUncmpLoc(int timeMs){
+        int seconds = timeMs/1000;
+        int ms = (timeMs-(seconds*1000));
+        int tens = ms/10;
+
+
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        idx*=2;
+        return idx;
     }
 
-    public int timeToCmpLoc(int timeMs){
-        double compressionInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
-        return (int)Math.round((timeToUncmpLoc(timeMs) / compressionInc)) * 4;
+    public synchronized int timeToCmpLoc(int timeMs){
+        int seconds = timeMs/1000;
+        int ms = (timeMs-(seconds*1000));
+        int tens = ms/10;
+
+
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        idx /= 25;
+        idx*=2;
+        return idx;
     }
 
-    public int skipLoc(int loc, boolean compressed){
+    public synchronized int skipLoc(int loc, boolean compressed){
         int max = -1;
         Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc; 
         for(Pair<Integer,Integer> cut : stack) {
@@ -247,7 +264,7 @@ public class CutOp {
         return max;
     }
 
-    public int relativeLocToAbsolute(int loc, boolean compressed){
+    public synchronized int relativeLocToAbsolute(int loc, boolean compressed){
         Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc;
         if(stack == null){
             return loc;
@@ -260,26 +277,28 @@ public class CutOp {
         return loc;
     }
 
-    public int absoluteLocToRelative(int loc, boolean compressed){
+    public synchronized int absoluteLocToRelative(int location, boolean compressed){
         Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc;
+        int loc = location;
         if(stack == null){
             return loc;
         }
-        for(Pair<Integer,Integer> cut : stack) {
-            if (loc >= cut.second) {
+        for(int i = stack.size()-1; i >=0; i--) {
+            Pair<Integer,Integer> cut = stack.get(i);
+            if (location >= cut.second) {
                 loc -= cut.second - cut.first;
             }
         }
         return loc;
     }
 
-    public int getSizeCut(){
+    public synchronized int getSizeCut(){
         return mSizeCut;
     }
-    public int getSizeCutCmp(){
+    public synchronized int getSizeCutCmp(){
         return mSizeCutCmp;
     }
-    public int getSizeCutUncmp(){
+    public synchronized int getSizeCutUncmp(){
         return mSizeCutUncmp;
     }
 }
