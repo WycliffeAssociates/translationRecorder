@@ -277,13 +277,15 @@ public class CutOp {
         return loc;
     }
 
-    public synchronized int absoluteLocToRelative(int loc, boolean compressed){
+    public synchronized int absoluteLocToRelative(int location, boolean compressed){
         Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc;
+        int loc = location;
         if(stack == null){
             return loc;
         }
-        for(Pair<Integer,Integer> cut : stack) {
-            if (loc >= cut.second) {
+        for(int i = stack.size()-1; i >=0; i--) {
+            Pair<Integer,Integer> cut = stack.get(i);
+            if (location >= cut.second) {
                 loc -= cut.second - cut.first;
             }
         }

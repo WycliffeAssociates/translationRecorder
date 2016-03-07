@@ -83,7 +83,7 @@ public class AudioFileAccessor {
     //can return an invalid index, negative indices useful for how many zeros to add
     //iterates backwards, checking if time hits a skip
     //OPTIMIZE: optimize by subtracting exactly the times needed between this range, rather than for loop
-    public int indexAfterSubtractingTime(int timeToSubtractMs, int currentTimeMs, double numSecondsOnScreen){
+    public int[] indexAfterSubtractingTime(int timeToSubtractMs, int currentTimeMs, double numSecondsOnScreen){
         int time = currentTimeMs;
         for(int i = 1; i < timeToSubtractMs; i++){
             time--;
@@ -95,8 +95,10 @@ public class AudioFileAccessor {
         }
         int loc = absoluteIndexFromAbsoluteTime(time);
         loc = absoluteIndexToRelative(loc);
-
-        return loc;
+        int locAndTime[] = new int[2];
+        locAndTime[0] = loc;
+        locAndTime[1] = time;
+        return locAndTime;
     }
 
     public int indicesInAPixelMinimap(){

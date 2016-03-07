@@ -104,9 +104,11 @@ public class WavVisualizer {
         //get the number of array indices to skip over- the array will likely contain more data than one pixel can show
         int increment = getIncrement(mNumSecondsOnScreen);
         int timeToSubtract = msBeforePlaybackLine(mNumSecondsOnScreen);
-        int startPosition = mAccessor.indexAfterSubtractingTime(timeToSubtract, location, mNumSecondsOnScreen);
+        int locAndTime[] = mAccessor.indexAfterSubtractingTime(timeToSubtract, location, mNumSecondsOnScreen);
+        int startPosition = locAndTime[0];
+        int newTime = locAndTime[1];
 
-        int index = initializeSamples(mSamples, startPosition, increment, location-timeToSubtract);
+        int index = initializeSamples(mSamples, startPosition, increment, newTime);
         //in the event that the actual start position ends up being negative (such as from shifting forward due to playback being at the start of the file)
         //it should be set to zero (and the buffer will already be initialized with some zeros, with index being the index of where to resume placing data
         startPosition = Math.max(0, startPosition);
