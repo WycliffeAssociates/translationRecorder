@@ -53,13 +53,15 @@ public class Settings extends Activity {
     private Context c;
     private Button hardReset;
     private String sampleName;
-    private static final String KEY_PREF_SOURCE = "pref_source";
+    public static final String KEY_PREF_SOURCE = "pref_source";
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
     public static final String KEY_PREF_FILENAME = "pref_filename";
     public static final String KEY_PREF_TAKE = "pref_take";
+    public static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
+    public static final String KEY_PREF_VERSE = "pref_verse";
 
     MyAutoCompleteTextView setLangCode,setBookCode;
 
@@ -81,7 +83,14 @@ public class Settings extends Activity {
         String chunk = formatDigit(pref.getString(KEY_PREF_CHUNK, "1"));
         String take = formatDigit(pref.getString(KEY_PREF_TAKE, "1"));
         String source = pref.getString(KEY_PREF_SOURCE, "udb");
-        String filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk + "_" + take;
+        String verse = formatDigit(pref.getString(KEY_PREF_VERSE, "1"));
+        String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
+        String filename;
+        if(chunkOrVerse.compareTo("chunk") == 0) {
+            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk + "_" + take;
+        } else {
+            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + verse + "_" + take;
+        }
         pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
     }
 

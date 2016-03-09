@@ -83,7 +83,7 @@ public class AudioFileAccessor {
     //can return an invalid index, negative indices useful for how many zeros to add
     //iterates backwards, checking if time hits a skip
     //OPTIMIZE: optimize by subtracting exactly the times needed between this range, rather than for loop
-    public int indexAfterSubtractingTime(int timeToSubtractMs, int currentTimeMs, double numSecondsOnScreen){
+    public int[] indexAfterSubtractingTime(int timeToSubtractMs, int currentTimeMs, double numSecondsOnScreen){
         int time = currentTimeMs;
         for(int i = 1; i < timeToSubtractMs; i++){
             time--;
@@ -93,10 +93,12 @@ public class AudioFileAccessor {
                 System.out.println("here, skip back to " + time);
             }
         }
-        int loc = absoluteIndexFromAbsoluteTime(time, numSecondsOnScreen);
+        int loc = absoluteIndexFromAbsoluteTime(time);
         loc = absoluteIndexToRelative(loc);
-
-        return loc;
+        int locAndTime[] = new int[2];
+        locAndTime[0] = loc;
+        locAndTime[1] = time;
+        return locAndTime;
     }
 
     public int indicesInAPixelMinimap(){
@@ -108,12 +110,17 @@ public class AudioFileAccessor {
         return increment;
     }
 
-    public int absoluteIndexFromAbsoluteTime(int timeMs, double numSecondsOnScreen){
-        int idx = (int)Math.round(timeMs / 1000.0 * AudioInfo.SAMPLERATE) * 2;
-        if(mUseCmp){
+    public int absoluteIndexFromAbsoluteTime(int timeMs){
+        int seconds = timeMs/1000;
+        int ms = (timeMs-(seconds*1000));
+        int tens = ms/10;
 
-            idx = (int)Math.round(idx/(double)fileIncrement()) * 4;
+
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        if(mUseCmp){
+            idx /= 25;
         }
+        idx*=2;
         return idx;
     }
 
@@ -126,26 +133,30 @@ public class AudioFileAccessor {
     }
 
     public static int fileIncrement(){
-        return (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
+        return AudioInfo.COMPRESSION_RATE;
     }
 
-    public static int uncompressedIncrement(double numSecondsOnScreen, double adjustedDuration){
-        int increment = (int)Math.round(((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
-        increment = (increment % 2 == 0)? increment : increment+1;
+    //used for minimap
+    public static double uncompressedIncrement(double adjustedDuration){
+        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
+        //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
-    public static int compressedIncrement(double numSecondsOnScreen){
-        int increment = (int)Math.round((numSecondsOnScreen / AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)) * 2 * AudioInfo.SIZE_OF_SHORT;
-        increment = (increment % 2 == 0)? increment : increment+1;
+    //used for minimap
+    public static double compressedIncrement(double adjustedDuration){
+        double increment = (uncompressedIncrement(adjustedDuration) / 50.f);
+        //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
-    public static int getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration){
+    //FIXME: rounding will compound error in long files, resulting in pixels being off
+    //used for minimap- this is why the duration matters
+    public static double getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration){
         if(useCmp){
-            return compressedIncrement(numSecondsOnScreen);
+            return compressedIncrement(adjustedDuration);
         } else {
-            return uncompressedIncrement(numSecondsOnScreen, adjustedDuration);
+            return uncompressedIncrement(adjustedDuration);
         }
     }
 }

@@ -129,8 +129,7 @@ public class WavFileLoader {
         try {
             audioVisFile  = new File(AudioInfo.pathToVisFile + loadedFilename.substring(loadedFilename.lastIndexOf('/'), loadedFilename.lastIndexOf('.')) + ".vis");
             FileOutputStream temp = new FileOutputStream(audioVisFile);
-            int increment = (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)screenWidth)  * AudioInfo.SIZE_OF_SHORT;
-            //increment = (increment % 2 == 0)? increment : increment+1;
+            int increment = AudioInfo.COMPRESSION_RATE;
             System.out.println(increment + "increment ");
 
             for(int i = 0; i < buffer.capacity(); i+=increment){

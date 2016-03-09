@@ -49,9 +49,9 @@ public class MinimapView extends CanvasView {
         @Override
         public boolean onDown(MotionEvent e) {
             if (mManager != null && e.getY() <= getHeight()) {
+                float xPos = e.getX() / (float)getWidth();
+                int timeToSeekTo = mManager.timeAdjusted(Math.round(xPos * mManager.getAdjustedDuration()));
                 if(SectionMarkers.bothSet()){
-                    float xPos = e.getX() / getWidth();
-                    int timeToSeekTo = Math.round(xPos * mManager.getDuration());
                     if(timeToSeekTo < SectionMarkers.getStartLocationMs()){
                         return true;
                     }
@@ -59,8 +59,6 @@ public class MinimapView extends CanvasView {
                         return true;
                     }
                 }
-                float xPos = e.getX() / getWidth();
-                int timeToSeekTo = Math.round(xPos * mManager.getDuration());
                 mManager.seekTo(timeToSeekTo);
                 mManager.updateUI();
                 endPosition = (int) e.getX();
@@ -72,7 +70,7 @@ public class MinimapView extends CanvasView {
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
             if (mManager != null) {
                 startPosition = (int) event1.getX();
-                endPosition -= (int) distanceX;
+                endPosition = (int) event2.getX();
                 int startPositionMinimap = startPosition;
                 int endPositionMinimap = endPosition;
                 int playbackSectionStart = (int) mCut.timeAdjusted((int)Math.round((startPositionMinimap / (double) getWidth()) * (mManager.getDuration() - mCut.getSizeCut())));

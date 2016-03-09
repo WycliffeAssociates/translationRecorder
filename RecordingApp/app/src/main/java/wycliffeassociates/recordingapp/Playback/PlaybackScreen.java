@@ -116,9 +116,13 @@ public class PlaybackScreen extends Activity{
     @Override
     public void onPause(){
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
         mManager.release();
         SectionMarkers.clearMarkers(mManager);
-
     }
 
     private void playRecording() {
@@ -172,10 +176,17 @@ public class PlaybackScreen extends Activity{
 
     private void undo() {
         // TODO: Check mManager.hasCut() before hiding the undo button when cut is allowed more than one time.
-        int toShow[] = {};
-        int toHide[] = {R.id.btnUndo};
-        mManager.swapViews(toShow, toHide);
         mManager.undoCut();
+        int toShow[] = {};
+        int toHide[];
+        if(!mManager.hasCut()) {
+            toHide = new int[1];
+            toHide[0] = R.id.btnUndo;
+        }
+        else {
+            toHide = new int[0];
+        }
+        mManager.swapViews(toShow, toHide);
     }
 
     private void clearMarkers(){

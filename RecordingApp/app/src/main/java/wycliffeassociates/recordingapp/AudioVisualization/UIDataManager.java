@@ -165,12 +165,7 @@ public class UIDataManager {
 
     public void cutAndUpdate(){
         //FIXME: currently restricting cuts to one per file
-        if(mCutOp.hasCut()){
-            SectionMarkers.clearMarkers(this);
-            updateUI();
-            Toast.makeText(ctx, "Cut is limited to 1 operation at this time",Toast.LENGTH_SHORT).show();
-            return;
-        }
+
         int start = SectionMarkers.getStartLocationMs();
         int end = SectionMarkers.getEndLocationMs();
         if(start < 0){
@@ -205,12 +200,19 @@ public class UIDataManager {
         int percent = (int)Math.round((buffer.capacity()) /100.0);
         int count = percent;
         long sizeAfterCut = 0;
-        for(int i = 0; i < buffer.capacity(); i++){
+        for(int i = 0; i < buffer.capacity()-1; i++){
             int skip = mCutOp.skipLoc(i, false);
             if(skip != -1){
                 i = skip;
             }
             sizeAfterCut++;
+            if(i >= buffer.capacity()){
+                if(i%2 != 0 && i-1 < buffer.capacity()){
+                    i--;
+                } else {
+                    break;
+                }
+            }
             bos.write(buffer.get(i));
             if(count <= 0) {
                 pd.incrementProgressBy(1);
@@ -257,7 +259,7 @@ public class UIDataManager {
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, double mspp){
         //Logger.w(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
         //Logger.w(this.toString(), "mspp is " + mspp);
-        return (int)Math.round((-markerTimeMs + timeAtPlaybackLineMs) / mspp);
+        return (int)Math.round((-mCutOp.reverseTimeAdjusted(markerTimeMs) + mCutOp.reverseTimeAdjusted(timeAtPlaybackLineMs)) / mspp);
 
     }
 
@@ -426,10 +428,30 @@ public class UIDataManager {
         mPlayer.setOnlyPlayingSection(onlyPlayingSection);
     }
 
+    public int timeAdjusted(int ms){
+        return mCutOp.timeAdjusted(ms);
+    }
+
+    public int reverseTimeAdjusted(int ms){
+        return mCutOp.reverseTimeAdjusted(ms);
+    }
+
+    public int skip(int ms){
+        return mCutOp.skip(ms);
+    }
+
+    public int skipReverse(int ms){
+        return mCutOp.skipReverse(ms);
+    }
+
     public boolean checkIfShouldStop(){
         if(mPlayer == null){
             return true;
         }
         return mPlayer.checkIfShouldStop();
+    }
+
+    public double millisecondsPerPixel(){
+        return wavVis.millisecondsPerPixel();
     }
 }
