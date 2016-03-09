@@ -48,10 +48,10 @@ public class MinimapView extends CanvasView {
 
         @Override
         public boolean onDown(MotionEvent e) {
-            if (WavPlayer.exists() && e.getY() <= getHeight()) {
+            if (mManager != null && e.getY() <= getHeight()) {
+                float xPos = e.getX() / (float)getWidth();
+                int timeToSeekTo = mManager.timeAdjusted(Math.round(xPos * mManager.getAdjustedDuration()));
                 if(SectionMarkers.bothSet()){
-                    float xPos = e.getX() / getWidth();
-                    int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
                     if(timeToSeekTo < SectionMarkers.getStartLocationMs()){
                         return true;
                     }
@@ -59,9 +59,7 @@ public class MinimapView extends CanvasView {
                         return true;
                     }
                 }
-                float xPos = e.getX() / getWidth();
-                int timeToSeekTo = Math.round(xPos * WavPlayer.getDuration());
-                WavPlayer.seekTo(timeToSeekTo);
+                mManager.seekTo(timeToSeekTo);
                 mManager.updateUI();
                 endPosition = (int) e.getX();
             }
@@ -70,13 +68,13 @@ public class MinimapView extends CanvasView {
 
         @Override
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
-            if (WavPlayer.exists()) {
+            if (mManager != null) {
                 startPosition = (int) event1.getX();
-                endPosition -= (int) distanceX;
+                endPosition = (int) event2.getX();
                 int startPositionMinimap = startPosition;
                 int endPositionMinimap = endPosition;
-                int playbackSectionStart = (int) mCut.timeAdjusted((int)Math.round((startPositionMinimap / (double) getWidth()) * (WavPlayer.getDuration() - mCut.getSizeCut())));
-                int playbackSectionEnd = (int) mCut.timeAdjusted((int)Math.round((endPositionMinimap / (double) getWidth()) * (WavPlayer.getDuration() - mCut.getSizeCut())));
+                int playbackSectionStart = (int) mCut.timeAdjusted((int)Math.round((startPositionMinimap / (double) getWidth()) * (mManager.getDuration() - mCut.getSizeCut())));
+                int playbackSectionEnd = (int) mCut.timeAdjusted((int)Math.round((endPositionMinimap / (double) getWidth()) * (mManager.getDuration() - mCut.getSizeCut())));
                 if (startPosition > endPosition) {
                     int temp = playbackSectionEnd;
                     playbackSectionEnd = playbackSectionStart;
@@ -87,9 +85,9 @@ public class MinimapView extends CanvasView {
                 }
                 SectionMarkers.setMinimapMarkers(startPositionMinimap, endPositionMinimap);
                 SectionMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
-                WavPlayer.startSectionAt(playbackSectionStart);
-                WavPlayer.seekTo(playbackSectionStart);
-                WavPlayer.stopSectionAt(playbackSectionEnd);
+                mManager.startSectionAt(playbackSectionStart);
+                mManager.seekTo(playbackSectionStart);
+                mManager.stopSectionAt(playbackSectionEnd);
                 //WavPlayer.selectionStart(playbackSectionStart);
                 // TODO: Figure out a way to call PlaybackScreen.placeStartMarker and PlaybackScreen.placeEndMarker instead of re-writing the code here
                 int toShow[] = {R.id.btnClear, R.id.btnCut};

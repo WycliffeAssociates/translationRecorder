@@ -51,11 +51,11 @@ public class PlaybackScreen extends Activity{
 
     private final Context context = this;
     private TextView filenameView;
-    private WaveformView mainCanvas;
+    private WaveformView mMainCanvas;
     private MinimapView minimap;
     private MarkerView mStartMarker;
     private MarkerView mEndMarker;
-    private UIDataManager manager;
+    private UIDataManager mManager;
     private PreferencesManager pref;
     private String recordedFilename = null;
     private String suggestedFilename = null;
@@ -63,7 +63,7 @@ public class PlaybackScreen extends Activity{
     private boolean isPlaying = false;
     private boolean isALoadedFile = false;
     private ProgressDialog mProgress;
-    private volatile boolean changedName = false;
+    private volatile boolean mChangedName = false;
 
 
     @Override
@@ -86,10 +86,10 @@ public class PlaybackScreen extends Activity{
         setButtonHandlers();
         enableButtons();
 
-        mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
+        mMainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
 
-        mainCanvas.enableGestures();
+        mMainCanvas.enableGestures();
 
         mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
         mStartMarker.setOrientation(MarkerView.LEFT);
@@ -97,15 +97,15 @@ public class PlaybackScreen extends Activity{
         mEndMarker.setOrientation(MarkerView.RIGHT);
 
         final Activity ctx = this;
-        ViewTreeObserver vto = mainCanvas.getViewTreeObserver();
+        ViewTreeObserver vto = mMainCanvas.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 Logger.i(this.toString(), "Initializing UIDataManager in VTO callback");
-                manager = new UIDataManager(mainCanvas, minimap, mStartMarker, mEndMarker, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
-                manager.loadWavFromFile(recordedFilename);
-                manager.updateUI();
-                mainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mManager = new UIDataManager(mMainCanvas, minimap, mStartMarker, mEndMarker, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
+                mManager.loadWavFromFile(recordedFilename);
+                mManager.updateUI();
+                mMainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
 
@@ -113,75 +113,94 @@ public class PlaybackScreen extends Activity{
         filenameView.setText(suggestedFilename);
     }
 
+    @Override
+    public void onPause(){
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        mManager.release();
+        SectionMarkers.clearMarkers(mManager);
+    }
+
     private void playRecording() {
         isPlaying = true;
-        WavPlayer.play();
+        mManager.play();
         int toShow[] = {R.id.btnPause};
         int toHide[] = {R.id.btnPlay};
-        manager.swapViews(toShow, toHide);
-        manager.updateUI();
+        mManager.swapViews(toShow, toHide);
+        mManager.updateUI();
     }
 
     private void pausePlayback() {
         int toShow[] = {R.id.btnPlay};
         int toHide[] = {R.id.btnPause};
-        manager.swapViews(toShow, toHide);
-        WavPlayer.pause(true);
+        mManager.swapViews(toShow, toHide);
+        mManager.pause(true);
     }
 
     private void skipForward() {
-        WavPlayer.seekToEnd();
-        manager.updateUI();
+        mManager.seekToEnd();
+        mManager.updateUI();
     }
 
     private void skipBack() {
-        WavPlayer.seekToStart();
-        manager.updateUI();
+        mManager.seekToStart();
+        mManager.updateUI();
     }
 
     private void placeStartMarker(){
-        mainCanvas.placeStartMarker(WavPlayer.getLocation());
+        mMainCanvas.placeStartMarker(mManager.getLocation());
         int toShow[] = {R.id.btnEndMark, R.id.btnClear};
         int toHide[] = {R.id.btnStartMark};
-        manager.swapViews(toShow, toHide);
-        manager.updateUI();
+        mManager.swapViews(toShow, toHide);
+        mManager.updateUI();
     }
 
     private void placeEndMarker(){
-        mainCanvas.placeEndMarker(WavPlayer.getLocation());
+        mMainCanvas.placeEndMarker(mManager.getLocation());
         int toShow[] = {R.id.btnCut};
         int toHide[] = {R.id.btnEndMark};
-        manager.swapViews(toShow, toHide);
-        manager.updateUI();
+        mManager.swapViews(toShow, toHide);
+        mManager.updateUI();
     }
 
     private void cut() {
         int toShow[] = {R.id.btnStartMark, R.id.btnUndo};
         int toHide[] = {R.id.btnCut, R.id.btnClear};
-        manager.swapViews(toShow, toHide);
-        manager.cutAndUpdate();
+        mManager.swapViews(toShow, toHide);
+        mManager.cutAndUpdate();
     }
 
     private void undo() {
-        // TODO: Check manager.hasCut() before hiding the undo button when cut is allowed more than one time.
+        // TODO: Check mManager.hasCut() before hiding the undo button when cut is allowed more than one time.
+        mManager.undoCut();
         int toShow[] = {};
-        int toHide[] = {R.id.btnUndo};
-        manager.swapViews(toShow, toHide);
-        manager.undoCut();
+        int toHide[];
+        if(!mManager.hasCut()) {
+            toHide = new int[1];
+            toHide[0] = R.id.btnUndo;
+        }
+        else {
+            toHide = new int[0];
+        }
+        mManager.swapViews(toShow, toHide);
     }
 
     private void clearMarkers(){
-        SectionMarkers.clearMarkers();
+        SectionMarkers.clearMarkers(mManager);
         int toShow[] = {R.id.btnStartMark};
         int toHide[] = {R.id.btnClear, R.id.btnEndMark, R.id.btnCut};
-        manager.swapViews(toShow, toHide);
-        manager.updateUI();
+        mManager.swapViews(toShow, toHide);
+        mManager.updateUI();
     }
 
     @Override
     public void onBackPressed() {
         Logger.i(this.toString(), "Back was pressed.");
-        if (!isSaved && !isALoadedFile || isALoadedFile && manager.hasCut()) {
+        if (!isSaved && !isALoadedFile || isALoadedFile && mManager.hasCut()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
             ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
             dialog.setFilename(recordedFilename);
@@ -193,13 +212,13 @@ public class PlaybackScreen extends Activity{
             dialog.show();
         } else {
 //            clearMarkers();
-            WavPlayer.release();
+            mManager.release();
             super.onBackPressed();
         }
     }
 
-    private void changedName() {
-        changedName = true;
+    private void mChangedName() {
+        mChangedName = true;
     }
 
     private void save() {
@@ -214,7 +233,7 @@ public class PlaybackScreen extends Activity{
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                changedName();
+                mChangedName();
             }
 
             @Override
@@ -229,7 +248,7 @@ public class PlaybackScreen extends Activity{
 
         //pref.getPreferences("fileName");
         toSave.setText(suggestedFilename, TextView.BufferType.EDITABLE);
-        changedName = false;
+        mChangedName = false;
 
         //prepare the dialog
         final AlertDialog.Builder builder = new AlertDialog.Builder(c);
@@ -317,11 +336,11 @@ public class PlaybackScreen extends Activity{
         Thread saveThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if(manager.hasCut()){
+                if(mManager.hasCut()){
                     try {
                         File dir = new File(pref.getPreferences("fileDirectory").toString());
                         File toTemp = new File(dir, "temp.wav");
-                        manager.writeCut(toTemp, pd);
+                        mManager.writeCut(toTemp, pd);
                         if(overwrite || !isALoadedFile) {
                             from.delete();
                             to.delete();
@@ -366,7 +385,7 @@ public class PlaybackScreen extends Activity{
                         }
                     }
                 }
-                if(!isALoadedFile && !changedName) {
+                if(!isALoadedFile && !mChangedName) {
                     Settings.incrementTake(context);
                 }
                 pd.dismiss();

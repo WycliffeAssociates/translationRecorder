@@ -26,14 +26,23 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 public class FolderExport extends Export{
 
     public FolderExport(ArrayList<AudioItem> audioItemList,
-                        AudioFilesAdapter adapter, String currentDir, Fragment ctx){
-        super(audioItemList, adapter, currentDir, ctx);
+                        AudioFilesAdapter adapter, String currentDir){
+        super(audioItemList, adapter, currentDir);
     }
 
     /**
      * Exports to a folder or SD card by starting a wrapper activity around the Storage Access Framework
      */
     public void export(){
+        if(mNumFilesToExport > 1){
+            zipFiles(this);
+        } else {
+            handleUserInput();
+        }
+    }
+
+    @Override
+    protected void handleUserInput() {
         Intent i = new Intent(mCtx.getActivity(), StorageAccess.class);
         System.out.println("size of export list is " + mExportList.size());
         i.putStringArrayListExtra("exportList", mExportList);

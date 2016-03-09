@@ -94,7 +94,13 @@ public class RecordingScreen extends Activity {
                 final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
                 Book book = mBooks.get(pref.getString(Settings.KEY_PREF_BOOK, "gen"));
                 int chapter = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1"));
-                mChunks = parse.getChunks(book.getSlug()).get(chapter - 1);
+                String src = pref.getString(Settings.KEY_PREF_SOURCE, "udb");
+                String verseOrChunk = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
+                if(verseOrChunk.compareTo("chunk") == 0) {
+                    mChunks = parse.getChunks(book.getSlug(), src).get(chapter - 1);
+                } else {
+                    mChunks = parse.getVerses(book.getSlug(), src).get(chapter - 1);
+                }
                 final String[] values = new String[mChunks.size()];
                 for(int i = 0; i < mChunks.size(); i++){
                     values[i] = String.valueOf(mChunks.get(i));
@@ -228,13 +234,6 @@ public class RecordingScreen extends Activity {
         if (!isSaved && hasStartedRecording) {
             FragmentManager fm = getFragmentManager();
             FragmentExitDialog d = new FragmentExitDialog();
-            d.setFilename(recordedFilename);
-            if (isRecording) {
-                d.setIsRecording(true);
-            }
-            if (isPausedRecording) {
-                d.setIsPausedRecording(true);
-            }
             d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             d.show(fm, "Exit Dialog");
 
@@ -275,7 +274,13 @@ public class RecordingScreen extends Activity {
             //Get the list of chunks by first getting the book and chapter from the preference
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             int chunk = mChunks.get(idx-1);
-            pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+            String chunkOrVerse = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
+            if(chunkOrVerse.compareTo("chunk") == 0) {
+                pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+            } else {
+                pref.edit().putString(Settings.KEY_PREF_VERSE, String.valueOf(chunk)).commit();
+            }
+
             pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
             Settings.updateFilename(context);
             suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));

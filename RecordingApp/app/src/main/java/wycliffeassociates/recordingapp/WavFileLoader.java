@@ -129,17 +129,16 @@ public class WavFileLoader {
         try {
             audioVisFile  = new File(AudioInfo.pathToVisFile + loadedFilename.substring(loadedFilename.lastIndexOf('/'), loadedFilename.lastIndexOf('.')) + ".vis");
             FileOutputStream temp = new FileOutputStream(audioVisFile);
-            int increment = (int)Math.floor((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN)/screenWidth);
-            increment = (increment % 2 == 0)? increment : increment+1;
+            int increment = AudioInfo.COMPRESSION_RATE;
             System.out.println(increment + "increment ");
 
-            for(int i = 0; i < buffer.capacity(); i+=AudioInfo.SIZE_OF_SHORT*increment){
+            for(int i = 0; i < buffer.capacity(); i+=increment){
                 int max = Integer.MIN_VALUE;
                 int min = Integer.MAX_VALUE;
                 int minIdx = 0;
                 int maxIdx = 0;
 
-                for(int j = 0; j < increment*AudioInfo.SIZE_OF_SHORT; j+=AudioInfo.SIZE_OF_SHORT){
+                for(int j = 0; j < increment; j+=AudioInfo.SIZE_OF_SHORT){
                     if((i+j+1) < buffer.capacity()) {
                         byte low = buffer.get(i + j);
                         byte hi = buffer.get(i + j + 1);
@@ -219,49 +218,47 @@ public class WavFileLoader {
 //        return minimap;
 //    }
 
-    public WavFileLoader cut(int start, int end){
-        WavPlayer.stop();
-        try {
-            File tempAudioFile = new File(AudioInfo.fileDir, loadedFilename+"c-");
-            FileOutputStream fos = new FileOutputStream(tempAudioFile);
-            System.out.println("Trying to cut from " +start+ " to " + end);
-            for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
-                fos.write(0);
-            }
-            for(int i = 0; i < start; i++){
-                fos.write(mappedAudioFile.get(i));
-            }
-            for(int i = end; i < mappedAudioFile.capacity(); i++){
-                fos.write(mappedAudioFile.get(i));
-            }
-            fos.close();
-            System.out.println("new size is " + tempAudioFile.length() + " was originally " + (mappedAudioFile.capacity()+44));
-            WavFileWriter.overwriteHeaderData(tempAudioFile.getAbsolutePath(), tempAudioFile.length());
-            mappedAudioFile = null;
-            buffer = null;
-            preprocessedBuffer = null;
-            File original = new File(AudioInfo.fileDir, loadedFilename);
-            File originalVis = new File(AudioInfo.pathToVisFile, loadedFilename.substring(0, loadedFilename.lastIndexOf('.'))+".vis");
-            if(originalVis.exists()){
-                originalVis.delete();
-            }
-            File tempVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
-            if(tempVis.exists()) {
-                tempVis.delete();
-            }
-            System.out.println(original.delete() + " to deleteing the file");
-            System.out.println(tempAudioFile.renameTo(new File(AudioInfo.fileDir, loadedFilename)));
-            System.out.println(tempAudioFile.getAbsolutePath());
-            WavFileLoader cutFile = new WavFileLoader(AudioInfo.fileDir + loadedFilename, screenWidth, false);
-            WavPlayer.loadFile(cutFile.getMappedAudioFile());
-            return cutFile;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    public WavFileLoader cut(int start, int end){
+//        try {
+//            File tempAudioFile = new File(AudioInfo.fileDir, loadedFilename+"c-");
+//            FileOutputStream fos = new FileOutputStream(tempAudioFile);
+//            System.out.println("Trying to cut from " +start+ " to " + end);
+//            for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
+//                fos.write(0);
+//            }
+//            for(int i = 0; i < start; i++){
+//                fos.write(mappedAudioFile.get(i));
+//            }
+//            for(int i = end; i < mappedAudioFile.capacity(); i++){
+//                fos.write(mappedAudioFile.get(i));
+//            }
+//            fos.close();
+//            System.out.println("new size is " + tempAudioFile.length() + " was originally " + (mappedAudioFile.capacity()+44));
+//            WavFileWriter.overwriteHeaderData(tempAudioFile.getAbsolutePath(), tempAudioFile.length());
+//            mappedAudioFile = null;
+//            buffer = null;
+//            preprocessedBuffer = null;
+//            File original = new File(AudioInfo.fileDir, loadedFilename);
+//            File originalVis = new File(AudioInfo.pathToVisFile, loadedFilename.substring(0, loadedFilename.lastIndexOf('.'))+".vis");
+//            if(originalVis.exists()){
+//                originalVis.delete();
+//            }
+//            File tempVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
+//            if(tempVis.exists()) {
+//                tempVis.delete();
+//            }
+//            System.out.println(original.delete() + " to deleteing the file");
+//            System.out.println(tempAudioFile.renameTo(new File(AudioInfo.fileDir, loadedFilename)));
+//            System.out.println(tempAudioFile.getAbsolutePath());
+//            WavFileLoader cutFile = new WavFileLoader(AudioInfo.fileDir + loadedFilename, screenWidth, false);
+//            return cutFile;
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
 /*
     private void setSampleStartIndex(int startSecond, int increment){

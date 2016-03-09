@@ -19,6 +19,8 @@
     <color name="snow">#A6ffffff</color>
     <color name="frost">#A6000000</color>
 
+    <color name="dark_secondary_text">#89000000</color>
+    <color name="dark_primary_text">#dd000000</color>
 
 
     <color name="vivid_pink">#E91E63</color>

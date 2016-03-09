@@ -3,24 +3,27 @@ package wycliffeassociates.recordingapp.FilesPage;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.net.Uri;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.FilesPage.Export.Export;
+import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 
-public class AudioFiles extends Activity {
+public class AudioFiles extends Activity implements FragmentShareDialog.ExportDelegator, Export.ProgressUpdateCallback {
 
     private CheckBox btnCheckAll;
     private Menu mMenu;
@@ -32,8 +35,18 @@ public class AudioFiles extends Activity {
     private ArrayList<AudioItem> audioItemList;
     private ArrayList<AudioItem> tempItemList;
     static ArrayList<String> exportList;
-
+    private ProgressDialog mPd;
+    private ExportTaskFragment mExportTaskFragment;
+    private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
+    private final String STATE_EXPORTING = "was_exporting";
+    private final String STATE_ZIPPING = "was_zipping";
+    private static final String TOP_LIST_ITEM = "top_list_item";
+    private static final String TOP_LIST_ITEM_OFFSET = "top_list_item_offset";
+    private final String STATE_PROGRESS = "upload_progress";
     private boolean checkAll = true;
+    private volatile int mProgress = 0;
+    private volatile boolean mZipping = false;
+    private volatile boolean mExporting = false;
 
     // 0: Z-A
     // 1: A-Z
@@ -42,38 +55,11 @@ public class AudioFiles extends Activity {
     // 4: Oldest First
     // 5: Recent First
     int sort = 5;
-
     public AudioFilesAdapter adapter;
-
     Hashtable<Date, String> audioHash;
-
-    /**
-     * URI of the document in storage where it was exported by the user
-     */
-    private Uri currentUri;
-
-    /**
-     * The path to the zipfile
-     */
-    private String zipPath = null;
-
-    /**
-     * the current filepath being exported
-     */
-    private String thisPath;
-
-    /**
-     * the total number of files being exported
-     */
-    private int totalFiles = 0;
-
-    /**
-     * the number of the current file being exported (corresponds with allMoving)
-     */
-    private int fileNum = 0;
-
     PreferencesManager pref;
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_list);
@@ -88,8 +74,6 @@ public class AudioFiles extends Activity {
         sort = (int) pref.getPreferences("displaySort");
 
         audioFileView = (ListView) findViewById(R.id.main_content);
-
-
         btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
 
         // Cleanup any leftover visualization files
@@ -105,7 +89,123 @@ public class AudioFiles extends Activity {
         } else {
             initFiles(file);
         }
+
         setButtonHandlers();
+
+        FragmentManager fm = getFragmentManager();
+        mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
+
+        if(savedInstanceState != null) {
+            mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
+            mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
+            mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
+        }
+        //check if fragment was retained from a screen rotation
+        if(mExportTaskFragment == null){
+            mExportTaskFragment = new ExportTaskFragment();
+            fm.beginTransaction().add(mExportTaskFragment, TAG_EXPORT_TASK_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        } else {
+            if(mZipping){
+                zipProgress(mProgress);
+            } else if(mExporting){
+                exportProgress(mProgress);
+            }
+        }
+    }
+
+    public void exportProgress(int progress){
+        mPd = new ProgressDialog(this);
+        mPd.setTitle("Uploading...");
+        mPd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mPd.setProgress(progress);
+        mPd.setCancelable(false);
+        mPd.show();
+    }
+
+    public void zipProgress(int progress){
+        mPd = new ProgressDialog(this);
+        mPd.setTitle("Packaging files to export.");
+        mPd.setMessage("Please wait...");
+        mPd.setProgress(progress);
+        mPd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mPd.setCancelable(false);
+        mPd.show();
+    }
+
+    public void dismissProgress(){
+        mPd.dismiss();
+    }
+
+    public void incrementProgress(int progress){
+        mPd.incrementProgressBy(progress);
+    }
+
+    public void setUploadProgress(int progress){
+        mPd.setProgress(progress);
+    }
+
+    public void showProgress(boolean mode){
+        if(mode == true){
+            zipProgress(0);
+        } else {
+            exportProgress(0);
+        }
+    }
+
+    @Override
+    public void setZipping(boolean zipping){
+        mZipping = zipping;
+    }
+
+    @Override
+    public void setExporting(boolean exporting){
+        mExporting = exporting;
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(mPd != null && mPd.isShowing()){
+            mPd.dismiss();
+            mPd = null;
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        if(mPd != null) {
+            savedInstanceState.putInt(STATE_PROGRESS, mPd.getProgress());
+        }
+        savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
+        savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
+
+        // Remember the scroll position and offset of the list
+        // From: http://stackoverflow.com/a/3035521
+        int offset = 0;
+        View v = audioFileView.getChildAt(0);
+        if (v != null) {
+            offset = v.getTop() - audioFileView.getPaddingTop();
+        }
+        savedInstanceState.putInt(TOP_LIST_ITEM, audioFileView.getFirstVisiblePosition());
+        savedInstanceState.putInt(TOP_LIST_ITEM_OFFSET, offset);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore the scroll position and offset of the top list item
+        // From: http://stackoverflow.com/a/3035521
+        audioFileView.post(new Runnable() {
+            @Override
+            public void run() {
+                int index = savedInstanceState.getInt(TOP_LIST_ITEM);
+                int offset = savedInstanceState.getInt(TOP_LIST_ITEM_OFFSET);
+                audioFileView.setSelectionFromTop(index, offset);
+            }
+        });
     }
 
     private void initFiles(File[] file){
@@ -293,21 +393,6 @@ public class AudioFiles extends Activity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         mMenu = menu;
         return true;
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        //get files in the directory
-        File f = new File(currentDir);
-        file = f.listFiles();
-        // No files
-        if (file == null) {
-            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
-            // Get audio files
-        } else {
-            initFiles(file);
-        }
     }
 
     /**
@@ -525,4 +610,9 @@ public class AudioFiles extends Activity {
         }
     }
 
+    @Override
+    public void delegateExport(Export exp) {
+        exp.setFragmentContext(mExportTaskFragment);
+        mExportTaskFragment.delegateExport(exp);
+    }
 }

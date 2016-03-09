@@ -73,7 +73,7 @@ public class WavFileWriter extends Service{
         Thread compressionThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int increment = (int)Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)screenWidth)  * AudioInfo.SIZE_OF_SHORT;
+                int increment = AudioInfo.COMPRESSION_RATE;
                 System.out.println("Increment is " + increment);
                 boolean stopped = false;
                 //int numRemoved = 0;
@@ -202,13 +202,13 @@ public class WavFileWriter extends Service{
     }
 
     public static void overwriteHeaderData(String filepath, long totalDataLen){
-        long totalAudioLen = totalDataLen - 36; //While the header is 44 bytes, 8 consist of the data subchunk header
+        long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
         totalDataLen -= 8; //this subtracts out the data subchunk header
         try {
             RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
             //seek to header[4] to overwrite data length
             long longSampleRate = AudioInfo.SAMPLERATE;
-            long byteRate = AudioInfo.BPP * AudioInfo.SAMPLERATE * AudioInfo.NUM_CHANNELS;
+            long byteRate = (AudioInfo.BPP * AudioInfo.SAMPLERATE * AudioInfo.NUM_CHANNELS) / 8;
             byte[] header = new byte[44];
 
             header[0] = 'R';
@@ -243,7 +243,7 @@ public class WavFileWriter extends Service{
             header[29] = (byte) ((byteRate >> 8) & 0xff);
             header[30] = (byte) ((byteRate >> 16) & 0xff);
             header[31] = (byte) ((byteRate >> 24) & 0xff);
-            header[32] = (byte) (AudioInfo.NUM_CHANNELS * AudioInfo.BPP); // block align
+            header[32] = (byte) ((AudioInfo.NUM_CHANNELS * AudioInfo.BPP) / 8); // block align
             header[33] = 0;
             header[34] = AudioInfo.BPP; // bits per sample
             header[35] = 0;

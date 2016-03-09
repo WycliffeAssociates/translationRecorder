@@ -20,104 +20,74 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  */
 public class WavPlayer {
 
-    private static MappedByteBuffer audioData = null;
-    private static AudioTrack player = null;
-    private static Thread playbackThread;
-    private static volatile boolean onlyPlayingSection = false;
-    private static volatile int endPlaybackPosition = 0;
-    private static volatile int startPlaybackPosition = 0;
-    private static int minBufferSize = 0;
-    private static volatile boolean keepPlaying = false;
-    private static volatile int playbackStart = 0;
-    private static volatile boolean forceBreakOut = false;
-    private static CutOp sCutOp;
-    private static volatile boolean sPressedSeek = true;
-    private static volatile boolean sPressedPause = false;
-    private static volatile Vector<Pair<Integer,Integer>> sSkippedStack;
+    private volatile MappedByteBuffer audioData = null;
+    private AudioTrack player = null;
+    private Thread mPlaybackThread;
+    private volatile boolean mOnlyPlayingSection = false;
+    private volatile int endPlaybackPosition = 0;
+    private volatile int startPlaybackPosition = 0;
+    private int minBufferSize = 0;
+    private volatile boolean keepPlaying = false;
+    private volatile int playbackStart = 0;
+    private volatile boolean forceBreakOut = false;
+    private CutOp mCutOp;
+    private volatile boolean sPressedSeek = true;
+    private volatile boolean sPressedPause = false;
+    private volatile boolean releaseAtEnd = false;
 
-    public static void setCutOp(CutOp cut){
-        sCutOp = cut;
+    public WavPlayer(MappedByteBuffer file, CutOp cut){
+        loadFile(file);
+        mCutOp = cut;
+        releaseAtEnd = false;
     }
 
-    public static void setOnlyPlayingSection(Boolean onlyPlayingSection){
-        WavPlayer.onlyPlayingSection = onlyPlayingSection;
+    public void setOnlyPlayingSection(Boolean onlyPlayingSection){
+        mOnlyPlayingSection = onlyPlayingSection;
     }
 
-    public static void resetState(){
-       onlyPlayingSection = false;
-       endPlaybackPosition = 0;
-       startPlaybackPosition = 0;
-       minBufferSize = 0;
-       keepPlaying = false;
-       playbackStart = 0;
-       forceBreakOut = false;
-    }
-
-    public static void skipCutSection(){
-        final int skipSection = sCutOp.skip((int)(audioData.position()/88.2));
-        if(skipSection != -1) {
-            player.pause();
-            player.flush();
-            //500 instead of 1000 because the position should be double here- there's two bytes
-            //per data point in the audio array
-            playbackStart = (int) (skipSection * (AudioInfo.SAMPLERATE / 500.0));
-            //make sure the playback start is within the bounds of the file's capacity
-            playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
-            int position = (playbackStart % 2 == 0) ? playbackStart : playbackStart + 1;
-            System.out.println("starting from position " + playbackStart);
-            //position in the buffer keeps track of where we are for playback
-            audioData.position(position);
-            player.play();
-        }
-    }
-
-    public static void play(){
+    public void resetState(){
+        mOnlyPlayingSection = false;
+        endPlaybackPosition = 0;
+        startPlaybackPosition = 0;
+        minBufferSize = 0;
+        keepPlaying = false;
+        playbackStart = 0;
         forceBreakOut = false;
-        if(WavPlayer.isPlaying()){
+        releaseAtEnd = false;
+    }
+
+    public void play(){
+        releaseAtEnd = false;
+        forceBreakOut = false;
+        if(isPlaying()){
             return;
         }
         keepPlaying = true;
         player.flush();
         player.play();
-        if(!onlyPlayingSection && !sPressedSeek && !sPressedPause){
+        if(!mOnlyPlayingSection && !sPressedSeek && !sPressedPause){
             playbackStart = 0;
         }
         sPressedPause = false;
         sPressedSeek = false;
-        playbackThread = new Thread(){
+        mPlaybackThread = new Thread(){
 
             public void run(){
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
                 int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
-                System.out.println("starting from position " + playbackStart);
+                Thread thisThread = Thread.currentThread();
                 //position in the buffer keeps track of where we are for playback
                 audioData.position(position);
                 int limit = audioData.capacity();
                 short[] shorts = new short[minBufferSize/2];
                 byte[] bytes = new byte[minBufferSize];
-                while(audioData.position() < limit && keepPlaying){
+                while(audioData != null && audioData.position() < limit && keepPlaying && thisThread == mPlaybackThread){
 
                     //checks to see if we're in a selected section and should end
                     if(checkIfShouldStop()){
                         break;
                     }
-//                        int numSamplesLeft = limit - audioData.position();
-//                        //if the number of samples left is large enough, just copy the data
-//                        if(numSamplesLeft >= bytes.length) {
-//                            //need to grab data from the mapped file, then convert it into a short array
-//                            //since AudioTrack requires writing shorts for playing PCM16
-//                            audioData.get(bytes);
-//                        }
-//                        //if the number of samples left wont fill the buffer, zero out the end
-//                        else {
-//                            for(int i=numSamplesLeft; i<shorts.length; i++) {
-//                                shorts[i] = 0;
-//                            }
-//                            for(int i=numSamplesLeft; i<bytes.length; i++) {
-//                                bytes[i] = 0;
-//                            }
-//                            audioData.get(bytes, 0, numSamplesLeft);
-//                        }
+
                     get(bytes);
                     //copy the bytes from the audio file into a short buffer, need to flip byte order
                     //as wav files are little endian
@@ -128,17 +98,46 @@ public class WavPlayer {
                 }
                 //location doesn't usually end up going to the end before audio playback stops.
                 //continue to loop until the end is reached.
-                while((getLocation() <= (getDuration())) && !forceBreakOut){
-                    Thread.yield();
+//                while(audioData != null && (getLocation() <= (getDuration())) && !forceBreakOut && thisThread == mPlaybackThread){
+//                    Thread.yield();
+//                }
+                if(releaseAtEnd){
+                    audioData = null;
+                    player = null;
                 }
-                System.out.println("end thread");
-                System.out.println("location is " + getLocation() + " out of " + getDuration());
             }
         };
-        playbackThread.start();
+        mPlaybackThread.start();
     }
 
-    private static void get(byte[] bytes){
+    private void get(byte[] bytes){
+        if(mCutOp.cutExistsInRange(audioData.position(), minBufferSize)){
+            getWithSkips(bytes);
+        } else {
+            getWithoutSkips(bytes);
+        }
+    }
+
+    private void getWithoutSkips(byte[] bytes){
+        int size = bytes.length;
+        int end = 0;
+        boolean brokeEarly = false;
+        for(int i = 0; i < size; i++){
+            if(!audioData.hasRemaining()){
+                brokeEarly = true;
+                end = i;
+                break;
+            }
+            bytes[i] = audioData.get();
+        }
+        if(brokeEarly){
+            for(int i = end; i < size; i++){
+                bytes[i] = 0;
+            }
+        }
+    }
+
+    private void getWithSkips(byte[] bytes){
         int size = bytes.length;
         int skip = 0;
         int end = 0;
@@ -149,15 +148,15 @@ public class WavPlayer {
                 end = i;
                 break;
             }
-            skip = sCutOp.skip((int)(audioData.position()/88.2));
+            skip = mCutOp.skip((int)(audioData.position()/88.2));
             if(skip != -1 && i % 2 == 0){
-                Logger.i(WavPlayer.class.toString(), "Location is " + getLocation() + "position is " + audioData.position());
+                Logger.i(this.toString(), "Location is " + getLocation() + "position is " + audioData.position());
                 int start = (int) (skip * (AudioInfo.SAMPLERATE / 500.0));
                 //make sure the playback start is within the bounds of the file's capacity
                 start = Math.max(Math.min(audioData.capacity(), start), 0);
                 int position = (start % 2 == 0) ? start : start + 1;
                 audioData.position(position);
-                Logger.i(WavPlayer.class.toString(), "Location is now " + getLocation()  + "position is " + audioData.position());
+                Logger.i(this.toString(), "Location is now " + getLocation() + "position is " + audioData.position());
             }
             bytes[i] = audioData.get();
         }
@@ -174,7 +173,7 @@ public class WavPlayer {
      * Initializes the audio track to play this file
      * @param file
      */
-    public static void loadFile(MappedByteBuffer file){
+    public void loadFile(MappedByteBuffer file){
         resetState();
         audioData = file;
         minBufferSize = AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
@@ -189,7 +188,7 @@ public class WavPlayer {
     }
 
     //Pause calls flush so as to eliminate data that may have been written right after the pause
-    public static void pause(boolean fromButtonPress){
+    public void pause(boolean fromButtonPress){
         if(player != null){
             playbackStart = (int)(getLocation() * 88.2);
             sPressedPause = true;
@@ -197,7 +196,7 @@ public class WavPlayer {
         }
     }
 
-    public static void pause(){
+    public void pause(){
         if(player != null){
             player.pause();
             player.flush();
@@ -206,16 +205,16 @@ public class WavPlayer {
         }
     }
 
-    public static boolean exists(){
+    public boolean exists(){
         if(player != null){
             return true;
         } else
             return false;
     }
 
-    public static void seekToStart(){
+    public void seekToStart(){
         if(player != null ) {
-            if(onlyPlayingSection){
+            if(mOnlyPlayingSection){
                 seekTo(startPlaybackPosition);
             }
             else {
@@ -224,63 +223,69 @@ public class WavPlayer {
         }
     }
 
-    public static void seekToEnd(){
+    public void seekToEnd(){
         if(player != null ) {
-            if(onlyPlayingSection){
+            if(mOnlyPlayingSection){
                 seekTo(endPlaybackPosition);
             }
             else {
-                seekTo(sCutOp.timeAdjusted(WavPlayer.getDuration() - sCutOp.getSizeCut()));
+                seekTo(mCutOp.timeAdjusted(getDuration() - mCutOp.getSizeCut()));
             }
         }
     }
 
-    public static void seekTo(int x){
+    public void seekTo(int x){
         boolean wasPlaying = isPlaying();
         sPressedSeek = true;
         stop();
-//        int seekTo = sCutOp.skip(x);
-//        if(seekTo != -1){
-//            x = seekTo;
-//        }
-        //500 instead of 1000 because the position should be double here- there's two bytes
-        //per data point in the audio array
-        playbackStart = (int)(x * (AudioInfo.SAMPLERATE/500.0));
+
+        int seconds = x/1000;
+        int ms = (x-(seconds*1000));
+        int tens = ms/10;
+        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+        idx*=2;
+
+        playbackStart = idx;
         //make sure the playback start is within the bounds of the file's capacity
-        playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
+        if(audioData != null) {
+            playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
+        } else {
+            playbackStart = 0;
+        }
         if(wasPlaying){
             play();
         }
+        Logger.w(this.toString(), "Seeking to " + x + "ms which is location " + playbackStart);
     }
 
-    public static void stop(){
+    public void stop(){
         if(isPlaying() || isPaused()){
             keepPlaying = false;
             player.pause();
             player.stop();
-            if(playbackThread != null){
+            if(mPlaybackThread != null){
                 forceBreakOut = true;
-                playbackThread = null;
+                mPlaybackThread = null;
             }
             player.flush();
         }
     }
 
-    public static void stopSectionAt(int end){
+    public void stopSectionAt(int end){
         endPlaybackPosition = end;
-        onlyPlayingSection = true;
+        mOnlyPlayingSection = true;
     }
 
-    public static void startSectionAt(int startMS){
+    public void startSectionAt(int startMS){
         startPlaybackPosition = startMS;
     }
 
-    public static boolean checkIfShouldStop(){
-        if((WavPlayer.getDuration()) <= getLocation()) {
+    public boolean checkIfShouldStop(){
+        if((getDuration()) <= getLocation()) {
             pause();
             return true;
         }
-        if(onlyPlayingSection && (getLocation() >= endPlaybackPosition)){
+        if(mOnlyPlayingSection && (getLocation() >= endPlaybackPosition)){
             pause();
             seekTo(startPlaybackPosition);
             stop();
@@ -289,41 +294,44 @@ public class WavPlayer {
         return false;
     }
 
-    public static void release(){
+    public void release(){
         stop();
-        audioData = null;
-        if(player != null)
+        if(player != null) {
             player.release();
-        player = null;
-        if(playbackThread!= null){
+        }
+        if(mPlaybackThread!= null){
             keepPlaying = false;
             forceBreakOut = true;
+        } else {
+            releaseAtEnd = true;
+            audioData = null;
+            player = null;
         }
     }
 
-    public static boolean isPlaying(){
+    public boolean isPlaying(){
         if(player != null)
             return player.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
         else
             return false;
     }
 
-    public static boolean isPaused(){
+    public boolean isPaused(){
         if(player != null)
             return player.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
         else
             return false;
     }
 
-    public static int getLocation(){
+    public int getLocation(){
         if(player != null) {
-            int loc = Math.min((int) ((playbackStart / 2 + player.getPlaybackHeadPosition()) *
-                    (1000.0 / AudioInfo.SAMPLERATE)), getDuration());
+            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
+                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
 //            if(mMovedBackwards){
-//                loc = sCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
+//                loc = mCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
 //            } else {
             //Ignore cuts prior to playback start: assume they're already accounted for
-            loc = sCutOp.timeAdjusted(loc, (int) (playbackStart / 88.2));
+            loc = mCutOp.timeAdjusted(loc, (int) Math.round(playbackStart / 88.2));
            // }
             return loc;
         }
@@ -333,9 +341,9 @@ public class WavPlayer {
         }
     }
 
-    public static int getAdjustedLocation(){
+    public int getAdjustedLocation(){
         if(player != null) {
-            int loc = sCutOp.reverseTimeAdjusted(getLocation());
+            int loc = mCutOp.reverseTimeAdjusted(getLocation());
             return loc;
         }
         else {
@@ -343,8 +351,8 @@ public class WavPlayer {
         }
     }
 
-    public static int getDuration(){
-        if(player != null){
+    public int getDuration(){
+        if(player != null && audioData != null){
             int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
             return duration;
         }
@@ -353,11 +361,11 @@ public class WavPlayer {
         }
     }
 
-    public static int getAdjustedDuration(){
-        return getDuration() - sCutOp.getSizeCut();
+    public int getAdjustedDuration(){
+        return getDuration() - mCutOp.getSizeCut();
     }
 
-    public static int getSelectionEnd(){
+    public int getSelectionEnd(){
         return endPlaybackPosition;
     }
 
