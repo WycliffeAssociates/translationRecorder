@@ -200,12 +200,19 @@ public class UIDataManager {
         int percent = (int)Math.round((buffer.capacity()) /100.0);
         int count = percent;
         long sizeAfterCut = 0;
-        for(int i = 0; i < buffer.capacity(); i++){
+        for(int i = 0; i < buffer.capacity()-1; i++){
             int skip = mCutOp.skipLoc(i, false);
             if(skip != -1){
                 i = skip;
             }
             sizeAfterCut++;
+            if(i >= buffer.capacity()){
+                if(i%2 != 0 && i-1 < buffer.capacity()){
+                    i--;
+                } else {
+                    break;
+                }
+            }
             bos.write(buffer.get(i));
             if(count <= 0) {
                 pd.incrementProgressBy(1);

@@ -116,9 +116,13 @@ public class PlaybackScreen extends Activity{
     @Override
     public void onPause(){
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
         mManager.release();
         SectionMarkers.clearMarkers(mManager);
-
     }
 
     private void playRecording() {
