@@ -277,6 +277,23 @@ public class CutOp {
         return loc;
     }
 
+    public synchronized boolean cutExistsInRange(int position, int range){
+        if(hasCut()) {
+            for (Pair<Integer, Integer> cut : mCutStackUncmpLoc) {
+                //if the position is in the middle of a cut
+                if (position >= cut.first && position <= cut.second) {
+                    return true;
+                    //if the cut is between the position and the end of the range
+                } else if (position < cut.first && (position + range) >= cut.second) {
+                    return true;
+                }
+            }
+        }
+        //otherwise no cut
+        return false;
+    }
+
+
     public synchronized int absoluteLocToRelative(int location, boolean compressed){
         Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc;
         int loc = location;

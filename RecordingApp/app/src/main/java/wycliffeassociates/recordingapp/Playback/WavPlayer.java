@@ -111,14 +111,38 @@ public class WavPlayer {
     }
 
     private void get(byte[] bytes){
+        if(mCutOp.cutExistsInRange(audioData.position(), minBufferSize)){
+            getWithSkips(bytes);
+        } else {
+            getWithoutSkips(bytes);
+        }
+    }
+
+    private void getWithoutSkips(byte[] bytes){
+        int size = bytes.length;
+        int end = 0;
+        boolean brokeEarly = false;
+        for(int i = 0; i < size; i++){
+            if(!audioData.hasRemaining()){
+                brokeEarly = true;
+                end = i;
+                break;
+            }
+            bytes[i] = audioData.get();
+        }
+        if(brokeEarly){
+            for(int i = end; i < size; i++){
+                bytes[i] = 0;
+            }
+        }
+    }
+
+    private void getWithSkips(byte[] bytes){
         int size = bytes.length;
         int skip = 0;
         int end = 0;
         boolean brokeEarly = false;
         for(int i = 0; i < size; i++){
-            if(forceBreakOut){
-                return;
-            }
             if(!audioData.hasRemaining()){
                 brokeEarly = true;
                 end = i;
@@ -126,11 +150,13 @@ public class WavPlayer {
             }
             skip = mCutOp.skip((int)(audioData.position()/88.2));
             if(skip != -1 && i % 2 == 0){
+                Logger.i(this.toString(), "Location is " + getLocation() + "position is " + audioData.position());
                 int start = (int) (skip * (AudioInfo.SAMPLERATE / 500.0));
                 //make sure the playback start is within the bounds of the file's capacity
                 start = Math.max(Math.min(audioData.capacity(), start), 0);
                 int position = (start % 2 == 0) ? start : start + 1;
                 audioData.position(position);
+                Logger.i(this.toString(), "Location is now " + getLocation() + "position is " + audioData.position());
             }
             bytes[i] = audioData.get();
         }
