@@ -94,6 +94,22 @@ public class Settings extends Activity {
         pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
     }
 
+    public static void updateFilename(Context c, String lang, String src, String book,
+                                      int chap, int chunk){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
+        pref.edit().putString(KEY_PREF_LANG, lang).commit();
+        pref.edit().putString(KEY_PREF_SOURCE, src).commit();
+        pref.edit().putString(KEY_PREF_BOOK, book).commit();
+        pref.edit().putString(KEY_PREF_CHAPTER, String.valueOf(chap)).commit();
+        String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
+        if(chunkOrVerse.compareTo("chunk") == 0) {
+            pref.edit().putString(KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+        } else {
+            pref.edit().putString(KEY_PREF_VERSE, String.valueOf(chunk)).commit();
+        }
+        updateFilename(c);
+    }
+
     public static String formatDigit(String number){
         int value = Integer.parseInt(number);
         return String.format("%02d", value);
