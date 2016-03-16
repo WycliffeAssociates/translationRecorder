@@ -17,19 +17,18 @@ import java.io.File;
  */
 public class ExitDialog extends Dialog implements View.OnClickListener {
 
-    private boolean isPlaying = false;
-    private String filename = null;
-    private boolean isALoadedFile = false;
+    protected boolean isPlaying = false;
+    protected String filename = null;
+    protected boolean isALoadedFile = false;
 
 
-    private Activity activity;
+    protected Activity activity;
 
-    private ImageButton btnSave, btnDelete;
+    protected ImageButton btnSave, btnDelete;
 
     public ExitDialog(Activity a, int theme) {
         super(a, theme);
         this.activity = a;
-
     }
 
     @Override

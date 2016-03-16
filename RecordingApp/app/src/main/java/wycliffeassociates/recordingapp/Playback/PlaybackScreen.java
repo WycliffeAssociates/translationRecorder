@@ -38,6 +38,7 @@ import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.RerecordDialog;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
@@ -198,19 +199,29 @@ public class PlaybackScreen extends Activity{
         mManager.updateUI();
     }
 
+    private void rerecord(){
+        RerecordDialog exit = new RerecordDialog(this, R.style.Theme_UserDialog);
+        permissionToLeave(exit);
+    }
+
+    private void permissionToLeave(ExitDialog dialog){
+        Logger.i(this.toString(), "Asking if user wants to save before going back");
+        dialog.setFilename(recordedFilename);
+        dialog.setLoadedFile(isALoadedFile);
+        if (isPlaying) {
+            dialog.setIsPlaying(true);
+            isPlaying = false;
+        }
+        dialog.show();
+    }
+
     @Override
     public void onBackPressed() {
         Logger.i(this.toString(), "Back was pressed.");
         if (!isSaved && !isALoadedFile || isALoadedFile && mManager.hasCut()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
-            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
-            dialog.setFilename(recordedFilename);
-            dialog.setLoadedFile(isALoadedFile);
-            if (isPlaying) {
-                dialog.setIsPlaying(true);
-                isPlaying = false;
-            }
-            dialog.show();
+            ExitDialog exit = new ExitDialog(this, R.style.Theme_UserDialog);
+            permissionToLeave(exit);
         } else {
 //            clearMarkers();
             mManager.release();
@@ -431,6 +442,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
+        findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -486,6 +498,10 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnUndo: {
                     undo();
+                    break;
+                }
+                case R.id.btnRerecord: {
+                    rerecord();
                     break;
                 }
             }

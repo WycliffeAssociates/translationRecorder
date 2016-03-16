@@ -14,6 +14,7 @@ public class FileNameExtractor {
     private int mChap;
     private int mChunk;
     private int mTake;
+    private boolean mMatched = false;
 
     public FileNameExtractor(String file){
         extractData(file);
@@ -38,6 +39,9 @@ public class FileNameExtractor {
             mChap = Integer.parseInt(m.group(4));
             mChunk = Integer.parseInt(m.group(5));
             mTake = Integer.parseInt(m.group(6));
+            mMatched = true;
+        } else {
+            mMatched = false;
         }
     }
 
@@ -63,6 +67,10 @@ public class FileNameExtractor {
 
     public int getTake(){
         return mTake;
+    }
+
+    public boolean matched(){
+        return mMatched;
     }
 
     public static int getLargestTake(File directory, File filename){
