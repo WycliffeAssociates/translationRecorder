@@ -19,6 +19,10 @@ public class FileNameExtractor {
         extractData(file);
     }
 
+    public FileNameExtractor(File file){
+        extractData(file.getName());
+    }
+
     private void extractData(String file){
         //includes the wav extention, could replace this with .*?
         Pattern p = Pattern.compile("([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})_([0-9]{2})\\.wav");
@@ -58,9 +62,8 @@ public class FileNameExtractor {
         return mTake;
     }
 
-    public static int getLargestTake(String directory, String filename){
-        File dir = new File(directory);
-        File[] files = dir.listFiles();
+    public static int getLargestTake(File directory, File filename){
+        File[] files = directory.listFiles();
         FileNameExtractor fne = new FileNameExtractor(filename);
         String inLang = fne.getLang();
         String inSource = fne.getSource();
@@ -69,7 +72,7 @@ public class FileNameExtractor {
         int inChunk = fne.getChunk();
         int maxTake = fne.getTake();
         for(File f : files){
-            fne = new FileNameExtractor(filename);
+            fne = new FileNameExtractor(f);
             //check in order of most unique to least unique
             //ie. more files will share the same language name than chunk number
             if(inChunk == fne.getChunk()){
