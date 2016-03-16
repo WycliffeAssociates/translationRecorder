@@ -95,7 +95,7 @@ public class RecordingScreen extends Activity {
                 Book book = mBooks.get(pref.getString(Settings.KEY_PREF_BOOK, "gen"));
                 int chapter = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1"));
                 String src = pref.getString(Settings.KEY_PREF_SOURCE, "udb");
-                String verseOrChunk = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
+                final String verseOrChunk = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
                 if(verseOrChunk.compareTo("chunk") == 0) {
                     mChunks = parse.getChunks(book.getSlug(), src).get(chapter - 1);
                 } else {
@@ -113,8 +113,15 @@ public class RecordingScreen extends Activity {
                         numPicker.setDisplayedValues(values);
                         numPicker.setMinValue(1);
                         numPicker.setMaxValue(mNumChunks);
-                        int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
-                        mChunk = getChunkIndex(mChunks, chunk);
+                        if(verseOrChunk.compareTo("chunk") == 0) {
+                            // Chunk
+                            int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
+                            mChunk = getChunkIndex(mChunks, chunk);
+                        } else {
+                            // Verse
+                            int verse = Integer.parseInt(pref.getString(Settings.KEY_PREF_VERSE, "1"));
+                            mChunk = getChunkIndex(mChunks, verse);
+                        }
                         Settings.updateFilename(context);
                         suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
                         filenameView.setText(suggestedFilename);
