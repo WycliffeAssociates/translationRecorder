@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.FilesPage;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,5 +56,36 @@ public class FileNameExtractor {
 
     public int getTake(){
         return mTake;
+    }
+
+    public static int getLargestTake(String directory, String filename){
+        File dir = new File(directory);
+        File[] files = dir.listFiles();
+        FileNameExtractor fne = new FileNameExtractor(filename);
+        String inLang = fne.getLang();
+        String inSource = fne.getSource();
+        String inBook = fne.getBook();
+        int inChap = fne.getChapter();
+        int inChunk = fne.getChunk();
+        int maxTake = fne.getTake();
+        for(File f : files){
+            fne = new FileNameExtractor(filename);
+            //check in order of most unique to least unique
+            //ie. more files will share the same language name than chunk number
+            if(inChunk == fne.getChunk()){
+                if(inChap == fne.getChapter()){
+                    if(inBook.compareTo(fne.getBook()) == 0){
+                        if(inSource.compareTo(fne.getSource()) == 0){
+                            if(inLang.compareTo(fne.getLang()) == 0){
+                                if(fne.getTake() > maxTake){
+                                    maxTake = fne.getTake();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return maxTake;
     }
 }
