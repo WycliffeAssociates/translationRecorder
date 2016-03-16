@@ -200,19 +200,10 @@ public class PlaybackScreen extends Activity{
     }
 
     private void rerecord(){
-        RerecordDialog exit = new RerecordDialog(this, R.style.Theme_UserDialog);
-        permissionToLeave(exit);
-    }
-
-    private void permissionToLeave(ExitDialog dialog){
-        Logger.i(this.toString(), "Asking if user wants to save before going back");
-        dialog.setFilename(recordedFilename);
-        dialog.setLoadedFile(isALoadedFile);
-        if (isPlaying) {
-            dialog.setIsPlaying(true);
-            isPlaying = false;
+        RerecordDialog exit = RerecordDialog.Build(this, R.style.Theme_UserDialog, isALoadedFile, isPlaying, recordedFilename);
+        if(exit != null) {
+            exit.show();
         }
-        dialog.show();
     }
 
     @Override
@@ -220,8 +211,8 @@ public class PlaybackScreen extends Activity{
         Logger.i(this.toString(), "Back was pressed.");
         if (!isSaved && !isALoadedFile || isALoadedFile && mManager.hasCut()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
-            ExitDialog exit = new ExitDialog(this, R.style.Theme_UserDialog);
-            permissionToLeave(exit);
+            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_UserDialog, isALoadedFile, isPlaying, recordedFilename);
+            exit.show();
         } else {
 //            clearMarkers();
             mManager.release();

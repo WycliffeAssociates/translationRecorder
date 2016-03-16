@@ -21,6 +21,23 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
     protected String filename = null;
     protected boolean isALoadedFile = false;
 
+    public static ExitDialog Build(Activity a, int theme, boolean loadedFile, boolean isPlaying, String filename){
+        ExitDialog exit = new ExitDialog(a, theme);
+        exit.setFilename(filename);
+        exit.setIsPlaying(isPlaying);
+        exit.setLoadedFile(loadedFile);
+        return exit;
+    }
+
+    public void setLoadedFile(boolean loadedFile){ this.isALoadedFile = loadedFile;}
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+
+    public void setFilename(String filename){
+        this.filename = filename;
+    }
 
     protected Activity activity;
 
@@ -42,18 +59,6 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
         btnSave.setOnClickListener(this);
         btnDelete.setOnClickListener(this);
 
-    }
-
-    public void setLoadedFile(boolean loadedFile){ this.isALoadedFile = loadedFile;}
-
-    public void setIsPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-    }
-
-
-
-    public void setFilename(String filename){
-        this.filename = filename;
     }
 
     @Override

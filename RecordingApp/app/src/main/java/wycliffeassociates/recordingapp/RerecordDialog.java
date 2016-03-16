@@ -14,6 +14,28 @@ import wycliffeassociates.recordingapp.SettingsPage.Settings;
  * Created by sarabiaj on 3/16/2016.
  */
 public class RerecordDialog extends ExitDialog {
+
+    public static RerecordDialog Build(Activity activity, int theme, boolean loadedFile, boolean isPlaying, String filename){
+        RerecordDialog exit = new RerecordDialog(activity, theme);
+        exit.setFilename(filename);
+        exit.setIsPlaying(isPlaying);
+        exit.setLoadedFile(loadedFile);
+
+        File file = new File(filename);
+        FileNameExtractor fne = new FileNameExtractor(file);
+        if(fne.matched()) {
+            Settings.updateFilename(activity, fne.getLang(), fne.getSource(), fne.getBook(),
+                    fne.getChapter(), fne.getChunk());
+        }
+        if(loadedFile){
+            Intent intent = new Intent(activity, RecordingScreen.class);
+            activity.startActivity(intent);
+            activity.finish();
+            return null;
+        }
+        return exit;
+    }
+
     public RerecordDialog(Activity a, int theme) {
         super(a, theme);
     }
@@ -27,14 +49,7 @@ public class RerecordDialog extends ExitDialog {
             case R.id.btnDelete: {
                 if (filename != null){
                     File file = new File(filename);
-                    FileNameExtractor fne = new FileNameExtractor(file);
-                    if(fne.matched()) {
-                        Settings.updateFilename(activity, fne.getLang(), fne.getSource(), fne.getBook(),
-                                fne.getChapter(), fne.getChunk());
-                    } else {
-                        //else uuid file, so delete
-                        file.delete();
-                    }
+                    file.delete();
                     Intent intent = new Intent(activity, RecordingScreen.class);
                     activity.startActivity(intent);
                     activity.finish();
