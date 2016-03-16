@@ -31,6 +31,9 @@ public class RerecordDialog extends ExitDialog {
                     if(fne.matched()) {
                         Settings.updateFilename(activity, fne.getLang(), fne.getSource(), fne.getBook(),
                                 fne.getChapter(), fne.getChunk());
+                    } else {
+                        //else uuid file, so delete
+                        file.delete();
                     }
                     Intent intent = new Intent(activity, RecordingScreen.class);
                     activity.startActivity(intent);
