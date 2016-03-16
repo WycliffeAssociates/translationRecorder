@@ -35,6 +35,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
@@ -386,7 +387,8 @@ public class PlaybackScreen extends Activity{
                     }
                 }
                 if(!isALoadedFile && !mChangedName) {
-                    Settings.incrementTake(context);
+                    int setTo = FileNameExtractor.getLargestTake(new File(AudioInfo.fileDir), to)+1;
+                    Settings.incrementTake(context, setTo);
                 }
                 pd.dismiss();
                 finish();

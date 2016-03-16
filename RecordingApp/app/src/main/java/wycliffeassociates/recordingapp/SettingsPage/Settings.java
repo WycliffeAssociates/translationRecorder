@@ -99,12 +99,9 @@ public class Settings extends Activity {
         return String.format("%02d", value);
     }
 
-    public static void incrementTake(Context c){
+    public static void incrementTake(Context c, int setTo){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
-        String take = pref.getString(KEY_PREF_TAKE, "1");
-        int takeInt = Integer.parseInt(take);
-        takeInt++;
-        pref.edit().putString(KEY_PREF_TAKE, String.valueOf(takeInt)).commit();
+        pref.edit().putString(KEY_PREF_TAKE, String.valueOf(setTo)).commit();
         updateFilename(c);
     }
 

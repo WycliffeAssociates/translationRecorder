@@ -25,17 +25,20 @@ public class FileNameExtractor {
 
     private void extractData(String file){
         //includes the wav extention, could replace this with .*?
-        Pattern p = Pattern.compile("([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})_([0-9]{2})\\.wav");
+        String FILENAME_PATTERN = "([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})_([0-9]{2})\\.wav";
+        Pattern p = Pattern.compile(FILENAME_PATTERN);
         Matcher m = p.matcher(file);
-        m.find();
-
+        boolean found = m.find();
+        System.out.println("file is " + file + "\npattern is " + p.pattern());
         //m.group starts with the pattern, so the first group is at 1
-        mLang = m.group(1);
-        mSource = m.group(2);
-        mBook = m.group(3);
-        mChap = Integer.parseInt(m.group(4));
-        mChunk = Integer.parseInt(m.group(5));
-        mTake = Integer.parseInt(m.group(6));
+        if(found){
+            mLang = m.group(1);
+            mSource = m.group(2);
+            mBook = m.group(3);
+            mChap = Integer.parseInt(m.group(4));
+            mChunk = Integer.parseInt(m.group(5));
+            mTake = Integer.parseInt(m.group(6));
+        }
     }
 
     public String getLang(){
@@ -71,6 +74,9 @@ public class FileNameExtractor {
         int inChap = fne.getChapter();
         int inChunk = fne.getChunk();
         int maxTake = fne.getTake();
+        if(files == null){
+            return maxTake;
+        }
         for(File f : files){
             fne = new FileNameExtractor(f);
             //check in order of most unique to least unique
