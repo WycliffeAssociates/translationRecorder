@@ -49,12 +49,10 @@ public class MainMenu extends Activity{
         System.out.println("External files dir is " + Environment.getExternalStoragePublicDirectory("TranslationRecorder"));
 
 
-        File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
-        System.out.println("Result of making vis directory " + visDir.mkdir());
+
 
         initApp();
 
-        AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
         btnRecord = (ImageButton) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,6 +133,9 @@ public class MainMenu extends Activity{
     private void initApp(){
         // configure logger
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        if(!dir.exists()){
+            dir.mkdir();
+        }
         GlobalExceptionHandler.register(dir);
         int minLogLevel = Integer.parseInt(getUserPreferences().getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
         configureLogger(minLogLevel);
@@ -150,7 +151,7 @@ public class MainMenu extends Activity{
 
         // set up Visualization folder
         File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
-        System.out.println("Result of making vis directory " + visDir.mkdir());
+        System.out.println("Result of making vis directory " + visDir.mkdirs());
         AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
     }
 
