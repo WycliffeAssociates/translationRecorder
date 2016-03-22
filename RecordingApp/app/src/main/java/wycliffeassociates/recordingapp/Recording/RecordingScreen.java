@@ -110,29 +110,32 @@ public class RecordingScreen extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        numPicker.setDisplayedValues(values);
-                        numPicker.setMinValue(1);
-                        numPicker.setMaxValue(mNumChunks);
-                        if(verseOrChunk.compareTo("chunk") == 0) {
-                            // Chunk
-                            int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
-                            mChunk = getChunkIndex(mChunks, chunk);
-                        } else {
-                            // Verse
-                            int verse = Integer.parseInt(pref.getString(Settings.KEY_PREF_VERSE, "1"));
-                            mChunk = getChunkIndex(mChunks, verse);
-                        }
-                        Settings.updateFilename(context);
-                        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
-                        filenameView.setText(suggestedFilename);
-                        numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-                            @Override
-                            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                                setChunk(newVal);
+                        if(values != null && values.length > 0) {
+                            numPicker.setDisplayedValues(values);
+                            numPicker.setMinValue(1);
+                            numPicker.setMaxValue(mNumChunks);
+                            if (verseOrChunk.compareTo("chunk") == 0) {
+                                // Chunk
+                                int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
+                                mChunk = getChunkIndex(mChunks, chunk);
+                            } else {
+                                // Verse
+                                int verse = Integer.parseInt(pref.getString(Settings.KEY_PREF_VERSE, "1"));
+                                mChunk = getChunkIndex(mChunks, verse);
                             }
-                        });
-                        numPicker.setValue(mChunk+1);
-
+                            Settings.updateFilename(context);
+                            suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
+                            filenameView.setText(suggestedFilename);
+                            numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                                @Override
+                                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                                    setChunk(newVal);
+                                }
+                            });
+                            numPicker.setValue(mChunk + 1);
+                        } else {
+                            Logger.e(this.toString(), "values was null or of zero length");
+                        }
                     }
                 });
             }
