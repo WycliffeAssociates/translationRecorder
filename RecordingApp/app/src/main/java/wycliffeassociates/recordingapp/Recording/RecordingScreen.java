@@ -169,9 +169,9 @@ public class RecordingScreen extends Activity {
             stopService(new Intent(this, WavRecorder.class));
             long start = System.currentTimeMillis();
             Logger.w(this.toString(), "Stopping recording");
-            RecordingQueues.stopQueues();
+            RecordingQueues.stopQueues(this);
         } else if(isPausedRecording){
-            RecordingQueues.stopQueues();
+            RecordingQueues.stopQueues(this);
         } else if(!hasStartedRecording){
             stopService(new Intent(this, WavRecorder.class));
             RecordingQueues.stopVolumeTest();
@@ -222,7 +222,7 @@ public class RecordingScreen extends Activity {
             stopService(new Intent(this, WavRecorder.class));
             long start = System.currentTimeMillis();
             Logger.w(this.toString(), "Stopping recording");
-            RecordingQueues.stopQueues();
+            RecordingQueues.stopQueues(this);
             System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
             Intent intent = new Intent(this, PlaybackScreen.class);
             intent.putExtra("recordedFilename", recordedFilename);

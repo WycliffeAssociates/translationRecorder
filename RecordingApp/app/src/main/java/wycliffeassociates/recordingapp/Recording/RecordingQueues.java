@@ -1,5 +1,8 @@
 package wycliffeassociates.recordingapp.Recording;
 
+import android.app.Activity;
+import android.content.Intent;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -36,7 +39,7 @@ public class RecordingQueues {
         }
     }
 
-    public static void stopQueues(){
+    public static void stopQueues(Activity ctx){
         try {
             //Signal the threads reading from the Queues to stop
             RecordingQueues.UIQueue.put(new RecordingMessage(null, false, true));
@@ -47,6 +50,7 @@ public class RecordingQueues {
             Boolean done = RecordingQueues.doneWriting.take();
             Boolean done2 = RecordingQueues.doneWritingCompressed.take();
             Boolean done3 = RecordingQueues.doneUI.take();
+            ctx.stopService(new Intent(ctx, WavFileWriter.class));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

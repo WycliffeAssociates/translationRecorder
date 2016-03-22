@@ -58,7 +58,6 @@ public class WavFileWriter extends Service{
                     overwriteHeaderData(filename, totalAudioLength);
                     RecordingQueues.writingQueue.clear();
                     RecordingQueues.doneWriting.put(new Boolean(true));
-                    stopSelf();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -112,7 +111,6 @@ public class WavFileWriter extends Service{
                     //System.out.println("total count was " + count + " num removed is " + numRemoved);
                     RecordingQueues.compressionQueue.clear();
                     RecordingQueues.doneWritingCompressed.put(new Boolean(true));
-                    stopSelf();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -128,7 +126,6 @@ public class WavFileWriter extends Service{
 
         return START_STICKY;
     }
-
 
     private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording){
         byte[] data = new byte[increment];
