@@ -113,19 +113,24 @@ public class MainMenu extends Activity{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                clearStackTraces();
+                archiveStackTraces();
             }
         }
     }
 
-    public void clearStackTraces(){
+    public void archiveStackTraces(){
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        File archive = new File(getExternalCacheDir() + STACKTRACE_DIR, "Archive");
+        if(!archive.exists()){
+            archive.mkdirs();
+        }
         String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
         // delete stacktraces
         for (String filePath : stacktraces) {
             File traceFile = new File(filePath);
             if (traceFile.exists()) {
-                traceFile.delete();
+                File move = new File(archive, traceFile.getName());
+                traceFile.renameTo(move);
             }
         }
     }
