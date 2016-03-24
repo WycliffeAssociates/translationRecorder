@@ -28,6 +28,14 @@ public class Book {
         mOrder = order;
     }
 
+    public Book(String slug, String name, int order){
+        mNumChapters = 0;
+        mName = name;
+        mSlug = slug;
+        mChunks = null;
+        mOrder = order;
+    }
+
     public int getNumChapters() {
         return mNumChapters;
     }
