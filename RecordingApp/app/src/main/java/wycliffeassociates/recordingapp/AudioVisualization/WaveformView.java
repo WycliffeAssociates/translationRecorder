@@ -25,6 +25,7 @@ public class WaveformView extends CanvasView {
     private ScaleGestureDetector sgd;
     private CutOp mCut;
     private boolean mGestures = false;
+    private int mDb;
 
     public void setCut(CutOp cut){
         mCut = cut;
@@ -169,39 +170,50 @@ public class WaveformView extends CanvasView {
     }
 
     public void drawDbLines(Canvas c){
+        drawDbLines(c, -99);
+    }
+
+    public void drawDbLines(Canvas c, int db){
 
         int db3 = dBLine(23197);
         int ndb3 = dBLine(-23197);
-        c.drawLine(0, db3, getWidth(), db3, mPaintGrid);
-        c.drawLine(0, ndb3, getWidth(), ndb3, mPaintGrid);
+        int db6 = dBLine(16422);
+        int ndb6 = dBLine(-16422);
+        int db12 = dBLine(8230);
+        int ndb12 = dBLine(-8230);
+        int db18 = dBLine(4125);
+        int ndb18 = dBLine(-4125);
+        int db24 = dBLine(2067);
+        int ndb24 = dBLine(-2067);
+
+        c.drawRect(100, db6, getWidth()-100, db3, mPaintGrid);
+        c.drawRect(100, ndb3, getWidth()-100, ndb6, mPaintGrid);
+
+        c.drawRect(400, db12, getWidth()-400, db6, mPaintGrid);
+        c.drawRect(400, ndb6, getWidth()-400, ndb12, mPaintGrid);
+
+        c.drawRect(300, db18, getWidth()-300, db12, mPaintGrid);
+        c.drawRect(300, ndb12, getWidth()-300, ndb18, mPaintGrid);
+
+        c.drawRect(200, db24, getWidth()-200, db18, mPaintGrid);
+        c.drawRect(200, ndb18, getWidth()-200, ndb24, mPaintGrid);
+
+
+        c.drawRect(500, 10, getWidth()-500, ndb3, mPaintGrid);
+        c.drawRect(500, db3, getWidth()-500, getHeight()-2, mPaintGrid);
+
         c.drawText(Integer.toString(-3), 0, db3, mPaintText);
         c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
 
-        int db6 = dBLine(16422);
-        int ndb6 = dBLine(-16422);
-        c.drawLine(0, db6, getWidth(), db6, mPaintGrid);
-        c.drawLine(0, ndb6, getWidth(), ndb6, mPaintGrid);
         c.drawText(Integer.toString(-6), 0, db6, mPaintText);
         c.drawText(Integer.toString(-6), 0, ndb6, mPaintText);
 
-        int db12 = dBLine(8230);
-        int ndb12 = dBLine(-8230);
-        c.drawLine(0, db12, getWidth(), db12, mPaintGrid);
-        c.drawLine(0, ndb12, getWidth(), ndb12, mPaintGrid);
         c.drawText(Integer.toString(-12), 0, db12, mPaintText);
         c.drawText(Integer.toString(-12), 0, ndb12, mPaintText);
 
-        int db18 = dBLine(4125);
-        int ndb18 = dBLine(-4125);
-        c.drawLine(0, db18, getWidth(), db18, mPaintGrid);
-        c.drawLine(0, ndb18, getWidth(), ndb18, mPaintGrid);
         c.drawText(Integer.toString(-18), 0, db18, mPaintText);
         c.drawText(Integer.toString(-18), 0, ndb18, mPaintText);
 
-        int db24 = dBLine(2067);
-        int ndb24 = dBLine(-2067);
-        c.drawLine(0, db24, getWidth(), db24, mPaintGrid);
-        c.drawLine(0, ndb24, getWidth(), ndb24, mPaintGrid);
         c.drawText(Integer.toString(-24), 0, db24, mPaintText);
         c.drawText(Integer.toString(-24), 0, ndb24, mPaintText);
     }
@@ -283,13 +295,14 @@ public class WaveformView extends CanvasView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawDbLines(canvas);
         //DrawingFromBuffers will draw data received from the microphone during recording
         if(mDrawingFromBuffer){
+            drawDbLines(canvas, mDb);
             drawBuffer(canvas, mBuffer, AudioInfo.BLOCKSIZE);
 
         //Samples is a sampled section of the waveform extracted at mTimeToDraw
         } else if (mSamples != null ){
+            drawDbLines(canvas);
             try {
                 drawWaveform(mSamples, canvas);
                 drawMarker(canvas);
@@ -317,6 +330,10 @@ public class WaveformView extends CanvasView {
      */
     public synchronized void setBuffer(byte[] buffer){
         mBuffer = buffer;
+    }
+
+    public synchronized void setDb(int db){
+        mDb = db;
     }
 
     //TODO: create a separate paint object for drawing the waveform
