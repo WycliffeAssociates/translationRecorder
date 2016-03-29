@@ -28,6 +28,15 @@ public class WaveformView extends CanvasView {
     private CutOp mCut;
     private boolean mGestures = false;
     private int mDb = 0;
+    int drawnFrames = 0;
+
+    public int getDrawnFrames(){
+        return drawnFrames;
+    }
+
+    public void resetFrameCount(){
+        drawnFrames = 0;
+    }
 
     public void setCut(CutOp cut){
         mCut = cut;
@@ -172,45 +181,22 @@ public class WaveformView extends CanvasView {
     }
 
     public void drawDbLines(Canvas c){
-        drawDbLines(c, -99);
-    }
+        int db3 = dBLine(23197);
+        int ndb3 = dBLine(-23197);
+        //c.drawLine(0, db3, getWidth(), db3, mPaintGrid);
+        c.drawLine(0, ndb3, getWidth(), ndb3, mPaintGrid);
+        //c.drawText(Integer.toString(-3), 0, db3, mPaintText);
+        c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
 
-    public void showVolumeBar(int db, int rectBase){
-        if(dBLine(db) > rectBase){
-            if(rectBase == dBLine(23197)){
-                mPaintGrid.setStyle(Paint.Style.FILL);
-                mPaintGrid.setAlpha(30);
-                mPaintGrid.setColor(Color.RED);
-            } else if(rectBase == dBLine(16422)){
-                mPaintGrid.setStyle(Paint.Style.FILL);
-                mPaintGrid.setAlpha(30);
-                mPaintGrid.setColor(Color.YELLOW);
-            } else if(rectBase == dBLine(8230)){
-                mPaintGrid.setStyle(Paint.Style.FILL);
-                mPaintGrid.setAlpha(30);
-                mPaintGrid.setColor(Color.argb(100,50,205,50));
-            } else if (rectBase == dBLine(4125)){
-                mPaintGrid.setStyle(Paint.Style.FILL);
-                mPaintGrid.setAlpha(30);
-                mPaintGrid.setColor(Color.argb(100,0,100,0));
-            } else if (rectBase == dBLine(2067)){
-                mPaintGrid.setStyle(Paint.Style.FILL);
-                mPaintGrid.setAlpha(30);
-                mPaintGrid.setColor(Color.CYAN);
-            } else if (rectBase == dBLine(0)){
-                mPaintGrid.setStyle(Paint.Style.FILL);
-                mPaintGrid.setAlpha(30);
-                mPaintGrid.setColor(Color.BLUE);
-            }
-        } else {
-            mPaintGrid.setColor(Color.GRAY);
-            mPaintGrid.setStyle(Paint.Style.STROKE);
-        }
-    }
-
-    public void drawDbLines(Canvas c, int db){
+        int db18 = dBLine(4125);
+        int ndb18 = dBLine(-4125);
+        //c.drawLine(0, db18, getWidth(), db18, mPaintGrid);
+        c.drawLine(0, ndb18, getWidth(), ndb18, mPaintGrid);
+        //c.drawText(Integer.toString(-18), 0, db18, mPaintText);
+        c.drawText(Integer.toString(-18), 0, ndb18, mPaintText);
 
     }
+
 
     private int dBLine(int val){
         return (int)(val/ (double)AudioInfo.AMPLITUDE_RANGE * getHeight()/2 + getHeight()/2);
@@ -291,7 +277,7 @@ public class WaveformView extends CanvasView {
         super.onDraw(canvas);
         //DrawingFromBuffers will draw data received from the microphone during recording
         if(mDrawingFromBuffer){
-            drawDbLines(canvas, mDb);
+            drawDbLines(canvas);
             drawBuffer(canvas, mBuffer, AudioInfo.BLOCKSIZE);
 
         //Samples is a sampled section of the waveform extracted at mTimeToDraw
@@ -316,6 +302,7 @@ public class WaveformView extends CanvasView {
         if(!mManager.isPlaying()){
             mManager.enablePlay();
         }
+        drawnFrames++;
     }
 
     /**

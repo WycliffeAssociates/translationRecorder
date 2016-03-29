@@ -272,7 +272,6 @@ public class UIDataManager {
     //canvas views to listen for recording on the same activity
     public void listenForRecording(final boolean onlyVolumeTest){
         mainWave.setDrawingFromBuffer(true);
-        mVolume.initDB();
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -291,18 +290,19 @@ public class UIDataManager {
                             double max = getPeakVolume(buffer);
                             double db = Math.abs(max);
                             if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 1500)){
-                                mVolume.setDb((int)maxDB);
                                 maxDB = db;
-                                timeDelay = System.currentTimeMillis();
+                                mVolume.setDb((int)maxDB);
                                 mVolume.postInvalidate();
+                                mainWave.resetFrameCount();
+                                timeDelay = System.currentTimeMillis();
                             }
                             else if(((System.currentTimeMillis() - timeDelay) > 1500)){
-                                mVolume.setDb((int) maxDB);
-                                mVolume.postInvalidate();
                                 maxDB = db;
+                                mVolume.setDb((int) maxDB);
+                                mainWave.resetFrameCount();
+                                mVolume.postInvalidate();
                                 timeDelay = System.currentTimeMillis();
                             }
-
                             if(isRecording) {
                                 mainWave.setBuffer(buffer);
                                 mainWave.postInvalidate();
@@ -320,7 +320,6 @@ public class UIDataManager {
                             //if only running the volume meter, the queues need to be emptied
                             } else if(onlyVolumeTest) {
                                 mainWave.setBuffer(null);
-                                mVolume.postInvalidate();
                                 RecordingQueues.writingQueue.clear();
                                 RecordingQueues.compressionQueue.clear();
                             }
@@ -344,7 +343,7 @@ public class UIDataManager {
 
     public double getPeakVolume(byte[] buffer){
         double max = 0;
-        for(int i =0; i < buffer.length; i+=2) {
+        for(int i =0; i < buffer.length; i+=4) {
             byte low = buffer[i];
             byte hi = buffer[i + 1];
             short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));

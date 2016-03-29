@@ -27,6 +27,7 @@ public class VolumeBar extends CanvasView{
     int ndb24;
     int db0;
 
+
     public VolumeBar(Context c, AttributeSet attrs) {
         super(c, attrs);
     }
@@ -77,13 +78,13 @@ public class VolumeBar extends CanvasView{
                 mPaintGrid.setColor(Color.BLUE);
             }
         } else {
-            mPaintGrid.setColor(Color.GRAY);
+            mPaintGrid.setColor(Color.BLACK);
             mPaintGrid.setStyle(Paint.Style.STROKE);
         }
     }
 
     public void drawDbLines(Canvas c){
-
+        initDB();
         showVolumeBar(mDb, db0);
         c.drawRect(0, db0, getWidth(), db24, mPaintGrid);
         c.drawRect(0, ndb24, getWidth(), db0, mPaintGrid);
@@ -106,7 +107,7 @@ public class VolumeBar extends CanvasView{
 
         showVolumeBar(mDb, db3);
         c.drawRect(0, 10, getWidth(), ndb3, mPaintGrid);
-        c.drawRect(0, db3, getWidth(), getHeight() - 2, mPaintGrid);
+        c.drawRect(0, db3, getWidth(), getHeight(), mPaintGrid);
 
         mPaintGrid.setStyle(Paint.Style.STROKE);
         mPaintGrid.setColor(Color.GRAY);
