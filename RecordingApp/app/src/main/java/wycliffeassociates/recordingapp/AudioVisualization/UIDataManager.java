@@ -38,6 +38,7 @@ public class UIDataManager {
     static public final boolean PLAYBACK_MODE = true;
     static public final boolean RECORDING_MODE = false;
     private final WaveformView mainWave;
+    private final VolumeBar mVolume;
     private final MinimapView minimap;
     private final Activity ctx;
     private final MarkerView mStartMarker;
@@ -56,8 +57,11 @@ public class UIDataManager {
     private CutOp mCutOp;
     private WavPlayer mPlayer;
 
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile) {
+        this(mainWave, minimap, null, start, end, ctx, playbackOrRecording, isALoadedFile);
+    }
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile){
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, VolumeBar volume, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile){
         Logger.w(UIDataManager.class.toString(), "Is a loaded file: " + isALoadedFile);
         this.isALoadedFile = isALoadedFile;
         this.playbackOrRecording = playbackOrRecording;
@@ -66,6 +70,7 @@ public class UIDataManager {
         minimap.setUIDataManager(this);
         this.mainWave = mainWave;
         this.minimap = minimap;
+        mVolume = volume;
         this.mStartMarker = start;
         this.mEndMarker = end;
         if(mEndMarker != null){
@@ -267,8 +272,7 @@ public class UIDataManager {
     //canvas views to listen for recording on the same activity
     public void listenForRecording(final boolean onlyVolumeTest){
         mainWave.setDrawingFromBuffer(true);
-        ctx.findViewById(R.id.volumeBar).setVisibility(View.VISIBLE);
-        ctx.findViewById(R.id.volumeBar).setBackgroundResource(R.drawable.min);
+        mVolume.initDB();
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -286,13 +290,15 @@ public class UIDataManager {
                             byte[] buffer = message.getData();
                             double max = getPeakVolume(buffer);
                             double db = Math.abs(max);
-                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 500)){
-                                mainWave.setDb((int)maxDB);
+                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 1500)){
+                                mVolume.setDb((int)maxDB);
                                 maxDB = db;
                                 timeDelay = System.currentTimeMillis();
+                                mVolume.postInvalidate();
                             }
-                            else if(((System.currentTimeMillis() - timeDelay) > 500)){
-                                mainWave.setDb((int) maxDB);
+                            else if(((System.currentTimeMillis() - timeDelay) > 1500)){
+                                mVolume.setDb((int) maxDB);
+                                mVolume.postInvalidate();
                                 maxDB = db;
                                 timeDelay = System.currentTimeMillis();
                             }
@@ -314,7 +320,7 @@ public class UIDataManager {
                             //if only running the volume meter, the queues need to be emptied
                             } else if(onlyVolumeTest) {
                                 mainWave.setBuffer(null);
-                                mainWave.postInvalidate();
+                                mVolume.postInvalidate();
                                 RecordingQueues.writingQueue.clear();
                                 RecordingQueues.compressionQueue.clear();
                             }

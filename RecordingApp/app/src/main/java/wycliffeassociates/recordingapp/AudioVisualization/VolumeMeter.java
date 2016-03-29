@@ -7,6 +7,7 @@ import wycliffeassociates.recordingapp.R;
 /**
  * Created by sarabiaj on 9/22/2015.
  */
+/*
 public class VolumeMeter {
     private VolumeMeter(){}
 
@@ -76,4 +77,4 @@ public class VolumeMeter {
             }
         });
     }
-}
+}*/

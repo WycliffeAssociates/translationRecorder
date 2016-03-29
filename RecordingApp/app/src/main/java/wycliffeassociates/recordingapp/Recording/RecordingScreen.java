@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
@@ -41,6 +42,7 @@ public class RecordingScreen extends Activity {
     private final Context context = this;
     private TextView filenameView;
     private WaveformView mainCanvas;
+    private VolumeBar mVolumeBar;
     private MinimapView minimap;
     private UIDataManager manager;
     private String recordedFilename = null;
@@ -69,10 +71,11 @@ public class RecordingScreen extends Activity {
 
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
+        mVolumeBar = (VolumeBar) findViewById((R.id.volumeBar1));
 
         mainCanvas.disableGestures();
 
-        manager = new UIDataManager(mainCanvas, minimap, null, null, this, UIDataManager.RECORDING_MODE, true);
+        manager = new UIDataManager(mainCanvas, minimap, mVolumeBar, null, null, this, UIDataManager.RECORDING_MODE, true);
 
         setButtonHandlers();
         enableButtons();

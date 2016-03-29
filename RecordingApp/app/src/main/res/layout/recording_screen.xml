@@ -19,21 +19,23 @@
         android:layout_above="@+id/toolbar"
         android:background="#0A0A0A">
 
-        <LinearLayout
+        <view
+            class="wycliffeassociates.recordingapp.AudioVisualization.VolumeBar"
             android:orientation="horizontal"
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_gravity="right"
-            android:id="@+id/volumeBar"
+            android:id="@+id/volumeBar1"
             android:padding="8dp"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:visibility="visible" />
 
         <view
             class="wycliffeassociates.recordingapp.AudioVisualization.WaveformView"
             android:id="@+id/main_canvas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/volumeBar"/>
+            android:layout_toLeftOf="@id/volumeBar1"/>
 
     </RelativeLayout>
 

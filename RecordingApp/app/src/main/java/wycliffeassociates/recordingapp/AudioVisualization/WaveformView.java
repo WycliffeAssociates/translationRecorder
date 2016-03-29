@@ -210,59 +210,6 @@ public class WaveformView extends CanvasView {
 
     public void drawDbLines(Canvas c, int db){
 
-        int db3 = dBLine(23197);
-        int ndb3 = dBLine(-23197);
-        int db6 = dBLine(16422);
-        int ndb6 = dBLine(-16422);
-        int db12 = dBLine(8230);
-        int ndb12 = dBLine(-8230);
-        int db18 = dBLine(4125);
-        int ndb18 = dBLine(-4125);
-        int db24 = dBLine(2067);
-        int ndb24 = dBLine(-2067);
-        int db0 = dBLine(0);
-
-        showVolumeBar(mDb, db0);
-        c.drawRect(50, db0, getWidth() - 50, db24, mPaintGrid);
-        c.drawRect(50, ndb24, getWidth()-50, db0, mPaintGrid);
-
-        showVolumeBar(mDb, db24);
-        c.drawRect(100, db24, getWidth() - 100, db18, mPaintGrid);
-        c.drawRect(100, ndb18, getWidth() - 100, ndb24, mPaintGrid);
-
-        showVolumeBar(mDb, db18);
-        c.drawRect(200, db18, getWidth() - 200, db12, mPaintGrid);
-        c.drawRect(200, ndb12, getWidth() - 200, ndb18, mPaintGrid);
-
-        showVolumeBar(mDb, db12);
-        c.drawRect(300, db12, getWidth() - 300, db6, mPaintGrid);
-        c.drawRect(300, ndb6, getWidth() - 300, ndb12, mPaintGrid);
-
-        showVolumeBar(mDb, db6);
-        c.drawRect(400, db6, getWidth() - 400, db3, mPaintGrid);
-        c.drawRect(400, ndb3, getWidth() - 400, ndb6, mPaintGrid);
-
-        showVolumeBar(mDb, db3);
-        c.drawRect(500, 10, getWidth() - 500, ndb3, mPaintGrid);
-        c.drawRect(500, db3, getWidth() - 500, getHeight() - 2, mPaintGrid);
-
-        mPaintGrid.setStyle(Paint.Style.STROKE);
-        mPaintGrid.setColor(Color.GRAY);
-
-        c.drawText(Integer.toString(-3), 0, db3, mPaintText);
-        c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
-
-        c.drawText(Integer.toString(-6), 0, db6, mPaintText);
-        c.drawText(Integer.toString(-6), 0, ndb6, mPaintText);
-
-        c.drawText(Integer.toString(-12), 0, db12, mPaintText);
-        c.drawText(Integer.toString(-12), 0, ndb12, mPaintText);
-
-        c.drawText(Integer.toString(-18), 0, db18, mPaintText);
-        c.drawText(Integer.toString(-18), 0, ndb18, mPaintText);
-
-        c.drawText(Integer.toString(-24), 0, db24, mPaintText);
-        c.drawText(Integer.toString(-24), 0, ndb24, mPaintText);
     }
 
     private int dBLine(int val){
