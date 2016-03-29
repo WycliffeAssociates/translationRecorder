@@ -92,6 +92,7 @@ public class PlaybackScreen extends Activity{
         minimap = ((MinimapView) findViewById(R.id.minimap));
 
         mMainCanvas.enableGestures();
+        mMainCanvas.setDb(0);
 
         mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
         mStartMarker.setOrientation(MarkerView.LEFT);

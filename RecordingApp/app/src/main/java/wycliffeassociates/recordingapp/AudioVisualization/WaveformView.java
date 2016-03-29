@@ -2,6 +2,8 @@ package wycliffeassociates.recordingapp.AudioVisualization;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -25,7 +27,7 @@ public class WaveformView extends CanvasView {
     private ScaleGestureDetector sgd;
     private CutOp mCut;
     private boolean mGestures = false;
-    private int mDb;
+    private int mDb = 0;
 
     public void setCut(CutOp cut){
         mCut = cut;
@@ -173,6 +175,39 @@ public class WaveformView extends CanvasView {
         drawDbLines(c, -99);
     }
 
+    public void showVolumeBar(int db, int rectBase){
+        if(dBLine(db) > rectBase){
+            if(rectBase == dBLine(23197)){
+                mPaintGrid.setStyle(Paint.Style.FILL);
+                mPaintGrid.setAlpha(30);
+                mPaintGrid.setColor(Color.RED);
+            } else if(rectBase == dBLine(16422)){
+                mPaintGrid.setStyle(Paint.Style.FILL);
+                mPaintGrid.setAlpha(30);
+                mPaintGrid.setColor(Color.YELLOW);
+            } else if(rectBase == dBLine(8230)){
+                mPaintGrid.setStyle(Paint.Style.FILL);
+                mPaintGrid.setAlpha(30);
+                mPaintGrid.setColor(Color.argb(100,50,205,50));
+            } else if (rectBase == dBLine(4125)){
+                mPaintGrid.setStyle(Paint.Style.FILL);
+                mPaintGrid.setAlpha(30);
+                mPaintGrid.setColor(Color.argb(100,0,100,0));
+            } else if (rectBase == dBLine(2067)){
+                mPaintGrid.setStyle(Paint.Style.FILL);
+                mPaintGrid.setAlpha(30);
+                mPaintGrid.setColor(Color.CYAN);
+            } else if (rectBase == dBLine(0)){
+                mPaintGrid.setStyle(Paint.Style.FILL);
+                mPaintGrid.setAlpha(30);
+                mPaintGrid.setColor(Color.BLUE);
+            }
+        } else {
+            mPaintGrid.setColor(Color.GRAY);
+            mPaintGrid.setStyle(Paint.Style.STROKE);
+        }
+    }
+
     public void drawDbLines(Canvas c, int db){
 
         int db3 = dBLine(23197);
@@ -185,22 +220,34 @@ public class WaveformView extends CanvasView {
         int ndb18 = dBLine(-4125);
         int db24 = dBLine(2067);
         int ndb24 = dBLine(-2067);
+        int db0 = dBLine(0);
 
-        c.drawRect(100, db6, getWidth()-100, db3, mPaintGrid);
-        c.drawRect(100, ndb3, getWidth()-100, ndb6, mPaintGrid);
+        showVolumeBar(mDb, db0);
+        c.drawRect(50, db0, getWidth() - 50, db24, mPaintGrid);
+        c.drawRect(50, ndb24, getWidth()-50, db0, mPaintGrid);
 
-        c.drawRect(400, db12, getWidth()-400, db6, mPaintGrid);
-        c.drawRect(400, ndb6, getWidth()-400, ndb12, mPaintGrid);
+        showVolumeBar(mDb, db24);
+        c.drawRect(100, db24, getWidth() - 100, db18, mPaintGrid);
+        c.drawRect(100, ndb18, getWidth() - 100, ndb24, mPaintGrid);
 
-        c.drawRect(300, db18, getWidth()-300, db12, mPaintGrid);
-        c.drawRect(300, ndb12, getWidth()-300, ndb18, mPaintGrid);
+        showVolumeBar(mDb, db18);
+        c.drawRect(200, db18, getWidth() - 200, db12, mPaintGrid);
+        c.drawRect(200, ndb12, getWidth() - 200, ndb18, mPaintGrid);
 
-        c.drawRect(200, db24, getWidth()-200, db18, mPaintGrid);
-        c.drawRect(200, ndb18, getWidth()-200, ndb24, mPaintGrid);
+        showVolumeBar(mDb, db12);
+        c.drawRect(300, db12, getWidth() - 300, db6, mPaintGrid);
+        c.drawRect(300, ndb6, getWidth() - 300, ndb12, mPaintGrid);
 
+        showVolumeBar(mDb, db6);
+        c.drawRect(400, db6, getWidth() - 400, db3, mPaintGrid);
+        c.drawRect(400, ndb3, getWidth() - 400, ndb6, mPaintGrid);
 
-        c.drawRect(500, 10, getWidth()-500, ndb3, mPaintGrid);
-        c.drawRect(500, db3, getWidth()-500, getHeight()-2, mPaintGrid);
+        showVolumeBar(mDb, db3);
+        c.drawRect(500, 10, getWidth() - 500, ndb3, mPaintGrid);
+        c.drawRect(500, db3, getWidth() - 500, getHeight() - 2, mPaintGrid);
+
+        mPaintGrid.setStyle(Paint.Style.STROKE);
+        mPaintGrid.setColor(Color.GRAY);
 
         c.drawText(Integer.toString(-3), 0, db3, mPaintText);
         c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
@@ -332,7 +379,7 @@ public class WaveformView extends CanvasView {
         mBuffer = buffer;
     }
 
-    public synchronized void setDb(int db){
+    public void setDb(int db){
         mDb = db;
     }
 

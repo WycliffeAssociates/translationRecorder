@@ -285,13 +285,14 @@ public class UIDataManager {
                         if (!isPaused && message.getData() != null) {
                             byte[] buffer = message.getData();
                             double max = getPeakVolume(buffer);
-                            double db = U.computeDb(max);
-                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 1500)){
-                                VolumeMeter.changeVolumeBar(ctx, db);
+                            double db = Math.abs(max);
+                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 500)){
+                                mainWave.setDb((int)maxDB);
                                 maxDB = db;
+                                timeDelay = System.currentTimeMillis();
                             }
-                            else if(((System.currentTimeMillis() - timeDelay) > 1500)){
-                                VolumeMeter.changeVolumeBar(ctx, db);
+                            else if(((System.currentTimeMillis() - timeDelay) > 500)){
+                                mainWave.setDb((int) maxDB);
                                 maxDB = db;
                                 timeDelay = System.currentTimeMillis();
                             }
@@ -312,6 +313,8 @@ public class UIDataManager {
                                 }
                             //if only running the volume meter, the queues need to be emptied
                             } else if(onlyVolumeTest) {
+                                mainWave.setBuffer(null);
+                                mainWave.postInvalidate();
                                 RecordingQueues.writingQueue.clear();
                                 RecordingQueues.compressionQueue.clear();
                             }
