@@ -18,6 +18,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -185,13 +187,32 @@ public class RecordingScreen extends Activity {
         String book = sp.getString(Settings.KEY_PREF_BOOK, "");
         String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
         String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-        return AudioInfo.fileDir + "/" + lang + "_" + src + "_" + book + "_" + chap + "-" + chunk + ".wav";
+        return AudioInfo.fileDir + "/" + lang + "_" + src + "_" + book + "_" + chap + "-" + chunk;
+    }
+
+    private File getSourceAudioFile(String name){
+        File[] potentialFiles = new File[8];
+        potentialFiles[0] = new File(name + ".mp3");
+        potentialFiles[1] = new File(name + ".wav");
+        potentialFiles[2] = new File(name + ".3gp");
+        potentialFiles[3] = new File(name + ".m4a");
+        potentialFiles[4] = new File(name + ".mp4");
+        potentialFiles[5] = new File(name + ".ogg");
+        potentialFiles[6] = new File(name + ".flac");
+        potentialFiles[7] = new File(name + ".aac");
+
+        for(File f : potentialFiles){
+            if(f.exists()){
+                return f;
+            }
+        }
+        return null;
     }
 
     private void initSrcAudio(){
         String sourceAudio = getSourceAudioName();
-        File src = new File(sourceAudio);
-        if(!src.exists()){
+        File src = getSourceAudioFile(sourceAudio);
+        if(src == null || !src.exists()){
             findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
             return;
         }
@@ -238,7 +259,7 @@ public class RecordingScreen extends Activity {
                     });
                 }
             });
-            mSrcPlayer.setDataSource(sourceAudio);
+            mSrcPlayer.setDataSource(src.toString());
             mSrcPlayer.prepare();
             int duration = mSrcPlayer.getDuration();
             mSeekBar.setMax(duration);
