@@ -1,23 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/recording_screen_container"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_centerVertical="true"
     >
 
     <!-- TODO: Placed here to avoid errors. Remove if not needed anymore-->
-    <wycliffeassociates.recordingapp.AudioVisualization.MinimapView
-        android:id="@+id/minimap"
+
+    <RelativeLayout
+        android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:visibility="invisible"/>
+        android:layout_height="75dp">
+
+        <ImageButton
+            android:layout_width="121dp"
+            android:layout_height="match_parent"
+            android:id="@+id/btnPlaySource"
+            android:background="@color/primary"
+            android:src="@drawable/ic_ic_play_arrow_white_48dp" />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/seekBar"
+            android:layout_alignParentTop="true"
+            android:background="@color/very_dark_gray"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@+id/btnPlaySource" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/toolbar"
-        android:background="#0A0A0A">
+        android:background="#0A0A0A"
+        android:layout_weight="1000">
 
         <view
             class="wycliffeassociates.recordingapp.AudioVisualization.VolumeBar"
@@ -38,6 +58,14 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/volumeBar1"/>
 
+        <view
+            class="wycliffeassociates.recordingapp.AudioVisualization.MinimapView"
+            android:id="@+id/minimap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone" />
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -46,7 +74,8 @@
         android:layout_height="wrap_content"
         android:background="@color/primary"
         android:padding="16dp"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_weight="30">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -115,4 +144,4 @@
 
     </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>
