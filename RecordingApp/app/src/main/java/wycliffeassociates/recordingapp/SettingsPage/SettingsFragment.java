@@ -128,6 +128,10 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     public void updateSummaryText(SharedPreferences sharedPref, String key) {
         try {
+            //Doing this because the sharedPreferenceChanged method is not called from the language select activity
+            findPreference(Settings.KEY_PREF_LANG_SRC).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG_SRC, ""));
+            findPreference(Settings.KEY_PREF_LANG).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG, ""));
+
             String text  = sharedPref.getString(key, "");
             findPreference(key).setSummary(text);
         } catch (ClassCastException err) {

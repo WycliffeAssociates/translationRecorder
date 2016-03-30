@@ -38,6 +38,7 @@
             </intent-filter>
         </activity>
 
+
         <activity android:name=".SettingsPage.BookActivity">
             <intent-filter>
                 <action android:name="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT" />

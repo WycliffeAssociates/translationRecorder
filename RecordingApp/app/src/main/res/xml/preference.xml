@@ -23,14 +23,25 @@
         android:layout="@layout/custom_pref_category">
 
         <PreferenceScreen
-            android:key="pref_lang"
+            android:key="pref_lang_src"
             android:layout="@layout/custom_pref"
-            android:title="Language"
+            android:title="Source Language"
             android:summary="@string/pref_default_lang">
-            <intent
-                android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
+            <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
+                <extra android:name="lang_type" android:value="source" />
             </intent>
         </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="pref_lang"
+            android:layout="@layout/custom_pref"
+            android:title="Target Language"
+            android:summary="@string/pref_default_lang">
+            <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
+                <extra android:name="lang_type" android:value="target" />
+            </intent>
+        </PreferenceScreen>
+
 
         <!--<wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference-->
             <!--android:key="pref_lang"-->

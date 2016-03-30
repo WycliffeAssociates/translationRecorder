@@ -78,7 +78,7 @@ public class RecordingScreen extends Activity {
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.recording_screen);
-        
+
         initViews();
         setButtonHandlers();
         enableButtons();

@@ -55,6 +55,7 @@ public class Settings extends Activity {
     private String sampleName;
     public static final String KEY_PREF_SOURCE = "pref_source";
     public static final String KEY_PREF_LANG = "pref_lang";
+    public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
