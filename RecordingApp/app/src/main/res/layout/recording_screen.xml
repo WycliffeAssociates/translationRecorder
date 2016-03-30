@@ -18,18 +18,56 @@
         <ImageButton
             android:layout_width="121dp"
             android:layout_height="match_parent"
+            android:id="@+id/btnPauseSource"
+            android:src="@drawable/ic_record_pause"
+            android:background="@color/primary"
+            android:visibility="invisible" />
+
+        <ImageButton
+            android:layout_width="121dp"
+            android:layout_height="match_parent"
             android:id="@+id/btnPlaySource"
             android:background="@color/primary"
-            android:src="@drawable/ic_ic_play_arrow_white_48dp" />
+            android:src="@drawable/ic_play_arrow_white_48dp"
+            android:visibility="visible" />
 
         <SeekBar
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/seekBar"
             android:layout_alignParentTop="true"
-            android:background="@color/very_dark_gray"
+            android:background="@color/primary"
+            android:layout_toEndOf="@+id/srcProgress"
+            android:layout_toStartOf="@+id/srcDuration" />
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:id="@+id/srcProgress"
+            android:text="00:00:00"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/btnPauseSource"
+            android:textColor="@color/text_light"
+            android:background="@color/primary"
+            android:textSize="18sp"
+            android:layout_alignParentBottom="true"
+            android:singleLine="true"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:id="@+id/srcDuration"
+            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_toEndOf="@+id/btnPlaySource" />
+            android:text="00:00:00"
+            android:textColor="@color/text_light"
+            android:background="@color/primary"
+            android:textSize="18sp"
+            android:singleLine="true"
+            android:gravity="center"
+            />
     </RelativeLayout>
 
     <RelativeLayout
@@ -56,7 +94,9 @@
             android:id="@+id/main_canvas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/volumeBar1"/>
+            android:layout_toRightOf="@id/volumeBar1"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true" />
 
         <view
             class="wycliffeassociates.recordingapp.AudioVisualization.MinimapView"

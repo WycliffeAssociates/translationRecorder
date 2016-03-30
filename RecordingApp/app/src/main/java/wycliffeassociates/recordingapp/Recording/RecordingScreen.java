@@ -6,16 +6,20 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.NumberPicker;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -58,6 +62,11 @@ public class RecordingScreen extends Activity {
     private volatile int lastNumber;
     private ArrayList<Integer> mChunks;
     private NumberPicker numPicker;
+    private MediaPlayer mSrcPlayer;
+    private Handler mHandler;
+    private SeekBar mSeekBar;
+    private TextView mSrcTimeElapsed;
+    private TextView mSrcTimeDuration;
 
 
     @Override
@@ -83,8 +92,33 @@ public class RecordingScreen extends Activity {
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(true);
 
+        mSrcTimeElapsed = (TextView) findViewById(R.id.srcProgress);
+        mSrcTimeDuration = (TextView) findViewById(R.id.srcDuration);
         filenameView = (TextView) findViewById(R.id.filenameView);
         filenameView.setText(suggestedFilename);
+        mSeekBar = (SeekBar)findViewById(R.id.seekBar);
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(mSrcPlayer != null && fromUser){
+                    mSrcPlayer.seekTo(progress);
+                    final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSrcTimeElapsed.setText(time);
+                            mSrcTimeElapsed.invalidate();
+                        }
+                    });
+                }
+            }
+        });
 
         hasStartedRecording = false;
         mDeleteTempFile = false;
@@ -144,6 +178,49 @@ public class RecordingScreen extends Activity {
             }
         });
         getNumChunks.start();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        mSrcPlayer = new MediaPlayer();
+        //Make sure you update Seekbar on UI thread
+
+        try {
+            mSrcPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
+                    findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
+                    mSeekBar.setProgress(mSeekBar.getMax());
+                    int duration = mSeekBar.getMax();
+                    final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSrcTimeDuration.setText(time);
+                            mSrcTimeDuration.invalidate();
+                        }
+                    });
+                }
+            });
+            File srcFile = new File("/storage/emulated/0/TranslationRecorder/test.wav");
+            mSrcPlayer.setDataSource("/storage/emulated/0/TranslationRecorder/test.wav");
+            mSrcPlayer.prepare();
+            int duration = mSrcPlayer.getDuration();
+            mSeekBar.setMax(duration);
+            final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSrcTimeDuration.setText(time);
+                    mSrcTimeDuration.invalidate();
+                }
+            });
+        } catch (IOException e) {
+            mSrcPlayer = null;
+            e.printStackTrace();
+        }
     }
 
     private int getChunkIndex(ArrayList<Integer> chunks, int chunk){
@@ -249,7 +326,6 @@ public class RecordingScreen extends Activity {
             FragmentExitDialog d = new FragmentExitDialog();
             d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             d.show(fm, "Exit Dialog");
-
         } else {
             super.onBackPressed();
         }
@@ -306,6 +382,8 @@ public class RecordingScreen extends Activity {
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
+        findViewById(R.id.btnPlaySource).setOnClickListener(btnClick);
+        findViewById(R.id.btnPauseSource).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -316,6 +394,41 @@ public class RecordingScreen extends Activity {
         enableButton(R.id.btnRecording, true);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPauseRecording, true);
+        enableButton(R.id.btnPlaySource, true);
+        enableButton(R.id.btnPauseSource, true);
+    }
+
+    public void playSource() {
+        findViewById(R.id.btnPlaySource).setVisibility(View.INVISIBLE);
+        findViewById(R.id.btnPauseSource).setVisibility(View.VISIBLE);
+        if (mSrcPlayer != null) {
+            mSrcPlayer.start();
+            mHandler = new Handler();
+            mSeekBar.setProgress(0);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mSrcPlayer != null) {
+                        int mCurrentPosition = mSrcPlayer.getCurrentPosition();
+                        if(mCurrentPosition > mSeekBar.getProgress()) {
+                            mSeekBar.setProgress(mCurrentPosition);
+                            final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
+                            mSrcTimeElapsed.setText(time);
+                            mSrcTimeElapsed.invalidate();
+                        }
+                    }
+                    mHandler.postDelayed(this, 200);
+                }
+            });
+        }
+    }
+
+    public void pauseSource(){
+        findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
+        findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
+        if(mSrcPlayer != null && mSrcPlayer.isPlaying()){
+            mSrcPlayer.pause();
+        }
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -333,6 +446,14 @@ public class RecordingScreen extends Activity {
             }
             case R.id.btnPauseRecording: {
                 pauseRecording();
+                break;
+            }
+            case R.id.btnPlaySource: {
+                playSource();
+                break;
+            }
+            case R.id.btnPauseSource: {
+                pauseSource();
                 break;
             }
         }

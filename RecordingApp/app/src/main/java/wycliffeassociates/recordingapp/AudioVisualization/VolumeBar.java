@@ -106,7 +106,7 @@ public class VolumeBar extends CanvasView{
         c.drawRect(0, ndb3, getWidth(), ndb6, mPaintGrid);
 
         showVolumeBar(mDb, db3);
-        c.drawRect(0, 10, getWidth(), ndb3, mPaintGrid);
+        c.drawRect(0, 0, getWidth(), ndb3, mPaintGrid);
         c.drawRect(0, db3, getWidth(), getHeight(), mPaintGrid);
 
         mPaintGrid.setStyle(Paint.Style.STROKE);
