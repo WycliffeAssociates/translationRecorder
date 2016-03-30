@@ -67,6 +67,7 @@ public class RecordingScreen extends Activity {
     private SeekBar mSeekBar;
     private TextView mSrcTimeElapsed;
     private TextView mSrcTimeDuration;
+    private volatile boolean mPlayerReleased = false;
 
 
     @Override
@@ -77,51 +78,36 @@ public class RecordingScreen extends Activity {
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.recording_screen);
-
-        mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
-        minimap = ((MinimapView) findViewById(R.id.minimap));
-        mVolumeBar = (VolumeBar) findViewById((R.id.volumeBar1));
-
-        mainCanvas.disableGestures();
-
-        manager = new UIDataManager(mainCanvas, minimap, mVolumeBar, null, null, this, UIDataManager.RECORDING_MODE, true);
-
+        
+        initViews();
         setButtonHandlers();
         enableButtons();
 
+        mSrcPlayer = new MediaPlayer();
+        manager = new UIDataManager(mainCanvas, minimap, mVolumeBar, null, null, this, UIDataManager.RECORDING_MODE, true);
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(true);
 
+        hasStartedRecording = false;
+        mDeleteTempFile = false;
+        initChunkPicker();
+        initSrcAudio();
+    }
+
+    private void initViews(){
+        mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
+        minimap = ((MinimapView) findViewById(R.id.minimap));
+        mVolumeBar = (VolumeBar) findViewById((R.id.volumeBar1));
         mSrcTimeElapsed = (TextView) findViewById(R.id.srcProgress);
         mSrcTimeDuration = (TextView) findViewById(R.id.srcDuration);
         filenameView = (TextView) findViewById(R.id.filenameView);
-        filenameView.setText(suggestedFilename);
         mSeekBar = (SeekBar)findViewById(R.id.seekBar);
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(mSrcPlayer != null && fromUser){
-                    mSrcPlayer.seekTo(progress);
-                    final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSrcTimeElapsed.setText(time);
-                            mSrcTimeElapsed.invalidate();
-                        }
-                    });
-                }
-            }
-        });
 
-        hasStartedRecording = false;
-        mDeleteTempFile = false;
+        mainCanvas.disableGestures();
+        filenameView.setText(suggestedFilename);
+    }
+
+    private void initChunkPicker(){
         Thread getNumChunks = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -180,12 +166,29 @@ public class RecordingScreen extends Activity {
         getNumChunks.start();
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        mSrcPlayer = new MediaPlayer();
-        //Make sure you update Seekbar on UI thread
-
+    private void initSrcAudio(){
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(mSrcPlayer != null && fromUser){
+                    mSrcPlayer.seekTo(progress);
+                    final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSrcTimeElapsed.setText(time);
+                            mSrcTimeElapsed.invalidate();
+                        }
+                    });
+                }
+            }
+        });
         try {
             mSrcPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
@@ -218,30 +221,8 @@ public class RecordingScreen extends Activity {
                 }
             });
         } catch (IOException e) {
-            mSrcPlayer = null;
             e.printStackTrace();
         }
-    }
-
-    private int getChunkIndex(ArrayList<Integer> chunks, int chunk){
-        for(int i = 0; i < chunks.size(); i++){
-            if(chunks.get(i) == chunk){
-                return i;
-            }
-        }
-        return 1;
-    }
-
-    private void pauseRecording() {
-        isPausedRecording = true;
-        manager.pauseTimer();
-        isRecording = false;
-        int toShow[] = {R.id.btnRecording, R.id.btnStop};
-        int toHide[] = {R.id.btnPauseRecording};
-        manager.swapViews(toShow, toHide);
-        stopService(new Intent(this, WavRecorder.class));
-        RecordingQueues.pauseQueues();
-        Logger.w(this.toString(), "Pausing recording");
     }
 
     @Override
@@ -269,6 +250,40 @@ public class RecordingScreen extends Activity {
                 Logger.w(this.toString(), "temp file did not exist?");
             }
         }
+        if(mSrcPlayer != null && mSrcPlayer.isPlaying()){
+            mSrcPlayer.pause();
+        }
+    }
+
+    @Override
+    public void onDestroy(){
+        synchronized (mSrcPlayer){
+            mSrcPlayer.release();
+            mPlayerReleased = true;
+        }
+
+        super.onDestroy();
+    }
+
+    private int getChunkIndex(ArrayList<Integer> chunks, int chunk) {
+        for (int i = 0; i < chunks.size(); i++) {
+            if (chunks.get(i) == chunk) {
+                return i;
+            }
+        }
+        return 1;
+    }
+
+    private void pauseRecording() {
+        isPausedRecording = true;
+        manager.pauseTimer();
+        isRecording = false;
+        int toShow[] = {R.id.btnRecording, R.id.btnStop};
+        int toHide[] = {R.id.btnPauseRecording};
+        manager.swapViews(toShow, toHide);
+        stopService(new Intent(this, WavRecorder.class));
+        RecordingQueues.pauseQueues();
+        Logger.w(this.toString(), "Pausing recording");
     }
 
     private void startRecording() {
@@ -408,13 +423,15 @@ public class RecordingScreen extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mSrcPlayer != null) {
-                        int mCurrentPosition = mSrcPlayer.getCurrentPosition();
-                        if(mCurrentPosition > mSeekBar.getProgress()) {
-                            mSeekBar.setProgress(mCurrentPosition);
-                            final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
-                            mSrcTimeElapsed.setText(time);
-                            mSrcTimeElapsed.invalidate();
+                    if (mSrcPlayer != null && !mPlayerReleased) {
+                        synchronized (mSrcPlayer) {
+                            int mCurrentPosition = mSrcPlayer.getCurrentPosition();
+                            if (mCurrentPosition > mSeekBar.getProgress()) {
+                                mSeekBar.setProgress(mCurrentPosition);
+                                final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
+                                mSrcTimeElapsed.setText(time);
+                                mSrcTimeElapsed.invalidate();
+                            }
                         }
                     }
                     mHandler.postDelayed(this, 200);
