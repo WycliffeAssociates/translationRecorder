@@ -6,14 +6,17 @@
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:layout_centerVertical="true"
-    >
+    android:touchscreenBlocksFocus="true"
+    android:background="@color/primary">
 
     <!-- TODO: Placed here to avoid errors. Remove if not needed anymore-->
 
     <RelativeLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="75dp">
+        android:layout_height="75dp"
+        android:id="@+id/srcAudioPlayer"
+        android:visibility="visible">
 
         <ImageButton
             android:layout_width="121dp"

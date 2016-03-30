@@ -158,6 +158,7 @@ public class MainMenu extends Activity{
         File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
         System.out.println("Result of making vis directory " + visDir.mkdirs());
         AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
+        AudioInfo.fileDir = Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString();
     }
 
     public void configureLogger(int minLogLevel) {
