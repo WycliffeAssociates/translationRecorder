@@ -16,7 +16,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import java.io.File;
 import java.io.FileInputStream;
 
-import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.R;
 
 
@@ -30,7 +30,7 @@ public class FTPActivity extends Activity {
     private EditText SecureFTP;
     private ImageButton Ok;
 
-    PreferencesManager pref;
+    InternsPreferencesManager pref;
 
     String filepath, server, password, direc, user, destinationfilename;
     int port;
@@ -42,7 +42,7 @@ public class FTPActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ftpdialog);
         c = this;
-        pref = new PreferencesManager(this);
+        pref = new InternsPreferencesManager(this);
 
         FTPServer = (EditText) findViewById(R.id.FTPServer);
         FTPServer.setText(pref.getPreferences("ftpServer").toString());

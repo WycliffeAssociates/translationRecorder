@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.NumberPicker;
@@ -31,11 +30,9 @@ import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.Book;
 import wycliffeassociates.recordingapp.SettingsPage.ParseJSON;
-import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
-import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 public class RecordingScreen extends Activity {
@@ -166,7 +163,12 @@ public class RecordingScreen extends Activity {
         getNumChunks.start();
     }
 
+    private String getSourceAudioName(){
+        return "";
+    }
+
     private void initSrcAudio(){
+        String sourceAudio = getSourceAudioName();
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {

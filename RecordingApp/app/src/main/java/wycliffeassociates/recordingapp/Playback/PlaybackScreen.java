@@ -2,7 +2,6 @@ package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,15 +18,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.net.ntp.TimeStamp;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
@@ -39,7 +32,7 @@ import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.RerecordDialog;
-import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
@@ -58,7 +51,7 @@ public class PlaybackScreen extends Activity{
     private MarkerView mStartMarker;
     private MarkerView mEndMarker;
     private UIDataManager mManager;
-    private PreferencesManager pref;
+    private InternsPreferencesManager pref;
     private String recordedFilename = null;
     private String suggestedFilename = null;
     private boolean isSaved = false;
@@ -71,7 +64,7 @@ public class PlaybackScreen extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pref = new PreferencesManager(this);
+        pref = new InternsPreferencesManager(this);
 
         suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
         recordedFilename = getIntent().getStringExtra("recordedFilename");

@@ -19,7 +19,7 @@ import java.util.Hashtable;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
-import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 
@@ -57,7 +57,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     int sort = 5;
     public AudioFilesAdapter adapter;
     Hashtable<Date, String> audioHash;
-    PreferencesManager pref;
+    InternsPreferencesManager pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         hideFragment(R.id.file_actions);
 
         // Pull file directory and sorting preferences
-        pref = new PreferencesManager(this);
+        pref = new InternsPreferencesManager(this);
         currentDir = (String) pref.getPreferences("fileDirectory");
         AudioInfo.fileDir = currentDir;
         sort = (int) pref.getPreferences("displaySort");

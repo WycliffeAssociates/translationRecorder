@@ -152,7 +152,7 @@ public class LanguageNamesRequest extends Activity {
             try {
                 JSONArray jsonArray = new JSONArray((jsonStr));
 
-                //PreferencesManager pref = new PreferencesManager(LanguageNamesRequest.this, "wycliffeassociates.recordingapp.langnames");
+                //InternsPreferencesManager pref = new InternsPreferencesManager(LanguageNamesRequest.this, "wycliffeassociates.recordingapp.langnames");
                 //pref.resetPreferences("clear");
 
                 for(int i = 0; i < jsonArray.length() ; i++){
