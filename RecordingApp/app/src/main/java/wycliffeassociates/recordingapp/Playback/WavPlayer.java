@@ -255,7 +255,7 @@ public class WavPlayer {
         if(wasPlaying){
             play();
         }
-        Logger.w(this.toString(), "Seeking to " + x + "ms which is location " + playbackStart);
+        //Logger.w(this.toString(), "Seeking to " + x + "ms which is location " + playbackStart);
     }
 
     public void stop(){

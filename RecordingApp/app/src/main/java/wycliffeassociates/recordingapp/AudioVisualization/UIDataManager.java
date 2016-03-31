@@ -52,6 +52,7 @@ public class UIDataManager {
     private MappedByteBuffer preprocessedBuffer;
     RecordingTimer timer;
     private final TextView timerView;
+    private TextView durationView;
     private boolean playbackOrRecording;
     private boolean isALoadedFile = false;
     private CutOp mCutOp;
@@ -188,6 +189,7 @@ public class UIDataManager {
         minimap.init(wavVis.getMinimap(minimap.getHeight()));
         minimap.setAudioLength(mPlayer.getDuration() - mCutOp.getSizeCut());
         Logger.w(this.toString(), "Updating UI after cut");
+        setDurationView();
         updateUI();
     }
 
@@ -259,6 +261,20 @@ public class UIDataManager {
         wavVis = new WavVisualizer(this, buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight(), mCutOp);
         minimap.init(wavVis.getMinimap(minimap.getHeight()));
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
+        durationView = (TextView)ctx.findViewById(R.id.durationView);
+        setDurationView();
+    }
+
+    private void setDurationView(){
+        long t = mPlayer.getAdjustedDuration();
+        final String time = String.format("/ %02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
+        ctx.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                durationView.setText(time);
+                durationView.invalidate();
+            }
+        });
     }
 
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, double mspp){

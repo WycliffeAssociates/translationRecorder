@@ -144,7 +144,6 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     }
 
     public void updateSummaryText(SharedPreferences sharedPref, String key) {
-
         try {
             updateSummariesSetViaActivities(sharedPref);
             String text  = sharedPref.getString(key, "");

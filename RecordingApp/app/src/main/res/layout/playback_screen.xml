@@ -69,15 +69,31 @@
                 android:textSize="24sp"
                 android:padding="4dp" />
 
-            <TextView
-                android:id="@+id/timerView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Insert Time Stamp"
-                android:textColor="@color/text_light"
-                android:textSize="32sp"
-                android:padding="4dp"
-                android:textStyle="bold" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/timerView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00:00"
+                    android:textColor="@color/text_light"
+                    android:textSize="18sp"
+                    android:padding="4dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/durationView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="/ 00:00:00"
+                    android:textColor="@color/text_light"
+                    android:textSize="18sp"
+                    android:padding="4dp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
         </LinearLayout>
 
