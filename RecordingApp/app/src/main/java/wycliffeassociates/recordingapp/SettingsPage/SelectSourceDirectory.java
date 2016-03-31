@@ -44,7 +44,6 @@ public class SelectSourceDirectory extends Activity {
             String uristring = dir.toString();
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
             pref.edit().putString(Settings.KEY_PREF_SRC_LOC, uristring).commit();
-            Settings.updateFilename(this);
         }
         this.finish();
     }
