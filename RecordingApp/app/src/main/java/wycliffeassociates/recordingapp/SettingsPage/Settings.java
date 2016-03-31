@@ -63,6 +63,7 @@ public class Settings extends Activity {
     public static final String KEY_PREF_TAKE = "pref_take";
     public static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
     public static final String KEY_PREF_VERSE = "pref_verse";
+    public static final String KEY_PREF_SRC_LOC = "pref_src_loc";
 
     MyAutoCompleteTextView setLangCode,setBookCode;
 

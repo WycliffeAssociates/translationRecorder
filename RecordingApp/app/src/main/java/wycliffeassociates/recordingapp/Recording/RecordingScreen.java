@@ -7,10 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
+import android.support.v4.provider.DocumentFile;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.NumberPicker;
@@ -180,38 +183,61 @@ public class RecordingScreen extends Activity {
         getNumChunks.start();
     }
 
-    private String getSourceAudioName(){
+    private DocumentFile getSourceAudioDirectory(){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
+        String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
+        String book = sp.getString(Settings.KEY_PREF_BOOK, "");
+        String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
+        Uri uri = Uri.parse(sp.getString(Settings.KEY_PREF_SRC_LOC, null));
+        if(uri != null){
+            DocumentFile df = DocumentFile.fromTreeUri(this, uri);
+            if(df != null) {
+                DocumentFile langDf = df.findFile(lang);
+                if(langDf != null) {
+                    DocumentFile srcDf = langDf.findFile(src);
+                    if(srcDf != null) {
+                        DocumentFile bookDf = srcDf.findFile(book);
+                        if(bookDf != null) {
+                            DocumentFile chapDf = bookDf.findFile(chap);
+                            return chapDf;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private DocumentFile getSourceAudioFile(){
+        DocumentFile directory = getSourceAudioDirectory();
+        if(directory == null){
+            return null;
+        }
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
         String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
         String book = sp.getString(Settings.KEY_PREF_BOOK, "");
         String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
         String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-        return AudioInfo.fileDir + "/" + lang + "_" + src + "_" + book + "_" + chap + "-" + chunk;
-    }
+        String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
 
-    private File getSourceAudioFile(String name){
-        File[] potentialFiles = new File[8];
-        potentialFiles[0] = new File(name + ".mp3");
-        potentialFiles[1] = new File(name + ".wav");
-        potentialFiles[2] = new File(name + ".3gp");
-        potentialFiles[3] = new File(name + ".m4a");
-        potentialFiles[4] = new File(name + ".mp4");
-        potentialFiles[5] = new File(name + ".ogg");
-        potentialFiles[6] = new File(name + ".flac");
-        potentialFiles[7] = new File(name + ".aac");
-
-        for(File f : potentialFiles){
-            if(f.exists()){
-                return f;
+        String[] filetypes = {".wav", ".mp3", ".mp4", ".m4a", ".aac", ".flac", ".3gp", ".ogg"};
+        for(String type : filetypes){
+            DocumentFile temp = directory.findFile(filename + type);
+            if(temp != null) {
+                if (temp.exists()) {
+                    return directory.findFile(filename + type);
+                }
             }
         }
         return null;
     }
 
     private void initSrcAudio(){
-        String sourceAudio = getSourceAudioName();
-        File src = getSourceAudioFile(sourceAudio);
+        DocumentFile src = getSourceAudioFile();
+
+        //Uri sourceAudio = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ATranslationRecorder%2FSource%2Fen%2Fulb%2Fgen%2F01%2Fen_ulb_gen_01-01.wav");
         if(src == null || !src.exists()){
             findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
             return;
@@ -259,7 +285,7 @@ public class RecordingScreen extends Activity {
                     });
                 }
             });
-            mSrcPlayer.setDataSource(src.toString());
+            mSrcPlayer.setDataSource(this, src.getUri());
             mSrcPlayer.prepare();
             int duration = mSrcPlayer.getDuration();
             mSeekBar.setMax(duration);
