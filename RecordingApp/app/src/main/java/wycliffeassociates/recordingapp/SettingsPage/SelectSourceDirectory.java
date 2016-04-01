@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.provider.DocumentFile;
@@ -25,10 +26,12 @@ public class SelectSourceDirectory extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceBundle){
         super.onCreate(savedInstanceBundle);
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        if(Build.VERSION.SDK_INT >= 21) {
 //        intent.setType("audio/*");
 //        intent.putExtra(Intent.EXTRA_TITLE, "hi");
-        startActivityForResult(intent, SRC_LOC);
+        } else {
+            finish();
+        }
     }
 
 
