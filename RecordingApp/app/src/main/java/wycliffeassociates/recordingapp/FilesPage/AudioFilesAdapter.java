@@ -2,7 +2,10 @@ package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,17 +84,20 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
     public View getView(final int position, View convertView, ViewGroup parent){
         if(convertView == null) {
             LayoutInflater inflater = ((Activity) aContext).getLayoutInflater();
-            convertView = inflater.inflate(R.layout.audio_list_item, null);
-
             viewHolder = new ViewHolder();
 
+            if(((FileItem)getItem(position)).isDirectory()){
+                convertView = inflater.inflate(R.layout.directory_list_item, null);
+            } else {
+                convertView = inflater.inflate(R.layout.audio_list_item, null);
+                viewHolder.duration = (TextView) convertView.findViewById(R.id.duration);
+                viewHolder.playButton = (ImageButton) convertView.findViewById(R.id.playButton);
+            }
             // Cache the views
             viewHolder.filename = (TextView) convertView.findViewById(R.id.filename);
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
-            viewHolder.duration = (TextView) convertView.findViewById(R.id.duration);
             viewHolder.date = (TextView) convertView.findViewById(R.id.date);
             viewHolder.time = (TextView) convertView.findViewById(R.id.time);
-            viewHolder.playButton = (ImageButton) convertView.findViewById(R.id.playButton);
 
             // Link the cached views to the convertView
             convertView.setTag(viewHolder);
@@ -100,7 +106,6 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         }
 
         // Set items to be displayed
-        // TODO: Remove extension using Regex
         viewHolder.filename.setText(fileItems[position].getName().replace(".wav", ""));
 
         //
@@ -113,14 +118,14 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         output = format.format(fileItems[position].getDate());
         viewHolder.time.setText(output);
 
-        //
-        int length = fileItems[position].getDuration();
-        int hours = (length / (60 * 60));
-        int minutes = ((length - (60 * 60 * hours)) / 60);
-        int seconds = length - (60 * 60 * hours) - (60 * minutes);
-        String duration = String.format("%02d",hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-        viewHolder.duration.setText(duration);
-
+        if(!((FileItem)getItem(position)).isDirectory()) {
+            int length = fileItems[position].getDuration();
+            int hours = (length / (60 * 60));
+            int minutes = ((length - (60 * 60 * hours)) / 60);
+            int seconds = length - (60 * 60 * hours) - (60 * minutes);
+            String duration = String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+            viewHolder.duration.setText(duration);
+        }
         //
         viewHolder.checkBox.setChecked(checkBoxState[position]);
         if (checkBoxState[position]) {
@@ -134,19 +139,20 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             ((AudioFiles) aContext).showFragment(R.id.file_actions);
         }
 
-        //
-        // convertView.setOnClickListener(new View.OnClickListener() {
-        viewHolder.playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-            String filename = fileItems[position].getName();
-            System.out.println("FILENAME: " + filename);
-            Intent intent = new Intent(getContext(), PlaybackScreen.class);
-            intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + filename);
-            intent.putExtra("loadFile", true);
-            getContext().startActivity(intent);
-            }
-        });
+        if(!((FileItem)getItem(position)).isDirectory()) {
+            // convertView.setOnClickListener(new View.OnClickListener() {
+            viewHolder.playButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View arg0) {
+                    String filename = fileItems[position].getName();
+                    System.out.println("FILENAME: " + filename);
+                    Intent intent = new Intent(getContext(), PlaybackScreen.class);
+                    intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + filename);
+                    intent.putExtra("loadFile", true);
+                    getContext().startActivity(intent);
+                }
+            });
+        }
 
         // For managing the state of the boolean array according to the state of the
         //    checkBox
@@ -169,6 +175,21 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
             }
             }
         });
+
+        if(((FileItem)getItem(position)).isDirectory()) {
+            View.OnClickListener ocl = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(aContext);
+                    String oldDir = pref.getString("fileDirectory", "");
+                    pref.edit().putString("fileDirectory", oldDir + "/" + ((FileItem)getItem(position)).getName()).commit();
+                    System.out.println(pref.getString("fileDirectory", ""));
+                }
+            };
+            viewHolder.filename.setOnClickListener(ocl);
+            viewHolder.date.setOnClickListener(ocl);
+            convertView.findViewById(R.id.directoryImage).setOnClickListener(ocl);
+        }
 
         return convertView;
     }

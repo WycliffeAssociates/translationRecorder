@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -28,7 +33,8 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private CheckBox btnCheckAll;
     private Menu mMenu;
     private ListView audioFileView;
-    // private TextView file_path;
+    private TextView mDirectoryPath;
+    private ImageButton mPreviousDir;
     private static String currentDir;
     private File file[];
 
@@ -57,7 +63,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     int sort = 5;
     public AudioFilesAdapter adapter;
     Hashtable<Date, String> audioHash;
-    InternsPreferencesManager pref;
+    InternsPreferencesManager oldPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,14 +73,30 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         // Hide the fragment to start with
         hideFragment(R.id.file_actions);
 
-        // Pull file directory and sorting preferences
-        pref = new InternsPreferencesManager(this);
-        currentDir = (String) pref.getPreferences("fileDirectory");
+        // Pull file directory and sorting Preferences
+        oldPref = new InternsPreferencesManager(this);
+        currentDir = (String) oldPref.getPreferences("fileDirectory");
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        if(pref.getString("fileDirectory", null) == null){
+            pref.edit().putString("fileDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + this.getString(R.string.folder_name)).commit();
+        }
+        currentDir = pref.getString("fileDirectory", currentDir);
         AudioInfo.fileDir = currentDir;
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
 
         audioFileView = (ListView) findViewById(R.id.main_content);
         btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
+        mPreviousDir = (ImageButton)findViewById(R.id.btnPreviousDir);
+        mDirectoryPath = (TextView)findViewById(R.id.pathView);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDirectoryPath.setText(currentDir);
+                mDirectoryPath.invalidate();
+            }
+        });
+
+
 
         // Cleanup any leftover visualization files
         removeUnusedVisualizationFiles(currentDir);
@@ -225,8 +247,12 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                     File tFile = new File(currentDir + "/" + file[i].getName());
                     long time = (((tFile.length() - 44) / 2) / 44100);
                     //create an Audio Item
-                    tempItemList.add(new FileItem(file[i].getName(), lastModDate, (int) time));
+                    tempItemList.add(new FileItem(file[i].getName(), lastModDate, (int) time, FileItem.FILE));
                 }
+            } else if(file[i].isDirectory()) {
+                Date lastModDate = new Date(file[i].lastModified());
+                //create an Audio Item
+                tempItemList.add(new FileItem(file[i].getName(), lastModDate, 0, FileItem.DIRECTORY));
             }
             generateAdapterView(tempItemList, sort);
         }
@@ -237,6 +263,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         findViewById(R.id.btnSortName).setOnClickListener(btnClick);
         findViewById(R.id.btnSortDuration).setOnClickListener(btnClick);
         findViewById(R.id.btnSortDate).setOnClickListener(btnClick);
+        findViewById(R.id.btnPreviousDir).setOnClickListener(btnClick);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -260,9 +287,22 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                     sortDate();
                     break;
                 }
+                case R.id.btnPreviousDir: {
+                    backOneLevel();
+                    break;
+                }
             }
         }
     };
+
+    private void backOneLevel(){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        String path = pref.getString("fileDirectory", "");
+        path = path.substring(0, path.lastIndexOf("/"));
+        pref.edit().putString("fileDirectory", path).commit();
+        finish();
+        startActivity(getIntent());
+    }
 
     private void checkAll(){
         if (file != null) {
@@ -288,31 +328,31 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
 
     private void sortName(){
         if (sort == 1) {
-            pref.setPreferences("displaySort", 0);
+            oldPref.setPreferences("displaySort", 0);
         } else {
-            pref.setPreferences("displaySort", 1);
+            oldPref.setPreferences("displaySort", 1);
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
     }
 
     private void sortDuration(){
         if (sort == 3) {
-            pref.setPreferences("displaySort", 2);
+            oldPref.setPreferences("displaySort", 2);
         } else {
-            pref.setPreferences("displaySort", 3);
+            oldPref.setPreferences("displaySort", 3);
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
     }
 
     private void sortDate(){
         if (sort == 5) {
-            pref.setPreferences("displaySort", 4);
+            oldPref.setPreferences("displaySort", 4);
         } else {
-            pref.setPreferences("displaySort", 5);
+            oldPref.setPreferences("displaySort", 5);
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
     }
 
@@ -344,7 +384,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         } else {
             Toast.makeText(AudioFiles.this, "Select a file to delete", Toast.LENGTH_SHORT).show();
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
         hideFragment(R.id.file_actions);
     }

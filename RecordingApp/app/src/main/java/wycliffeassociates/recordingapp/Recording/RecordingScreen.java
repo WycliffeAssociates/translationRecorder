@@ -189,7 +189,11 @@ public class RecordingScreen extends Activity {
         String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
         String book = sp.getString(Settings.KEY_PREF_BOOK, "");
         String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-        Uri uri = Uri.parse(sp.getString(Settings.KEY_PREF_SRC_LOC, null));
+        String srcLoc = sp.getString(Settings.KEY_PREF_SRC_LOC, null);
+        if(srcLoc == null){
+            return null;
+        }
+        Uri uri = Uri.parse(srcLoc);
         if(uri != null){
             DocumentFile df = DocumentFile.fromTreeUri(this, uri);
             if(df != null) {

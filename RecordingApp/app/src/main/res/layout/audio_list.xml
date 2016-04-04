@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/primary_bg" >
@@ -62,6 +63,25 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dp">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/btnPreviousDir"
+                android:src="@drawable/ic_other" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:text="New Text"
+                android:id="@+id/pathView"
+                android:layout_gravity="center_vertical"
+                android:gravity="left|center" />
+        </LinearLayout>
+
         <ListView
             android:id="@+id/main_content"
             android:layout_width="match_parent"
@@ -83,7 +103,7 @@
             android:background="#000000"
             android:layout_alignParentBottom="true" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <!-- The navigation drawer -->
     <!--<LinearLayout android:id="@+id/right_drawer"-->
