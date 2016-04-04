@@ -25,6 +25,7 @@
             android:paddingBottom="24dp" >
 
             <ImageView
+                android:id="@+id/directoryImage"
                 android:layout_width="0px"
                 android:layout_height="match_parent"
                 android:layout_weight="10"
