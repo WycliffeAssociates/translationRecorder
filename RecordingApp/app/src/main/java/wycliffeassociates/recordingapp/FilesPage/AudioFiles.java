@@ -21,7 +21,7 @@ import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 
 public class AudioFiles extends Activity implements FragmentShareDialog.ExportDelegator, Export.ProgressUpdateCallback {
 
@@ -32,8 +32,8 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private static String currentDir;
     private File file[];
 
-    private ArrayList<AudioItem> audioItemList;
-    private ArrayList<AudioItem> tempItemList;
+    private ArrayList<FileItem> fileItemList;
+    private ArrayList<FileItem> tempItemList;
     static ArrayList<String> exportList;
     private ProgressDialog mPd;
     private ExportTaskFragment mExportTaskFragment;
@@ -210,8 +210,8 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
 
     private void initFiles(File[] file){
         // Initialization
-        audioItemList = new ArrayList<AudioItem>();
-        tempItemList = new ArrayList<AudioItem>();
+        fileItemList = new ArrayList<FileItem>();
+        tempItemList = new ArrayList<FileItem>();
         audioHash = new Hashtable<Date, String>();
 
         for (int i = 0; i < file.length; i++) {
@@ -225,7 +225,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                     File tFile = new File(currentDir + "/" + file[i].getName());
                     long time = (((tFile.length() - 44) / 2) / 44100);
                     //create an Audio Item
-                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
+                    tempItemList.add(new FileItem(file[i].getName(), lastModDate, (int) time));
                 }
             }
             generateAdapterView(tempItemList, sort);
@@ -319,7 +319,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     public void showShareDialog(View v){
         FragmentManager fm = getFragmentManager();
         FragmentShareDialog d = new FragmentShareDialog();
-        d.setFilesForExporting(audioItemList, adapter, currentDir);
+        d.setFilesForExporting(fileItemList, adapter, currentDir);
         d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         d.show(fm, "Share Dialog");
     }
@@ -335,7 +335,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         exportList = new ArrayList<String>();
         for (int i = 0; i < adapter.checkBoxState.length; i++) {
             if (adapter.checkBoxState[i]) {
-                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+                exportList.add(currentDir + "/" + fileItemList.get(i).getName());
             }
         }
         if (exportList.size() > 0) {
@@ -408,21 +408,21 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         finish();
     }
 
-    private void generateAdapterView(ArrayList<AudioItem> tempItemList, int sort){
+    private void generateAdapterView(ArrayList<FileItem> tempItemList, int sort){
         //
-        ArrayList<AudioItem> cleanList = new ArrayList<AudioItem>();
+        ArrayList<FileItem> cleanList = new ArrayList<FileItem>();
         for (int a = 0; a < tempItemList.size(); a++){
             cleanList.add(tempItemList.get(a));
         }
 
         // Clear list
-        audioItemList = new ArrayList<AudioItem>();
-        audioItemList = sortAudioItem(cleanList, sort);
+        fileItemList = new ArrayList<FileItem>();
+        fileItemList = sortAudioItem(cleanList, sort);
 
         // Temp array for Adapter
-        AudioItem[] tempArr = new AudioItem[audioItemList.size()];
-        for(int a = 0; a < audioItemList.size(); a++){
-            tempArr[a] = audioItemList.get(a);
+        FileItem[] tempArr = new FileItem[fileItemList.size()];
+        for(int a = 0; a < fileItemList.size(); a++){
+            tempArr[a] = fileItemList.get(a);
 
         }
 
@@ -453,9 +453,9 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         }
     }
 
-    private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
+    private ArrayList<FileItem> sortAudioItem(ArrayList<FileItem> nList, int sort) {
         //
-        ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
+        ArrayList<FileItem> outputList = new ArrayList<FileItem>();
         if (nList.size() > 0) {
             boolean flag = false;
             switch (sort) {

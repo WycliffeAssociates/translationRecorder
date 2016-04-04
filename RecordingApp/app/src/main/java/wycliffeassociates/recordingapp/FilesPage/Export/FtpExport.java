@@ -1,9 +1,8 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
-import android.app.Fragment;
 import android.content.Intent;
 import java.util.ArrayList;
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 import wycliffeassociates.recordingapp.FilesPage.FTPActivity;
 
@@ -13,8 +12,8 @@ import wycliffeassociates.recordingapp.FilesPage.FTPActivity;
  */
 public class FtpExport extends Export{
 
-    public FtpExport(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
-        super(audioItemList, adapter, currentDir);
+    public FtpExport(ArrayList<FileItem> fileItemList, AudioFilesAdapter adapter, String currentDir){
+        super(fileItemList, adapter, currentDir);
     }
 
     /**

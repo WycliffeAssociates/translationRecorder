@@ -1,7 +1,6 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,7 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
@@ -25,9 +24,9 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  */
 public class FolderExport extends Export{
 
-    public FolderExport(ArrayList<AudioItem> audioItemList,
+    public FolderExport(ArrayList<FileItem> fileItemList,
                         AudioFilesAdapter adapter, String currentDir){
-        super(audioItemList, adapter, currentDir);
+        super(fileItemList, adapter, currentDir);
     }
 
     /**

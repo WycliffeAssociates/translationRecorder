@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 
 /**
  *
@@ -29,7 +29,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
     /**
      * Populate with audio items
      */
-    AudioItem[] audioItems = null;
+    FileItem[] fileItems = null;
 
     /**
      * Store the current context
@@ -59,10 +59,10 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
      * @param resource
      *            Array of audio items
      */
-    public AudioFilesAdapter(Context context, AudioItem[] resource){
+    public AudioFilesAdapter(Context context, FileItem[] resource){
         super(context, R.layout.audio_list_item, resource);
         this.aContext = context;
-        this.audioItems = resource;
+        this.fileItems = resource;
         // Create the boolean array with initial state as false
         checkBoxState = new boolean[resource.length];
     }
@@ -101,20 +101,20 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
 
         // Set items to be displayed
         // TODO: Remove extension using Regex
-        viewHolder.filename.setText(audioItems[position].getName().replace(".wav", ""));
+        viewHolder.filename.setText(fileItems[position].getName().replace(".wav", ""));
 
         //
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-        String output = format.format(audioItems[position].getDate());
+        String output = format.format(fileItems[position].getDate());
         viewHolder.date.setText(output);
 
         //
         format = new SimpleDateFormat("hh:mm");
-        output = format.format(audioItems[position].getDate());
+        output = format.format(fileItems[position].getDate());
         viewHolder.time.setText(output);
 
         //
-        int length = audioItems[position].getDuration();
+        int length = fileItems[position].getDuration();
         int hours = (length / (60 * 60));
         int minutes = ((length - (60 * 60 * hours)) / 60);
         int seconds = length - (60 * 60 * hours) - (60 * minutes);
@@ -139,7 +139,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         viewHolder.playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-            String filename = audioItems[position].getName();
+            String filename = fileItems[position].getName();
             System.out.println("FILENAME: " + filename);
             Intent intent = new Intent(getContext(), PlaybackScreen.class);
             intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + filename);

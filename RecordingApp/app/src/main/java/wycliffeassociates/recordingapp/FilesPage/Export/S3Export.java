@@ -16,7 +16,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import java.io.File;
 import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
@@ -33,12 +33,12 @@ public class S3Export extends Export {
 
     /**
      * Creates an Export object to target AmazonS3
-     * @param audioItemList
+     * @param fileItemList
      * @param adapter
      * @param currentDir
      */
-    public S3Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
-        super(audioItemList, adapter, currentDir);
+    public S3Export(ArrayList<FileItem> fileItemList, AudioFilesAdapter adapter, String currentDir){
+        super(fileItemList, adapter, currentDir);
         mExp = this;
     }
 

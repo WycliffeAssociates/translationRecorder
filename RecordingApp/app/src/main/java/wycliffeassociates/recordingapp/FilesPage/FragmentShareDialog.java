@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.FilesPage.Export.AppExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.FolderExport;
@@ -30,7 +30,7 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
     ImageButton sd_card, dir, bluetooth, wifi, amazon, app;
     private String mCurrentDir;
     private AudioFilesAdapter mAdapter;
-    private ArrayList<AudioItem> mAudioItemList;
+    private ArrayList<FileItem> mFileItemList;
     ExportDelegator mExportDelegator;
 
     @Override
@@ -73,13 +73,13 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
             //sd and dir should fall through, they both use FolderExport
             case R.id.share_sd_card:
             case R.id.share_dir:
-                exp = new FolderExport(mAudioItemList, mAdapter, mCurrentDir);
+                exp = new FolderExport(mFileItemList, mAdapter, mCurrentDir);
                 break;
             case R.id.share_amazon:
-                exp = new S3Export(mAudioItemList, mAdapter, mCurrentDir);
+                exp = new S3Export(mFileItemList, mAdapter, mCurrentDir);
                 break;
             case R.id.share_app:
-                exp = new AppExport(mAudioItemList, mAdapter, mCurrentDir);
+                exp = new AppExport(mFileItemList, mAdapter, mCurrentDir);
                 break;
             //Fall through to default for unimplemented exporting options
             case R.id.share_bluetooth:
@@ -97,9 +97,9 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
     // CUSTOM FUNCTIONS
     //=================
 
-    public void setFilesForExporting(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
+    public void setFilesForExporting(ArrayList<FileItem> fileItemList, AudioFilesAdapter adapter, String currentDir){
         mCurrentDir = currentDir;
         mAdapter = adapter;
-        mAudioItemList = audioItemList;
+        mFileItemList = fileItemList;
     }
 }
