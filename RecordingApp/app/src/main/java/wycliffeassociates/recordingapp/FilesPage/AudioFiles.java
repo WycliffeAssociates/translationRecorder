@@ -298,6 +298,9 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private void backOneLevel(){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         String path = pref.getString("fileDirectory", "");
+        if(path.compareTo(Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + this.getString(R.string.folder_name)) == 0){
+            return;
+        }
         path = path.substring(0, path.lastIndexOf("/"));
         pref.edit().putString("fileDirectory", path).commit();
         finish();
