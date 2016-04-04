@@ -238,7 +238,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
 
         for (int i = 0; i < file.length; i++) {
             int len = file[i].getName().length();
-            if (len > 3) {
+            if (len > 3 && !file[i].isDirectory()) {
                 String sub = file[i].getName().substring(len - 4);
                 if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
                         || sub.equalsIgnoreCase(".mp3")) {
@@ -250,6 +250,9 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                     tempItemList.add(new FileItem(file[i].getName(), lastModDate, (int) time, FileItem.FILE));
                 }
             } else if(file[i].isDirectory()) {
+                if(file[i].getName().compareTo("Visualization") == 0){
+                    continue;
+                }
                 Date lastModDate = new Date(file[i].lastModified());
                 //create an Audio Item
                 tempItemList.add(new FileItem(file[i].getName(), lastModDate, 0, FileItem.DIRECTORY));
@@ -303,6 +306,10 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         }
         path = path.substring(0, path.lastIndexOf("/"));
         pref.edit().putString("fileDirectory", path).commit();
+        refreshView();
+    }
+
+    public void refreshView(){
         finish();
         startActivity(getIntent());
     }

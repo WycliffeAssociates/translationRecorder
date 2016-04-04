@@ -85,21 +85,22 @@
         <ListView
             android:id="@+id/main_content"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_below="@id/top_bar"
             android:background="@color/primary_bg"
             android:divider="#00000000"
             android:paddingBottom="16dp"
             android:clipToPadding="false"
             android:animateLayoutChanges="true"
-            android:layout_above="@+id/file_actions">
+            android:layout_above="@+id/file_actions"
+            android:layout_weight="70">
         </ListView>
 
         <fragment
             android:name="wycliffeassociates.recordingapp.FilesPage.FragmentActions"
             android:id="@+id/file_actions"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="72dp"
             android:background="#000000"
             android:layout_alignParentBottom="true" />
 

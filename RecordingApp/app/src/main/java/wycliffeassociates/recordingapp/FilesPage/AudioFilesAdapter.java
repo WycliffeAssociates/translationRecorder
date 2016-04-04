@@ -158,21 +158,21 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
         //    checkBox
         viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            // Check state and icon
-            if (((CheckBox) v).isChecked()) {
-                checkBoxState[position] = true;
-                ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_selected);
-            } else {
-                checkBoxState[position] = false;
-                ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_empty);
-            }
+                // Check state and icon
+                if (((CheckBox) v).isChecked()) {
+                    checkBoxState[position] = true;
+                    ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_selected);
+                } else {
+                    checkBoxState[position] = false;
+                    ((CheckBox) v).setButtonDrawable(R.drawable.ic_check_box_empty);
+                }
 
-            // Check whether to display actions or not
-            if (isAllFalse(checkBoxState)) {
-                ((AudioFiles) aContext).hideFragment(R.id.file_actions);
-            } else {
-                ((AudioFiles) aContext).showFragment(R.id.file_actions);
-            }
+                // Check whether to display actions or not
+                if (isAllFalse(checkBoxState)) {
+                    ((AudioFiles) aContext).hideFragment(R.id.file_actions);
+                } else {
+                    ((AudioFiles) aContext).showFragment(R.id.file_actions);
+                }
             }
         });
 
@@ -184,6 +184,7 @@ public class AudioFilesAdapter extends ArrayAdapter //implements AudioFilesInter
                     String oldDir = pref.getString("fileDirectory", "");
                     pref.edit().putString("fileDirectory", oldDir + "/" + ((FileItem)getItem(position)).getName()).commit();
                     System.out.println(pref.getString("fileDirectory", ""));
+                    ((AudioFiles) aContext).refreshView();
                 }
             };
             viewHolder.filename.setOnClickListener(ocl);
