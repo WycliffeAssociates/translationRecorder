@@ -13,9 +13,21 @@
             android:entries="@array/chunk_verse_entries"
             android:entryValues="@array/chunk_verse_values"
             android:defaultValue="chunk" />
+
+        <!--Not sure the default should be in the strings file; do other languages change directory text? -->
+        <PreferenceScreen
+            android:key="pref_src_loc"
+            android:layout="@layout/custom_pref"
+            android:title="Source Audio Location"
+            android:summary="/storage/emulated/0/TranslationRecorder"
+            android:defaultValue="/storage/emulated/0/TranslationRecorder">
+            <intent
+                android:action="wycliffeassociates.recordingapp.SettingsPage.SELECT_SRC_INTENT">
+            </intent>
+        </PreferenceScreen>
+
+
     </PreferenceCategory>
-
-
 
     <PreferenceCategory
         android:title="File Name Settings"
@@ -23,14 +35,25 @@
         android:layout="@layout/custom_pref_category">
 
         <PreferenceScreen
-            android:key="pref_lang"
+            android:key="pref_lang_src"
             android:layout="@layout/custom_pref"
-            android:title="Language"
+            android:title="Source Language"
             android:summary="@string/pref_default_lang">
-            <intent
-                android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
+            <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
+                <extra android:name="lang_type" android:value="source" />
             </intent>
         </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="pref_lang"
+            android:layout="@layout/custom_pref"
+            android:title="Target Language"
+            android:summary="@string/pref_default_lang">
+            <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
+                <extra android:name="lang_type" android:value="target" />
+            </intent>
+        </PreferenceScreen>
+
 
         <!--<wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference-->
             <!--android:key="pref_lang"-->

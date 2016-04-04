@@ -1,39 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/recording_screen_container"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    >
+    android:orientation="vertical"
+    android:layout_centerVertical="true"
+    android:touchscreenBlocksFocus="true"
+    android:background="@color/primary">
 
     <!-- TODO: Placed here to avoid errors. Remove if not needed anymore-->
-    <wycliffeassociates.recordingapp.AudioVisualization.MinimapView
-        android:id="@+id/minimap"
+
+    <RelativeLayout
+        android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:visibility="invisible"/>
+        android:layout_height="75dp"
+        android:id="@+id/srcAudioPlayer"
+        android:visibility="visible">
+
+        <ImageButton
+            android:layout_width="121dp"
+            android:layout_height="match_parent"
+            android:id="@+id/btnPauseSource"
+            android:src="@drawable/ic_record_pause"
+            android:background="@color/primary"
+            android:visibility="invisible" />
+
+        <ImageButton
+            android:layout_width="121dp"
+            android:layout_height="match_parent"
+            android:id="@+id/btnPlaySource"
+            android:background="@color/primary"
+            android:src="@drawable/ic_play_arrow_white_48dp"
+            android:visibility="visible" />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/seekBar"
+            android:layout_alignParentTop="true"
+            android:background="@color/primary"
+            android:layout_toEndOf="@+id/srcProgress"
+            android:layout_toStartOf="@+id/srcDuration" />
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:id="@+id/srcProgress"
+            android:text="00:00:00"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/btnPauseSource"
+            android:textColor="@color/text_light"
+            android:background="@color/primary"
+            android:textSize="18sp"
+            android:layout_alignParentBottom="true"
+            android:singleLine="true"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:id="@+id/srcDuration"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:text="00:00:00"
+            android:textColor="@color/text_light"
+            android:background="@color/primary"
+            android:textSize="18sp"
+            android:singleLine="true"
+            android:gravity="center"
+            />
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/toolbar"
-        android:background="#0A0A0A">
+        android:background="#0A0A0A"
+        android:layout_weight="1000">
 
-        <LinearLayout
+        <view
+            class="wycliffeassociates.recordingapp.AudioVisualization.VolumeBar"
             android:orientation="horizontal"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:layout_gravity="right"
-            android:id="@+id/volumeBar"
+            android:layout_gravity="left"
+            android:id="@+id/volumeBar1"
             android:padding="8dp"
-            android:layout_alignParentEnd="true" />
+            android:visibility="visible"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
 
         <view
             class="wycliffeassociates.recordingapp.AudioVisualization.WaveformView"
             android:id="@+id/main_canvas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/volumeBar"/>
+            android:layout_toRightOf="@id/volumeBar1"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true" />
+
+        <view
+            class="wycliffeassociates.recordingapp.AudioVisualization.MinimapView"
+            android:id="@+id/minimap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone" />
 
     </RelativeLayout>
 
@@ -43,7 +117,8 @@
         android:layout_height="wrap_content"
         android:background="@color/primary"
         android:padding="16dp"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_weight="30">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -112,4 +187,4 @@
 
     </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>

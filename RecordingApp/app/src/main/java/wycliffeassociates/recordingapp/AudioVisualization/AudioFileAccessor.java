@@ -90,7 +90,7 @@ public class AudioFileAccessor {
             int skip = mCut.skipReverse(time);
             if(skip != Integer.MAX_VALUE){
                 time = skip;
-                System.out.println("here, skip back to " + time);
+                //System.out.println("here, skip back to " + time);
             }
         }
         int loc = absoluteIndexFromAbsoluteTime(time);

@@ -17,29 +17,29 @@ import wycliffeassociates.recordingapp.R;
  *
  * SharedPreferences is a Singleton object, allowing multiple references.
  */
-public class PreferencesManager {
+public class InternsPreferencesManager {
 
     private static final String PREF_NAME = "wycliffeassociates.recordingapp.properties";
 
-    private static PreferencesManager sInstance;
+    private static InternsPreferencesManager sInstance;
     //private final Preferences mPref;
     private final SharedPreferences mPref;
     private Context context;
 
-    public PreferencesManager(Context context) {
+    public InternsPreferencesManager(Context context) {
         mPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         this.context = context;
     }
 
     public static synchronized void initializeInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new PreferencesManager(context);
+            sInstance = new InternsPreferencesManager(context);
         }
     }
 
-    public static synchronized PreferencesManager getInstance() {
+    public static synchronized InternsPreferencesManager getInstance() {
         if (sInstance == null) {
-            throw new IllegalStateException(PreferencesManager.class.getSimpleName() +
+            throw new IllegalStateException(InternsPreferencesManager.class.getSimpleName() +
                     " is not initialized, call initializeInstance(..) method first.");
         }
         return sInstance;

@@ -252,7 +252,7 @@ public class WavVisualizer {
         } else {
             increment *= 2;
         }
-        System.out.println("increment is " + increment);
+        //System.out.println("increment is " + increment);
         return (int)increment;
     }
 

@@ -55,6 +55,7 @@ public class Settings extends Activity {
     private String sampleName;
     public static final String KEY_PREF_SOURCE = "pref_source";
     public static final String KEY_PREF_LANG = "pref_lang";
+    public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
@@ -62,6 +63,8 @@ public class Settings extends Activity {
     public static final String KEY_PREF_TAKE = "pref_take";
     public static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
     public static final String KEY_PREF_VERSE = "pref_verse";
+    public static final String KEY_PREF_SRC_LOC = "pref_src_loc";
+    public static final String KEY_SDK_LEVEL = "pref_sdk_level";
 
     MyAutoCompleteTextView setLangCode,setBookCode;
 
