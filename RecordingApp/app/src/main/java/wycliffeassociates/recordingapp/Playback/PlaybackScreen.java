@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -51,7 +52,7 @@ public class PlaybackScreen extends Activity{
     private MarkerView mStartMarker;
     private MarkerView mEndMarker;
     private UIDataManager mManager;
-    private InternsPreferencesManager pref;
+    private SharedPreferences pref;
     private String recordedFilename = null;
     private String suggestedFilename = null;
     private boolean isSaved = false;
@@ -64,13 +65,16 @@ public class PlaybackScreen extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pref = new InternsPreferencesManager(this);
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
+        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         if(isALoadedFile){
             suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
+        } else {
+            //if coming from recording, the file is already saved
+            isSaved = true;
         }
         Logger.w(this.toString(), "Loading Playback screen. Recorded Filename is " + recordedFilename + " Suggested Filename is " + suggestedFilename + " Came from loading a file is:" + isALoadedFile);
 
@@ -273,7 +277,7 @@ public class PlaybackScreen extends Activity{
 
     private void setName(String newName) {
         suggestedFilename = newName;
-        File dir = new File(pref.getPreferences("fileDirectory").toString());
+        File dir = new File(pref.getString("current_directory", "").toString());
         File from = new File(recordedFilename);
 
         if(isALoadedFile && suggestedFilename.contains(".wav")) {
@@ -281,7 +285,8 @@ public class PlaybackScreen extends Activity{
         }
         File to = new File(dir, suggestedFilename + AUDIO_RECORDER_FILE_EXT_WAV);
 
-        if(to.exists()){
+        //file needs to exist and either not be saved, or is saved but has a pending cut
+        if(to.exists() && (!isSaved || (isSaved && mManager.hasCut()))){
             final File finalFrom = from;
             final File finalTo = to;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -335,7 +340,7 @@ public class PlaybackScreen extends Activity{
             public void run() {
                 if(mManager.hasCut()){
                     try {
-                        File dir = new File(pref.getPreferences("fileDirectory").toString());
+                        File dir = new File(pref.getString("current_directory", "").toString());
                         File toTemp = new File(dir, "temp.wav");
                         mManager.writeCut(toTemp, pd);
                         if(overwrite || !isALoadedFile) {
@@ -391,29 +396,6 @@ public class PlaybackScreen extends Activity{
             }
         });
         saveThread.start();
-    }
-
-
-    /**
-     * Retrieves the filename of the recorded audio file.
-     * If the AudioRecorder folder does not exist, it is created.
-     *
-     * @return the absolute filepath to the recorded .wav file
-     */
-    public String getFilename() {
-        String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
-
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        if (recordedFilename != null) {
-            return (file.getAbsolutePath() + "/" + recordedFilename);
-        }
-        else {
-            recordedFilename = (file.getAbsolutePath() + "/" + UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV);
-            return recordedFilename;
-        }
     }
 
     private void setButtonHandlers() {

@@ -502,6 +502,7 @@ public class RecordingScreen extends Activity {
             chunk = chap = String.format("%02d", Integer.parseInt(pref.getString(Settings.KEY_PREF_VERSE, "1")));
         }
         String fullpath = root + "/" + lang + "/" + src + "/" + book + "/" + chap + "/";
+        pref.edit().putString("current_directory", fullpath).commit();
 
         File filepath = new File(fullpath);
 
@@ -512,7 +513,7 @@ public class RecordingScreen extends Activity {
         if (recordedFilename != null)
             return (fullpath + recordedFilename);
         else {
-            recordedFilename = (fullpath + pref.getString(Settings.KEY_PREF_FILENAME, "en_ulb_mat_01-01") + AUDIO_RECORDER_FILE_EXT_WAV);
+            recordedFilename = (fullpath + pref.getString(Settings.KEY_PREF_FILENAME, "en_ulb_mat_01-01_01") + AUDIO_RECORDER_FILE_EXT_WAV);
             System.out.println("filename is " + recordedFilename);
             return recordedFilename;
         }

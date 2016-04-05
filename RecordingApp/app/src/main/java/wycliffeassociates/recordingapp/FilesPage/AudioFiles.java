@@ -101,17 +101,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         // Cleanup any leftover visualization files
         removeUnusedVisualizationFiles(currentDir);
 
-        //get files in the directory
-        File f = new File(currentDir);
-        file = f.listFiles();
-        // No files
-        if (file == null) {
-            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
-        // Get audio files
-        } else {
-            initFiles(file);
-        }
-
         setButtonHandlers();
 
         FragmentManager fm = getFragmentManager();
@@ -172,6 +161,21 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
             zipProgress(0);
         } else {
             exportProgress(0);
+        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        //get files in the directory
+        File f = new File(currentDir);
+        file = f.listFiles();
+        // No files
+        if (file == null) {
+            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
+            // Get audio files
+        } else {
+            initFiles(file);
         }
     }
 
