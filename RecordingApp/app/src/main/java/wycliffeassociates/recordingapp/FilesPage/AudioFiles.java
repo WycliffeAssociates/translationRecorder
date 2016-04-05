@@ -16,7 +16,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -24,6 +27,7 @@ import java.util.Hashtable;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
@@ -489,9 +493,19 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
 
         for (int i = 0; i < exportList.size(); i++) {
             File file = new File(exportList.get(i));
-//            boolean deleted = file.delete();
-//            if (deleted){
-            if (file.delete()) {
+            boolean deleted;
+            if(file.isDirectory()){
+                try {
+                    FileUtils.deleteDirectory(file);
+                    deleted = true;
+                } catch (IOException e) {
+                    deleted = false;
+                    Logger.e(this.toString(), "ERROR: tried to delete a directory and failed");
+                }
+            } else {
+                deleted = file.delete();
+            }
+            if (deleted){
                 String value = exportList.get(i).replace(currentDir + "/", "");
                 for (int a = 0; a < tempItemList.size(); a++) {
                     if (tempItemList.get(a).getName().equals(value)){
@@ -499,9 +513,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                         a = tempItemList.size() + 2;
                     }
                 }
-                //tempItemList.remove(i - count);
-                //System.out.println("========" + (i - count));
-                //count++;
             }
         }
     }
