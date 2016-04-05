@@ -147,7 +147,9 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         try {
             updateSummariesSetViaActivities(sharedPref);
             String text  = sharedPref.getString(key, "");
-            findPreference(key).setSummary(text);
+            if(findPreference(key) != null) {
+                findPreference(key).setSummary(text);
+            }
         } catch (ClassCastException err) {
             System.out.println("IGNORING SUMMARY UPDATE FOR " + key);
         }

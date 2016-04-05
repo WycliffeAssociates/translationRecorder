@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:id="@+id/btnPreviousDir"
-                android:src="@drawable/ic_other" />
+                android:src="@drawable/ic_arrow_back_black_24dp" />
 
             <TextView
                 android:layout_width="fill_parent"
