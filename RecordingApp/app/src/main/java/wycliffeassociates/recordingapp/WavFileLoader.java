@@ -1,5 +1,8 @@
 package wycliffeassociates.recordingapp;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

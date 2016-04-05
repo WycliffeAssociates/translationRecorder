@@ -372,16 +372,18 @@ public class PlaybackScreen extends Activity{
                     }
                     else {
                         try {
-                            FileUtils.copyFile(from, to);
+                            if(!FileUtils.contentEquals(from, to)) {
+                                if(to.exists()){
+                                    to.delete();
+                                }
+                                FileUtils.copyFile(from, to);
+                            }
                             if(!isALoadedFile) {
                                 File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
                                 File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
                                 FileUtils.copyFile(fromVis, toVis);
                             }
                             recordedFilename = to.getAbsolutePath();
-                            if(deleteUUID){
-                                from.delete();
-                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

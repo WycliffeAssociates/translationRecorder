@@ -57,6 +57,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
     private volatile boolean mExporting = false;
+    private SharedPreferences pref;
 
     // 0: Z-A
     // 1: A-Z
@@ -80,7 +81,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         // Pull file directory and sorting Preferences
         oldPref = new InternsPreferencesManager(this);
         currentDir = (String) oldPref.getPreferences("fileDirectory");
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
         if(pref.getString("fileDirectory", null) == null){
             pref.edit().putString("fileDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + this.getString(R.string.folder_name)).commit();
         }
@@ -306,7 +307,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     };
 
     private void backOneLevel(){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         String path = pref.getString("fileDirectory", "");
         if(path.compareTo(Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + this.getString(R.string.folder_name)) == 0){
             return;
@@ -407,22 +407,21 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     }
 
     private void removeUnusedVisualizationFiles(String filesDir){
-        File audioFilesLocation = new File(filesDir);
         File visFilesLocation = new File(AudioInfo.pathToVisFile);
         File[] visFiles = visFilesLocation.listFiles();
-        File[] audioFiles = audioFilesLocation.listFiles();
         if(visFiles == null){
             return;
         }
         for(File v : visFiles){
+            FileNameExtractor fne = new FileNameExtractor(v);
             boolean found = false;
-            if(audioFiles != null) {
-                for (File a : audioFiles) {
-                    //check if the names match up; exclude the path to get to them or the file extention
-                    if (extractFilename(a).equals(extractFilename(v))) {
-                        found = true;
-                        break;
-                    }
+            String path = pref.getString("root_directory", "") + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
+            String name = fne.getLang() + "_" + fne.getSource() + "_" + fne.getBook() + "_" + String.format("%02d", fne.getChapter()) + "-" + String.format("%02d", fne.getChunk()) + "_" + String.format("%02d", fne.getTake()) + ".wav";
+            File searchName = new File(path, name);
+            if(searchName != null && searchName.exists()) {
+                //check if the names match up; exclude the path to get to them or the file extention
+                if (extractFilename(searchName).equals(extractFilename(v))) {
+                    continue;
                 }
             }
             if(!found){
