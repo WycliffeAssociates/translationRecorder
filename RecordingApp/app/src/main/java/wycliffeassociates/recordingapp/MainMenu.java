@@ -170,6 +170,7 @@ public class MainMenu extends Activity{
             pref.edit().putString("current_directory",
                     Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
         }
+        pref.edit().putString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
         AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
         AudioInfo.fileDir = Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString();
     }
