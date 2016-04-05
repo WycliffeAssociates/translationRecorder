@@ -240,8 +240,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
             int len = file[i].getName().length();
             if (len > 3 && !file[i].isDirectory()) {
                 String sub = file[i].getName().substring(len - 4);
-                if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
-                        || sub.equalsIgnoreCase(".mp3")) {
+                if (sub.equalsIgnoreCase(".wav")) {
                     // Add file names
                     Date lastModDate = new Date(file[i].lastModified());
                     File tFile = new File(currentDir + "/" + file[i].getName());

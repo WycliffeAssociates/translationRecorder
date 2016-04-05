@@ -31,6 +31,7 @@ public class MainMenu extends Activity{
     private ImageButton btnRecord;
     private ImageButton btnFiles;
     private ImageButton btnSettings;
+    private SharedPreferences pref;
 
     public static final String KEY_PREF_LOGGING_LEVEL = "logging_level";
     public static final String PREF_DEFAULT_LOGGING_LEVEL = "1";
@@ -47,9 +48,6 @@ public class MainMenu extends Activity{
 
         System.out.println("internal files dir is " + getApplicationContext().getFilesDir());
         System.out.println("External files dir is " + Environment.getExternalStoragePublicDirectory("TranslationRecorder"));
-
-
-
 
         initApp();
 
@@ -136,16 +134,18 @@ public class MainMenu extends Activity{
     }
 
     private void initApp(){
-        // configure logger
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //configure logger
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
         if(!dir.exists()){
             dir.mkdir();
         }
         GlobalExceptionHandler.register(dir);
-        int minLogLevel = Integer.parseInt(getUserPreferences().getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
+        int minLogLevel = Integer.parseInt(pref.getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
         configureLogger(minLogLevel);
 
-        // check if we crashed
+        //check if we crashed
         String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
         if (stacktraces.length > 0) {
             FragmentManager fm = getFragmentManager();
@@ -154,9 +154,22 @@ public class MainMenu extends Activity{
             brd.show(fm, "Bug Report Dialog");
         }
 
-        // set up Visualization folder
+        //set up Visualization folder
         File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
         System.out.println("Result of making vis directory " + visDir.mkdirs());
+        if(visDir.exists()){
+            Logger.w(this.toString(), "SUCCESS: Visualization folder exists.");
+        } else {
+            Logger.e(this.toString(), "ERROR: Visualization folder does not exist.");
+        }
+
+        //set up directory paths
+        pref.edit().putString("vis_folder_path", visDir.getAbsolutePath() + "/").commit();
+        //if the current directory is already set, then don't overwrite it
+        if(pref.getString("current_directory", null) == null){
+            pref.edit().putString("current_directory",
+                    Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
+        }
         AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
         AudioInfo.fileDir = Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString();
     }
@@ -165,19 +178,9 @@ public class MainMenu extends Activity{
         File logFile = new File(getExternalCacheDir(), "log.txt");
         Logger.configure(logFile, Logger.Level.getLevel(minLogLevel));
         if(logFile.exists()){
-            Logger.w(this.toString(), "Log file initialized.");
+            Logger.w(this.toString(), "SUCCESS: Log file initialized.");
         } else {
             Logger.e(this.toString(),"ERROR: could not initialize log file.");
         }
-
-    }
-
-    /**
-     * Returns an instance of the user preferences.
-     * This is just the default shared preferences
-     * @return
-     */
-    public SharedPreferences getUserPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 }
