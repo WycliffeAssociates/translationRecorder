@@ -90,14 +90,9 @@ public class WavFileLoader {
             mappedAudioFile = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
                     raf.length() - AudioInfo.HEADER_SIZE);
             //If the file was loaded, look for a .vis file with the same name
-            if(loadedFile == LOADED_FILE) {
                 audioVisFile = new File(AudioInfo.pathToVisFile + file.substring(file.lastIndexOf('/'),
                         file.lastIndexOf('.')) + ".vis");
-            //Otherwise use visualization.vis
-            } else{
-                audioVisFile = new File(AudioInfo.pathToVisFile, "visualization.vis");
-                Logger.i(WavFileLoader.class.toString(), "Using the default visualization file");
-            }
+
             //If the visualization file exists, map it to memory
             if(audioVisFile.exists()) {
                 RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");

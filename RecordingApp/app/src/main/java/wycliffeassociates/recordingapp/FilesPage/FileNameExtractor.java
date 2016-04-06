@@ -1,5 +1,8 @@
 package wycliffeassociates.recordingapp.FilesPage;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,6 +74,13 @@ public class FileNameExtractor {
 
     public boolean matched(){
         return mMatched;
+    }
+
+    public static File getDirectoryFromFile(SharedPreferences pref, File file){
+        FileNameExtractor fne = new FileNameExtractor(file);
+        String root = pref.getString("root_directory", "");
+        File out = new File(new File(root), fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter()));
+        return out;
     }
 
     public static int getLargestTake(File directory, File filename){

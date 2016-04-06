@@ -101,11 +101,6 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
             }
         });
 
-
-
-        // Cleanup any leftover visualization files
-        removeUnusedVisualizationFiles(currentDir);
-
         setButtonHandlers();
 
         FragmentManager fm = getFragmentManager();
@@ -172,6 +167,9 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     @Override
     public void onResume(){
         super.onResume();
+        // Cleanup any leftover visualization files
+        removeUnusedVisualizationFiles(currentDir);
+
         //get files in the directory
         File f = new File(currentDir);
         file = f.listFiles();
@@ -514,6 +512,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                 }
             }
         }
+        removeUnusedVisualizationFiles(currentDir);
     }
 
     private ArrayList<FileItem> sortAudioItem(ArrayList<FileItem> nList, int sort) {
