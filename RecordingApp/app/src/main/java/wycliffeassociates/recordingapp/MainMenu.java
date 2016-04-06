@@ -16,6 +16,8 @@ import android.widget.ImageButton;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.Reporting.BugReportDialog;
@@ -46,8 +48,8 @@ public class MainMenu extends Activity{
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         AudioInfo.SCREEN_WIDTH = metrics.widthPixels;
 
-        System.out.println("internal files dir is " + getApplicationContext().getFilesDir());
-        System.out.println("External files dir is " + Environment.getExternalStoragePublicDirectory("TranslationRecorder"));
+        System.out.println("internal files dir is " + this.getCacheDir());
+        System.out.println("External files dir is " + Environment.getExternalStorageDirectory());
 
         initApp();
 
@@ -118,7 +120,10 @@ public class MainMenu extends Activity{
 
     public void archiveStackTraces(){
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
-        File archive = new File(getExternalCacheDir() + STACKTRACE_DIR, "Archive");
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        File archive = new File(dir, "Archive");
         if(!archive.exists()){
             archive.mkdirs();
         }
@@ -136,26 +141,8 @@ public class MainMenu extends Activity{
     private void initApp(){
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        //configure logger
-        File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
-        if(!dir.exists()){
-            dir.mkdir();
-        }
-        GlobalExceptionHandler.register(dir);
-        int minLogLevel = Integer.parseInt(pref.getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
-        configureLogger(minLogLevel);
-
-        //check if we crashed
-        String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
-        if (stacktraces.length > 0) {
-            FragmentManager fm = getFragmentManager();
-            BugReportDialog brd = new BugReportDialog();
-            brd.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-            brd.show(fm, "Bug Report Dialog");
-        }
-
         //set up Visualization folder
-        File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
+        File visDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Visualization");
         System.out.println("Result of making vis directory " + visDir.mkdirs());
         if(visDir.exists()){
             Logger.w(this.toString(), "SUCCESS: Visualization folder exists.");
@@ -173,10 +160,32 @@ public class MainMenu extends Activity{
         pref.edit().putString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
         AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
         AudioInfo.fileDir = Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString();
+
+        //configure logger
+        File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        dir.mkdirs();
+
+        GlobalExceptionHandler.register(dir);
+        int minLogLevel = Integer.parseInt(pref.getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
+        configureLogger(minLogLevel, dir);
+
+        //check if we crashed
+        String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
+        if (stacktraces.length > 0) {
+            FragmentManager fm = getFragmentManager();
+            BugReportDialog brd = new BugReportDialog();
+            brd.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+            brd.show(fm, "Bug Report Dialog");
+        }
     }
 
-    public void configureLogger(int minLogLevel) {
-        File logFile = new File(getExternalCacheDir(), "log.txt");
+    public void configureLogger(int minLogLevel, File logDir) {
+        File logFile = new File(logDir, "log.txt");
+        try {
+            logFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Logger.configure(logFile, Logger.Level.getLevel(minLogLevel));
         if(logFile.exists()){
             Logger.w(this.toString(), "SUCCESS: Log file initialized.");
