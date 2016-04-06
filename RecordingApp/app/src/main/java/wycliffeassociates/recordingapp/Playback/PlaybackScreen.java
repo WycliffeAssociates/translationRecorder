@@ -248,6 +248,9 @@ public class PlaybackScreen extends Activity{
         toSave.setInputType(InputType.TYPE_CLASS_TEXT);
 
         //pref.getPreferences("fileName");
+        if(isALoadedFile){
+            suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf("_"));
+        }
         toSave.setText(suggestedFilename, TextView.BufferType.EDITABLE);
         mChangedName = false;
 
@@ -283,36 +286,12 @@ public class PlaybackScreen extends Activity{
         if(isALoadedFile && suggestedFilename.contains(".wav")) {
             suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf(".wav"));
         }
-        File to = new File(dir, suggestedFilename + AUDIO_RECORDER_FILE_EXT_WAV);
-
-        //file needs to exist and either not be saved, or is saved but has a pending cut
-        if(to.exists() && (!isSaved || (isSaved && mManager.hasCut()))){
-            final File finalFrom = from;
-            final File finalTo = to;
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Would you like to overwrite the existing file?").setTitle("Warning");
-            builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                    isSaved = true;
-                    saveFile(finalFrom, finalTo, suggestedFilename, true, false);
-                }
-            });
-            builder.setNegativeButton("no", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                    getSaveName(context);
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+        String take = String.format("%02d", FileNameExtractor.getLargestTake(dir, new File(suggestedFilename + "_00.wav"))+1);
+        File to = new File(dir, suggestedFilename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
+        if(isALoadedFile) {
+            saveFile(from, to, suggestedFilename + "_"+take, false);
         } else {
-            isSaved = true;
-            if(isALoadedFile) {
-                saveFile(from, to, suggestedFilename, false, false);
-            } else {
-                saveFile(from, to, suggestedFilename, false, true);
-            }
+            saveFile(from, to, suggestedFilename + "_"+take, true);
         }
     }
 
@@ -327,7 +306,7 @@ public class PlaybackScreen extends Activity{
      * @param name a string with the desired output filename. Should not include the .wav extension.
      * @return the absolute path of the file created
      */
-    public void saveFile(final File from, final File to, final String name, final boolean overwrite, final boolean deleteUUID) {
+    public void saveFile(final File from, final File to, final String name, final boolean overwrite) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setTitle("Saving");
@@ -343,14 +322,8 @@ public class PlaybackScreen extends Activity{
                         File dir = new File(pref.getString("current_directory", "").toString());
                         File toTemp = new File(dir, "temp.wav");
                         mManager.writeCut(toTemp, pd);
-                        if(overwrite || !isALoadedFile) {
-                            from.delete();
-                            to.delete();
-                            toTemp.renameTo(to);
-                        } else {
-                            to.delete();
-                            toTemp.renameTo(to);
-                        }
+                        to.delete();
+                        toTemp.renameTo(to);
                         File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
                         toVis.delete();
                     } catch (IOException e) {
@@ -362,9 +335,10 @@ public class PlaybackScreen extends Activity{
                         try {
                             if(!FileUtils.contentEquals(from, to)) {
                                 to.delete();
-                                from.renameTo(to);
+                                String toName = to.getName();
+                                File fromVis = new File(AudioInfo.pathToVisFile, toName.substring(0, toName.lastIndexOf(".")) + ".vis");
                                 File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
-                                toVis.delete();
+                                toVis.renameTo(fromVis);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -393,6 +367,7 @@ public class PlaybackScreen extends Activity{
                     int setTo = FileNameExtractor.getLargestTake(new File(AudioInfo.fileDir), to)+1;
                     Settings.incrementTake(context, setTo);
                 }
+                isSaved = true;
                 pd.dismiss();
                 finish();
             }

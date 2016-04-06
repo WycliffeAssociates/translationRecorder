@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
  * Created by sarabiaj on 3/15/2016.
  */
 public class FileNameExtractor {
-    private String mLang;
-    private String mSource;
-    private String mBook;
+    private String mLang ="";
+    private String mSource ="";
+    private String mBook ="";
     private int mChap;
     private int mChunk;
     private int mTake;
@@ -75,6 +75,9 @@ public class FileNameExtractor {
 
     public static int getLargestTake(File directory, File filename){
         File[] files = directory.listFiles();
+        if(files == null){
+            return 0;
+        }
         FileNameExtractor fne = new FileNameExtractor(filename);
         String inLang = fne.getLang();
         String inSource = fne.getSource();
@@ -82,9 +85,6 @@ public class FileNameExtractor {
         int inChap = fne.getChapter();
         int inChunk = fne.getChunk();
         int maxTake = fne.getTake();
-        if(files == null){
-            return maxTake;
-        }
         for(File f : files){
             fne = new FileNameExtractor(f);
             //check in order of most unique to least unique
