@@ -4,14 +4,22 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -19,21 +27,23 @@ import java.util.Hashtable;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 
 public class AudioFiles extends Activity implements FragmentShareDialog.ExportDelegator, Export.ProgressUpdateCallback {
 
     private CheckBox btnCheckAll;
     private Menu mMenu;
     private ListView audioFileView;
-    // private TextView file_path;
+    private TextView mDirectoryPath;
+    private ImageButton mPreviousDir;
     private static String currentDir;
     private File file[];
 
-    private ArrayList<AudioItem> audioItemList;
-    private ArrayList<AudioItem> tempItemList;
+    private ArrayList<FileItem> fileItemList;
+    private ArrayList<FileItem> tempItemList;
     static ArrayList<String> exportList;
     private ProgressDialog mPd;
     private ExportTaskFragment mExportTaskFragment;
@@ -47,6 +57,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
     private volatile boolean mExporting = false;
+    private SharedPreferences pref;
 
     // 0: Z-A
     // 1: A-Z
@@ -57,7 +68,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     int sort = 5;
     public AudioFilesAdapter adapter;
     Hashtable<Date, String> audioHash;
-    InternsPreferencesManager pref;
+    InternsPreferencesManager oldPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,28 +78,28 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         // Hide the fragment to start with
         hideFragment(R.id.file_actions);
 
-        // Pull file directory and sorting preferences
-        pref = new InternsPreferencesManager(this);
-        currentDir = (String) pref.getPreferences("fileDirectory");
+        // Pull file directory and sorting Preferences
+        oldPref = new InternsPreferencesManager(this);
+        currentDir = (String) oldPref.getPreferences("fileDirectory");
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        if(pref.getString("fileDirectory", null) == null){
+            pref.edit().putString("fileDirectory", Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + this.getString(R.string.folder_name)).commit();
+        }
+        currentDir = pref.getString("fileDirectory", currentDir);
         AudioInfo.fileDir = currentDir;
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
 
         audioFileView = (ListView) findViewById(R.id.main_content);
         btnCheckAll = (CheckBox)findViewById(R.id.btnCheckAll);
-
-        // Cleanup any leftover visualization files
-        removeUnusedVisualizationFiles(currentDir);
-
-        //get files in the directory
-        File f = new File(currentDir);
-        file = f.listFiles();
-        // No files
-        if (file == null) {
-            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
-        // Get audio files
-        } else {
-            initFiles(file);
-        }
+        mPreviousDir = (ImageButton)findViewById(R.id.btnPreviousDir);
+        mDirectoryPath = (TextView)findViewById(R.id.pathView);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDirectoryPath.setText(currentDir);
+                mDirectoryPath.invalidate();
+            }
+        });
 
         setButtonHandlers();
 
@@ -154,6 +165,24 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        // Cleanup any leftover visualization files
+        removeUnusedVisualizationFiles(currentDir);
+
+        //get files in the directory
+        File f = new File(currentDir);
+        file = f.listFiles();
+        // No files
+        if (file == null) {
+            Toast.makeText(AudioFiles.this, "No Audio Files in Folder", Toast.LENGTH_SHORT).show();
+            // Get audio files
+        } else {
+            initFiles(file);
+        }
+    }
+
+    @Override
     public void setZipping(boolean zipping){
         mZipping = zipping;
     }
@@ -210,23 +239,29 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
 
     private void initFiles(File[] file){
         // Initialization
-        audioItemList = new ArrayList<AudioItem>();
-        tempItemList = new ArrayList<AudioItem>();
+        fileItemList = new ArrayList<FileItem>();
+        tempItemList = new ArrayList<FileItem>();
         audioHash = new Hashtable<Date, String>();
 
         for (int i = 0; i < file.length; i++) {
             int len = file[i].getName().length();
-            if (len > 3) {
+            if (len > 3 && !file[i].isDirectory()) {
                 String sub = file[i].getName().substring(len - 4);
-                if (sub.equalsIgnoreCase(".3gp") || sub.equalsIgnoreCase(".wav")
-                        || sub.equalsIgnoreCase(".mp3")) {
+                if (sub.equalsIgnoreCase(".wav")) {
                     // Add file names
                     Date lastModDate = new Date(file[i].lastModified());
                     File tFile = new File(currentDir + "/" + file[i].getName());
                     long time = (((tFile.length() - 44) / 2) / 44100);
                     //create an Audio Item
-                    tempItemList.add(new AudioItem(file[i].getName(), lastModDate, (int) time));
+                    tempItemList.add(new FileItem(file[i].getName(), lastModDate, (int) time, FileItem.FILE));
                 }
+            } else if(file[i].isDirectory()) {
+                if(file[i].getName().compareTo("Visualization") == 0){
+                    continue;
+                }
+                Date lastModDate = new Date(file[i].lastModified());
+                //create an Audio Item
+                tempItemList.add(new FileItem(file[i].getName(), lastModDate, 0, FileItem.DIRECTORY));
             }
             generateAdapterView(tempItemList, sort);
         }
@@ -237,6 +272,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         findViewById(R.id.btnSortName).setOnClickListener(btnClick);
         findViewById(R.id.btnSortDuration).setOnClickListener(btnClick);
         findViewById(R.id.btnSortDate).setOnClickListener(btnClick);
+        findViewById(R.id.btnPreviousDir).setOnClickListener(btnClick);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -260,9 +296,28 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                     sortDate();
                     break;
                 }
+                case R.id.btnPreviousDir: {
+                    backOneLevel();
+                    break;
+                }
             }
         }
     };
+
+    private void backOneLevel(){
+        String path = pref.getString("fileDirectory", "");
+        if(path.compareTo(Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + this.getString(R.string.folder_name)) == 0){
+            return;
+        }
+        path = path.substring(0, path.lastIndexOf("/"));
+        pref.edit().putString("fileDirectory", path).commit();
+        refreshView();
+    }
+
+    public void refreshView(){
+        finish();
+        startActivity(getIntent());
+    }
 
     private void checkAll(){
         if (file != null) {
@@ -288,38 +343,38 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
 
     private void sortName(){
         if (sort == 1) {
-            pref.setPreferences("displaySort", 0);
+            oldPref.setPreferences("displaySort", 0);
         } else {
-            pref.setPreferences("displaySort", 1);
+            oldPref.setPreferences("displaySort", 1);
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
     }
 
     private void sortDuration(){
         if (sort == 3) {
-            pref.setPreferences("displaySort", 2);
+            oldPref.setPreferences("displaySort", 2);
         } else {
-            pref.setPreferences("displaySort", 3);
+            oldPref.setPreferences("displaySort", 3);
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
     }
 
     private void sortDate(){
         if (sort == 5) {
-            pref.setPreferences("displaySort", 4);
+            oldPref.setPreferences("displaySort", 4);
         } else {
-            pref.setPreferences("displaySort", 5);
+            oldPref.setPreferences("displaySort", 5);
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
     }
 
     public void showShareDialog(View v){
         FragmentManager fm = getFragmentManager();
         FragmentShareDialog d = new FragmentShareDialog();
-        d.setFilesForExporting(audioItemList, adapter, currentDir);
+        d.setFilesForExporting(fileItemList, adapter, currentDir);
         d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         d.show(fm, "Share Dialog");
     }
@@ -335,7 +390,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         exportList = new ArrayList<String>();
         for (int i = 0; i < adapter.checkBoxState.length; i++) {
             if (adapter.checkBoxState[i]) {
-                exportList.add(currentDir + "/" + audioItemList.get(i).getName());
+                exportList.add(currentDir + "/" + fileItemList.get(i).getName());
             }
         }
         if (exportList.size() > 0) {
@@ -344,28 +399,27 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         } else {
             Toast.makeText(AudioFiles.this, "Select a file to delete", Toast.LENGTH_SHORT).show();
         }
-        sort = (int) pref.getPreferences("displaySort");
+        sort = (int) oldPref.getPreferences("displaySort");
         generateAdapterView(tempItemList, sort);
         hideFragment(R.id.file_actions);
     }
 
     private void removeUnusedVisualizationFiles(String filesDir){
-        File audioFilesLocation = new File(filesDir);
         File visFilesLocation = new File(AudioInfo.pathToVisFile);
         File[] visFiles = visFilesLocation.listFiles();
-        File[] audioFiles = audioFilesLocation.listFiles();
         if(visFiles == null){
             return;
         }
         for(File v : visFiles){
+            FileNameExtractor fne = new FileNameExtractor(v);
             boolean found = false;
-            if(audioFiles != null) {
-                for (File a : audioFiles) {
-                    //check if the names match up; exclude the path to get to them or the file extention
-                    if (extractFilename(a).equals(extractFilename(v))) {
-                        found = true;
-                        break;
-                    }
+            String path = pref.getString("root_directory", "") + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
+            String name = fne.getLang() + "_" + fne.getSource() + "_" + fne.getBook() + "_" + String.format("%02d", fne.getChapter()) + "-" + String.format("%02d", fne.getChunk()) + "_" + String.format("%02d", fne.getTake()) + ".wav";
+            File searchName = new File(path, name);
+            if(searchName != null && searchName.exists()) {
+                //check if the names match up; exclude the path to get to them or the file extention
+                if (extractFilename(searchName).equals(extractFilename(v))) {
+                    continue;
                 }
             }
             if(!found){
@@ -408,21 +462,21 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         finish();
     }
 
-    private void generateAdapterView(ArrayList<AudioItem> tempItemList, int sort){
+    private void generateAdapterView(ArrayList<FileItem> tempItemList, int sort){
         //
-        ArrayList<AudioItem> cleanList = new ArrayList<AudioItem>();
+        ArrayList<FileItem> cleanList = new ArrayList<FileItem>();
         for (int a = 0; a < tempItemList.size(); a++){
             cleanList.add(tempItemList.get(a));
         }
 
         // Clear list
-        audioItemList = new ArrayList<AudioItem>();
-        audioItemList = sortAudioItem(cleanList, sort);
+        fileItemList = new ArrayList<FileItem>();
+        fileItemList = sortAudioItem(cleanList, sort);
 
         // Temp array for Adapter
-        AudioItem[] tempArr = new AudioItem[audioItemList.size()];
-        for(int a = 0; a < audioItemList.size(); a++){
-            tempArr[a] = audioItemList.get(a);
+        FileItem[] tempArr = new FileItem[fileItemList.size()];
+        for(int a = 0; a < fileItemList.size(); a++){
+            tempArr[a] = fileItemList.get(a);
 
         }
 
@@ -436,9 +490,19 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
 
         for (int i = 0; i < exportList.size(); i++) {
             File file = new File(exportList.get(i));
-//            boolean deleted = file.delete();
-//            if (deleted){
-            if (file.delete()) {
+            boolean deleted;
+            if(file.isDirectory()){
+                try {
+                    FileUtils.deleteDirectory(file);
+                    deleted = true;
+                } catch (IOException e) {
+                    deleted = false;
+                    Logger.e(this.toString(), "ERROR: tried to delete a directory and failed");
+                }
+            } else {
+                deleted = file.delete();
+            }
+            if (deleted){
                 String value = exportList.get(i).replace(currentDir + "/", "");
                 for (int a = 0; a < tempItemList.size(); a++) {
                     if (tempItemList.get(a).getName().equals(value)){
@@ -446,16 +510,14 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                         a = tempItemList.size() + 2;
                     }
                 }
-                //tempItemList.remove(i - count);
-                //System.out.println("========" + (i - count));
-                //count++;
             }
         }
+        removeUnusedVisualizationFiles(currentDir);
     }
 
-    private ArrayList<AudioItem> sortAudioItem(ArrayList<AudioItem> nList, int sort) {
+    private ArrayList<FileItem> sortAudioItem(ArrayList<FileItem> nList, int sort) {
         //
-        ArrayList<AudioItem> outputList = new ArrayList<AudioItem>();
+        ArrayList<FileItem> outputList = new ArrayList<FileItem>();
         if (nList.size() > 0) {
             boolean flag = false;
             switch (sort) {

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
+import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 
 /**
@@ -42,12 +42,12 @@ public abstract class Export {
 
     /**
      * Initializes the basic shared data all export operations use
-     * @param audioItemList List of audio items contained on the Files page, used to determine checked items
+     * @param fileItemList List of audio items contained on the Files page, used to determine checked items
      * @param adapter
      * @param currentDir Directory containing the files
      */
-    public Export(ArrayList<AudioItem> audioItemList, AudioFilesAdapter adapter, String currentDir){
-        populateExportList(audioItemList, adapter, currentDir);
+    public Export(ArrayList<FileItem> fileItemList, AudioFilesAdapter adapter, String currentDir){
+        populateExportList(fileItemList, adapter, currentDir);
         mNumFilesToExport = mExportList.size();
         mCurrentDir = currentDir;
     }
@@ -89,21 +89,21 @@ public abstract class Export {
 
     /**
      * Generates an arraylist of files (filepath strings) to export, returns if successful
-     * @param audioItemList list of File objects referring to files to be exported
+     * @param fileItemList list of File objects referring to files to be exported
      * @param adapter AudioFilesAdapter containing information about whether the item was selected
      * @param currentDir String of the path of the current directory
      * @return Whether or not there are files to export
      */
-    protected boolean populateExportList(ArrayList<AudioItem> audioItemList,
+    protected boolean populateExportList(ArrayList<FileItem> fileItemList,
                                     AudioFilesAdapter adapter, String currentDir){
         mExportList = new ArrayList<>();
-        if ((audioItemList.size() == 0)) {
+        if ((fileItemList.size() == 0)) {
             System.out.println("No items to export");
             return false;
         } else {
             for (int i = 0; i < adapter.getCheckBoxState().length; i++) {
                 if (adapter.getCheckBoxState()[i]) {
-                    mExportList.add(currentDir + "/" + audioItemList.get(i).getName());
+                    mExportList.add(currentDir + "/" + fileItemList.get(i).getName());
                 }
             }
         }

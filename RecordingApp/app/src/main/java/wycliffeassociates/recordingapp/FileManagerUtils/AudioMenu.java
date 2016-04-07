@@ -6,24 +6,24 @@ import java.util.Collection;
 //Unused
 public class AudioMenu {
     private String folderName;
-    private Collection<AudioItem> mAudioItems;
+    private Collection<FileItem> mFileItems;
 
     public AudioMenu(String name){
         folderName = name;
-        mAudioItems = new ArrayList<AudioItem>();
+        mFileItems = new ArrayList<FileItem>();
 
     }
 
-    public boolean addAudioItem(AudioItem audio){
-        return mAudioItems.add(audio);
+    public boolean addAudioItem(FileItem audio){
+        return mFileItems.add(audio);
     }
 
     public String getAudioPB(){
         return folderName;
     }
 
-    public Collection<AudioItem> getmAudioItems(){
-        return mAudioItems;
+    public Collection<FileItem> getmFileItems(){
+        return mFileItems;
     }
 
 }

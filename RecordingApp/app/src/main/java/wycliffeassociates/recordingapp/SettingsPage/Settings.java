@@ -84,15 +84,14 @@ public class Settings extends Activity {
         String bookCode = pref.getString(KEY_PREF_BOOK, "mat");
         String chapter = formatDigit(pref.getString(KEY_PREF_CHAPTER, "1"));
         String chunk = formatDigit(pref.getString(KEY_PREF_CHUNK, "1"));
-        String take = formatDigit(pref.getString(KEY_PREF_TAKE, "1"));
         String source = pref.getString(KEY_PREF_SOURCE, "udb");
         String verse = formatDigit(pref.getString(KEY_PREF_VERSE, "1"));
         String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
         String filename;
         if(chunkOrVerse.compareTo("chunk") == 0) {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk + "_" + take;
+            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk;
         } else {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + verse + "_" + take;
+            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + verse;
         }
         pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
     }

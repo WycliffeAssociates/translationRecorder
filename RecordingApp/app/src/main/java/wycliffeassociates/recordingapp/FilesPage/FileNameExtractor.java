@@ -1,5 +1,8 @@
 package wycliffeassociates.recordingapp.FilesPage;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,9 +11,9 @@ import java.util.regex.Pattern;
  * Created by sarabiaj on 3/15/2016.
  */
 public class FileNameExtractor {
-    private String mLang;
-    private String mSource;
-    private String mBook;
+    private String mLang ="";
+    private String mSource ="";
+    private String mBook ="";
     private int mChap;
     private int mChunk;
     private int mTake;
@@ -26,7 +29,7 @@ public class FileNameExtractor {
 
     private void extractData(String file){
         //includes the wav extention, could replace this with .*?
-        String FILENAME_PATTERN = "([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})_([0-9]{2})\\.wav";
+        String FILENAME_PATTERN = "([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})_([0-9]{2}).*";
         Pattern p = Pattern.compile(FILENAME_PATTERN);
         Matcher m = p.matcher(file);
         boolean found = m.find();
@@ -73,8 +76,18 @@ public class FileNameExtractor {
         return mMatched;
     }
 
+    public static File getDirectoryFromFile(SharedPreferences pref, File file){
+        FileNameExtractor fne = new FileNameExtractor(file);
+        String root = pref.getString("root_directory", "");
+        File out = new File(new File(root), fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter()));
+        return out;
+    }
+
     public static int getLargestTake(File directory, File filename){
         File[] files = directory.listFiles();
+        if(files == null){
+            return 0;
+        }
         FileNameExtractor fne = new FileNameExtractor(filename);
         String inLang = fne.getLang();
         String inSource = fne.getSource();
@@ -82,9 +95,6 @@ public class FileNameExtractor {
         int inChap = fne.getChapter();
         int inChunk = fne.getChunk();
         int maxTake = fne.getTake();
-        if(files == null){
-            return maxTake;
-        }
         for(File f : files){
             fne = new FileNameExtractor(f);
             //check in order of most unique to least unique

@@ -9,9 +9,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
-import wycliffeassociates.recordingapp.FileManagerUtils.AudioItem;
 import wycliffeassociates.recordingapp.R;
 
 /**

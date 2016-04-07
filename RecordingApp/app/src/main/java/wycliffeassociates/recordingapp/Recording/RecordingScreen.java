@@ -32,6 +32,7 @@ import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.Book;
@@ -71,12 +72,13 @@ public class RecordingScreen extends Activity {
     private TextView mSrcTimeElapsed;
     private TextView mSrcTimeDuration;
     private volatile boolean mPlayerReleased = false;
-
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
+        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1");
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -189,7 +191,11 @@ public class RecordingScreen extends Activity {
         String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
         String book = sp.getString(Settings.KEY_PREF_BOOK, "");
         String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-        Uri uri = Uri.parse(sp.getString(Settings.KEY_PREF_SRC_LOC, null));
+        String srcLoc = sp.getString(Settings.KEY_PREF_SRC_LOC, null);
+        if(srcLoc == null){
+            return null;
+        }
+        Uri uri = Uri.parse(srcLoc);
         if(uri != null){
             DocumentFile df = DocumentFile.fromTreeUri(this, uri);
             if(df != null) {
@@ -487,17 +493,30 @@ public class RecordingScreen extends Activity {
      * @return the absolute filepath to the recorded .wav file
      */
     public String getFilename() {
-        String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+        String root = pref.getString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString());
+        String lang = pref.getString(Settings.KEY_PREF_LANG, "en");
+        String src = pref.getString(Settings.KEY_PREF_SOURCE, "udb");
+        String book = pref.getString(Settings.KEY_PREF_BOOK, "mat");
+        String chap = String.format("%02d", Integer.parseInt(pref.getString(Settings.KEY_PREF_CHAPTER, "1")));
+        String chunk = String.format("%02d", Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1")));
+        if(pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") != 0){
+            chunk = chap = String.format("%02d", Integer.parseInt(pref.getString(Settings.KEY_PREF_VERSE, "1")));
+        }
+        String fullpath = root + "/" + lang + "/" + src + "/" + book + "/" + chap + "/";
+        pref.edit().putString("current_directory", fullpath).commit();
+        String filename = pref.getString(Settings.KEY_PREF_FILENAME, "en_ulb_mat_01-01");
 
-        if (!file.exists()) {
-            file.mkdirs();
+        String take = String.format("%02d", FileNameExtractor.getLargestTake(new File (fullpath), new File(filename+"_00.wav"))+1);
+        File filepath = new File(fullpath);
+
+        if (!filepath.exists()) {
+            filepath.mkdirs();
         }
 
         if (recordedFilename != null)
-            return (file.getAbsolutePath() + "/" + recordedFilename);
+            return (fullpath + recordedFilename);
         else {
-            recordedFilename = (file.getAbsolutePath() + "/" + UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV);
+            recordedFilename = (fullpath + filename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
             System.out.println("filename is " + recordedFilename);
             return recordedFilename;
         }

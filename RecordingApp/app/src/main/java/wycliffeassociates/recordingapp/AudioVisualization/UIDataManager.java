@@ -116,7 +116,6 @@ public class UIDataManager {
             return;
         }
         if(wavLoader != null && wavLoader.visFileLoaded()){
-            System.out.println("visFileLoaded() is true");
             wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap

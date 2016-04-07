@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/primary_bg" >
@@ -62,28 +63,48 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dp">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/btnPreviousDir"
+                android:src="@drawable/ic_arrow_back_black_24dp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:text="New Text"
+                android:id="@+id/pathView"
+                android:layout_gravity="center_vertical"
+                android:gravity="left|center" />
+        </LinearLayout>
+
         <ListView
             android:id="@+id/main_content"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_below="@id/top_bar"
             android:background="@color/primary_bg"
             android:divider="#00000000"
             android:paddingBottom="16dp"
             android:clipToPadding="false"
             android:animateLayoutChanges="true"
-            android:layout_above="@+id/file_actions">
+            android:layout_above="@+id/file_actions"
+            android:layout_weight="70">
         </ListView>
 
         <fragment
             android:name="wycliffeassociates.recordingapp.FilesPage.FragmentActions"
             android:id="@+id/file_actions"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="72dp"
             android:background="#000000"
             android:layout_alignParentBottom="true" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <!-- The navigation drawer -->
     <!--<LinearLayout android:id="@+id/right_drawer"-->
