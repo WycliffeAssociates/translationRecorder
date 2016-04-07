@@ -17,6 +17,7 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 public class WavFileWriter extends Service{
 
     private String filename = null;
+    private String nameWithoutExtension = null;
     private String visTempFile = "visualization.vis";
     public static int largest = 0;
 
@@ -28,6 +29,7 @@ public class WavFileWriter extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         filename = intent.getStringExtra("audioFileName");
+        nameWithoutExtension = filename.substring(filename.lastIndexOf("/")+1, filename.lastIndexOf("."));
         final int screenWidth = intent.getIntExtra("screenWidth", 0);
         System.out.println("Passed in string name " + filename);
         Thread writingThread = new Thread(new Runnable() {
@@ -85,7 +87,7 @@ public class WavFileWriter extends Service{
                     if(!dir.exists()){
                         dir.mkdir();
                     }
-                    File file = new File(AudioInfo.pathToVisFile + visTempFile);
+                    File file = new File(AudioInfo.pathToVisFile + nameWithoutExtension +".vis");
                     if(!file.exists()){
                         file.createNewFile();
                         //Logger.w(this.toString(), "created a new vis file");

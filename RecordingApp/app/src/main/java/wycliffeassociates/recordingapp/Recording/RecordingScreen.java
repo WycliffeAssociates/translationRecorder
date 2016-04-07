@@ -32,6 +32,7 @@ import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.Book;
@@ -76,7 +77,7 @@ public class RecordingScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
+        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1");
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         //make sure the tablet does not go to sleep while on the recording screen
@@ -503,7 +504,9 @@ public class RecordingScreen extends Activity {
         }
         String fullpath = root + "/" + lang + "/" + src + "/" + book + "/" + chap + "/";
         pref.edit().putString("current_directory", fullpath).commit();
+        String filename = pref.getString(Settings.KEY_PREF_FILENAME, "en_ulb_mat_01-01");
 
+        String take = String.format("%02d", FileNameExtractor.getLargestTake(new File (fullpath), new File(filename+"_00.wav"))+1);
         File filepath = new File(fullpath);
 
         if (!filepath.exists()) {
@@ -513,7 +516,7 @@ public class RecordingScreen extends Activity {
         if (recordedFilename != null)
             return (fullpath + recordedFilename);
         else {
-            recordedFilename = (fullpath + pref.getString(Settings.KEY_PREF_FILENAME, "en_ulb_mat_01-01_01") + AUDIO_RECORDER_FILE_EXT_WAV);
+            recordedFilename = (fullpath + filename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
             System.out.println("filename is " + recordedFilename);
             return recordedFilename;
         }
