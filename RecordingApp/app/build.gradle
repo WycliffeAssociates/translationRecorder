@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "wycliffeassociates.recordingapp"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1
         versionName "0.18d"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
