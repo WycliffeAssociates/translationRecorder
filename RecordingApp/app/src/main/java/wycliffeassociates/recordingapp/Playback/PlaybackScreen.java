@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -31,6 +32,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.RerecordDialog;
 import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
@@ -197,10 +199,15 @@ public class PlaybackScreen extends Activity{
     }
 
     private void rerecord(){
-        RerecordDialog exit = RerecordDialog.Build(this, R.style.Theme_UserDialog, isALoadedFile, isPlaying, recordedFilename);
-        if(exit != null) {
-            exit.show();
+        File file = new File(recordedFilename);
+        FileNameExtractor fne = new FileNameExtractor(file);
+        if(fne.matched()) {
+            Settings.updateFilename(this, fne.getLang(), fne.getSource(), fne.getBook(),
+                    fne.getChapter(), fne.getChunk());
         }
+        Intent intent = new Intent(this, RecordingScreen.class);
+        this.startActivity(intent);
+        this.finish();
     }
 
     @Override
