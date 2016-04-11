@@ -83,7 +83,7 @@ public abstract class Export {
             }
             // This could cause problems if the directory list contains matches
             mZipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
-            zip(toExport, mZipPath, export);
+            zip(toExport, mZipPath +".zip", export);
         }
     }
 
@@ -120,7 +120,7 @@ public abstract class Export {
      * @param zipFile The location of the zip file as a String
      * @throws IOException
      */
-    private void zip(final String[] files, final String zipFile, final Export export){
+    private void zip(final String[] filePaths, final String zipFile, final Export export){
         mZipDone = false;
         mProgressCallback.showProgress(ProgressUpdateCallback.ZIP);
         mProgressCallback.setZipping(true);
@@ -134,26 +134,41 @@ public abstract class Export {
                     ZipOutputStream out = new ZipOutputStream(bos);
 
                     byte data[] = new byte[1024];
-
-                    for (int i = 0; i < files.length; i++) {
-                        FileInputStream fi = new FileInputStream(files[i]);
-                        origin = new BufferedInputStream(fi, 1024);
-                        ZipEntry entry = new ZipEntry(files[i].substring(files[i].lastIndexOf("/") + 1));
-                        out.putNextEntry(entry);
-                        int count;
-                        while ((count = origin.read(data, 0, 1024)) != -1) {
-                            out.write(data, 0, count);
-                        }
-                        final int progress = i;
-                        //Increment progress by number of files done
-                        mCtx.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mProgressCallback.incrementProgress((int) ((progress / (float) files.length) * 100));
+                    ArrayList<File> files = new ArrayList<>();
+                    for(String file : filePaths){
+                        files.add(new File(file));
+                    }
+                    for (int i = 0; i < files.size(); i++) {
+                        String path = "";
+                        File file = files.get(i);
+                        if(file.isDirectory()){
+                            path = file.getName() + "/";
+                            File[] contains = file.listFiles();
+                            for(File f : contains){
+                                files.add(f);
                             }
-                        });
-                        origin.close();
-                        fi.close();
+                        } else {
+                            FileInputStream fi = new FileInputStream(files.get(i));
+                            origin = new BufferedInputStream(fi, 1024);
+                            String name = files.get(i).getName();
+                            ZipEntry entry = new ZipEntry(path + files.get(i).getName());
+                            out.putNextEntry(entry);
+                            int count;
+                            while ((count = origin.read(data, 0, 1024)) != -1) {
+                                out.write(data, 0, count);
+                            }
+                            final int progress = i;
+                            //Increment progress by number of files done
+                            final int size = files.size();
+                            mCtx.getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mProgressCallback.incrementProgress((int) ((progress / (float) size) * 100));
+                                }
+                            });
+                            origin.close();
+                            fi.close();
+                        }
                     }
                     out.flush();
                     out.close();
