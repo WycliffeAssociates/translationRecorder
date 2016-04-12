@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.FilesPage.Export;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -12,6 +13,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.S3ClientOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,6 +51,8 @@ public class S3Export extends Export {
 
         mCredentialsProvider = new BasicAWSCredentials(mCtx.getResources().getString(R.string.door43_key), mCtx.getResources().getString(R.string.door43_secret_access));
         // Create an S3 client
+        ClientConfiguration cc = new ClientConfiguration();
+        cc.setSocketTimeout(0);
         mS3 = new AmazonS3Client(mCredentialsProvider);
         // Set the region of your S3 bucket
         mS3.setRegion(Region.getRegion(Regions.US_WEST_2));
