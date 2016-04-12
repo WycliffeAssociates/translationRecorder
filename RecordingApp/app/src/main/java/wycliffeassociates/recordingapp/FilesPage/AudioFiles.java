@@ -193,6 +193,11 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     }
 
     @Override
+    public void setCurrentFile(String currentFile) {
+        mPd.setMessage(currentFile);
+    }
+
+    @Override
     public void onDestroy(){
         super.onDestroy();
         if(mPd != null && mPd.isShowing()){

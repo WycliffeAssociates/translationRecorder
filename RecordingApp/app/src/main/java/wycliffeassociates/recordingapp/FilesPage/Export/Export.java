@@ -2,6 +2,12 @@ package wycliffeassociates.recordingapp.FilesPage.Export;
 
 import android.app.Fragment;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.progress.ProgressMonitor;
+import net.lingala.zip4j.util.Zip4jConstants;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -9,8 +15,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.List;
+
 
 import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
@@ -30,6 +36,7 @@ public abstract class Export {
         void dismissProgress();
         void setZipping(boolean zipping);
         void setExporting(boolean exporting);
+        void setCurrentFile(String currentFile);
     }
 
     ArrayList<String> mExportList;
@@ -62,6 +69,18 @@ public abstract class Export {
      */
     public abstract void export();
 
+    public static boolean shouldZip(List<String> exportList){
+        if(exportList.size() > 1){
+            return true;
+        } else if(exportList.size() > 0){
+            File file = new File(exportList.get(0));
+            if(file.isDirectory()){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void cleanUp(){
         if(mZipPath != null){
             File file = new File(mZipPath);
@@ -75,14 +94,15 @@ public abstract class Export {
     //TODO: Zip file appears to just use the name of the first file, what should this change to?
     protected void zipFiles(Export export){
         //files should only be zipped if more than one are selected
-        if (mNumFilesToExport > 1) {
+        if (shouldZip(mExportList)) {
             String toExport[] = new String[mExportList.size()];
             String thisPath = mExportList.get(0);
             for (int i = 0; i < mExportList.size(); i++) {
                 toExport[i] = mExportList.get(i);
             }
             // This could cause problems if the directory list contains matches
-            mZipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+            //mZipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
+            mZipPath = thisPath+".zip";
             zip(toExport, mZipPath, export);
         }
     }
@@ -120,48 +140,41 @@ public abstract class Export {
      * @param zipFile The location of the zip file as a String
      * @throws IOException
      */
-    private void zip(final String[] files, final String zipFile, final Export export){
+    private void zip(final String[] filePaths, final String zipFile, final Export export){
         mZipDone = false;
         mProgressCallback.showProgress(ProgressUpdateCallback.ZIP);
         mProgressCallback.setZipping(true);
         Thread zipThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                ArrayList<File> files = new ArrayList<>();
+                for(int i = 0; i < filePaths.length; i++){
+                    files.add(new File(filePaths[i]));
+                }
                 try {
-                    BufferedInputStream origin = null;
-                    FileOutputStream fos = new FileOutputStream(zipFile);
-                    BufferedOutputStream bos = new BufferedOutputStream(fos);
-                    ZipOutputStream out = new ZipOutputStream(bos);
-
-                    byte data[] = new byte[1024];
-
-                    for (int i = 0; i < files.length; i++) {
-                        FileInputStream fi = new FileInputStream(files[i]);
-                        origin = new BufferedInputStream(fi, 1024);
-                        ZipEntry entry = new ZipEntry(files[i].substring(files[i].lastIndexOf("/") + 1));
-                        out.putNextEntry(entry);
-                        int count;
-                        while ((count = origin.read(data, 0, 1024)) != -1) {
-                            out.write(data, 0, count);
+                    ZipFile zipper = new ZipFile(zipFile);
+                    ZipParameters zp = new ZipParameters();
+                    zipper.setRunInThread(true);
+                    zp.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
+                    //zip.addFiles(files, zp);
+                    final ProgressMonitor pm = zipper.getProgressMonitor();
+                    for(File f : files){
+                        if(f.isDirectory()){
+                            zipper.addFolder(f, zp);
+                        } else {
+                            zipper.addFile(f, zp);
                         }
-                        final int progress = i;
-                        //Increment progress by number of files done
                         mCtx.getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mProgressCallback.incrementProgress((int) ((progress / (float) files.length) * 100));
+                                mProgressCallback.setCurrentFile(pm.getFileName());
                             }
                         });
-                        origin.close();
-                        fi.close();
+                        while(pm.getState() == ProgressMonitor.STATE_BUSY){
+                            mProgressCallback.setUploadProgress(pm.getPercentDone());
+                        }
                     }
-                    out.flush();
-                    out.close();
-                    bos.flush();
-                    bos.close();
-                    fos.flush();
-                    fos.close();
-                } catch(IOException e){
+                } catch (ZipException e) {
                     e.printStackTrace();
                 }
                 mCtx.getActivity().runOnUiThread(new Runnable() {

@@ -24,7 +24,7 @@ public class AppExport extends Export {
 
     @Override
     public void export(){
-        if(mNumFilesToExport > 1){
+        if(Export.shouldZip(mExportList)){
             zipFiles(this);
         } else {
             handleUserInput();
@@ -33,7 +33,7 @@ public class AppExport extends Export {
 
     @Override
     protected void handleUserInput() {
-        if(mExportList.size() > 1) {
+        if(Export.shouldZip(mExportList)) {
             exportZipApplications(mZipPath);
         } else {
             exportApplications(mExportList);
