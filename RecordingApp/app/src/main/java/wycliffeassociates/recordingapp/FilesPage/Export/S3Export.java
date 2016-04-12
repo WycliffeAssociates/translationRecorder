@@ -100,7 +100,7 @@ public class S3Export extends Export {
      */
     @Override
     public void export() {
-        if (mNumFilesToExport > 1) {
+        if (Export.shouldZip(mExportList)) {
             zipFiles(this);
         } else {
             handleUserInput();
