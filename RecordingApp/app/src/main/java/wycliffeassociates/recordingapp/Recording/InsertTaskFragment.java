@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.Recording;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import java.io.BufferedInputStream;
@@ -12,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
@@ -41,24 +43,25 @@ public class InsertTaskFragment extends Fragment {
         super.onDetach();
     }
 
-    public void writeInsert(final String to, final String from, final int insertTime) {
+    public void writeInsert(final String destination, final String previousRecording, final int insertTime, final  SharedPreferences pref) {
         Thread write = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     int insertLoc = timeToIndex(insertTime) + AudioInfo.HEADER_SIZE;
-                    File old = new File(AudioInfo.fileDir + "/" + to + ".wav");
-                    File original = new File(AudioInfo.fileDir + "/" + to + "-temp.wav");
-                    old.renameTo(original);
-                    File insert = new File(from);
-                    FileInputStream fisOrg = new FileInputStream(original);
+                    //the file containing the section to insert is the destination name, so move it to a temporary file before we insert
+                    File insert = new File(destination);
+                    File tempInsertFile = new File(destination + "-temp.wav");
+                    insert.renameTo(tempInsertFile);
+                    File from = new File(previousRecording);
+                    File dir = FileNameExtractor.getDirectoryFromFile(pref, from);
+                    FileInputStream fisOrg = new FileInputStream(from);
                     BufferedInputStream bisOrg = new BufferedInputStream(fisOrg);
 
-                    FileInputStream fisInsert = new FileInputStream(insert);
+                    FileInputStream fisInsert = new FileInputStream(tempInsertFile);
                     BufferedInputStream bisInsert = new BufferedInputStream(fisInsert);
 
-                    String result = AudioInfo.fileDir + "/" + to + ".wav";
-                    FileOutputStream fos = new FileOutputStream(new File(result));
+                    FileOutputStream fos = new FileOutputStream(new File(destination));
                     BufferedOutputStream bos = new BufferedOutputStream(fos);
 
                     for (int i = 0; i < AudioInfo.HEADER_SIZE; i++) {
@@ -70,29 +73,27 @@ public class InsertTaskFragment extends Fragment {
                     }
                     Logger.e(this.toString(), "wrote before insert");
                     fisInsert.skip(AudioInfo.HEADER_SIZE);
-                    for (int i = AudioInfo.HEADER_SIZE; i < insert.length(); i++) {
+                    for (int i = AudioInfo.HEADER_SIZE; i < tempInsertFile.length(); i++) {
                         bos.write(bisInsert.read());
                     }
                     Logger.e(this.toString(), "wrote insert");
-                    for (int i = insertLoc; i < original.length(); i++) {
+                    for (int i = insertLoc; i < from.length(); i++) {
                         bos.write(bisOrg.read());
                     }
                     Logger.e(this.toString(), "wrote after insert");
-                    WavFileWriter.overwriteHeaderData(to, insert.length() + original.length() - AudioInfo.HEADER_SIZE);
+                    WavFileWriter.overwriteHeaderData(destination, tempInsertFile.length() + from.length() - AudioInfo.HEADER_SIZE);
                     Logger.e(this.toString(), "overwrote header");
 
                     bos.close(); fos.close();
-                    bisInsert.close(); fisInsert.close(); insert.delete();
-                    bisOrg.close(); fisInsert.close(); original.delete();
+                    bisInsert.close(); fisInsert.close(); tempInsertFile.delete();
+                    bisOrg.close(); fisInsert.close();
 
-                    File vis = new File(AudioInfo.pathToVisFile + "/visualization.vis");
-                    vis.delete();
-                    vis = new File(AudioInfo.pathToVisFile + "/"+to+".vis");
+                    File vis = new File(AudioInfo.pathToVisFile + "/"+FileNameExtractor.getNameWithoutExtention(insert)+".vis");
                     vis.delete();
                 } catch (IOException e){
                     e.printStackTrace();
                 }
-                mCtx.insertCallback(to);
+                mCtx.insertCallback(destination);
             }
         });
         write.start();

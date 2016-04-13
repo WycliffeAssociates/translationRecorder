@@ -633,7 +633,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private void finalizeInsert(String to, String from, int insertLoc){
         mInserting = true;
         displayProgressDialog();
-        writeInsert(to, from, insertLoc);
+        to = FileNameExtractor.getFileFromFileName(pref, to).toString();
+        writeInsert(from, to, insertLoc);
     }
 
     public void playSource() {
@@ -675,9 +676,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mInserting = false;
         mPd.dismiss();
         Intent intent = new Intent(this, PlaybackScreen.class);
-        File old = new File(AudioInfo.fileDir + "/" + resultingFilename + ".wav");
-        old.renameTo(new File(AudioInfo.fileDir + "/" + suggestedFilename + ".wav"));
-        intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + suggestedFilename + ".wav");
+        File old = new File(resultingFilename);
+
+        intent.putExtra("recordedFilename", old.toString());
         intent.putExtra("loadFile", true);
         startActivity(intent);
         this.finish();
@@ -685,7 +686,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     @Override
     public void writeInsert(String to, String from, int insertLoc){
-        mInsertTaskFragment.writeInsert(to, from, insertLoc);
+        mInsertTaskFragment.writeInsert(to, from, insertLoc, pref);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {

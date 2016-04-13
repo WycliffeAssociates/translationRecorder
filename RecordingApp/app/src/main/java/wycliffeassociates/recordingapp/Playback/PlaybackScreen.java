@@ -206,8 +206,7 @@ public class PlaybackScreen extends Activity{
                     fne.getChapter(), fne.getChunk());
         }
         Intent intent = new Intent(this, RecordingScreen.class);
-        this.startActivity(intent);
-        this.finish();
+        save(intent);
     }
 
     @Override
@@ -228,10 +227,17 @@ public class PlaybackScreen extends Activity{
         mChangedName = true;
     }
 
-    private void save() {
+    private void save(Intent intent) {
         //no changes were made, so just exit
         if(isSaved){
-            finish();
+            if(intent == null) {
+                this.finish();
+                return;
+            } else {
+                startActivity(intent);
+                this.finish();
+                return;
+            }
         }
 
         File dir = FileNameExtractor.getDirectoryFromFile(pref, new File(suggestedFilename +"_00"));
@@ -243,7 +249,7 @@ public class PlaybackScreen extends Activity{
         int takeInt = FileNameExtractor.getLargestTake(dir, new File(suggestedFilename + "_00.wav"))+1;
         String take = String.format("%02d", takeInt);
         File to = new File(dir, suggestedFilename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
-        writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")));
+        writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")), intent);
     }
 
     public String getName() {
@@ -256,7 +262,7 @@ public class PlaybackScreen extends Activity{
      * @param name a string with the desired output filename. Should not include the .wav extension.
      * @return the absolute path of the file created
      */
-    public void writeCutToFile(final File to, final String name) {
+    public void writeCutToFile(final File to, final String name, final Intent intent) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setTitle("Saving");
@@ -282,10 +288,24 @@ public class PlaybackScreen extends Activity{
                 }
                 isSaved = true;
                 pd.dismiss();
-                finish();
+                if(intent == null) {
+                    finish();
+                } else {
+                    intent.putExtra("old_name", to.getAbsolutePath());
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
         saveThread.start();
+    }
+
+    public void insert(){
+        Intent insertIntent = new Intent(this, RecordingScreen.class);
+        insertIntent.putExtra("insert_location", mManager.getAdjustedLocation());
+        insertIntent.putExtra("old_name", recordedFilename);
+        insertIntent.putExtra("insert_mode", true);
+        save(insertIntent);
     }
 
     private void setButtonHandlers() {
@@ -322,7 +342,7 @@ public class PlaybackScreen extends Activity{
                     break;
                 }
                 case R.id.btnSave: {
-                    save();
+                    save(null);
                     break;
                 }
                 case R.id.btnPause: {
@@ -358,7 +378,7 @@ public class PlaybackScreen extends Activity{
                     break;
                 }
                 case R.id.btnRerecord: {
-                    rerecord();
+                    insert();
                     break;
                 }
             }
