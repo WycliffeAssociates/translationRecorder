@@ -83,6 +83,27 @@ public class FileNameExtractor {
         return out;
     }
 
+    public static File getFileFromFileName(SharedPreferences pref, File file){
+        File dir = getDirectoryFromFile(pref, file);
+        if(file.getName().contains(".wav")) {
+            return new File(dir, file.getName());
+        } else {
+            return new File(dir, file.getName() + ".wav");
+        }
+    }
+
+    public static String getNameWithoutExtention(File file){
+        String name = file.getName();
+        if(name.contains(".wav")){
+            name = name.replace(".wav", "");
+        }
+        return name;
+    }
+
+    public static File getFileFromFileName(SharedPreferences pref, String file){
+        return getFileFromFileName(pref, new File(file));
+    }
+
     public static int getLargestTake(File directory, File filename){
         File[] files = directory.listFiles();
         if(files == null){
