@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.Recording;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,7 +43,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
-public class RecordingScreen extends Activity {
+public class RecordingScreen extends Activity implements InsertTaskFragment.Insert{
     //Constants for WAV format
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String AUDIO_RECORDER_FOLDER = "TranslationRecorder";
@@ -74,11 +75,40 @@ public class RecordingScreen extends Activity {
     private volatile boolean mPlayerReleased = false;
     private SharedPreferences pref;
 
+    private int mInsertLoc = 0;
+    private boolean mInsertMode = false;
+    private InsertTaskFragment mInsertTaskFragment;
+    private String TAG_INSERT_TASK_FRAGMENT = "insert_task_fragment";
+    private String STATE_INSERTING = "state_inserting";
+    private boolean mInserting = false;
+    private ProgressDialog mPd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1");
+
+        FragmentManager fm = getFragmentManager();
+        mInsertTaskFragment = (InsertTaskFragment)fm.findFragmentByTag(TAG_INSERT_TASK_FRAGMENT);
+        if(mInsertTaskFragment == null){
+            mInsertTaskFragment = new InsertTaskFragment();
+            fm.beginTransaction().add(mInsertTaskFragment, TAG_INSERT_TASK_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        }
+        if(savedInstanceState != null){
+            mInserting = savedInstanceState.getBoolean(STATE_INSERTING, false);
+            if(mInserting){
+                displayProgressDialog();
+            }
+        }
+
+
         pref = PreferenceManager.getDefaultSharedPreferences(this);
+        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1");
+
+        mInsertMode = getIntent().getBooleanExtra("insert_mode", false);
+        if(mInsertMode){
+            initializeInsert(getIntent().getStringExtra("old_name"), getIntent().getIntExtra("insert_location", 0));
+        }
 
         //make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -95,7 +125,11 @@ public class RecordingScreen extends Activity {
 
         hasStartedRecording = false;
         mDeleteTempFile = false;
-        initChunkPicker();
+        if(!mInsertMode) {
+            initChunkPicker();
+        } else {
+            findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
+        }
         initSrcAudio();
     }
 
@@ -274,7 +308,7 @@ public class RecordingScreen extends Activity {
         String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
         String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
         String path = sp.getString(Settings.KEY_PREF_SRC_LOC, "");
-        File file = new File(path, lang + "/" + src +"/" + book + "/" + chap);
+        File file = new File(path, lang + "/" + src + "/" + book + "/" + chap);
         return file;
     }
 
@@ -356,6 +390,11 @@ public class RecordingScreen extends Activity {
         }
     }
 
+    private void initializeInsert(String oldName, int location){
+        mInsertLoc = location;
+        suggestedFilename = oldName.substring(oldName.lastIndexOf("/")+1, oldName.lastIndexOf("."));
+    }
+
     @Override
     public void onPause(){
         super.onPause();
@@ -389,7 +428,17 @@ public class RecordingScreen extends Activity {
     @Override
     public void onDestroy(){
         cleanupPlayer();
+        if(mPd != null && mPd.isShowing()){
+            mPd.dismiss();
+            mPd = null;
+        }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean(STATE_INSERTING, mInserting);
     }
 
     private void cleanupPlayer(){
@@ -462,11 +511,16 @@ public class RecordingScreen extends Activity {
             Logger.w(this.toString(), "Stopping recording");
             RecordingQueues.stopQueues(this);
             System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
-            Intent intent = new Intent(this, PlaybackScreen.class);
-            intent.putExtra("recordedFilename", recordedFilename);
             isRecording = false;
             isPausedRecording = false;
-            startActivity(intent);
+            Intent intent = new Intent(this, PlaybackScreen.class);
+            if(mInsertMode){
+                finalizeInsert(suggestedFilename, recordedFilename, mInsertLoc);
+            } else {
+                intent.putExtra("recordedFilename", recordedFilename);
+                startActivity(intent);
+                this.finish();
+            }
         }
     }
 
@@ -546,6 +600,16 @@ public class RecordingScreen extends Activity {
         }
     }
 
+    private void displayProgressDialog(){
+        mPd = new ProgressDialog(this);
+        mPd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mPd.setTitle("Inserting recording");
+        mPd.setMessage("Please wait...");
+        mPd.setIndeterminate(true);
+        mPd.setCancelable(false);
+        mPd.show();
+    }
+
     private void setButtonHandlers() {
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
@@ -564,6 +628,12 @@ public class RecordingScreen extends Activity {
         enableButton(R.id.btnPauseRecording, true);
         enableButton(R.id.btnPlaySource, true);
         enableButton(R.id.btnPauseSource, true);
+    }
+
+    private void finalizeInsert(String to, String from, int insertLoc){
+        mInserting = true;
+        displayProgressDialog();
+        writeInsert(to, from, insertLoc);
     }
 
     public void playSource() {
@@ -599,6 +669,23 @@ public class RecordingScreen extends Activity {
         if(mSrcPlayer != null && mSrcPlayer.isPlaying()){
             mSrcPlayer.pause();
         }
+    }
+
+    public void insertCallback(String resultingFilename){
+        mInserting = false;
+        mPd.dismiss();
+        Intent intent = new Intent(this, PlaybackScreen.class);
+        File old = new File(AudioInfo.fileDir + "/" + resultingFilename + ".wav");
+        old.renameTo(new File(AudioInfo.fileDir + "/" + suggestedFilename + ".wav"));
+        intent.putExtra("recordedFilename", AudioInfo.fileDir + "/" + suggestedFilename + ".wav");
+        intent.putExtra("loadFile", true);
+        startActivity(intent);
+        this.finish();
+    }
+
+    @Override
+    public void writeInsert(String to, String from, int insertLoc){
+        mInsertTaskFragment.writeInsert(to, from, insertLoc);
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
