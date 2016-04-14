@@ -127,4 +127,14 @@ public class UnitPicker extends LinearLayout {
         changeValueByOne(false);
     }
 
+    public void displayIncrementDecrement(boolean display) {
+        if (display) {
+            mIncrementButton.setVisibility(View.VISIBLE);
+            mDecrementButton.setVisibility(View.VISIBLE);
+        } else {
+            mIncrementButton.setVisibility(View.GONE);
+            mDecrementButton.setVisibility(View.GONE);
+        }
+    }
+
 }

@@ -457,8 +457,9 @@ public class RecordingScreen extends Activity {
         // TODO: Switch to slashed play icon
         mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);
 
-        // Already gone
-        // findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
+        // Take away increment and decrement buttons
+        mUnitPicker.displayIncrementDecrement(false);
+
         hasStartedRecording = true;
         stopService(new Intent(this, WavRecorder.class));
         int toShow[] = {R.id.btnPauseRecording};

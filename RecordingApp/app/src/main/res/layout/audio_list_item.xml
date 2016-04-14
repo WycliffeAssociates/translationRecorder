@@ -13,8 +13,7 @@
         android:layout_marginRight="@dimen/default_padding_m"
         card_view:cardCornerRadius="@dimen/default_padding_xxs"
         card_view:cardBackgroundColor="@color/card_bg"
-        card_view:cardUseCompatPadding="true"
-        >
+        card_view:cardUseCompatPadding="true" >
 
         <LinearLayout
             android:layout_width="match_parent"
