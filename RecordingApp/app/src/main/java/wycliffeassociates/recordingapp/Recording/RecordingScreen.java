@@ -35,6 +35,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
+import wycliffeassociates.recordingapp.Playback.SourceAudio;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.Book;
 import wycliffeassociates.recordingapp.SettingsPage.ParseJSON;
@@ -67,12 +68,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private volatile int lastNumber;
     private ArrayList<Integer> mChunks;
     private NumberPicker numPicker;
-    private MediaPlayer mSrcPlayer;
-    private Handler mHandler;
-    private SeekBar mSeekBar;
-    private TextView mSrcTimeElapsed;
-    private TextView mSrcTimeDuration;
-    private volatile boolean mPlayerReleased = false;
+    private SourceAudio mSrcPlayer;
     private SharedPreferences pref;
 
     private int mInsertLoc = 0;
@@ -118,7 +114,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         setButtonHandlers();
         enableButtons();
 
-        mSrcPlayer = new MediaPlayer();
         manager = new UIDataManager(mainCanvas, minimap, mVolumeBar, null, null, this, UIDataManager.RECORDING_MODE, true);
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(true);
@@ -130,17 +125,16 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         } else {
             findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
         }
-        initSrcAudio();
+        mSrcPlayer = new SourceAudio(this);
+        mSrcPlayer.initSrcAudio();
     }
 
     private void initViews(){
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
         mVolumeBar = (VolumeBar) findViewById((R.id.volumeBar1));
-        mSrcTimeElapsed = (TextView) findViewById(R.id.srcProgress);
-        mSrcTimeDuration = (TextView) findViewById(R.id.srcDuration);
+
         filenameView = (TextView) findViewById(R.id.filenameView);
-        mSeekBar = (SeekBar)findViewById(R.id.seekBar);
         mainCanvas.disableGestures();
         filenameView.setText(suggestedFilename);
     }
@@ -190,22 +184,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                             numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
                                 @Override
                                 public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                                    cleanupPlayer();
                                     setChunk(newVal);
-                                    mSrcPlayer = null;
-                                    mSrcPlayer = new MediaPlayer();
-                                    mPlayerReleased = false;
-                                    mSeekBar.setProgress(0);
-                                    findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
-                                    findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mSrcTimeElapsed.setText("00:00:00");
-                                            mSrcTimeElapsed.invalidate();
-                                        }
-                                    });
-                                    initSrcAudio();
+                                    mSrcPlayer.reset();
                                 }
                             });
                             numPicker.setValue(mChunk + 1);
@@ -217,177 +197,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             }
         });
         getNumChunks.start();
-    }
-
-    private DocumentFile getSourceAudioDirectory(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-        String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-        String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-        String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-        String srcLoc = sp.getString(Settings.KEY_PREF_SRC_LOC, null);
-        if(srcLoc == null){
-            return null;
-        }
-        Uri uri = Uri.parse(srcLoc);
-        if(uri != null){
-            DocumentFile df = DocumentFile.fromTreeUri(this, uri);
-            if(df != null) {
-                DocumentFile langDf = df.findFile(lang);
-                if(langDf != null) {
-                    DocumentFile srcDf = langDf.findFile(src);
-                    if(srcDf != null) {
-                        DocumentFile bookDf = srcDf.findFile(book);
-                        if(bookDf != null) {
-                            DocumentFile chapDf = bookDf.findFile(chap);
-                            return chapDf;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private DocumentFile getSourceAudioFile(){
-        DocumentFile directory = getSourceAudioDirectory();
-        if(directory == null){
-            return null;
-        }
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-        String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-        String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-        String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-        String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-        String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
-
-        String[] filetypes = {".wav", ".mp3", ".mp4", ".m4a", ".aac", ".flac", ".3gp", ".ogg"};
-        for(String type : filetypes){
-            DocumentFile temp = directory.findFile(filename + type);
-            if(temp != null) {
-                if (temp.exists()) {
-                    return directory.findFile(filename + type);
-                }
-            }
-        }
-        return null;
-    }
-
-    private File getSourceAudioFileKitkat(){
-        File file = getSourceAudioFileDirectoryKitkat();
-        if(file == null || !file.exists()){
-            return null;
-        } else {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-            String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-            String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-            String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-            String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-            String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-            String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
-            String[] filetypes = {".wav", ".mp3", ".mp4", ".m4a", ".aac", ".flac", ".3gp", ".ogg"};
-            for(String type : filetypes) {
-                File temp = new File(file, filename + type);
-                if (temp != null) {
-                    if (temp.exists()) {
-                        return temp;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private File getSourceAudioFileDirectoryKitkat(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-        String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-        String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-        String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-        String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-        String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
-        String path = sp.getString(Settings.KEY_PREF_SRC_LOC, "");
-        File file = new File(path, lang + "/" + src + "/" + book + "/" + chap);
-        return file;
-    }
-
-    private void initSrcAudio(){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        int sdk = pref.getInt(Settings.KEY_SDK_LEVEL, 21);
-        Object src;
-        if(sdk >= 21) {
-            src = getSourceAudioFile();
-        } else {
-            src = getSourceAudioFileKitkat();
-        }
-        //Uri sourceAudio = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ATranslationRecorder%2FSource%2Fen%2Fulb%2Fgen%2F01%2Fen_ulb_gen_01-01.wav");
-        if(src == null || (src instanceof DocumentFile && !((DocumentFile)src).exists()) || (src instanceof File && !((File)src).exists())){
-            findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
-            return;
-        }
-        findViewById(R.id.srcAudioPlayer).setVisibility(View.VISIBLE);
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mSrcPlayer != null && fromUser) {
-                    mSrcPlayer.seekTo(progress);
-                    final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSrcTimeElapsed.setText(time);
-                            mSrcTimeElapsed.invalidate();
-                        }
-                    });
-                }
-            }
-        });
-        try {
-            mSrcPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
-                    findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
-                    mSeekBar.setProgress(mSeekBar.getMax());
-                    int duration = mSeekBar.getMax();
-                    final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSrcTimeDuration.setText(time);
-                            mSrcTimeDuration.invalidate();
-                        }
-                    });
-                }
-            });
-            if(src != null && src instanceof DocumentFile) {
-                mSrcPlayer.setDataSource(this, ((DocumentFile) src).getUri());
-            } else if (src != null && src instanceof File){
-                mSrcPlayer.setDataSource(((File) src).getAbsolutePath());
-            }
-            mSrcPlayer.prepare();
-            int duration = mSrcPlayer.getDuration();
-            mSeekBar.setMax(duration);
-            final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mSrcTimeDuration.setText(time);
-                    mSrcTimeDuration.invalidate();
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void initializeInsert(String oldName, int location){
@@ -420,14 +229,12 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 Logger.w(this.toString(), "temp file did not exist?");
             }
         }
-        if(mSrcPlayer != null && !mPlayerReleased && mSrcPlayer.isPlaying()){
-            mSrcPlayer.pause();
-        }
+        mSrcPlayer.pauseSource();
     }
 
     @Override
     public void onDestroy(){
-        cleanupPlayer();
+        mSrcPlayer.cleanup();
         if(mPd != null && mPd.isShowing()){
             mPd.dismiss();
             mPd = null;
@@ -439,16 +246,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     protected void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putBoolean(STATE_INSERTING, mInserting);
-    }
-
-    private void cleanupPlayer(){
-        synchronized (mSrcPlayer){
-            if(!mPlayerReleased && mSrcPlayer.isPlaying()){
-                mSrcPlayer.pause();
-            }
-            mSrcPlayer.release();
-            mPlayerReleased = true;
-        }
     }
 
     private int getChunkIndex(ArrayList<Integer> chunks, int chunk) {
@@ -473,7 +270,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     }
 
     private void startRecording() {
-        cleanupPlayer();
+        mSrcPlayer.cleanup();
         findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
         findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
         hasStartedRecording = true;
@@ -637,40 +434,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         writeInsert(from, to, insertLoc);
     }
 
-    public void playSource() {
-        findViewById(R.id.btnPlaySource).setVisibility(View.INVISIBLE);
-        findViewById(R.id.btnPauseSource).setVisibility(View.VISIBLE);
-        if (mSrcPlayer != null) {
-            mSrcPlayer.start();
-            mHandler = new Handler();
-            mSeekBar.setProgress(0);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mSrcPlayer != null && !mPlayerReleased) {
-                        synchronized (mSrcPlayer) {
-                            int mCurrentPosition = mSrcPlayer.getCurrentPosition();
-                            if (mCurrentPosition > mSeekBar.getProgress()) {
-                                mSeekBar.setProgress(mCurrentPosition);
-                                final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
-                                mSrcTimeElapsed.setText(time);
-                                mSrcTimeElapsed.invalidate();
-                            }
-                        }
-                    }
-                    mHandler.postDelayed(this, 200);
-                }
-            });
-        }
-    }
 
-    public void pauseSource(){
-        findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
-        findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
-        if(mSrcPlayer != null && mSrcPlayer.isPlaying()){
-            mSrcPlayer.pause();
-        }
-    }
 
     public void insertCallback(String resultingFilename){
         mInserting = false;
@@ -707,11 +471,11 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 break;
             }
             case R.id.btnPlaySource: {
-                playSource();
+                mSrcPlayer.playSource();
                 break;
             }
             case R.id.btnPauseSource: {
-                pauseSource();
+                mSrcPlayer.pauseSource();
                 break;
             }
         }
