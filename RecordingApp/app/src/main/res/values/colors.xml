@@ -57,7 +57,9 @@
     <color name="text_light">@color/pure_white</color>
     <color name="text_light_disabled">@color/gray_0</color>
     <color name="primary_dark_font">@color/dark_gray_0</color>
-    <color name="minimap_bg">@color/dark_gray_1</color>
+
+    <color name="minimap_bg">@color/dark_gray_0</color>
+    <color name="minimap_timecode">@color/desaturated_green</color>
 
     <color name="volume_base">@color/desaturated_dark_blue</color>
     <color name="volume_low">@color/dark_moderate_cyan</color>
