@@ -17,6 +17,7 @@ import android.provider.DocumentsContract;
 import android.support.v4.provider.DocumentFile;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -63,12 +65,14 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private boolean hasStartedRecording = false;
     private boolean mDeleteTempFile = false;
     private volatile HashMap<String, Book> mBooks;
+    private ArrayList<Integer> mChunks;
     private volatile int mNumChunks;
     private volatile int mChunk;
     private volatile int lastNumber;
-    private ArrayList<Integer> mChunks;
-    private NumberPicker numPicker;
     private SourceAudio mSrcPlayer;
+    private TextView mNoSourceMsg;
+    private ImageButton mBtnSrcPlay;
+    private UnitPicker mUnitPicker;
     private SharedPreferences pref;
 
     private int mInsertLoc = 0;
@@ -137,6 +141,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         filenameView = (TextView) findViewById(R.id.filenameView);
         mainCanvas.disableGestures();
         filenameView.setText(suggestedFilename);
+        mBtnSrcPlay = (ImageButton) findViewById(R.id.btnPlaySource);
+        mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
     }
 
     private void initChunkPicker(){
@@ -160,15 +166,14 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 for(int i = 0; i < mChunks.size(); i++){
                     values[i] = String.valueOf(mChunks.get(i));
                 }
-                mNumChunks = mChunks.size();
-                numPicker = (NumberPicker)findViewById(R.id.numberPicker);
+                int mNumChunks = mChunks.size();
+                mUnitPicker = (UnitPicker) findViewById(R.id.unit_picker);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(values != null && values.length > 0) {
-                            numPicker.setDisplayedValues(values);
-                            numPicker.setMinValue(1);
-                            numPicker.setMaxValue(mNumChunks);
+                            mUnitPicker.setDisplayedValues(values);
+                            System.out.println("DISPLAYED VALUES " + Arrays.toString(mUnitPicker.getDisplayedValues()));
                             if (verseOrChunk.compareTo("chunk") == 0) {
                                 // Chunk
                                 int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
@@ -181,14 +186,13 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                             Settings.updateFilename(context);
                             suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
                             filenameView.setText(suggestedFilename);
-                            numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                            mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                                 @Override
-                                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                                    setChunk(newVal);
+                                public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
+                                    setChunk(newVal+1);
                                     mSrcPlayer.reset();
                                 }
                             });
-                            numPicker.setValue(mChunk + 1);
                         } else {
                             Logger.e(this.toString(), "values was null or of zero length");
                         }
@@ -271,8 +275,17 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void startRecording() {
         mSrcPlayer.cleanup();
-        findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
-        findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
+
+        // Disable source audio player
+        findViewById(R.id.seekBar).setEnabled(false);
+        findViewById(R.id.btnPlaySource).setEnabled(false);
+        ((TextView)findViewById(R.id.srcProgress)).setTextColor(getResources().getColor(R.color.text_light_disabled));
+        ((TextView)findViewById(R.id.srcDuration)).setTextColor(getResources().getColor(R.color.text_light_disabled));
+        // TODO: Switch to slashed play icon
+        mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);
+
+        // Take away increment and decrement buttons
+        mUnitPicker.displayIncrementDecrement(false);
         hasStartedRecording = true;
         stopService(new Intent(this, WavRecorder.class));
         int toShow[] = {R.id.btnPauseRecording};
@@ -393,7 +406,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             Settings.updateFilename(context);
             suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
             filenameView.setText(suggestedFilename);
-            numPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         }
     }
 

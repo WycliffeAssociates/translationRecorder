@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.provider.DocumentFile;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -30,6 +31,8 @@ public class SourceAudio {
     private TextView mSrcTimeElapsed;
     private TextView mSrcTimeDuration;
     private MediaPlayer mSrcPlayer;
+    private ImageButton mBtnSrcPlay;
+    private TextView mNoSourceMsg;
     private Handler mHandler;
     private volatile boolean mPlayerReleased = false;
 
@@ -38,6 +41,8 @@ public class SourceAudio {
         mSrcTimeElapsed = (TextView) ctx.findViewById(R.id.srcProgress);
         mSrcTimeDuration = (TextView) ctx.findViewById(R.id.srcDuration);
         mSeekBar = (SeekBar) ctx.findViewById(R.id.seekBar);
+        mBtnSrcPlay = (ImageButton) ctx.findViewById(R.id.btnPlaySource);
+        mNoSourceMsg = (TextView) ctx.findViewById(R.id.noSourceMsg);
         mSrcPlayer = new MediaPlayer();
     }
 
@@ -145,10 +150,24 @@ public class SourceAudio {
         }
         //Uri sourceAudio = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ATranslationRecorder%2FSource%2Fen%2Fulb%2Fgen%2F01%2Fen_ulb_gen_01-01.wav");
         if(src == null || (src instanceof DocumentFile && !((DocumentFile)src).exists()) || (src instanceof File && !((File)src).exists())){
-            mCtx.findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
-            return;
+            // Disable and hide source audio player
+            mSeekBar.setEnabled(false);
+            mBtnSrcPlay.setEnabled(false);
+            mSeekBar.setVisibility(View.GONE);
+            mSrcTimeElapsed.setVisibility(View.GONE);
+            mSrcTimeDuration.setVisibility(View.GONE);
+            mNoSourceMsg.setVisibility(View.VISIBLE);
+            // TODO: Switch to slashed play icon
+            mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);            return;
         }
-        mCtx.findViewById(R.id.srcAudioPlayer).setVisibility(View.VISIBLE);
+        // Enable and show source audio player
+        mSeekBar.setEnabled(true);
+        mBtnSrcPlay.setEnabled(true);
+        mSeekBar.setVisibility(View.VISIBLE);
+        mSrcTimeElapsed.setVisibility(View.VISIBLE);
+        mSrcTimeDuration.setVisibility(View.VISIBLE);
+        mNoSourceMsg.setVisibility(View.GONE);
+        mBtnSrcPlay.setImageResource(R.drawable.ic_play_white);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
