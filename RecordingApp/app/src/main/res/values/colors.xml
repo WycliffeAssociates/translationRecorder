@@ -7,14 +7,11 @@
     <color name="backgroundImage">#ffba68c8</color>
     <color name="mainImageBG">#fda93d</color>
 
-
-
     <color name="red">#CC0000</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transblack">#99000000</color>
     <color name="transparent">#00000000</color>
-
 
     <color name="snow">#A6ffffff</color>
     <color name="frost">#A6000000</color>
@@ -23,18 +20,34 @@
     <color name="dark_primary_text">#dd000000</color>
 
 
-    <color name="vivid_pink">#E91E63</color>
-    <color name="strong_pink">#C2185B</color>
-    <color name="light_blue">#4CC8FF</color>
+    <!-- COLOR DEFINITIONS -->
+
     <color name="bright_blue">#45B5E7</color>
     <color name="bright_yellow">#FDD835</color>
+    <color name="strong_pink">#C2185B</color>
+
+    <color name="vivid_red">#DE1D1D</color>
+    <color name="vivid_pink">#E91E63</color>
+    <color name="light_blue">#4CC8FF</color>
+    <color name="dark_moderate_lime_green">#459751</color>
+
+    <color name="strong_red">#CF2A27</color>
+    <color name="very_soft_red">#EA9999</color>
+    <color name="very_soft_yellow">#FFE599</color>
+    <color name="desaturated_green">#93C47D</color>
+    <color name="dark_moderate_cyan">#45818E</color>
+    <color name="desaturated_dark_blue">#085394</color>
+
     <color name="pure_white">#FFFFFF</color>
     <color name="off_white">#F3F3F3</color>
-    <color name="very_dark_greyish_red">#3C3635</color>
-    <color name="very_dark_gray">#5F5F5F</color>
-    <color name="dark_moderate_lime_green">#459751</color>
-    <color name="vivid_red">#DE1D1D</color>
+    <color name="gray_0">#999999</color>
+    <color name="dark_gray_1">#5F5F5F</color>
+    <color name="dark_gray_0">#3C3635</color>
+    <color name="very_dark_gray_1">#333333</color>
+    <color name="very_dark_gray_0">#222222</color>
+    <color name="mostly_black">#0A0A0A</color>
 
+    <!-- APP-WIDE COLOR ASSIGNMENTS -->
 
     <color name="primary">@color/strong_pink</color>
     <color name="secondary">@color/light_blue</color>
@@ -42,12 +55,18 @@
     <color name="primary_bg">@color/off_white</color>
     <color name="card_bg">@color/pure_white</color>
     <color name="text_light">@color/pure_white</color>
-    <color name="primary_dark_font">@color/very_dark_greyish_red</color>
-    <color name="minimap_bg">@color/very_dark_gray</color>
+    <color name="text_light_disabled">@color/gray_0</color>
+    <color name="primary_dark_font">@color/dark_gray_0</color>
+    <color name="minimap_bg">@color/dark_gray_1</color>
 
+    <color name="volume_base">@color/desaturated_dark_blue</color>
+    <color name="volume_low">@color/dark_moderate_cyan</color>
+    <color name="volume_good">@color/desaturated_green</color>
+    <color name="volume_high">@color/very_soft_yellow</color>
+    <color name="volume_clipped">@color/strong_red</color>
 
     <color name="setting_pref_category">@color/secondary</color>
     <color name="setting_pref_title">@color/black</color>
-    <color name="setting_pref_summary">@color/very_dark_gray</color>
+    <color name="setting_pref_summary">@color/dark_gray_1</color>
 
 </resources>

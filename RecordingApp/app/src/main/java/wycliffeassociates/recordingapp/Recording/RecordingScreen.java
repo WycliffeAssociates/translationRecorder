@@ -16,6 +16,7 @@ import android.provider.DocumentsContract;
 import android.support.v4.provider.DocumentFile;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -65,12 +67,14 @@ public class RecordingScreen extends Activity {
     private volatile int mChunk;
     private volatile int lastNumber;
     private ArrayList<Integer> mChunks;
-    private NumberPicker numPicker;
     private MediaPlayer mSrcPlayer;
     private Handler mHandler;
     private SeekBar mSeekBar;
     private TextView mSrcTimeElapsed;
     private TextView mSrcTimeDuration;
+    private TextView mNoSourceMsg;
+    private ImageButton mBtnSrcPlay;
+    private UnitPicker mUnitPicker;
     private volatile boolean mPlayerReleased = false;
     private SharedPreferences pref;
 
@@ -109,6 +113,8 @@ public class RecordingScreen extends Activity {
         mSeekBar = (SeekBar)findViewById(R.id.seekBar);
         mainCanvas.disableGestures();
         filenameView.setText(suggestedFilename);
+        mBtnSrcPlay = (ImageButton) findViewById(R.id.btnPlaySource);
+        mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
     }
 
     private void initChunkPicker(){
@@ -133,14 +139,13 @@ public class RecordingScreen extends Activity {
                     values[i] = String.valueOf(mChunks.get(i));
                 }
                 mNumChunks = mChunks.size();
-                numPicker = (NumberPicker)findViewById(R.id.numberPicker);
+                mUnitPicker = (UnitPicker) findViewById(R.id.unit_picker);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(values != null && values.length > 0) {
-                            numPicker.setDisplayedValues(values);
-                            numPicker.setMinValue(1);
-                            numPicker.setMaxValue(mNumChunks);
+                            mUnitPicker.setDisplayedValues(values);
+                            System.out.println("DISPLAYED VALUES " + Arrays.toString(mUnitPicker.getDisplayedValues()));
                             if (verseOrChunk.compareTo("chunk") == 0) {
                                 // Chunk
                                 int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
@@ -153,11 +158,11 @@ public class RecordingScreen extends Activity {
                             Settings.updateFilename(context);
                             suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
                             filenameView.setText(suggestedFilename);
-                            numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                            mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                                 @Override
-                                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                                public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                                     cleanupPlayer();
-                                    setChunk(newVal);
+                                    setChunk(newVal+1);
                                     mSrcPlayer = null;
                                     mSrcPlayer = new MediaPlayer();
                                     mPlayerReleased = false;
@@ -174,7 +179,6 @@ public class RecordingScreen extends Activity {
                                     initSrcAudio();
                                 }
                             });
-                            numPicker.setValue(mChunk + 1);
                         } else {
                             Logger.e(this.toString(), "values was null or of zero length");
                         }
@@ -280,6 +284,7 @@ public class RecordingScreen extends Activity {
 
     private void initSrcAudio(){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+
         int sdk = pref.getInt(Settings.KEY_SDK_LEVEL, 21);
         Object src;
         if(sdk >= 21) {
@@ -287,12 +292,30 @@ public class RecordingScreen extends Activity {
         } else {
             src = getSourceAudioFileKitkat();
         }
+
         //Uri sourceAudio = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ATranslationRecorder%2FSource%2Fen%2Fulb%2Fgen%2F01%2Fen_ulb_gen_01-01.wav");
+
         if(src == null || (src instanceof DocumentFile && !((DocumentFile)src).exists()) || (src instanceof File && !((File)src).exists())){
-            findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
+            // Disable and hide source audio player
+            mSeekBar.setEnabled(false);
+            mBtnSrcPlay.setEnabled(false);
+            mSeekBar.setVisibility(View.GONE);
+            mSrcTimeElapsed.setVisibility(View.GONE);
+            mSrcTimeDuration.setVisibility(View.GONE);
+            mNoSourceMsg.setVisibility(View.VISIBLE);
+            // TODO: Switch to slashed play icon
+            mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);
             return;
         }
-        findViewById(R.id.srcAudioPlayer).setVisibility(View.VISIBLE);
+        // Enable and show source audio player
+        mSeekBar.setEnabled(true);
+        mBtnSrcPlay.setEnabled(true);
+        mSeekBar.setVisibility(View.VISIBLE);
+        mSrcTimeElapsed.setVisibility(View.VISIBLE);
+        mSrcTimeDuration.setVisibility(View.VISIBLE);
+        mNoSourceMsg.setVisibility(View.GONE);
+        mBtnSrcPlay.setImageResource(R.drawable.ic_play_white);
+
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -425,8 +448,17 @@ public class RecordingScreen extends Activity {
 
     private void startRecording() {
         cleanupPlayer();
-        findViewById(R.id.srcAudioPlayer).setVisibility(View.INVISIBLE);
-        findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
+
+        // Disable source audio player
+        mSeekBar.setEnabled(false);
+        mBtnSrcPlay.setEnabled(false);
+        mSrcTimeElapsed.setTextColor(getResources().getColor(R.color.text_light_disabled));
+        mSrcTimeDuration.setTextColor(getResources().getColor(R.color.text_light_disabled));
+        // TODO: Switch to slashed play icon
+        mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);
+
+        // Already gone
+        // findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
         hasStartedRecording = true;
         stopService(new Intent(this, WavRecorder.class));
         int toShow[] = {R.id.btnPauseRecording};
@@ -542,7 +574,6 @@ public class RecordingScreen extends Activity {
             Settings.updateFilename(context);
             suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
             filenameView.setText(suggestedFilename);
-            numPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         }
     }
 

@@ -304,14 +304,14 @@ public class UIDataManager {
                             byte[] buffer = message.getData();
                             double max = getPeakVolume(buffer);
                             double db = Math.abs(max);
-                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 1500)){
+                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 33)){
                                 maxDB = db;
                                 mVolume.setDb((int)maxDB);
                                 mVolume.postInvalidate();
                                 mainWave.resetFrameCount();
                                 timeDelay = System.currentTimeMillis();
                             }
-                            else if(((System.currentTimeMillis() - timeDelay) > 1500)){
+                            else if(((System.currentTimeMillis() - timeDelay) > 33)){
                                 maxDB = db;
                                 mVolume.setDb((int) maxDB);
                                 mainWave.resetFrameCount();

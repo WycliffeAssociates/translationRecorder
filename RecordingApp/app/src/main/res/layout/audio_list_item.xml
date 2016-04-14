@@ -30,7 +30,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="10"
                 android:background="#00000000"
-                android:backgroundTint="@color/very_dark_greyish_red"
                 android:src="@drawable/ic_play_blue" />
 
             <TextView
