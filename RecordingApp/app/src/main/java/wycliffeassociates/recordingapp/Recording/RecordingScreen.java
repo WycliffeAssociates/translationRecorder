@@ -127,7 +127,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         if(!mInsertMode) {
             initChunkPicker();
         } else {
-            findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
+//            findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
+            mUnitPicker = (UnitPicker) findViewById(R.id.unit_picker);
+            mUnitPicker.displayIncrementDecrement(false);
         }
         mSrcPlayer = new SourceAudio(this);
         mSrcPlayer.initSrcAudio();
