@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.Playback;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -24,7 +25,7 @@ import wycliffeassociates.recordingapp.SettingsPage.Settings;
  */
 public class SourceAudio {
 
-    private RecordingScreen mCtx;
+    private Activity mCtx;
     private SeekBar mSeekBar;
     private TextView mSrcTimeElapsed;
     private TextView mSrcTimeDuration;
@@ -251,7 +252,7 @@ public class SourceAudio {
     public void pauseSource(){
         mCtx.findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
         mCtx.findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
-        if(mSrcPlayer != null && mSrcPlayer.isPlaying()){
+        if(mSrcPlayer != null && !mPlayerReleased && mSrcPlayer.isPlaying()){
             mSrcPlayer.pause();
         }
     }

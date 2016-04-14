@@ -434,8 +434,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         writeInsert(from, to, insertLoc);
     }
 
-
-
     public void insertCallback(String resultingFilename){
         mInserting = false;
         mPd.dismiss();
