@@ -6,11 +6,131 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent" >
 
-    <wycliffeassociates.recordingapp.AudioVisualization.MinimapView
-        android:id="@+id/minimap"
-        android:layout_height="84dp"
+    <RelativeLayout
+        android:id="@+id/top_bar_container"
         android:layout_width="match_parent"
-        android:background="@color/minimap_bg" />
+        android:layout_height="92dp"
+        android:background="@color/very_dark_gray_1" >
+
+        <LinearLayout
+            android:id="@+id/srcAudioPlayer"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toStartOf="@+id/view_switch_container"
+            android:padding="@dimen/default_padding_m"
+            android:visibility="invisible"
+            >
+
+            <ImageButton
+                android:id="@+id/btnPlaySource"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center_vertical"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_play_white"
+                android:visibility="visible"
+                android:background="#00000000" />
+
+            <ImageButton
+                android:id="@+id/btnPauseSource"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="-36dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_pause_white_48dp"
+                android:visibility="invisible"
+                android:background="#00000000" />
+
+            <TextView
+                android:id="@+id/noSourceMsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_padding_l"
+                android:layout_gravity="center_vertical"
+                android:text="No source audio"
+                android:textSize="18sp"
+                android:textColor="@color/text_light_disabled"
+                android:textStyle="italic"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/srcProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_padding_l"
+                android:text="00:00:00"
+                android:textSize="18sp"
+                android:textColor="@color/text_light"
+                android:layout_gravity="center_vertical" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/default_padding_m"
+                android:layout_marginEnd="@dimen/default_padding_m"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/srcDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="00:00:00"
+                android:textColor="@color/text_light"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <wycliffeassociates.recordingapp.AudioVisualization.MinimapView
+            android:id="@+id/minimap"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_toStartOf="@id/view_switch_container" />
+
+        <LinearLayout
+            android:id="@+id/view_switch_container"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            >
+
+            <ImageButton
+                android:id="@+id/switch_minimap"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:paddingLeft="@dimen/default_padding_m"
+                android:paddingRight="@dimen/default_padding_m"
+                android:paddingTop="@dimen/default_padding_s"
+                android:paddingBottom="@dimen/default_padding_s"
+                android:background="#00000000"
+                android:src="@drawable/minimap"
+                android:scaleType="fitCenter"
+
+                />
+
+            <ImageButton
+                android:id="@+id/switch_source_playback"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:paddingLeft="@dimen/default_padding_m"
+                android:paddingRight="@dimen/default_padding_m"
+                android:paddingTop="@dimen/default_padding_s"
+                android:paddingBottom="@dimen/default_padding_s"
+                android:background="@color/mostly_black"
+                android:src="@drawable/hearing"
+                android:scaleType="fitCenter"
+                />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/canvas_container"
@@ -240,17 +360,6 @@
                 android:layout_marginLeft="16dp"/>
 
         </RelativeLayout>
-
-        <!-- TODO: Remove -->
-        <!--<ImageButton-->
-            <!--android:id="@+id/btnRerecord"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/ic_record"-->
-            <!--android:background="#00000000"-->
-            <!--android:layout_alignTop="@+id/relativeLayout"-->
-            <!--android:layout_toEndOf="@id/file_info_container"-->
-            <!--android:visibility="gone"/>-->
 
         <RelativeLayout
             android:layout_width="wrap_content"
