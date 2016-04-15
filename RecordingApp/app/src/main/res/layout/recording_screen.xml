@@ -24,7 +24,7 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_play_white"
+            android:src="@drawable/play"
             android:visibility="visible"
             android:background="#00000000" />
 

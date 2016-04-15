@@ -82,8 +82,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private volatile boolean mBookInfoLoaded = false;
     private volatile int lastNumber;
     private SourceAudio mSrcPlayer;
-    private TextView mNoSourceMsg;
-    private ImageButton mBtnSrcPlay;
     private UnitPicker mUnitPicker;
     private SharedPreferences pref;
     private FileNameExtractor mFileNameExtractor;
@@ -176,8 +174,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
         mainCanvas.disableGestures();
         filenameView.setText(mFilename);
-        mBtnSrcPlay = (ImageButton) findViewById(R.id.btnPlaySource);
-        mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
 
         mUnitPicker = (UnitPicker) findViewById(R.id.unit_picker);
     }
@@ -318,14 +314,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void startRecording() {
         mSrcPlayer.cleanup();
-
-        // Disable source audio player
-        findViewById(R.id.seekBar).setEnabled(false);
-        findViewById(R.id.btnPlaySource).setEnabled(false);
-        ((TextView)findViewById(R.id.srcProgress)).setTextColor(getResources().getColor(R.color.text_light_disabled));
-        ((TextView)findViewById(R.id.srcDuration)).setTextColor(getResources().getColor(R.color.text_light_disabled));
-        // TODO: Switch to slashed play icon
-        mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);
+        mSrcPlayer.setEnabled(false);
 
         // Take away increment and decrement buttons
         mUnitPicker.displayIncrementDecrement(false);
