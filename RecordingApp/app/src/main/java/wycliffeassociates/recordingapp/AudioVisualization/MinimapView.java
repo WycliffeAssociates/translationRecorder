@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
@@ -149,12 +150,12 @@ public class MinimapView extends CanvasView {
 
     public void drawTimeCode(Canvas canvas){
         //System.out.println("secondsPerPixel is " + secondsPerPixel + " interval is " + timecodeInterval);
-        float mDensity = 2.0f;
-        mPaintText.setColor(Color.GREEN);
+        mPaintText.setColor(getResources().getColor(R.color.minimap_timecode));
         mPaintText.setTextSize(18.f);
         int i = 0;
         double fractionalSecs = secondsPerPixel;
         int integerTimecode = (int) (fractionalSecs / timecodeInterval);
+        Rect bounds = new Rect();
         while (i < getWidth()){
 
             i++;
@@ -174,12 +175,11 @@ public class MinimapView extends CanvasView {
                     timecodeSeconds = "0" + timecodeSeconds;
                 }
                 String timecodeStr = timecodeMinutes + ":" + timecodeSeconds;
-                float offset = (float) (
-                        0.5 * mPaintText.measureText(timecodeStr));
-                canvas.drawText(timecodeStr,
-                        i - offset,
-                        (int)(12 * mDensity),
-                        mPaintText);
+                mPaintText.getTextBounds(timecodeStr, 0, timecodeStr.length(), bounds);
+                float padding = getResources().getDimension(R.dimen.default_padding_xs);
+                float xOffset = mPaintText.measureText(timecodeStr) + padding;
+                float yOffset = bounds.height() + padding;
+                canvas.drawText(timecodeStr, i - xOffset, yOffset, mPaintText);
                 canvas.drawLine(i, 0.f, i, getHeight(), mPaintGrid);
             }
         }

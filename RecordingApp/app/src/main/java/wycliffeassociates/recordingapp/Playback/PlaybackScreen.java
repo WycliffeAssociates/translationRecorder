@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
@@ -51,6 +54,7 @@ public class PlaybackScreen extends Activity{
     private TextView filenameView;
     private WaveformView mMainCanvas;
     private MinimapView minimap;
+    private View mSrcAudioPlayback;
     private MarkerView mStartMarker;
     private MarkerView mEndMarker;
     private UIDataManager mManager;
@@ -62,6 +66,8 @@ public class PlaybackScreen extends Activity{
     private boolean isALoadedFile = false;
     private ProgressDialog mProgress;
     private volatile boolean mChangedName = false;
+    private ImageButton mSwitchToMinimap;
+    private ImageButton mSwitchToPlayback;
 
 
     @Override
@@ -82,18 +88,25 @@ public class PlaybackScreen extends Activity{
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.playback_screen);
 
+        mMainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
+        minimap = ((MinimapView) findViewById(R.id.minimap));
+        mSrcAudioPlayback = (View) findViewById(R.id.srcAudioPlayer);
+        mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
+        mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
+        mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
+        mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
+
+
         setButtonHandlers();
         enableButtons();
 
-        mMainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
-        minimap = ((MinimapView) findViewById(R.id.minimap));
+        // By default, select the minimap view over the source playback
+        mSwitchToMinimap.setSelected(true);
 
         mMainCanvas.enableGestures();
         mMainCanvas.setDb(0);
 
-        mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
         mStartMarker.setOrientation(MarkerView.LEFT);
-        mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
         mEndMarker.setOrientation(MarkerView.RIGHT);
 
         final Activity ctx = this;
@@ -320,6 +333,8 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
+        mSwitchToMinimap.setOnClickListener(btnClick);
+        mSwitchToPlayback.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -330,6 +345,7 @@ public class PlaybackScreen extends Activity{
         enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, true);
 //        enableButton(R.id.btnPause, true);
+
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -379,6 +395,26 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnRerecord: {
                     insert();
+                    break;
+                }
+                case R.id.switch_minimap: {
+                    // TODO: Refactor? Maybe use radio button to select one and exclude the other?
+                    v.setSelected(true);
+                    v.setBackgroundColor(Color.parseColor("#00000000"));
+                    minimap.setVisibility(View.VISIBLE);
+                    mSrcAudioPlayback.setVisibility(View.INVISIBLE);
+                    mSwitchToPlayback.setSelected(false);
+                    mSwitchToPlayback.setBackgroundColor(getResources().getColor(R.color.mostly_black));
+                    break;
+                }
+                case R.id.switch_source_playback: {
+                    // TODO: Refactor? Maybe use radio button to select one and exclude the other?
+                    v.setSelected(true);
+                    v.setBackgroundColor(Color.parseColor("#00000000"));
+                    mSrcAudioPlayback.setVisibility(View.VISIBLE);
+                    minimap.setVisibility(View.INVISIBLE);
+                    mSwitchToMinimap.setSelected(false);
+                    mSwitchToMinimap.setBackgroundColor(getResources().getColor(R.color.mostly_black));
                     break;
                 }
             }

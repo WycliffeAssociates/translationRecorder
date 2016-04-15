@@ -9,8 +9,7 @@
     android:touchscreenBlocksFocus="true"
     android:background="@color/primary">
 
-    <!-- TODO: Placed here to avoid errors. Remove if not needed anymore-->
-
+    <!-- TODO: Maybe extract this out since it's being used in playback_screen as well -->
     <LinearLayout
         android:id="@+id/srcAudioPlayer"
         android:orientation="horizontal"
@@ -114,6 +113,7 @@
 
     </LinearLayout>
 
+    <!-- TODO: Maybe extract this because it's used in playback_screen as well -->
     <LinearLayout
         android:id="@+id/file_bar"
         android:layout_width="match_parent"
@@ -200,6 +200,7 @@
             android:orientation="vertical"
             android:layout_centerVertical="true">
 
+            <!-- TODO: Remove-->
             <TextView
                 android:id="@+id/filenameView"
                 android:layout_width="wrap_content"
@@ -250,17 +251,6 @@
             android:background="#00000000"
             android:layout_centerVertical="true"
             android:visibility="invisible"/>
-
-        <NumberPicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/numberPicker"
-            android:theme="@android:style/Theme.Black.NoTitleBar"
-            android:descendantFocusability="blocksDescendants"
-            android:background="@color/white"
-            android:layout_alignParentTop="true"
-            android:visibility="gone"
-            />
 
     </RelativeLayout>
 
