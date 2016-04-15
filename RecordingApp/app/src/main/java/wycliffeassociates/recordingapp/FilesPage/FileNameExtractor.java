@@ -29,7 +29,7 @@ public class FileNameExtractor {
 
     private void extractData(String file){
         //includes the wav extention, could replace this with .*?
-        String FILENAME_PATTERN = "([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})_([0-9]{2}).*";
+        String FILENAME_PATTERN = "([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})(_([0-9]{2}))?.*";
         Pattern p = Pattern.compile(FILENAME_PATTERN);
         Matcher m = p.matcher(file);
         boolean found = m.find();
@@ -41,7 +41,11 @@ public class FileNameExtractor {
             mBook = m.group(3);
             mChap = Integer.parseInt(m.group(4));
             mChunk = Integer.parseInt(m.group(5));
-            mTake = Integer.parseInt(m.group(6));
+            if(m.group(7) != null) {
+                mTake = Integer.parseInt(m.group(7));
+            } else {
+                mTake = 0;
+            }
             mMatched = true;
         } else {
             mMatched = false;
@@ -90,6 +94,10 @@ public class FileNameExtractor {
         } else {
             return new File(dir, file.getName() + ".wav");
         }
+    }
+
+    public String getNameWithoutTake(){
+        return mLang + "_" + mSource + "_" + mBook + "_" + String.format("%02d", mChap) + "-" + String.format("%02d", mChunk);
     }
 
     public static String getNameWithoutExtention(File file){

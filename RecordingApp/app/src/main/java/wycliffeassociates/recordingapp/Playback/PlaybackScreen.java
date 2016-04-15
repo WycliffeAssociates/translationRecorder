@@ -240,13 +240,13 @@ public class PlaybackScreen extends Activity{
             }
         }
 
-        File dir = FileNameExtractor.getDirectoryFromFile(pref, new File(suggestedFilename +"_00"));
+        File dir = FileNameExtractor.getDirectoryFromFile(pref, new File(suggestedFilename));
         File from = new File(recordedFilename);
 
-        if(isALoadedFile) {
-            suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf("_"));
-        }
-        int takeInt = FileNameExtractor.getLargestTake(dir, new File(suggestedFilename + "_00.wav"))+1;
+//        if(isALoadedFile) {
+//            suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf("_"));
+//        }
+        int takeInt = FileNameExtractor.getLargestTake(dir, new File(suggestedFilename))+1;
         String take = String.format("%02d", takeInt);
         File to = new File(dir, suggestedFilename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
         writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")), intent);
