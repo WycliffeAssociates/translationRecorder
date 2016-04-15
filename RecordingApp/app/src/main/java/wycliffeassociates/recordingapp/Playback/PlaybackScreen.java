@@ -68,7 +68,12 @@ public class PlaybackScreen extends Activity{
     private volatile boolean mChangedName = false;
     private ImageButton mSwitchToMinimap;
     private ImageButton mSwitchToPlayback;
-
+    private FileNameExtractor mFileNameExtractor;
+    private TextView mLangView;
+    private TextView mSourceView;
+    private TextView mBookView;
+    private TextView mChapterView;
+    private TextView mChunkView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +86,7 @@ public class PlaybackScreen extends Activity{
         if(isALoadedFile){
             suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
         }
+        mFileNameExtractor = new FileNameExtractor(suggestedFilename);
         isSaved = true;
         Logger.w(this.toString(), "Loading Playback screen. Recorded Filename is " + recordedFilename + " Suggested Filename is " + suggestedFilename + " Came from loading a file is:" + isALoadedFile);
 
@@ -96,6 +102,16 @@ public class PlaybackScreen extends Activity{
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
 
+        mLangView = (TextView) findViewById(R.id.file_language);
+        mSourceView = (TextView) findViewById(R.id.file_project);
+        mBookView = (TextView) findViewById(R.id.file_book);
+        mChapterView = (TextView) findViewById(R.id.file_chapter);
+        mChunkView = (TextView) findViewById(R.id.file_unit);
+        mLangView.setText(mFileNameExtractor.getLang().toUpperCase());
+        mSourceView.setText(mFileNameExtractor.getSource().toUpperCase());
+        mBookView.setText(mFileNameExtractor.getBook().toUpperCase());
+        mChapterView.setText(String.format("%d", mFileNameExtractor.getChapter()));
+        mChunkView.setText(String.format("%d", mFileNameExtractor.getChunk()));
 
         setButtonHandlers();
         enableButtons();
@@ -122,8 +138,6 @@ public class PlaybackScreen extends Activity{
             }
         });
 
-        filenameView = (TextView) findViewById(R.id.filenameView);
-        filenameView.setText(suggestedFilename);
     }
 
     @Override
