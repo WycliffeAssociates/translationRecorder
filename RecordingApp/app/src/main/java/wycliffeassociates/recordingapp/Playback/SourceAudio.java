@@ -150,24 +150,10 @@ public class SourceAudio {
         }
         //Uri sourceAudio = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ATranslationRecorder%2FSource%2Fen%2Fulb%2Fgen%2F01%2Fen_ulb_gen_01-01.wav");
         if(src == null || (src instanceof DocumentFile && !((DocumentFile)src).exists()) || (src instanceof File && !((File)src).exists())){
-            // Disable and hide source audio player
-            mSeekBar.setEnabled(false);
-            mBtnSrcPlay.setEnabled(false);
-            mSeekBar.setVisibility(View.GONE);
-            mSrcTimeElapsed.setVisibility(View.GONE);
-            mSrcTimeDuration.setVisibility(View.GONE);
-            mNoSourceMsg.setVisibility(View.VISIBLE);
-            // TODO: Switch to slashed play icon
-            mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);            return;
+            showNoSource(true);
+            return;
         }
-        // Enable and show source audio player
-        mSeekBar.setEnabled(true);
-        mBtnSrcPlay.setEnabled(true);
-        mSeekBar.setVisibility(View.VISIBLE);
-        mSrcTimeElapsed.setVisibility(View.VISIBLE);
-        mSrcTimeDuration.setVisibility(View.VISIBLE);
-        mNoSourceMsg.setVisibility(View.GONE);
-        mBtnSrcPlay.setImageResource(R.drawable.ic_play_white);
+        showNoSource(false);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -292,5 +278,33 @@ public class SourceAudio {
             }
         });
         initSrcAudio();
+    }
+
+    public void setEnabled(boolean enable) {
+        mSeekBar.setEnabled(enable);
+        mBtnSrcPlay.setEnabled(enable);
+        if (enable) {
+            mSrcTimeElapsed.setTextColor(mCtx.getResources().getColor(R.color.text_light_disabled));
+            mSrcTimeDuration.setTextColor(mCtx.getResources().getColor(R.color.text_light_disabled));
+        } else {
+            mSrcTimeElapsed.setTextColor(mCtx.getResources().getColor(R.color.text_light));
+            mSrcTimeDuration.setTextColor(mCtx.getResources().getColor(R.color.text_light));
+        }
+    }
+
+    public void showNoSource(boolean noSource) {
+        if (noSource) {
+            mSeekBar.setVisibility(View.GONE);
+            mSrcTimeElapsed.setVisibility(View.GONE);
+            mSrcTimeDuration.setVisibility(View.GONE);
+            mNoSourceMsg.setVisibility(View.VISIBLE);
+            setEnabled(false);
+        } else {
+            mSeekBar.setVisibility(View.VISIBLE);
+            mSrcTimeElapsed.setVisibility(View.VISIBLE);
+            mSrcTimeDuration.setVisibility(View.VISIBLE);
+            mNoSourceMsg.setVisibility(View.GONE);
+            setEnabled(true);
+        }
     }
 }

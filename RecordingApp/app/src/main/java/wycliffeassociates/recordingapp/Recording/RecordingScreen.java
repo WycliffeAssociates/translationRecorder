@@ -179,8 +179,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
         mainCanvas.disableGestures();
         filenameView.setText(mFilename);
-        mBtnSrcPlay = (ImageButton) findViewById(R.id.btnPlaySource);
-        mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
 
         mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
         mChapterPicker= (UnitPicker) findViewById(R.id.chapter_picker);
@@ -359,14 +357,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void startRecording() {
         mSrcPlayer.cleanup();
-
-        // Disable source audio player
-        findViewById(R.id.seekBar).setEnabled(false);
-        findViewById(R.id.btnPlaySource).setEnabled(false);
-        ((TextView)findViewById(R.id.srcProgress)).setTextColor(getResources().getColor(R.color.text_light_disabled));
-        ((TextView)findViewById(R.id.srcDuration)).setTextColor(getResources().getColor(R.color.text_light_disabled));
-        // TODO: Switch to slashed play icon
-        mBtnSrcPlay.setImageResource(R.drawable.ic_ic_play_arrow_gray_48dp);
+        mSrcPlayer.setEnabled(false);
 
         // Take away increment and decrement buttons
         mChunkPicker.displayIncrementDecrement(false);
