@@ -82,7 +82,10 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private volatile boolean mBookInfoLoaded = false;
     private volatile int lastNumber;
     private SourceAudio mSrcPlayer;
-    private UnitPicker mUnitPicker;
+    private TextView mNoSourceMsg;
+    private ImageButton mBtnSrcPlay;
+    private UnitPicker mChunkPicker;
+    private UnitPicker mChapterPicker;
     private SharedPreferences pref;
     private FileNameExtractor mFileNameExtractor;
     private volatile ParseJSON mParsedJson;
@@ -124,11 +127,13 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         hasStartedRecording = false;
         mDeleteTempFile = false;
         if(!mInsertMode) {
-            initChunkPicker();
+
         } else {
 //            findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
-            mUnitPicker = (UnitPicker) findViewById(R.id.unit_picker);
-            mUnitPicker.displayIncrementDecrement(false);
+            mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
+            mChunkPicker.displayIncrementDecrement(false);
+            mChapterPicker = (UnitPicker) findViewById(R.id.chapter_picker);
+            mChapterPicker.displayIncrementDecrement(false);
         }
         mSrcPlayer = new SourceAudio(this);
         mSrcPlayer.initSrcAudio();
@@ -175,7 +180,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mainCanvas.disableGestures();
         filenameView.setText(mFilename);
 
-        mUnitPicker = (UnitPicker) findViewById(R.id.unit_picker);
+        mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
+        mChapterPicker= (UnitPicker) findViewById(R.id.chapter_picker);
     }
 
     private void initBookInfo(){
@@ -185,6 +191,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 mParsedJson = new ParseJSON(context);
                 mBooks = mParsedJson.getBooksMap();
                 mBookInfoLoaded = true;
+                initChunkPicker();
+                initChapterPicker();
             }
         });
         loadJson.start();
@@ -207,9 +215,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(values != null && values.length > 0) {
-                        mUnitPicker.setDisplayedValues(values);
-//                        System.out.println("DISPLAYED VALUES " + Arrays.toString(mUnitPicker.getDisplayedValues()));
+                    if (values != null && values.length > 0) {
+                        mChunkPicker.setDisplayedValues(values);
+//                        System.out.println("DISPLAYED VALUES " + Arrays.toString(mChunkPicker.getDisplayedValues()));
 //                        if (verseOrChunk.compareTo("chunk") == 0) {
 //                            // Chunk
 //                            int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
@@ -225,12 +233,13 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                         mBookView.setText(mBook);
                         mLanguageView.setText(mLang.toUpperCase());
                         mSourceView.setText(mSource.toUpperCase());
+                        mChunkPicker.setCurrent(getChunkIndex(mChunks, mChunk));
                         //reinitialize all of the filenames
                         initFileName();
-                        mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
+                        mChunkPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                             @Override
                             public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
-                                setChunk(newVal+1);
+                                setChunk(newVal + 1);
                                 mSrcPlayer.reset();
                             }
                         });
@@ -239,6 +248,40 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                     }
                 }
             });
+    }
+
+    private void initChapterPicker(){
+        Book book = mBooks.get(mSlug);
+        initFileName();
+        int numChapters = mParsedJson.getNumChapters(book.getSlug());
+        final String[] values = new String[numChapters];
+        for(int i = 0; i < numChapters; i++){
+            values[i] = String.valueOf(i+1);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(values != null && values.length > 0) {
+                    mChapterPicker.setDisplayedValues(values);
+                    mChapterPicker.setCurrent(mChapter-1);
+                    //reinitialize all of the filenames
+                    initFileName();
+                    mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
+                        @Override
+                        public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
+                            pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
+                            pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
+                            mChunk = 1;
+                            mChunkPicker.setCurrent(0);
+                            setChapter(newVal + 1);
+                            mSrcPlayer.reset();
+                        }
+                    });
+                } else {
+                    Logger.e(this.toString(), "values was null or of zero length");
+                }
+            }
+        });
     }
 
     private void initializeInsert(String oldName, int location){
@@ -317,7 +360,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mSrcPlayer.setEnabled(false);
 
         // Take away increment and decrement buttons
-        mUnitPicker.displayIncrementDecrement(false);
+        mChunkPicker.displayIncrementDecrement(false);
+        mChapterPicker.displayIncrementDecrement(false);
         hasStartedRecording = true;
         stopService(new Intent(this, WavRecorder.class));
         int toShow[] = {R.id.btnPauseRecording};
@@ -425,6 +469,17 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 pref.edit().putString(Settings.KEY_PREF_VERSE, String.valueOf(chunk)).commit();
             }
 
+            pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
+            Settings.updateFilename(context);
+            mFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
+            initFileName();
+        }
+    }
+
+    private void setChapter(int chapter){
+        if(mChunks != null) {
+            //Get the list of chunks by first getting the book and chapter from the preference
+            pref.edit().putString(Settings.KEY_PREF_CHAPTER, String.valueOf(chapter)).commit();
             pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();
             Settings.updateFilename(context);
             mFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
