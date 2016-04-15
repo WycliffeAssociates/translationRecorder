@@ -333,6 +333,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
+        findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
     }
@@ -394,6 +395,10 @@ public class PlaybackScreen extends Activity{
                     break;
                 }
                 case R.id.btnRerecord: {
+                    rerecord();
+                    break;
+                }
+                case R.id.btnInsertRecord: {
                     insert();
                     break;
                 }
