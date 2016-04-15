@@ -95,11 +95,11 @@ public class UnitPicker extends LinearLayout {
         mOnValueChangeListener = onValueChangedListener;
     }
 
-    public void setCurrent(int value) {
-        if (value == mCurrent) {
+    public void setCurrent(int idx) {
+        if (idx == mCurrent) {
             return;
         }
-        mCurrent = value;
+        mCurrent = idx;
         updateText();
     }
 
