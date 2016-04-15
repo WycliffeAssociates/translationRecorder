@@ -36,7 +36,7 @@ public class SourceAudio {
     private Handler mHandler;
     private volatile boolean mPlayerReleased = false;
 
-    public SourceAudio(RecordingScreen ctx){
+    public SourceAudio(Activity ctx){
         mCtx = ctx;
         mSrcTimeElapsed = (TextView) ctx.findViewById(R.id.srcProgress);
         mSrcTimeDuration = (TextView) ctx.findViewById(R.id.srcDuration);

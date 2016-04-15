@@ -74,6 +74,7 @@ public class PlaybackScreen extends Activity{
     private TextView mBookView;
     private TextView mChapterView;
     private TextView mChunkView;
+    private SourceAudio mSrcPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +126,9 @@ public class PlaybackScreen extends Activity{
         mStartMarker.setOrientation(MarkerView.LEFT);
         mEndMarker.setOrientation(MarkerView.RIGHT);
 
+        mSrcPlayer = new SourceAudio(this);
+        mSrcPlayer.initSrcAudio();
+
         final Activity ctx = this;
         ViewTreeObserver vto = mMainCanvas.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -143,12 +147,14 @@ public class PlaybackScreen extends Activity{
     @Override
     public void onPause(){
         super.onPause();
+        mSrcPlayer.pauseSource();
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         mManager.release();
+        mSrcPlayer.cleanup();
         SectionMarkers.clearMarkers(mManager);
     }
 
@@ -348,6 +354,8 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
         findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
+        findViewById(R.id.btnPlaySource).setOnClickListener(btnClick);
+        findViewById(R.id.btnPauseSource).setOnClickListener(btnClick);
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
     }
@@ -415,6 +423,13 @@ public class PlaybackScreen extends Activity{
                 case R.id.btnInsertRecord: {
                     insert();
                     break;
+                }
+                case R.id.btnPlaySource: {
+                    mSrcPlayer.playSource();
+                    break;
+                }
+                case R.id.btnPauseSource: {
+                    mSrcPlayer.pauseSource();
                 }
                 case R.id.switch_minimap: {
                     // TODO: Refactor? Maybe use radio button to select one and exclude the other?
