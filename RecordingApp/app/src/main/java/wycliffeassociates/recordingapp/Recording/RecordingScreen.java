@@ -229,6 +229,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                         mBookView.setText(mBook);
                         mLanguageView.setText(mLang.toUpperCase());
                         mSourceView.setText(mSource.toUpperCase());
+                        mUnitPicker.setCurrent(getChunkIndex(mChunks,mChunk));
                         //reinitialize all of the filenames
                         initFileName();
                         mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
