@@ -114,6 +114,12 @@ public class PlaybackScreen extends Activity{
         mChapterView.setText(String.format("%d", mFileNameExtractor.getChapter()));
         mChunkView.setText(String.format("%d", mFileNameExtractor.getChunk()));
 
+        if(pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0) {
+            ((TextView) findViewById(R.id.file_unit_label)).setText("Chunk");
+        } else {
+            ((TextView) findViewById(R.id.file_unit_label)).setText("Verse");
+        }
+
         setButtonHandlers();
         enableButtons();
 
