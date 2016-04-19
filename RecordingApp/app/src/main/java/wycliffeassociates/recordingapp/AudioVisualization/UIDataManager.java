@@ -185,7 +185,7 @@ public class UIDataManager {
         Logger.w(UIDataManager.class.toString(), "Cutting from " + start + " to " + end);
         SectionMarkers.clearMarkers(this);
         Logger.w(this.toString(), "Reinitializing minimap");
-        minimap.init(wavVis.getMinimap(minimap.getHeight()));
+        minimap.init(wavVis.getMinimap(minimap.getHeight(), minimap.getWidth()));
         minimap.setAudioLength(mPlayer.getDuration() - mCutOp.getSizeCut());
         Logger.w(this.toString(), "Updating UI after cut");
         setDurationView();
@@ -257,8 +257,8 @@ public class UIDataManager {
         Logger.w(UIDataManager.class.toString(), "Loaded file duration in ms is: " + mPlayer.getDuration());
         minimap.setAudioLength(mPlayer.getDuration());
         Logger.w(this.toString(), "Setting up visualizer");
-        wavVis = new WavVisualizer(this, buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight(), mCutOp);
-        minimap.init(wavVis.getMinimap(minimap.getHeight()));
+        wavVis = new WavVisualizer(this, buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight(), minimap.getWidth(), mCutOp);
+        minimap.init(wavVis.getMinimap(minimap.getHeight(), minimap.getWidth()));
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
         durationView = (TextView)ctx.findViewById(R.id.durationView);
         setDurationView();
@@ -383,7 +383,7 @@ public class UIDataManager {
         Logger.w(this.toString(), "Popping off last cut");
         mCutOp.undo();
         Logger.w(this.toString(), "Recomputing minimap");
-        minimap.init(wavVis.getMinimap(minimap.getHeight()));
+        minimap.init(wavVis.getMinimap(minimap.getHeight(), minimap.getWidth()));
         minimap.setAudioLength(mPlayer.getDuration() - mCutOp.getSizeCut());
         updateUI();
     }
