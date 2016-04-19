@@ -131,6 +131,12 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         //Doing this because the sharedPreferenceChanged method is not called from the language select activity
         findPreference(Settings.KEY_PREF_LANG_SRC).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG_SRC, ""));
         findPreference(Settings.KEY_PREF_LANG).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG, ""));
+
+        //if book was changed, need to update these...
+        findPreference(Settings.KEY_PREF_CHAPTER).setSummary(sharedPref.getString(Settings.KEY_PREF_CHAPTER, "1"));
+        findPreference(Settings.KEY_PREF_CHUNK).setSummary(sharedPref.getString(Settings.KEY_PREF_CHUNK, "1"));
+        findPreference(Settings.KEY_PREF_VERSE).setSummary(sharedPref.getString(Settings.KEY_PREF_VERSE, "1"));
+
         String uristring = sharedPref.getString(Settings.KEY_PREF_SRC_LOC, "");
         Uri dir = Uri.parse(uristring);
         if(dir != null) {

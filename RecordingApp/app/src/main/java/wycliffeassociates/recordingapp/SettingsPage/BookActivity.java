@@ -82,6 +82,9 @@ public class BookActivity extends AppCompatActivity implements BookListFragment.
     public void onItemClick(Book targetBook) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.edit().putString(Settings.KEY_PREF_BOOK, targetBook.getSlug()).commit();
+        pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
+        pref.edit().putString(Settings.KEY_PREF_CHUNK, "1").commit();
+        pref.edit().putString(Settings.KEY_PREF_VERSE, "1").commit();
         Settings.updateFilename(this);
         this.finish();
     }
