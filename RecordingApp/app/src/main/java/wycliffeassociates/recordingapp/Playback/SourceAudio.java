@@ -87,6 +87,9 @@ public class SourceAudio {
         String book = sp.getString(Settings.KEY_PREF_BOOK, "");
         String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
         String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
+        if (sp.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") != 0) {
+            chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_VERSE, "1")));
+        }
         String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
 
         String[] filetypes = {".wav", ".mp3", ".mp4", ".m4a", ".aac", ".flac", ".3gp", ".ogg"};
@@ -112,6 +115,9 @@ public class SourceAudio {
             String book = sp.getString(Settings.KEY_PREF_BOOK, "");
             String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
             String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
+            if (sp.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") != 0) {
+                chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_VERSE, "1")));
+            }
             String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
             String[] filetypes = {".wav", ".mp3", ".mp4", ".m4a", ".aac", ".flac", ".3gp", ".ogg"};
             for(String type : filetypes) {

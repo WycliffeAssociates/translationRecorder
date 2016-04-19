@@ -182,6 +182,12 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
         mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
         mChapterPicker= (UnitPicker) findViewById(R.id.chapter_picker);
+
+        if(pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0) {
+            ((TextView) findViewById(R.id.file_unit_label)).setText("Chunk");
+        } else {
+            ((TextView) findViewById(R.id.file_unit_label)).setText("Verse");
+        }
     }
 
     private void initBookInfo(){
@@ -261,9 +267,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(values != null && values.length > 0) {
+                if (values != null && values.length > 0) {
                     mChapterPicker.setDisplayedValues(values);
-                    mChapterPicker.setCurrent(mChapter-1);
+                    mChapterPicker.setCurrent(mChapter - 1);
                     //reinitialize all of the filenames
                     initFileName();
                     mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
