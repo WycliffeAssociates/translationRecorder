@@ -85,7 +85,8 @@ public class PlaybackScreen extends Activity{
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         if(isALoadedFile){
-            suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
+            suggestedFilename = FileNameExtractor.getNameWithoutTake(recordedFilename);
+            //suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
         }
         mFileNameExtractor = new FileNameExtractor(suggestedFilename);
         isSaved = true;

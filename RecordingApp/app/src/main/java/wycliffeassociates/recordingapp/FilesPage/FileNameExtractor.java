@@ -108,6 +108,12 @@ public class FileNameExtractor {
         return name;
     }
 
+    public static String getNameWithoutTake(String name){
+        FileNameExtractor fne = new FileNameExtractor(name);
+        String without = fne.getLang() + "_" + fne.getSource() + "_" + fne.getBook() + "_" + String.format("%02d",fne.getChapter()) + "-" + String.format("%02d",fne.getChunk());
+        return without;
+    }
+
     public static File getFileFromFileName(SharedPreferences pref, String file){
         return getFileFromFileName(pref, new File(file));
     }
