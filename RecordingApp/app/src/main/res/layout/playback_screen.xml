@@ -149,7 +149,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:nextFocusDown="@+id/endmarker"
-            android:src="@drawable/ic_in_marker_green" />
+            android:src="@drawable/ic_startmarker_cyan" />
 
         <wycliffeassociates.recordingapp.Playback.MarkerView
             android:id="@+id/endmarker"
@@ -157,7 +157,7 @@
             android:layout_height="wrap_content"
             android:nextFocusDown="@+id/info"
             android:nextFocusUp="@+id/startmarker"
-            android:src="@drawable/ic_out_marker_red"
+            android:src="@drawable/ic_endmarker_cyan"
             android:layout_alignParentBottom="true" />
 
     </RelativeLayout>
@@ -320,11 +320,14 @@
 
             <ImageButton
                 android:id="@+id/btnSkipBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="16dp"
+                android:layout_centerVertical="true"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_skip_back"
                 android:background="#00000000"
-                android:layout_marginRight="16dp"/>
+                />
 
             <RelativeLayout
                 android:id="@+id/playPauseContainer"
@@ -352,12 +355,15 @@
 
             <ImageButton
                 android:id="@+id/btnSkipForward"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/playPauseContainer"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="16dp"
+                android:layout_centerVertical="true"
+                android:scaleType="fitCenter"
+                android:layout_toEndOf="@id/playPauseContainer"
                 android:src="@drawable/ic_skip_forward"
                 android:background="#00000000"
-                android:layout_marginLeft="16dp"/>
+                android:layout_marginStart="16dp"/>
 
         </RelativeLayout>
 
@@ -371,8 +377,10 @@
 
             <ImageButton
                 android:id="@+id/btnUndo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="fitCenter"
+                android:layout_centerVertical="true"
                 android:visibility="invisible"
                 android:src="@drawable/ic_undo_white_48dp"
                 android:background="#00000000"
@@ -381,8 +389,10 @@
 
             <ImageButton
                 android:id="@+id/btnClear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="fitCenter"
+                android:layout_centerVertical="true"
                 android:visibility="invisible"
                 android:src="@drawable/ic_clear_markers"
                 android:background="#00000000"
@@ -397,16 +407,20 @@
 
                 <ImageButton
                     android:id="@+id/btnStartMark"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_start_marker"
                     android:background="#00000000"
                     android:layout_marginRight="16dp"/>
 
                 <ImageButton
                     android:id="@+id/btnEndMark"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:layout_centerVertical="true"
                     android:visibility="invisible"
                     android:src="@drawable/ic_out_marker"
                     android:background="#00000000"
@@ -414,8 +428,10 @@
 
                 <ImageButton
                     android:id="@+id/btnCut"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:layout_centerVertical="true"
                     android:visibility="invisible"
                     android:src="@drawable/ic_cut"
                     android:background="#00000000"
