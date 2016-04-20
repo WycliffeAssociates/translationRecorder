@@ -16,6 +16,8 @@ import android.widget.ImageButton;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.Reporting.BugReportDialog;
@@ -31,6 +33,7 @@ public class MainMenu extends Activity{
     private ImageButton btnRecord;
     private ImageButton btnFiles;
     private ImageButton btnSettings;
+    private SharedPreferences pref;
 
     public static final String KEY_PREF_LOGGING_LEVEL = "logging_level";
     public static final String PREF_DEFAULT_LOGGING_LEVEL = "1";
@@ -45,16 +48,11 @@ public class MainMenu extends Activity{
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         AudioInfo.SCREEN_WIDTH = metrics.widthPixels;
 
-        System.out.println("internal files dir is " + getApplicationContext().getFilesDir());
-        System.out.println("External files dir is " + Environment.getExternalStoragePublicDirectory("TranslationRecorder"));
-
-
-        File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
-        System.out.println("Result of making vis directory " + visDir.mkdir());
+        System.out.println("internal files dir is " + this.getCacheDir());
+        System.out.println("External files dir is " + Environment.getExternalStorageDirectory());
 
         initApp();
 
-        AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
         btnRecord = (ImageButton) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,31 +113,64 @@ public class MainMenu extends Activity{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                clearStackTraces();
+                archiveStackTraces();
             }
         }
     }
 
-    public void clearStackTraces(){
+    public void archiveStackTraces(){
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        File archive = new File(dir, "Archive");
+        if(!archive.exists()){
+            archive.mkdirs();
+        }
         String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
         // delete stacktraces
         for (String filePath : stacktraces) {
             File traceFile = new File(filePath);
             if (traceFile.exists()) {
-                traceFile.delete();
+                File move = new File(archive, traceFile.getName());
+                traceFile.renameTo(move);
             }
         }
     }
 
     private void initApp(){
-        // configure logger
-        File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
-        GlobalExceptionHandler.register(dir);
-        int minLogLevel = Integer.parseInt(getUserPreferences().getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
-        configureLogger(minLogLevel);
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        pref.edit().putString("version", BuildConfig.VERSION_NAME).commit();
 
-        // check if we crashed
+        //set up Visualization folder
+        File visDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Visualization");
+        System.out.println("Result of making vis directory " + visDir.mkdirs());
+        if(visDir.exists()){
+            Logger.w(this.toString(), "SUCCESS: Visualization folder exists.");
+        } else {
+            Logger.e(this.toString(), "ERROR: Visualization folder does not exist.");
+        }
+
+        //set up directory paths
+        pref.edit().putString("vis_folder_path", visDir.getAbsolutePath() + "/").commit();
+        //if the current directory is already set, then don't overwrite it
+        if(pref.getString("current_directory", null) == null){
+            pref.edit().putString("current_directory",
+                    Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
+        }
+        pref.edit().putString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
+        AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
+        AudioInfo.fileDir = Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString();
+
+        //configure logger
+        File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
+        dir.mkdirs();
+
+        GlobalExceptionHandler.register(dir);
+        int minLogLevel = Integer.parseInt(pref.getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL));
+        configureLogger(minLogLevel, dir);
+
+        //check if we crashed
         String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
         if (stacktraces.length > 0) {
             FragmentManager fm = getFragmentManager();
@@ -147,30 +178,20 @@ public class MainMenu extends Activity{
             brd.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             brd.show(fm, "Bug Report Dialog");
         }
-
-        // set up Visualization folder
-        File visDir = new File(Environment.getExternalStoragePublicDirectory("TranslationRecorder"), "/Visualization");
-        System.out.println("Result of making vis directory " + visDir.mkdir());
-        AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
     }
 
-    public void configureLogger(int minLogLevel) {
-        File logFile = new File(getExternalCacheDir(), "log.txt");
+    public void configureLogger(int minLogLevel, File logDir) {
+        File logFile = new File(logDir, "log.txt");
+        try {
+            logFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Logger.configure(logFile, Logger.Level.getLevel(minLogLevel));
         if(logFile.exists()){
-            Logger.w(this.toString(), "Log file initialized.");
+            Logger.w(this.toString(), "SUCCESS: Log file initialized.");
         } else {
             Logger.e(this.toString(),"ERROR: could not initialize log file.");
         }
-
-    }
-
-    /**
-     * Returns an instance of the user preferences.
-     * This is just the default shared preferences
-     * @return
-     */
-    public SharedPreferences getUserPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 }

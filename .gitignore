@@ -2,7 +2,7 @@
 .idea
 *.iml
 
-# Ignore Vim swap files
+# Ignore Vim swap and undo files
 *.swp
 *.un~
 

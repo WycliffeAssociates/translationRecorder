@@ -44,7 +44,7 @@ public class BugReportDialog extends DialogFragment implements View.OnClickListe
             this.dismiss();
         }
         else {
-            mm.clearStackTraces();
+            mm.archiveStackTraces();
             this.dismiss();
         }
     }

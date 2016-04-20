@@ -2,10 +2,13 @@ package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -16,18 +19,13 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.net.ntp.TimeStamp;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
@@ -35,9 +33,12 @@ import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.ExitDialog;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
-import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.RerecordDialog;
+import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
@@ -53,48 +54,87 @@ public class PlaybackScreen extends Activity{
     private TextView filenameView;
     private WaveformView mMainCanvas;
     private MinimapView minimap;
+    private View mSrcAudioPlayback;
     private MarkerView mStartMarker;
     private MarkerView mEndMarker;
     private UIDataManager mManager;
-    private PreferencesManager pref;
+    private SharedPreferences pref;
     private String recordedFilename = null;
     private String suggestedFilename = null;
-    private boolean isSaved = false;
+    private volatile boolean isSaved = false;
     private boolean isPlaying = false;
     private boolean isALoadedFile = false;
     private ProgressDialog mProgress;
     private volatile boolean mChangedName = false;
-
+    private ImageButton mSwitchToMinimap;
+    private ImageButton mSwitchToPlayback;
+    private FileNameExtractor mFileNameExtractor;
+    private TextView mLangView;
+    private TextView mSourceView;
+    private TextView mBookView;
+    private TextView mChapterView;
+    private TextView mChunkView;
+    private SourceAudio mSrcPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pref = new PreferencesManager(this);
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        suggestedFilename = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
+        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01_01");
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         if(isALoadedFile){
-            suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
+            suggestedFilename = FileNameExtractor.getNameWithoutTake(recordedFilename);
+            //suggestedFilename = recordedFilename.substring(recordedFilename.lastIndexOf('/')+1, recordedFilename.lastIndexOf('.'));
         }
+        mFileNameExtractor = new FileNameExtractor(suggestedFilename);
+        isSaved = true;
         Logger.w(this.toString(), "Loading Playback screen. Recorded Filename is " + recordedFilename + " Suggested Filename is " + suggestedFilename + " Came from loading a file is:" + isALoadedFile);
 
         // Make sure the tablet does not go to sleep while on the recording screen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.playback_screen);
 
+        mMainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
+        minimap = ((MinimapView) findViewById(R.id.minimap));
+        mSrcAudioPlayback = (View) findViewById(R.id.srcAudioPlayer);
+        mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
+        mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
+        mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
+        mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
+
+        mLangView = (TextView) findViewById(R.id.file_language);
+        mSourceView = (TextView) findViewById(R.id.file_project);
+        mBookView = (TextView) findViewById(R.id.file_book);
+        mChapterView = (TextView) findViewById(R.id.file_chapter);
+        mChunkView = (TextView) findViewById(R.id.file_unit);
+        mLangView.setText(mFileNameExtractor.getLang().toUpperCase());
+        mSourceView.setText(mFileNameExtractor.getSource().toUpperCase());
+        mBookView.setText(mFileNameExtractor.getBook().toUpperCase());
+        mChapterView.setText(String.format("%d", mFileNameExtractor.getChapter()));
+        mChunkView.setText(String.format("%d", mFileNameExtractor.getChunk()));
+
+        if(pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0) {
+            ((TextView) findViewById(R.id.file_unit_label)).setText("Chunk");
+        } else {
+            ((TextView) findViewById(R.id.file_unit_label)).setText("Verse");
+        }
+
         setButtonHandlers();
         enableButtons();
 
-        mMainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
-        minimap = ((MinimapView) findViewById(R.id.minimap));
+        // By default, select the minimap view over the source playback
+        mSwitchToMinimap.setSelected(true);
 
         mMainCanvas.enableGestures();
+        mMainCanvas.setDb(0);
 
-        mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
         mStartMarker.setOrientation(MarkerView.LEFT);
-        mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
         mEndMarker.setOrientation(MarkerView.RIGHT);
+
+        mSrcPlayer = new SourceAudio(this);
+        mSrcPlayer.initSrcAudio();
 
         final Activity ctx = this;
         ViewTreeObserver vto = mMainCanvas.getViewTreeObserver();
@@ -109,19 +149,19 @@ public class PlaybackScreen extends Activity{
             }
         });
 
-        filenameView = (TextView) findViewById(R.id.filenameView);
-        filenameView.setText(suggestedFilename);
     }
 
     @Override
     public void onPause(){
         super.onPause();
+        mSrcPlayer.pauseSource();
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         mManager.release();
+        mSrcPlayer.cleanup();
         SectionMarkers.clearMarkers(mManager);
     }
 
@@ -168,6 +208,7 @@ public class PlaybackScreen extends Activity{
     }
 
     private void cut() {
+        isSaved = false;
         int toShow[] = {R.id.btnStartMark, R.id.btnUndo};
         int toHide[] = {R.id.btnCut, R.id.btnClear};
         mManager.swapViews(toShow, toHide);
@@ -197,19 +238,24 @@ public class PlaybackScreen extends Activity{
         mManager.updateUI();
     }
 
+    private void rerecord(){
+        File file = new File(recordedFilename);
+        FileNameExtractor fne = new FileNameExtractor(file);
+        if(fne.matched()) {
+            Settings.updateFilename(this, fne.getLang(), fne.getSource(), fne.getBook(),
+                    fne.getChapter(), fne.getChunk());
+        }
+        Intent intent = new Intent(this, RecordingScreen.class);
+        save(intent);
+    }
+
     @Override
     public void onBackPressed() {
         Logger.i(this.toString(), "Back was pressed.");
         if (!isSaved && !isALoadedFile || isALoadedFile && mManager.hasCut()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
-            ExitDialog dialog = new ExitDialog(this, R.style.Theme_UserDialog);
-            dialog.setFilename(recordedFilename);
-            dialog.setLoadedFile(isALoadedFile);
-            if (isPlaying) {
-                dialog.setIsPlaying(true);
-                isPlaying = false;
-            }
-            dialog.show();
+            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_UserDialog, isALoadedFile, isPlaying, recordedFilename);
+            exit.show();
         } else {
 //            clearMarkers();
             mManager.release();
@@ -221,103 +267,34 @@ public class PlaybackScreen extends Activity{
         mChangedName = true;
     }
 
-    private void save() {
-        getSaveName(this);
-    }
-
-    private void getSaveName(Context c) {
-        TextWatcher tw = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    private void save(Intent intent) {
+        //no changes were made, so just exit
+        if(isSaved){
+            if(intent == null) {
+                this.finish();
+                return;
+            } else {
+                startActivity(intent);
+                this.finish();
+                return;
             }
+        }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mChangedName();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        };
-
-        final EditText toSave = new EditText(c);
-        toSave.addTextChangedListener(tw);
-        toSave.setInputType(InputType.TYPE_CLASS_TEXT);
-
-        //pref.getPreferences("fileName");
-        toSave.setText(suggestedFilename, TextView.BufferType.EDITABLE);
-        mChangedName = false;
-
-        //prepare the dialog
-        final AlertDialog.Builder builder = new AlertDialog.Builder(c);
-        builder.setTitle("Save as");
-        builder.setView(toSave);
-
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface dialog, int which) {
-                dialog.dismiss();
-                setName(toSave.getText().toString());
-            }
-        });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    private void setName(String newName) {
-        suggestedFilename = newName;
-        File dir = new File(pref.getPreferences("fileDirectory").toString());
+        File dir = FileNameExtractor.getDirectoryFromFile(pref, new File(suggestedFilename));
         File from = new File(recordedFilename);
 
-        if(isALoadedFile && suggestedFilename.contains(".wav")) {
-            suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf(".wav"));
-        }
-        File to = new File(dir, suggestedFilename + AUDIO_RECORDER_FILE_EXT_WAV);
-
-        if(to.exists()){
-            final File finalFrom = from;
-            final File finalTo = to;
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Would you like to overwrite the existing file?").setTitle("Warning");
-            builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                    isSaved = true;
-                    saveFile(finalFrom, finalTo, suggestedFilename, true, false);
-                }
-            });
-            builder.setNegativeButton("no", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                    getSaveName(context);
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        } else {
-            isSaved = true;
-            if(isALoadedFile) {
-                saveFile(from, to, suggestedFilename, false, false);
-            } else {
-                saveFile(from, to, suggestedFilename, false, true);
-            }
-        }
+//        if(isALoadedFile) {
+//            suggestedFilename = suggestedFilename.substring(0, suggestedFilename.lastIndexOf("_"));
+//        }
+        int takeInt = FileNameExtractor.getLargestTake(dir, new File(suggestedFilename))+1;
+        String take = String.format("%02d", takeInt);
+        File to = new File(dir, suggestedFilename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
+        writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")), intent);
     }
 
     public String getName() {
         return suggestedFilename;
     }
-
 
     /**
      * Names the currently recorded .wav file.
@@ -325,7 +302,7 @@ public class PlaybackScreen extends Activity{
      * @param name a string with the desired output filename. Should not include the .wav extension.
      * @return the absolute path of the file created
      */
-    public void saveFile(final File from, final File to, final String name, final boolean overwrite, final boolean deleteUUID) {
+    public void writeCutToFile(final File to, final String name, final Intent intent) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setTitle("Saving");
@@ -338,84 +315,37 @@ public class PlaybackScreen extends Activity{
             public void run() {
                 if(mManager.hasCut()){
                     try {
-                        File dir = new File(pref.getPreferences("fileDirectory").toString());
+                        File dir = new File(pref.getString("current_directory", "").toString());
                         File toTemp = new File(dir, "temp.wav");
                         mManager.writeCut(toTemp, pd);
-                        if(overwrite || !isALoadedFile) {
-                            from.delete();
-                            to.delete();
-                            toTemp.renameTo(to);
-                        } else {
-                            to.delete();
-                            toTemp.renameTo(to);
-                        }
+                        to.delete();
+                        toTemp.renameTo(to);
                         File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
                         toVis.delete();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } else {
-                    //if overwrite, just rename the file to the new name since there are no cuts
-                    if(overwrite){
-                        try {
-                            if(!FileUtils.contentEquals(from, to)) {
-                                to.delete();
-                                from.renameTo(to);
-                                File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
-                                toVis.delete();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else {
-                        try {
-                            FileUtils.copyFile(from, to);
-                            if(!isALoadedFile) {
-                                File fromVis = new File(AudioInfo.pathToVisFile, "visualization.vis");
-                                File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
-                                FileUtils.copyFile(fromVis, toVis);
-                            }
-                            recordedFilename = to.getAbsolutePath();
-                            if(deleteUUID){
-                                from.delete();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
                 }
-                if(!isALoadedFile && !mChangedName) {
-                    Settings.incrementTake(context);
-                }
+                isSaved = true;
                 pd.dismiss();
-                finish();
+                if(intent == null) {
+                    finish();
+                } else {
+                    intent.putExtra("old_name", to.getAbsolutePath());
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
         saveThread.start();
     }
 
-
-    /**
-     * Retrieves the filename of the recorded audio file.
-     * If the AudioRecorder folder does not exist, it is created.
-     *
-     * @return the absolute filepath to the recorded .wav file
-     */
-    public String getFilename() {
-        String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
-
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        if (recordedFilename != null) {
-            return (file.getAbsolutePath() + "/" + recordedFilename);
-        }
-        else {
-            recordedFilename = (file.getAbsolutePath() + "/" + UUID.randomUUID().toString() + AUDIO_RECORDER_FILE_EXT_WAV);
-            return recordedFilename;
-        }
+    public void insert(){
+        Intent insertIntent = new Intent(this, RecordingScreen.class);
+        insertIntent.putExtra("insert_location", mManager.getAdjustedLocation());
+        insertIntent.putExtra("old_name", recordedFilename);
+        insertIntent.putExtra("insert_mode", true);
+        save(insertIntent);
     }
 
     private void setButtonHandlers() {
@@ -429,6 +359,12 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
+        findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
+        findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
+        findViewById(R.id.btnPlaySource).setOnClickListener(btnClick);
+        findViewById(R.id.btnPauseSource).setOnClickListener(btnClick);
+        mSwitchToMinimap.setOnClickListener(btnClick);
+        mSwitchToPlayback.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -439,6 +375,7 @@ public class PlaybackScreen extends Activity{
         enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, true);
 //        enableButton(R.id.btnPause, true);
+
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
@@ -451,7 +388,7 @@ public class PlaybackScreen extends Activity{
                     break;
                 }
                 case R.id.btnSave: {
-                    save();
+                    save(null);
                     break;
                 }
                 case R.id.btnPause: {
@@ -484,6 +421,41 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnUndo: {
                     undo();
+                    break;
+                }
+                case R.id.btnRerecord: {
+                    rerecord();
+                    break;
+                }
+                case R.id.btnInsertRecord: {
+                    insert();
+                    break;
+                }
+                case R.id.btnPlaySource: {
+                    mSrcPlayer.playSource();
+                    break;
+                }
+                case R.id.btnPauseSource: {
+                    mSrcPlayer.pauseSource();
+                }
+                case R.id.switch_minimap: {
+                    // TODO: Refactor? Maybe use radio button to select one and exclude the other?
+                    v.setSelected(true);
+                    v.setBackgroundColor(Color.parseColor("#00000000"));
+                    minimap.setVisibility(View.VISIBLE);
+                    mSrcAudioPlayback.setVisibility(View.INVISIBLE);
+                    mSwitchToPlayback.setSelected(false);
+                    mSwitchToPlayback.setBackgroundColor(getResources().getColor(R.color.mostly_black));
+                    break;
+                }
+                case R.id.switch_source_playback: {
+                    // TODO: Refactor? Maybe use radio button to select one and exclude the other?
+                    v.setSelected(true);
+                    v.setBackgroundColor(Color.parseColor("#00000000"));
+                    mSrcAudioPlayback.setVisibility(View.VISIBLE);
+                    minimap.setVisibility(View.INVISIBLE);
+                    mSwitchToMinimap.setSelected(false);
+                    mSwitchToMinimap.setBackgroundColor(getResources().getColor(R.color.mostly_black));
                     break;
                 }
             }

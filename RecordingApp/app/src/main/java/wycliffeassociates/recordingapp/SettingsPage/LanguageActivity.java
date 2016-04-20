@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,12 +25,16 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
     public final String TAG_LANGUAGE_LIST = "language_list_tag";
     private Searchable mFragment;
     private String mSearchText = null;
+    private String mSourceOrTarget;
+    private final String target = "target";
+    private final String source = "source";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_language_selector);
-
+        mSourceOrTarget = getIntent().getStringExtra("lang_type");
+        Intent i = getIntent();
         mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_LANGUAGE_LIST);
         if(savedInstanceState != null){
             mSearchText = savedInstanceState.getString("search_text", null);
@@ -85,8 +90,12 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
     @Override
     public void onItemClick(Language targetLanguage) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        pref.edit().putString(Settings.KEY_PREF_LANG, targetLanguage.getCode()).commit();
-        Settings.updateFilename(this);
+        if(mSourceOrTarget.compareTo(target) == 0) {
+            pref.edit().putString(Settings.KEY_PREF_LANG, targetLanguage.getCode()).commit();
+            Settings.updateFilename(this);
+        } else {
+            pref.edit().putString(Settings.KEY_PREF_LANG_SRC, targetLanguage.getCode()).commit();
+        }
         this.finish();
     }
 }

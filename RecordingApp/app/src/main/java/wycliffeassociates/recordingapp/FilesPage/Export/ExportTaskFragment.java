@@ -68,4 +68,9 @@ public class ExportTaskFragment extends Fragment implements FragmentShareDialog.
     public void setExporting(boolean exporting){
         mProgressUpdateCallback.setExporting(exporting);
     }
+
+    @Override
+    public void setCurrentFile(String currentFile) {
+        mProgressUpdateCallback.setCurrentFile(currentFile);
+    }
 }

@@ -39,7 +39,7 @@ public class ChapterChunkListPreference extends ListPreference {
         mBooks = parse.getBooksMap();
         String bookCode = getSharedPreferences().getString(KEY_PREF_BOOK, "gen");
         int chapter = Integer.parseInt(getSharedPreferences().getString(KEY_PREF_CHAPTER, "1"));
-        int numChapters = mBooks.get(bookCode).getNumChapters();
+        int numChapters = parse.getNumChapters(bookCode);
         String src = getSharedPreferences().getString(Settings.KEY_PREF_SOURCE, "udb");
 
         //if the selected preference was chapter

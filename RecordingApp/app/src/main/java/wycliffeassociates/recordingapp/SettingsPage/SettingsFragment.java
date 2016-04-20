@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.SettingsPage;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.EditTextPreference;
@@ -126,10 +127,35 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         Settings.updateFilename(getActivity());
     }
 
+    private void updateSummariesSetViaActivities(SharedPreferences sharedPref){
+        //Doing this because the sharedPreferenceChanged method is not called from the language select activity
+        findPreference(Settings.KEY_PREF_LANG_SRC).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG_SRC, ""));
+        findPreference(Settings.KEY_PREF_LANG).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG, ""));
+
+        //if book was changed, need to update these...
+        findPreference(Settings.KEY_PREF_CHAPTER).setSummary(sharedPref.getString(Settings.KEY_PREF_CHAPTER, "1"));
+        findPreference(Settings.KEY_PREF_CHUNK).setSummary(sharedPref.getString(Settings.KEY_PREF_CHUNK, "1"));
+        findPreference(Settings.KEY_PREF_VERSE).setSummary(sharedPref.getString(Settings.KEY_PREF_VERSE, "1"));
+
+        String uristring = sharedPref.getString(Settings.KEY_PREF_SRC_LOC, "");
+        Uri dir = Uri.parse(uristring);
+        if(dir != null) {
+            uristring = dir.getLastPathSegment();
+            //This removes "primary:", though maybe this is helpful in identifying between sd card and internal storage.
+            //uristring = uristring.substring(uristring.indexOf(":")+1, uristring.length());
+            findPreference(Settings.KEY_PREF_SRC_LOC).setSummary(uristring);
+        } else {
+            findPreference(Settings.KEY_PREF_SRC_LOC).setSummary(sharedPref.getString(Settings.KEY_PREF_SRC_LOC, ""));
+        }
+    }
+
     public void updateSummaryText(SharedPreferences sharedPref, String key) {
         try {
+            updateSummariesSetViaActivities(sharedPref);
             String text  = sharedPref.getString(key, "");
-            findPreference(key).setSummary(text);
+            if(findPreference(key) != null) {
+                findPreference(key).setSummary(text);
+            }
         } catch (ClassCastException err) {
             System.out.println("IGNORING SUMMARY UPDATE FOR " + key);
         }

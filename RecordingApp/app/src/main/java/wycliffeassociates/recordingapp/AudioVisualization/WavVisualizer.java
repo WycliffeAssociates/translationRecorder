@@ -22,7 +22,7 @@ public class WavVisualizer {
     AudioFileAccessor mAccessor;
     UIDataManager mManager;
 
-    public WavVisualizer(UIDataManager manager, MappedByteBuffer buffer, MappedByteBuffer compressed, int screenWidth, int screenHeight, CutOp cut) {
+    public WavVisualizer(UIDataManager manager, MappedByteBuffer buffer, MappedByteBuffer compressed, int screenWidth, int screenHeight, int minimapWidth, CutOp cut) {
         this.buffer = buffer;
         mScreenHeight = screenHeight;
         mScreenWidth = screenWidth;
@@ -32,7 +32,7 @@ public class WavVisualizer {
         mSamples = new float[screenWidth*8];
         mManager = manager;
         mAccessor = new AudioFileAccessor(compressed, buffer, cut, manager);
-        mMinimap = new float[AudioInfo.SCREEN_WIDTH * 4];
+        mMinimap = new float[minimapWidth * 4];
     }
 
     public void enableCompressedFileNextDraw(MappedByteBuffer compressed){
@@ -42,14 +42,14 @@ public class WavVisualizer {
         mCanSwitch = true;
     }
 
-    public float[] getMinimap(int minimapHeight){
+    public float[] getMinimap(int minimapHeight, int minimapWidth){
         //selects the proper buffer to use
         boolean useCompressed = mCanSwitch && mNumSecondsOnScreen > AudioInfo.COMPRESSED_SECONDS_ON_SCREEN;
         mAccessor.switchBuffers(useCompressed);
 
         int pos = 0;
         int index = 0;
-        double incrementTemp = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration());
+        double incrementTemp = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration(), minimapWidth);
         double leftover = incrementTemp - (int)Math.floor(incrementTemp);
         double count = 0;
         int increment = (int)Math.floor(incrementTemp);
@@ -57,7 +57,7 @@ public class WavVisualizer {
             increment*=2;
         }
         boolean leapedInc = false;
-        for(int i = 0; i < AudioInfo.SCREEN_WIDTH; i++){
+        for(int i = 0; i < minimapWidth; i++){
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
             if(count > 1){
@@ -252,7 +252,7 @@ public class WavVisualizer {
         } else {
             increment *= 2;
         }
-        System.out.println("increment is " + increment);
+        //System.out.println("increment is " + increment);
         return (int)increment;
     }
 

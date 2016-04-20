@@ -90,7 +90,7 @@ public class AudioFileAccessor {
             int skip = mCut.skipReverse(time);
             if(skip != Integer.MAX_VALUE){
                 time = skip;
-                System.out.println("here, skip back to " + time);
+                //System.out.println("here, skip back to " + time);
             }
         }
         int loc = absoluteIndexFromAbsoluteTime(time);
@@ -101,6 +101,7 @@ public class AudioFileAccessor {
         return locAndTime;
     }
 
+    //deprecated
     public int indicesInAPixelMinimap(){
         //get the number of milliseconds in a pixel, map it to an absolute index, then convert to relative
         double fileInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double)AudioInfo.SCREEN_WIDTH ) * 2;
@@ -137,26 +138,26 @@ public class AudioFileAccessor {
     }
 
     //used for minimap
-    public static double uncompressedIncrement(double adjustedDuration){
-        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ (double)AudioInfo.SCREEN_WIDTH) * 2;
+    public static double uncompressedIncrement(double adjustedDuration, double screenWidth){
+        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration)/(double)1000)/ screenWidth) * 2;
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     //used for minimap
-    public static double compressedIncrement(double adjustedDuration){
-        double increment = (uncompressedIncrement(adjustedDuration) / 50.f);
+    public static double compressedIncrement(double adjustedDuration, double screenWidth){
+        double increment = (uncompressedIncrement(adjustedDuration, screenWidth) / 50.f);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     //FIXME: rounding will compound error in long files, resulting in pixels being off
     //used for minimap- this is why the duration matters
-    public static double getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration){
+    public static double getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration, double screenWidth){
         if(useCmp){
-            return compressedIncrement(adjustedDuration);
+            return compressedIncrement(adjustedDuration, screenWidth);
         } else {
-            return uncompressedIncrement(adjustedDuration);
+            return uncompressedIncrement(adjustedDuration, screenWidth);
         }
     }
 }

@@ -55,6 +55,7 @@ public class Settings extends Activity {
     private String sampleName;
     public static final String KEY_PREF_SOURCE = "pref_source";
     public static final String KEY_PREF_LANG = "pref_lang";
+    public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
     public static final String KEY_PREF_BOOK = "pref_book";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
@@ -62,6 +63,8 @@ public class Settings extends Activity {
     public static final String KEY_PREF_TAKE = "pref_take";
     public static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
     public static final String KEY_PREF_VERSE = "pref_verse";
+    public static final String KEY_PREF_SRC_LOC = "pref_src_loc";
+    public static final String KEY_SDK_LEVEL = "pref_sdk_level";
 
     MyAutoCompleteTextView setLangCode,setBookCode;
 
@@ -81,17 +84,32 @@ public class Settings extends Activity {
         String bookCode = pref.getString(KEY_PREF_BOOK, "mat");
         String chapter = formatDigit(pref.getString(KEY_PREF_CHAPTER, "1"));
         String chunk = formatDigit(pref.getString(KEY_PREF_CHUNK, "1"));
-        String take = formatDigit(pref.getString(KEY_PREF_TAKE, "1"));
         String source = pref.getString(KEY_PREF_SOURCE, "udb");
         String verse = formatDigit(pref.getString(KEY_PREF_VERSE, "1"));
         String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
         String filename;
         if(chunkOrVerse.compareTo("chunk") == 0) {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk + "_" + take;
+            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk;
         } else {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + verse + "_" + take;
+            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + verse;
         }
         pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
+    }
+
+    public static void updateFilename(Context c, String lang, String src, String book,
+                                      int chap, int chunk){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
+        pref.edit().putString(KEY_PREF_LANG, lang).commit();
+        pref.edit().putString(KEY_PREF_SOURCE, src).commit();
+        pref.edit().putString(KEY_PREF_BOOK, book).commit();
+        pref.edit().putString(KEY_PREF_CHAPTER, String.valueOf(chap)).commit();
+        String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
+        if(chunkOrVerse.compareTo("chunk") == 0) {
+            pref.edit().putString(KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+        } else {
+            pref.edit().putString(KEY_PREF_VERSE, String.valueOf(chunk)).commit();
+        }
+        updateFilename(c);
     }
 
     public static String formatDigit(String number){
@@ -99,12 +117,9 @@ public class Settings extends Activity {
         return String.format("%02d", value);
     }
 
-    public static void incrementTake(Context c){
+    public static void incrementTake(Context c, int setTo){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
-        String take = pref.getString(KEY_PREF_TAKE, "1");
-        int takeInt = Integer.parseInt(take);
-        takeInt++;
-        pref.edit().putString(KEY_PREF_TAKE, String.valueOf(takeInt)).commit();
+        pref.edit().putString(KEY_PREF_TAKE, String.valueOf(setTo)).commit();
         updateFilename(c);
     }
 

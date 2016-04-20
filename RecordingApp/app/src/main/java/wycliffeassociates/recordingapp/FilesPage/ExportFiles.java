@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.SettingsPage.PreferencesManager;
+import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -67,12 +67,12 @@ public class ExportFiles extends Activity
     /**
      * preferences manager
      */
-    private static PreferencesManager pref;
+    private static InternsPreferencesManager pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        pref = new PreferencesManager(this);
+        pref = new InternsPreferencesManager(this);
         setCurrentFolder(pref.getPreferences("fileDirectory").toString());
         setCurrentDir(pref.getPreferences("fileDirectory").toString());
         setContentView(R.layout.save_location_menu);
@@ -316,7 +316,7 @@ public class ExportFiles extends Activity
      * Sets the new default save directory to the selected directory
      * @param prefs The preference manager
      */
-    public void saveDirectory(PreferencesManager prefs) {
+    public void saveDirectory(InternsPreferencesManager prefs) {
         String dir = getCurrentDir()+ "/thisshouldbedeleted";
         File fDir = new File(dir);
             try{

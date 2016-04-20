@@ -48,32 +48,14 @@ public class ParseJSON {
 
     private void pullBookInfo() throws JSONException {
         ArrayList<Book> books = new ArrayList<>();
-        String json = loadJSONFromAsset("chunks.json");
+        String json = loadJSONFromAsset("books.json");
         JSONArray booksJSON = new JSONArray(json);
         for(int i = 0; i < booksJSON.length(); i++){
             JSONObject bookObj = booksJSON.getJSONObject(i);
             String name = bookObj.getString("name");
             String slug = bookObj.getString("slug");
-            int chapters = bookObj.getInt("chapters");
             int order = bookObj.getInt("sort");
-            JSONArray chunkArrayJSON = bookObj.getJSONArray("chunks");
-            ArrayList<ArrayList<Book.Chunk>> chunks = new ArrayList<>();
-            for(int j = 0; j < chunkArrayJSON.length(); j++){
-                ArrayList<Book.Chunk> chunksInChapter = new ArrayList<>();
-                // chunks.add(chunkArrayJSON.getInt(j));
-                JSONArray chunkListObj = chunkArrayJSON.getJSONArray(j);
-                for (int k = 0; k < chunkListObj.length(); k++) {
-                    JSONObject chunkObj = chunkListObj.getJSONObject(k);
-                    Book.Chunk chunk = new Book.Chunk();
-                    chunk.chapterId = chunkObj.getInt("chapter_id");
-                    chunk.chunkId = chunkObj.getInt("chunk_id");
-                    chunk.startVerse = chunkObj.getInt("start_verse");
-                    chunk.endVerse = chunkObj.getInt("end_verse");
-                    chunksInChapter.add(chunk);
-                }
-                chunks.add(chunksInChapter);
-            }
-            Book book = new Book(slug, name, chapters, chunks, order);
+            Book book = new Book(slug, name, order);
             books.add(book);
         }
         Collections.sort(books, new Comparator<Book>() {
@@ -101,6 +83,27 @@ public class ParseJSON {
             i++;
         }
         mBooks = books.toArray(new Book[books.size()]);
+    }
+
+    public int getNumChapters(String bookCode){
+        try {
+            String json = loadJSONFromAsset("chunks/" + bookCode + "/en/" + "udb" + "/chunks.json");
+            JSONArray arrayOfChunks = new JSONArray(json);
+            int numChapters = 1;
+            //loop through the all the chunks
+            for (int i = 0; i < arrayOfChunks.length(); i++) {
+                JSONObject jsonChunk = arrayOfChunks.getJSONObject(i);
+                String id = jsonChunk.getString("id");
+                int chapter = Integer.parseInt(id.substring(0, id.lastIndexOf('-')));
+                if(chapter > numChapters){
+                    numChapters = chapter;
+                }
+            }
+            return numChapters;
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return 1;
     }
 
     /**

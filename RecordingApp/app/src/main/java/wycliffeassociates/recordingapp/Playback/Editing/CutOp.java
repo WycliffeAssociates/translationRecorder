@@ -23,7 +23,7 @@ public class CutOp {
     private int mSizeCutCmp;
     private int mSizeCutUncmp;
 
-    public CutOp(){
+    public CutOp() {
         mStack = new Vector<>();
     }
 
@@ -63,7 +63,7 @@ public class CutOp {
     //change to use flattened stack
     public synchronized int skip(int time){
         int max = -1;
-        for(Pair<Integer,Integer> cut : mStack) {
+        for (Pair<Integer, Integer> cut : mStack) {
             if (time >= cut.first && time < cut.second) {
                 max = Math.max(cut.second, max);
             }
@@ -81,7 +81,7 @@ public class CutOp {
 
     public synchronized int skipReverse(int time){
         int min = Integer.MAX_VALUE;
-        for(Pair<Integer,Integer> cut : mStack) {
+        for (Pair<Integer, Integer> cut : mStack) {
             if (time > cut.first && time <= cut.second) {
                 min = Math.min(cut.first, min);
             }
@@ -93,7 +93,7 @@ public class CutOp {
      * Computes the total time removed from cutting, for use in ACTUAL capacity computations.
      * Also generates a private simplified and ordered version of this stack, eliminating nested
      * cuts.
-     *
+     * <p/>
      * Begins by sorting the stack by starting cuts in a copied stack. Beginning with the earliest
      * cut, it is added to a list and removed from the stack. For each cut in this list (beginning
      * only with one cut) cuts are added if they start between the current cut's start and end. Each
@@ -106,15 +106,15 @@ public class CutOp {
     private synchronized int totalDataRemoved(){
         Vector<Pair<Integer,Integer>> copy = new Vector<>(mStack.capacity());
         mFlattenedStack = new Vector<>();
-        for(Pair<Integer,Integer> p : mStack){
-            copy.add(new Pair<>(p.first,p.second));
+        for (Pair<Integer, Integer> p : mStack) {
+            copy.add(new Pair<>(p.first, p.second));
         }
         Collections.sort(copy, new Comparator<Pair<Integer, Integer>>() {
             @Override
             public synchronized int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
                 if(lhs.first == rhs.first) {
                     return 0;
-                } else if (lhs.first > rhs.first){
+                } else if (lhs.first > rhs.first) {
                     return 1;
                 } else {
                     return -1;
@@ -123,9 +123,9 @@ public class CutOp {
         });
         int sum = 0;
         Logger.w(this.toString(), "Generating flattened stack and computing time removed");
-        while(!copy.isEmpty()){
-            Pair<Integer,Integer> pair = copy.firstElement();
-            ArrayList<Pair<Integer,Integer>> list = new ArrayList<>();
+        while (!copy.isEmpty()) {
+            Pair<Integer, Integer> pair = copy.firstElement();
+            ArrayList<Pair<Integer, Integer>> list = new ArrayList<>();
             list.add(pair);
             for(int i = 0; i < list.size(); i++){
                 Pair<Integer,Integer> p =  list.get(i);
@@ -140,11 +140,11 @@ public class CutOp {
             }
             int start = list.get(0).first;
             int end = list.get(0).second;
-            for(int i = 1; i < list.size(); i++){
-                end = (end < list.get(i).second)? list.get(i).second : end;
+            for (int i = 1; i < list.size(); i++) {
+                end = (end < list.get(i).second) ? list.get(i).second : end;
             }
             mFlattenedStack.add(new Pair<Integer, Integer>(start, end));
-            sum += end-start;
+            sum += end - start;
         }
         return sum;
     }
@@ -155,7 +155,7 @@ public class CutOp {
      * it takes the original time, looks to see if it's greater than or equal to a start cut. If so
      * it adds total time cut out, and adds this to time. Time is then compared to the next cut, and
      * the process is repeated. Break when the next cut takes place at a later time than we're at.
-     *
+     * <p/>
      * mFlattenedStack is a representation of the cut stack WITHOUT any nested cuts, and based on
      * the way it is computed, we can assume this list is sorted.
      *
@@ -167,8 +167,8 @@ public class CutOp {
             return timeMs;
         }
         int time = timeMs;
-        for(Pair<Integer,Integer> p : mFlattenedStack){
-            if(time >= p.first) {
+        for (Pair<Integer, Integer> p : mFlattenedStack) {
+            if (time >= p.first) {
                 time += p.second - p.first;
             } else {
                 break;
@@ -182,8 +182,8 @@ public class CutOp {
             return timeMs;
         }
         int time = timeMs;
-        for(Pair<Integer,Integer> p : mFlattenedStack){
-            if(p.second > playbackStart) {
+        for (Pair<Integer, Integer> p : mFlattenedStack) {
+            if (p.second > playbackStart) {
                 if (time >= p.first) {
                     time += p.second - p.first;
                 } else {
@@ -194,13 +194,22 @@ public class CutOp {
         return time;
     }
 
+    /**
+     * Given an absolute time in the uncut waveform, this method
+     * returns the adjusted time in the cut waveform.  The given
+     * time must not be in an existing cut.
+     *
+     * @param timeMs a time in ms in the uncut waveform.  timeMs must not
+     *               be in an existing cut.
+     * @return the adjusted time in the cut waveform.
+     */
     public synchronized int reverseTimeAdjusted(int timeMs){
-        if(mFlattenedStack == null) {
+        if (mFlattenedStack == null) {
             return timeMs;
         }
         int time = timeMs;
-        for(Pair<Integer,Integer> p : mFlattenedStack){
-            if(timeMs >= p.second) {
+        for (Pair<Integer, Integer> p : mFlattenedStack) {
+            if (timeMs >= p.second) {
                 time -= p.second - p.first;
             } else {
                 break;
@@ -212,8 +221,8 @@ public class CutOp {
 
     private synchronized void generateCutStackUncmpLoc(){
         mSizeCutUncmp = 0;
-        mCutStackUncmpLoc = new Vector<Pair<Integer,Integer>>();
-        for(Pair<Integer,Integer> p : mFlattenedStack){
+        mCutStackUncmpLoc = new Vector<Pair<Integer, Integer>>();
+        for (Pair<Integer, Integer> p : mFlattenedStack) {
             Pair<Integer, Integer> y = new Pair<>(timeToUncmpLoc(p.first), timeToUncmpLoc(p.second));
             mCutStackUncmpLoc.add(y);
             mSizeCutUncmp += y.second - y.first;
@@ -222,8 +231,8 @@ public class CutOp {
 
     private synchronized void generateCutStackCmpLoc(){
         mSizeCutCmp = 0;
-        mCutStackCmpLoc = new Vector<Pair<Integer,Integer>>();
-        for(Pair<Integer,Integer> p : mFlattenedStack){
+        mCutStackCmpLoc = new Vector<Pair<Integer, Integer>>();
+        for (Pair<Integer, Integer> p : mFlattenedStack) {
             Pair<Integer, Integer> y = new Pair<>(timeToCmpLoc(p.first), timeToCmpLoc(p.second));
             mCutStackCmpLoc.add(y);
             mSizeCutCmp += y.second - y.first;
@@ -237,7 +246,7 @@ public class CutOp {
 
 
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
-        idx*=2;
+        idx *= 2;
         return idx;
     }
 
@@ -249,14 +258,14 @@ public class CutOp {
 
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         idx /= 25;
-        idx*=2;
+        idx *= 2;
         return idx;
     }
 
     public synchronized int skipLoc(int loc, boolean compressed){
         int max = -1;
-        Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc; 
-        for(Pair<Integer,Integer> cut : stack) {
+        Vector<Pair<Integer, Integer>> stack = (compressed) ? mCutStackCmpLoc : mCutStackUncmpLoc;
+        for (Pair<Integer, Integer> cut : stack) {
             if (loc >= cut.first && loc < cut.second) {
                 max = Math.max(cut.second, max);
             }
@@ -269,7 +278,7 @@ public class CutOp {
         if(stack == null){
             return loc;
         }
-        for(Pair<Integer,Integer> cut : stack) {
+        for (Pair<Integer, Integer> cut : stack) {
             if (loc >= cut.first) {
                 loc += cut.second - cut.first;
             }
