@@ -437,6 +437,7 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnPauseSource: {
                     mSrcPlayer.pauseSource();
+                    break;
                 }
                 case R.id.switch_minimap: {
                     // TODO: Refactor? Maybe use radio button to select one and exclude the other?
