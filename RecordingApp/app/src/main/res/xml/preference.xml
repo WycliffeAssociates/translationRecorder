@@ -145,6 +145,19 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Translation Recorder Version"
+        android:key="pref_key_app_version"
+        android:layout="@layout/custom_pref_category">
+        <EditTextPreference
+            android:key="version"
+            android:title="Version"
+            android:enabled="false"
+            android:selectable="false"
+            android:persistent="false"
+            android:shouldDisableView="false"/>
+    </PreferenceCategory>
+
     <!--<PreferenceCategory-->
         <!--android:title="Misc"-->
         <!--android:key="pref_key_misc"-->

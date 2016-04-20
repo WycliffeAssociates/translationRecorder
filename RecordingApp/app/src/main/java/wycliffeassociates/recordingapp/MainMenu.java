@@ -140,6 +140,7 @@ public class MainMenu extends Activity{
 
     private void initApp(){
         pref = PreferenceManager.getDefaultSharedPreferences(this);
+        pref.edit().putString("version", BuildConfig.VERSION_NAME).commit();
 
         //set up Visualization folder
         File visDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Visualization");
