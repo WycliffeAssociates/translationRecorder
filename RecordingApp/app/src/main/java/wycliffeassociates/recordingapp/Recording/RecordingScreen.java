@@ -108,7 +108,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         initBookInfo();
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-        mFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_ulb_mat_01-01");
+        mFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01");
         mInsertMode = getIntent().getBooleanExtra("insert_mode", false);
         if(mInsertMode){
             initializeInsert(getIntent().getStringExtra("old_name"), getIntent().getIntExtra("insert_location", 0));

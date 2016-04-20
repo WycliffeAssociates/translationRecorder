@@ -38,7 +38,8 @@
             android:key="pref_lang_src"
             android:layout="@layout/custom_pref"
             android:title="Source Language"
-            android:summary="@string/pref_default_lang">
+            android:summary="@string/pref_default_lang"
+            android:defaultValue="@string/pref_default_lang">
             <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
                 <extra android:name="lang_type" android:value="source" />
             </intent>
@@ -48,7 +49,8 @@
             android:key="pref_lang"
             android:layout="@layout/custom_pref"
             android:title="Target Language"
-            android:summary="@string/pref_default_lang">
+            android:summary="@string/pref_default_lang"
+            android:defaultValue="@string/pref_default_lang">
             <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
                 <extra android:name="lang_type" android:value="target" />
             </intent>
@@ -70,13 +72,15 @@
             android:title="Source"
             android:entries="@array/source_entries"
             android:entryValues="@array/source_values"
+            android:summary="udb"
             android:defaultValue="udb" />
 
         <PreferenceScreen
             android:key="pref_book"
             android:layout="@layout/custom_pref"
             android:title="Book"
-            android:summary="@string/pref_default_book">
+            android:summary="@string/pref_default_book"
+            android:defaultValue="@string/pref_default_book">
             <intent
                 android:action="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT">
             </intent>
@@ -95,35 +99,35 @@
             android:key="pref_chapter"
             android:layout="@layout/custom_pref"
             android:title="Chapter"
-            android:summary=""
             android:entries="@array/chapter_values"
             android:entryValues="@array/chapter_values"
+            android:summary="1"
             android:defaultValue="1" />
 
         <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
             android:key="pref_chunk"
             android:layout="@layout/custom_pref"
             android:title="Chunk"
-            android:summary=""
             android:entries="@array/chunk_values"
             android:entryValues="@array/chunk_values"
+            android:summary="1"
             android:defaultValue="1" />
 
         <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
             android:key="pref_verse"
             android:layout="@layout/custom_pref"
             android:title="Verse"
-            android:summary=""
             android:entries="@array/verse_values"
             android:entryValues="@array/verse_values"
             android:defaultValue="1"
+            android:summary="1"
             android:enabled="false" />
 
         <EditTextPreference
             android:key="pref_take"
             android:layout="@layout/custom_pref"
             android:title="Take"
-            android:summary=""
+            android:summary="1"
             android:defaultValue="@string/pref_default_take"
             android:inputType="number"
             android:imeOptions="actionDone"
@@ -133,7 +137,8 @@
             android:key="pref_filename"
             android:layout="@layout/custom_pref"
             android:title="File Name"
-            android:defaultValue="en_udb_mat_1_1-1"
+            android:defaultValue="en_udb_gen_01-01_01"
+            android:summary="en_udb_gen_01-01_01"
             android:editable="false"
             android:enabled="false"
             />

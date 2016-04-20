@@ -81,7 +81,7 @@ public class PlaybackScreen extends Activity{
         super.onCreate(savedInstanceState);
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_mat_1-1_1");
+        suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01_01");
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         if(isALoadedFile){
