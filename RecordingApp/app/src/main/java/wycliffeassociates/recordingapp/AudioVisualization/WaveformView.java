@@ -250,9 +250,16 @@ public class WaveformView extends CanvasView {
         //are both in ms
         float xLoc1 = offset + (mCut.reverseTimeAdjusted(mMarkerStartLoc) - mCut.reverseTimeAdjusted(mTimeToDraw))/mspp;
         float xLoc2 = offset + (mCut.reverseTimeAdjusted(mMarkerEndLoc) - mCut.reverseTimeAdjusted(mTimeToDraw))/mspp;
-        c.drawLine(xLoc1, 0, xLoc1, getHeight(), mPaintStartMarker);
-        c.drawLine(xLoc2, 0, xLoc2, getHeight(), mPaintEndMarker);
+        float startMarkerPrevWidth = mPaintStartMarker.getStrokeWidth();
+        float endMarkerPrevWidth = mPaintEndMarker.getStrokeWidth();
+        float strokeWidth = 8f;
+        mPaintStartMarker.setStrokeWidth(strokeWidth);
+        mPaintEndMarker.setStrokeWidth(strokeWidth);
+        c.drawLine(xLoc1 - strokeWidth/2, 0, xLoc1 - strokeWidth/2, getHeight(), mPaintStartMarker);
+        c.drawLine(xLoc2 + strokeWidth/2, 0, xLoc2 + strokeWidth/2, getHeight(), mPaintEndMarker);
         c.drawRect(xLoc1, 0, xLoc2, getHeight(), mPaintHighlight);
+        mPaintStartMarker.setStrokeWidth(startMarkerPrevWidth);
+        mPaintEndMarker.setStrokeWidth(endMarkerPrevWidth);
     }
 
     /**

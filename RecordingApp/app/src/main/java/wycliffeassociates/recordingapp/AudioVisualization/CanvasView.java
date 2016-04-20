@@ -66,18 +66,18 @@ public abstract class CanvasView extends View {
         mPaintText.setColor(Color.GREEN);
 
         mPaintStartMarker = new Paint();
-        mPaintStartMarker.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
+        mPaintStartMarker.setColor(getResources().getColor(R.color.dark_moderate_cyan));
         mPaintStartMarker.setStyle(Paint.Style.STROKE);
         mPaintStartMarker.setStrokeWidth(2f);
 
         mPaintEndMarker = new Paint();
-        mPaintEndMarker.setColor(getResources().getColor(R.color.vivid_red));
+        mPaintEndMarker.setColor(getResources().getColor(R.color.dark_moderate_cyan));
         mPaintEndMarker.setStyle(Paint.Style.STROKE);
         mPaintEndMarker.setStrokeWidth(2f);
 
         mPaintHighlight = new Paint();
-        mPaintHighlight.setColor(Color.BLUE);
-        mPaintHighlight.setAlpha(35);
+        mPaintHighlight.setColor(getResources().getColor(R.color.bright_blue));
+        mPaintHighlight.setAlpha(50);
         mPaintHighlight.setStyle(Paint.Style.FILL);
 
         mPaintPlayback = new Paint();
