@@ -1,11 +1,6 @@
 package wycliffeassociates.recordingapp;
-import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
-import wycliffeassociates.recordingapp.Playback.WavMediaPlayer;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
-import wycliffeassociates.recordingapp.Recording.*;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -19,17 +14,17 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
 
     protected boolean isPlaying = false;
     protected String filename = null;
-    protected boolean isALoadedFile = false;
+    protected boolean keepFile = false;
 
-    public static ExitDialog Build(Activity a, int theme, boolean loadedFile, boolean isPlaying, String filename){
+    public static ExitDialog Build(Activity a, int theme, boolean keepFile, boolean isPlaying, String filename){
         ExitDialog exit = new ExitDialog(a, theme);
         exit.setFilename(filename);
         exit.setIsPlaying(isPlaying);
-        exit.setLoadedFile(loadedFile);
+        exit.setKeepFile(keepFile);
         return exit;
     }
 
-    public void setLoadedFile(boolean loadedFile){ this.isALoadedFile = loadedFile;}
+    public void setKeepFile(boolean loadedFile){ this.keepFile = loadedFile;}
 
     public void setIsPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
@@ -68,7 +63,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                 dismiss();
                 break;
             case R.id.btnDelete: {
-                if (filename != null && !isALoadedFile){
+                if (filename != null && !keepFile){
                     File file = new File(filename);
                     file.delete();
                 }
