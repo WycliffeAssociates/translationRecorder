@@ -200,6 +200,9 @@ public class SourceAudio {
                             mSrcTimeDuration.invalidate();
                         }
                     });
+                    if(mSrcPlayer.isPlaying()) {
+                        mSrcPlayer.seekTo(0);
+                    }
                 }
             });
             if(src != null && src instanceof DocumentFile) {
@@ -239,22 +242,30 @@ public class SourceAudio {
         if (mSrcPlayer != null) {
             mSrcPlayer.start();
             mHandler = new Handler();
-            mSeekBar.setProgress(0);
             mCtx.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mSrcPlayer != null && !mPlayerReleased) {
-                        synchronized (mSrcPlayer) {
-                            int mCurrentPosition = mSrcPlayer.getCurrentPosition();
-                            if (mCurrentPosition > mSeekBar.getProgress()) {
-                                mSeekBar.setProgress(mCurrentPosition);
-                                final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
-                                mSrcTimeElapsed.setText(time);
-                                mSrcTimeElapsed.invalidate();
+                    mSeekBar.setProgress(0);
+                    System.out.println(mSeekBar.getProgress());
+                    mSeekBar.invalidate();
+                    Runnable loop = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mSrcPlayer != null && !mPlayerReleased) {
+                                synchronized (mSrcPlayer) {
+                                    int mCurrentPosition = mSrcPlayer.getCurrentPosition();
+                                    if (mCurrentPosition > mSeekBar.getProgress()) {
+                                        mSeekBar.setProgress(mCurrentPosition);
+                                        final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
+                                        mSrcTimeElapsed.setText(time);
+                                        mSrcTimeElapsed.invalidate();
+                                    }
+                                }
                             }
+                            mHandler.postDelayed(this, 200);
                         }
-                    }
-                    mHandler.postDelayed(this, 200);
+                    };
+                    loop.run();
                 }
             });
         }
