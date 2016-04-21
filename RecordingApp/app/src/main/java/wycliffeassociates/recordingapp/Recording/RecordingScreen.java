@@ -322,6 +322,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             }
         }
         mSrcPlayer.pauseSource();
+        finish();
     }
 
     @Override
