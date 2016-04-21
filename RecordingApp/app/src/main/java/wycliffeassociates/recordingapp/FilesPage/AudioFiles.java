@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -111,6 +112,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
             mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
             mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
         }
+
         //check if fragment was retained from a screen rotation
         if(mExportTaskFragment == null){
             mExportTaskFragment = new ExportTaskFragment();
@@ -123,6 +125,8 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                 exportProgress(mProgress);
             }
         }
+
+
     }
 
     public void exportProgress(int progress){
@@ -180,6 +184,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         } else {
             initFiles(file);
         }
+        resumeUserScrollPosition();
     }
 
     @Override
@@ -215,31 +220,13 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
 
-        // Remember the scroll position and offset of the list
-        // From: http://stackoverflow.com/a/3035521
-        int offset = 0;
-        View v = audioFileView.getChildAt(0);
-        if (v != null) {
-            offset = v.getTop() - audioFileView.getPaddingTop();
-        }
-        savedInstanceState.putInt(TOP_LIST_ITEM, audioFileView.getFirstVisiblePosition());
-        savedInstanceState.putInt(TOP_LIST_ITEM_OFFSET, offset);
+        holdUserScrollPosition();
     }
 
     @Override
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-
-        // Restore the scroll position and offset of the top list item
-        // From: http://stackoverflow.com/a/3035521
-        audioFileView.post(new Runnable() {
-            @Override
-            public void run() {
-                int index = savedInstanceState.getInt(TOP_LIST_ITEM);
-                int offset = savedInstanceState.getInt(TOP_LIST_ITEM_OFFSET);
-                audioFileView.setSelectionFromTop(index, offset);
-            }
-        });
+        resumeUserScrollPosition();
     }
 
     private void initFiles(File[] file){
@@ -309,7 +296,37 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         }
     };
 
+    private void holdUserScrollPosition(){
+        // Remember the scroll position and offset of the list
+        // From: http://stackoverflow.com/a/3035521
+        int offset = 0;
+        View v = audioFileView.getChildAt(0);
+        if (v != null) {
+            offset = v.getTop() - audioFileView.getPaddingTop();
+        }
+        Intent intent = getIntent();
+        intent.putExtra(TOP_LIST_ITEM, audioFileView.getFirstVisiblePosition());
+        intent.putExtra(TOP_LIST_ITEM_OFFSET, offset);
+    }
+
+    private void resumeUserScrollPosition(){
+        // Restore the scroll position and offset of the top list item
+        // From: http://stackoverflow.com/a/3035521
+        final Intent intent = getIntent();
+        if(intent.hasExtra(TOP_LIST_ITEM)){
+            audioFileView.post(new Runnable() {
+                @Override
+                public void run() {
+                    int index = intent.getIntExtra(TOP_LIST_ITEM, 0);
+                    int offset = intent.getIntExtra(TOP_LIST_ITEM_OFFSET, 0);
+                    audioFileView.setSelectionFromTop(index, offset);
+                }
+            });
+        }
+    }
+
     private void backOneLevel(){
+        holdUserScrollPosition();
         String path = pref.getString("fileDirectory", "");
         if(path.compareTo(Environment.getExternalStorageDirectory().getAbsolutePath().toString() + "/" + this.getString(R.string.folder_name)) == 0){
             return;
@@ -320,8 +337,9 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     }
 
     public void refreshView(){
+        Intent intent = getIntent();
         finish();
-        startActivity(getIntent());
+        startActivity(intent);
     }
 
     private void checkAll(){
