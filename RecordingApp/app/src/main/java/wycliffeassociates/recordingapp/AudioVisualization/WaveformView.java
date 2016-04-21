@@ -132,7 +132,7 @@ public class WaveformView extends CanvasView {
      * @param startTimeMs time in milliseconds of where to place a start marker
      */
     public void placeStartMarker(int startTimeMs){
-        SectionMarkers.setStartTime(startTimeMs, getWidth(), mManager.getAdjustedDuration(), mManager);
+        SectionMarkers.setStartTime(startTimeMs,  mManager.getAdjustedDuration(), mManager);
         //if both markers are set, then set the start and end markers in WavPlayer
         if(SectionMarkers.bothSet()){
             setWavPlayerSelectionMarkers();
@@ -148,7 +148,7 @@ public class WaveformView extends CanvasView {
      * @param endTimeMS time in milliseconds of where to place an end marker
      */
     public void placeEndMarker(int endTimeMS){
-        SectionMarkers.setEndTime(endTimeMS, getWidth(), mManager.getAdjustedDuration(), mManager);
+        SectionMarkers.setEndTime(endTimeMS, mManager.getAdjustedDuration(), mManager);
         if(SectionMarkers.bothSet()){
             setWavPlayerSelectionMarkers();
         }

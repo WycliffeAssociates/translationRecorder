@@ -36,10 +36,10 @@ public class SectionMarkers {
         playSelectedSection = x;
     }
 
-    public static void setStartTime(int x, int width, int adjustedDuration, UIDataManager manager){
+    public static void setStartTime(int x, int adjustedDuration, UIDataManager manager){
         manager.startSectionAt(x);
         mainStart = x;
-        minimapStart = (int)((manager.reverseTimeAdjusted(x) / (double)adjustedDuration) * width);
+        minimapStart = (int)((manager.reverseTimeAdjusted(x) / (double)adjustedDuration) * manager.getMinimapWidth());
         startSet = true;
         swapIfNeeded();
         if(startSet && endSet){
@@ -47,10 +47,10 @@ public class SectionMarkers {
         }
     }
 
-    public static void setEndTime(int x, int width, int adjustedDuration, UIDataManager manager){
+    public static void setEndTime(int x, int adjustedDuration, UIDataManager manager){
         //manager.startSectionAt(x); //This line wasn't here originally?
         mainEnd = x;
-        minimapEnd = (int)((manager.reverseTimeAdjusted(x) / (double)adjustedDuration) * width);
+        minimapEnd = (int)((manager.reverseTimeAdjusted(x) / (double)adjustedDuration) * manager.getMinimapWidth());
         endSet = true;
         swapIfNeeded();
         if(startSet && endSet){

@@ -19,7 +19,7 @@ public class RerecordDialog extends ExitDialog {
         RerecordDialog exit = new RerecordDialog(activity, theme);
         exit.setFilename(filename);
         exit.setIsPlaying(isPlaying);
-        exit.setLoadedFile(loadedFile);
+        exit.setKeepFile(loadedFile);
 
         File file = new File(filename);
         FileNameExtractor fne = new FileNameExtractor(file);

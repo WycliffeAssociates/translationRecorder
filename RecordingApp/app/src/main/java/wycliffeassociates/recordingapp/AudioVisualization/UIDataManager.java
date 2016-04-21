@@ -90,6 +90,10 @@ public class UIDataManager {
         timer = new RecordingTimer();
     }
 
+    public int getMinimapWidth(){
+        return minimap.getWidth();
+    }
+
     public void startTimer(){
         timer.startTimer();
     }
