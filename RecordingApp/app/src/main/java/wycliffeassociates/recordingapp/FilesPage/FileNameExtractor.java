@@ -29,7 +29,7 @@ public class FileNameExtractor {
 
     private void extractData(String file){
         //includes the wav extention, could replace this with .*?
-        String FILENAME_PATTERN = "([a-zA-Z]+)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})(_([0-9]{2}))?.*";
+        String FILENAME_PATTERN = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})(_([0-9]{2}))?.*";
         Pattern p = Pattern.compile(FILENAME_PATTERN);
         Matcher m = p.matcher(file);
         boolean found = m.find();
