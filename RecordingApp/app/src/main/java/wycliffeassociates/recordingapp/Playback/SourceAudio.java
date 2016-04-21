@@ -14,9 +14,12 @@ import android.widget.TextView;
 
 import com.amazonaws.mobileconnectors.cognito.Record;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.IOException;
 
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -92,21 +95,26 @@ public class SourceAudio {
         }
         String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
 
-        String[] filetypes = {".wav", ".mp3", ".mp4", ".m4a", ".aac", ".flac", ".3gp", ".ogg"};
-        for(String type : filetypes){
-            DocumentFile temp = directory.findFile(filename + type);
-            if(temp != null) {
-                if (temp.exists()) {
-                    return directory.findFile(filename + type);
+        String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
+        DocumentFile[] files = directory.listFiles();
+        for(DocumentFile f : files){
+            if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(filename) == 0){
+                //make sure the filetype is supported
+                String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
+                for(String s : filetypes){
+                    if(ext.compareTo(s) == 0){
+                        return f;
+                    }
                 }
             }
         }
+
         return null;
     }
 
     private File getSourceAudioFileKitkat(){
-        File file = getSourceAudioFileDirectoryKitkat();
-        if(file == null || !file.exists()){
+        File directory = getSourceAudioFileDirectoryKitkat();
+        if(directory == null || !directory.exists()){
             return null;
         } else {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
@@ -119,15 +127,20 @@ public class SourceAudio {
                 chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_VERSE, "1")));
             }
             String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
-            String[] filetypes = {".wav", ".mp3", ".mp4", ".m4a", ".aac", ".flac", ".3gp", ".ogg"};
-            for(String type : filetypes) {
-                File temp = new File(file, filename + type);
-                if (temp != null) {
-                    if (temp.exists()) {
-                        return temp;
+            String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
+            File[] files = directory.listFiles();
+            for(File f : files){
+                if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(filename) == 0){
+                    //make sure the filetype is supported
+                    String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
+                    for(String s : filetypes){
+                        if(ext.compareTo(s) == 0){
+                            return f;
+                        }
                     }
                 }
             }
+
         }
         return null;
     }
