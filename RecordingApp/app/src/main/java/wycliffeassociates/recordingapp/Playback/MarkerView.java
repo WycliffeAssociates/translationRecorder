@@ -79,7 +79,6 @@ public class MarkerView extends ImageView {
                 if(mOrientation == RIGHT){
                     SectionMarkers.setEndTime(
                             Math.max((int) (Math.min(newMarkerTime, (float) mManager.getDuration())), Math.max(SectionMarkers.getStartLocationMs(), 0)),
-                            AudioInfo.SCREEN_WIDTH,
                             mManager.getAdjustedDuration(),
                             mManager
                     );
@@ -87,7 +86,6 @@ public class MarkerView extends ImageView {
                 } else {
                     SectionMarkers.setStartTime(
                             Math.min((int) (Math.max(newMarkerTime, 0)), Math.min(SectionMarkers.getEndLocationMs(), mManager.getDuration())),
-                            AudioInfo.SCREEN_WIDTH,
                             mManager.getAdjustedDuration(),
                             mManager
                     );
