@@ -51,15 +51,11 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
 
         sd_card = (ImageButton) view.findViewById(R.id.share_sd_card);
         dir = (ImageButton) view.findViewById(R.id.share_dir);
-        bluetooth = (ImageButton) view.findViewById(R.id.share_bluetooth);
-        wifi = (ImageButton) view.findViewById(R.id.share_wifi);
         amazon = (ImageButton) view.findViewById(R.id.share_amazon);
         app = (ImageButton) view.findViewById(R.id.share_app);
 
         sd_card.setOnClickListener(this);
         dir.setOnClickListener(this);
-        bluetooth.setOnClickListener(this);
-        wifi.setOnClickListener(this);
         amazon.setOnClickListener(this);
         app.setOnClickListener(this);
 
@@ -81,9 +77,6 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
             case R.id.share_app:
                 exp = new AppExport(mFileItemList, mAdapter, mCurrentDir);
                 break;
-            //Fall through to default for unimplemented exporting options
-            case R.id.share_bluetooth:
-            case R.id.share_wifi:
             default:
                 Toast.makeText(getActivity(), "Feature Coming Soon", Toast.LENGTH_LONG).show();
                 return;
