@@ -133,7 +133,7 @@ public class PlaybackScreen extends Activity{
         mStartMarker.setOrientation(MarkerView.LEFT);
         mEndMarker.setOrientation(MarkerView.RIGHT);
 
-        mSrcPlayer = new SourceAudio(this);
+        mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
         mSrcPlayer.initSrcAudio();
 
         final Activity ctx = this;
@@ -361,8 +361,8 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
         findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
-        findViewById(R.id.btnPlaySource).setOnClickListener(btnClick);
-        findViewById(R.id.btnPauseSource).setOnClickListener(btnClick);
+//        findViewById(R.id.btnPlaySource).setOnClickListener(btnClick);
+//        findViewById(R.id.btnPauseSource).setOnClickListener(btnClick);
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
     }
@@ -431,14 +431,14 @@ public class PlaybackScreen extends Activity{
                     insert();
                     break;
                 }
-                case R.id.btnPlaySource: {
-                    mSrcPlayer.playSource();
-                    break;
-                }
-                case R.id.btnPauseSource: {
-                    mSrcPlayer.pauseSource();
-                    break;
-                }
+//                case R.id.btnPlaySource: {
+//                    mSrcPlayer.playSource();
+//                    break;
+//                }
+//                case R.id.btnPauseSource: {
+//                    mSrcPlayer.pauseSource();
+//                    break;
+//                }
                 case R.id.switch_minimap: {
                     // TODO: Refactor? Maybe use radio button to select one and exclude the other?
                     v.setSelected(true);

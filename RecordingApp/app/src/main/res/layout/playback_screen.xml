@@ -12,78 +12,87 @@
         android:layout_height="92dp"
         android:background="@color/very_dark_gray_1" >
 
-        <LinearLayout
+        <wycliffeassociates.recordingapp.Playback.SourceAudio
             android:id="@+id/srcAudioPlayer"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_toStartOf="@+id/view_switch_container"
-            android:padding="@dimen/default_padding_m"
+            android:gravity="center_vertical"
             android:visibility="invisible"
-            >
+            />
 
-            <ImageButton
-                android:id="@+id/btnPlaySource"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="center_vertical"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_play_white"
-                android:visibility="visible"
-                android:background="#00000000" />
+        <!--<LinearLayout-->
+            <!--android:id="@+id/srcAudioPlayer"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_toStartOf="@+id/view_switch_container"-->
+            <!--android:padding="@dimen/default_padding_m"-->
+            <!--android:visibility="invisible"-->
+            <!--&gt;-->
 
-            <ImageButton
-                android:id="@+id/btnPauseSource"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="-36dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_pause_white_48dp"
-                android:visibility="invisible"
-                android:background="#00000000" />
+            <!--<ImageButton-->
+                <!--android:id="@+id/btnPlaySource"-->
+                <!--android:layout_width="36dp"-->
+                <!--android:layout_height="36dp"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:scaleType="fitCenter"-->
+                <!--android:src="@drawable/ic_play_white"-->
+                <!--android:visibility="visible"-->
+                <!--android:background="#00000000" />-->
 
-            <TextView
-                android:id="@+id/noSourceMsg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/default_padding_l"
-                android:layout_gravity="center_vertical"
-                android:text="No source audio"
-                android:textSize="18sp"
-                android:textColor="@color/text_light_disabled"
-                android:textStyle="italic"
-                android:visibility="gone" />
+            <!--<ImageButton-->
+                <!--android:id="@+id/btnPauseSource"-->
+                <!--android:layout_width="36dp"-->
+                <!--android:layout_height="36dp"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:layout_marginStart="-36dp"-->
+                <!--android:scaleType="fitCenter"-->
+                <!--android:src="@drawable/ic_pause_white_48dp"-->
+                <!--android:visibility="invisible"-->
+                <!--android:background="#00000000" />-->
 
-            <TextView
-                android:id="@+id/srcProgress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/default_padding_l"
-                android:text="00:00:00"
-                android:textSize="18sp"
-                android:textColor="@color/text_light"
-                android:layout_gravity="center_vertical" />
+            <!--<TextView-->
+                <!--android:id="@+id/noSourceMsg"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginStart="@dimen/default_padding_l"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:text="No source audio"-->
+                <!--android:textSize="18sp"-->
+                <!--android:textColor="@color/text_light_disabled"-->
+                <!--android:textStyle="italic"-->
+                <!--android:visibility="gone" />-->
 
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/default_padding_m"
-                android:layout_marginEnd="@dimen/default_padding_m"
-                android:layout_weight="1" />
+            <!--<TextView-->
+                <!--android:id="@+id/srcProgress"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginStart="@dimen/default_padding_l"-->
+                <!--android:text="00:00:00"-->
+                <!--android:textSize="18sp"-->
+                <!--android:textColor="@color/text_light"-->
+                <!--android:layout_gravity="center_vertical" />-->
 
-            <TextView
-                android:id="@+id/srcDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="00:00:00"
-                android:textColor="@color/text_light"
-                android:textSize="18sp" />
+            <!--<SeekBar-->
+                <!--android:id="@+id/seekBar"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:layout_marginStart="@dimen/default_padding_m"-->
+                <!--android:layout_marginEnd="@dimen/default_padding_m"-->
+                <!--android:layout_weight="1" />-->
 
-        </LinearLayout>
+            <!--<TextView-->
+                <!--android:id="@+id/srcDuration"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:text="00:00:00"-->
+                <!--android:textColor="@color/text_light"-->
+                <!--android:textSize="18sp" />-->
+
+        <!--</LinearLayout>-->
 
         <wycliffeassociates.recordingapp.AudioVisualization.MinimapView
             android:id="@+id/minimap"

@@ -9,76 +9,10 @@
     android:touchscreenBlocksFocus="true"
     android:background="@color/primary">
 
-    <!-- TODO: Maybe extract this out since it's being used in playback_screen as well -->
-    <LinearLayout
+    <wycliffeassociates.recordingapp.Playback.SourceAudio
         android:id="@+id/srcAudioPlayer"
-        android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/default_padding_m"
-        android:visibility="visible"
-        android:background="@color/very_dark_gray_1">
-
-        <ImageButton
-            android:id="@+id/btnPlaySource"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/play"
-            android:visibility="visible"
-            android:background="#00000000" />
-
-        <ImageButton
-            android:id="@+id/btnPauseSource"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="-36dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_pause_white_48dp"
-            android:visibility="invisible"
-            android:background="#00000000" />
-
-        <TextView
-            android:id="@+id/noSourceMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/default_padding_l"
-            android:layout_gravity="center_vertical"
-            android:text="No source audio"
-            android:textSize="18sp"
-            android:textColor="@color/text_light_disabled"
-            android:textStyle="italic"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/srcProgress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/default_padding_l"
-            android:text="00:00:00"
-            android:textSize="18sp"
-            android:textColor="@color/text_light"
-            android:layout_gravity="center_vertical" />
-
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/default_padding_m"
-            android:layout_marginEnd="@dimen/default_padding_m"
-            android:layout_weight="1" />
-
-        <TextView
-            android:id="@+id/srcDuration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="00:00:00"
-            android:textColor="@color/text_light"
-            android:textSize="18sp" />
-
-    </LinearLayout>
+        android:layout_height="wrap_content"/>
 
     <LinearLayout
         android:id="@+id/wave_view"
