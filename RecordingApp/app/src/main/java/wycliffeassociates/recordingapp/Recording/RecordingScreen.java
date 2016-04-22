@@ -82,8 +82,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private volatile boolean mBookInfoLoaded = false;
     private volatile int lastNumber;
     private SourceAudio mSrcPlayer;
-    private TextView mNoSourceMsg;
-    private ImageButton mBtnSrcPlay;
     private UnitPicker mChunkPicker;
     private UnitPicker mChapterPicker;
     private SharedPreferences pref;
@@ -505,8 +503,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
-//        findViewById(R.id.btnPlaySource).setOnClickListener(btnClick);
-//        findViewById(R.id.btnPauseSource).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -517,8 +513,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         enableButton(R.id.btnRecording, true);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPauseRecording, true);
-//        enableButton(R.id.btnPlaySource, true);
-//        enableButton(R.id.btnPauseSource, true);
     }
 
     private void finalizeInsert(String to, String from, int insertLoc){
@@ -562,14 +556,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 pauseRecording();
                 break;
             }
-//            case R.id.btnPlaySource: {
-//                mSrcPlayer.playSource();
-//                break;
-//            }
-//            case R.id.btnPauseSource: {
-//                mSrcPlayer.pauseSource();
-//                break;
-//            }
         }
         }
     };
