@@ -1,14 +1,17 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.provider.DocumentFile;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -27,7 +30,7 @@ import wycliffeassociates.recordingapp.SettingsPage.Settings;
 /**
  * Created by sarabiaj on 4/13/2016.
  */
-public class SourceAudio {
+public class SourceAudio extends LinearLayout {
 
     private Activity mCtx;
     private SeekBar mSeekBar;
@@ -35,18 +38,48 @@ public class SourceAudio {
     private TextView mSrcTimeDuration;
     private MediaPlayer mSrcPlayer;
     private ImageButton mBtnSrcPlay;
+    private ImageButton mBtnSrcPause;
     private TextView mNoSourceMsg;
     private Handler mHandler;
     private volatile boolean mPlayerReleased = false;
 
-    public SourceAudio(Activity ctx){
-        mCtx = ctx;
-        mSrcTimeElapsed = (TextView) ctx.findViewById(R.id.srcProgress);
-        mSrcTimeDuration = (TextView) ctx.findViewById(R.id.srcDuration);
-        mSeekBar = (SeekBar) ctx.findViewById(R.id.seekBar);
-        mBtnSrcPlay = (ImageButton) ctx.findViewById(R.id.btnPlaySource);
-        mNoSourceMsg = (TextView) ctx.findViewById(R.id.noSourceMsg);
+    public SourceAudio(Context context) {
+        this(context, null);
+    }
+
+    public SourceAudio(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public SourceAudio(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init();
+    }
+
+    private void init(){
+        inflate(getContext(), R.layout.source_audio, this);
+        mSrcTimeElapsed = (TextView) findViewById(R.id.timeProgress);
+        mSrcTimeDuration = (TextView) findViewById(R.id.timeDuration);
+        mSeekBar = (SeekBar) findViewById(R.id.seekBar);
+        mBtnSrcPlay = (ImageButton) findViewById(R.id.playButton);
+        mBtnSrcPause = (ImageButton) findViewById(R.id.pauseButton);
+        mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
         mSrcPlayer = new MediaPlayer();
+        mCtx = (Activity) getContext();
+
+        OnClickListener onClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.getId() == R.id.playButton) {
+                    playSource();
+                } else if (v.getId() == R.id.pauseButton){
+                    pauseSource();
+                }
+            }
+        };
+
+        mBtnSrcPlay.setOnClickListener(onClickListener);
+        mBtnSrcPause.setOnClickListener(onClickListener);
     }
 
     private DocumentFile getSourceAudioDirectory(){
@@ -158,6 +191,16 @@ public class SourceAudio {
         return file;
     }
 
+    private void switchPlayPauseBtn(boolean isPlaying) {
+        if (isPlaying) {
+            mBtnSrcPause.setVisibility(View.VISIBLE);
+            mBtnSrcPlay.setVisibility(View.INVISIBLE);
+        } else {
+            mBtnSrcPlay.setVisibility(View.VISIBLE);
+            mBtnSrcPause.setVisibility(View.INVISIBLE);
+        }
+    }
+
     public void initSrcAudio(){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mCtx);
         int sdk = pref.getInt(Settings.KEY_SDK_LEVEL, 21);
@@ -201,8 +244,7 @@ public class SourceAudio {
             mSrcPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    mCtx.findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
-                    mCtx.findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
+                    switchPlayPauseBtn(false);
                     mSeekBar.setProgress(mSeekBar.getMax());
                     int duration = mSeekBar.getMax();
                     final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
@@ -250,8 +292,7 @@ public class SourceAudio {
     }
 
     public void playSource() {
-        mCtx.findViewById(R.id.btnPlaySource).setVisibility(View.INVISIBLE);
-        mCtx.findViewById(R.id.btnPauseSource).setVisibility(View.VISIBLE);
+        switchPlayPauseBtn(true);
         if (mSrcPlayer != null) {
             mSrcPlayer.start();
             mHandler = new Handler();
@@ -285,8 +326,7 @@ public class SourceAudio {
     }
 
     public void pauseSource(){
-        mCtx.findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
-        mCtx.findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
+        switchPlayPauseBtn(false);
         if(mSrcPlayer != null && !mPlayerReleased && mSrcPlayer.isPlaying()){
             mSrcPlayer.pause();
         }
@@ -298,8 +338,7 @@ public class SourceAudio {
         mSrcPlayer = new MediaPlayer();
         mPlayerReleased = false;
         mSeekBar.setProgress(0);
-        mCtx.findViewById(R.id.btnPlaySource).setVisibility(View.VISIBLE);
-        mCtx.findViewById(R.id.btnPauseSource).setVisibility(View.INVISIBLE);
+        switchPlayPauseBtn(false);
         mCtx.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -314,11 +353,11 @@ public class SourceAudio {
         mSeekBar.setEnabled(enable);
         mBtnSrcPlay.setEnabled(enable);
         if (enable) {
-            mSrcTimeElapsed.setTextColor(mCtx.getResources().getColor(R.color.text_light_disabled));
-            mSrcTimeDuration.setTextColor(mCtx.getResources().getColor(R.color.text_light_disabled));
+            mSrcTimeElapsed.setTextColor(getResources().getColor(R.color.text_light_disabled));
+            mSrcTimeDuration.setTextColor(getResources().getColor(R.color.text_light_disabled));
         } else {
-            mSrcTimeElapsed.setTextColor(mCtx.getResources().getColor(R.color.text_light));
-            mSrcTimeDuration.setTextColor(mCtx.getResources().getColor(R.color.text_light));
+            mSrcTimeElapsed.setTextColor(getResources().getColor(R.color.text_light));
+            mSrcTimeDuration.setTextColor(getResources().getColor(R.color.text_light));
         }
     }
 

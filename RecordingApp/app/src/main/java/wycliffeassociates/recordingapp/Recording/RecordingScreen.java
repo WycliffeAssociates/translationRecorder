@@ -82,8 +82,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private volatile boolean mBookInfoLoaded = false;
     private volatile int lastNumber;
     private SourceAudio mSrcPlayer;
-    private TextView mNoSourceMsg;
-    private ImageButton mBtnSrcPlay;
     private UnitPicker mChunkPicker;
     private UnitPicker mChapterPicker;
     private SharedPreferences pref;
@@ -129,13 +127,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         if(!mInsertMode) {
 
         } else {
-//            findViewById(R.id.numberPicker).setVisibility(View.INVISIBLE);
-            mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
             mChunkPicker.displayIncrementDecrement(false);
-            mChapterPicker = (UnitPicker) findViewById(R.id.chapter_picker);
             mChapterPicker.displayIncrementDecrement(false);
         }
-        mSrcPlayer = new SourceAudio(this);
         mSrcPlayer.initSrcAudio();
     }
 
@@ -168,6 +162,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     }
 
     private void initViews(){
+        mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
         mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
         minimap = ((MinimapView) findViewById(R.id.minimap));
         mVolumeBar = (VolumeBar) findViewById((R.id.volumeBar1));
@@ -508,8 +503,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         findViewById(R.id.btnStop).setOnClickListener(btnClick);
         findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);
-        findViewById(R.id.btnPlaySource).setOnClickListener(btnClick);
-        findViewById(R.id.btnPauseSource).setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -520,8 +513,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         enableButton(R.id.btnRecording, true);
         enableButton(R.id.btnStop, true);
         enableButton(R.id.btnPauseRecording, true);
-        enableButton(R.id.btnPlaySource, true);
-        enableButton(R.id.btnPauseSource, true);
     }
 
     private void finalizeInsert(String to, String from, int insertLoc){
@@ -563,14 +554,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             }
             case R.id.btnPauseRecording: {
                 pauseRecording();
-                break;
-            }
-            case R.id.btnPlaySource: {
-                mSrcPlayer.playSource();
-                break;
-            }
-            case R.id.btnPauseSource: {
-                mSrcPlayer.pauseSource();
                 break;
             }
         }

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/default_padding_m"
+    android:background="@color/very_dark_gray_1">
+
+    <ImageButton
+        android:id="@+id/playButton"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/play"
+        android:visibility="visible"
+        android:background="#00000000" />
+
+    <ImageButton
+        android:id="@+id/pauseButton"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="-36dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_pause_white_48dp"
+        android:visibility="invisible"
+        android:background="#00000000" />
+
+    <TextView
+        android:id="@+id/noSourceMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_m"
+        android:layout_gravity="center_vertical"
+        android:text="No source audio"
+        android:textSize="18sp"
+        android:textColor="@color/text_light_disabled"
+        android:textStyle="italic"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/timeProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_m"
+        android:text="00:00:00"
+        android:textSize="18sp"
+        android:textColor="@color/text_light"
+        android:layout_gravity="center_vertical" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/default_padding_m"
+        android:layout_marginEnd="@dimen/default_padding_m"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/timeDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:text="00:00:00"
+        android:textColor="@color/text_light"
+        android:textSize="18sp" />
+
+</LinearLayout>
