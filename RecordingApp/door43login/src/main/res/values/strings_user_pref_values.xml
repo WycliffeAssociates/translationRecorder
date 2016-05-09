@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="pref_default_remember_position" translatable="false">true</string>
+    <string name="pref_default_always_share" translatable="false">false</string>
+
+    <!--<string name="pref_default_highlight_key_terms" translatable="false">false</string>-->
+
+    <string name="pref_default_translation_typeface" translatable="false">NotoSans-Regular.ttf</string>
+    <string-array name="pref_translation_typeface_values" translatable="false">
+        <item>NotoSans-Regular.ttf</item>
+    </string-array>
+
+    <string name="pref_default_typeface_size" translatable="false">25</string>
+    <string-array name="pref_typeface_size_values" translatable="false">
+        <item>15</item>
+        <item>25</item>
+        <item>35</item>
+        <item>45</item>
+    </string-array>
+
+    <string name="pref_default_auth_server" translatable="false">ts.door43.org</string>
+
+    <string name="pref_default_auth_server_port" translatable="false">9095</string>
+
+    <string name="pref_default_git_server" translatable="false">git@git.door43.org</string>
+
+    <string name="pref_default_git_server_port" translatable="false">9299</string>
+
+    <string name="pref_default_gogs_api" translatable="false">https://git.door43.org/api/v1</string>
+
+    <string name="pref_default_media_server" translatable="false">https://api.unfoldingword.org</string>
+
+
+    <!--<string name="pref_default_export_format" translatable="false">dokuwiki</string>-->
+    <!--<string-array name="pref_export_format_values" translatable="false">-->
+        <!--<item>dokuwiki</item>-->
+        <!--<item>project</item>-->
+    <!--</string-array>-->
+
+    <!-- advanced -->
+    <string name="pref_default_logging_level" translatable="false">1</string>
+    <string-array name="pref_logging_level_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="pref_default_backup_interval">5</string>
+    <string-array name="pref_backup_interval_values" translatable="false">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>-1</item>
+    </string-array>
+</resources>

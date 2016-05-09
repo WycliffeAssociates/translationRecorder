@@ -59,6 +59,7 @@ dependencies {
         transitive = true;
     }
     compile files('src/main/lib/zip4j_1.3.2.jar')
+    compile project(':door43login')
 }
 
 configurations.all {

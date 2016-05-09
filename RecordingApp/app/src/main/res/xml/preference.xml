@@ -158,6 +158,17 @@
             android:shouldDisableView="false"/>
     </PreferenceCategory>
 
+
+    <PreferenceCategory
+        android:title="Profile"
+        android:key="profile"
+        android:layout="@layout/custom_pref_category">
+        <Preference
+            android:key="pref_profile"
+            android:title="Logout"
+            android:summary="">
+        </Preference>
+    </PreferenceCategory>
     <!--<PreferenceCategory-->
         <!--android:title="Misc"-->
         <!--android:key="pref_key_misc"-->

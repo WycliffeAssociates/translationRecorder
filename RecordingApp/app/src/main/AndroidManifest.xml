@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme"
         tools:replace="android:theme">
         <activity
-            android:name=".MainMenu"
+            android:name=".SplashScreen"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,6 +30,7 @@
         <!--<activity android:name=".MainMenu" />-->
         <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape" android:noHistory="true"/>
         <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape"/>
+        <activity android:name=".MainMenu" />
         <activity android:name=".FilesPage.AudioFiles" />
         <activity android:name=".SettingsPage.Settings"
             android:windowSoftInputMode="stateUnchanged"/>
@@ -65,6 +66,19 @@
         <activity android:name=".FilesPage.Export.AppExport$ShareZipToApps"/>
         <activity android:name=".FilesPage.FTPActivity" android:theme="@style/Theme.UserDialog"/>
         <activity android:name=".SettingsPage.connectivity.LanguageNamesRequest" />
+
+        <activity android:name="com.door43.login.ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="com.door43.login.RegisterDoor43Activity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="com.door43.login.RegisterOfflineActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="com.door43.login.TermsOfUseActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="com.door43.login.LoginDoor43Activity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="com.door43.login.legal.LegalDocumentActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />

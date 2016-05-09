@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
+    <!-- The app name -->
+    <string name="app_name" translatable="false">translationStudio</string>
+    <string name="title_projects">Project</string>
+    <string name="title_frames">Frame</string>
+    <!-- Acknowlogment or an affirmative statement -->
+    <string name="label_ok">OK</string>
+    <!-- Close a message/notification/dialog, but without implying an affirmative statement -->
+    <string name="label_close">Close</string>
+    <!-- Close or reject an action -->
+    <string name="title_cancel">Cancel</string>
+    <!-- The application is already executing a different task -->
+    <string name="error_task_running" translatable="false">A task is already running</string>
+    <!-- Theapplication is out of memory -->
+    <string name="error_out_of_memory" translatable="false">Out of memory</string>
+    <!-- The remote git repository could not be found -->
+    <string name="error_repository_not_found" translatable="false">Repository Not Found</string>
+    <!-- Local changes are being uploaded to the server -->
+    <string name="uploading">Uploading</string>
+    <!-- The repository could not be created-->
+    <string name="error_could_not_create_repository" translatable="false">Could not create repository</string>
+    <!-- The terms that users must agree with in order to use the app -->
+    <string name="terms_title">Terms of Use</string>
+    <string name="terms">By using this app you agree with the statement of faith and translation guidelines and to release your work under the terms of the Creative Commons Attribution-ShareAlike 4.0 International License.</string>
+    <!-- Re-create the ssh keys for the git repositories -->
+    <string name="regenerate_keys" translatable="false">Regenerate SSH Keys</string>
+    <!-- stub needed for the drawer open and close listener -->
+    <string name="title_close_drawer" translatable="false">close</string>
+    <string name="chapter_title_field">Chapter Title</string>
+    <string name="chapter_reference_field">Chapter Reference</string>
+    <!-- The language from which a project is being translated -->
+    <string name="source_language_field">Source</string>
+    <!-- The langage to which a project is being translated -->
+    <string name="target_language">Target Language</string>
+    <string name="title_activity_chapter_setting">Chapter Translation</string>
+    <string name="title_activity_language_selector">Language</string>
+    <string name="loading_project_chapters" translatable="false">@string/loading</string>
+    <string name="success">Success</string>
+    <string name="label_details">details</string>
+    <string name="title_activity_sharing">Share</string>
+    <string name="missing_external_storage">External storage not available</string>
+    <!-- Notifies the user that the project was successfully saved to a location on the phone -->
+    <string name="project_exported_to">Project saved to <xliff:g example="/storage/sdcard1/" id="file_path">%1$s</xliff:g></string>
+    <string name="project_share_exception" translatable="false">The project cannot be shared</string>
+    <!-- The file browser -->
+    <string name="title_activity_file_explorer">File Explorer</string>
+    <string name="missing_file" translatable="false">The file does not exist</string>
+    <!-- Export a project to another app on the device -->
+    <string name="backup_to_app">Send to another app</string>
+    <!-- Export a project to the sd card -->
+    <string name="backup_to_sd">Backup to SD Card</string>
+    <string name="export_as_project" translatable="false">@string/app_name</string>
+    <string name="export_as_dokuwiki" translatable="false">DokuWiki</string>
+    <!-- The translation could not be imported -->
+    <string name="translation_import_failed">Failed to import</string>
+    <string name="internet_not_available">No internet connection</string>
+    <!-- Backup and/or publish a project translation-->
+    <string name="backup_and_publish">Backup and Publish</string>
+    <string name="upload_wizard_intro">You are about to upload your translation.</string>
+    <string name="label_continue">Continue</string>
+    <string name="next">Next</string>
+    <string name="upload_wizard_overview">Upload Review</string>
+    <string name="label_project_details">Project details</string>
+    <!-- Indicates how the project is being translated. e.g. Open Bible Stories is being translated from the English language into the Deutsch language -->
+    <string name="project_details"><xliff:g example="Open Bible Stories" id="project">\"%1$s\"</xliff:g> is being translated from the <xliff:g example="English" id="source_language">\"%2$s\"</xliff:g> language into the <xliff:g example="Deutsch" id="target_language">\"%3$s\"</xliff:g> language.</string>
+    <string name="click_for_details">Click for details</string>
+    <string name="title_project_settings">Project Languages</string>
+    <string name="error_target_and_source_are_same">Source and target languages must not match</string>
+    <string name="error_chapter_title_missing">Chapter title missing</string>
+    <string name="error_chapter_reference_missing">Chapter reference missing</string>
+    <string name="label_chapter_title_detailed">Chapter <xliff:g example="1. The Creation" id="chapter">%1$s</xliff:g></string>
+    <string name="label_frame_title_detailed">Frame: <xliff:g example="1" id="frame">%1$s</xliff:g></string>
+    <!-- Errors were encountered while validating the translation -->
+    <string name="dialog_validation_errors">Validation Errors</string>
+    <string name="validation_errors">Unresolved errors. Please correct them and try again</string>
+    <!-- Indicates that a number of frames have not been translated. e.g. 3 frames have not been translated -->
+    <string name="error_frames_not_translated"><xliff:g example="5" id="number">%1$s</xliff:g> frames have not been translated.</string>
+    <string name="dialog_validation_warnings">Validation Warnings</string>
+    <string name="validation_warnings">There are unresolved warnings. Continue?</string>
+    <string name="no_translated_chapters">Nothing has been translated</string>
+    <string name="title_chapters">Chapter</string>
+    <!-- Notifies the user that they are viewing a frame within a chapter. e.g. Viewing frame 01 in chapter 1. The Creation -->
+    <string name="now_viewing_frame">Viewing frame <xliff:g example="1" id="number">%1$s</xliff:g> in chapter <xliff:g example="1. The Creation" id="chapter">%2$s</xliff:g>.</string>
+    <string name="missing_chapter" translatable="false">Missing chapter</string>
+    <string name="label_translation_notes">Notes</string>
+    <string name="label_passage_note">Passage note:</string>
+    <string name="label_delete">Delete</string>
+    <!-- Explaination of what a source language is -->
+    <string name="source_language_instructions">Completed translations</string>
+    <!-- Explaination of what a target language is -->
+    <string name="target_language_instructions">Not started or in-progress translations</string>
+    <string name="notes_cannot_overlap">Notes cannot overlap</string>
+    <!-- Indicates the current frame (page) being viewed e.g. Frame 2 of 10 -->
+    <string name="currently_viewed_frame_index">Frame <xliff:g example="2" id="current_frame">%1$s</xliff:g> of <xliff:g example="10" id="total_frames">%2$s</xliff:g></string>
+    <string name="git_awaiting_report" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Push process is awaiting update report from remote repository.</string>
+    <string name="git_non_existing" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref didn\'t exist.</string>
+    <string name="git_not_attempted" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%s</xliff:g>] Push process hasn\'t yet attempted to update this ref.</string>
+    <string name="git_ok" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Success push to remote ref.</string>
+    <string name="git_rejected_nondelete" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.</string>
+    <string name="git_rejected_nonfastforward" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, as it would cause non fast-forward update.</string>
+    <string name="git_rejected_other_reason" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected.</string>
+    <string name="git_rejected_other_reason_detailed" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, because <xliff:g example="error message" id="error">%2$s.</xliff:g></string>
+    <string name="git_rejected_remote_changed" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected,  because old object id on remote repository wasn\'t the same as defined expected old object.</string>
+    <string name="git_uptodate" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] remote ref is up to date</string>
+    <string name="git_server_details" translatable="false">Server: <xliff:g example="gitolite3@ts.door43.org:tS/46983314849sd54s6d/uw-obs-de" id="server">%1$s</xliff:g></string>
+    <string name="opening_project">Opening project</string>
+    <string name="loading_key_terms" translatable="false">@string/loading</string>
+    <string name="loading_translation_notes" translatable="false">@string/loading</string>
+    <!-- Indicates the target language that is being loaded. e.g. Loading target language: Deutsch -->
+    <string name="loading_target_language">Loading target language: <xliff:g example="Deutsch" id="language">%1$s</xliff:g></string>
+    <!-- Indicates the project that is being loaded. e.g. Loading project: Open Bible Stories -->
+    <string name="loading_project">Loading project: <xliff:g example="Open Bible Stories" id="project">%1$s</xliff:g></string>
+    <string name="error_git_stage" translatable="false">Changes could not be staged</string>
+    <!-- Uploading the device public ssh key to the server -->
+    <string name="submitting_security_keys">Transferring security keys</string>
+    <string name="error_missing_ssh_keys" translatable="false">The ssh keys have not been generated</string>
+    <string name="choose_file">Choose file</string>
+    <string name="choose_source_language">Choose Source</string>
+    <string name="choose_target_language">Choose Target</string>
+    <string name="project_archive_missing" translatable="false">Project archive not found</string>
+    <string name="search_language">Search languages</string>
+    <string name="loading">Loading</string>
+    <string name="view_license_agreement">License Agreement</string>
+    <string name="license_deny">No Thanks</string>
+    <string name="license_accept">I Agree</string>
+    <!-- Footnotes are not used in the current version of the app. However future versions will use it -->
+    <string name="label_display_as_footnote" translatable="false">Display as footnote</string>
+    <string name="label_note_phrase">Selected phrase:</string>
+    <string name="related_terms">See Also:</string>
+    <string name="term_examples">Examples:</string>
+    <string name="project_uploaded">Project successfully uploaded</string>
+    <string name="choose_frame_to_start">Open a project to start translating</string>
+    <string name="return_to_important_terms">Return to Words</string>
+    <string name="no_translation_notes">No notes</string>
+    <string name="translation_words">Words</string>
+    <string name="translation_check_notice">We will now perform a few checks to ensure your translation is ready.</string>
+    <string name="preparing_upload">Preparing upload</string>
+    <!-- This is the license agreement to use the app. It is formatted as HTML. -->
+    <string name="license">
+<![CDATA[<h2>You are free to:</h2>
+<p>Share, copy, and redistribute the material in any medium or format; Adapt, remix, transform, and build upon the material for any purpose, even commercially. The licensor cannot revoke these freedoms as long as you follow the license terms.</p>
+<h2>Under the following terms:</h2>
+<p>
+    <b>Attribution</b> - You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use;
+    <br/><b>ShareAlike</b> - If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original;
+    <br/><b>No additional restrictions</b> -  You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+</p>
+<h2>Notices:</h2>
+<p>You do not have to comply with the license for elements of the material in the public domain or where your use is permitted by an applicable exception or limitation; No warranties are given. The license may not give you all of the permissions necessary for your intended use. For example, other rights such as publicity, privacy, or moral rights may limit how you use the material.</p>]]>
+    </string>
+    <string name="choose_a_project">Please open a project</string>
+    <string name="choose_a_chapter">Please open a chapter</string>
+    <string name="title_activity_crash_reporter">Error Report</string>
+    <string name="title_activity_bug_reporter">Bug Report</string>
+    <string name="crash_details">What were you doing just before the app crashed?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="export_to_device" translatable="false">Export to nearby device</string>
+    <!-- This is the translation guidelines that users must agree to before using the app. It is formatted as HTML. Translation on this will wait until we can find a reliable source -->
+    <string name="translation_guidlines" translatable="false">
+<![CDATA[
+<h1>Translation Guidelines</h1>
+<p><em>The following statement on the principles and procedures used in translation is subscribed to by all member organizations of and contributors to the <xliff:g id="organization_name">unfoldingWord</xliff:g> project. All translation activities are carried out according to these common guidelines.</em></p>
+<p>
+  <strong>Accurate</strong> - Translate accurately, without detracting from, changing, or adding to the meaning of the original text. Translated content should faithfully communicate as precisely as possible the meaning of the original text as it would have been understood by the original audience.
+  <br/><br/><strong>Clear</strong> - Use whatever language structures are necessary to achieve the highest level of comprehension. This includes rearranging the form of a text and using as many or as few terms as necessary to communicate the original meaning as accurately as possible.
+  <br/><br/><strong>Faithful</strong> - Use key terms that are faithful to the vocabulary of the original biblical languages. Terms addressing the relationship between God the Father and God the Son should be retained in translated content and clarified, as needed, in footnotes or other supplemental resources.
+  <br/><br/><strong>Authoritative</strong> - Use the original language biblical texts as the highest authority for translation of biblical content. Reliable biblical content in other languages may be used for clarification and as intermediary source texts.
+  <br/><br/><strong>Pure</strong> - Avoid any political, denominational, ideological, social, cultural, or theological bias in your translation.
+  <br/><br/><strong>Expressive</strong> - Communicate the feelings and attitudes of the original text. As much as possible, maintain the literary forms in the original text, including narrative, poetry, exhortation, and prophecy, representing them with corresponding forms that communicate in a similar way in your language.
+  <br/><br/><strong>Historical</strong> - Communicate historical events and facts accurately, providing additional information as needed in order to accurately communicate the intended message to people who do not share the same context and culture as the original recipients of the original content.
+  <br/><br/><strong>Natural</strong> - Use language forms that are effective and that reflect the way your language is used in corresponding contexts.
+  <br/><br/><strong>Collaborative</strong> - Where possible, work together with other believers who speak your language to translate, check, and distribute the translated content, ensuring that it is of the highest quality and available to as many people as possible.
+  <br/><br/><strong>Ongoing</strong> - Encourage the periodic review of translations to ascertain when revision or a new translation is needed.
+</p>
+<h1>Managing and Identifying Translation Quality</h1>
+<p>The quality of a translation generally refers to the fidelity of the translation to the meaning of the original, and the degree to which the translation is understandable and effective for the speakers of the receptor language. The strategy we suggest involves checking the forms and communicative quality of the translation with the language community, and checking the fidelity of the translation with the Church in that people group.</p>
+<p>The specific steps involved may vary significantly, depending on the language and context of the translation project. Generally, we consider a good translation to be one that is:</p>
+<p>
+  <strong>Accurate</strong> - Faithful to the intended meaning of the original, as determined by the Church in that people group and in alignment with the Church global and historical, and consequently:
+  <br/><br/><strong>Affirmed by the Church</strong> - Endorsed and used by the Church.
+</p>
+<p>In addition, a good translation is reviewed by the speakers of the language community and is found to be:</p>
+<p>
+  <strong>Natural</strong> - Using current forms of the language, and
+  <br/><br/><strong>Clear</strong> - Strives for the highest level of comprehension by hearers.
+</p>
+]]>
+    </string>
+    <!-- This is the statement of faith that users must agree to before using the app. It is formatted as HTML. Translation on this will wait until we have a reliable source -->
+    <string name="statement_of_faith" translatable="false">
+<![CDATA[
+<h1>Statement of Faith</h1>
+<p><em>The following statement of faith is subscribed to by all member organizations of and contributors to the <xliff:g id="organization_name">unfoldingWord</xliff:g> project. It is in agreement with the <xliff:g id="formal_statement_of_faith">Lausanne Covenant</xliff:g>.</em></p>
+<p>We believe that Christian belief can and should be divided into <strong>essential beliefs</strong> and <strong>peripheral beliefs</strong>.</p>
+<h3>Essential beliefs</h3>
+<p>Essential beliefs are what define a follower of Jesus Christ and can never be compromised or ignored.</p>
+<p>
+  We believe the Bible to be the only inspired, inerrant, sufficient, authoritative Word of God.
+  <br/><br/>We believe that there is one God, eternally existent in three persons: God the Father, Jesus Christ the Son and the Holy Spirit.
+  <br/><br/>We believe in the deity of Jesus Christ.
+  <br/><br/>We believe in the humanity of Jesus Christ, in His virgin birth, in His sinless life, in His miracles, in His vicarious and atoning death through His shed blood, in His bodily resurrection, in His ascension to the right hand of the Father.
+  <br/><br/>We believe that every person is inherently sinful and so is deserving of eternal hell.
+  <br/><br/>We believe that salvation from sin is a gift of God, provided through the sacrificial death and resurrection of Jesus Christ, attained by grace through faith, not by works.
+  <br/><br/>We believe that true faith is always accompanied by repentance and regeneration by the Holy Spirit.
+  <br/><br/>We believe in the present ministry of the Holy Spirit by whose indwelling the follower of Jesus Christ is enabled to live a godly life.
+  <br/><br/>We believe in the spiritual unity of all believers in the Lord Jesus Christ, from all nations and languages and people groups.
+  <br/><br/>We believe in the personal and physical return of Jesus Christ.
+  <br/><br/>We believe in the resurrection of both the saved and the lost; the unsaved will be resurrected to eternal damnation in hell and the saved will be resurrected to eternal blessing in heaven with God.
+</p>
+<h3>Peripheral beliefs</h3>
+<p>Peripheral beliefs are everything else that is in Scripture but about which sincere followers of Christ may disagree (e.g. Baptism, Lord\'s Supper, the Rapture, etc.). We choose to agree to disagree agreeably on these topics and press on together toward a common goal of making disciples of every people group (Matthew 28:18-20).</p>
+]]>
+    </string>
+    <string name="view_statement_of_faith">Statement of Faith</string>
+    <string name="view_translation_guidelines">Translation Guidelines</string>
+    <string name="import_from_friend" translatable="false">Import from friend</string>
+    <!-- Indicates the user should click on the item in order to connect to the server -->
+    <string name="click_to_connect" translatable="false">Click to connect</string>
+    <!-- Indicates the peer has connected to the server -->
+    <string name="connected" translatable="false">Connected</string>
+    <string name="share_to_all" translatable="false">Share to all</string>
+
+    <string name="searching_for_devices" translatable="false">Searching for devices</string>
+    <string name="language_resources">Versions</string>
+    <string name="import_project">Import Project</string>
+    <string name="no_projects_available_on_server">No projects available on server</string>
+    <string name="downloading">Downloading</string>
+    <string name="downloading_images">Downloading images</string>
+    <string name="connecting_to_server">Connecting to remote server...</string>
+    <string name="downloading_images_for_print_failed">The download failed to complete. Try printing without images.</string>
+    <!-- as in "23 out of 46 MB downloaded" -->
+    <string name="out_of">out of</string>
+    <string name="mb_downloaded">MB downloaded</string>
+    <string name="image_large_download">Downloading images will take several megabytes. Are you sure you want to include images?</string>
+    <string name="confirm_import">Please confirm import data</string>
+    <string name="waiting_for_device">Waiting for device</string>
+    <string name="label_back">Back</string>
+    <string name="bug_report">Describe the problem you are experiencing</string>
+    <string name="project_library">Library</string>
+    <string name="title_verse">Verse</string>
+    <string name="title_note">Note</string>
+    <string name="dialog_contact_form">Contact Form</string>
+    <string name="label_name">Name</string>
+    <string name="label_email">Email</string>
+    <string name="label_phone">Phone</string>
+    <string name="verse_out_of_bounds">Choose a verse between <xliff:g example="1" id="number">%1$s</xliff:g> and <xliff:g example="100" id="number">%2$s</xliff:g></string>
+    <string name="no_key_terms">There are no Words</string>
+    <string name="title_activity_developer">Developer Tools</string>
+    <string name="action_settings">Settings</string>
+    <!-- displays the application build or version code -->
+    <string name="app_version_code" translatable="false">BUILD <xliff:g example="61" id="verion_code">%1$s</xliff:g></string>
+    <!-- displays the application version name -->
+    <string name="app_version_name" translatable="false">VERSION <xliff:g example="2.1.2" id="verion_name">%1$s</xliff:g></string>
+    <!-- displays the unique device id -->
+    <string name="app_udid" translatable="false">UDID <xliff:g example="4c3lk3id9392kkdnw983" id="unique_device_id">%1$s</xliff:g></string>
+    <string name="copied_to_clipboard" translatable="false">Copied to clipboard</string>
+    <string name="force_update_projects" translatable="false">Force update projects</string>
+    <string name="force_update_projects_description" translatable="false">Re-downloads all the source for projects on the device without regard to the cache</string>
+    <string name="regenerate_keys_description" translatable="false">Discards and regenerates the ssh keys used for git</string>
+    <string name="read_debugging_log" translatable="false">Read debugging log</string>
+    <string name="read_debugging_log_description" translatable="false">View the error logs that have been generated on this device.</string>
+    <string name="downloading_project">Downloading project <xliff:g example="obs" id="project_id">%1$s</xliff:g></string>
+    <!-- This is the direction up. The opposite of down. -->
+    <string name="up">Up</string>
+    <!-- indicates the directory/folder on the device does not contain any files -->
+    <string name="empty_directory">Directory empty</string>
+    <string name="export_source" translatable="false">Export Source</string>
+    <string name="export_source_description" translatable="false">Exports all of the project sources into an archive that may be imported to another device or added to an apk</string>
+    <string name="exporting">Exporting</string>
+    <string name="get_more_projects">Get more projects</string>
+    <string name="title_activity_get_more_projects" translatable="false">@string/get_more_projects</string>
+    <string name="source_language_library">Source Library</string>
+    <string name="title_activity_project_library" translatable="false">@string/project_library</string>
+    <string name="title_project_detail">Project Library Languages</string>
+    <string name="languages">Languages</string>
+    <string name="drafts">Drafts</string>
+    <string name="use_internet_confirmation">This will use your internet connection, continue?</string>
+    <string name="update_projects">Update Library</string>
+    <string name="update_projects_description">View and download available updates from the server</string>
+    <string name="action_download_all">Download all</string>
+    <string name="title_activity_project_updates">Project Updates</string>
+    <string name="action_edit_projects">Edit Projects</string>
+    <string name="download_confirmation">You are about to download a potentially large amount of data, continue?</string>
+    <string name="action_cancel_edit_projects">Stop Editing Projects</string>
+    <string name="import_draft">Import Draft</string>
+    <string name="import_draft_confirmation">Replace existing translation with this draft?</string>
+    <string name="action_search">Search</string>
+    <string name="transfer_from_device">Transfer from device</string>
+    <string name="transfer_from_device_description">Transfer from nearby device over the network</string>
+    <string name="import_from_storage">Import from storage</string>
+    <string name="import_from_storage_description">Projects will be imported from the external storage on this device</string>
+    <string name="download_complete">Download complete</string>
+    <string name="source_export_complete">Export complete</string>
+    <string name="simulate_crash" translatable="false">Simulate crash</string>
+    <string name="simulate_crash_description" translatable="false">Simulates the app encountering an unrecoverable error and crashing</string>
+    <string name="exit_confirmation">Exit <xliff:g id="app_name">translationStudio</xliff:g>?</string>
+    <string name="read_chapter_menu">Read chapter</string>
+    <string name="preview_chapter_translation">Preview translation</string>
+    <string name="toggle_blind_draft_mode">Toggle blind draft</string>
+    <string name="indexing">Indexing</string>
+    <string name="title_upload">Upload</string>
+    <string name="preview_chapter_translation_draft">Preview draft</string>
+    <string name="choose_project_to_upload">Choose project to upload</string>
+    <string name="verify">Verify</string>
+    <string name="review">Review</string>
+    <string name="publish_translation">Publish translation</string>
+    <string name="notice">Notice</string>
+    <string name="complete_required_fields">Please complete all required fields</string>
+    <string name="required_field"><xliff:g id="marker">*</xliff:g> required</string>
+    <string name="upload_failed">Upload failed</string>
+    <string name="download_failed">Download failed</string>
+    <string name="publishing_translation">Publishing translation</string>
+    <string name="backing_up_translation">Backing up translation</string>
+    <string name="review_all_checking_questions">Please review all questions</string>
+    <string name="browse">Browse</string>
+    <string name="please_enter_text">Please enter some text</string>
+    <string name="apk_update_available">A new version of the app is available</string>
+    <string name="download_update">Download Update</string>
+    <string name="upload_report_or_download_latest_apk">Downloading this update may fix your problem, continue?</string>
+    <string name="welcome">Welcome to translationStudio</string>
+    <string name="please_wait">Please wait</string>
+    <string name="updating_app">Performing updates</string>
+    <string name="preparing_for_first_use">Preparing app for first use. This may take a few minutes.</string>
+    <string name="loading_languages">Preparing languages</string>
+    <string name="title_activity_target_translations">Your Translation Projects</string>
+    <string name="title_activity_new_target_translation">New Translation</string>
+    <string name="translations_welcome"><![CDATA[Welcome!\nThis is your Home Screen. When you have translation projects on this device they will appear here.\n\nYou can start a new translation any time by tapping the blue button in the top right.]]></string>
+    <string name="title_activity_target_translation_detail">Translation Project</string>
+
+    <string name="duplicate_target_translation">You are already translating <xliff:g example="Genesis" id="project">%1$s</xliff:g> into <xliff:g example="English" id="target_language">%2$s</xliff:g></string>
+    <string name="Project">Project</string>
+    <string name="language">Language</string>
+    <string name="progress">Progress</string>
+    <string name="choose_first_source_translation">Choose source translation(s) to begin reading and translating</string>
+    <string name="choose_source_translations">Choose source translations</string>
+    <string name="confirm">Confirm</string>
+    <string name="selected">Selected</string>
+    <string name="available">Available</string>
+    <string name="action_translations">Home</string>
+    <string name="publish">Publish</string>
+    <string name="backup">Backup</string>
+    <string name="attached_files">Attached files</string>
+    <string name="requires_internet">Requires internet access</string>
+    <string name="input_required">Input cannot be empty</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="done">Done</string>
+    <string name="translate_first">Please provide a translation first</string>
+    <string name="consecutive_verse_markers">Verse markers are placed too close to each other. Please verify marker positions.</string>
+    <string name="outoforder_verse_markers">Verse markers are out of order</string>
+    <string name="failed_to_commit_chunk">The chunk could not be saved</string>
+    <string name="title_activity_publish">Publish Translation</string>
+
+    <!-- The title of the dialog asking the user to verify completion of everything required to mark a chunk complete -->
+    <string name="chunk_checklist_title">Chunk Checklist</string>
+    <!-- The text asking the user to verify that all required steps have been taken prior to marking a chunk complete -->
+    <string name="chunk_checklist_body">
+<![CDATA[
+<p>Are you sure you are done with this chunk?<p>
+<ul>
+  <li>I have placed the verses correctly</li>
+  <li>I have reviewed the words and meaning</li>
+  <li>I have reviewed the translation questions</li>
+</ul>
+]]>
+    </string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="next_step">Next step</string>
+    <string name="your_name">Your Name or Pseudonym</string>
+    <string name="your_email">Your Email Address</string>
+    <string name="your_phone">Your Phone Number</string>
+    <string name="name">Name or Pseudonym</string>
+    <string name="email">Email Address</string>
+    <string name="phone">Phone Number</string>
+    <string name="profile">Profile</string>
+    <string name="default_translator">Default translator name</string>
+    <string name="project_title_complex">Project: <xliff:g example="Genesis" id="project">%1$s</xliff:g></string>
+    <!-- A warning shown, when publishing, indicating that names/pseudonyms (but not email or phone number) are published in the catealog -->
+    <string name="publishing_privacy_notice">Your name or pseudonym will be published along with your translation in the unfoldingWord catalog.</string>
+    <string name="publish_to_unfoldingword">Publish your project directly to unfoldingWord</string>
+    <string name="checking_for_updates">Checking for updates</string>
+    <string name="download">Download</string>
+    <string name="source_language_already_downloaded">Language already downloaded. Download again?</string>
+    <string name="confirm_delete_project">Delete this project? You can download it again later.</string>
+    <string name="cannot_delete_project_with_translations">You cannot delete a project you are translating.</string>
+    <string name="missing_project">The project is missing</string>
+    <string name="menu_update_library">Update Library</string>
+    <string name="questions">Questions</string>
+    <string name="references">References</string>
+    <string name="question">Question</string>
+    <string name="answer">Answer</string>
+    <string name="begin_translating">Begin translating</string>
+    <string name="publishing_explanation">
+<![CDATA[
+<p>Publishing your work through unfoldingWord makes your content available:</p>
+<ul>
+    <li>Online at unfoldingword.org in multiple formats</li>
+    <li>In the unfoldingWord Mobile App</li>
+    <li>In a PDF suitable for printing</li>
+</ul>
+]]>
+    </string>
+    <string name="confirm_delete_target_translation">This will permanently remove the translation. Continue?</string>
+    <string name="long_click_to_drag">Tap and hold to drag</string>
+    <string name="feedback">Feedback</string>
+    <string name="import_from_sd">Import from SD Card</string>
+    <string name="backup_to_door43">Backup to Door43</string>
+    <string name="translation_export_failed">Translation could not be exported</string>
+    <string name="invalid_file">Not a valid file</string>
+    <string name="software_licenses" translatable="false">
+<![CDATA[
+<h1>Software Licenses</h1>
+<p><em>The following licenses apply to code packages and libraries used in this app.</em></p>
+
+<h3>HtmlTextView for Android</h3>
+<p>
+Copyright 2013 Dominik Schürmann
+</p>
+<p>
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+</p>
+<p>
+    http://www.apache.org/licenses/LICENSE-2.0
+</p>
+<p>
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+</p>
+
+<h3>java-aes-crypto</h3>
+<p>The MIT License (MIT)</p>
+<p>Copyright (c) 2014 TOZNY</p>
+<p>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+</p>
+<p>
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</p>
+
+<h3>JGit</h3>
+<p>
+This program and the accompanying materials are made available
+under the terms of the Eclipse Distribution License v1.0 which
+accompanies this distribution, is reproduced below, and is
+available at http://www.eclipse.org/org/documents/edl-v10.php
+</p>
+<p>
+All rights reserved.
+</p>
+<p>
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
+conditions are met:
+</p>
+
+<ul>
+<li>Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.</li>
+
+<li>Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials provided
+  with the distribution.</li>
+
+<li>Neither the name of the Eclipse Foundation, Inc. nor the
+  names of its contributors may be used to endorse or promote
+  products derived from this software without specific prior
+  written permission.</li>
+</ul>
+<p>
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</p>
+
+<h3>JSch</h3>
+<p>
+Copyright (c) 2002-2015 Atsuhiko Yamanaka, JCraft,Inc.<br/>
+All rights reserved.
+</p>
+<p>
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+</p>
+<ol>
+<li>Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.</li>
+
+<li>Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
+     the documentation and/or other materials provided with the distribution.</li>
+
+<li>The names of the authors may not be used to endorse or promote products
+     derived from this software without specific prior written permission.</li>
+</ol>
+<p>
+THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JCRAFT,
+INC. OR ANY CONTRIBUTORS TO THIS SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</p>
+
+<h3>iText</h3>
+<p>Copyright (c) 2010-2015, iText Group NV, iText Software Corp., iText Software BVBA</p>
+<p>
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+</p>
+<p>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+</p>
+<p>
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+</p>
+
+<h3>Rebound</h3>
+<p>BSD License</p>
+<p>Copyright (c) 2013, Facebook, Inc. All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<ul>
+<li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+</ul>
+<p>
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</p>
+]]>
+    </string>
+    <string name="action_download_updates">Download updates</string>
+    <string name="list_may_be_outdated">The list may be out of date</string>
+    <string name="label_import">Import</string>
+    <string name="import_from_online">Import from Online (requires internet)</string>
+    <string name="automatic_backups">Automatic Backups</string>
+    <string name="export_to_sd">Export to SD Card</string>
+    <string name="chunk_done_prompt">"This chunk is done. Continue editing?"</string>
+    <string name="chunk_done_title">"Edit Chunk"</string>
+    <string name="edit">"Edit"</string>
+    <string name="share_apk">Share this app</string>
+    <string name="send_to">Send To</string>
+    <string name="translators">Translators</string>
+    <string name="no_backups_online">There are no backups online</string>
+    <string name="translation_words_index">Words Index</string>
+    <string name="print">Print</string>
+    <string name="include_images">Include images</string>
+    <string name="include_incomplete_frames">Include incomplete chunks</string>
+    <string name="backup_to_friend">Send to Friend</string>
+    <string name="device_network_alias_description">Choose a name or pseudonym others will see when sharing with your device</string>
+    <string name="device_name">Device Name</string>
+    <string name="confirm_import_target_translation">Do you want to import <xliff:g example="Open Bible Stories - Afaraf" id="target_translation_name">%1$s</xliff:g>?</string>
+    <string name="success_import_target_translation"><xliff:g example="Open Bible Stories - Afaraf" id="target_translation_name">%1$s</xliff:g> was successfully imported.</string>
+    <string name="title_activity_custom_alert_dialog">CustomAlertDialog</string>
+    <string name="neutral">Neutral</string>
+    <string name="mark_done">Mark chunk as done</string>
+    <string name="add_contributor">Add Contributor</string>
+    <string name="confirm_delete_translator">This will permanently remove the translator. Continue?</string>
+    <string name="delete_translator_title">Delete Translator</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="action_translate_resources">Translate Resources</string>
+    <string name="publish_state">Publish State</string>
+    <string name="publish_status_not">Not Published</string>
+    <string name="publish_status_current">Published</string>
+    <string name="publish_status_not_current">Not Current</string>
+    <string name="error">Error</string>
+    <string name="enable_sd_card_access_title">Enable SD Card Access</string>
+    <string name="enable_sd_card_access">
+<![CDATA[
+<p>Do you want to enable SD card access?  If so then:</p>
+<ul>
+  <li>Click Confirm and wait for access dialog to appear</li>
+  <li>If SD Card is not shown on left, click on menu (three vertical dots in upper right corner)</li>
+  <li>Click on SD Card on left</li>
+  <li>Click on \'Select "SD Card"\' at bottom</li>
+</ul>
+<p>If you press SKIP, then import/backup will be with internal memory.</p>
+]]>
+    </string>
+    <string name="access_title">Access Attempt</string>
+    <string name="access_failed">Failed on access request to:\n%s\nYou may have selected a folder other than the SD CARD base</string>
+    <string name="access_granted_backup">Success!\nAccess Granted.\nPlease retry SD CARD backup operation.</string>
+    <string name="access_granted_import">Success!\nAccess Granted.</string>
+    <string name="access_skipped">Access Request Cancelled</string>
+    <string name="label_skip">Skip</string>
+    <string name="label_internal">Internal</string>
+    <string name="label_sd_card">SD Card</string>
+    <string name="label_up">Up</string>
+    <string name="title_file_browser">File Browser</string>
+    <string name="no_item_selected">No Item Selected</string>
+    <string name="backup_failed">Failed Backing up to:</string>
+    <string name="import_failed">Failed Import from:</string>
+    <string name="backup_success">Success Backing up to:</string>
+    <string name="import_success">Success Importing from:</string>
+    <string name="view_available_drafts">View available drafts</string>
+    <string name="preview">Preview</string>
+    <string name="importing_draft">Importing draft</string>
+    <string name="draft_translation_exists">A draft of this translation is available</string>
+    <string name="print_failed">Failed to print</string>
+    <string name="printing">Printing</string>
+    <string name="label_undo">Undo</string>
+    <string name="label_redo">Redo</string>
+    <string name="restored_to_time">Restored to %s</string>
+    <string name="restoring_end">Reached End of Archive</string>
+    <string name="title_add_footnote">Add Footnote</string>
+    <string name="add_footnote_title">Title:</string>
+    <string name="add_footnote">Footnote:</string>
+    <string name="add_footnote_title_prompt">Enter Title</string>
+    <string name="add_footnote_prompt">Enter Footnote</string>
+    <string name="title_footnote_invalid">Invalid Footnote</string>
+    <string name="footnote_confirm_delete">Are you sure you want to delete footnote?</string>
+    <string name="footnote_label">Footnote</string>
+    <string name="footnote_title_empty">Footnote Title cannot be empty</string>
+    <string name="footnote_message_empty">Footnote cannot be empty</string>
+    <string name="who_translated_notice">Who contributed to this translation?</string>
+    <string name="privacy_notice">Privacy Notice</string>
+    <string name="need_translator_notice">Please add a contributor</string>
+    <string name="duplicate_native_speaker">A contributor with that name has already been added</string>
+    <string name="edit_contributor">Edit Contributor</string>
+    <string name="registration_failure">Registration Failed. PLease check your internet connection</string>
+    <string name="auth_failure_retry">Authentication Failed. Retry?</string>
+    <string name="registering_keys">Registering with server</string>
+    <string name="invalidate_keys" translatable="false">Invalidate SSH Keys</string>
+    <string name="invalidate_keys_description" translatable="false">Sets keys invalid for auth testing</string>
+    <string name="person_agrees_with_licenses">This person has agreed to the License Agreement, Statement of Faith, and Translation Guidelines</string>
+    <string name="error_importing_unsupported_target_translation">The  translation of <xliff:g example="Open Bible Stories" id="project_name">%1$s</xliff:g> into <xliff:g example="Afaraf" id="language_name">%2$s</xliff:g> was created by a different version of <xliff:g example="translationStudio" id="app_name">%3$s</xliff:g> and cannot be opened. Please update your app and try again.</string>
+    <string name="version">Version</string>
+    <string name="username">login name</string>
+    <string name="password">password</string>
+    <string name="password_confirm">re-type password</string>
+    <string name="logging_in">Logging in</string>
+    <string name="double_check_credentials">Double check your credentials and try again</string>
+    <string name="passwords_mismatch">Passwords do not match</string>
+    <string name="contributors">Contributors</string>
+    <string name="show_passwords">Show Passwords</string>
+    <string name="hide_passwords">Hide Passwords</string>
+    <string name="log_out">Log out</string>
+    <string name="gogs_username_already_exists">That username already exists</string>
+    <string name="registration_failed">Your account could not be created.</string>
+    <string name="title_door43_account_required">Door43 Account Required</string>
+    <string name="door43_account_required">You must connect to a Door43 account first.</string>
+    <string name="login_doo43">Login with Door43 Account</string>
+    <string name="register_door43">Create new Door43 Account</string>
+    <string name="create_offline_profile">Create offline Account</string>
+    <string name="still_possible_to_register_door43">You can still create or login to a Door43 account later</string>
+    <string name="title_connect_door43">Connect To Door43</string>
+    <string name="gogs_public_key_name">ts-android</string>
+    <string name="restore_failed">The translation could not be restored</string>
+    <string name="import_from_door43">Import from Door43</string>
+    <string name="restore_from_door43">Restore from Door43</string>
+    <string name="title_chunk_conflicts">Chunk Conflicts</string>
+    <string name="chunk_conflict_description">A conflict was found between the translation on Door43 and your device.</string>
+    <string name="review_conflicts">Review differences</string>
+    <string name="keep_server_changes">Keep server changes</string>
+    <string name="keep_local_changes">Keep my changes</string>
+</resources>

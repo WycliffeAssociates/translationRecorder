@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="nav_bar_height">45dp</dimen>
+    <dimen name="shadow_width">8dp</dimen>
+    <dimen name="sliding_layer_width">400dp</dimen>
+    <dimen name="sliding_layer_width_narrow">100dp</dimen>
+    <dimen name="drawer_edge_width">3dp</dimen>
+    <dimen name="model_list_item_image_width">70dp</dimen>
+    <dimen name="list_item_height">70dp</dimen>
+    <dimen name="h1">60sp</dimen>
+    <dimen name="h2">30sp</dimen>
+    <dimen name="h3">25sp</dimen>
+    <dimen name="h4">20sp</dimen>
+    <dimen name="h5">15sp</dimen>
+
+    <dimen name="display">34sp</dimen>
+    <dimen name="headline">24sp</dimen>
+    <dimen name="title">20sp</dimen>
+    <dimen name="body">16sp</dimen>
+    <dimen name="caption">12sp</dimen>
+    <dimen name="button">14sp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="card_margin">16dp</dimen>
+    <dimen name="card_tab_icon_width">40dp</dimen>
+    <dimen name="card_tab_height">48dp</dimen>
+    <dimen name="stacked_card_margin">48dp</dimen>
+    <dimen name="stacked_card_thin_margin">25dp</dimen>
+    <dimen name="publish_backdrop_height">110dp</dimen>
+
+    <dimen name="dialog_content_margin">24dp</dimen>
+    <dimen name="dialog_controls_margin">8dp</dimen>
+    <dimen name="dialog_min_width">500dp</dimen>
+</resources>
