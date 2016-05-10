@@ -9,6 +9,7 @@ import org.unfoldingword.gogsclient.User;
  * Represents a single user profile
  */
 public class Profile {
+    public static final String PROFILE_KEY = "profile_json";
     private static final long serialVersionUID = 0L;
     private String fullName;
     public User gogsUser;

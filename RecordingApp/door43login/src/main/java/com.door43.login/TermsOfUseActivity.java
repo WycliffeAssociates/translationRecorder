@@ -19,8 +19,8 @@ import org.json.JSONObject;
  * This activity checks if the user has accepted the terms of use before continuing to load the app
  */
 public class TermsOfUseActivity extends BaseActivity {
-    public static final int RESULT_DECLINED = -11;
-    public static final int RESULT_BACKED_OUT_TOS = -22;
+    public static final int RESULT_DECLINED_TOU = -11;
+    public static final int RESULT_BACKED_OUT_TOU = -22;
     Profile mProfile = null;
     int mTermsVersion;
 
@@ -29,7 +29,7 @@ public class TermsOfUseActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         try {
-            mProfile = Profile.fromJSON(new JSONObject(getIntent().getStringExtra("profile_json")));
+            mProfile = Profile.fromJSON(new JSONObject(getIntent().getStringExtra(Profile.PROFILE_KEY)));
         } catch (Exception e) {
             e.printStackTrace();
             finish();
@@ -50,7 +50,7 @@ public class TermsOfUseActivity extends BaseActivity {
             rejectBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //use this to close out of the app
+                    //returns to the profile activity with an empty intent (clears the profile)
                     setResult(RESULT_OK, new Intent());
                     finish();
                 }
@@ -60,7 +60,6 @@ public class TermsOfUseActivity extends BaseActivity {
                 @Override
                 public void onClick(View view) {
                     mProfile.setTermsOfUseLastAccepted(mTermsVersion);
-                    //AppContext.setProfile(mProfile);
                     startMainActivity();
                 }
             });
@@ -90,7 +89,11 @@ public class TermsOfUseActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_BACKED_OUT_TOS, getIntent());
+        //Need to distinguish this back press so that the profile is not lost and the app can start again
+        //with asking for terms of use. A back press from login or profile creation should delete the profile however;
+        //and therefore all three types of activities cannot all use RESULT_CANCELLED for a back press.
+        //Order matters, calling super first will set the result to RESULT_CANCELLED
+        setResult(RESULT_BACKED_OUT_TOU, getIntent());
         super.onBackPressed();
         finish();
     }
@@ -102,7 +105,7 @@ public class TermsOfUseActivity extends BaseActivity {
         if(mProfile != null && mProfile.getTermsOfUseLastAccepted() == mTermsVersion){
             try {
                 Intent result = new Intent();
-                result.putExtra("profile_json", mProfile.getSerializedProfile());
+                result.putExtra(Profile.PROFILE_KEY, mProfile.getSerializedProfile());
                 setResult(RESULT_OK, result);
             } catch (JSONException e) {
                 setResult(RESULT_CANCELED);
@@ -133,13 +136,15 @@ public class TermsOfUseActivity extends BaseActivity {
         return profile.getTermsOfUseLastAccepted() == ctx.getResources().getInteger(R.integer.terms_of_use_version);
     }
 
-    public static boolean termsAccepted(String profile, Context ctx){
-        try {
-            Profile p = Profile.fromJSON(new JSONObject(profile));
-            return p.getTermsOfUseLastAccepted() == ctx.getResources().getInteger(R.integer.terms_of_use_version);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+    /**
+     * Checks if the terms of use have been accepted
+     * @param profile a json string containing the user profile to check
+     * @param ctx a context that can access the terms of use resource value
+     * @return true if the terms are accepted, false otherwise
+     * @throws throws if there was an exception in Profile.fromJson()
+     */
+    public static boolean termsAccepted(String profile, Context ctx) throws Exception {
+        Profile p = Profile.fromJSON(new JSONObject(profile));
+        return p.getTermsOfUseLastAccepted() == ctx.getResources().getInteger(R.integer.terms_of_use_version);
     }
 }

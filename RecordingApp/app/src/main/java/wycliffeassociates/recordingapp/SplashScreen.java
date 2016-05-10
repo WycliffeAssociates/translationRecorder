@@ -22,9 +22,17 @@ public class SplashScreen extends Activity {
     protected void onResume() {
         super.onResume();
         String profile = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PROFILE, "");
-        if(profile.compareTo("") == 0 || !TermsOfUseActivity.termsAccepted(profile, this)) {
+        boolean termsOfUseAccepted = false;
+        if(profile.compareTo("") != 0) {
+            try {
+                termsOfUseAccepted = TermsOfUseActivity.termsAccepted(profile, this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if(profile.compareTo("") == 0 || !termsOfUseAccepted) {
             Intent intent = new Intent(this, ProfileActivity.class);
-            intent.putExtra("profile_json", profile);
+            intent.putExtra(Profile.PROFILE_KEY, profile);
             startActivityForResult(intent, 42);
         } else {
             startActivity(new Intent(this, MainMenu.class));
@@ -34,15 +42,19 @@ public class SplashScreen extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //save the profile in preferences
         if(requestCode == 42 && resultCode == RESULT_OK) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra("profile_json")).commit();
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
+        //user backed out of profile page; empty the profile and finish
         } else if (resultCode == RESULT_CANCELED){
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
             finish();
-        } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOS){
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra("profile_json")).commit();
+        //user backed out of the TOU, keep the profile with unaccepeted TOU and finish. App will resume to TOU page
+        } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOU){
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
             finish();
-        } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED){
+        //user declined TOU, clear profile and return to profile page
+        } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED_TOU){
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
         }
     }

@@ -18,20 +18,41 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+/**
+ * How to Use:
+ * Start this activity for result
+ * Pass in a profile as a string extra with Profile.PROFILE_KEY. If no extra is provided, or the provided
+ * string throws a JSON exception, the profile is set to null.
+ *
+ * Providing a profile will check if the terms of use have been accepted. If yes, the activity will return
+ * with RESULT_OK and the serialized profile as an extra via Profile.PROFILE_KEY. If no, the terms of use
+ * activity will be called.
+ *
+ * Terms of Use can be checked using the static method: TermsOfUseActivity.termsAccepted(String)
+ *
+ * Returns:
+ * RESULT_OK: profile has accepted terms of use, profile included as extra via Profile.PROFILE_KEY
+ * RESULT_CANCELED: user backed out of the profile page
+ * TermsOfUseActivity.RESULT_BACKED_OUT_TOU: user backed out of Terms of Use activity. Profile included as extra, profile terms of use not accepted.
+ * TermsOfUseActivity.RESULT_DECLINED_TOU: user declined Terms of Use
+ */
 
 public class ProfileActivity extends BaseActivity {
-    public static final int RESULT_BACKED_OUT_TOS = -22;
     private final int TOU_REQUEST = 100;
-    Profile profile;
+    Profile mProfile;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try{
-            profile = Profile.fromJSON(new JSONObject(getIntent().getStringExtra("profile_json")));
-        } catch (Exception e){
-            profile = null;
+        if(getIntent().hasExtra(Profile.PROFILE_KEY)){
+            try{
+                mProfile = Profile.fromJSON(new JSONObject(getIntent().getStringExtra(Profile.PROFILE_KEY)));
+            } catch (Exception e){
+                mProfile = null;
+            }
+        } else {
+            mProfile = null;
         }
 
         setContentView(R.layout.activity_profile);
@@ -73,20 +94,22 @@ public class ProfileActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
 
-        if (profile != null && TermsOfUseActivity.termsAccepted(profile, this)) {
+        //if a profile exists and the terms of service have been accepted, return the profile
+        if (mProfile != null && TermsOfUseActivity.termsAccepted(mProfile, this)) {
             Intent result = new Intent();
             try {
-                result.putExtra("profile_json", profile.toJSON().toString());
+                result.putExtra(Profile.PROFILE_KEY, mProfile.getSerializedProfile());
                 setResult(RESULT_OK, result);
             } catch (JSONException e) {
                 setResult(RESULT_CANCELED);
                 e.printStackTrace();
             }
             finish();
-        } else if(profile != null){
+        //if a profile exists but the terms haven't been accepted, proceed to terms of use
+        } else if(mProfile != null){
             Intent intent = new Intent(this, TermsOfUseActivity.class);
             try {
-                intent.putExtra("profile_json", profile.toJSON().toString());
+                intent.putExtra(Profile.PROFILE_KEY, mProfile.getSerializedProfile());
                 startActivityForResult(intent, TOU_REQUEST);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -99,29 +122,32 @@ public class ProfileActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == TOU_REQUEST){
+            //TOU accepted; get the profile from the intent
             if(resultCode == RESULT_OK){
-                if(data.hasExtra("profile_json")) {
+                if(data.hasExtra(Profile.PROFILE_KEY)) {
                     try {
-                        profile = Profile.fromJSON(new JSONObject(data.getStringExtra("profile_json")));
+                        mProfile = Profile.fromJSON(new JSONObject(data.getStringExtra(Profile.PROFILE_KEY)));
                     } catch (Exception e) {
-                        profile = null;
+                        mProfile = null;
                     }
                 } else {
-                    profile = null;
+                    mProfile = null;
                 }
-            } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED){
-                profile = null;
+            //TOU declined, return a declined result and empty intent
+            } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED_TOU){
+                mProfile = null;
                 Intent result = new Intent();
-                setResult(TermsOfUseActivity.RESULT_DECLINED, result);
+                setResult(TermsOfUseActivity.RESULT_DECLINED_TOU, result);
                 finish();
-            } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOS && profile != null){
+            //backed out of TOU page; save the profile and close the app
+            } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOU && mProfile != null){
                 Intent result = new Intent();
                 try {
-                    result.putExtra("profile_json", profile.toJSON().toString());
-                    setResult(TermsOfUseActivity.RESULT_BACKED_OUT_TOS, result);
+                    result.putExtra(Profile.PROFILE_KEY, mProfile.getSerializedProfile());
+                    setResult(TermsOfUseActivity.RESULT_BACKED_OUT_TOU, result);
                     finish();
                 } catch (JSONException e) {
-                    profile = null;
+                    mProfile = null;
                 }
             }
         }
