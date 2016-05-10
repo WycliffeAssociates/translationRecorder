@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +25,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.door43.login.core.Profile;
+
+import org.json.JSONObject;
+
 import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.SplashScreen;
 
 /**
  * Created by leongv on 12/17/2015.
@@ -68,6 +75,24 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
             System.out.println("UPDATING SUMMARY FOR: " + k);
             updateSummaryText(sharedPref, k);
         }
+
+
+        Preference button = (Preference)findPreference(Settings.KEY_PROFILE);
+        try {
+            button.setSummary("Logged in as: " +Profile.fromJSON(new JSONObject(sharedPref.getString(Settings.KEY_PROFILE, ""))).getFullName());
+        } catch (Exception e) {
+            button.setSummary("");
+        }
+        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                PreferenceManager.getDefaultSharedPreferences(context).edit().putString(Settings.KEY_PROFILE, "").commit();
+                ((Activity) context).finishAffinity();
+                Intent intent = new Intent(context, SplashScreen.class);
+                startActivity(intent);
+                return true;
+            }
+        });
     }
 
     @Override

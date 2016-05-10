@@ -1,1 +1,1 @@
-include ':app'
+include ':app', ':door43login', ':sysutils', ':widgets', ':com.door43.tools.reporting'
