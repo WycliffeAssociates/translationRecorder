@@ -37,6 +37,7 @@ public class SplashScreen extends Activity {
         if(requestCode == 42 && resultCode == RESULT_OK) {
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra("profile_json")).commit();
         } else if (resultCode == RESULT_CANCELED){
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
             finish();
         } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOS){
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra("profile_json")).commit();

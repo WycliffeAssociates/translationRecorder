@@ -90,8 +90,8 @@ public class TermsOfUseActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         setResult(RESULT_BACKED_OUT_TOS, getIntent());
+        super.onBackPressed();
         finish();
     }
 
