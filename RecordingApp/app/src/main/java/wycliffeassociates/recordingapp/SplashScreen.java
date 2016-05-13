@@ -43,19 +43,21 @@ public class SplashScreen extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //save the profile in preferences
-        if(requestCode == 42 && resultCode == RESULT_OK) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
-        //user backed out of profile page; empty the profile and finish
-        } else if (resultCode == RESULT_CANCELED){
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
-            finish();
-        //user backed out of the TOU, keep the profile with unaccepeted TOU and finish. App will resume to TOU page
-        } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOU){
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
-            finish();
-        //user declined TOU, clear profile and return to profile page
-        } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED_TOU){
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
+        if(requestCode == 42){
+            if (resultCode == RESULT_OK) {
+                PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
+                //user backed out of profile page; empty the profile and finish
+            } else if (resultCode == RESULT_CANCELED){
+                PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
+                finish();
+                //user backed out of the TOU, keep the profile with unaccepeted TOU and finish. App will resume to TOU page
+            } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOU){
+                PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
+                finish();
+                //user declined TOU, clear profile and return to profile page
+            } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED_TOU){
+                PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
+            }
         }
     }
 }

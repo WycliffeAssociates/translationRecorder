@@ -19,8 +19,9 @@ import org.json.JSONObject;
  * This activity checks if the user has accepted the terms of use before continuing to load the app
  */
 public class TermsOfUseActivity extends BaseActivity {
-    public static final int RESULT_DECLINED_TOU = -11;
-    public static final int RESULT_BACKED_OUT_TOU = -22;
+
+    public static final int RESULT_DECLINED_TOU = RESULT_FIRST_USER;
+    public static final int RESULT_BACKED_OUT_TOU = RESULT_FIRST_USER+1;
     Profile mProfile = null;
     int mTermsVersion;
 
