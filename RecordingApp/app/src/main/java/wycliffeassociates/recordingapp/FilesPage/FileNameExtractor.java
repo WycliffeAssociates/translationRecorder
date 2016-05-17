@@ -14,9 +14,13 @@ public class FileNameExtractor {
     private String mLang ="";
     private String mSource ="";
     private String mBook ="";
+    private String mProject ="";
     private int mChap;
     private int mChunk;
+    private int mStartVerse;
+    private int mEndVerse;
     private int mTake;
+    private int mBookNum;
     private boolean mMatched = false;
 
     public FileNameExtractor(String file){
@@ -29,7 +33,16 @@ public class FileNameExtractor {
 
     private void extractData(String file){
         //includes the wav extention, could replace this with .*?
-        String FILENAME_PATTERN = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})(_([0-9]{2}))?.*";
+        //String FILENAME_PATTERN = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})(_([0-9]{2}))?.*";
+
+        String UNDERSCORE = "_";
+        String LANGUAGE = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)";
+        String PROJECT = "(([a-zA-Z]{3})_b([0-9]{2})_([1-3]*[a-zA-Z]+)|obs)";
+        String CHAPTER = "c([0-9]{2,3})";
+        String VERSE = "v([0-9]{2,3})(-([0-9]{2,3}))?";
+        String TAKE = "(_t([0-9]{2}))?";
+        String FILENAME_PATTERN = LANGUAGE + UNDERSCORE + PROJECT + UNDERSCORE + CHAPTER +
+                UNDERSCORE + VERSE + UNDERSCORE + TAKE + ".*";
         Pattern p = Pattern.compile(FILENAME_PATTERN);
         Matcher m = p.matcher(file);
         boolean found = m.find();
@@ -37,12 +50,15 @@ public class FileNameExtractor {
         //m.group starts with the pattern, so the first group is at 1
         if(found){
             mLang = m.group(1);
-            mSource = m.group(2);
-            mBook = m.group(3);
-            mChap = Integer.parseInt(m.group(4));
-            mChunk = Integer.parseInt(m.group(5));
-            if(m.group(7) != null) {
-                mTake = Integer.parseInt(m.group(7));
+            mProject = m.group(2);
+            mSource = m.group(3);
+            mBookNum = Integer.parseInt(m.group(4));
+            mBook = m.group(5);
+            mChap = Integer.parseInt(m.group(6));
+            mStartVerse = Integer.parseInt(m.group(7));
+            mEndVerse = Integer.parseInt(m.group(9));
+            if(m.group(11) != null) {
+                mTake = Integer.parseInt(m.group(11));
             } else {
                 mTake = 0;
             }
@@ -50,6 +66,9 @@ public class FileNameExtractor {
         } else {
             mMatched = false;
         }
+    }
+    public String getProject(){
+        return mProject;
     }
 
     public String getLang(){
@@ -62,6 +81,10 @@ public class FileNameExtractor {
 
     public String getBook(){
         return mBook;
+    }
+
+    public int getBookNumber() {
+        return mBookNum;
     }
 
     public int getChapter(){
@@ -97,6 +120,9 @@ public class FileNameExtractor {
     }
 
     public String getNameWithoutTake(){
+        if(mProject != null && mProject.compareTo("obs") == 0){
+            return mLang + "_obs_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse);
+        }
         return mLang + "_" + mSource + "_" + mBook + "_" + String.format("%02d", mChap) + "-" + String.format("%02d", mChunk);
     }
 
