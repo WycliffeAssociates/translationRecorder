@@ -53,6 +53,7 @@ public class Settings extends Activity {
     private Context c;
     private Button hardReset;
     private String sampleName;
+    public static final String KEY_PREF_PROJECT = "pref_project";
     public static final String KEY_PREF_SOURCE = "pref_source";
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_LANG_SRC = "pref_lang_src";

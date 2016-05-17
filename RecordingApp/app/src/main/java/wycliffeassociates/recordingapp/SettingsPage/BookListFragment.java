@@ -1,8 +1,10 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,9 @@ import android.widget.ListView;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -22,6 +27,7 @@ import wycliffeassociates.recordingapp.R;
 public class BookListFragment extends PreferenceFragment implements Searchable {
     private OnItemClickListener mListener;
     private TargetBookAdapter mAdapter;
+    String mProject = "nt";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,13 +55,27 @@ public class BookListFragment extends PreferenceFragment implements Searchable {
 
     private Book[] getBooks(){
         ParseJSON parse = new ParseJSON(this.getActivity());
-        Book[] books= null;
-        books = parse.pullBooks();
-        return books;
+        ArrayList<Book> books= new ArrayList<>(Arrays.asList(parse.pullBooks()));
+        for(int i = 0; i < books.size(); i++){
+            if(mProject.compareTo("nt") == 0){
+                if(books.get(i).getOrder() < 40){
+                    books.remove(i);
+                    i--;
+                }
+            } else {
+                if(books.get(i).getOrder() > 39){
+                    books.remove(i);
+                    i--;
+                }
+            }
+        }
+        Book[] bookArray = new Book[books.size()];
+        return books.toArray(bookArray);
     }
 
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mProject = activity.getIntent().getStringExtra("project");
         try {
             this.mListener = (OnItemClickListener) activity;
         } catch (ClassCastException e) {

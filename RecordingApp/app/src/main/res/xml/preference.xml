@@ -82,7 +82,7 @@
             android:summary="@string/pref_default_book"
             android:defaultValue="@string/pref_default_book">
             <intent
-                android:action="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT">
+                android:action="wycliffeassociates.recordingapp.SettingsPage.PROJECT_INTENT">
             </intent>
         </PreferenceScreen>
 

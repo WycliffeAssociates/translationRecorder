@@ -44,6 +44,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".SettingsPage.ProjectActivity">
+            <intent-filter>
+                <action android:name="wycliffeassociates.recordingapp.SettingsPage.PROJECT_INTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".SettingsPage.BookActivity">
             <intent-filter>
