@@ -16,24 +16,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "translation_projects";
-    private static final String TABLE_PROJECT = "projects";
-    private static final String KEY_ID = "key_id";
-    private static final String KEY_TARGET_LANG = "key_target_lang";
-    private static final String KEY_SOURCE_LANG = "key_source_lang";
-    private static final String KEY_SLUG = "key_slug";
-    private static final String KEY_SOURCE = "key_source";
-    private static final String KEY_MODE = "key_mode";
-    //private static final String KEY_USER = "key_user";
 
-    private static final String TEXT = " TEXT";
-    private static final String COMMA = ",";
-    private static final String TEXTCOMMA = " TEXT,";
 
     private int mIdSlug;
     private int mIdTargetLang;
     private int mIdSourceLang;
     private int mIdSource;
     private int mIdMode;
+    private int mIdProject;
+    private int mIdContributors;
+    private int mIdBookNum;
 
     public DatabaseHelper(Context ctx){
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,40 +33,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_PROFILE_TABLE = "CREATE TABLE " + TABLE_PROJECT + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
-                + KEY_TARGET_LANG + TEXTCOMMA + KEY_SOURCE_LANG + TEXTCOMMA + KEY_SLUG + TEXTCOMMA + KEY_SOURCE
-                + TEXT + ")";
-        db.execSQL(CREATE_PROFILE_TABLE);
+        db.execSQL(ProjectContract.CREATE_PROFILE_TABLE);
+        System.out.println();
     }
 
-    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL(ProjectContract.DELETE_ENTRIES);
+        onCreate(db);
+    }
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
+    }
 
+    public void clearTable(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT);
     }
 
     public void addProject(Project p){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(KEY_TARGET_LANG, p.getTargetLang());
-        cv.put(KEY_SOURCE_LANG, p.getSrcLang());
-        cv.put(KEY_SLUG, p.getSlug());
-        cv.put(KEY_SOURCE, p.getSource());
-        cv.put(KEY_MODE, p.getMode());
-        db.insert(TABLE_PROJECT, null, cv);
+        cv.put(ProjectContract.ProjectEntry.COLUMN_TARGET_LANG, p.getTargetLang());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG, p.getSrcLang());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_SLUG, p.getSlug());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE, p.getSource());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_MODE, p.getMode());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_BOOK_NUM, p.getBookNumber());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_PROJECT, p.getProject());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS, p.getContributors());
+        long result = db.insert(ProjectContract.ProjectEntry.TABLE_PROJECT, null, cv);
         db.close();
     }
 
     private void getIds(Cursor cursor){
-        mIdSlug = cursor.getColumnIndex(KEY_SLUG);
-        mIdTargetLang = cursor.getColumnIndex(KEY_TARGET_LANG);
-        mIdSourceLang = cursor.getColumnIndex(KEY_SOURCE_LANG);
-        mIdSource = cursor.getColumnIndex(KEY_SOURCE);
-        mIdMode = cursor.getColumnIndex(KEY_MODE);
+        mIdSlug = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_SLUG);
+        mIdTargetLang = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_TARGET_LANG);
+        mIdSourceLang = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG);
+        mIdSource = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_SOURCE);
+        mIdMode = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_MODE);
+        mIdBookNum = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_BOOK_NUM);
+        mIdProject = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_PROJECT);
+        mIdContributors = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS);
     }
 
     public List<Project> getAllProjects(){
         List<Project> projectList = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_PROJECT;
+        String query = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT;
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         getIds(cursor);
@@ -87,6 +91,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 project.setSourceLanguage(cursor.getString(mIdSourceLang));
                 project.setMode(cursor.getString(mIdMode));
                 project.setSlug(cursor.getString(mIdSlug));
+                project.setProject(cursor.getString(mIdProject));
+                project.setBookNumber(cursor.getString(mIdBookNum));
+                project.setContributors(cursor.getString(mIdContributors));
                 projectList.add(project);
             } while(cursor.moveToNext());
         }
@@ -96,11 +103,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getNumProjects(){
-        String countQuery = "SELECT * FROM " + TABLE_PROJECT;
         SQLiteDatabase db = getReadableDatabase();
+        String countQuery = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT;
         Cursor cursor = db.rawQuery(countQuery, null);
+        int count = cursor.getCount();
         cursor.close();
         db.close();
-        return cursor.getCount();
+        return count;
     }
 }

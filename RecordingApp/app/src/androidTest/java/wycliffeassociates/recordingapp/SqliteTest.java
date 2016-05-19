@@ -32,8 +32,9 @@ public class SqliteTest {
 
     @Test
     public void testNoCuts() {
+        mDb.clearTable();
         assertEquals(0, mDb.getNumProjects());
-        Project p = new Project("en", "cmn-x-omc", "mat", "ulb", "verse");
+        Project p = new Project("en", "cmn-x-omc", 41, "mat", "ulb", "verse", "ot", "Joe");
         mDb.addProject(p);
         assertEquals(1, mDb.getNumProjects());
         Project p2 = mDb.getAllProjects().get(0);
@@ -42,6 +43,9 @@ public class SqliteTest {
         assertEquals(p.getSlug(), p2.getSlug());
         assertEquals(p.getSource(), p2.getSource());
         assertEquals(p.getMode(), p2.getMode());
+        assertEquals(p.getBookNumber(), p2.getBookNumber());
+        assertEquals(p.getProject(), p2.getProject());
+        assertEquals(p.getContributors(), p2.getContributors());
 
     }
 

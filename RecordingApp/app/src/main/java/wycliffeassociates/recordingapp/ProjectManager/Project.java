@@ -10,17 +10,33 @@ public class Project {
     String mSlug;
     String mSource;
     String mMode;
+    String mProject;
+    String mContributors;
+    String mBookNum;
 
     public Project(){
-
     }
 
-    public Project(String tLang, String sLang, String slug, String src, String mode){
+    public Project(String tLang, String sLang, String bookNum, String slug, String src, String mode, String project, String contributors){
         mTargetLang = tLang;
         mSrcLang = sLang;
         mSlug = slug;
+        mBookNum = bookNum;
         mSource = src;
         mMode = mode;
+        mProject = project;
+        mContributors = contributors;
+    }
+
+    public Project(String tLang, String sLang, int bookNum, String slug, String src, String mode, String project, String contributors){
+        mTargetLang = tLang;
+        mSrcLang = sLang;
+        mSlug = slug;
+        mBookNum = String.valueOf(bookNum);
+        mSource = src;
+        mMode = mode;
+        mProject = project;
+        mContributors = contributors;
     }
 
     public String getTargetLang(){
@@ -43,6 +59,18 @@ public class Project {
         return mMode;
     }
 
+    public String getContributors(){
+        return mContributors;
+    }
+
+    public String getBookNumber(){
+        return mBookNum;
+    }
+
+    public String getProject(){
+        return mProject;
+    }
+
     public void setTargetLanguage(String target){
         mTargetLang = target;
     }
@@ -61,5 +89,21 @@ public class Project {
 
     public void setMode(String mode){
         mMode = mode;
+    }
+
+    public void setProject(String project){
+        mProject = project;
+    }
+
+    public void setContributors(String contributors){
+        mContributors = contributors;
+    }
+
+    public void setBookNumber(String bookNumber){
+        mBookNum = bookNumber;
+    }
+
+    public void setBookNumber(int bookNumber){
+        mBookNum = String.valueOf(bookNumber);
     }
 }
