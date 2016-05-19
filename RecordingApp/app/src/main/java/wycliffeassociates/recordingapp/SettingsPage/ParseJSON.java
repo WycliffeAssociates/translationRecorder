@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Pair;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -112,11 +113,15 @@ public class ParseJSON {
      * @return a 2d ArrayList of chunks
      * @throws JSONException
      */
-    public ArrayList<ArrayList<Integer>> getChunks(String bookCode, String source){
+    public ArrayList<ArrayList<Pair<Integer,Integer>>> getChunks(String bookCode, String source){
         try {
+            //FIXME: no folder for "reg"
+            if(source.compareTo("reg") == 0){
+                source = "ulb";
+            }
             String json = loadJSONFromAsset("chunks/" + bookCode + "/en/" + source + "/chunks.json");
             JSONArray arrayOfChunks = new JSONArray(json);
-            ArrayList<ArrayList<Integer>> chunksInBook = new ArrayList<>();
+            ArrayList<ArrayList<Pair<Integer, Integer>>> chunksInBook = new ArrayList<>();
             //loop through the all the chunks
             for (int i = 0; i < arrayOfChunks.length(); i++) {
                 JSONObject jsonChunk = arrayOfChunks.getJSONObject(i);
@@ -124,10 +129,10 @@ public class ParseJSON {
                 int chapter = Integer.parseInt(id.substring(0, id.lastIndexOf('-')));
                 //if a chapter hasn't been appended yet, append it
                 if (chunksInBook.size() >= chapter - 1) {
-                    chunksInBook.add(new ArrayList<Integer>());
+                    chunksInBook.add(new ArrayList<Pair<Integer,Integer>>());
                 }
                 //add the chunk to that chapter
-                chunksInBook.get(chapter - 1).add(jsonChunk.getInt("firstvs"));
+                chunksInBook.get(chapter - 1).add(new Pair<>(jsonChunk.getInt("firstvs"), jsonChunk.getInt("lastvs")));
             }
             return chunksInBook;
         } catch (JSONException e){
@@ -142,11 +147,15 @@ public class ParseJSON {
      * @return a 2d ArrayList of verses
      * @throws JSONException
      */
-    public ArrayList<ArrayList<Integer>> getVerses(String bookCode, String source){
+    public ArrayList<ArrayList<Pair<Integer,Integer>>> getVerses(String bookCode, String source){
         try {
+            //FIXME: no folder for "reg"
+            if(source.compareTo("reg") == 0){
+                source = "ulb";
+            }
             String json = loadJSONFromAsset("chunks/" + bookCode + "/en/" + source + "/chunks.json");
             JSONArray arrayOfVerses = new JSONArray(json);
-            ArrayList<ArrayList<Integer>> versesInBook = new ArrayList<>();
+            ArrayList<ArrayList<Pair<Integer,Integer>>> versesInBook = new ArrayList<>();
             int lastChapter = 0;
             //loop through the all the verses
             for (int i = 0; i < arrayOfVerses.length(); i++) {
@@ -155,23 +164,23 @@ public class ParseJSON {
                 int chapter = Integer.parseInt(id.substring(0, id.lastIndexOf('-')));
                 //if a chapter hasn't been appended yet, append it
                 if (versesInBook.size() >= chapter - 1) {
-                    versesInBook.add(new ArrayList<Integer>());
+                    versesInBook.add(new ArrayList<Pair<Integer,Integer>>());
                 }
                 //add the chunk to that chapter
-                versesInBook.get(chapter - 1).add(jsonChunk.getInt("lastvs"));
+                versesInBook.get(chapter - 1).add(new Pair<>(jsonChunk.getInt("lastvs"),jsonChunk.getInt("lastvs")));
                 if(chapter > lastChapter){
                     lastChapter = chapter;
                 }
             }
 
-            ArrayList<ArrayList<Integer>> verses = new ArrayList<>();
+            ArrayList<ArrayList<Pair<Integer,Integer>>> verses = new ArrayList<>();
             for(int idx = 0; idx < lastChapter; idx++){
                 if(idx >= verses.size()){
-                    verses.add(new ArrayList<Integer>());
+                    verses.add(new ArrayList<Pair<Integer,Integer>>());
                 }
-                int numVerses = versesInBook.get(idx).get(versesInBook.get(idx).size()-1);
+                int numVerses = versesInBook.get(idx).get(versesInBook.get(idx).size()-1).first;
                 for(int i = 1; i <= numVerses; i++){
-                   verses.get(idx).add(i);
+                   verses.get(idx).add(new Pair<>(i,i));
                 }
             }
             return verses;

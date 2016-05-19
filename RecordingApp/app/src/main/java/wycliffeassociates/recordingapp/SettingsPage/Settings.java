@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.MainMenu;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.connectivity.LanguageNamesRequest;
@@ -58,11 +59,14 @@ public class Settings extends Activity {
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
     public static final String KEY_PREF_BOOK = "pref_book";
+    public static final String KEY_PREF_BOOK_NUM = "pref_book_num";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
     public static final String KEY_PREF_FILENAME = "pref_filename";
     public static final String KEY_PREF_TAKE = "pref_take";
     public static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
+    public static final String KEY_PREF_START_VERSE = "pref_start_verse";
+    public static final String KEY_PREF_END_VERSE = "pref_end_verse";
     public static final String KEY_PREF_VERSE = "pref_verse";
     public static final String KEY_PREF_SRC_LOC = "pref_src_loc";
     public static final String KEY_SDK_LEVEL = "pref_sdk_level";
@@ -83,19 +87,7 @@ public class Settings extends Activity {
 
     public static void updateFilename(Context c){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
-        String langCode = pref.getString(KEY_PREF_LANG, "en");
-        String bookCode = pref.getString(KEY_PREF_BOOK, "mat");
-        String chapter = formatDigit(pref.getString(KEY_PREF_CHAPTER, "1"));
-        String chunk = formatDigit(pref.getString(KEY_PREF_CHUNK, "1"));
-        String source = pref.getString(KEY_PREF_SOURCE, "udb");
-        String verse = formatDigit(pref.getString(KEY_PREF_VERSE, "1"));
-        String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
-        String filename;
-        if(chunkOrVerse.compareTo("chunk") == 0) {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk;
-        } else {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + verse;
-        }
+        String filename = FileNameExtractor.getNameWithoutTake(pref);
         pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
     }
 

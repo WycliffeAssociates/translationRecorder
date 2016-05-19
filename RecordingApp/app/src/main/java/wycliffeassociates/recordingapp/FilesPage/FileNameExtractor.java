@@ -2,10 +2,14 @@ package wycliffeassociates.recordingapp.FilesPage;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
  * Created by sarabiaj on 3/15/2016.
@@ -31,6 +35,31 @@ public class FileNameExtractor {
         extractData(file.getName());
     }
 
+    public FileNameExtractor(String lang, String source, String bookNum, String book, String project, String chapter,
+                             String startV, String endV, String take){
+        mLang = lang;
+        mSource = source;
+        mBookNum = (bookNum != null)? Integer.parseInt(bookNum) : -1;
+        mBook = book;
+        mProject = project;
+        mChap = (chapter != null)? Integer.parseInt(chapter) : -1;
+        mStartVerse = (startV != null)? Integer.parseInt(startV) : -1;
+        mEndVerse = (endV != null)? Integer.parseInt(endV) : -1;
+        mTake = (take != null)? Integer.parseInt(take) : -1;
+    }
+
+    public FileNameExtractor(SharedPreferences pref){
+        this(pref.getString(Settings.KEY_PREF_LANG, null),
+                pref.getString(Settings.KEY_PREF_SOURCE, null),
+                pref.getString(Settings.KEY_PREF_BOOK_NUM, null),
+                pref.getString(Settings.KEY_PREF_BOOK, null),
+                pref.getString(Settings.KEY_PREF_PROJECT, null),
+                pref.getString(Settings.KEY_PREF_CHAPTER, null),
+                pref.getString(Settings.KEY_PREF_START_VERSE, null),
+                pref.getString(Settings.KEY_PREF_END_VERSE, null),
+                pref.getString(Settings.KEY_PREF_TAKE, null));
+    }
+
     private void extractData(String file){
         //includes the wav extention, could replace this with .*?
         //String FILENAME_PATTERN = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})(_([0-9]{2}))?.*";
@@ -42,7 +71,7 @@ public class FileNameExtractor {
         String VERSE = "v([0-9]{2,3})(-([0-9]{2,3}))?";
         String TAKE = "(_t([0-9]{2}))?";
         String FILENAME_PATTERN = LANGUAGE + UNDERSCORE + PROJECT + UNDERSCORE + CHAPTER +
-                UNDERSCORE + VERSE + UNDERSCORE + TAKE + ".*";
+                UNDERSCORE + VERSE + TAKE + ".*";
         Pattern p = Pattern.compile(FILENAME_PATTERN);
         Matcher m = p.matcher(file);
         boolean found = m.find();
@@ -56,12 +85,8 @@ public class FileNameExtractor {
             mBook = m.group(5);
             mChap = Integer.parseInt(m.group(6));
             mStartVerse = Integer.parseInt(m.group(7));
-            mEndVerse = Integer.parseInt(m.group(9));
-            if(m.group(11) != null) {
-                mTake = Integer.parseInt(m.group(11));
-            } else {
-                mTake = 0;
-            }
+            mEndVerse = (m.group(9) != null)? Integer.parseInt(m.group(9)) : -1;
+            mTake = (m.group(11) != null)? Integer.parseInt(m.group(11)) : 0;
             mMatched = true;
         } else {
             mMatched = false;
@@ -89,6 +114,14 @@ public class FileNameExtractor {
 
     public int getChapter(){
         return mChap;
+    }
+
+    public int getStartVerse(){
+        return mStartVerse;
+    }
+
+    public int getEndVerse(){
+        return mEndVerse;
     }
 
     public int getChunk(){
@@ -122,8 +155,29 @@ public class FileNameExtractor {
     public String getNameWithoutTake(){
         if(mProject != null && mProject.compareTo("obs") == 0){
             return mLang + "_obs_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse);
+        } else {
+            String name;
+            String end = (mEndVerse != -1)? String.format("-%02d", mEndVerse) : "";
+            if(mBook.compareTo("psa") == 0 && mChap != 119){
+                name = mLang + "_" + mSource + "_b" + mBookNum + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+            } else if(mBook.compareTo("psa") == 0){
+                end = (mEndVerse != -1)? String.format("-%03d", mEndVerse) : "";
+                name = mLang + "_" + mSource + "_b" + mBookNum + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%03d", mStartVerse) + end;
+            } else {
+                name = mLang + "_" + mSource + "_b" + mBookNum + "_" + mBook + "_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+            }
+            return name;
         }
-        return mLang + "_" + mSource + "_" + mBook + "_" + String.format("%02d", mChap) + "-" + String.format("%02d", mChunk);
+    }
+
+    public static String getNameWithoutTake(String name){
+        FileNameExtractor fne = new FileNameExtractor(name);
+        return fne.getNameWithoutTake();
+    }
+
+    public static String getNameWithoutTake(SharedPreferences pref){
+        FileNameExtractor fne = new FileNameExtractor(pref);
+        return fne.getNameWithoutTake();
     }
 
     public static String getNameWithoutExtention(File file){
@@ -132,12 +186,6 @@ public class FileNameExtractor {
             name = name.replace(".wav", "");
         }
         return name;
-    }
-
-    public static String getNameWithoutTake(String name){
-        FileNameExtractor fne = new FileNameExtractor(name);
-        String without = fne.getLang() + "_" + fne.getSource() + "_" + fne.getBook() + "_" + String.format("%02d",fne.getChapter()) + "-" + String.format("%02d",fne.getChunk());
-        return without;
     }
 
     public static File getFileFromFileName(SharedPreferences pref, String file){

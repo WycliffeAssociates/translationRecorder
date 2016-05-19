@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.support.v4.provider.DocumentFile;
+import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
@@ -67,7 +68,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private boolean hasStartedRecording = false;
     private boolean mDeleteTempFile = false;
     private volatile HashMap<String, Book> mBooks;
-    private ArrayList<Integer> mChunks;
+    private ArrayList<Pair<Integer,Integer>> mChunks;
     private volatile int mNumChunks;
     private volatile int mChunk;
     private String mSlug;
@@ -106,7 +107,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         initBookInfo();
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-        mFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01");
+        mFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_b01_gen_c01_v01");
         mInsertMode = getIntent().getBooleanExtra("insert_mode", false);
         if(mInsertMode){
             initializeInsert(getIntent().getStringExtra("old_name"), getIntent().getIntExtra("insert_location", 0));
@@ -138,11 +139,11 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mLang = mFileNameExtractor.getLang();
         mSource = mFileNameExtractor.getSource();
         mSlug = mFileNameExtractor.getBook();
-        if(mBooks != null) {
+        if(mBooks != null && mSlug != null) {
             mBook = mBooks.get(mSlug).getName();
         }
         mChapter = mFileNameExtractor.getChapter();
-        mChunk = mFileNameExtractor.getChunk();
+        mChunk = mFileNameExtractor.getStartVerse();
     }
 
     private void initTaskFragment(Bundle savedInstanceState){
@@ -210,7 +211,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             }
             final String[] values = new String[mChunks.size()];
             for(int i = 0; i < mChunks.size(); i++){
-                values[i] = String.valueOf(mChunks.get(i));
+                values[i] = String.valueOf(mChunks.get(i).first);
             }
             int mNumChunks = mChunks.size();
             runOnUiThread(new Runnable() {
@@ -272,6 +273,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
                             pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
+                            pref.edit().putString(Settings.KEY_PREF_START_VERSE, "01").commit();
+                            pref.edit().putString(Settings.KEY_PREF_END_VERSE, "01").commit();
                             mChunk = 1;
                             mChunkPicker.setCurrent(0);
                             setChapter(newVal + 1);
@@ -336,9 +339,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         savedInstanceState.putBoolean(STATE_INSERTING, mInserting);
     }
 
-    private int getChunkIndex(ArrayList<Integer> chunks, int chunk) {
+    private int getChunkIndex(ArrayList<Pair<Integer,Integer>> chunks, int chunk) {
         for (int i = 0; i < chunks.size(); i++) {
-            if (chunks.get(i) == chunk) {
+            if (chunks.get(i).first == chunk) {
                 return i;
             }
         }
@@ -463,12 +466,17 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         if(mChunks != null) {
             //Get the list of chunks by first getting the book and chapter from the preference
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-            int chunk = mChunks.get(idx-1);
+            int startVerse = mChunks.get(idx-1).first;
+            int endVerse = mChunks.get(idx-1).second;
             String chunkOrVerse = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
             if(chunkOrVerse.compareTo("chunk") == 0) {
-                pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+                //pref.edit().putString(Settings.KEY_PREF_CHUNK, ).commit();
+                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(startVerse)).commit();
+                pref.edit().putString(Settings.KEY_PREF_END_VERSE, String.valueOf(endVerse)).commit();
             } else {
-                pref.edit().putString(Settings.KEY_PREF_VERSE, String.valueOf(chunk)).commit();
+                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(String.valueOf(startVerse))).commit();
+                pref.edit().putString(Settings.KEY_PREF_END_VERSE, null).commit();
+                System.out.println(pref.getString(Settings.KEY_PREF_END_VERSE, ""));
             }
 
             pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();

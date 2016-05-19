@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.SettingsPage;
 import android.content.Context;
 import android.preference.ListPreference;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.View;
 
 import org.json.JSONArray;
@@ -58,12 +59,12 @@ public class ChapterChunkListPreference extends ListPreference {
                 getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                 chapter = 1;
             }
-            ArrayList<Integer> chunks = parse.getChunks(bookCode, src).get(chapter-1);
+            ArrayList<Pair<Integer,Integer>> chunks = parse.getChunks(bookCode, src).get(chapter-1);
             int numChunks = chunks.size();
             String[] chunkList = new String[numChunks];
             //Chunks are labeled by start verse, rather than sequential numbers
             for(int i =0; i < numChunks; i++){
-                chunkList[i] = String.valueOf(chunks.get(i));
+                chunkList[i] = String.valueOf(chunks.get(i).first);
             }
             super.setEntries(chunkList);
             super.setEntryValues(chunkList);
@@ -74,12 +75,12 @@ public class ChapterChunkListPreference extends ListPreference {
                 getSharedPreferences().edit().putString(KEY_PREF_CHAPTER, "1").commit();
                 chapter = 1;
             }
-            ArrayList<Integer> verses = parse.getVerses(bookCode, src).get(chapter-1);
+            ArrayList<Pair<Integer,Integer>> verses = parse.getVerses(bookCode, src).get(chapter-1);
             int numVerses = verses.size();
             String[] verseList = new String[numVerses];
             //Chunks are labeled by start verse, rather than sequential numbers
             for(int i =0; i < numVerses; i++){
-                verseList[i] = String.valueOf(verses.get(i));
+                verseList[i] = String.valueOf(verses.get(i).first);
             }
             super.setEntries(verseList);
             super.setEntryValues(verseList);
