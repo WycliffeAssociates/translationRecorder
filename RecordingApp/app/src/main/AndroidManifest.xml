@@ -65,6 +65,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".SettingsPage.ModeActivity" />
+        <activity android:name=".SettingsPage.SourceTextActivity" />
+
         <activity android:name=".FilesPage.ExportFiles" />
         <service android:name=".Recording.WavRecorder" />
         <service android:name=".Recording.WavFileWriter" />

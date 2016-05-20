@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 
 
@@ -28,6 +29,7 @@ public class ProjectActivity extends AppCompatActivity implements ProjectListFra
     private String mSearchText = null;
     private String mSourceOrTarget;
     private final String target = "target";
+    private Project mProject;
 
     private final String source = "source";
 
@@ -36,7 +38,7 @@ public class ProjectActivity extends AppCompatActivity implements ProjectListFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_list);
         mSourceOrTarget = getIntent().getStringExtra("lang_type");
-        Intent i = getIntent();
+        mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
         mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_PROJECT_LIST);
         if(savedInstanceState != null){
             mSearchText = savedInstanceState.getString("search_text", null);
@@ -91,7 +93,6 @@ public class ProjectActivity extends AppCompatActivity implements ProjectListFra
 
     @Override
     public void onItemClick(String projectId) {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         String project = "nt";
         if(projectId.compareTo("Bible: OT") == 0){
             project = "ot";
@@ -100,12 +101,12 @@ public class ProjectActivity extends AppCompatActivity implements ProjectListFra
         } else if(projectId.compareTo("Open Bible Stories") == 0){
             project = "obs";
         }
-        pref.edit().putString(Settings.KEY_PREF_PROJECT, project).commit();
-        if(project.compareTo("obs") != 0){
-            Intent intent = new Intent(this, BookActivity.class);
-            intent.putExtra("project", project);
-            startActivity(intent);
-        }
+        mProject.setProject(project);
+        Intent intent = new Intent();
+        intent.putExtra(Project.PROJECT_EXTRA, mProject);
+        Project compareProject = intent.getParcelableExtra(Project.PROJECT_EXTRA);
+        boolean compared = compareProject.getProject() == mProject.getProject();
+        setResult(RESULT_OK, intent);
         finish();
     }
 }

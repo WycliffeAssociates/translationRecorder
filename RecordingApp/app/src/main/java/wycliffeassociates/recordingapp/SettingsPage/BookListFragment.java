@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.SettingsPage;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -75,7 +77,8 @@ public class BookListFragment extends PreferenceFragment implements Searchable {
 
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mProject = activity.getIntent().getStringExtra("project");
+        Project project = activity.getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
+        mProject = project.getProject();
         try {
             this.mListener = (OnItemClickListener) activity;
         } catch (ClassCastException e) {

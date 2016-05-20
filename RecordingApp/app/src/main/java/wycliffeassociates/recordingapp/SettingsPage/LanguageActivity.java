@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 
 
@@ -28,6 +29,7 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
     private String mSourceOrTarget;
     private final String target = "target";
     private final String source = "source";
+    private Project mProject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,7 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
         setContentView(R.layout.activity_language_selector);
         mSourceOrTarget = getIntent().getStringExtra("lang_type");
         Intent i = getIntent();
+        mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
         mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_LANGUAGE_LIST);
         if(savedInstanceState != null){
             mSearchText = savedInstanceState.getString("search_text", null);
@@ -89,13 +92,10 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
 
     @Override
     public void onItemClick(Language targetLanguage) {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        if(mSourceOrTarget.compareTo(target) == 0) {
-            pref.edit().putString(Settings.KEY_PREF_LANG, targetLanguage.getCode()).commit();
-            Settings.updateFilename(this);
-        } else {
-            pref.edit().putString(Settings.KEY_PREF_LANG_SRC, targetLanguage.getCode()).commit();
-        }
+        mProject.setTargetLanguage(targetLanguage.getCode());
+        Intent intent = new Intent();
+        intent.putExtra(Project.PROJECT_EXTRA, mProject);
+        setResult(RESULT_OK, intent);
         this.finish();
     }
 }

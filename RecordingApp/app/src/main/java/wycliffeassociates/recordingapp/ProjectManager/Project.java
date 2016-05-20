@@ -1,9 +1,14 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by sarabiaj on 5/10/2016.
  */
-public class Project {
+public class Project implements Parcelable{
+
+    public static final String PROJECT_EXTRA = "project_extra";
 
     String mTargetLang;
     String mSrcLang;
@@ -116,5 +121,44 @@ public class Project {
 
     public void setSourceAudioPath(String sourceAudioPath){
         mSourceAudioPath = sourceAudioPath;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mTargetLang);
+        dest.writeString(mSrcLang);
+        dest.writeString(mSlug);
+        dest.writeString(mSource);
+        dest.writeString(mMode);
+        dest.writeString(mProject);
+        dest.writeString(mContributors);
+        dest.writeString(mBookNum);
+        dest.writeString(mSourceAudioPath);
+    }
+
+    public static final Parcelable.Creator<Project> CREATOR = new Parcelable.Creator<Project>() {
+        public Project createFromParcel(Parcel in){
+            return new Project(in);
+        }
+        public Project[] newArray(int size){
+            return new Project[size];
+        }
+    };
+
+    public Project(Parcel in){
+        mTargetLang = in.readString();
+        mSrcLang = in.readString();
+        mSlug = in.readString();
+        mSource = in.readString();
+        mMode = in.readString();
+        mProject = in.readString();
+        mContributors = in.readString();
+        mBookNum = in.readString();
+        mSourceAudioPath = in.readString();
     }
 }

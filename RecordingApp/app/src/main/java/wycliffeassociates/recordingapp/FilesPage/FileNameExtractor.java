@@ -81,7 +81,7 @@ public class FileNameExtractor {
             mLang = m.group(1);
             mProject = m.group(2);
             mSource = m.group(3);
-            mBookNum = Integer.parseInt(m.group(4));
+            mBookNum = (m.group(4) != null)? Integer.parseInt(m.group(4)) : -1;
             mBook = m.group(5);
             mChap = Integer.parseInt(m.group(6));
             mStartVerse = Integer.parseInt(m.group(7));
