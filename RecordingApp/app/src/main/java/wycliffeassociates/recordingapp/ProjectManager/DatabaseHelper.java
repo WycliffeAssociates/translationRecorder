@@ -17,7 +17,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "translation_projects";
 
-
     private int mIdSlug;
     private int mIdTargetLang;
     private int mIdSourceLang;
@@ -26,6 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private int mIdProject;
     private int mIdContributors;
     private int mIdBookNum;
+    private int mIdSourceAudioPath;
 
     public DatabaseHelper(Context ctx){
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
@@ -61,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.ProjectEntry.COLUMN_BOOK_NUM, p.getBookNumber());
         cv.put(ProjectContract.ProjectEntry.COLUMN_PROJECT, p.getProject());
         cv.put(ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS, p.getContributors());
+        cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
         long result = db.insert(ProjectContract.ProjectEntry.TABLE_PROJECT, null, cv);
         db.close();
     }
@@ -74,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         mIdBookNum = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_BOOK_NUM);
         mIdProject = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_PROJECT);
         mIdContributors = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS);
+        mIdSourceAudioPath = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH);
     }
 
     public List<Project> getAllProjects(){
@@ -94,6 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 project.setProject(cursor.getString(mIdProject));
                 project.setBookNumber(cursor.getString(mIdBookNum));
                 project.setContributors(cursor.getString(mIdContributors));
+                project.setSourceAudioPath(cursor.getString(mIdSourceAudioPath));
                 projectList.add(project);
             } while(cursor.moveToNext());
         }

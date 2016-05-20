@@ -13,11 +13,12 @@ public class Project {
     String mProject;
     String mContributors;
     String mBookNum;
+    String mSourceAudioPath;
 
     public Project(){
     }
 
-    public Project(String tLang, String sLang, String bookNum, String slug, String src, String mode, String project, String contributors){
+    public Project(String tLang, String sLang, String bookNum, String slug, String src, String mode, String project, String contributors, String sourceAudioPath){
         mTargetLang = tLang;
         mSrcLang = sLang;
         mSlug = slug;
@@ -26,9 +27,10 @@ public class Project {
         mMode = mode;
         mProject = project;
         mContributors = contributors;
+        mSourceAudioPath = sourceAudioPath;
     }
 
-    public Project(String tLang, String sLang, int bookNum, String slug, String src, String mode, String project, String contributors){
+    public Project(String tLang, String sLang, int bookNum, String slug, String src, String mode, String project, String contributors, String sourceAudioPath){
         mTargetLang = tLang;
         mSrcLang = sLang;
         mSlug = slug;
@@ -37,6 +39,7 @@ public class Project {
         mMode = mode;
         mProject = project;
         mContributors = contributors;
+        mSourceAudioPath = sourceAudioPath;
     }
 
     public String getTargetLang(){
@@ -69,6 +72,10 @@ public class Project {
 
     public String getProject(){
         return mProject;
+    }
+
+    public String getSourceAudioPath(){
+        return mSourceAudioPath;
     }
 
     public void setTargetLanguage(String target){
@@ -105,5 +112,9 @@ public class Project {
 
     public void setBookNumber(int bookNumber){
         mBookNum = String.valueOf(bookNumber);
+    }
+
+    public void setSourceAudioPath(String sourceAudioPath){
+        mSourceAudioPath = sourceAudioPath;
     }
 }

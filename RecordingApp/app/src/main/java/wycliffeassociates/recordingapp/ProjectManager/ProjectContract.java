@@ -20,6 +20,7 @@ public final class ProjectContract {
         public static final String COLUMN_PROJECT= "key_project";
         public static final String COLUMN_MODE = "key_mode";
         public static final String COLUMN_CONTRIBUTORS = "key_contributors";
+        public static final String COLUMN_SOURCE_AUDIO_PATH = "key_source_audio_path";
     }
     public static final String TEXT = " TEXT";
     public static final String COMMA = ",";
@@ -34,7 +35,8 @@ public final class ProjectContract {
             + ProjectEntry.COLUMN_SOURCE + TEXTCOMMA
             + ProjectEntry.COLUMN_PROJECT + TEXTCOMMA
             + ProjectEntry.COLUMN_MODE + TEXTCOMMA
-            + ProjectEntry.COLUMN_CONTRIBUTORS + TEXT
+            + ProjectEntry.COLUMN_CONTRIBUTORS + TEXTCOMMA
+            + ProjectEntry.COLUMN_SOURCE_AUDIO_PATH + TEXT
             + " )";
 
     public static final String DELETE_ENTRIES = "DROP TABLE IF EXISTS " + ProjectEntry.TABLE_PROJECT;
