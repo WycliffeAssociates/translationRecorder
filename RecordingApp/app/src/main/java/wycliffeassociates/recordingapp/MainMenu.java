@@ -74,14 +74,14 @@ public class MainMenu extends Activity{
         initApp();
 
         DatabaseHelper db = new DatabaseHelper(this);
-        mNumProjects = db.getNumProjects();
+        mNumProjects = 0;//db.getNumProjects();
 
         btnRecord = (ImageButton) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //              TODO: clicking new_record button should trigger a new_project activity instead of the recording
-                if(mNumProjects < 0) {
+                if(mNumProjects <= 0) {
                     Intent intent = new Intent(v.getContext(), LanguageActivity.class);
                     intent.putExtra(Project.PROJECT_EXTRA, new Project());
                     startActivityForResult(intent, LANGUAGE_REQUEST);

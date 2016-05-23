@@ -157,14 +157,14 @@ public class FileNameExtractor {
             return mLang + "_obs_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse);
         } else {
             String name;
-            String end = (mEndVerse != -1)? String.format("-%02d", mEndVerse) : "";
+            String end = (mEndVerse != -1 && mStartVerse != mEndVerse)? String.format("-%02d", mEndVerse) : "";
             if(mBook.compareTo("psa") == 0 && mChap != 119){
-                name = mLang + "_" + mSource + "_b" + mBookNum + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             } else if(mBook.compareTo("psa") == 0){
                 end = (mEndVerse != -1)? String.format("-%03d", mEndVerse) : "";
-                name = mLang + "_" + mSource + "_b" + mBookNum + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%03d", mStartVerse) + end;
+                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%03d", mStartVerse) + end;
             } else {
-                name = mLang + "_" + mSource + "_b" + mBookNum + "_" + mBook + "_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             }
             return name;
         }
@@ -197,29 +197,12 @@ public class FileNameExtractor {
         if(files == null){
             return 0;
         }
-        FileNameExtractor fne = new FileNameExtractor(filename);
-        String inLang = fne.getLang();
-        String inSource = fne.getSource();
-        String inBook = fne.getBook();
-        int inChap = fne.getChapter();
-        int inChunk = fne.getChunk();
-        int maxTake = fne.getTake();
+        FileNameExtractor inputFNE = new FileNameExtractor(filename);
+        int maxTake = inputFNE.getTake();
         for(File f : files){
-            fne = new FileNameExtractor(f);
-            //check in order of most unique to least unique
-            //ie. more files will share the same language name than chunk number
-            if(inChunk == fne.getChunk()){
-                if(inChap == fne.getChapter()){
-                    if(inBook.compareTo(fne.getBook()) == 0){
-                        if(inSource.compareTo(fne.getSource()) == 0){
-                            if(inLang.compareTo(fne.getLang()) == 0){
-                                if(fne.getTake() > maxTake){
-                                    maxTake = fne.getTake();
-                                }
-                            }
-                        }
-                    }
-                }
+            FileNameExtractor fne = new FileNameExtractor(f);
+            if((inputFNE.getNameWithoutTake()).compareTo((fne.getNameWithoutTake())) == 0){
+                maxTake = (maxTake < fne.getTake())? fne.getTake() : maxTake;
             }
         }
         return maxTake;
