@@ -17,7 +17,7 @@ import wycliffeassociates.recordingapp.SettingsPage.Settings;
 public class FileNameExtractor {
     private String mLang ="";
     private String mSource ="";
-    private String mBook ="";
+    private String mBook = "";
     private String mProject ="";
     private int mChap;
     private int mChunk;
@@ -39,25 +39,45 @@ public class FileNameExtractor {
                              String startV, String endV, String take){
         mLang = lang;
         mSource = source;
-        mBookNum = (bookNum != null)? Integer.parseInt(bookNum) : -1;
+        try {
+            mBookNum = Integer.parseInt(bookNum);
+        } catch (NumberFormatException e){
+            mBookNum = -1;
+        }
         mBook = book;
         mProject = project;
-        mChap = (chapter != null)? Integer.parseInt(chapter) : -1;
-        mStartVerse = (startV != null)? Integer.parseInt(startV) : -1;
-        mEndVerse = (endV != null)? Integer.parseInt(endV) : -1;
-        mTake = (take != null)? Integer.parseInt(take) : -1;
+        try{
+            mChap = Integer.parseInt(chapter);
+        } catch (NumberFormatException e){
+            mChap = -1;
+        }
+        try {
+            mStartVerse = Integer.parseInt(startV);
+        } catch (NumberFormatException e){
+            mStartVerse = -1;
+        }
+        try {
+            mEndVerse = Integer.parseInt(endV);
+        } catch (NumberFormatException e){
+            mEndVerse = -1;
+        }
+        try{
+            mTake = (take != null)? Integer.parseInt(take) : -1;
+        } catch(NumberFormatException e){
+            mTake = -1;
+        }
     }
 
     public FileNameExtractor(SharedPreferences pref){
-        this(pref.getString(Settings.KEY_PREF_LANG, null),
-                pref.getString(Settings.KEY_PREF_SOURCE, null),
-                pref.getString(Settings.KEY_PREF_BOOK_NUM, null),
-                pref.getString(Settings.KEY_PREF_BOOK, null),
-                pref.getString(Settings.KEY_PREF_PROJECT, null),
-                pref.getString(Settings.KEY_PREF_CHAPTER, null),
-                pref.getString(Settings.KEY_PREF_START_VERSE, null),
-                pref.getString(Settings.KEY_PREF_END_VERSE, null),
-                pref.getString(Settings.KEY_PREF_TAKE, null));
+        this(pref.getString(Settings.KEY_PREF_LANG, ""),
+                pref.getString(Settings.KEY_PREF_SOURCE, ""),
+                pref.getString(Settings.KEY_PREF_BOOK_NUM, ""),
+                pref.getString(Settings.KEY_PREF_BOOK, ""),
+                pref.getString(Settings.KEY_PREF_PROJECT, ""),
+                pref.getString(Settings.KEY_PREF_CHAPTER, ""),
+                pref.getString(Settings.KEY_PREF_START_VERSE, ""),
+                pref.getString(Settings.KEY_PREF_END_VERSE, ""),
+                pref.getString(Settings.KEY_PREF_TAKE, ""));
     }
 
     private void extractData(String file){

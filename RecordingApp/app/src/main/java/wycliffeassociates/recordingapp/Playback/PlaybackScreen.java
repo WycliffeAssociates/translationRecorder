@@ -110,8 +110,14 @@ public class PlaybackScreen extends Activity{
         mChapterView = (TextView) findViewById(R.id.file_chapter);
         mChunkView = (TextView) findViewById(R.id.file_unit);
         mLangView.setText(mFileNameExtractor.getLang().toUpperCase());
-        mSourceView.setText(mFileNameExtractor.getSource().toUpperCase());
-        mBookView.setText(mFileNameExtractor.getBook().toUpperCase());
+
+        if(mFileNameExtractor.getProject().compareTo("obs") != 0) {
+            mSourceView.setText(mFileNameExtractor.getSource().toUpperCase());
+            mBookView.setText(mFileNameExtractor.getBook().toUpperCase());
+        } else {
+            mSourceView.setText("");
+            mBookView.setText("OBS");
+        }
         mChapterView.setText(String.format("%d", mFileNameExtractor.getChapter()));
         mChunkView.setText(String.format("%d", mFileNameExtractor.getStartVerse()));
 

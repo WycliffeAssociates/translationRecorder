@@ -449,7 +449,12 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
      */
     public String getFilename() {
         String root = pref.getString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString());
-        String fullpath = root + "/" + mLang + "/" + mSource + "/" + mSlug + "/" + String.format("%02d",mChapter) + "/";
+        String fullpath;
+        if (pref.getString(Settings.KEY_PREF_PROJECT, "obs").compareTo("obs") != 0){
+            fullpath = root + "/" + mLang + "/" + mSource + "/" + mSlug + "/" + String.format("%02d", mChapter) + "/";
+        } else {
+            fullpath = root + "/" + mLang + "/obs/" + String.format("%02d", mChapter) + "/";
+        }
         pref.edit().putString("current_directory", fullpath).commit();
 
         String take = String.format("%02d", FileNameExtractor.getLargestTake(new File (fullpath), new File(mFilename+"_t00.wav"))+1);
