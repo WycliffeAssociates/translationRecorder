@@ -110,21 +110,6 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     public void onResume() {
         super.onResume();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_LANG);
-        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_BOOK);
-        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_FILENAME);
-        if(getPreferenceManager().getSharedPreferences().getString(KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0){
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setEnabled(false);
-            findPreference(KEY_PREF_CHUNK).setEnabled(true);
-        } else {
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setEnabled(true);
-            findPreference(KEY_PREF_CHUNK).setEnabled(false);
-
-        }
     }
 
     @Override
@@ -135,33 +120,10 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
         updateSummaryText(sharedPref, key);
-        if(key.compareTo(KEY_PREF_TAKE) == 0){
-            //sharedPref.edit().putString(KEY_PREF_TAKE, "1").commit();
-        }
-        if(getPreferenceManager().getSharedPreferences().getString(KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0){
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setEnabled(false);
-            findPreference(KEY_PREF_CHUNK).setEnabled(true);
-        } else {
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setEnabled(true);
-            findPreference(KEY_PREF_CHUNK).setEnabled(false);
-        }
         Settings.updateFilename(getActivity());
     }
 
     private void updateSummariesSetViaActivities(SharedPreferences sharedPref){
-        //Doing this because the sharedPreferenceChanged method is not called from the language select activity
-        findPreference(Settings.KEY_PREF_LANG_SRC).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG_SRC, ""));
-        findPreference(Settings.KEY_PREF_LANG).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG, ""));
-
-        //if book was changed, need to update these...
-        findPreference(Settings.KEY_PREF_CHAPTER).setSummary(sharedPref.getString(Settings.KEY_PREF_CHAPTER, "1"));
-        findPreference(Settings.KEY_PREF_CHUNK).setSummary(sharedPref.getString(Settings.KEY_PREF_CHUNK, "1"));
-        findPreference(Settings.KEY_PREF_VERSE).setSummary(sharedPref.getString(Settings.KEY_PREF_VERSE, "1"));
-
         String uristring = sharedPref.getString(Settings.KEY_PREF_SRC_LOC, "");
         Uri dir = Uri.parse(uristring);
         if(dir != null) {

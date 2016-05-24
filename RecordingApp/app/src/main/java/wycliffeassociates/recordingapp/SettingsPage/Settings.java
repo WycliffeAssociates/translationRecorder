@@ -125,10 +125,6 @@ public class Settings extends Activity {
         PreferenceManager.setDefaultValues(this, R.xml.preference, false);
     }
 
-    public void resetPrefs() {
-
-    }
-
     public void onBackPressed(View v) {
         Intent intent = new Intent(Settings.this, MainMenu.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

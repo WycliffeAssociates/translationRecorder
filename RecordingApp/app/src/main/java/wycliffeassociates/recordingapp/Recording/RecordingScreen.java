@@ -75,6 +75,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private volatile String mBook;
     private volatile String mSource;
     private volatile String mLang;
+    private volatile String mMode;
     private int mChapter;
 
     private TextView mSourceView;
@@ -219,6 +220,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private void initChunkPicker(){
         initFileName();
         final String verseOrChunk = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
+        mMode = verseOrChunk;
         if(pref.getString(Settings.KEY_PREF_PROJECT, "obs").compareTo("obs") != 0) {
             Book book = mBooks.get(mSlug);
             if (verseOrChunk.compareTo("chunk") == 0) {
@@ -283,14 +285,17 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                     @Override
                     public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
-                    pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
-                    pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
-                    pref.edit().putString(Settings.KEY_PREF_START_VERSE, "01").commit();
-                    pref.edit().putString(Settings.KEY_PREF_END_VERSE, "01").commit();
-                    mChunk = 1;
-                    mChunkPicker.setCurrent(0);
-                    setChapter(newVal + 1);
-                    mSrcPlayer.reset();
+                        pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
+                        pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
+                        pref.edit().putString(Settings.KEY_PREF_START_VERSE, "01").commit();
+                        pref.edit().putString(Settings.KEY_PREF_END_VERSE, "01").commit();
+                        mChunk = 1;
+                        mChunkPicker.setCurrent(0);
+                        setChapter(newVal + 1);
+
+                        initChunkPicker();
+
+                        mSrcPlayer.reset();
                     }
                 });
             } else {

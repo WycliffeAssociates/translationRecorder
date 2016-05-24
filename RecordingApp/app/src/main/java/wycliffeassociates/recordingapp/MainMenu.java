@@ -4,12 +4,14 @@ package wycliffeassociates.recordingapp;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageButton;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import wycliffeassociates.recordingapp.ProjectManager.DatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -74,7 +77,7 @@ public class MainMenu extends Activity{
         initApp();
 
         DatabaseHelper db = new DatabaseHelper(this);
-        mNumProjects = 0;//db.getNumProjects();
+        mNumProjects = db.getNumProjects();
 
         btnRecord = (ImageButton) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
@@ -82,12 +85,10 @@ public class MainMenu extends Activity{
             public void onClick(View v) {
 //              TODO: clicking new_record button should trigger a new_project activity instead of the recording
                 if(mNumProjects <= 0) {
-                    Intent intent = new Intent(v.getContext(), LanguageActivity.class);
-                    intent.putExtra(Project.PROJECT_EXTRA, new Project());
-                    startActivityForResult(intent, LANGUAGE_REQUEST);
+                    setupNewProject();
                 } else {
-                    Intent intent = new Intent(v.getContext(), RecordingScreen.class);
-                    startActivity(intent);
+                    promptProjectList();
+//
                 }
             }
         });
@@ -196,6 +197,52 @@ public class MainMenu extends Activity{
             }
             default:
         }
+    }
+
+    private void setupNewProject(){
+        Intent intent = new Intent(this, LanguageActivity.class);
+        intent.putExtra(Project.PROJECT_EXTRA, new Project());
+        startActivityForResult(intent, LANGUAGE_REQUEST);
+    }
+
+    private void promptProjectList(){
+        final DatabaseHelper db = new DatabaseHelper(this);
+        final List<Project> projects = db.getAllProjects();
+        final CharSequence[] items = getProjectList(projects);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Continue an existing Project?");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (items[item].equals("New Project")) {
+                    setupNewProject();
+                } else {
+                    loadProject(projects.get(item-1));
+                    startRecordingScreen();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void startRecordingScreen(){
+        Intent intent = new Intent(this, RecordingScreen.class);
+        startActivity(intent);
+    }
+
+    private CharSequence[] getProjectList(List<Project> projects){
+        CharSequence[] list = new CharSequence[projects.size()+1];
+        list[0] = "New Project";
+        for(int i = 1; i <= projects.size(); i++){
+            Project p = projects.get(i-1);
+            CharSequence c = (p.getProject().compareTo("obs") != 0)? p.getTargetLang() + ": " + p.getSlug() : p.getTargetLang() + ": " + "Open Bible Stories";
+            list[i] = c;
+        }
+        for(CharSequence c : list){
+            System.out.println(c);
+        }
+        return list;
     }
 
     private void addProjectToDatabase(Project project){

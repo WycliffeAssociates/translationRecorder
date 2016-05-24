@@ -86,10 +86,10 @@ public class FileNameExtractor {
 
         String UNDERSCORE = "_";
         String LANGUAGE = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)";
-        String PROJECT = "(([a-zA-Z]{3})_b([0-9]{2})_([1-3]*[a-zA-Z]+)|obs)";
-        String CHAPTER = "c([0-9]{2,3})";
-        String VERSE = "v([0-9]{2,3})(-([0-9]{2,3}))?";
-        String TAKE = "(_t([0-9]{2}))?";
+        String PROJECT = "(([a-zA-Z]{3})_b([\\d]{2})_([1-3]*[a-zA-Z]+)|obs)";
+        String CHAPTER = "c([\\d]{2,3})";
+        String VERSE = "v([\\d]{2,3})(-([\\d]{2,3}))?";
+        String TAKE = "(_t([\\d]{2}))?";
         String FILENAME_PATTERN = LANGUAGE + UNDERSCORE + PROJECT + UNDERSCORE + CHAPTER +
                 UNDERSCORE + VERSE + TAKE + ".*";
         Pattern p = Pattern.compile(FILENAME_PATTERN);
