@@ -93,6 +93,18 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
                 return true;
             }
         });
+
+        Preference releaseButton = (Preference)findPreference("resume");
+        releaseButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                PreferenceManager.getDefaultSharedPreferences(context).edit().putString("resume", "").commit();
+                ((Activity) context).finishAffinity();
+                Intent intent = new Intent(context, SplashScreen.class);
+                startActivity(intent);
+                return true;
+            }
+        });
     }
 
     @Override

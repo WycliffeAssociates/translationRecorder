@@ -83,12 +83,14 @@ public class MainMenu extends Activity{
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//              TODO: clicking new_record button should trigger a new_project activity instead of the recording
-                if(mNumProjects <= 0) {
-                    setupNewProject();
+                if( pref.getString("resume", "").compareTo("") == 0 ) {
+                    if (mNumProjects <= 0) {
+                        setupNewProject();
+                    } else {
+                        promptProjectList();
+                    }
                 } else {
-                    promptProjectList();
-//
+                    startRecordingScreen();
                 }
             }
         });
@@ -251,6 +253,8 @@ public class MainMenu extends Activity{
     }
 
     private void loadProject(Project project){
+        pref.edit().putString("resume", "resume").commit();
+
         pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
         pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
         pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLang()).commit();

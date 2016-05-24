@@ -44,4 +44,14 @@
         </Preference>
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Resume Project"
+        android:layout="@layout/custom_pref_category">
+        <Preference
+            android:key="resume"
+            android:title="Release"
+            android:summary="Release Current Project">
+        </Preference>
+    </PreferenceCategory>
+
 </PreferenceScreen>

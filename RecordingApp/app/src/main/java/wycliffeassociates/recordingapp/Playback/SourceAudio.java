@@ -118,15 +118,8 @@ public class SourceAudio extends LinearLayout {
             return null;
         }
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-        String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-        String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-        String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-        String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-        String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-        if (sp.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") != 0) {
-            chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_VERSE, "1")));
-        }
-        String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
+        FileNameExtractor fne = new FileNameExtractor(sp);
+        String filename = fne.getNameWithoutTake();
 
         String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
         DocumentFile[] files = directory.listFiles();
@@ -151,15 +144,8 @@ public class SourceAudio extends LinearLayout {
             return null;
         } else {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-            String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-            String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-            String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-            String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-            String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-            if (sp.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") != 0) {
-                chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_VERSE, "1")));
-            }
-            String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
+            FileNameExtractor fne = new FileNameExtractor(sp);
+            String filename = fne.getNameWithoutTake();
             String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
             File[] files = directory.listFiles();
             for(File f : files){
