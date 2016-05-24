@@ -244,6 +244,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 if (values != null && values.length > 0) {
                     mChunkPicker.setDisplayedValues(values);
                     mChunkPicker.setCurrent(getChunkIndex(mChunks, mChunk));
+                    setChunk(getChunkIndex(mChunks, mChunk) + 1);
                     //reinitialize all of the filenames
                     initFileName();
                     mChunkPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
@@ -274,27 +275,27 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (values != null && values.length > 0) {
-                    mChapterPicker.setDisplayedValues(values);
-                    mChapterPicker.setCurrent(mChapter - 1);
-                    //reinitialize all of the filenames
-                    initFileName();
-                    mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
-                        @Override
-                        public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
-                        pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
-                        pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
-                        pref.edit().putString(Settings.KEY_PREF_START_VERSE, "01").commit();
-                        pref.edit().putString(Settings.KEY_PREF_END_VERSE, "01").commit();
-                        mChunk = 1;
-                        mChunkPicker.setCurrent(0);
-                        setChapter(newVal + 1);
-                        mSrcPlayer.reset();
-                        }
-                    });
-                } else {
-                    Logger.e(this.toString(), "values was null or of zero length");
-                }
+            if (values != null && values.length > 0) {
+                mChapterPicker.setDisplayedValues(values);
+                mChapterPicker.setCurrent(mChapter - 1);
+                //reinitialize all of the filenames
+                initFileName();
+                mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
+                    @Override
+                    public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
+                    pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
+                    pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
+                    pref.edit().putString(Settings.KEY_PREF_START_VERSE, "01").commit();
+                    pref.edit().putString(Settings.KEY_PREF_END_VERSE, "01").commit();
+                    mChunk = 1;
+                    mChunkPicker.setCurrent(0);
+                    setChapter(newVal + 1);
+                    mSrcPlayer.reset();
+                    }
+                });
+            } else {
+                Logger.e(this.toString(), "values was null or of zero length");
+            }
             }
         });
     }
