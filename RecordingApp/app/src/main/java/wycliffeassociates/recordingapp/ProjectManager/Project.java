@@ -48,39 +48,39 @@ public class Project implements Parcelable{
     }
 
     public String getTargetLang(){
-        return mTargetLang;
+        return (mTargetLang == null)? "" : mTargetLang;
     }
 
     public String getSrcLang(){
-        return mSrcLang;
+        return (mSrcLang == null)? "" : mSrcLang;
     }
 
     public String getSlug(){
-        return mSlug;
+        return (mSlug == null)? "" : mSlug;
     }
 
     public String getSource(){
-        return mSource;
+        return (mSource == null)? "" : mSource;
     }
 
     public String getMode(){
-        return mMode;
+        return (mMode == null)? "" : mMode;
     }
 
     public String getContributors(){
-        return mContributors;
+        return (mContributors == null)? "" : mContributors;
     }
 
     public String getBookNumber(){
-        return mBookNum;
+        return (mBookNum == null)? "" : mBookNum;
     }
 
     public String getProject(){
-        return mProject;
+        return (mProject == null)? "" : mProject;
     }
 
     public String getSourceAudioPath(){
-        return mSourceAudioPath;
+        return (mSourceAudioPath == null)? "" : mSourceAudioPath;
     }
 
     public void setTargetLanguage(String target){

@@ -52,17 +52,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void addProject(Project p){
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(ProjectContract.ProjectEntry.COLUMN_TARGET_LANG, p.getTargetLang());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG, p.getSrcLang());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_SLUG, p.getSlug());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE, p.getSource());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_MODE, p.getMode());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_BOOK_NUM, p.getBookNumber());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_PROJECT, p.getProject());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS, p.getContributors());
-        cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
-        long result = db.insert(ProjectContract.ProjectEntry.TABLE_PROJECT, null, cv);
+        if(!checkIfExists(p)) {
+            ContentValues cv = new ContentValues();
+            cv.put(ProjectContract.ProjectEntry.COLUMN_TARGET_LANG, p.getTargetLang());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG, p.getSrcLang());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_SLUG, p.getSlug());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE, p.getSource());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_MODE, p.getMode());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_BOOK_NUM, p.getBookNumber());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_PROJECT, p.getProject());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS, p.getContributors());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
+            long result = db.insert(ProjectContract.ProjectEntry.TABLE_PROJECT, null, cv);
+        }
         db.close();
     }
 
@@ -76,6 +78,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         mIdProject = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_PROJECT);
         mIdContributors = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS);
         mIdSourceAudioPath = cursor.getColumnIndex(ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH);
+    }
+
+    public boolean checkIfExists(Project project){
+        String query = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT + " WHERE " +
+                ProjectContract.ProjectEntry.COLUMN_SLUG + " = '" + project.getSlug() + "' AND " +
+                ProjectContract.ProjectEntry.COLUMN_SOURCE + " = '" + project.getSource() + "' AND " +
+                ProjectContract.ProjectEntry.COLUMN_TARGET_LANG + " = '" + project.getTargetLang() + "' AND " +
+                ProjectContract.ProjectEntry.COLUMN_MODE + " = '" + project.getMode() + "' AND " +
+                ProjectContract.ProjectEntry.COLUMN_PROJECT + " = '" + project.getProject() + "'";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if(cursor.getCount() > 0){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public List<Project> getAllProjects(){
