@@ -22,6 +22,7 @@ public final class ProjectContract {
         public static final String COLUMN_CONTRIBUTORS = "key_contributors";
         public static final String COLUMN_SOURCE_AUDIO_PATH = "key_source_audio_path";
     }
+
     public static final String TEXT = " TEXT";
     public static final String COMMA = ",";
     public static final String TEXTCOMMA = " TEXT,";

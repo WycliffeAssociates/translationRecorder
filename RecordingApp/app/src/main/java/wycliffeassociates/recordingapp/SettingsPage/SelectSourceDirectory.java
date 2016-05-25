@@ -27,7 +27,8 @@ public class SelectSourceDirectory extends Activity {
 
     private int SRC_LOC = 42;
     private int REQUEST_DIRECTORY = 43;
-
+    public final static String SOURCE_LOCATION = "result_path";
+    public final static String SDK_LEVEL = "sdk_level";
 
     @Override
     public void onCreate(Bundle savedInstanceBundle){
@@ -54,6 +55,7 @@ public class SelectSourceDirectory extends Activity {
 
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
+        Intent intent = new Intent();
         if (resultCode == Activity.RESULT_OK) {
             if(requestCode == SRC_LOC) {
                 Uri treeUri = resultData.getData();
@@ -66,6 +68,9 @@ public class SelectSourceDirectory extends Activity {
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
                 pref.edit().putString(Settings.KEY_PREF_SRC_LOC, uristring).commit();
                 pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
+
+                intent.putExtra(SOURCE_LOCATION, uristring);
+                intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
             }
         }
          else if (requestCode == REQUEST_DIRECTORY){
@@ -75,8 +80,12 @@ public class SelectSourceDirectory extends Activity {
                 pref.edit().putString(Settings.KEY_PREF_SRC_LOC, dirString).commit();
                 pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
                 System.out.println(pref.getInt(Settings.KEY_SDK_LEVEL, 21));
+
+                intent.putExtra(SOURCE_LOCATION, dirString);
+                intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
             }
         }
+        setResult(resultCode, intent);
         this.finish();
     }
 }

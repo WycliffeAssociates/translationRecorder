@@ -37,6 +37,7 @@ import wycliffeassociates.recordingapp.SettingsPage.LanguageActivity;
 import wycliffeassociates.recordingapp.SettingsPage.ModeActivity;
 import wycliffeassociates.recordingapp.SettingsPage.ProjectActivity;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.SettingsPage.SourceAudioActivity;
 import wycliffeassociates.recordingapp.SettingsPage.SourceTextActivity;
 
 
@@ -135,10 +136,9 @@ public class MainMenu extends Activity{
                     Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
                     //FIXME: Replace with moving to Source Activity
                     if(project.getProject().compareTo("obs") == 0){
-                        addProjectToDatabase(project);
-                        loadProject(project);
-                        Intent intent = new Intent(this, RecordingScreen.class);
-                        startActivity(intent);
+                        Intent intent = new Intent(this, SourceAudioActivity.class);
+                        intent.putExtra(Project.PROJECT_EXTRA, project);
+                        startActivityForResult(intent, SOURCE_REQUEST);
                     } else {
                         Intent intent = new Intent(this, BookActivity.class);
                         intent.putExtra(Project.PROJECT_EXTRA, project);
@@ -173,17 +173,15 @@ public class MainMenu extends Activity{
                 break;
             }
             case MODE_REQUEST: {
-//                if(resultCode == RESULT_OK) {
-//                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-//                    Intent intent = new Intent(this, SourceLanguageActivity.class);
-//                    intent.putExtra(Project.PROJECT_EXTRA, project);
-//                    startActivityForResult(intent, PROJECT_REQUEST);
-//                } else if (resultCode == RESULT_CANCELED){
-//                    onResume();
-//                }
-//                break;
-                //FALLTHROUGH
-                //FIXME: REPLACE WITH COMMENTED CODE ABOVE
+                if(resultCode == RESULT_OK) {
+                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
+                    Intent intent = new Intent(this, SourceAudioActivity.class);
+                    intent.putExtra(Project.PROJECT_EXTRA, project);
+                    startActivityForResult(intent, SOURCE_REQUEST);
+                } else if (resultCode == RESULT_CANCELED){
+                    onResume();
+                }
+                break;
             }
             case SOURCE_REQUEST: {
                 if(resultCode == RESULT_OK) {

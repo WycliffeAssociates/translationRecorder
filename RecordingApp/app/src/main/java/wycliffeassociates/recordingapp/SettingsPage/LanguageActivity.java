@@ -35,7 +35,11 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_language_selector);
-        mSourceOrTarget = getIntent().getStringExtra("lang_type");
+        if(getIntent().hasExtra("lang_type")) {
+            mSourceOrTarget = getIntent().getStringExtra("lang_type");
+        } else {
+            mSourceOrTarget = "target";
+        }
         Intent i = getIntent();
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
         mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_LANGUAGE_LIST);
@@ -92,7 +96,11 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
 
     @Override
     public void onItemClick(Language targetLanguage) {
-        mProject.setTargetLanguage(targetLanguage.getCode());
+        if(mSourceOrTarget.compareTo("source") == 0){
+            mProject.setSourceLanguage(targetLanguage.getCode());
+        } else {
+            mProject.setTargetLanguage(targetLanguage.getCode());
+        }
         Intent intent = new Intent();
         intent.putExtra(Project.PROJECT_EXTRA, mProject);
         setResult(RESULT_OK, intent);
