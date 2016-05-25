@@ -9,6 +9,20 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.*;
+
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.TABLE_PROJECT;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.KEY_ID;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_TARGET_LANG;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SLUG;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_BOOK_NUM;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_PROJECT;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_MODE;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH;
+
 /**
  * Created by sarabiaj on 5/10/2016.
  */
@@ -40,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(ProjectContract.DELETE_ENTRIES);
         onCreate(db);
+
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
@@ -48,6 +63,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void clearTable(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT);
+    }
+
+    public boolean deleteProject(Project p){
+        SQLiteDatabase db = getWritableDatabase();
+
+        return db.delete(TABLE_PROJECT,
+                COLUMN_PROJECT + "=? AND " +
+                COLUMN_SLUG + "=? AND " +
+                COLUMN_TARGET_LANG + "=? AND " +
+                COLUMN_MODE + "=? AND " +
+                COLUMN_SOURCE + "=?",
+                new String[]{
+                        p.getProject(),
+                        p.getSlug(),
+                        p.getTargetLang(),
+                        p.getMode(),
+                        p.getSource()
+                }
+        ) > 0;
     }
 
     public void addProject(Project p){

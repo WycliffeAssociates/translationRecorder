@@ -220,8 +220,30 @@ public class MainMenu extends Activity{
                 if (items[item].equals("New Project")) {
                     setupNewProject();
                 } else {
-                    loadProject(projects.get(item-1));
+                    promptDeleteProject(projects.get(item-1));
+//                    loadProject(projects.get(item-1));
+//                    startRecordingScreen();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void promptDeleteProject(final Project p){
+        final DatabaseHelper db = new DatabaseHelper(this);
+        final CharSequence[] items = new CharSequence[]{"Continue Project", "Delete Project"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Continue " + p.getTargetLang() + " " + p.getSlug() + "?");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (items[item].equals("Continue Project")) {
+                    loadProject(p);
                     startRecordingScreen();
+                } else {
+                    db.deleteProject(p);
+                    dialog.dismiss();
                 }
             }
         });
