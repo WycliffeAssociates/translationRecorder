@@ -40,7 +40,7 @@ public class ProjectListFragment extends PreferenceFragment implements Searchabl
 
         String[] projectCategories = {"Bible: OT", "Bible: NT", "Open Bible Stories"};
 
-        mAdapter = new ProjectCategoryAdapter(projectCategories);
+        mAdapter = new ProjectCategoryAdapter(projectCategories, getActivity());
         list.setAdapter(mAdapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

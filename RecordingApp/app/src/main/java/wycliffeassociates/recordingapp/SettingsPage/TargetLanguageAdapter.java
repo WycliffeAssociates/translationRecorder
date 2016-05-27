@@ -1,11 +1,17 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,17 +25,19 @@ import wycliffeassociates.recordingapp.R;
 /**
  * Created by joel on 9/4/2015.
  */
-public class TargetLanguageAdapter extends BaseAdapter {
+public class TargetLanguageAdapter extends ArrayAdapter {
     private Language[] mLanguages;
     private Language[] mFilteredLanguages;
     private LanguageFilter mLanguageFilter;
 
-    public TargetLanguageAdapter(Language[] targetLanguages) {
+    public TargetLanguageAdapter(Language[] targetLanguages, Context ctx) {
+        super(ctx, R.layout.fragment_scroll_list_item);
         List<Language> targetLanguagesList = Arrays.asList(targetLanguages);
         Collections.sort(targetLanguagesList);
         mLanguages = targetLanguagesList.toArray(new Language[targetLanguagesList.size()]);
         mFilteredLanguages = mLanguages;
     }
+
 
     @Override
     public int getCount() {
@@ -56,7 +64,7 @@ public class TargetLanguageAdapter extends BaseAdapter {
         ViewHolder holder;
 
         if(convertView == null) {
-            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_language_list_item, null);
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_scroll_list_item, null);
             holder = new ViewHolder(v);
         } else {
             holder = (ViewHolder)v.getTag();
@@ -65,6 +73,13 @@ public class TargetLanguageAdapter extends BaseAdapter {
         // render view
         holder.mLanguageView.setText(getItem(position).getName());
         holder.mCodeView.setText(getItem(position).getCode());
+
+
+        LinearLayout ll = (LinearLayout)v.findViewById(R.id.scroll_list_item_layout);
+        ll.removeView(ll.findViewById(R.id.itemIcon));
+        LinearLayout rmll = (LinearLayout)ll.findViewById(R.id.rightmost_scroll_list_item_layout);
+        rmll.removeView((rmll.findViewById(R.id.moreIcon)));
+
 
         return v;
     }
@@ -90,8 +105,8 @@ public class TargetLanguageAdapter extends BaseAdapter {
         public TextView mCodeView;
 
         public ViewHolder(View view) {
-            mLanguageView = (TextView) view.findViewById(R.id.languageName);
-            mCodeView = (TextView) view.findViewById(R.id.languageCode);
+            mLanguageView = (TextView) view.findViewById(R.id.majorText);
+            mCodeView = (TextView) view.findViewById(R.id.minorText);
             view.setTag(this);
         }
     }

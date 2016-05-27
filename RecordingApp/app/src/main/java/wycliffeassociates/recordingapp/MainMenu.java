@@ -39,6 +39,7 @@ import wycliffeassociates.recordingapp.SettingsPage.ProjectActivity;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.SettingsPage.SourceAudioActivity;
 import wycliffeassociates.recordingapp.SettingsPage.SourceTextActivity;
+import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 
 
 public class MainMenu extends Activity{
@@ -84,15 +85,16 @@ public class MainMenu extends Activity{
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( pref.getString("resume", "").compareTo("") == 0 ) {
-                    if (mNumProjects <= 0) {
-                        setupNewProject();
-                    } else {
-                        promptProjectList();
-                    }
-                } else {
-                    startRecordingScreen();
-                }
+                startActivity(new Intent(getBaseContext(), ProjectWizardActivity.class));
+//                if( pref.getString("resume", "").compareTo("") == 0 ) {
+//                    if (mNumProjects <= 0) {
+//                        setupNewProject();
+//                    } else {
+//                        promptProjectList();
+//                    }
+//                } else {
+//                    startRecordingScreen();
+//                }
             }
         });
 

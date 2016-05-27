@@ -1,11 +1,11 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -13,16 +13,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
+import org.json.JSONException;
+
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.project.ScrollableListFragment;
 
 
 /**
  * Created by sarabiaj on 2/23/2016.
  */
-public class LanguageActivity extends AppCompatActivity implements LanguageListFragment.OnItemClickListener {
+public class LanguageActivity extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener {
 
-    LanguageListFragment mLanguageListFragment;
     public final String TAG_LANGUAGE_LIST = "language_list_tag";
     private Searchable mFragment;
     private String mSearchText = null;
@@ -40,12 +42,26 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
         } else {
             mSourceOrTarget = "target";
         }
-        Intent i = getIntent();
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
-        mFragment = (Searchable)getFragmentManager().findFragmentByTag(TAG_LANGUAGE_LIST);
+        TargetLanguageAdapter tla = new TargetLanguageAdapter(getLanguages(), this);
+        mFragment = new ScrollableListFragment.Builder(tla).setSearchHint("IT'S HAPPENING!!!").build();
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().add(R.id.fragment_container, (Fragment) mFragment).commit();
+
         if(savedInstanceState != null){
             mSearchText = savedInstanceState.getString("search_text", null);
         }
+    }
+
+    private Language[] getLanguages(){
+        ParseJSON parse = new ParseJSON(this);
+        Language[] languages= null;
+        try {
+            languages = parse.pullLangNames();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return languages;
     }
 
     @Override
@@ -88,22 +104,21 @@ public class LanguageActivity extends AppCompatActivity implements LanguageListF
         searchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         if(mSearchText != null){
-            System.out.println("should be setting the queury");
             searchViewAction.setQuery(mSearchText, true);
         }
         return true;
     }
 
     @Override
-    public void onItemClick(Language targetLanguage) {
-        if(mSourceOrTarget.compareTo("source") == 0){
-            mProject.setSourceLanguage(targetLanguage.getCode());
-        } else {
-            mProject.setTargetLanguage(targetLanguage.getCode());
-        }
-        Intent intent = new Intent();
-        intent.putExtra(Project.PROJECT_EXTRA, mProject);
-        setResult(RESULT_OK, intent);
-        this.finish();
+    public void onItemClick(Object targetLanguage) {
+//        if(mSourceOrTarget.compareTo("source") == 0){
+//            mProject.setSourceLanguage(((Language)targetLanguage).getCode());
+//        } else {
+//            mProject.setTargetLanguage(((Language)targetLanguage).getCode());
+//        }
+//        Intent intent = new Intent();
+//        intent.putExtra(Project.PROJECT_EXTRA, mProject);
+//        setResult(RESULT_OK, intent);
+//        this.finish();
     }
 }

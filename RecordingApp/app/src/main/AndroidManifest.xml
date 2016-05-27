@@ -68,6 +68,8 @@
         <activity android:name=".SettingsPage.ModeActivity" />
         <activity android:name=".SettingsPage.SourceTextActivity" />
         <activity android:name=".SettingsPage.SourceAudioActivity" />
+        <activity android:name=".project.ProjectWizardActivity" />
+
 
         <activity android:name=".FilesPage.ExportFiles" />
         <service android:name=".Recording.WavRecorder" />

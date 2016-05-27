@@ -1,8 +1,10 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
@@ -19,12 +21,13 @@ import wycliffeassociates.recordingapp.R;
 /**
  * Created by joel on 9/4/2015.
  */
-public class ProjectCategoryAdapter extends BaseAdapter {
+public class ProjectCategoryAdapter extends ArrayAdapter {
     private String[] mCategories;
     private String[] mFilteredCategories;
     private ProjectCategoryFilter mProjectFilter;
 
-    public ProjectCategoryAdapter(String[] categories) {
+    public ProjectCategoryAdapter(String[] categories, Context ctx) {
+        super(ctx, R.layout.fragment_scroll_list_item);
         List<String> categoriesList = Arrays.asList(categories);
         mCategories = categoriesList.toArray(new String[categoriesList.size()]);
         mFilteredCategories = mCategories;
