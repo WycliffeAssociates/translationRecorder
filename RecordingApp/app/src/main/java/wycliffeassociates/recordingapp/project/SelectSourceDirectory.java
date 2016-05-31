@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.SettingsPage;
+package wycliffeassociates.recordingapp.project;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
  * Created by Joe on 3/31/2016.

@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -19,8 +18,6 @@ import android.widget.ImageButton;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -32,13 +29,7 @@ import wycliffeassociates.recordingapp.Reporting.GlobalExceptionHandler;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.SettingsPage.BookActivity;
-import wycliffeassociates.recordingapp.SettingsPage.LanguageActivity;
-import wycliffeassociates.recordingapp.SettingsPage.ModeActivity;
-import wycliffeassociates.recordingapp.SettingsPage.ProjectActivity;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
-import wycliffeassociates.recordingapp.SettingsPage.SourceAudioActivity;
-import wycliffeassociates.recordingapp.SettingsPage.SourceTextActivity;
 import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 
 
@@ -62,6 +53,7 @@ public class MainMenu extends Activity{
     public static final int MODE_REQUEST = FIRST_REQUEST + 3;
     public static final int SOURCE_TEXT_REQUEST = FIRST_REQUEST + 4;
     public static final int SOURCE_REQUEST = FIRST_REQUEST + 5;
+    public static final int PROJECT_WIZARD_REQUEST = FIRST_REQUEST + 6;
 
 
     @Override
@@ -85,7 +77,7 @@ public class MainMenu extends Activity{
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getBaseContext(), ProjectWizardActivity.class));
+                startActivityForResult(new Intent(getBaseContext(), ProjectWizardActivity.class), PROJECT_WIZARD_REQUEST);
 //                if( pref.getString("resume", "").compareTo("") == 0 ) {
 //                    if (mNumProjects <= 0) {
 //                        setupNewProject();
@@ -122,89 +114,25 @@ public class MainMenu extends Activity{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode){
-            case LANGUAGE_REQUEST: {
-                if(resultCode == RESULT_OK) {
-                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                    Intent intent = new Intent(this, ProjectActivity.class);
-                    intent.putExtra(Project.PROJECT_EXTRA, project);
-                    startActivityForResult(intent, PROJECT_REQUEST);
-                } else if (resultCode == RESULT_CANCELED){
-                    onResume();
-                }
-                break;
-            }
-            case PROJECT_REQUEST: {
-                if(resultCode == RESULT_OK) {
-                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                    //FIXME: Replace with moving to Source Activity
-                    if(project.getProject().compareTo("obs") == 0){
-                        Intent intent = new Intent(this, SourceAudioActivity.class);
-                        intent.putExtra(Project.PROJECT_EXTRA, project);
-                        startActivityForResult(intent, SOURCE_REQUEST);
-                    } else {
-                        Intent intent = new Intent(this, BookActivity.class);
-                        intent.putExtra(Project.PROJECT_EXTRA, project);
-                        startActivityForResult(intent, BOOK_REQUEST);
-                    }
-                } else if (resultCode == RESULT_CANCELED){
-                    onResume();
-                }
-                break;
-            }
-            case BOOK_REQUEST: {
-                if(resultCode == RESULT_OK) {
-                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                    //FIXME: this is a hack rather than using a source text activity
-                    Intent intent = new Intent(this, SourceTextActivity.class);
-                    intent.putExtra(Project.PROJECT_EXTRA, project);
-                    startActivityForResult(intent, SOURCE_TEXT_REQUEST);
-                } else if (resultCode == RESULT_CANCELED){
-                    onResume();
-                }
-                break;
-            }
-            case SOURCE_TEXT_REQUEST: {
-                if(resultCode == RESULT_OK) {
-                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                    Intent intent = new Intent(this, ModeActivity.class);
-                    intent.putExtra(Project.PROJECT_EXTRA, project);
-                    startActivityForResult(intent, MODE_REQUEST);
-                } else if (resultCode == RESULT_CANCELED){
-                    onResume();
-                }
-                break;
-            }
-            case MODE_REQUEST: {
-                if(resultCode == RESULT_OK) {
-                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                    Intent intent = new Intent(this, SourceAudioActivity.class);
-                    intent.putExtra(Project.PROJECT_EXTRA, project);
-                    startActivityForResult(intent, SOURCE_REQUEST);
-                } else if (resultCode == RESULT_CANCELED){
-                    onResume();
-                }
-                break;
-            }
-            case SOURCE_REQUEST: {
-                if(resultCode == RESULT_OK) {
+            case PROJECT_WIZARD_REQUEST:{
+                if(resultCode == RESULT_OK){
                     Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
                     addProjectToDatabase(project);
                     loadProject(project);
                     Intent intent = new Intent(this, RecordingScreen.class);
                     startActivity(intent);
-                } else if (resultCode == RESULT_CANCELED){
+                } else {
                     onResume();
                 }
-                break;
             }
             default:
         }
     }
 
     private void setupNewProject(){
-        Intent intent = new Intent(this, LanguageActivity.class);
-        intent.putExtra(Project.PROJECT_EXTRA, new Project());
-        startActivityForResult(intent, LANGUAGE_REQUEST);
+//        Intent intent = new Intent(this, LanguageActivity.class);
+//        intent.putExtra(Project.PROJECT_EXTRA, new Project());
+//        startActivityForResult(intent, LANGUAGE_REQUEST);
     }
 
     private void promptProjectList(){

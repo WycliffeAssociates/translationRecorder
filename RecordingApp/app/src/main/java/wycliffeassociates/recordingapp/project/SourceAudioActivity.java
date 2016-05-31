@@ -1,20 +1,21 @@
-package wycliffeassociates.recordingapp.SettingsPage;
+package wycliffeassociates.recordingapp.project;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.app.FragmentManager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 
-import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
 
 /**
  * Created by sarabiaj on 5/25/2016.
  */
-public class SourceAudioActivity extends Activity{
+public class SourceAudioActivity extends Activity implements ScrollableListFragment.OnItemClickListener{
     private Project mProject;
     private Button btnSourceLanguage;
     private Button btnSourceLocation;
@@ -23,7 +24,8 @@ public class SourceAudioActivity extends Activity{
     private boolean mSetLanguage = false;
     private final int REQUEST_SOURCE_LOCATION = 42;
     private final int REQUEST_SOURCE_LANGUAGE = 43;
-
+    private Fragment mFragment;
+    private FragmentManager mFragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,20 +33,25 @@ public class SourceAudioActivity extends Activity{
         setContentView(R.layout.activity_source_audio);
         Intent i = getIntent();
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
+        mFragmentManager = getFragmentManager();
 
-
-        btnSourceLanguage = (Button) findViewById(R.id.source_language_btn);
+        btnSourceLanguage = (Button) findViewById(R.id.language_btn);
         btnSourceLanguage.setOnClickListener(btnClick);
-        btnSourceLocation = (Button) findViewById(R.id.source_location_btn);
+        btnSourceLocation = (Button) findViewById(R.id.location_btn);
         btnSourceLocation.setOnClickListener(btnClick);
         btnContinue = (Button) findViewById(R.id.continue_btn);
         btnContinue.setOnClickListener(btnClick);
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
     public void setSourceLanguage(){
-        Intent intent = new Intent(this, LanguageActivity.class);
-        intent.putExtra(Project.PROJECT_EXTRA, mProject);
-        intent.putExtra("lang_type", "source");
-        startActivityForResult(intent, REQUEST_SOURCE_LANGUAGE);
+        mFragment = new ScrollableListFragment.Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(this), this)).setSearchHint("Choose Target Language:").build();
+        mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
     }
 
     public void setSourceLocation(){
@@ -63,11 +70,11 @@ public class SourceAudioActivity extends Activity{
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.source_location_btn: {
+                case R.id.location_btn: {
                     setSourceLocation();
                     break;
                 }
-                case R.id.source_language_btn: {
+                case R.id.language_btn: {
                     setSourceLanguage();
                     break;
                 }
@@ -95,16 +102,15 @@ public class SourceAudioActivity extends Activity{
                 mSetLocation = true;
                 continueIfBothSet();
             }
-//            if(data.hasExtra(SelectSourceDirectory.SDK_LEVEL)){
-//                mProject.setSourceAudioSdkLevel(data.getStringExtra(SelectSourceDirectory.SDK_LEVEL));
-//            }
-        } else if(requestCode == REQUEST_SOURCE_LANGUAGE){
-            if(data.hasExtra(Project.PROJECT_EXTRA)){
-                mProject = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                btnSourceLanguage.setText("Source Language: " + mProject.getSrcLang());
-                mSetLanguage = true;
-                continueIfBothSet();
-            }
         }
+    }
+
+    @Override
+    public void onItemClick(Object result) {
+        mProject.setSourceLanguage(((Language)result).getCode());
+        btnSourceLanguage.setText("Source Language: " + mProject.getSrcLang());
+        mSetLanguage = true;
+        mFragmentManager.beginTransaction().remove(mFragment).commit();
+        continueIfBothSet();
     }
 }

@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.SettingsPage;
+package wycliffeassociates.recordingapp.project;
 
 public class Language implements Comparable {
 

@@ -14,11 +14,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.SettingsPage.Searchable;
 
-/**
- * Created by joel on 9/4/2015.
- */
+
 public class ScrollableListFragment extends Fragment implements Searchable {
     private OnItemClickListener mListener;
     private ArrayAdapter mAdapter;

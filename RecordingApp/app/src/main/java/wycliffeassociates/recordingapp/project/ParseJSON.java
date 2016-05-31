@@ -1,6 +1,5 @@
-package wycliffeassociates.recordingapp.SettingsPage;
+package wycliffeassociates.recordingapp.project;
 
-import android.app.Application;
 import android.content.Context;
 import android.util.Pair;
 
@@ -241,6 +240,37 @@ public class ParseJSON {
             languages[i] = languageList.get(i);
         }
         return languages;
+    }
+
+    public static Language[] getLanguages(Context ctx){
+        ParseJSON parse = new ParseJSON(ctx);
+        Language[] languages= null;
+        try {
+            languages = parse.pullLangNames();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return languages;
+    }
+
+    public static Book[] getBooks(Context ctx, String testament){
+        ParseJSON parse = new ParseJSON(ctx);
+        ArrayList<Book> books= new ArrayList<>(Arrays.asList(parse.pullBooks()));
+        for(int i = 0; i < books.size(); i++){
+            if(testament.compareTo("nt") == 0){
+                if(books.get(i).getOrder() < 40){
+                    books.remove(i);
+                    i--;
+                }
+            } else {
+                if(books.get(i).getOrder() > 39){
+                    books.remove(i);
+                    i--;
+                }
+            }
+        }
+        Book[] bookArray = new Book[books.size()];
+        return books.toArray(bookArray);
     }
 
 }

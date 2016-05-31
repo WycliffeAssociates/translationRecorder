@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.SettingsPage;
+package wycliffeassociates.recordingapp.project.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,13 +22,13 @@ import wycliffeassociates.recordingapp.R;
 /**
  * Created by joel on 9/4/2015.
  */
-public class ProjectCategoryAdapter extends ArrayAdapter {
+public class ModeCategoryAdapter extends ArrayAdapter {
     private String[] mCategories;
     private String[] mFilteredCategories;
     private ProjectCategoryFilter mProjectFilter;
 
-    public ProjectCategoryAdapter(String[] categories, Context ctx) {
-        super(ctx, R.layout.fragment_scroll_list_item);
+    public ModeCategoryAdapter(String[] categories, Context context) {
+        super(context, R.layout.fragment_scroll_list_item);
         List<String> categoriesList = Arrays.asList(categories);
         mCategories = categoriesList.toArray(new String[categoriesList.size()]);
         mFilteredCategories = mCategories;
@@ -58,7 +59,7 @@ public class ProjectCategoryAdapter extends ArrayAdapter {
         ViewHolder holder;
 
         if(convertView == null) {
-            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_project_list_item, null);
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_scroll_list_item, null);
             holder = new ViewHolder(v);
         } else {
             holder = (ViewHolder)v.getTag();
@@ -66,6 +67,10 @@ public class ProjectCategoryAdapter extends ArrayAdapter {
 
         // render view
         holder.mProjectView.setText(getItem(position));
+
+        LinearLayout ll = (LinearLayout)v.findViewById(R.id.scroll_list_item_layout);
+        LinearLayout rmll = (LinearLayout)ll.findViewById(R.id.rightmost_scroll_list_item_layout);
+        rmll.removeView((rmll.findViewById(R.id.minorText)));
 
         return v;
     }
@@ -97,8 +102,8 @@ public class ProjectCategoryAdapter extends ArrayAdapter {
         public ImageView mMoreImage;
 
         public ViewHolder(View view) {
-            mIconImage = (ImageView) view.findViewById(R.id.projectIcon);
-            mProjectView = (TextView) view.findViewById(R.id.projectName);
+            mIconImage = (ImageView) view.findViewById(R.id.itemIcon);
+            mProjectView = (TextView) view.findViewById(R.id.majorText);
             mMoreImage = (ImageView) view.findViewById(R.id.moreIcon);
             view.setTag(this);
         }

@@ -37,37 +37,14 @@
 
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
 
-        <activity android:name=".SettingsPage.LanguageActivity">
-            <intent-filter>
-            <action android:name="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT" />
-            <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".SettingsPage.ProjectActivity">
-            <intent-filter>
-                <action android:name="wycliffeassociates.recordingapp.SettingsPage.PROJECT_INTENT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".SettingsPage.BookActivity">
-            <intent-filter>
-                <action android:name="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".SettingsPage.SelectSourceDirectory">
+        <activity android:name=".project.SelectSourceDirectory">
             <intent-filter>
                 <action android:name="wycliffeassociates.recordingapp.SettingsPage.SELECT_SRC_INTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".SettingsPage.ModeActivity" />
-        <activity android:name=".SettingsPage.SourceTextActivity" />
-        <activity android:name=".SettingsPage.SourceAudioActivity" />
+        <activity android:name=".project.SourceAudioActivity" />
         <activity android:name=".project.ProjectWizardActivity" />
 
 

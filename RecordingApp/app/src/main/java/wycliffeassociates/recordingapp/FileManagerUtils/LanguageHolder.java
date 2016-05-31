@@ -4,7 +4,7 @@ import android.app.Application;
 
 import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.SettingsPage.Language;
+import wycliffeassociates.recordingapp.project.Language;
 
 public class LanguageHolder extends Application {
     private ArrayList<Language> languageList;

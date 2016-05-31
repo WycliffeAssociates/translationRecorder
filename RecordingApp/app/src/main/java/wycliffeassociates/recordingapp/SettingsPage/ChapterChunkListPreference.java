@@ -6,18 +6,11 @@ import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import wycliffeassociates.recordingapp.project.Book;
+import wycliffeassociates.recordingapp.project.ParseJSON;
 
 /**
  * Created by sarabiaj on 1/20/2016.

@@ -1,10 +1,8 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 import android.view.View;
@@ -13,16 +11,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import wycliffeassociates.recordingapp.project.ParseJSON;
 
 /**
  * Created by leongv on 1/19/2016.

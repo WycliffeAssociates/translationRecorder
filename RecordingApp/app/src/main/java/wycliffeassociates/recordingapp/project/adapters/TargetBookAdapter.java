@@ -1,17 +1,12 @@
-package wycliffeassociates.recordingapp.SettingsPage;
-
+package wycliffeassociates.recordingapp.project.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,36 +16,36 @@ import java.util.Comparator;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.project.Book;
 
 /**
- * Created by joel on 9/4/2015.
+ * Created by sarabiaj on 2/25/2016.
  */
-public class TargetLanguageAdapter extends ArrayAdapter {
-    private Language[] mLanguages;
-    private Language[] mFilteredLanguages;
-    private LanguageFilter mLanguageFilter;
+public class TargetBookAdapter extends ArrayAdapter {
+    private Book[] mBooks;
+    private Book[] mFilteredBooks;
+    private BookFilter mBookFilter;
 
-    public TargetLanguageAdapter(Language[] targetLanguages, Context ctx) {
+    public TargetBookAdapter(Book[] targetBooks, Context ctx) {
         super(ctx, R.layout.fragment_scroll_list_item);
-        List<Language> targetLanguagesList = Arrays.asList(targetLanguages);
-        Collections.sort(targetLanguagesList);
-        mLanguages = targetLanguagesList.toArray(new Language[targetLanguagesList.size()]);
-        mFilteredLanguages = mLanguages;
+        List<Book> targetBooksList = Arrays.asList(targetBooks);
+        //Collections.sort(targetBooksList);
+        mBooks = targetBooksList.toArray(new Book[targetBooksList.size()]);
+        mFilteredBooks = mBooks;
     }
-
 
     @Override
     public int getCount() {
-        if(mFilteredLanguages != null) {
-            return mFilteredLanguages.length;
+        if(mFilteredBooks != null) {
+            return mFilteredBooks.length;
         } else {
             return 0;
         }
     }
 
     @Override
-    public Language getItem(int position) {
-        return mFilteredLanguages[position];
+    public Book getItem(int position) {
+        return mFilteredBooks[position];
     }
 
     @Override
@@ -71,15 +66,13 @@ public class TargetLanguageAdapter extends ArrayAdapter {
         }
 
         // render view
-        holder.mLanguageView.setText(getItem(position).getName());
-        holder.mCodeView.setText(getItem(position).getCode());
-
+        holder.mBookView.setText(getItem(position).getName());
+        holder.mCodeView.setText(getItem(position).getSlug());
 
         LinearLayout ll = (LinearLayout)v.findViewById(R.id.scroll_list_item_layout);
         ll.removeView(ll.findViewById(R.id.itemIcon));
         LinearLayout rmll = (LinearLayout)ll.findViewById(R.id.rightmost_scroll_list_item_layout);
         rmll.removeView((rmll.findViewById(R.id.moreIcon)));
-
 
         return v;
     }
@@ -94,38 +87,38 @@ public class TargetLanguageAdapter extends ArrayAdapter {
      * @return
      */
     public Filter getFilter() {
-        if(mLanguageFilter == null) {
-            mLanguageFilter = new LanguageFilter();
+        if(mBookFilter == null) {
+            mBookFilter = new BookFilter();
         }
-        return mLanguageFilter;
+        return mBookFilter;
     }
 
     public static class ViewHolder {
-        public TextView mLanguageView;
+        public TextView mBookView;
         public TextView mCodeView;
 
         public ViewHolder(View view) {
-            mLanguageView = (TextView) view.findViewById(R.id.majorText);
+            mBookView = (TextView) view.findViewById(R.id.majorText);
             mCodeView = (TextView) view.findViewById(R.id.minorText);
             view.setTag(this);
         }
     }
 
-    private class LanguageFilter extends Filter {
+    private class BookFilter extends Filter {
 
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             FilterResults results = new FilterResults();
             if(charSequence == null || charSequence.length() == 0) {
                 // no filter
-                results.values = Arrays.asList(mLanguages);
-                results.count = mLanguages.length;
+                results.values = Arrays.asList(mBooks);
+                results.count = mBooks.length;
             } else {
                 // perform filter
-                List<Language> filteredCategories = new ArrayList<>();
-                for(Language language:mLanguages) {
+                List<Book> filteredCategories = new ArrayList<>();
+                for(Book language:mBooks) {
                     // match the target language id
-                    boolean match = language.getCode().toLowerCase().startsWith(charSequence.toString().toLowerCase());
+                    boolean match = language.getSlug().toLowerCase().startsWith(charSequence.toString().toLowerCase());
                     if(!match) {
                         if (language.getName().toLowerCase().startsWith(charSequence.toString().toLowerCase())) {
                             // match the target language name
@@ -144,31 +137,31 @@ public class TargetLanguageAdapter extends ArrayAdapter {
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            List<Language> filteredLanguages = (List<Language>)filterResults.values;
+            List<Book> filteredBooks = (List<Book>)filterResults.values;
             if(charSequence != null && charSequence.length() > 0) {
-                sortLanguages(filteredLanguages, charSequence);
+                sortBooks(filteredBooks, charSequence);
             }
-            mFilteredLanguages = filteredLanguages.toArray(new Language[filteredLanguages.size()]);
+            mFilteredBooks = filteredBooks.toArray(new Book[filteredBooks.size()]);
             notifyDataSetChanged();
         }
     }
 
     /**
-     * Sorts target languages by id
-     * @param languages
+     * Sorts target books by id
+     * @param books
      * @param referenceId languages are sorted according to the reference id
      */
-    private static void sortLanguages(List<Language> languages, final CharSequence referenceId) {
-        Collections.sort(languages, new Comparator<Language>() {
+    private static void sortBooks(List<Book> books, final CharSequence referenceId) {
+        Collections.sort(books, new Comparator<Book>() {
             @Override
-            public int compare(Language lhs, Language rhs) {
-                String lhId = lhs.getCode();
-                String rhId = rhs.getCode();
+            public int compare(Book lhs, Book rhs) {
+                String lhId = lhs.getSlug();
+                String rhId = rhs.getSlug();
                 // give priority to matches with the reference
-                if(lhId.startsWith(referenceId.toString().toLowerCase())) {
+                if (lhId.startsWith(referenceId.toString().toLowerCase())) {
                     lhId = "!" + lhId;
                 }
-                if(rhId.startsWith(referenceId.toString().toLowerCase())) {
+                if (rhId.startsWith(referenceId.toString().toLowerCase())) {
                     rhId = "!" + rhId;
                 }
                 return lhId.compareToIgnoreCase(rhId);
