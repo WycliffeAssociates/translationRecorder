@@ -116,7 +116,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         if(result instanceof Language && mCurrentFragment == TARGET_LANGUAGE){
             ((Project)mProject).setTargetLanguage(((Language)result).getCode());
             mFragmentManager.beginTransaction().remove(mFragment).commit();
-            mFragment = new ScrollableListFragment.Builder(new ProjectCategoryAdapter(new String[]{"Bible: OT", "Bible: NT", "Open Bible Stories"}, this)).setSearchHint("Choose a project").build();
+            mFragment = new ScrollableListFragment.Builder(new ProjectCategoryAdapter(new String[]{"Bible: OT", "Bible: NT", "Open Bible Stories"}, this)).setSearchHint("Choose a Project").build();
             mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
             mCurrentFragment++;
         } else if (result instanceof String && mCurrentFragment == PROJECT){
@@ -136,7 +136,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 intent.putExtra(Project.PROJECT_EXTRA, mProject);
                 startActivityForResult(intent, SOURCE_AUDIO_REQUEST);
             }
-            mFragment = new ScrollableListFragment.Builder(new TargetBookAdapter(ParseJSON.getBooks(this, project), this)).setSearchHint("Choose a book").build();
+            mFragment = new ScrollableListFragment.Builder(new TargetBookAdapter(ParseJSON.getBooks(this, project), this)).setSearchHint("Choose a Book").build();
             mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
             mCurrentFragment++;
         } else if (result instanceof Book  && mCurrentFragment == BOOK){
@@ -144,7 +144,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             mProject.setBookNumber(book.getOrder());
             mProject.setSlug(book.getSlug());
             mFragmentManager.beginTransaction().remove(mFragment).commit();
-            mFragment = new ScrollableListFragment.Builder(new ProjectCategoryAdapter(new String[]{"Unlocked Literal Bible", "Unlocked Dynamic Bible", "Regular"}, this)).setSearchHint("Choose a source text").build();
+            mFragment = new ScrollableListFragment.Builder(new ProjectCategoryAdapter(new String[]{"Unlocked Literal Bible", "Unlocked Dynamic Bible", "Regular"}, this)).setSearchHint("Choose Translation Type").build();
             mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
             mCurrentFragment++;
         } else if (result instanceof String && mCurrentFragment == SOURCE_TEXT){
@@ -158,7 +158,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             }
             ((Project)mProject).setSource((String)source);
             mFragmentManager.beginTransaction().remove(mFragment).commit();
-            mFragment = new ScrollableListFragment.Builder(new ModeCategoryAdapter(new String[]{"Verse", "Chunk"}, this)).setSearchHint("Choose a mode").build();
+            mFragment = new ScrollableListFragment.Builder(new ModeCategoryAdapter(new String[]{"Verse", "Chunk"}, this)).setSearchHint("Choose a Mode").build();
             mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
             mCurrentFragment++;
         } else if ( result instanceof  String && mCurrentFragment == MODE){
