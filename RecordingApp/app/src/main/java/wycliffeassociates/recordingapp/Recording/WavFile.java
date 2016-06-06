@@ -24,14 +24,15 @@ public class WavFile {
 
     public WavFile(){}
 
-    public void writeMetadata(String metadata) throws IOException{
+    public int writeMetadata(String metadata) throws IOException{
         byte[] data = convertToMetadata(metadata);
         FileOutputStream out = new FileOutputStream(mFile, true);
         BufferedOutputStream bof = new BufferedOutputStream(out);
         bof.write(data);
         bof.close();
         out.close();
-        WavFileWriter.overwriteHeaderData(mFile, mFile.length());
+        //WavFileWriter.overwriteHeaderData(mFile, mFile.length(), );
+        return data.length;
     }
 
     public static byte[] convertToMetadata(String metadata){
@@ -57,15 +58,15 @@ public class WavFile {
         infoTag[13] = 'A';
         infoTag[14] = 'R';
         infoTag[15] = 'T' ;
-        infoTag[24] = (byte) (metadataSize & 0xff);
-        infoTag[25] = (byte) ((metadataSize >> 8) & 0xff);
-        infoTag[26] = (byte) ((metadataSize >> 16) & 0xff);
-        infoTag[27] = (byte) ((metadataSize >> 24) & 0xff);
+        infoTag[16] = (byte) (metadataSize & 0xff);
+        infoTag[17] = (byte) ((metadataSize >> 8) & 0xff);
+        infoTag[18] = (byte) ((metadataSize >> 16) & 0xff);
+        infoTag[19] = (byte) ((metadataSize >> 24) & 0xff);
 
-        for(int i = 0; i < metadata.length(); i++){
-            infoTag[i] = (metadata.getBytes(StandardCharsets.UTF_8))[i];
+        for(int i = 20; i < metadata.length()+20; i++){
+            infoTag[i] = (metadata.getBytes(StandardCharsets.US_ASCII))[i-20];
         }
-        for(int i = metadata.length(); i < metadataSize; i++){
+        for(int i = metadata.length()+20; i < metadataSize+20; i++){
             infoTag[i] = '\0';
         }
         return infoTag;

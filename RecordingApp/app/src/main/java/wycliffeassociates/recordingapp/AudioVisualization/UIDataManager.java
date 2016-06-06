@@ -234,7 +234,7 @@ public class UIDataManager {
         bos.close();
         fos.flush();
         fos.close();
-        WavFileWriter.overwriteHeaderData(to.getAbsolutePath(), sizeAfterCut + 44);
+        WavFileWriter.overwriteHeaderData(to.getAbsolutePath(), sizeAfterCut + 44, (int) (sizeAfterCut + 44));
         mCutOp.clear();
 
         return;
