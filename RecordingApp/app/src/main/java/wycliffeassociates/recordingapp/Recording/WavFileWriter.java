@@ -216,6 +216,10 @@ public class WavFileWriter extends Service{
     }
 
     public static void overwriteHeaderData(String filepath, long totalDataLen){
+        overwriteHeaderData(new File(filepath), totalDataLen);
+    }
+
+    public static void overwriteHeaderData(File filepath, long totalDataLen){
         long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
         totalDataLen -= 8; //this subtracts out the data subchunk header
         try {

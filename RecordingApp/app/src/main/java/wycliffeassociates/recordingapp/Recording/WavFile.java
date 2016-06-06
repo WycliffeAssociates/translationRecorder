@@ -1,6 +1,14 @@
 package wycliffeassociates.recordingapp.Recording;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -12,6 +20,18 @@ public class WavFile {
 
     public WavFile(File file){
         mFile = file;
+    }
+
+    public WavFile(){}
+
+    public void writeMetadata(String metadata) throws IOException{
+        byte[] data = convertToMetadata(metadata);
+        FileOutputStream out = new FileOutputStream(mFile, true);
+        BufferedOutputStream bof = new BufferedOutputStream(out);
+        bof.write(data);
+        bof.close();
+        out.close();
+        WavFileWriter.overwriteHeaderData(mFile, mFile.length());
     }
 
     public static byte[] convertToMetadata(String metadata){
@@ -43,12 +63,51 @@ public class WavFile {
         infoTag[27] = (byte) ((metadataSize >> 24) & 0xff);
 
         for(int i = 0; i < metadata.length(); i++){
-            infoTag[i] = (metadata.getBytes(StandardCharsets.US_ASCII))[i];
+            infoTag[i] = (metadata.getBytes(StandardCharsets.UTF_8))[i];
         }
         for(int i = metadata.length(); i < metadataSize; i++){
             infoTag[i] = '\0';
         }
         return infoTag;
+    }
+
+    private byte[] readInfoTag() throws IOException{
+        if(mFile != null && mFile.length() > 44){
+            byte[] size = new byte[4];
+            RandomAccessFile raf = new RandomAccessFile(mFile, "r");
+            raf.seek(4);
+            raf.read(size);
+            int fileSize = littleEndianToDecimal(size, 0, 4);
+            raf.seek(40);
+            raf.read(size);
+            int audioSize = littleEndianToDecimal(size, 0, 4);
+            //check if this is okay
+            raf.seek(44 + audioSize);
+            raf.read(size);
+            String tag = new String(size, "UTF-8");
+            if(tag.compareTo("LIST") == 0){
+                raf.seek(44 + audioSize + 24);
+                raf.read(size);
+                int metadataSize = littleEndianToDecimal(size, 0, 4);
+                byte[] metadata = new byte[metadataSize];
+                raf.read(metadata);
+                return metadata;
+            }
+        }
+        return null;
+    }
+
+    public static JSONObject readTrackInfo(byte[] data){
+        try {
+            String decoded = new String(data, "UTF-8");
+            JSONObject json = new JSONObject(decoded);
+            return json;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     int littleEndianToDecimal(byte[] header, int loc, int n){
