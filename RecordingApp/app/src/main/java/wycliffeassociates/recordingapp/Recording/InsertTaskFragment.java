@@ -81,7 +81,7 @@ public class InsertTaskFragment extends Fragment {
                         bos.write(bisOrg.read());
                     }
                     Logger.e(this.toString(), "wrote after insert");
-                    WavFileWriter.overwriteHeaderData(destination, tempInsertFile.length() + from.length() - AudioInfo.HEADER_SIZE);
+                    WavFileWriter.overwriteHeaderData(destination, tempInsertFile.length() + from.length() - AudioInfo.HEADER_SIZE, 999);
                     Logger.e(this.toString(), "overwrote header");
 
                     bos.close(); fos.close();

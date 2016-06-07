@@ -56,7 +56,9 @@ public class WavFileWriter extends Service{
                     wavFile.close();
                     File file = new File(filename);
                     long totalAudioLength = file.length();
-                    overwriteHeaderData(filename, totalAudioLength);
+                    WavFile audioFile = new WavFile(file);
+                    int metadataSize = audioFile.writeMetadata("{\"book\":\"mat\",\"lang\":\"en\",\"chap\":1,\"startv\":1,\"endv\":2,\"marker1\":1234}");
+                    overwriteHeaderData(file, totalAudioLength, metadataSize);
                     RecordingQueues.writingQueue.clear();
                     Logger.e(this.toString(), "Writing queue finishing, sending done message");
                     RecordingQueues.doneWriting.put(new Boolean(true));
@@ -215,9 +217,14 @@ public class WavFileWriter extends Service{
 
     }
 
-    public static void overwriteHeaderData(String filepath, long totalDataLen){
+    public static void overwriteHeaderData(String filepath, long totalDataLen, int metadataLength){
+        overwriteHeaderData(new File(filepath), totalDataLen, metadataLength);
+    }
+
+    public static void overwriteHeaderData(File filepath, long totalDataLen, int metadataLength){
         long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
         totalDataLen -= 8; //this subtracts out the data subchunk header
+        totalDataLen += metadataLength;
         try {
             RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
             //seek to header[4] to overwrite data length
