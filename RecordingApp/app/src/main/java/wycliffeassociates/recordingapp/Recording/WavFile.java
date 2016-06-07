@@ -1,25 +1,55 @@
 package wycliffeassociates.recordingapp.Recording;
 
+import android.media.AudioFormat;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 
 /**
  * Created by sarabiaj on 6/2/2016.
  */
 public class WavFile {
 
-    File mFile;
+    //public interface WavConstants {
+    public static final int SAMPLERATE = 44100;
+    public static final int CHANNEL_TYPE = AudioFormat.CHANNEL_IN_MONO;
+    public static final int NUM_CHANNELS = 1;
+    public static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    public static final int BLOCKSIZE = 2;
+    public static final int HEADER_SIZE = 44;
+    public static final int SIZE_OF_SHORT = 2;
+    public static final int AMPLITUDE_RANGE = 32767;
+    public static final int BPP = 16;
+    //}
 
-    public WavFile(File file){
+    File mFile;
+    Metadata mMetadata;
+    private int mTotalAudioLength = 0;
+    private int mTotalDataLength = 0;
+    private int mMetadataLength = 0;
+
+    public WavFile(File file) throws JSONException, IOException {
         mFile = file;
+        boolean properForm = parseHeader();
+        if(properForm) {
+            byte[] metadataBytes = parseInfo();
+            mMetadata = new Metadata(readTrackInfo(metadataBytes));
+        }
+    }
+
+    public WavFile(File file, Project project) throws JSONException, IOException {
+        mFile = file;
+        mMetadata = new Metadata(project);
     }
 
     public WavFile(){}
@@ -31,8 +61,14 @@ public class WavFile {
         bof.write(data);
         bof.close();
         out.close();
-        //WavFileWriter.overwriteHeaderData(mFile, mFile.length(), );
+        mMetadataLength = data.length;
+        mTotalDataLength = mTotalAudioLength + mMetadataLength;
+        overwriteHeaderData();
         return data.length;
+    }
+
+    public int writeMetadata() throws IOException, JSONException{
+        return writeMetadata(getMetadata());
     }
 
     public static byte[] convertToMetadata(String metadata){
@@ -72,7 +108,91 @@ public class WavFile {
         return infoTag;
     }
 
-    private byte[] readInfoTag() throws IOException{
+    public void overwriteHeaderData(){
+        try {
+            RandomAccessFile fileAccessor = new RandomAccessFile(mFile, "rw");
+            //seek to header[4] to overwrite data length
+            long longSampleRate = SAMPLERATE;
+            long byteRate = (BPP * SAMPLERATE * NUM_CHANNELS) / 8;
+            byte[] header = new byte[44];
+
+            header[0] = 'R';
+            header[1] = 'I';
+            header[2] = 'F';
+            header[3] = 'F';
+            header[4] = (byte) (mTotalDataLength & 0xff);
+            header[5] = (byte) ((mTotalDataLength >> 8) & 0xff);
+            header[6] = (byte) ((mTotalDataLength >> 16) & 0xff);
+            header[7] = (byte) ((mTotalDataLength >> 24) & 0xff);
+            header[8] = 'W';
+            header[9] = 'A';
+            header[10] = 'V';
+            header[11] = 'E';
+            header[12] = 'f'; // fmt  chunk
+            header[13] = 'm';
+            header[14] = 't';
+            header[15] = ' ' ;
+            header[16] = 16; // 4 bytes: size of fmt chunk
+            header[17] = 0;
+            header[18] = 0;
+            header[19] = 0;
+            header[20] = 1; // format = 1
+            header[21] = 0;
+            header[22] = (byte) NUM_CHANNELS; // number of channels
+            header[23] = 0;
+            header[24] = (byte) (longSampleRate & 0xff);
+            header[25] = (byte) ((longSampleRate >> 8) & 0xff);
+            header[26] = (byte) ((longSampleRate >> 16) & 0xff);
+            header[27] = (byte) ((longSampleRate >> 24) & 0xff);
+            header[28] = (byte) (byteRate & 0xff);
+            header[29] = (byte) ((byteRate >> 8) & 0xff);
+            header[30] = (byte) ((byteRate >> 16) & 0xff);
+            header[31] = (byte) ((byteRate >> 24) & 0xff);
+            header[32] = (byte) ((NUM_CHANNELS * BPP) / 8); // block align
+            header[33] = 0;
+            header[34] = BPP; // bits per sample
+            header[35] = 0;
+            header[36] = 'd';
+            header[37] = 'a';
+            header[38] = 't';
+            header[39] = 'a';
+            header[40] = (byte) (mTotalAudioLength & 0xff);
+            header[41] = (byte) ((mTotalAudioLength >> 8) & 0xff);
+            header[42] = (byte) ((mTotalAudioLength >> 16) & 0xff);
+            header[43] = (byte) ((mTotalAudioLength >> 24) & 0xff);
+            fileAccessor.write(header);
+            fileAccessor.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private boolean parseHeader() throws IOException{
+        if(mFile != null && mFile.length() > 44){
+            byte[] word = new byte[4];
+            RandomAccessFile raf = new RandomAccessFile(mFile, "r");
+            raf.read(word);
+            String riff = new String(word, StandardCharsets.US_ASCII);
+            if(riff.compareTo("RIFF") == 0){
+                //raf.seek(4);
+                raf.read(word);
+                mTotalDataLength = littleEndianToDecimal(word, 0, 4);
+                raf.read(word);
+                String wave = new String(word, StandardCharsets.US_ASCII);
+                if(wave.compareTo("WAVE") == 0){
+                    raf.seek(40);
+                    raf.read(word);
+                    mTotalAudioLength = littleEndianToDecimal(word, 0, 4);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private byte[] parseInfo() throws IOException{
         if(mFile != null && mFile.length() > 44){
             byte[] size = new byte[4];
             RandomAccessFile raf = new RandomAccessFile(mFile, "r");
@@ -85,9 +205,9 @@ public class WavFile {
             //check if this is okay
             raf.seek(44 + audioSize);
             raf.read(size);
-            String tag = new String(size, "UTF-8");
+            String tag = new String(size, StandardCharsets.US_ASCII);
             if(tag.compareTo("LIST") == 0){
-                raf.seek(44 + audioSize + 24);
+                raf.seek(44 + audioSize + 16);
                 raf.read(size);
                 int metadataSize = littleEndianToDecimal(size, 0, 4);
                 byte[] metadata = new byte[metadataSize];
@@ -98,17 +218,14 @@ public class WavFile {
         return null;
     }
 
-    public static JSONObject readTrackInfo(byte[] data){
-        try {
-            String decoded = new String(data, "UTF-8");
-            JSONObject json = new JSONObject(decoded);
-            return json;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-        return null;
+    public String getMetadata() throws JSONException{
+        return mMetadata.toJSON().toString();
+    }
+
+    public static JSONObject readTrackInfo(byte[] data) throws JSONException {
+        String decoded = new String(data, StandardCharsets.US_ASCII);
+        JSONObject json = new JSONObject(decoded);
+        return json;
     }
 
     int littleEndianToDecimal(byte[] header, int loc, int n){
@@ -118,5 +235,86 @@ public class WavFile {
             sum |= (header[loc+i] << (Byte.SIZE*i)) & 0xff;
         }
         return sum;
+    }
+
+    private class Metadata{
+
+        String mProject = "";
+        String mLanguage = "";
+        String mSource = "";
+        String mSlug = "";
+        String mBookNumber = "";
+        String mMode = "";
+        String mStartVerse = "";
+        String mEndVerse = "";
+
+        public Metadata(Project p){
+            mProject = p.getProject();
+            mLanguage = p.getTargetLang();
+            mSource = p.getSource();
+            mSlug = p.getSlug();
+            mBookNumber = p.getBookNumber();
+            mMode = p.getMode();
+        }
+
+        /**
+         * Loads the user profile from json
+         * @param json
+         * @return
+         * @throws Exception
+         */
+        public Metadata(JSONObject json) throws JSONException {
+            if (json != null) {
+                mProject = "";
+                if (json.has("project")) {
+                    mProject = json.getString("project");
+                }
+                mLanguage = "";
+                if (json.has("language")) {
+                    mLanguage = json.getString("language");
+                }
+                mSource = "";
+                if (json.has("source")) {
+                    mSource = json.getString("source");
+                }
+                mSlug = "";
+                if (json.has("slug")) {
+                    mSlug = json.getString("slug");
+                }
+                mBookNumber = "";
+                if (json.has("book_number")) {
+                    mBookNumber = json.getString("book_number");
+                }
+                mMode = "";
+                if (json.has("mode")) {
+                    mMode = json.getString("mode");
+                }
+                mStartVerse = "";
+                if (json.has("startv")) {
+                    mStartVerse = json.getString("startv");
+                }
+                mEndVerse = "";
+                if (json.has("endv")) {
+                    mEndVerse = json.getString("endv");
+                }
+            }
+        }
+
+        /**
+         * Returns the profile represented as a json object
+         * @return
+         */
+        public JSONObject toJSON() throws JSONException {
+            JSONObject json = new JSONObject();
+            json.put("project", mProject);
+            json.put("language", mLanguage);
+            json.put("source", mSource);
+            json.put("slug", mSlug);
+            json.put("book_number", mBookNumber);
+            json.put("mode", mMode);
+            json.put("startv", mStartVerse);
+            json.put("endv", mEndVerse);
+            return json;
+        }
     }
 }
