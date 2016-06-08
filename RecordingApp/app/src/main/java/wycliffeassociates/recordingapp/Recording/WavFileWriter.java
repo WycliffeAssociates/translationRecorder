@@ -56,9 +56,9 @@ public class WavFileWriter extends Service{
                     wavFile.close();
                     File file = new File(filename);
                     long totalAudioLength = file.length();
-                    WavFile audioFile = new WavFile(file);
-                    int metadataSize = audioFile.writeMetadata("{\"book\":\"mat\",\"lang\":\"en\",\"chap\":1,\"startv\":1,\"endv\":2,\"marker1\":1234}");
-                    overwriteHeaderData(file, totalAudioLength, metadataSize);
+                    //WavFile audioFile = new WavFile(file);
+                    //int metadataSize = audioFile.writeMetadata("{\"book\":\"mat\",\"lang\":\"en\",\"chap\":1,\"startv\":1,\"endv\":2,\"marker1\":1234}");
+                    //overwriteHeaderData(file, totalAudioLength, metadataSize);
                     RecordingQueues.writingQueue.clear();
                     Logger.e(this.toString(), "Writing queue finishing, sending done message");
                     RecordingQueues.doneWriting.put(new Boolean(true));

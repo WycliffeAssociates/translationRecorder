@@ -5,12 +5,15 @@ import android.media.AudioFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -38,31 +41,106 @@ public class WavFile {
     private int mTotalDataLength = 0;
     private int mMetadataLength = 0;
 
+
+    //Files without a valid wav header will be blown away and replaced with an empty wav file
+    //not sure if this is good, but should the assumption be that the alternative is a file containing
+    //raw PCM data?
     public WavFile(File file) throws JSONException, IOException {
         mFile = file;
         boolean properForm = parseHeader();
         if(properForm) {
             byte[] metadataBytes = parseInfo();
             mMetadata = new Metadata(readTrackInfo(metadataBytes));
+        } else {
+            initializeWavFile();
         }
     }
 
     public WavFile(File file, Project project) throws JSONException, IOException {
-        mFile = file;
+        this(file);
+        setMetadata(project);
+    }
+
+    public int getTotalAudioLength(){
+        return mTotalAudioLength;
+    }
+
+    public int getTotalDataLength(){
+        return mTotalDataLength;
+    }
+
+    public int getTotalMetadataLength(){
+        return mMetadataLength;
+    }
+
+    private void initializeWavFile(){
+        if(mFile.exists() && mFile.length() > 0){
+            rawPcmToWav();
+        } else {
+            try {
+                FileOutputStream fos = new FileOutputStream(mFile, false);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                mTotalDataLength = HEADER_SIZE - 8;
+                mTotalAudioLength = 0;
+                bos.write(new byte[44]);
+                bos.close();
+                fos.close();
+                overwriteHeaderData();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void rawPcmToWav(){
+        try {
+            File temp = File.createTempFile("temp", "wav");
+            FileInputStream pcmIn = new FileInputStream(mFile);
+            BufferedInputStream bis = new BufferedInputStream(pcmIn);
+            FileOutputStream fos = new FileOutputStream(temp);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+            bos.write(new byte[44]);
+
+            int in;
+            while((in = bis.read()) != -1){
+                bos.write(in);
+            }
+
+            bos.close();
+            fos.close();
+            bis.close();
+            pcmIn.close();
+
+            mTotalAudioLength = (int)mFile.length();
+            mTotalDataLength = mTotalAudioLength + HEADER_SIZE - 8;
+
+            mFile.delete();
+            temp.renameTo(mFile);
+
+            overwriteHeaderData();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setMetadata(Project project){
         mMetadata = new Metadata(project);
     }
 
-    public WavFile(){}
-
-    public int writeMetadata(String metadata) throws IOException{
+    private int writeMetadata(String metadata) throws IOException{
         byte[] data = convertToMetadata(metadata);
+
         FileOutputStream out = new FileOutputStream(mFile, true);
+        //truncates existing metadata- new metadata may not be as long
+        out.getChannel().truncate(HEADER_SIZE + mTotalAudioLength);
         BufferedOutputStream bof = new BufferedOutputStream(out);
         bof.write(data);
         bof.close();
         out.close();
         mMetadataLength = data.length;
-        mTotalDataLength = mTotalAudioLength + mMetadataLength;
+        mTotalDataLength = mTotalAudioLength + mMetadataLength + HEADER_SIZE - 8;
         overwriteHeaderData();
         return data.length;
     }
@@ -72,7 +150,11 @@ public class WavFile {
     }
 
     public static byte[] convertToMetadata(String metadata){
+        //word align
         int padding = metadata.length() % 4;
+        if(padding != 0){
+            padding = 4 - padding;
+        }
         byte[] infoTag = new byte[metadata.length() + padding + 20];
 
         int metadataSize = metadata.length() + padding;
@@ -219,6 +301,9 @@ public class WavFile {
     }
 
     public String getMetadata() throws JSONException{
+        if(mMetadata == null){
+            return "";
+        }
         return mMetadata.toJSON().toString();
     }
 
