@@ -1,7 +1,12 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
+
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -45,6 +50,20 @@ public class Project implements Parcelable{
         mProject = project;
         mContributors = contributors;
         mSourceAudioPath = sourceAudioPath;
+    }
+
+    public static Project getProjectFromPreferences(Context ctx){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
+        String tLang = pref.getString(Settings.KEY_PREF_LANG, "");
+        String sLang = pref.getString(Settings.KEY_PREF_LANG_SRC, "");
+        String bookNum = pref.getString(Settings.KEY_PREF_BOOK_NUM, "");
+        String slug = pref.getString(Settings.KEY_PREF_BOOK, "");
+        String src = pref.getString(Settings.KEY_PREF_SOURCE, "");
+        String mode = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "");
+        String project = pref.getString(Settings.KEY_PREF_PROJECT, "");
+        String contributors = pref.getString(Settings.KEY_PROFILE, "");
+        String sourceAudioPath = pref.getString(Settings.KEY_PREF_SRC_LOC, "");
+        return new Project(tLang, sLang, bookNum, slug, src, mode, project, contributors, sourceAudioPath);
     }
 
     public String getTargetLang(){

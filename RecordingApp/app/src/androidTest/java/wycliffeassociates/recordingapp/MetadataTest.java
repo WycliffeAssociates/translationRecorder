@@ -50,7 +50,7 @@ public class MetadataTest {
 //            fos.close();
             Project project = new Project("en", "", "01", "gen", "ulb", "chunk", "ot", "", "");
             wavFile = new WavFile(testFile);
-            wavFile.setMetadata(project);
+            wavFile.setMetadata(project, "1", "1", "1");
             String metadata = wavFile.getMetadata();
             System.out.println(metadata);
             int size = wavFile.writeMetadata();

@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.Recording;
 
 import android.media.AudioFormat;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +23,7 @@ import wycliffeassociates.recordingapp.ProjectManager.Project;
 /**
  * Created by sarabiaj on 6/2/2016.
  */
-public class WavFile {
+public class WavFile implements Parcelable{
 
     //public interface WavConstants {
     public static final int SAMPLERATE = 44100;
@@ -48,17 +50,64 @@ public class WavFile {
     public WavFile(File file) throws JSONException, IOException {
         mFile = file;
         boolean properForm = parseHeader();
-        if(properForm) {
-            byte[] metadataBytes = parseInfo();
-            mMetadata = new Metadata(readTrackInfo(metadataBytes));
-        } else {
-            initializeWavFile();
+        if(mFile.length() > 0) {
+            if (properForm) {
+                byte[] metadataBytes = parseInfo();
+                mMetadata = new Metadata(readTrackInfo(metadataBytes));
+            } else {
+                rawPcmToWav();
+            }
         }
     }
 
-    public WavFile(File file, Project project) throws JSONException, IOException {
+    public WavFile(File file, Project project, String chapter, String startVerse, String endVerse) throws JSONException, IOException {
         this(file);
-        setMetadata(project);
+        setMetadata(project, chapter, startVerse, endVerse);
+    }
+
+    public WavFile(Parcel in){
+        mFile = new File(in.readString());
+        try {
+            mMetadata = new Metadata(new JSONObject(in.readString()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mTotalAudioLength = 0;
+        mTotalDataLength = 0;
+        mMetadataLength = 0;
+        if(mFile.length() > 0){
+            parseChunkSizes();
+        }
+    }
+
+    public void parseChunkSizes(){
+        try {
+            RandomAccessFile raf = new RandomAccessFile(mFile, "r");
+            byte[] size = new byte[4];
+            raf.seek(4);
+            raf.read(size);
+            mTotalDataLength = littleEndianToDecimal(size, 0, 4);
+            raf.seek(40);
+            raf.read(size);
+            mTotalAudioLength = littleEndianToDecimal(size, 0, 4);
+            //check if this is okay
+            raf.seek(44 + mTotalAudioLength);
+            raf.read(size);
+            String tag = new String(size, StandardCharsets.US_ASCII);
+            if(tag.compareTo("LIST") == 0) {
+                raf.seek(44 + mTotalAudioLength + 16);
+                raf.read(size);
+                mMetadataLength = littleEndianToDecimal(size, 0, 4);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public File getFile(){
+        return mFile;
     }
 
     public int getTotalAudioLength(){
@@ -73,7 +122,7 @@ public class WavFile {
         return mMetadataLength;
     }
 
-    private void initializeWavFile(){
+    public void initializeWavFile(){
         if(mFile.exists() && mFile.length() > 0){
             rawPcmToWav();
         } else {
@@ -82,10 +131,56 @@ public class WavFile {
                 BufferedOutputStream bos = new BufferedOutputStream(fos);
                 mTotalDataLength = HEADER_SIZE - 8;
                 mTotalAudioLength = 0;
-                bos.write(new byte[44]);
+                byte[] header = new byte[44];
+
+                header[0] = 'R';
+                header[1] = 'I';
+                header[2] = 'F';
+                header[3] = 'F';
+                header[4] = (byte) (mTotalDataLength & 0xff);
+                header[5] = (byte) ((mTotalDataLength >> 8) & 0xff);
+                header[6] = (byte) ((mTotalDataLength >> 16) & 0xff);
+                header[7] = (byte) ((mTotalDataLength >> 24) & 0xff);
+                header[8] = 'W';
+                header[9] = 'A';
+                header[10] = 'V';
+                header[11] = 'E';
+                header[12] = 'f'; // fmt  chunk
+                header[13] = 'm';
+                header[14] = 't';
+                header[15] = ' ' ;
+                header[16] = 16;
+                header[17] = 0;
+                header[18] = 0;
+                header[19] = 0;
+                header[20] = 1;
+                header[21] = 0;
+                header[22] = 0;
+                header[23] = 0;
+                header[24] = 0;
+                header[25] = 0;
+                header[26] = 0;
+                header[27] = 0;
+                header[28] = 0;
+                header[29] = 0;
+                header[30] = 0;
+                header[31] = 0;
+                header[32] = 0;
+                header[33] = 0;
+                header[34] = 0;
+                header[35] = 0;
+                header[36] = 'd';
+                header[37] = 'a';
+                header[38] = 't';
+                header[39] = 'a';
+                header[40] = 0;
+                header[41] = 0;
+                header[42] = 0;
+                header[43] = 0;
+
+                bos.write(header);
                 bos.close();
                 fos.close();
-                overwriteHeaderData();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -125,8 +220,8 @@ public class WavFile {
         }
     }
 
-    public void setMetadata(Project project){
-        mMetadata = new Metadata(project);
+    public void setMetadata(Project project, String chapter, String startVerse, String endVerse){
+        mMetadata = new Metadata(project, chapter, startVerse, endVerse);
     }
 
     private int writeMetadata(String metadata) throws IOException{
@@ -192,6 +287,12 @@ public class WavFile {
 
     public void overwriteHeaderData(){
         try {
+            //if total length is still just the header, then check the file size
+            if(mTotalDataLength == HEADER_SIZE - 8){
+                mTotalAudioLength = (int)mFile.length() - HEADER_SIZE;
+                mTotalDataLength = mTotalAudioLength + HEADER_SIZE - 8;
+            }
+
             RandomAccessFile fileAccessor = new RandomAccessFile(mFile, "rw");
             //seek to header[4] to overwrite data length
             long longSampleRate = SAMPLERATE;
@@ -252,7 +353,7 @@ public class WavFile {
     }
 
     private boolean parseHeader() throws IOException{
-        if(mFile != null && mFile.length() > 44){
+        if(mFile != null && mFile.length() >= 44){
             byte[] word = new byte[4];
             RandomAccessFile raf = new RandomAccessFile(mFile, "r");
             raf.read(word);
@@ -317,7 +418,7 @@ public class WavFile {
         int sum = 0;
         for(int i = 0; i < n; i++){
             //can just shift in without masking because header is unsigned
-            sum |= (header[loc+i] << (Byte.SIZE*i)) & 0xff;
+            sum |= (header[loc+i] << (8*i)) & 0xff;
         }
         return sum;
     }
@@ -330,16 +431,20 @@ public class WavFile {
         String mSlug = "";
         String mBookNumber = "";
         String mMode = "";
+        String mChapter = "";
         String mStartVerse = "";
         String mEndVerse = "";
 
-        public Metadata(Project p){
+        public Metadata(Project p, String chapter, String startVerse, String endVerse){
             mProject = p.getProject();
             mLanguage = p.getTargetLang();
             mSource = p.getSource();
             mSlug = p.getSlug();
             mBookNumber = p.getBookNumber();
             mMode = p.getMode();
+            mChapter = chapter;
+            mStartVerse = startVerse;
+            mEndVerse = endVerse;
         }
 
         /**
@@ -374,6 +479,10 @@ public class WavFile {
                 if (json.has("mode")) {
                     mMode = json.getString("mode");
                 }
+                mChapter = "";
+                if (json.has("chapter")) {
+                    mChapter = json.getString("chapter");
+                }
                 mStartVerse = "";
                 if (json.has("startv")) {
                     mStartVerse = json.getString("startv");
@@ -397,9 +506,36 @@ public class WavFile {
             json.put("slug", mSlug);
             json.put("book_number", mBookNumber);
             json.put("mode", mMode);
+            json.put("chapter", mChapter);
             json.put("startv", mStartVerse);
             json.put("endv", mEndVerse);
             return json;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags){
+        dest.writeString(mFile.getAbsolutePath());
+        String metadataString = "{}";
+        try {
+            metadataString = mMetadata.toJSON().toString();
+        } catch (JSONException e){
+            metadataString = "{}";
+        }
+        dest.writeString(metadataString);
+    }
+
+    public static final Parcelable.Creator<WavFile> CREATOR = new Parcelable.Creator<WavFile>() {
+        public WavFile createFromParcel(Parcel in){
+            return new WavFile(in);
+        }
+        public WavFile[] newArray(int size) {
+            return new WavFile[size];
+        }
+    };
 }

@@ -15,7 +15,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,6 +28,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.project.Book;
 import wycliffeassociates.recordingapp.project.ParseJSON;
@@ -80,6 +84,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private String STATE_INSERTING = "state_inserting";
     private boolean mInserting = false;
     private ProgressDialog mPd;
+    private int mStartVerse;
+    private int mEndVerse;
+    private WavFile mWavFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -381,9 +388,20 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             manager.startTimer();
             isSaved = false;
             RecordingQueues.clearQueues();
+            String filename = getFilename();
             Intent intent = new Intent(this, WavFileWriter.class);
-            intent.putExtra("audioFileName", getFilename());
-            intent.putExtra("screenWidth", AudioInfo.SCREEN_WIDTH);
+            intent.putExtra("audioFileName", filename);
+            Project project = Project.getProjectFromPreferences(this);
+            try {
+                File file = new File(filename);
+                mWavFile = new WavFile(file, project, String.valueOf(mChapter), String.valueOf(mStartVerse), String.valueOf(mEndVerse));
+                mWavFile.initializeWavFile();
+                intent.putExtra("wavfile", mWavFile);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             startService(new Intent(this, WavRecorder.class));
             startService(intent);
             manager.listenForRecording(false);
@@ -409,6 +427,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 finalizeInsert(mFilename, recordedFilename, mInsertLoc);
             } else {
                 intent.putExtra("recordedFilename", recordedFilename);
+                intent.putExtra("wavfile", mWavFile);
                 startActivity(intent);
                 this.finish();
             }
@@ -471,15 +490,15 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         if(mChunks != null) {
             //Get the list of chunks by first getting the book and chapter from the preference
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-            int startVerse = mChunks.get(idx-1).first;
-            int endVerse = mChunks.get(idx-1).second;
+            mStartVerse = mChunks.get(idx-1).first;
+            mEndVerse = mChunks.get(idx-1).second;
             String chunkOrVerse = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
             if(chunkOrVerse.compareTo("chunk") == 0) {
                 //pref.edit().putString(Settings.KEY_PREF_CHUNK, ).commit();
-                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(startVerse)).commit();
-                pref.edit().putString(Settings.KEY_PREF_END_VERSE, String.valueOf(endVerse)).commit();
+                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(mStartVerse)).commit();
+                pref.edit().putString(Settings.KEY_PREF_END_VERSE, String.valueOf(mEndVerse)).commit();
             } else {
-                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(String.valueOf(startVerse))).commit();
+                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(String.valueOf(mStartVerse))).commit();
                 pref.edit().putString(Settings.KEY_PREF_END_VERSE, null).commit();
                 System.out.println(pref.getString(Settings.KEY_PREF_END_VERSE, ""));
             }

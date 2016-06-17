@@ -25,6 +25,7 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
+import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.WavFileLoader;
@@ -44,8 +45,7 @@ public class UIDataManager {
     private final MarkerView mStartMarker;
     private final MarkerView mEndMarker;
     private boolean isRecording;
-    public static Semaphore lock;
-    private WavFileLoader wavLoader;
+    private WavFileLoader mWavLoader;
     private WavVisualizer wavVis;
     private MappedByteBuffer buffer;
     private MappedByteBuffer mappedAudioFile;
@@ -119,8 +119,8 @@ public class UIDataManager {
             //System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
-        if(wavLoader != null && wavLoader.visFileLoaded()){
-            wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
+        if(mWavLoader != null && mWavLoader.visFileLoaded()){
+            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = mPlayer.getLocation();
@@ -143,10 +143,6 @@ public class UIDataManager {
             int xEnd = timeToScreenSpace(mPlayer.getLocation(),
                     SectionMarkers.getEndLocationMs(), wavVis.millisecondsPerPixel());
             mEndMarker.setX(xEnd + (AudioInfo.SCREEN_WIDTH/8.f));
-//            Logger.w(this.toString(), "location is " + mPlayer.getLocation());
-//            Logger.w(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
-//            Logger.w(this.toString(), "Start marker at: " + xStart);
-//            Logger.w(this.toString(), "End marker at: " + xEnd);
         }
     }
 
@@ -246,10 +242,19 @@ public class UIDataManager {
 
     public void loadWavFromFile(String path){
         Logger.w(this.toString(), "Loading wav from file: " + path);
-        wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
-        buffer = wavLoader.getMappedFile();
-        preprocessedBuffer = wavLoader.getMappedCacheFile();
-        mappedAudioFile = wavLoader.getMappedAudioFile();
+        //mWavLoader = new WavFileLoader(path);
+        configure();
+    }
+
+    public void loadWavFile(WavFile wavFile){
+        mWavLoader = new WavFileLoader(wavFile);
+        configure();
+    }
+
+    private void configure(){
+        buffer = mWavLoader.getMappedFile();
+        preprocessedBuffer = mWavLoader.getMappedCacheFile();
+        mappedAudioFile = mWavLoader.getMappedAudioFile();
         if(buffer == null){
             Logger.e(UIDataManager.class.toString(), "Buffer is null.");
         }
@@ -281,8 +286,6 @@ public class UIDataManager {
     }
 
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, double mspp){
-        //Logger.w(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
-        //Logger.w(this.toString(), "mspp is " + mspp);
         return (int)Math.round((-mCutOp.reverseTimeAdjusted(markerTimeMs) + mCutOp.reverseTimeAdjusted(timeAtPlaybackLineMs)) / mspp);
 
     }

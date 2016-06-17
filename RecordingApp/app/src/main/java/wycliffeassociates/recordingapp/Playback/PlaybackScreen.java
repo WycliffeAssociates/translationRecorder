@@ -36,6 +36,7 @@ import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.RerecordDialog;
 import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
@@ -75,6 +76,7 @@ public class PlaybackScreen extends Activity{
     private TextView mChapterView;
     private TextView mChunkView;
     private SourceAudio mSrcPlayer;
+    private WavFile mWavFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,7 @@ public class PlaybackScreen extends Activity{
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01_01");
+        mWavFile = getIntent().getParcelableExtra("wavfile");
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         if(isALoadedFile){
@@ -149,7 +152,8 @@ public class PlaybackScreen extends Activity{
             public void onGlobalLayout() {
                 Logger.i(this.toString(), "Initializing UIDataManager in VTO callback");
                 mManager = new UIDataManager(mMainCanvas, minimap, mStartMarker, mEndMarker, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
-                mManager.loadWavFromFile(recordedFilename);
+                //mManager.loadWavFromFile(recordedFilename);
+                mManager.loadWavFile(mWavFile);
                 mManager.updateUI();
                 mMainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
