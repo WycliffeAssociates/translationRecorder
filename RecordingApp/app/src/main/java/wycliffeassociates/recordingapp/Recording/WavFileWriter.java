@@ -3,6 +3,10 @@ package wycliffeassociates.recordingapp.Recording;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
+
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,6 +15,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 
@@ -19,6 +24,7 @@ public class WavFileWriter extends Service{
     private String filename = null;
     private String nameWithoutExtension = null;
     private String visTempFile = "visualization.vis";
+    private Project mProject;
     public static int largest = 0;
 
     @Override
@@ -28,18 +34,17 @@ public class WavFileWriter extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+        final WavFile audioFile = intent.getParcelableExtra("wavfile");
         filename = intent.getStringExtra("audioFileName");
+        mProject = intent.getParcelableExtra(Project.PROJECT_EXTRA);
         nameWithoutExtension = filename.substring(filename.lastIndexOf("/")+1, filename.lastIndexOf("."));
-        final int screenWidth = intent.getIntExtra("screenWidth", 0);
-        System.out.println("Passed in string name " + filename);
+        Logger.w(this.toString(),"Passed in string name " + filename);
         Thread writingThread = new Thread(new Runnable() {
             @Override
             public void run() {
-
                 boolean stopped = false;
                 try {
-                    FileOutputStream wavFile = new FileOutputStream(filename);
-                    writeWaveFileHeaderPlaceholder(wavFile);
+                    FileOutputStream rawAudio = new FileOutputStream(filename, true);
                     while(!stopped){
                         RecordingMessage message = RecordingQueues.writingQueue.take();
                         if(message.isStopped()){
@@ -47,18 +52,15 @@ public class WavFileWriter extends Service{
                         }
                         else {
                             if(!message.isPaused())
-                                wavFile.write(message.getData());
+                                rawAudio.write(message.getData());
                             else
                                 System.out.println("paused writing");
                         }
                     }
+                    audioFile.overwriteHeaderData();
+                    audioFile.writeMetadata();
                     System.out.println("writing to file");
-                    wavFile.close();
-                    File file = new File(filename);
-                    long totalAudioLength = file.length();
-                    //WavFile audioFile = new WavFile(file);
-                    //int metadataSize = audioFile.writeMetadata("{\"book\":\"mat\",\"lang\":\"en\",\"chap\":1,\"startv\":1,\"endv\":2,\"marker1\":1234}");
-                    //overwriteHeaderData(file, totalAudioLength, metadataSize);
+                    rawAudio.close();
                     RecordingQueues.writingQueue.clear();
                     Logger.e(this.toString(), "Writing queue finishing, sending done message");
                     RecordingQueues.doneWriting.put(new Boolean(true));
@@ -68,8 +70,9 @@ public class WavFileWriter extends Service{
                     e.printStackTrace();
                 } catch (IOException e ) {
                     e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
             }
         });
 
