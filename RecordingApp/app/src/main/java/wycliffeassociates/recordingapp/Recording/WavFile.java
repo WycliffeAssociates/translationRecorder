@@ -15,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
@@ -86,10 +88,10 @@ public class WavFile implements Parcelable{
             byte[] size = new byte[4];
             raf.seek(4);
             raf.read(size);
-            mTotalDataLength = littleEndianToDecimal(size, 0, 4);
+            mTotalDataLength = littleEndianToDecimal(size);
             raf.seek(40);
             raf.read(size);
-            mTotalAudioLength = littleEndianToDecimal(size, 0, 4);
+            mTotalAudioLength = littleEndianToDecimal(size);
             //check if this is okay
             raf.seek(44 + mTotalAudioLength);
             raf.read(size);
@@ -97,7 +99,7 @@ public class WavFile implements Parcelable{
             if(tag.compareTo("LIST") == 0) {
                 raf.seek(44 + mTotalAudioLength + 16);
                 raf.read(size);
-                mMetadataLength = littleEndianToDecimal(size, 0, 4);
+                mMetadataLength = littleEndianToDecimal(size);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -361,13 +363,13 @@ public class WavFile implements Parcelable{
             if(riff.compareTo("RIFF") == 0){
                 //raf.seek(4);
                 raf.read(word);
-                mTotalDataLength = littleEndianToDecimal(word, 0, 4);
+                mTotalDataLength = littleEndianToDecimal(word);
                 raf.read(word);
                 String wave = new String(word, StandardCharsets.US_ASCII);
                 if(wave.compareTo("WAVE") == 0){
                     raf.seek(40);
                     raf.read(word);
-                    mTotalAudioLength = littleEndianToDecimal(word, 0, 4);
+                    mTotalAudioLength = littleEndianToDecimal(word);
                     return true;
                 }
             }
@@ -381,10 +383,10 @@ public class WavFile implements Parcelable{
             RandomAccessFile raf = new RandomAccessFile(mFile, "r");
             raf.seek(4);
             raf.read(size);
-            int fileSize = littleEndianToDecimal(size, 0, 4);
+            int fileSize = littleEndianToDecimal(size);
             raf.seek(40);
             raf.read(size);
-            int audioSize = littleEndianToDecimal(size, 0, 4);
+            int audioSize = littleEndianToDecimal(size);
             //check if this is okay
             raf.seek(44 + audioSize);
             raf.read(size);
@@ -392,7 +394,7 @@ public class WavFile implements Parcelable{
             if(tag.compareTo("LIST") == 0){
                 raf.seek(44 + audioSize + 16);
                 raf.read(size);
-                int metadataSize = littleEndianToDecimal(size, 0, 4);
+                int metadataSize = littleEndianToDecimal(size);
                 byte[] metadata = new byte[metadataSize];
                 raf.read(metadata);
                 return metadata;
@@ -414,13 +416,11 @@ public class WavFile implements Parcelable{
         return json;
     }
 
-    int littleEndianToDecimal(byte[] header, int loc, int n){
-        int sum = 0;
-        for(int i = 0; i < n; i++){
-            //can just shift in without masking because header is unsigned
-            sum |= (header[loc+i] << (8*i)) & 0xff;
-        }
-        return sum;
+    int littleEndianToDecimal(byte[] header){
+        ByteBuffer byteBuffer = ByteBuffer.wrap(header);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        int value = byteBuffer.getInt();
+        return value;
     }
 
     private class Metadata{
