@@ -401,8 +401,8 @@ public class WavFile implements Parcelable{
             if(tag.compareTo("LIST") == 0){
                 raf.seek(44 + audioSize + 16);
                 raf.read(size);
-                int metadataSize = littleEndianToDecimal(size);
-                byte[] metadata = new byte[metadataSize];
+                mMetadataLength = littleEndianToDecimal(size);
+                byte[] metadata = new byte[mMetadataLength];
                 raf.read(metadata);
                 return metadata;
             }

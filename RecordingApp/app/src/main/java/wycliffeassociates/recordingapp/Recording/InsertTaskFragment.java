@@ -95,10 +95,14 @@ public class InsertTaskFragment extends Fragment {
                         oldWritten++;
                     }
                     Logger.e(this.toString(), "wrote after insert");
-                    byte[] metadata = WavFile.convertToMetadata(oldWavFile.getMetadata());
-                    bos.write(metadata);
+                    int metadataSize = oldWavFile.getTotalMetadataLength();
+                    for(int i = 0; i < metadataSize; i++){
+                        bos.write(bisOrg.read());
+                    }
+//                    byte[] metadata = WavFile.convertToMetadata(oldWavFile.getMetadata());
+//                    bos.write(metadata);
                     Logger.e(this.toString(), "wrote metadata");
-                    WavFileWriter.overwriteHeaderData(destination, oldAudioLength + newAudioLength, metadata.length);
+                    WavFileWriter.overwriteHeaderData(destination, oldAudioLength + newAudioLength, metadataSize);
                     Logger.e(this.toString(), "overwrote header");
 
                     bos.close(); fos.close();
@@ -107,11 +111,12 @@ public class InsertTaskFragment extends Fragment {
 
                     File vis = new File(AudioInfo.pathToVisFile + "/"+FileNameExtractor.getNameWithoutExtention(insert)+".vis");
                     vis.delete();
-                } catch (IOException e){
-                    e.printStackTrace();
-                } catch (JSONException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
+//                } catch (JSONException e){
+//                    e.printStackTrace();
+//                }
                 mCtx.insertCallback(destination);
             }
         });
