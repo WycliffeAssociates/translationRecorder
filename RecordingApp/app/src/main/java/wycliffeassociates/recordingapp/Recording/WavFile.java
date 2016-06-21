@@ -49,16 +49,22 @@ public class WavFile implements Parcelable{
     //Files without a valid wav header will be blown away and replaced with an empty wav file
     //not sure if this is good, but should the assumption be that the alternative is a file containing
     //raw PCM data?
-    public WavFile(File file) throws JSONException, IOException {
+    public WavFile(File file){
         mFile = file;
-        boolean properForm = parseHeader();
-        if(mFile.length() > 0) {
-            if (properForm) {
-                byte[] metadataBytes = parseInfo();
-                mMetadata = new Metadata(readTrackInfo(metadataBytes));
-            } else {
-                rawPcmToWav();
+        try{
+            boolean properForm = parseHeader();
+            if(mFile.length() > 0) {
+                if (properForm) {
+                    byte[] metadataBytes = parseInfo();
+                    mMetadata = new Metadata(readTrackInfo(metadataBytes));
+                } else {
+                    rawPcmToWav();
+                }
             }
+        } catch (JSONException e){
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 
@@ -189,6 +195,7 @@ public class WavFile implements Parcelable{
         }
     }
 
+    //TODO: loading screen
     private void rawPcmToWav(){
         try {
             File temp = File.createTempFile("temp", "wav");

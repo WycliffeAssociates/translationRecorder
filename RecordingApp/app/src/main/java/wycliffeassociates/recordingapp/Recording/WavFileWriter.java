@@ -224,10 +224,9 @@ public class WavFileWriter extends Service{
         overwriteHeaderData(new File(filepath), totalDataLen, metadataLength);
     }
 
-    public static void overwriteHeaderData(File filepath, long totalDataLen, int metadataLength){
-        long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
-        totalDataLen -= 8; //this subtracts out the data subchunk header
-        totalDataLen += metadataLength;
+    public static void overwriteHeaderData(File filepath, long totalAudioLen, int metadataLength){
+        //long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
+        long totalDataLen = totalAudioLen + metadataLength - 8; //this subtracts out the data subchunk header
         try {
             RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
             //seek to header[4] to overwrite data length

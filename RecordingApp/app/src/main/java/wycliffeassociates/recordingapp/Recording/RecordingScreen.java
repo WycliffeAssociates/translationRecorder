@@ -87,6 +87,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private int mStartVerse;
     private int mEndVerse;
     private WavFile mWavFile;
+    private String mFileToInsertInto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -298,7 +299,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void initializeInsert(String oldName, int location){
         mInsertLoc = location;
-        mFilename = oldName.substring(oldName.lastIndexOf("/")+1, oldName.lastIndexOf("."));
+        mFileToInsertInto = oldName.substring(oldName.lastIndexOf("/")+1, oldName.lastIndexOf("."));
     }
 
     @Override
@@ -424,7 +425,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             isPausedRecording = false;
             Intent intent = new Intent(this, PlaybackScreen.class);
             if(mInsertMode){
-                finalizeInsert(mFilename, recordedFilename, mInsertLoc);
+                finalizeInsert(mFileToInsertInto, recordedFilename, mInsertLoc);
             } else {
                 intent.putExtra("recordedFilename", recordedFilename);
                 intent.putExtra("wavfile", mWavFile);

@@ -84,8 +84,12 @@ public class PlaybackScreen extends Activity{
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01_01");
-        mWavFile = getIntent().getParcelableExtra("wavfile");
         recordedFilename = getIntent().getStringExtra("recordedFilename");
+        if(getIntent().hasExtra("wavfile")){
+            mWavFile = getIntent().getParcelableExtra("wavfile");
+        } else {
+            mWavFile = new WavFile(new File(recordedFilename));
+        }
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         if(isALoadedFile){
             suggestedFilename = FileNameExtractor.getNameWithoutTake(recordedFilename);
