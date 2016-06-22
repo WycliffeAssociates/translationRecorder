@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 6/2/2016.
@@ -127,7 +128,7 @@ public class WavFile implements Parcelable{
     }
 
     public int getTotalMetadataLength(){
-        return mMetadataLength;
+        return mMetadataLength + 20;
     }
 
     public void initializeWavFile(){
@@ -288,7 +289,7 @@ public class WavFile implements Parcelable{
         for(int i = 20; i < metadata.length()+20; i++){
             infoTag[i] = (metadata.getBytes(StandardCharsets.US_ASCII))[i-20];
         }
-        for(int i = metadata.length()+20; i < metadataSize+20; i++){
+        for(int i = metadata.length()+20; i < infoTag.length; i++){
             infoTag[i] = '\0';
         }
         return infoTag;
@@ -405,7 +406,11 @@ public class WavFile implements Parcelable{
                 byte[] metadata = new byte[mMetadataLength];
                 raf.read(metadata);
                 return metadata;
+            } else {
+                Logger.e(this.toString(), "tag was: " + tag);
             }
+        } else {
+            Logger.e(this.toString(), "parse info failed! File not null is..." + (mFile != null) + " file length is..." + mFile.length());
         }
         return null;
     }
@@ -419,6 +424,7 @@ public class WavFile implements Parcelable{
 
     public static JSONObject readTrackInfo(byte[] data) throws JSONException {
         String decoded = new String(data, StandardCharsets.US_ASCII);
+        Logger.e("WavFile", decoded);
         JSONObject json = new JSONObject(decoded);
         return json;
     }
@@ -519,6 +525,8 @@ public class WavFile implements Parcelable{
             return json;
         }
     }
+
+
 
     @Override
     public int describeContents() {

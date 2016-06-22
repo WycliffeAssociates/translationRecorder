@@ -214,7 +214,7 @@ public class UIDataManager {
             int count = percent;
             long sizeAfterCut = 0;
             //may need to be -1?
-            for(int i = 0; i < audioLength; i++){
+            for(int i = 0; i < audioLength-1; i++){
                 int skip = mCutOp.skipLoc(i, false);
                 if(skip != -1){
                     i = skip;
@@ -234,7 +234,7 @@ public class UIDataManager {
                 }
                 count--;
             }
-            for(int i = 0; i < metadataLength; i++){
+            for(int i = 0; i < metadata.length; i++){
                 bos.write(metadata[i]);
             }
 
