@@ -220,8 +220,8 @@ public class WavFileWriter extends Service{
 
     }
 
-    public static void overwriteHeaderData(String filepath, long totalDataLen, int metadataLength){
-        overwriteHeaderData(new File(filepath), totalDataLen, metadataLength);
+    public static void overwriteHeaderData(String filepath, long totalAudioLength, int metadataLength){
+        overwriteHeaderData(new File(filepath), totalAudioLength, metadataLength);
     }
 
     public static void overwriteHeaderData(File filepath, long totalAudioLen, int metadataLength){

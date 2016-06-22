@@ -302,8 +302,8 @@ public class PlaybackScreen extends Activity{
 //        }
         int takeInt = FileNameExtractor.getLargestTake(dir, new File(suggestedFilename))+1;
         String take = String.format("%02d", takeInt);
-        File to = new File(dir, suggestedFilename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
-        writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")), intent);
+        File to = new File(dir, suggestedFilename + "_t" + take + AUDIO_RECORDER_FILE_EXT_WAV);
+        writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")), new WavFile(from), intent);
     }
 
     public String getName() {
@@ -316,7 +316,7 @@ public class PlaybackScreen extends Activity{
      * @param name a string with the desired output filename. Should not include the .wav extension.
      * @return the absolute path of the file created
      */
-    public void writeCutToFile(final File to, final String name, final Intent intent) {
+    public void writeCutToFile(final File to, final String name, final WavFile from, final Intent intent) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setTitle("Saving");
@@ -331,7 +331,7 @@ public class PlaybackScreen extends Activity{
                     try {
                         File dir = new File(pref.getString("current_directory", "").toString());
                         File toTemp = new File(dir, "temp.wav");
-                        mManager.writeCut(toTemp, pd);
+                        mManager.writeCut(toTemp, to, from, pd);
                         to.delete();
                         toTemp.renameTo(to);
                         File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
