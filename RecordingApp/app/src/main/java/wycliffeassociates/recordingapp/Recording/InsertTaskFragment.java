@@ -51,72 +51,18 @@ public class InsertTaskFragment extends Fragment {
             public void run() {
                 try {
                     int insertLoc = timeToIndex(insertTime);
-                    //the file containing the section to insert is the destination name, so move it to a temporary file before we insert
-                    File insert = new File(destination);
-                    File tempInsertFile = new File(destination + "-temp.wav");
-                    insert.renameTo(tempInsertFile);
-                    File from = new File(previousRecording);
-                    File dir = FileNameExtractor.getDirectoryFromFile(pref, from);
-                    FileInputStream fisOrg = new FileInputStream(from);
-                    BufferedInputStream bisOrg = new BufferedInputStream(fisOrg);
-
-                    FileInputStream fisInsert = new FileInputStream(tempInsertFile);
-                    BufferedInputStream bisInsert = new BufferedInputStream(fisInsert);
-
-                    FileOutputStream fos = new FileOutputStream(new File(destination));
-                    BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-                    WavFile oldWavFile = new WavFile(from);
-                    WavFile newWavFile = new WavFile(tempInsertFile);
-
-                    int oldAudioLength = oldWavFile.getTotalAudioLength();
-                    int newAudioLength = newWavFile.getTotalAudioLength();
-
-                    int oldWritten = 0;
-                    int newWritten = 0;
-
-                    for (int i = 0; i < AudioInfo.HEADER_SIZE; i++) {
-                        bos.write(bisOrg.read());
-                    }
-                    Logger.e(this.toString(), "wrote header");
-                    for (int i = 0; i < insertLoc; i++) {
-                        bos.write(bisOrg.read());
-                        oldWritten++;
-                    }
-                    Logger.e(this.toString(), "wrote before insert");
-                    fisInsert.skip(AudioInfo.HEADER_SIZE);
-                    for (int i = 0; i < newAudioLength; i++) {
-                        bos.write(bisInsert.read());
-                        newWritten++;
-                    }
-                    Logger.e(this.toString(), "wrote insert");
-                    for (int i = insertLoc; i < oldAudioLength; i++) {
-                        bos.write(bisOrg.read());
-                        oldWritten++;
-                    }
-                    Logger.e(this.toString(), "wrote after insert");
-                    int metadataSize = oldWavFile.getTotalMetadataLength();
-                    for(int i = 0; i < metadataSize; i++){
-                        bos.write(bisOrg.read());
-                    }
-//                    byte[] metadata = WavFile.convertToMetadata(oldWavFile.getMetadata());
-//                    bos.write(metadata);
-                    Logger.e(this.toString(), "wrote metadata");
-                    WavFileWriter.overwriteHeaderData(destination, oldAudioLength + newAudioLength, metadataSize);
-                    Logger.e(this.toString(), "overwrote header");
-
-                    bos.close(); fos.close();
-                    bisInsert.close(); fisInsert.close(); tempInsertFile.delete();
-                    bisOrg.close(); fisInsert.close();
-
-                    File vis = new File(AudioInfo.pathToVisFile + "/"+FileNameExtractor.getNameWithoutExtention(insert)+".vis");
+                    WavFile base = new WavFile(new File(previousRecording));
+                    WavFile insert = new WavFile(new File(destination));
+                    WavFile result = WavFile.insertWavFile(base, insert, insertLoc);
+                    insert.getFile().delete();
+                    File vis = new File(AudioInfo.pathToVisFile + "/" + FileNameExtractor.getNameWithoutExtention(insert.getFile())+".vis");
                     vis.delete();
+                    result.getFile().renameTo(insert.getFile());
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (JSONException e){
+                    e.printStackTrace();
                 }
-//                } catch (JSONException e){
-//                    e.printStackTrace();
-//                }
                 mCtx.insertCallback(destination);
             }
         });

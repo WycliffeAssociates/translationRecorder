@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.Recording;
 
+import android.app.ProgressDialog;
 import android.media.AudioFormat;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -20,6 +21,8 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
+import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
@@ -86,6 +89,21 @@ public class WavFile implements Parcelable{
         mMetadataLength = 0;
         if(mFile.length() > 0){
             parseChunkSizes();
+        }
+    }
+
+    public WavFile(File file, String jsonMetadata){
+        mFile = file;
+        mMetadataLength = 0;
+        mTotalAudioLength = (int)file.length() - HEADER_SIZE;
+        mTotalDataLength = (int)file.length() - 8;
+        try {
+            mMetadata = new Metadata(new JSONObject(jsonMetadata));
+            writeMetadata();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -526,7 +544,62 @@ public class WavFile implements Parcelable{
         }
     }
 
+    public static WavFile insertWavFile(WavFile base, WavFile insert, int insertIndex) throws IOException, JSONException{
+        File result = new File(base.getFile().getAbsolutePath() + "temp.wav");
 
+        FileInputStream fisBase = new FileInputStream(base.getFile());
+        BufferedInputStream bisBase = new BufferedInputStream(fisBase);
+
+        FileInputStream fisInsert = new FileInputStream(insert.getFile());
+        BufferedInputStream bisInsert = new BufferedInputStream(fisInsert);
+
+        FileOutputStream fos = new FileOutputStream(result);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+        int oldAudioLength = base.getTotalAudioLength();
+        int newAudioLength = insert.getTotalAudioLength();
+
+        int newWritten = 0;
+        int oldWritten = 0;
+
+        for (int i = 0; i < AudioInfo.HEADER_SIZE; i++) {
+            bos.write(bisBase.read());
+        }
+        Logger.e("WavFile", "wrote header");
+        for (int i = 0; i < insertIndex; i++) {
+            bos.write(bisBase.read());
+            oldWritten++;
+        }
+        Logger.e("WavFile", "wrote before insert");
+        fisInsert.skip(AudioInfo.HEADER_SIZE);
+        for (int i = 0; i < newAudioLength; i++) {
+            bos.write(bisInsert.read());
+            newWritten++;
+        }
+        Logger.e("WavFile", "wrote insert");
+        for (int i = insertIndex; i < oldAudioLength; i++) {
+            bos.write(bisBase.read());
+            oldWritten++;
+        }
+
+        //No metadata yet
+        WavFileWriter.overwriteHeaderData(result, oldAudioLength + newAudioLength, 0);
+        Logger.e("WavFile", "overwrote header");
+
+
+        bos.close(); fos.close();
+        bisInsert.close(); fisInsert.close();
+        bisBase.close(); fisInsert.close();
+
+        if(result.length() != AudioInfo.HEADER_SIZE + oldAudioLength + newAudioLength){
+            Logger.e("WavFile", "ERROR: resulting filesize not right. length is " + result.length() + " should be " + (AudioInfo.HEADER_SIZE + oldAudioLength + newAudioLength));
+            Logger.e("WavFile", "new audio written was " + newWritten + " newAudioLength is " + newAudioLength + " old audio written was " + oldWritten + " oldAudioLength is " + oldAudioLength);
+        }
+
+        WavFile resultWavFile = new WavFile(result, insert.getMetadata());
+
+        return resultWavFile;
+    }
 
     @Override
     public int describeContents() {
