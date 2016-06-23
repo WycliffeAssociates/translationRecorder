@@ -42,7 +42,8 @@
             android:textStyle="bold"
             android:layout_below="@+id/record_icon"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/default_padding_s" />
+            android:layout_marginTop="@dimen/default_padding_s"
+            android:textColor="@color/text_light"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,7 +53,8 @@
             android:textStyle="bold"
             android:layout_below="@+id/language_view"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/default_padding_xs"/>
+            android:layout_marginTop="@dimen/default_padding_xs"
+            android:textColor="@color/text_light"/>
     </RelativeLayout>
 
 </LinearLayout>
