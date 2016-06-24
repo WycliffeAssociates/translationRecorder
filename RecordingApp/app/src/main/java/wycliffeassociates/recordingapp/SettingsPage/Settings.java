@@ -121,7 +121,7 @@ public class Settings extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
+        //setContentView(R.layout.settings);
         PreferenceManager.setDefaultValues(this, R.xml.preference, false);
     }
 

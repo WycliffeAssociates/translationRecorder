@@ -14,6 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 import org.apache.commons.io.FileUtils;
 
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.ProjectManager.ActivityProjectManager;
 import wycliffeassociates.recordingapp.ProjectManager.DatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.BugReportDialog;
@@ -35,9 +37,8 @@ import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 
 public class MainMenu extends Activity{
 
-    private ImageButton btnRecord;
+    private RelativeLayout btnRecord;
     private ImageButton btnFiles;
-    private ImageButton btnSettings;
     private SharedPreferences pref;
 
     private int mNumProjects = 0;
@@ -73,7 +74,7 @@ public class MainMenu extends Activity{
         DatabaseHelper db = new DatabaseHelper(this);
         mNumProjects = db.getNumProjects();
 
-        btnRecord = (ImageButton) findViewById(R.id.new_record);
+        btnRecord = (RelativeLayout) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,21 +94,12 @@ public class MainMenu extends Activity{
         btnFiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), AudioFiles.class);
+                Intent intent = new Intent(v.getContext(), ActivityProjectManager.class);
                 startActivityForResult(intent, 0);
                 overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
             }
         });
 
-        btnSettings = (ImageButton) findViewById(R.id.settings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), Settings.class);
-                startActivityForResult(intent, 0);
-                overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
-            }
-        });
     }
 
     @Override

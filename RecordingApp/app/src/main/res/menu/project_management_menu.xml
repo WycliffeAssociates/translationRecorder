@@ -11,14 +11,14 @@
             <item
                 android:id="@+id/action_settings"
                 android:title="Settings"
-                android:icon="@drawable/ic_settings"
+                android:icon="@drawable/ic_settings_black_24dp"
                 android:orderInCategory="100"
                 app:showAsAction="never"
                 />
             <item
                 android:id="@+id/action_logout"
                 android:title="Logout"
-                android:icon="@drawable/ic_arrow_back_black_24dp"
+                android:icon="@drawable/ic_logout_variant_black_24dp"
                 android:orderInCategory="200"
                 app:showAsAction="never"
                 />
