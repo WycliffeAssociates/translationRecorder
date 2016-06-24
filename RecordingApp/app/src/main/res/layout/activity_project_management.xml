@@ -43,7 +43,7 @@
             />
 
         <LinearLayout
-            android:id="@+id/project_list"
+            android:id="@+id/project_list_layout"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -123,7 +123,7 @@
                 <ScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/scrollView2" />
+                    android:id="@+id/project_list" />
 
             </LinearLayout>
         </LinearLayout>

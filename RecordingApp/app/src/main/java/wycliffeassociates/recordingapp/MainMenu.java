@@ -122,9 +122,6 @@ public class MainMenu extends Activity{
 
     private void setupNewProject(){
         startActivityForResult(new Intent(getBaseContext(), ProjectWizardActivity.class), PROJECT_WIZARD_REQUEST);
-//        Intent intent = new Intent(this, LanguageActivity.class);
-//        intent.putExtra(Project.PROJECT_EXTRA, new Project());
-//        startActivityForResult(intent, LANGUAGE_REQUEST);
     }
 
     private void promptProjectList(){
