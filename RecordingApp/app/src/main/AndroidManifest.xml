@@ -37,34 +37,22 @@
 
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
 
-        <activity android:name=".SettingsPage.LanguageActivity">
-            <intent-filter>
-            <action android:name="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT" />
-            <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-
-        <activity android:name=".SettingsPage.BookActivity">
-            <intent-filter>
-                <action android:name="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".SettingsPage.SelectSourceDirectory">
+        <activity android:name=".project.SelectSourceDirectory">
             <intent-filter>
                 <action android:name="wycliffeassociates.recordingapp.SettingsPage.SELECT_SRC_INTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
+        <activity android:name=".project.SourceAudioActivity" />
+        <activity android:name=".project.ProjectWizardActivity" />
+
+
         <activity android:name=".FilesPage.ExportFiles" />
         <service android:name=".Recording.WavRecorder" />
         <service android:name=".Recording.WavFileWriter" />
         <activity android:name=".FilesPage.Export.FolderExport$StorageAccess" />
         <activity android:name=".FilesPage.Export.AppExport$ShareZipToApps"/>
-        <activity android:name=".FilesPage.FTPActivity" android:theme="@style/Theme.UserDialog"/>
         <activity android:name=".SettingsPage.connectivity.LanguageNamesRequest" />
 
         <activity android:name="com.door43.login.ProfileActivity"
@@ -79,6 +67,8 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name="com.door43.login.legal.LegalDocumentActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".ProjectManager.ActivityProjectManager"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />

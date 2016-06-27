@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
-import wycliffeassociates.recordingapp.SettingsPage.Language;
+import wycliffeassociates.recordingapp.project.Language;
 
 public class LanguageNamesRequest extends Activity {
 
@@ -46,7 +46,7 @@ public class LanguageNamesRequest extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
+        //setContentView(R.layout.settings);
 
         //.getMyMemoryState();
         //.MemoryInfo();

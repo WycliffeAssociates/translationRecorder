@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +27,7 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
+import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.WavFileLoader;
@@ -44,8 +47,7 @@ public class UIDataManager {
     private final MarkerView mStartMarker;
     private final MarkerView mEndMarker;
     private boolean isRecording;
-    public static Semaphore lock;
-    private WavFileLoader wavLoader;
+    private WavFileLoader mWavLoader;
     private WavVisualizer wavVis;
     private MappedByteBuffer buffer;
     private MappedByteBuffer mappedAudioFile;
@@ -119,8 +121,8 @@ public class UIDataManager {
             //System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
-        if(wavLoader != null && wavLoader.visFileLoaded()){
-            wavVis.enableCompressedFileNextDraw(wavLoader.getMappedCacheFile());
+        if(mWavLoader != null && mWavLoader.visFileLoaded()){
+            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = mPlayer.getLocation();
@@ -143,10 +145,6 @@ public class UIDataManager {
             int xEnd = timeToScreenSpace(mPlayer.getLocation(),
                     SectionMarkers.getEndLocationMs(), wavVis.millisecondsPerPixel());
             mEndMarker.setX(xEnd + (AudioInfo.SCREEN_WIDTH/8.f));
-//            Logger.w(this.toString(), "location is " + mPlayer.getLocation());
-//            Logger.w(this.toString(), "mspp is " + wavVis.millisecondsPerPixel());
-//            Logger.w(this.toString(), "Start marker at: " + xStart);
-//            Logger.w(this.toString(), "End marker at: " + xEnd);
         }
     }
 
@@ -196,47 +194,60 @@ public class UIDataManager {
         updateUI();
     }
 
-    public void writeCut(File to, ProgressDialog pd) throws IOException {
+    public void writeCut(File to, final File original, final WavFile wavFile, ProgressDialog pd) throws IOException {
         Logger.w(this.toString(), "Rewriting file to disk due to cuts");
         pd.setProgress(0);
 
-        FileOutputStream fos = new FileOutputStream(to);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        System.out.println("About to output the header");
-        for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
-            bos.write(mappedAudioFile.get(i));
-        }
-        System.out.println("Done writing the header");
-        int percent = (int)Math.round((buffer.capacity()) /100.0);
-        int count = percent;
-        long sizeAfterCut = 0;
-        for(int i = 0; i < buffer.capacity()-1; i++){
-            int skip = mCutOp.skipLoc(i, false);
-            if(skip != -1){
-                i = skip;
-            }
-            sizeAfterCut++;
-            if(i >= buffer.capacity()){
-                if(i%2 != 0 && i-1 < buffer.capacity()){
-                    i--;
-                } else {
-                    break;
-                }
-            }
-            bos.write(buffer.get(i));
-            if(count <= 0) {
-                pd.incrementProgressBy(1);
-                count = percent;
-            }
-            count--;
-        }
-        bos.flush();
-        bos.close();
-        fos.flush();
-        fos.close();
-        WavFileWriter.overwriteHeaderData(to.getAbsolutePath(), sizeAfterCut + 44);
-        mCutOp.clear();
+        try {
+            byte[] metadata = WavFile.convertToMetadata(wavFile.getMetadata());
+            int metadataLength = wavFile.getTotalMetadataLength();
+            int audioLength = wavFile.getTotalAudioLength();
 
+            FileOutputStream fos = new FileOutputStream(to);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            System.out.println("About to output the header");
+            for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
+                bos.write(mappedAudioFile.get(i));
+            }
+            System.out.println("Done writing the header");
+            int percent = (int)Math.round((buffer.capacity()) /100.0);
+            int count = percent;
+            long sizeAfterCut = 0;
+            //may need to be -1?
+            for(int i = 0; i < audioLength-1; i++){
+                int skip = mCutOp.skipLoc(i, false);
+                if(skip != -1){
+                    i = skip;
+                }
+                sizeAfterCut++;
+                if(i >= audioLength){
+                    if(i%2 != 0 && i-1 < audioLength){
+                        i--;
+                    } else {
+                        break;
+                    }
+                }
+                bos.write(buffer.get(i));
+                if(count <= 0) {
+                    pd.incrementProgressBy(1);
+                    count = percent;
+                }
+                count--;
+            }
+            for(int i = 0; i < metadata.length; i++){
+                bos.write(metadata[i]);
+            }
+
+            bos.flush();
+            bos.close();
+            fos.flush();
+            fos.close();
+
+            WavFileWriter.overwriteHeaderData(to.getAbsolutePath(), to.length()-metadataLength-AudioInfo.HEADER_SIZE, metadataLength);
+            mCutOp.clear();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
         return;
     }
 
@@ -246,10 +257,19 @@ public class UIDataManager {
 
     public void loadWavFromFile(String path){
         Logger.w(this.toString(), "Loading wav from file: " + path);
-        wavLoader = new WavFileLoader(path, mainWave.getWidth(), isALoadedFile);
-        buffer = wavLoader.getMappedFile();
-        preprocessedBuffer = wavLoader.getMappedCacheFile();
-        mappedAudioFile = wavLoader.getMappedAudioFile();
+        //mWavLoader = new WavFileLoader(path);
+        configure();
+    }
+
+    public void loadWavFile(WavFile wavFile){
+        mWavLoader = new WavFileLoader(wavFile);
+        configure();
+    }
+
+    private void configure(){
+        buffer = mWavLoader.getMappedFile();
+        preprocessedBuffer = mWavLoader.getMappedCacheFile();
+        mappedAudioFile = mWavLoader.getMappedAudioFile();
         if(buffer == null){
             Logger.e(UIDataManager.class.toString(), "Buffer is null.");
         }
@@ -281,8 +301,6 @@ public class UIDataManager {
     }
 
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, double mspp){
-        //Logger.w(this.toString(), "Time differential is " + (markerTimeMs - timeAtPlaybackLineMs));
-        //Logger.w(this.toString(), "mspp is " + mspp);
         return (int)Math.round((-mCutOp.reverseTimeAdjusted(markerTimeMs) + mCutOp.reverseTimeAdjusted(timeAtPlaybackLineMs)) / mspp);
 
     }

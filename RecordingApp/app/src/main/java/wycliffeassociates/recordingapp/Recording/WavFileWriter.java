@@ -3,6 +3,10 @@ package wycliffeassociates.recordingapp.Recording;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
+
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,6 +15,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 
@@ -19,6 +24,7 @@ public class WavFileWriter extends Service{
     private String filename = null;
     private String nameWithoutExtension = null;
     private String visTempFile = "visualization.vis";
+    private Project mProject;
     public static int largest = 0;
 
     @Override
@@ -28,18 +34,17 @@ public class WavFileWriter extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+        final WavFile audioFile = intent.getParcelableExtra("wavfile");
         filename = intent.getStringExtra("audioFileName");
+        mProject = intent.getParcelableExtra(Project.PROJECT_EXTRA);
         nameWithoutExtension = filename.substring(filename.lastIndexOf("/")+1, filename.lastIndexOf("."));
-        final int screenWidth = intent.getIntExtra("screenWidth", 0);
-        System.out.println("Passed in string name " + filename);
+        Logger.w(this.toString(),"Passed in string name " + filename);
         Thread writingThread = new Thread(new Runnable() {
             @Override
             public void run() {
-
                 boolean stopped = false;
                 try {
-                    FileOutputStream wavFile = new FileOutputStream(filename);
-                    writeWaveFileHeaderPlaceholder(wavFile);
+                    FileOutputStream rawAudio = new FileOutputStream(filename, true);
                     while(!stopped){
                         RecordingMessage message = RecordingQueues.writingQueue.take();
                         if(message.isStopped()){
@@ -47,16 +52,15 @@ public class WavFileWriter extends Service{
                         }
                         else {
                             if(!message.isPaused())
-                                wavFile.write(message.getData());
+                                rawAudio.write(message.getData());
                             else
                                 System.out.println("paused writing");
                         }
                     }
+                    audioFile.overwriteHeaderData();
+                    audioFile.writeMetadata();
                     System.out.println("writing to file");
-                    wavFile.close();
-                    File file = new File(filename);
-                    long totalAudioLength = file.length();
-                    overwriteHeaderData(filename, totalAudioLength);
+                    rawAudio.close();
                     RecordingQueues.writingQueue.clear();
                     Logger.e(this.toString(), "Writing queue finishing, sending done message");
                     RecordingQueues.doneWriting.put(new Boolean(true));
@@ -66,8 +70,9 @@ public class WavFileWriter extends Service{
                     e.printStackTrace();
                 } catch (IOException e ) {
                     e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
             }
         });
 
@@ -215,9 +220,13 @@ public class WavFileWriter extends Service{
 
     }
 
-    public static void overwriteHeaderData(String filepath, long totalDataLen){
-        long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
-        totalDataLen -= 8; //this subtracts out the data subchunk header
+    public static void overwriteHeaderData(String filepath, long totalAudioLength, int metadataLength){
+        overwriteHeaderData(new File(filepath), totalAudioLength, metadataLength);
+    }
+
+    public static void overwriteHeaderData(File filepath, long totalAudioLen, int metadataLength){
+        //long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
+        long totalDataLen = totalAudioLen + metadataLength - 8; //this subtracts out the data subchunk header
         try {
             RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
             //seek to header[4] to overwrite data length

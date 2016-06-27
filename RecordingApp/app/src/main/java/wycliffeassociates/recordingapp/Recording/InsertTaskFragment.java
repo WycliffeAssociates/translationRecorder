@@ -5,6 +5,8 @@ import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import org.json.JSONException;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,49 +50,17 @@ public class InsertTaskFragment extends Fragment {
             @Override
             public void run() {
                 try {
-                    int insertLoc = timeToIndex(insertTime) + AudioInfo.HEADER_SIZE;
-                    //the file containing the section to insert is the destination name, so move it to a temporary file before we insert
-                    File insert = new File(destination);
-                    File tempInsertFile = new File(destination + "-temp.wav");
-                    insert.renameTo(tempInsertFile);
-                    File from = new File(previousRecording);
-                    File dir = FileNameExtractor.getDirectoryFromFile(pref, from);
-                    FileInputStream fisOrg = new FileInputStream(from);
-                    BufferedInputStream bisOrg = new BufferedInputStream(fisOrg);
-
-                    FileInputStream fisInsert = new FileInputStream(tempInsertFile);
-                    BufferedInputStream bisInsert = new BufferedInputStream(fisInsert);
-
-                    FileOutputStream fos = new FileOutputStream(new File(destination));
-                    BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-                    for (int i = 0; i < AudioInfo.HEADER_SIZE; i++) {
-                        bos.write(bisOrg.read());
-                    }
-                    Logger.e(this.toString(), "wrote header");
-                    for (int i = AudioInfo.HEADER_SIZE; i < insertLoc; i++) {
-                        bos.write(bisOrg.read());
-                    }
-                    Logger.e(this.toString(), "wrote before insert");
-                    fisInsert.skip(AudioInfo.HEADER_SIZE);
-                    for (int i = AudioInfo.HEADER_SIZE; i < tempInsertFile.length(); i++) {
-                        bos.write(bisInsert.read());
-                    }
-                    Logger.e(this.toString(), "wrote insert");
-                    for (int i = insertLoc; i < from.length(); i++) {
-                        bos.write(bisOrg.read());
-                    }
-                    Logger.e(this.toString(), "wrote after insert");
-                    WavFileWriter.overwriteHeaderData(destination, tempInsertFile.length() + from.length() - AudioInfo.HEADER_SIZE);
-                    Logger.e(this.toString(), "overwrote header");
-
-                    bos.close(); fos.close();
-                    bisInsert.close(); fisInsert.close(); tempInsertFile.delete();
-                    bisOrg.close(); fisInsert.close();
-
-                    File vis = new File(AudioInfo.pathToVisFile + "/"+FileNameExtractor.getNameWithoutExtention(insert)+".vis");
+                    int insertLoc = timeToIndex(insertTime);
+                    WavFile base = new WavFile(new File(previousRecording));
+                    WavFile insert = new WavFile(new File(destination));
+                    WavFile result = WavFile.insertWavFile(base, insert, insertLoc);
+                    insert.getFile().delete();
+                    File vis = new File(AudioInfo.pathToVisFile + "/" + FileNameExtractor.getNameWithoutExtention(insert.getFile())+".vis");
                     vis.delete();
-                } catch (IOException e){
+                    result.getFile().renameTo(insert.getFile());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e){
                     e.printStackTrace();
                 }
                 mCtx.insertCallback(destination);

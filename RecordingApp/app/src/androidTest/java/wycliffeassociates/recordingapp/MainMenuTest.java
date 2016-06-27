@@ -22,43 +22,43 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @LargeTest
 public class MainMenuTest {
 
-    @Rule
-    public ActivityTestRule<MainMenu> mActivityRule = new ActivityTestRule<>(
-            MainMenu.class);
-
-    @Test
-    public void testLaunchAudioFiles() {
-        // Start recording intents
-        Intents.init();
-        // Touch the "new_record" button (the big microphone)
-        onView(withId(R.id.files)).perform(click());
-        // Verify that an Intent was sent to open the Recording Screen
-        Intents.intended(hasComponent(AudioFiles.class.getName()));
-        // Stop recording intents
-        Intents.release();
-    }
-
-    @Test
-    public void testLaunchRecordingScreen() {
-        // Start recording intents
-        Intents.init();
-        // Touch the "new_record" button (the big microphone)
-        onView(withId(R.id.new_record)).perform(click());
-        // Verify that an Intent was sent to open the Recording Screen
-        Intents.intended(hasComponent(RecordingScreen.class.getName()));
-        // Stop recording intents
-        Intents.release();
-    }
-
-    @Test
-    public void testLaunchSettings() {
-        // Start recording intents
-        Intents.init();
-        // Touch the "new_record" button (the big microphone)
-        onView(withId(R.id.settings)).perform(click());
-        // Verify that an Intent was sent to open the Recording Screen
-        Intents.intended(hasComponent(Settings.class.getName()));
-        // Stop recording intents
-        Intents.release();
-    }
+//    @Rule
+//    public ActivityTestRule<MainMenu> mActivityRule = new ActivityTestRule<>(
+//            MainMenu.class);
+//
+//    @Test
+//    public void testLaunchAudioFiles() {
+//        // Start recording intents
+//        Intents.init();
+//        // Touch the "new_record" button (the big microphone)
+//        onView(withId(R.id.files)).perform(click());
+//        // Verify that an Intent was sent to open the Recording Screen
+//        Intents.intended(hasComponent(AudioFiles.class.getName()));
+//        // Stop recording intents
+//        Intents.release();
+//    }
+//
+//    @Test
+//    public void testLaunchRecordingScreen() {
+//        // Start recording intents
+//        Intents.init();
+//        // Touch the "new_record" button (the big microphone)
+//        onView(withId(R.id.new_record)).perform(click());
+//        // Verify that an Intent was sent to open the Recording Screen
+//        Intents.intended(hasComponent(RecordingScreen.class.getName()));
+//        // Stop recording intents
+//        Intents.release();
+//    }
+//
+//    @Test
+//    public void testLaunchSettings() {
+//        // Start recording intents
+//        Intents.init();
+//        // Touch the "new_record" button (the big microphone)
+//        onView(withId(R.id.settings)).perform(click());
+//        // Verify that an Intent was sent to open the Recording Screen
+//        Intents.intended(hasComponent(Settings.class.getName()));
+//        // Stop recording intents
+//        Intents.release();
+//    }
 }

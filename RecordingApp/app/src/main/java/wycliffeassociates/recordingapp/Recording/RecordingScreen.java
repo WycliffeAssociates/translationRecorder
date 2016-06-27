@@ -7,32 +7,20 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
-import android.support.v4.provider.DocumentFile;
+import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageButton;
-import android.widget.NumberPicker;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+import org.json.JSONException;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.UUID;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
@@ -40,9 +28,10 @@ import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
-import wycliffeassociates.recordingapp.SettingsPage.Book;
-import wycliffeassociates.recordingapp.SettingsPage.ParseJSON;
+import wycliffeassociates.recordingapp.project.Book;
+import wycliffeassociates.recordingapp.project.ParseJSON;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
@@ -67,13 +56,14 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private boolean hasStartedRecording = false;
     private boolean mDeleteTempFile = false;
     private volatile HashMap<String, Book> mBooks;
-    private ArrayList<Integer> mChunks;
+    private ArrayList<Pair<Integer,Integer>> mChunks;
     private volatile int mNumChunks;
     private volatile int mChunk;
-    private String mSlug;
-    private String mBook;
-    private String mSource;
-    private String mLang;
+    private volatile String mSlug;
+    private volatile String mBook;
+    private volatile String mSource;
+    private volatile String mLang;
+    private volatile String mMode;
     private int mChapter;
 
     private TextView mSourceView;
@@ -94,6 +84,10 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private String STATE_INSERTING = "state_inserting";
     private boolean mInserting = false;
     private ProgressDialog mPd;
+    private int mStartVerse;
+    private int mEndVerse;
+    private WavFile mWavFile;
+    private String mFileToInsertInto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +100,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         initBookInfo();
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-        mFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01");
+        mFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_b01_gen_c01_v01");
         mInsertMode = getIntent().getBooleanExtra("insert_mode", false);
         if(mInsertMode){
             initializeInsert(getIntent().getStringExtra("old_name"), getIntent().getIntExtra("insert_location", 0));
@@ -138,11 +132,11 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mLang = mFileNameExtractor.getLang();
         mSource = mFileNameExtractor.getSource();
         mSlug = mFileNameExtractor.getBook();
-        if(mBooks != null) {
+        if(mBooks != null && mSlug != null) {
             mBook = mBooks.get(mSlug).getName();
         }
         mChapter = mFileNameExtractor.getChapter();
-        mChunk = mFileNameExtractor.getChunk();
+        mChunk = mFileNameExtractor.getStartVerse();
     }
 
     private void initTaskFragment(Bundle savedInstanceState){
@@ -194,87 +188,63 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 mBookInfoLoaded = true;
                 initChunkPicker();
                 initChapterPicker();
+                initBookText();
             }
         });
         loadJson.start();
     }
 
+    private void initBookText(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(pref.getString(Settings.KEY_PREF_PROJECT, "obs").compareTo("obs") == 0) {
+                    mBook = "OBS";
+                    mSource = "";
+                }
+                mBookView.setText(mBook);
+                mLanguageView.setText(mLang.toUpperCase());
+                mSourceView.setText(mSource.toUpperCase());
+            }
+        });
+    }
+
     private void initChunkPicker(){
+        initFileName();
+        final String verseOrChunk = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
+        mMode = verseOrChunk;
+        if(pref.getString(Settings.KEY_PREF_PROJECT, "obs").compareTo("obs") != 0) {
             Book book = mBooks.get(mSlug);
-            initFileName();
-            final String verseOrChunk = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
-            if(verseOrChunk.compareTo("chunk") == 0) {
+            if (verseOrChunk.compareTo("chunk") == 0) {
                 mChunks = mParsedJson.getChunks(book.getSlug(), mSource).get(mChapter - 1);
             } else {
                 mChunks = mParsedJson.getVerses(book.getSlug(), mSource).get(mChapter - 1);
             }
-            final String[] values = new String[mChunks.size()];
-            for(int i = 0; i < mChunks.size(); i++){
-                values[i] = String.valueOf(mChunks.get(i));
+        } else {
+            int[] obsChunks = getResources().getIntArray(R.array.obs_chunks);
+            mChunks = new ArrayList<>();
+            for(int i = 0; i < obsChunks[mChapter-1]; i++){
+                mChunks.add(new Pair<>(i+1, i+1));
             }
-            int mNumChunks = mChunks.size();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (values != null && values.length > 0) {
-                        mChunkPicker.setDisplayedValues(values);
-//                        System.out.println("DISPLAYED VALUES " + Arrays.toString(mChunkPicker.getDisplayedValues()));
-//                        if (verseOrChunk.compareTo("chunk") == 0) {
-//                            // Chunk
-//                            int chunk = Integer.parseInt(pref.getString(Settings.KEY_PREF_CHUNK, "1"));
-//                            mChunk = getChunkIndex(mChunks, chunk);
-//                        } else {
-//                            // Verse
-//                            int verse = Integer.parseInt(pref.getString(Settings.KEY_PREF_VERSE, "1"));
-//                            mChunk = getChunkIndex(mChunks, verse);
-//                        }
-//                        Settings.updateFilename(context);
-//                        mFilename = pref.getString(Settings.KEY_PREF_FILENAME, String.valueOf(R.string.pref_default_filename));
-
-                        mBookView.setText(mBook);
-                        mLanguageView.setText(mLang.toUpperCase());
-                        mSourceView.setText(mSource.toUpperCase());
-                        mChunkPicker.setCurrent(getChunkIndex(mChunks, mChunk));
-                        //reinitialize all of the filenames
-                        initFileName();
-                        mChunkPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
-                            @Override
-                            public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
-                                setChunk(newVal + 1);
-                                mSrcPlayer.reset();
-                            }
-                        });
-                    } else {
-                        Logger.e(this.toString(), "values was null or of zero length");
-                    }
-                }
-            });
-    }
-
-    private void initChapterPicker(){
-        Book book = mBooks.get(mSlug);
-        initFileName();
-        int numChapters = mParsedJson.getNumChapters(book.getSlug());
-        final String[] values = new String[numChapters];
-        for(int i = 0; i < numChapters; i++){
-            values[i] = String.valueOf(i+1);
         }
+        final String[] values = new String[mChunks.size()];
+        for(int i = 0; i < mChunks.size(); i++){
+            values[i] = String.valueOf(mChunks.get(i).first);
+        }
+        int mNumChunks = mChunks.size();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (values != null && values.length > 0) {
-                    mChapterPicker.setDisplayedValues(values);
-                    mChapterPicker.setCurrent(mChapter - 1);
+                    mChunkPicker.setDisplayedValues(values);
+                    mChunkPicker.setCurrent(getChunkIndex(mChunks, mChunk));
+                    setChunk(getChunkIndex(mChunks, mChunk) + 1);
                     //reinitialize all of the filenames
                     initFileName();
-                    mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
+                    mChunkPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
-                            pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
-                            pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
-                            mChunk = 1;
-                            mChunkPicker.setCurrent(0);
-                            setChapter(newVal + 1);
+                            setChunk(newVal + 1);
                             mSrcPlayer.reset();
                         }
                     });
@@ -285,10 +255,51 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         });
     }
 
+    private void initChapterPicker(){
+        int numChapters = getResources().getIntArray(R.array.obs_chunks).length;
+        if(pref.getString(Settings.KEY_PREF_PROJECT, "obs").compareTo("obs") != 0) {
+            Book book = mBooks.get(mSlug);
+            initFileName();
+            numChapters = mParsedJson.getNumChapters(book.getSlug());
+        }
+        final String[] values = new String[numChapters];
+        for(int i = 0; i < numChapters; i++){
+            values[i] = String.valueOf(i+1);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            if (values != null && values.length > 0) {
+                mChapterPicker.setDisplayedValues(values);
+                mChapterPicker.setCurrent(mChapter - 1);
+                //reinitialize all of the filenames
+                initFileName();
+                mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
+                    @Override
+                    public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
+                        pref.edit().putString(Settings.KEY_PREF_CHUNK, "01").commit();
+                        pref.edit().putString(Settings.KEY_PREF_VERSE, "01").commit();
+                        pref.edit().putString(Settings.KEY_PREF_START_VERSE, "01").commit();
+                        pref.edit().putString(Settings.KEY_PREF_END_VERSE, "01").commit();
+                        mChunk = 1;
+                        mChunkPicker.setCurrent(0);
+                        setChapter(newVal + 1);
+
+                        initChunkPicker();
+
+                        mSrcPlayer.reset();
+                    }
+                });
+            } else {
+                Logger.e(this.toString(), "values was null or of zero length");
+            }
+            }
+        });
+    }
+
     private void initializeInsert(String oldName, int location){
         mInsertLoc = location;
-        mFilename = oldName.substring(oldName.lastIndexOf("/")+1, oldName.lastIndexOf("."));
-
+        mFileToInsertInto = oldName.substring(oldName.lastIndexOf("/")+1, oldName.lastIndexOf("."));
     }
 
     @Override
@@ -336,9 +347,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         savedInstanceState.putBoolean(STATE_INSERTING, mInserting);
     }
 
-    private int getChunkIndex(ArrayList<Integer> chunks, int chunk) {
+    private int getChunkIndex(ArrayList<Pair<Integer,Integer>> chunks, int chunk) {
         for (int i = 0; i < chunks.size(); i++) {
-            if (chunks.get(i) == chunk) {
+            if (chunks.get(i).first == chunk) {
                 return i;
             }
         }
@@ -378,9 +389,20 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             manager.startTimer();
             isSaved = false;
             RecordingQueues.clearQueues();
+            String filename = getFilename();
             Intent intent = new Intent(this, WavFileWriter.class);
-            intent.putExtra("audioFileName", getFilename());
-            intent.putExtra("screenWidth", AudioInfo.SCREEN_WIDTH);
+            intent.putExtra("audioFileName", filename);
+            Project project = Project.getProjectFromPreferences(this);
+            try {
+                File file = new File(filename);
+                mWavFile = new WavFile(file, project, String.valueOf(mChapter), String.valueOf(mStartVerse), String.valueOf(mEndVerse));
+                mWavFile.initializeWavFile();
+                intent.putExtra("wavfile", mWavFile);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             startService(new Intent(this, WavRecorder.class));
             startService(intent);
             manager.listenForRecording(false);
@@ -403,9 +425,10 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             isPausedRecording = false;
             Intent intent = new Intent(this, PlaybackScreen.class);
             if(mInsertMode){
-                finalizeInsert(mFilename, recordedFilename, mInsertLoc);
+                finalizeInsert(mFileToInsertInto, recordedFilename, mInsertLoc);
             } else {
                 intent.putExtra("recordedFilename", recordedFilename);
+                intent.putExtra("wavfile", mWavFile);
                 startActivity(intent);
                 this.finish();
             }
@@ -436,10 +459,15 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
      */
     public String getFilename() {
         String root = pref.getString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString());
-        String fullpath = root + "/" + mLang + "/" + mSource + "/" + mSlug + "/" + String.format("%02d",mChapter) + "/";
+        String fullpath;
+        if (pref.getString(Settings.KEY_PREF_PROJECT, "obs").compareTo("obs") != 0){
+            fullpath = root + "/" + mLang + "/" + mSource + "/" + mSlug + "/" + String.format("%02d", mChapter) + "/";
+        } else {
+            fullpath = root + "/" + mLang + "/obs/" + String.format("%02d", mChapter) + "/";
+        }
         pref.edit().putString("current_directory", fullpath).commit();
 
-        String take = String.format("%02d", FileNameExtractor.getLargestTake(new File (fullpath), new File(mFilename+"_00.wav"))+1);
+        String take = String.format("%02d", FileNameExtractor.getLargestTake(new File (fullpath), new File(mFilename+"_t00.wav"))+1);
         File filepath = new File(fullpath);
 
         if (!filepath.exists()) {
@@ -449,7 +477,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         if (recordedFilename != null)
             return (fullpath + recordedFilename);
         else {
-            recordedFilename = (fullpath + mFileNameExtractor.getNameWithoutTake() + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
+            recordedFilename = (fullpath + mFileNameExtractor.getNameWithoutTake() + "_t" + take + AUDIO_RECORDER_FILE_EXT_WAV);
             System.out.println("filename is " + recordedFilename);
             return recordedFilename;
         }
@@ -463,12 +491,17 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         if(mChunks != null) {
             //Get the list of chunks by first getting the book and chapter from the preference
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-            int chunk = mChunks.get(idx-1);
+            mStartVerse = mChunks.get(idx-1).first;
+            mEndVerse = mChunks.get(idx-1).second;
             String chunkOrVerse = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk");
             if(chunkOrVerse.compareTo("chunk") == 0) {
-                pref.edit().putString(Settings.KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
+                //pref.edit().putString(Settings.KEY_PREF_CHUNK, ).commit();
+                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(mStartVerse)).commit();
+                pref.edit().putString(Settings.KEY_PREF_END_VERSE, String.valueOf(mEndVerse)).commit();
             } else {
-                pref.edit().putString(Settings.KEY_PREF_VERSE, String.valueOf(chunk)).commit();
+                pref.edit().putString(Settings.KEY_PREF_START_VERSE, String.valueOf(String.valueOf(mStartVerse))).commit();
+                pref.edit().putString(Settings.KEY_PREF_END_VERSE, null).commit();
+                System.out.println(pref.getString(Settings.KEY_PREF_END_VERSE, ""));
             }
 
             pref.edit().putString(Settings.KEY_PREF_TAKE, "1").commit();

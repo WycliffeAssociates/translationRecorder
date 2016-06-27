@@ -36,6 +36,7 @@ import wycliffeassociates.recordingapp.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.RerecordDialog;
 import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
@@ -75,6 +76,7 @@ public class PlaybackScreen extends Activity{
     private TextView mChapterView;
     private TextView mChunkView;
     private SourceAudio mSrcPlayer;
+    private WavFile mWavFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,11 @@ public class PlaybackScreen extends Activity{
 
         suggestedFilename = pref.getString(Settings.KEY_PREF_FILENAME, "en_udb_gen_01-01_01");
         recordedFilename = getIntent().getStringExtra("recordedFilename");
+        if(getIntent().hasExtra("wavfile")){
+            mWavFile = getIntent().getParcelableExtra("wavfile");
+        } else {
+            mWavFile = new WavFile(new File(recordedFilename));
+        }
         isALoadedFile = getIntent().getBooleanExtra("loadFile", false);
         if(isALoadedFile){
             suggestedFilename = FileNameExtractor.getNameWithoutTake(recordedFilename);
@@ -110,10 +117,16 @@ public class PlaybackScreen extends Activity{
         mChapterView = (TextView) findViewById(R.id.file_chapter);
         mChunkView = (TextView) findViewById(R.id.file_unit);
         mLangView.setText(mFileNameExtractor.getLang().toUpperCase());
-        mSourceView.setText(mFileNameExtractor.getSource().toUpperCase());
-        mBookView.setText(mFileNameExtractor.getBook().toUpperCase());
+
+        if(mFileNameExtractor.getProject().compareTo("obs") != 0) {
+            mSourceView.setText(mFileNameExtractor.getSource().toUpperCase());
+            mBookView.setText(mFileNameExtractor.getBook().toUpperCase());
+        } else {
+            mSourceView.setText("");
+            mBookView.setText("OBS");
+        }
         mChapterView.setText(String.format("%d", mFileNameExtractor.getChapter()));
-        mChunkView.setText(String.format("%d", mFileNameExtractor.getChunk()));
+        mChunkView.setText(String.format("%d", mFileNameExtractor.getStartVerse()));
 
         if(pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0) {
             ((TextView) findViewById(R.id.file_unit_label)).setText("Chunk");
@@ -143,7 +156,8 @@ public class PlaybackScreen extends Activity{
             public void onGlobalLayout() {
                 Logger.i(this.toString(), "Initializing UIDataManager in VTO callback");
                 mManager = new UIDataManager(mMainCanvas, minimap, mStartMarker, mEndMarker, ctx, UIDataManager.PLAYBACK_MODE, isALoadedFile);
-                mManager.loadWavFromFile(recordedFilename);
+                //mManager.loadWavFromFile(recordedFilename);
+                mManager.loadWavFile(mWavFile);
                 mManager.updateUI();
                 mMainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
@@ -288,8 +302,8 @@ public class PlaybackScreen extends Activity{
 //        }
         int takeInt = FileNameExtractor.getLargestTake(dir, new File(suggestedFilename))+1;
         String take = String.format("%02d", takeInt);
-        File to = new File(dir, suggestedFilename + "_" + take + AUDIO_RECORDER_FILE_EXT_WAV);
-        writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")), intent);
+        File to = new File(dir, suggestedFilename + "_t" + take + AUDIO_RECORDER_FILE_EXT_WAV);
+        writeCutToFile(to, from.getName().substring(0, from.getName().lastIndexOf(".")), new WavFile(from), intent);
     }
 
     public String getName() {
@@ -302,7 +316,7 @@ public class PlaybackScreen extends Activity{
      * @param name a string with the desired output filename. Should not include the .wav extension.
      * @return the absolute path of the file created
      */
-    public void writeCutToFile(final File to, final String name, final Intent intent) {
+    public void writeCutToFile(final File to, final String name, final WavFile from, final Intent intent) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setTitle("Saving");
@@ -317,7 +331,7 @@ public class PlaybackScreen extends Activity{
                     try {
                         File dir = new File(pref.getString("current_directory", "").toString());
                         File toTemp = new File(dir, "temp.wav");
-                        mManager.writeCut(toTemp, pd);
+                        mManager.writeCut(toTemp, to, from, pd);
                         to.delete();
                         toTemp.renameTo(to);
                         File toVis = new File(AudioInfo.pathToVisFile, name + ".vis");
