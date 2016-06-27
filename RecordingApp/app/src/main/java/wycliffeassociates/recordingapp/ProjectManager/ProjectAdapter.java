@@ -2,6 +2,8 @@ package wycliffeassociates.recordingapp.FilesPage;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +23,7 @@ import java.util.List;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectInfoDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
@@ -39,9 +42,11 @@ public class ProjectAdapter extends ArrayAdapter {
 
     LayoutInflater mLayoutInflater;
     List<Project> mProjectList;
+    Activity mCtx;
 
     public ProjectAdapter(Activity context, List<Project> projectList){
         super(context, R.layout.project_list_item, projectList);
+        mCtx = context;
         mProjectList = projectList;
         mLayoutInflater = context.getLayoutInflater();
     }
@@ -69,6 +74,14 @@ public class ProjectAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
+            }
+        });
+
+        holder.mInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment info = new ProjectInfoDialog();
+                info.show(mCtx.getFragmentManager(), "title");
             }
         });
 
