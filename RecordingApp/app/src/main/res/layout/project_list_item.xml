@@ -5,9 +5,8 @@
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/project_list_item"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_marginLeft="@dimen/default_padding_m"
         card_view:cardCornerRadius="@dimen/default_padding_xxs"
         card_view:cardBackgroundColor="@color/card_bg"
         card_view:cardUseCompatPadding="true">
@@ -17,13 +16,14 @@
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:clickable="true"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp"
-            android:weightSum="100">
+            android:paddingTop="@dimen/default_padding_s"
+            android:weightSum="100"
+            android:paddingBottom="@dimen/default_padding_s"
+            android:gravity="center_vertical">
 
             <TextView
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="30"
                 android:text="Language"
                 android:textStyle="bold"
@@ -31,44 +31,50 @@
                 android:textSize="@dimen/title"
                 android:paddingLeft="@dimen/default_padding_m"
                 android:textAlignment="gravity"
-                android:gravity="center_vertical" />
+                android:gravity="center_vertical"
+                android:id="@+id/language_text_view" />
 
             <TextView
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="30"
                 android:text="Book"
                 android:textSize="@dimen/title"
                 android:textColor="@color/abc_primary_text_material_light"
                 android:textAlignment="gravity"
-                android:gravity="center_vertical" />
+                android:gravity="center_vertical"
+                android:id="@+id/book_text_view" />
 
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_action_create"
                 android:layout_weight="10" />
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="30"
                 android:weightSum="30"
                 android:gravity="right">
 
-                <ImageView
+                <ImageButton
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="10"
-                    android:src="@drawable/ic_information_grey600_24dp"
-                    android:clickable="true" />
+                    android:src="@drawable/ic_information_grey600_36dp"
+                    android:clickable="true"
+                    android:id="@+id/info_button"
+                    android:backgroundTint="@color/transparent" />
 
-                <ImageView
+                <ImageButton
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="10"
-                    android:src="@drawable/ic_microphone_grey600_24dp"
-                    android:clickable="true" />
+                    android:src="@drawable/ic_microphone_grey600_36dp"
+                    android:clickable="true"
+                    android:id="@+id/record_button"
+                    android:backgroundTint="@color/transparent" />
 
             </LinearLayout>
 

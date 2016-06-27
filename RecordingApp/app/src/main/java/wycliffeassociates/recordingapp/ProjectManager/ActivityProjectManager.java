@@ -14,10 +14,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.ScrollView;
 
 import java.util.List;
 
+import wycliffeassociates.recordingapp.FilesPage.ProjectAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -32,8 +35,9 @@ public class ActivityProjectManager extends AppCompatActivity {
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
     FloatingActionButton mAddProject;
-    ScrollView mProjectList;
+    ListView mProjectList;
     SharedPreferences pref;
+    ListAdapter mAdapter;
     private int mNumProjects = 0;
 
     public static final int PROJECT_WIZARD_REQUEST = RESULT_FIRST_USER;
@@ -79,7 +83,7 @@ public class ActivityProjectManager extends AppCompatActivity {
         mProjectLayout = (LinearLayout) findViewById(R.id.project_list_layout);
         mNewProjectButton = (Button) findViewById(R.id.new_project_button);
         mAddProject = (FloatingActionButton) findViewById(R.id.new_project_fab);
-        mProjectList = (ScrollView) findViewById(R.id.project_list);
+        mProjectList = (ListView) findViewById(R.id.project_list);
 
         mAddProject.setOnClickListener(btnClick);
         mNewProjectButton.setOnClickListener(btnClick);
@@ -96,7 +100,11 @@ public class ActivityProjectManager extends AppCompatActivity {
         final DatabaseHelper db = new DatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
         projects.get(0);
+        mAdapter = new ProjectAdapter(this, projects);
 
+        mProjectList.setAdapter(mAdapter);
+        mProjectList.setDividerHeight(0);
+        mProjectList.setDivider(null);
     }
 
     //sets the profile in the preferences to "" then returns to the splash screen

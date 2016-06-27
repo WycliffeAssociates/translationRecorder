@@ -120,9 +120,10 @@
                     layout="@layout/project_list_item"
                     android:layout_marginBottom="@dimen/default_padding_m" />
 
-                <ScrollView
+                <ListView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:divider="@null"
                     android:id="@+id/project_list" />
 
             </LinearLayout>
