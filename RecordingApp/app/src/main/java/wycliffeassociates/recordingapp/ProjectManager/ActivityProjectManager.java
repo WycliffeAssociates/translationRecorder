@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -34,7 +35,7 @@ public class ActivityProjectManager extends AppCompatActivity {
 
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
-    FloatingActionButton mAddProject;
+    ImageButton mAddProject;
     ListView mProjectList;
     SharedPreferences pref;
     ListAdapter mAdapter;
@@ -82,7 +83,7 @@ public class ActivityProjectManager extends AppCompatActivity {
     private void initializeViews(){
         mProjectLayout = (LinearLayout) findViewById(R.id.project_list_layout);
         mNewProjectButton = (Button) findViewById(R.id.new_project_button);
-        mAddProject = (FloatingActionButton) findViewById(R.id.new_project_fab);
+        mAddProject = (ImageButton) findViewById(R.id.new_project_fab);
         mProjectList = (ListView) findViewById(R.id.project_list);
 
         mAddProject.setOnClickListener(btnClick);
@@ -103,8 +104,7 @@ public class ActivityProjectManager extends AppCompatActivity {
         mAdapter = new ProjectAdapter(this, projects);
 
         mProjectList.setAdapter(mAdapter);
-        mProjectList.setDividerHeight(0);
-        mProjectList.setDivider(null);
+//        mProjectList.setDividerHeight();
     }
 
     //sets the profile in the preferences to "" then returns to the splash screen

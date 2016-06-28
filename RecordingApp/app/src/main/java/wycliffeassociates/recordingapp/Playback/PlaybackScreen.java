@@ -268,7 +268,7 @@ public class PlaybackScreen extends Activity{
         Logger.i(this.toString(), "Back was pressed.");
         if (!isSaved && !isALoadedFile || isALoadedFile && mManager.hasCut()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
-            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_UserDialog, true, isPlaying, recordedFilename);
+            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, recordedFilename);
             exit.show();
         } else {
 //            clearMarkers();

@@ -10,51 +10,45 @@
         android:id="@+id/files"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_weight="33"
         android:background="@color/secondary"
         android:src="@drawable/ic_files"
         android:contentDescription="@string/files_content_desc"
         android:clickable="true"
-        android:layout_weight="33" />
+        />
 
     <RelativeLayout
         android:id="@+id/new_record"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:clickable="true"
         android:layout_weight="67"
         android:background="@color/primary"
+        android:clickable="true"
         >
+
         <ImageButton
             android:id="@+id/record_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/ImageButton"
+            android:layout_centerInParent="true"
             android:src="@drawable/ic_record"
             android:contentDescription="@string/record_content_desc"
-            android:background="@color/transparent"
-            android:layout_centerInParent="true"
+            android:clickable="true"
             />
+
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/language_view"
+            style="@style/MainTextView"
             android:text="Language"
-            android:textSize="@dimen/text_size_m"
-            android:textStyle="bold"
             android:layout_below="@+id/record_icon"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/default_padding_s"
-            android:textColor="@color/text_light"/>
+            />
+
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/book_view"
+            style="@style/MainTextView"
             android:text="Book"
-            android:textSize="@dimen/text_size_m"
-            android:textStyle="bold"
             android:layout_below="@+id/language_view"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/default_padding_xs"
-            android:textColor="@color/text_light"/>
+            />
+
     </RelativeLayout>
 
 </LinearLayout>

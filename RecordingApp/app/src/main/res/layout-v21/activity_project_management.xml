@@ -17,13 +17,10 @@
         android:layout_height="match_parent"
         >
 
-        <com.github.clans.fab.FloatingActionButton
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/new_project_fab"
             style="@style/ProjManagement.NewProjectFAB"
-            app:fab_colorNormal="@color/accent"
-            app:fab_colorPressed="@color/accent_dark"
-            app:fab_colorRipple="@color/white"
-            />
+            app:backgroundTint="@color/secondary" />
 
         <Button
             android:id="@+id/new_project_button"
@@ -57,7 +54,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_record_voice_over_black_24dp"
-                             />
+                            />
 
                     </FrameLayout>
 
