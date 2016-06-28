@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -19,18 +20,32 @@ public class ProjectInfoDialog extends DialogFragment {
         void onDelete();
     }
 
+    Project mProject;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.project_layout_dialog, null);
 
+        ConstantsDatabaseHelper db = new ConstantsDatabaseHelper(getActivity());
+
+        mProject = getArguments().getParcelable(Project.PROJECT_EXTRA);
+
         TextView title = (TextView) view.findViewById(R.id.title);
         TextView projectTitle = (TextView) view.findViewById(R.id.project_title);
         TextView languageTitle = (TextView) view.findViewById(R.id.language_title);
+        TextView translator = (TextView) view.findViewById(R.id.translators);
 
-        title.setText("Project - Language");
-        projectTitle.setText("project");
-        languageTitle.setText("language");
+        String languageCode = mProject.getTargetLanguage();
+        String bookCode = mProject.getSlug();
+        String language = db.getLanguageName(languageCode);
+        String book = db.getBookName(bookCode);
+        String translators = mProject.getContributors();
+
+        title.setText(book + " - " + language);
+        projectTitle.setText(book + " (" + bookCode + ")");
+        languageTitle.setText(language + " (" + languageCode + ")");
+        translator.setText(translators);
 
         ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
         ImageButton sdcard_button = (ImageButton) view.findViewById(R.id.sdcard_button);

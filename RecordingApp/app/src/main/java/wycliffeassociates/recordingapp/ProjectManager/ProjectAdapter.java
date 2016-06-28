@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,6 +81,9 @@ public class ProjectAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 DialogFragment info = new ProjectInfoDialog();
+                Bundle args = new Bundle();
+                args.putParcelable(Project.PROJECT_EXTRA, mProjectList.get(position));
+                info.setArguments(args);
                 info.show(mCtx.getFragmentManager(), "title");
             }
         });

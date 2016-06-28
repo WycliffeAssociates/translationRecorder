@@ -107,8 +107,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         mAdapter = new ProjectAdapter(this, projects);
 
         mProjectList.setAdapter(mAdapter);
-        mProjectList.setDividerHeight(0);
-        mProjectList.setDivider(null);
+//        mProjectList.setDividerHeight(0);
+//        mProjectList.setDivider(null);
     }
 
     //sets the profile in the preferences to "" then returns to the splash screen
