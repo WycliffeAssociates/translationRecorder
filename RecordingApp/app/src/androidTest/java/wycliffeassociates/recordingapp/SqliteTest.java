@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import wycliffeassociates.recordingapp.ProjectManager.DatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 
 import static junit.framework.Assert.assertEquals;
@@ -17,7 +17,7 @@ import static junit.framework.Assert.assertEquals;
  */
 public class SqliteTest {
 
-    DatabaseHelper mDb;
+    ProjectDatabaseHelper mDb;
     Activity mCtx;
 
     @Rule
@@ -27,7 +27,7 @@ public class SqliteTest {
     @Before
     public void setUp() {
         mCtx = mActivityRule.getActivity();
-        mDb = new DatabaseHelper(mCtx);
+        mDb = new ProjectDatabaseHelper(mCtx);
     }
 
     @Test
@@ -47,8 +47,8 @@ public class SqliteTest {
         Project databaseProject2 = mDb.getAllProjects().get(1);
         Project databaseProject3 = mDb.getAllProjects().get(2);
 
-        assertEquals(p.getTargetLang(), databaseProject1.getTargetLang());
-        assertEquals(p.getSrcLang(), databaseProject1.getSrcLang());
+        assertEquals(p.getTargetLanguage(), databaseProject1.getTargetLanguage());
+        assertEquals(p.getSourceLanguage(), databaseProject1.getSourceLanguage());
         assertEquals(p.getSlug(), databaseProject1.getSlug());
         assertEquals(p.getSource(), databaseProject1.getSource());
         assertEquals(p.getMode(), databaseProject1.getMode());
@@ -57,8 +57,8 @@ public class SqliteTest {
         assertEquals(p.getContributors(), databaseProject1.getContributors());
         assertEquals(p.getSourceAudioPath(), databaseProject1.getSourceAudioPath());
 
-        assertEquals(p2.getTargetLang(), databaseProject2.getTargetLang());
-        assertEquals(p2.getSrcLang(), databaseProject2.getSrcLang());
+        assertEquals(p2.getTargetLanguage(), databaseProject2.getTargetLanguage());
+        assertEquals(p2.getSourceLanguage(), databaseProject2.getSourceLanguage());
         assertEquals(p2.getSlug(), databaseProject2.getSlug());
         assertEquals(p2.getSource(), databaseProject2.getSource());
         assertEquals(p2.getMode(), databaseProject2.getMode());
@@ -67,8 +67,8 @@ public class SqliteTest {
         assertEquals(p2.getContributors(), databaseProject2.getContributors());
         assertEquals(p2.getSourceAudioPath(), databaseProject2.getSourceAudioPath());
 
-        assertEquals(p3.getTargetLang(), databaseProject3.getTargetLang());
-        assertEquals(p3.getSrcLang(), databaseProject3.getSrcLang());
+        assertEquals(p3.getTargetLanguage(), databaseProject3.getTargetLanguage());
+        assertEquals(p3.getSourceLanguage(), databaseProject3.getSourceLanguage());
         assertEquals(p3.getSlug(), databaseProject3.getSlug());
         assertEquals(p3.getSource(), databaseProject3.getSource());
         assertEquals(p3.getMode(), databaseProject3.getMode());

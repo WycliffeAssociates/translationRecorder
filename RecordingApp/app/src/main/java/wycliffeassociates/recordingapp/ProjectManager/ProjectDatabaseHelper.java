@@ -9,24 +9,17 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.*;
-
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.TABLE_PROJECT;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.KEY_ID;
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_TARGET_LANG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG;
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SLUG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_BOOK_NUM;
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE;
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_PROJECT;
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_MODE;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH;
 
 /**
  * Created by sarabiaj on 5/10/2016.
  */
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "translation_projects";
@@ -41,7 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private int mIdBookNum;
     private int mIdSourceAudioPath;
 
-    public DatabaseHelper(Context ctx){
+    public ProjectDatabaseHelper(Context ctx){
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -77,7 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{
                         p.getProject(),
                         p.getSlug(),
-                        p.getTargetLang(),
+                        p.getTargetLanguage(),
                         p.getMode(),
                         p.getSource()
                 }
@@ -88,8 +81,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         if(!checkIfExists(p)) {
             ContentValues cv = new ContentValues();
-            cv.put(ProjectContract.ProjectEntry.COLUMN_TARGET_LANG, p.getTargetLang());
-            cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG, p.getSrcLang());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_TARGET_LANG, p.getTargetLanguage());
+            cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG, p.getSourceLanguage());
             cv.put(ProjectContract.ProjectEntry.COLUMN_SLUG, p.getSlug());
             cv.put(ProjectContract.ProjectEntry.COLUMN_SOURCE, p.getSource());
             cv.put(ProjectContract.ProjectEntry.COLUMN_MODE, p.getMode());
@@ -118,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String query = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT + " WHERE " +
                 ProjectContract.ProjectEntry.COLUMN_SLUG + " = '" + project.getSlug() + "' AND " +
                 ProjectContract.ProjectEntry.COLUMN_SOURCE + " = '" + project.getSource() + "' AND " +
-                ProjectContract.ProjectEntry.COLUMN_TARGET_LANG + " = '" + project.getTargetLang() + "' AND " +
+                ProjectContract.ProjectEntry.COLUMN_TARGET_LANG + " = '" + project.getTargetLanguage() + "' AND " +
                 ProjectContract.ProjectEntry.COLUMN_MODE + " = '" + project.getMode() + "' AND " +
                 ProjectContract.ProjectEntry.COLUMN_PROJECT + " = '" + project.getProject() + "'";
 

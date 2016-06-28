@@ -1,7 +1,5 @@
 package wycliffeassociates.recordingapp.project;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
@@ -166,7 +164,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     @Override
     public void onItemClick(Object result) {
         mProject.setSourceLanguage(((Language)result).getCode());
-        btnSourceLanguage.setText("Source Language: " + mProject.getSrcLang());
+        btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
         mSetLanguage = true;
         mFragmentManager.beginTransaction().remove((Fragment)mFragment).commit();
         findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);

@@ -1,5 +1,9 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,10 +20,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
 
 import java.util.List;
 
+import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
 import wycliffeassociates.recordingapp.FilesPage.ProjectAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
@@ -30,7 +34,7 @@ import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 /**
  * Created by sarabiaj on 6/23/2016.
  */
-public class ActivityProjectManager extends AppCompatActivity {
+public class ActivityProjectManager extends AppCompatActivity implements ProjectInfoDialog.InfoDialogCallback {
 
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
@@ -52,7 +56,7 @@ public class ActivityProjectManager extends AppCompatActivity {
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        DatabaseHelper db = new DatabaseHelper(this);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         mNumProjects = db.getNumProjects();
 
         initializeViews();
@@ -97,7 +101,7 @@ public class ActivityProjectManager extends AppCompatActivity {
     }
 
     private void populateProjectList(){
-        final DatabaseHelper db = new DatabaseHelper(this);
+        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
         projects.get(0);
         mAdapter = new ProjectAdapter(this, projects);
@@ -124,11 +128,11 @@ public class ActivityProjectManager extends AppCompatActivity {
 
         pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
         pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLang()).commit();
+        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
         pref.edit().putString(Settings.KEY_PREF_SOURCE, project.getSource()).commit();
         pref.edit().putString(Settings.KEY_PREF_PROJECT, project.getProject()).commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSrcLang()).commit();
+        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
 
         //FIXME: find the last place worked on?
         pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
@@ -140,7 +144,7 @@ public class ActivityProjectManager extends AppCompatActivity {
     }
 
     private void addProjectToDatabase(Project project){
-        DatabaseHelper db = new DatabaseHelper(this);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.addProject(project);
     }
 
@@ -174,4 +178,32 @@ public class ActivityProjectManager extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public void onDelete() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete recordings?");
+        builder.setIcon(R.drawable.ic_delete_black_36dp);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showDeleteConfirmDialog(View v) {
+        FragmentManager fm = getFragmentManager();
+        FragmentDeleteDialog d = new FragmentDeleteDialog();
+        d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+        d.show(fm, "Delete Confirm Dialog");
+    }
 }

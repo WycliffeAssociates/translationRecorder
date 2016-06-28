@@ -3,11 +3,8 @@ package wycliffeassociates.recordingapp.ProjectManager;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -17,6 +14,10 @@ import wycliffeassociates.recordingapp.R;
  * Created by sarabiaj on 6/27/2016.
  */
 public class ProjectInfoDialog extends DialogFragment {
+
+    public interface InfoDialogCallback {
+        void onDelete();
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -36,6 +37,14 @@ public class ProjectInfoDialog extends DialogFragment {
         ImageButton folderButton = (ImageButton) view.findViewById(R.id.folder_button);
         ImageButton publishButton = (ImageButton) view.findViewById(R.id.publish_button);
         ImageButton otherButton = (ImageButton) view.findViewById(R.id.other_button);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                ((InfoDialogCallback)getActivity()).onDelete();
+            }
+        });
 
         builder.setView(view);
         return builder.create();
