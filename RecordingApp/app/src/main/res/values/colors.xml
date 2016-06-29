@@ -25,6 +25,7 @@
     <color name="bright_blue">#45B5E7</color>
     <color name="bright_yellow">#FDD835</color>
     <color name="strong_pink">#C2185B</color>
+    <color name="dark_pink">#880E4F</color>
 
     <color name="vivid_red">#DE1D1D</color>
     <color name="vivid_pink">#E91E63</color>
@@ -50,6 +51,7 @@
     <!-- APP-WIDE COLOR ASSIGNMENTS -->
 
     <color name="primary">@color/strong_pink</color>
+    <color name="primary_dark">@color/dark_pink</color>
     <color name="secondary">@color/light_blue</color>
     <color name="tertiary">@color/bright_yellow</color>
     <color name="primary_bg">@color/off_white</color>

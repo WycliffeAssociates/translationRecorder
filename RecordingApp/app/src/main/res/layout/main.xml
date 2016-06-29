@@ -28,7 +28,9 @@
 
         <ImageButton
             android:id="@+id/record_icon"
-            style="@style/ImageButton"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:background="@color/transparent"
             android:layout_centerInParent="true"
             android:src="@drawable/ic_record"
             android:contentDescription="@string/record_content_desc"
@@ -37,14 +39,26 @@
 
         <TextView
             android:id="@+id/language_view"
-            style="@style/MainTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/default_padding_xs"
+            android:textColor="@color/text_light"
+            android:textSize="@dimen/text_size_m"
+            android:textStyle="bold"
             android:text="Language"
             android:layout_below="@+id/record_icon"
             />
 
         <TextView
             android:id="@+id/book_view"
-            style="@style/MainTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/default_padding_xs"
+            android:textColor="@color/text_light"
+            android:textSize="@dimen/text_size_m"
+            android:textStyle="bold"
             android:text="Book"
             android:layout_below="@+id/language_view"
             />
