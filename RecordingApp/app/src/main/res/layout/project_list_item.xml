@@ -22,29 +22,40 @@
             android:paddingBottom="@dimen/default_padding_s"
             android:gravity="center_vertical">
 
-            <TextView
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="45"
-                android:text="Language"
-                android:textStyle="bold"
-                android:textColor="@color/abc_primary_text_material_light"
-                android:textSize="@dimen/title"
-                android:paddingLeft="@dimen/default_padding_m"
-                android:textAlignment="gravity"
+                android:layout_height="match_parent"
+                android:layout_weight="70"
+                android:weightSum="70"
                 android:gravity="center_vertical"
-                android:id="@+id/language_text_view" />
+                android:id="@+id/text_layout"
+                android:clickable="true">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="25"
-                android:text="Book"
-                android:textSize="@dimen/title"
-                android:textColor="@color/abc_primary_text_material_light"
-                android:textAlignment="gravity"
-                android:gravity="center_vertical"
-                android:id="@+id/book_text_view" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="45"
+                    android:text="Language"
+                    android:textStyle="bold"
+                    android:textColor="@color/abc_primary_text_material_light"
+                    android:textSize="@dimen/title"
+                    android:paddingLeft="@dimen/default_padding_m"
+                    android:textAlignment="gravity"
+                    android:gravity="center_vertical"
+                    android:id="@+id/language_text_view" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="25"
+                    android:text="Book"
+                    android:textSize="@dimen/title"
+                    android:textColor="@color/abc_primary_text_material_light"
+                    android:textAlignment="gravity"
+                    android:gravity="center_vertical"
+                    android:id="@+id/book_text_view" />
+            </LinearLayout>
 
             <ImageView
                 android:layout_width="wrap_content"

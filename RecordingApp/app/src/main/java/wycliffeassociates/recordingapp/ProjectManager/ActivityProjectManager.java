@@ -24,7 +24,6 @@ import android.widget.ListView;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
-import wycliffeassociates.recordingapp.FilesPage.ProjectAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;

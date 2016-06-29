@@ -1,7 +1,6 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
 import android.app.Activity;
-
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,39 +14,46 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
-import wycliffeassociates.recordingapp.ProjectManager.ActivityChapterList;
-import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.ProjectManager.ProjectInfoDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
- *
- * Creates a custom view for the audio entries in the file screen.
- *
+ * Created by sarabiaj on 6/29/2016.
  */
-public class ProjectAdapter extends ArrayAdapter {
+public class ChapterAdapter extends ArrayAdapter {
+
     //class for caching the views in a row
     private static class ViewHolder {
-        TextView mLanguage, mBook;
+        TextView mChapterView, mBook;
         ImageButton mRecord, mInfo;
         LinearLayout mTextLayout;
     }
 
     LayoutInflater mLayoutInflater;
-    List<Project> mProjectList;
     Activity mCtx;
     ConstantsDatabaseHelper mDb;
+    Project mProject;
 
-    public ProjectAdapter(Activity context, List<Project> projectList){
-        super(context, R.layout.project_list_item, projectList);
+    public ChapterAdapter(Activity context, Project project, Chunks chunks){
+        super(context, R.layout.project_list_item, createList(chunks.getNumChapters()));
         mCtx = context;
-        mProjectList = projectList;
         mLayoutInflater = context.getLayoutInflater();
         mDb = new ConstantsDatabaseHelper(context);
+        mProject = project;
+    }
+
+    private static List<Integer> createList(int numChapters) {
+        List<Integer> chapterList = new ArrayList<>();
+        for(int i = 0; i < numChapters; i++){
+            chapterList.add(new Integer(i+1));
+        }
+        return chapterList;
     }
 
     public View getView(final int position, View convertView, final ViewGroup parent){
@@ -56,7 +62,7 @@ public class ProjectAdapter extends ArrayAdapter {
             convertView = mLayoutInflater.inflate(R.layout.project_list_item, null);
             holder = new ViewHolder();
             holder.mBook = (TextView) convertView.findViewById(R.id.book_text_view);
-            holder.mLanguage = (TextView) convertView.findViewById(R.id.language_text_view);
+            holder.mChapterView = (TextView) convertView.findViewById(R.id.language_text_view);
             holder.mInfo = (ImageButton) convertView.findViewById(R.id.info_button);
             holder.mRecord = (ImageButton) convertView.findViewById(R.id.record_button);
             holder.mTextLayout = (LinearLayout) convertView.findViewById(R.id.text_layout);
@@ -67,41 +73,31 @@ public class ProjectAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        String book = mDb.getBookName(mProjectList.get(position).getSlug());
-        String language = mDb.getLanguageName(mProjectList.get(position).getTargetLanguage());
-
-        holder.mBook.setText(book);
-        holder.mLanguage.setText(language);
+        holder.mChapterView.setText("Chapter " + (position+1));
+        holder.mBook.setVisibility(View.INVISIBLE);
+        holder.mInfo.setVisibility(View.INVISIBLE);
 
         holder.mRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Project.loadProjectIntoPreferences(mCtx, mProjectList.get(position));
+                Project.loadProjectIntoPreferences(mCtx, mProject);
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mCtx);
+                pref.edit().putString(Settings.KEY_PREF_CHAPTER, String.valueOf(position+1)).commit();
                 v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
-            }
-        });
-
-        holder.mInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment info = new ProjectInfoDialog();
-                Bundle args = new Bundle();
-                args.putParcelable(Project.PROJECT_EXTRA, mProjectList.get(position));
-                info.setArguments(args);
-                info.show(mCtx.getFragmentManager(), "title");
             }
         });
 
         holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), ActivityChapterList.class);
-                intent.putExtra(Project.PROJECT_EXTRA, mProjectList.get(position));
-                v.getContext().startActivity(intent);
+//                Intent intent = new Intent(v.getContext(), ActivityChapterList.class);
+//                intent.putExtra(Project.PROJECT_EXTRA, mProjectList.get(position));
+//                v.getContext().startActivity(intent);
             }
         });
 
         return convertView;
     }
+
 
 }
