@@ -21,7 +21,6 @@ import android.widget.ScrollView;
 
 import java.util.List;
 
-import wycliffeassociates.recordingapp.FilesPage.ProjectAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;

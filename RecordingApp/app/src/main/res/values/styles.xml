@@ -10,10 +10,10 @@
         <item name="android:background">@color/primary</item>
         <item name="android:elevation">@dimen/appbar_elevation</item>
         <item name="android:textColorPrimary">@color/text_light</item>
-        <item name="android:textColorSecondary">@color/text_light</item>
-        <item name="actionMenuTextColor">@color/text_light</item>
+        <!--<item name="android:textColorSecondary">@color/text_light</item>-->
+        <!--<item name="actionMenuTextColor">@color/text_light</item>-->
         <item name="colorControlNormal">@color/text_light</item>
-        <item name="colorControlHighlight">@color/text_light</item>
+        <!--<item name="colorControlHighlight">@color/text_light</item>-->
     </style>
     <style name="TR.Toolbar.Popup" parent="Theme.AppCompat.Light">
         <item name="android:background">@color/white</item>
@@ -22,65 +22,72 @@
 
     <!-- PROJECT MANAGEMENT -->
     <style name="ProjManagement">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
+        <!--<item name="android:layout_width">match_parent</item>-->
+        <!--<item name="android:layout_height">match_parent</item>-->
     </style>
     <style name="ProjManagement.NewProjectFAB">
-        <item name="android:layout_width">@dimen/abc_action_button_min_width_material</item>
-        <item name="android:layout_height">@dimen/abc_action_button_min_height_material</item>
-        <item name="android:layout_alignParentBottom">true</item>
-        <item name="android:layout_alignParentEnd">true</item>
-        <item name="android:layout_marginBottom">@dimen/default_padding_m</item>
-        <item name="android:layout_marginEnd">@dimen/default_padding_m</item>
-        <item name="android:src">@drawable/ic_action_create_light</item>
+        <!--<item name="android:layout_width">@dimen/abc_action_button_min_width_material</item>-->
+        <!--<item name="android:layout_height">@dimen/abc_action_button_min_height_material</item>-->
+        <!--<item name="android:layout_alignParentBottom">true</item>-->
+        <!--<item name="android:layout_alignParentEnd">true</item>-->
+        <!--<item name="android:layout_marginBottom">@dimen/default_padding_m</item>-->
+        <!--<item name="android:layout_marginEnd">@dimen/default_padding_m</item>-->
+        <!--<item name="android:src">@drawable/ic_action_create_light</item>-->
     </style>
     <style name="ProjManagement.NewProjectButton">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:text">New Project</item>
-        <item name="android:textColor">@color/text_light</item>
-        <item name="android:layout_centerInParent">true</item>
-        <item name="android:background">@color/primary</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
+        <!--<item name="android:layout_width">wrap_content</item>-->
+        <!--<item name="android:layout_height">wrap_content</item>-->
+        <!--<item name="android:text">New Project</item>-->
+        <!--<item name="android:textColor">@color/text_light</item>-->
+        <!--<item name="android:layout_centerInParent">true</item>-->
+        <!--<item name="android:background">@color/primary</item>-->
+        <!--<item name="android:paddingLeft">12dp</item>-->
+        <!--<item name="android:paddingRight">12dp</item>-->
     </style>
     <style name="ProjManagement.ProjList">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:weightSum">100</item>
-        <item name="android:visibility">visible</item>
-        <item name="android:gravity">center_horizontal</item>
+        <!--<item name="android:orientation">horizontal</item>-->
+        <!--<item name="android:layout_width">match_parent</item>-->
+        <!--<item name="android:layout_height">match_parent</item>-->
+        <!--<item name="android:weightSum">100</item>-->
+        <!--<item name="android:visibility">visible</item>-->
+        <!--<item name="android:gravity">center_horizontal</item>-->
     </style>
     <style name="ProjManagement.ProjList.Container">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:visibility">visible</item>
-        <item name="android:layout_centerHorizontal">true</item>
-        <item name="android:layout_weight">80</item>
+        <!--<item name="android:orientation">vertical</item>-->
+        <!--<item name="android:layout_width">0dp</item>-->
+        <!--<item name="android:layout_height">match_parent</item>-->
+        <!--<item name="android:visibility">visible</item>-->
+        <!--<item name="android:layout_centerHorizontal">true</item>-->
+        <!--<item name="android:layout_weight">80</item>-->
     </style>
     <style name="ProjManagement.ProjList.Header">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">@dimen/default_padding_m</item>
-        <item name="android:weightSum">100</item>
+        <!--<item name="android:orientation">horizontal</item>-->
+        <!--<item name="android:layout_width">match_parent</item>-->
+        <!--<item name="android:layout_height">wrap_content</item>-->
+        <!--<item name="android:paddingTop">@dimen/default_padding_m</item>-->
+        <!--<item name="android:paddingBottom">@dimen/default_padding_m</item>-->
+        <!--<item name="android:paddingRight">@dimen/default_padding_m</item>-->
+        <!--<item name="android:weightSum">100</item>-->
     </style>
     <style name="ProjManagement.ProjList.Header.Items">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">30</item>
-        <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:padding">0dp</item>
+        <!--<item name="android:layout_width">0dp</item>-->
+        <!--<item name="android:layout_height">match_parent</item>-->
+        <!--<item name="android:padding">0dp</item>-->
+    </style>
+    <style name="ProjManagement.ProjList.Header.Items.Icons">
+        <!--<item name="android:layout_width">wrap_content</item>-->
+        <!--<item name="android:layout_height">wrap_content</item>-->
     </style>
     <style name="ProjManagement.ProjList.RecentProj">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginBottom">@dimen/default_padding_m</item>
+        <!--<item name="android:layout_width">match_parent</item>-->
+        <!--<item name="android:layout_height">wrap_content</item>-->
+        <!--<item name="android:layout_marginBottom">@dimen/default_padding_m</item>-->
     </style>
     <style name="ProjManagement.ProjList.ProjList">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingRight">2dp</item>
-        <item name="android:paddingLeft">2dp</item>
+        <!--<item name="android:layout_width">match_parent</item>-->
+        <!--<item name="android:layout_height">wrap_content</item>-->
+        <!--<item name="android:paddingRight">2dp</item>-->
+        <!--<item name="android:paddingLeft">2dp</item>-->
     </style>
 
 
