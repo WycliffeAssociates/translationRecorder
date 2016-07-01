@@ -27,11 +27,11 @@ import wycliffeassociates.recordingapp.project.Chunks;
 /**
  * Created by sarabiaj on 6/29/2016.
  */
-public class ChapterAdapter extends ArrayAdapter {
+public class VerseAdapter extends ArrayAdapter {
 
     //class for caching the views in a row
     private static class ViewHolder {
-        TextView mChapterView, mBook;
+        TextView mVerseView, mBook;
         ImageButton mRecord, mInfo;
         LinearLayout mTextLayout;
     }
@@ -41,7 +41,7 @@ public class ChapterAdapter extends ArrayAdapter {
     ConstantsDatabaseHelper mDb;
     Project mProject;
 
-    public ChapterAdapter(Activity context, Project project, Chunks chunks){
+    public VerseAdapter(Activity context, Project project, Chunks chunks){
         super(context, R.layout.project_list_item, createList(chunks.getNumChapters()));
         mCtx = context;
         mLayoutInflater = context.getLayoutInflater();
@@ -60,13 +60,13 @@ public class ChapterAdapter extends ArrayAdapter {
     public View getView(final int position, View convertView, final ViewGroup parent){
         ViewHolder holder;
         if(convertView == null) {
-            convertView = mLayoutInflater.inflate(R.layout.project_list_item, null);
+            convertView = mLayoutInflater.inflate(R.layout.verse_item, null);
             holder = new ViewHolder();
-            holder.mBook = (TextView) convertView.findViewById(R.id.book_text_view);
-            holder.mChapterView = (TextView) convertView.findViewById(R.id.language_text_view);
-            holder.mInfo = (ImageButton) convertView.findViewById(R.id.info_button);
-            holder.mRecord = (ImageButton) convertView.findViewById(R.id.record_button);
-            holder.mTextLayout = (LinearLayout) convertView.findViewById(R.id.text_layout);
+            //holder.mBook = (TextView) convertView.findViewById(R.id.book_text_view);
+            //holder.mVerseView = (TextView) convertView.findViewById(R.id.verse_text_view);
+            //holder.mInfo = (ImageButton) convertView.findViewById(R.id.info_button);
+            //holder.mRecord = (ImageButton) convertView.findViewById(R.id.record_button);
+            //holder.mTextLayout = (LinearLayout) convertView.findViewById(R.id.text_layout);
 
             // Link the cached views to the convertView
             convertView.setTag(holder);
@@ -74,29 +74,29 @@ public class ChapterAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.mChapterView.setText("Chapter " + (position+1));
-        holder.mBook.setVisibility(View.INVISIBLE);
-        holder.mInfo.setVisibility(View.INVISIBLE);
+        //holder.mVerseView.setText("Verse " + (position+1));
+//        holder.mBook.setVisibility(View.INVISIBLE);
+//        holder.mInfo.setVisibility(View.INVISIBLE);
 
-        holder.mRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Project.loadProjectIntoPreferences(mCtx, mProject);
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mCtx);
-                pref.edit().putString(Settings.KEY_PREF_CHAPTER, String.valueOf(position+1)).commit();
-                v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
-            }
-        });
-
-        holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), ActivityVerseList.class);
-                intent.putExtra(Settings.KEY_PREF_CHAPTER, String.valueOf((position+1)));
-                intent.putExtra(Project.PROJECT_EXTRA, mProject);
-                v.getContext().startActivity(intent);
-            }
-        });
+//        holder.mRecord.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Project.loadProjectIntoPreferences(mCtx, mProject);
+//                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mCtx);
+//                pref.edit().putString(Settings.KEY_PREF_CHAPTER, String.valueOf(position+1)).commit();
+//                v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
+//            }
+//        });
+//
+//        holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(v.getContext(), ActivityVerseList.class);
+//                intent.putExtra(Settings.KEY_PREF_CHAPTER, String.valueOf((position+1)));
+//                intent.putExtra(Project.PROJECT_EXTRA, mProject);
+//                v.getContext().startActivity(intent);
+//            }
+//        });
 
         return convertView;
     }

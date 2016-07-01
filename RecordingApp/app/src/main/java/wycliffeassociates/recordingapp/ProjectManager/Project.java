@@ -6,7 +6,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
+import java.io.File;
+
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.Utils;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -153,6 +157,13 @@ public class Project implements Parcelable{
 
     public void setSourceAudioPath(String sourceAudioPath){
         mSourceAudioPath = sourceAudioPath;
+    }
+
+    public static void deleteProject(Context ctx, Project project){
+        File dir = FileNameExtractor.getProjectDirectory(project);
+        Utils.deleteRecursive(dir);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
+        db.deleteProject(project);
     }
 
     @Override
