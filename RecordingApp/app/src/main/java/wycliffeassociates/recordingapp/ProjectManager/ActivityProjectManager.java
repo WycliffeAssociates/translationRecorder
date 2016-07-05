@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,7 +26,10 @@ import android.widget.ListView;
 import java.util.List;
 import java.util.Map;
 
+import wycliffeassociates.recordingapp.FilesPage.Export.Export;
+import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
+import wycliffeassociates.recordingapp.FilesPage.FragmentShareDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -35,7 +39,8 @@ import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 /**
  * Created by sarabiaj on 6/23/2016.
  */
-public class ActivityProjectManager extends AppCompatActivity implements ProjectInfoDialog.InfoDialogCallback {
+public class ActivityProjectManager extends AppCompatActivity implements ProjectInfoDialog.InfoDialogCallback,
+                                ProjectInfoDialog.ExportDelegator, Export.ProgressUpdateCallback{
 
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
@@ -45,6 +50,15 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     ListAdapter mAdapter;
     private int mNumProjects = 0;
     Activity mCtx;
+    private ProgressDialog mPd;
+    private volatile int mProgress = 0;
+    private volatile boolean mZipping = false;
+    private volatile boolean mExporting = false;
+    private ExportTaskFragment mExportTaskFragment;
+    private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
+    private final String STATE_EXPORTING = "was_exporting";
+    private final String STATE_ZIPPING = "was_zipping";
+    private final String STATE_PROGRESS = "upload_progress";
 
     public static final int PROJECT_WIZARD_REQUEST = RESULT_FIRST_USER;
 
@@ -64,6 +78,38 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         initializeViews();
 
         mCtx = this;
+
+        FragmentManager fm = getFragmentManager();
+        mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
+
+        if(savedInstanceState != null) {
+            mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
+            mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
+            mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
+        }
+
+        //check if fragment was retained from a screen rotation
+        if(mExportTaskFragment == null){
+            mExportTaskFragment = new ExportTaskFragment();
+            fm.beginTransaction().add(mExportTaskFragment, TAG_EXPORT_TASK_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        } else {
+            if(mZipping){
+                zipProgress(mProgress);
+            } else if(mExporting){
+                exportProgress(mProgress);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        if(mPd != null) {
+            savedInstanceState.putInt(STATE_PROGRESS, mPd.getProgress());
+        }
+        savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
+        savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
     }
 
     @Override
@@ -235,5 +281,74 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         FragmentDeleteDialog d = new FragmentDeleteDialog();
         d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         d.show(fm, "Delete Confirm Dialog");
+    }
+
+    public void exportProgress(int progress){
+        mPd = new ProgressDialog(this);
+        mPd.setTitle("Uploading...");
+        mPd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mPd.setProgress(progress);
+        mPd.setCancelable(false);
+        mPd.show();
+    }
+
+    public void zipProgress(int progress){
+        mPd = new ProgressDialog(this);
+        mPd.setTitle("Packaging files to export.");
+        mPd.setMessage("Please wait...");
+        mPd.setProgress(progress);
+        mPd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mPd.setCancelable(false);
+        mPd.show();
+    }
+
+    public void dismissProgress(){
+        mPd.dismiss();
+    }
+
+    public void incrementProgress(int progress){
+        mPd.incrementProgressBy(progress);
+    }
+
+    public void setUploadProgress(int progress){
+        mPd.setProgress(progress);
+    }
+
+    public void showProgress(boolean mode){
+        if(mode == true){
+            zipProgress(0);
+        } else {
+            exportProgress(0);
+        }
+    }
+
+    @Override
+    public void setZipping(boolean zipping){
+        mZipping = zipping;
+    }
+
+    @Override
+    public void setExporting(boolean exporting){
+        mExporting = exporting;
+    }
+
+    @Override
+    public void setCurrentFile(String currentFile) {
+        mPd.setMessage(currentFile);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(mPd != null && mPd.isShowing()){
+            mPd.dismiss();
+            mPd = null;
+        }
+    }
+
+    @Override
+    public void delegateExport(Export exp) {
+        exp.setFragmentContext(mExportTaskFragment);
+        mExportTaskFragment.delegateExport(exp);
     }
 }

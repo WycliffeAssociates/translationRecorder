@@ -96,8 +96,8 @@ public class Project implements Parcelable{
         return projectDir;
     }
 
-    public static boolean isOBS(Project project){
-        if(project.getProject().compareTo("obs") == 0){
+    public boolean isOBS(){
+        if(getProject().compareTo("obs") == 0){
             return true;
         } else {
             return false;
@@ -185,7 +185,7 @@ public class Project implements Parcelable{
         Utils.deleteRecursive(dir);
         File langDir = getLanguageDirectory(project);
         File sourceDir;
-        if(isOBS(project)){
+        if(project.isOBS()){
             sourceDir = new File(langDir, "obs");
         } else {
             sourceDir = new File(langDir, project.getSource());

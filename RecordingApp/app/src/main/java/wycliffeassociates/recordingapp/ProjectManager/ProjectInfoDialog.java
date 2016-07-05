@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -9,6 +10,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
+import wycliffeassociates.recordingapp.FilesPage.Export.AppExport;
+import wycliffeassociates.recordingapp.FilesPage.Export.Export;
+import wycliffeassociates.recordingapp.FilesPage.Export.FolderExport;
+import wycliffeassociates.recordingapp.FilesPage.Export.S3Export;
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -20,7 +25,25 @@ public class ProjectInfoDialog extends DialogFragment {
         void onDelete(final Project project);
     }
 
+    public interface ExportDelegator {
+        void delegateExport(Export exp);
+    }
+
     Project mProject;
+    ExportDelegator mExportDelegator;
+    Export mExp;
+
+    @Override
+    public void onAttach(Activity activity){
+        super.onAttach(activity);
+        mExportDelegator = (ExportDelegator)activity;
+    }
+
+    @Override
+    public void onDetach(){
+        super.onDetach();
+        mExportDelegator = null;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -58,6 +81,32 @@ public class ProjectInfoDialog extends DialogFragment {
             public void onClick(View v) {
                 dismiss();
                 ((InfoDialogCallback)getActivity()).onDelete(mProject);
+            }
+        });
+
+        View.OnClickListener localExport = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mExp = new FolderExport(Project.getProjectDirectory(mProject), mProject);
+                mExportDelegator.delegateExport(mExp);
+            }
+        };
+        sdcard_button.setOnClickListener(localExport);
+        folderButton.setOnClickListener(localExport);
+
+        publishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mExp = new S3Export(Project.getProjectDirectory(mProject), mProject);
+                mExportDelegator.delegateExport(mExp);
+            }
+        });
+
+        otherButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mExp = new AppExport(Project.getProjectDirectory(mProject), mProject);
+                mExportDelegator.delegateExport(mExp);
             }
         });
 
