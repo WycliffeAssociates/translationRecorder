@@ -70,6 +70,11 @@ public class MainMenu extends Activity{
         System.out.println("External files dir is " + Environment.getExternalStorageDirectory());
 
         initApp();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         mNumProjects = db.getNumProjects();
@@ -78,12 +83,8 @@ public class MainMenu extends Activity{
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( pref.getString("resume", "").compareTo("") == 0 ) {
-                    if (mNumProjects <= 0) {
-                        setupNewProject();
-                    } else {
-                        promptProjectList();
-                    }
+                if (mNumProjects <= 0 || emptyPreferences()) {
+                    setupNewProject();
                 } else {
                     startRecordingScreen();
                 }
@@ -99,12 +100,15 @@ public class MainMenu extends Activity{
                 overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
             }
         });
+
+        initViews();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        initViews();
+    private boolean emptyPreferences(){
+        if(pref.getString(Settings.KEY_PREF_LANG,"").compareTo("") == 0){
+            return true;
+        }
+        return false;
     }
 
     @Override

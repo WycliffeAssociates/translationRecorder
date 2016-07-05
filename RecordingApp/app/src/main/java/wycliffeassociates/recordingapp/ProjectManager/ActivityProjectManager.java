@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
@@ -22,6 +23,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.List;
+import java.util.Map;
 
 import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
 import wycliffeassociates.recordingapp.R;
@@ -42,6 +44,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     SharedPreferences pref;
     ListAdapter mAdapter;
     private int mNumProjects = 0;
+    Activity mCtx;
 
     public static final int PROJECT_WIZARD_REQUEST = RESULT_FIRST_USER;
 
@@ -59,6 +62,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         mNumProjects = db.getNumProjects();
 
         initializeViews();
+
+        mCtx = this;
     }
 
     @Override
@@ -91,18 +96,39 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         mAddProject.setOnClickListener(btnClick);
         mNewProjectButton.setOnClickListener(btnClick);
 
+        hideProjectsIfEmpty(mNumProjects);
         if(mNumProjects > 0){
+         populateProjectList();
+        }
+    }
+
+    public void hideProjectsIfEmpty(int numProjects){
+        if(numProjects > 0){
             mNewProjectButton.setVisibility(View.GONE);
-            populateProjectList();
         } else {
             mProjectLayout.setVisibility(View.GONE);
+            mNewProjectButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void removeProjectFromPreferences(Project project){
+        Map<String, ?> vals = pref.getAll();
+        if(((String)vals.get(Settings.KEY_PREF_LANG)).compareTo(project.getTargetLanguage()) == 0) {
+            if(((String)vals.get(Settings.KEY_PREF_SOURCE)).compareTo(project.getSource()) == 0
+                    || ((String)vals.get(Settings.KEY_PREF_PROJECT)).compareTo(project.getProject()) == 0) {
+                if (((String)vals.get(Settings.KEY_PREF_BOOK)).compareTo(project.getSlug()) == 0) {
+                    pref.edit().putString(Settings.KEY_PREF_LANG, "").commit();
+                    pref.edit().putString(Settings.KEY_PREF_BOOK, "").commit();
+                    pref.edit().putString(Settings.KEY_PREF_SOURCE, "").commit();
+                    pref.edit().putString(Settings.KEY_PREF_PROJECT, "").commit();
+                }
+            }
         }
     }
 
     private void populateProjectList(){
         final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
-        projects.get(0);
         mAdapter = new ProjectAdapter(this, projects);
 
         mProjectList.setAdapter(mAdapter);
@@ -179,14 +205,19 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     };
 
     @Override
-    public void onDelete() {
+    public void onDelete(final Project project) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete recordings?");
         builder.setIcon(R.drawable.ic_delete_black_36dp);
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                if(which == dialog.BUTTON_POSITIVE){
+                    Project.deleteProject(mCtx, project);
+                    populateProjectList();
+                    hideProjectsIfEmpty(mAdapter.getCount());
+                    removeProjectFromPreferences(project);
+                }
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {

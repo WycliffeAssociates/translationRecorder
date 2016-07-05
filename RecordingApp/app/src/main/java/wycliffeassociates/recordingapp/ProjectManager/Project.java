@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.ProjectManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -83,6 +84,26 @@ public class Project implements Parcelable{
         pref.edit().putString(Settings.KEY_PREF_SRC_LOC, project.getSourceAudioPath()).commit();
     }
 
+    public static File getProjectDirectory(Project project){
+        File projectDir = new File(getLanguageDirectory(project), project.getSource() +
+                                    "/" + project.getSlug());
+        return projectDir;
+    }
+
+    public static File getLanguageDirectory(Project project){
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File projectDir = new File(root, project.getTargetLanguage());
+        return projectDir;
+    }
+
+    public static boolean isOBS(Project project){
+        if(project.getProject().compareTo("obs") == 0){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public String getTargetLanguage(){
         return (mTargetLanguage == null)? "" : mTargetLanguage;
     }
@@ -160,8 +181,21 @@ public class Project implements Parcelable{
     }
 
     public static void deleteProject(Context ctx, Project project){
-        File dir = FileNameExtractor.getProjectDirectory(project);
+        File dir = getProjectDirectory(project);
         Utils.deleteRecursive(dir);
+        File langDir = getLanguageDirectory(project);
+        File sourceDir;
+        if(isOBS(project)){
+            sourceDir = new File(langDir, "obs");
+        } else {
+            sourceDir = new File(langDir, project.getSource());
+        }
+        if(sourceDir.exists() && sourceDir.listFiles().length == 0){
+            sourceDir.delete();
+            if(langDir.listFiles().length == 0){
+                langDir.delete();
+            }
+        }
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
         db.deleteProject(project);
     }

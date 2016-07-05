@@ -17,7 +17,7 @@ import wycliffeassociates.recordingapp.R;
 public class ProjectInfoDialog extends DialogFragment {
 
     public interface InfoDialogCallback {
-        void onDelete();
+        void onDelete(final Project project);
     }
 
     Project mProject;
@@ -57,7 +57,7 @@ public class ProjectInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                ((InfoDialogCallback)getActivity()).onDelete();
+                ((InfoDialogCallback)getActivity()).onDelete(mProject);
             }
         });
 
