@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_microphone_grey600_36dp"
-                />
+                android:id="@+id/record_button" />
 
             <ImageView
                 android:layout_width="36dp"
@@ -43,7 +43,8 @@
                 android:src="@drawable/ic_play_blue"
                 android:scaleType="fitXY"
                 android:layout_marginLeft="@dimen/default_padding_m"
-                android:visibility="visible" />
+                android:visibility="visible"
+                android:id="@+id/play_button" />
 
         </LinearLayout>
 

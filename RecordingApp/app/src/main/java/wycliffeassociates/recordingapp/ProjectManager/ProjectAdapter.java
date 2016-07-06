@@ -24,6 +24,7 @@ import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectInfoDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
  *
@@ -90,6 +91,7 @@ public class ProjectAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 Project.loadProjectIntoPreferences(ctx, project);
+                Settings.updateFilename(ctx);
                 v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
             }
         });

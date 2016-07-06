@@ -47,7 +47,7 @@ public class ActivityVerseList extends AppCompatActivity {
         try {
             Chunks chunks = new Chunks(this, mProject.getSlug());
             ListView chapterList = (ListView)findViewById(R.id.chapter_list);
-            chapterList.setAdapter(new VerseAdapter(this, mProject, chunks));
+            chapterList.setAdapter(new VerseAdapter(this, mProject, chunks, Integer.parseInt(chapter)));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +28,8 @@ public class Chunks {
 
     ArrayList<ArrayList<Map<String, String>>> mChunks;
     int mNumChapters = 0;
+    public static String FIRST_VERSE = "firstvs";
+    public static String LAST_VERSE = "lastvs";
 
     public Chunks(Context ctx, String slug) throws IOException{
         long start = System.currentTimeMillis();
@@ -71,6 +74,8 @@ public class Chunks {
         return mChunks.get(chapter-1).size();
     }
 
-
+    public List<Map<String,String>> getChunks(int chapter) {
+        return mChunks.get(chapter-1);
+    }
 
 }

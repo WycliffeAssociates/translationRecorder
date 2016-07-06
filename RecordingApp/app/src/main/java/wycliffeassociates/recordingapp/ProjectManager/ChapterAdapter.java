@@ -111,6 +111,7 @@ public class ChapterAdapter extends ArrayAdapter {
                 Project.loadProjectIntoPreferences(mCtx, mProject);
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mCtx);
                 pref.edit().putString(Settings.KEY_PREF_CHAPTER, String.valueOf(position+1)).commit();
+                Settings.updateFilename(getContext());
                 v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
             }
         });

@@ -85,7 +85,7 @@ public class ConstantsDatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
-        if(cursor.getCount() > 0){
+        if(cursor != null && cursor.getCount() > 0){
             return true;
         } else {
             return false;
