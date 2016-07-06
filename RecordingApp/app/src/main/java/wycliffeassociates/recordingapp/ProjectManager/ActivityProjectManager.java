@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -13,11 +12,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
 
 import java.util.List;
 
@@ -34,7 +32,7 @@ public class ActivityProjectManager extends AppCompatActivity {
 
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
-    ImageButton mAddProject;
+    ImageView mAddProject;
     ListView mProjectList;
     SharedPreferences pref;
     ListAdapter mAdapter;
@@ -46,9 +44,12 @@ public class ActivityProjectManager extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_management);
+
         Toolbar mToolbar = (Toolbar) findViewById(R.id.project_management_toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("Project Management");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Project Management");
+        }
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -82,7 +83,7 @@ public class ActivityProjectManager extends AppCompatActivity {
     private void initializeViews(){
         mProjectLayout = (LinearLayout) findViewById(R.id.project_list_layout);
         mNewProjectButton = (Button) findViewById(R.id.new_project_button);
-        mAddProject = (ImageButton) findViewById(R.id.new_project_fab);
+        mAddProject = (ImageView) findViewById(R.id.new_project_fab);
         mProjectList = (ListView) findViewById(R.id.project_list);
 
         mAddProject.setOnClickListener(btnClick);
@@ -103,7 +104,6 @@ public class ActivityProjectManager extends AppCompatActivity {
         mAdapter = new ProjectAdapter(this, projects);
 
         mProjectList.setAdapter(mAdapter);
-//        mProjectList.setDividerHeight();
     }
 
     //sets the profile in the preferences to "" then returns to the splash screen

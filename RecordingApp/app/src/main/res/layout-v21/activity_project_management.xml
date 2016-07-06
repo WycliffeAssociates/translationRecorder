@@ -13,6 +13,7 @@
         android:layout_height="@dimen/abc_action_bar_default_height_material"
         app:theme="@style/TR.Toolbar"
         app:popupTheme="@style/TR.Popup"
+        android:elevation="@dimen/appbar_elevation"
         />
 
     <RelativeLayout
