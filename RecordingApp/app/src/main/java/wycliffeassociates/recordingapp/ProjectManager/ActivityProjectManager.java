@@ -22,10 +22,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.List;
 import java.util.Map;
 
+import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
@@ -71,12 +73,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         getSupportActionBar().setTitle("Project Management");
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        mNumProjects = db.getNumProjects();
-
-        initializeViews();
-
         mCtx = this;
 
         FragmentManager fm = getFragmentManager();
@@ -100,6 +96,14 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                 exportProgress(mProgress);
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        mNumProjects = db.getNumProjects();
+        initializeViews();
     }
 
     @Override
@@ -144,7 +148,31 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
         hideProjectsIfEmpty(mNumProjects);
         if(mNumProjects > 0){
-         populateProjectList();
+            initializeRecentProject();
+            if(mNumProjects > 1) {
+                populateProjectList();
+            }
+        } else {
+            mProjectList.setVisibility(View.GONE);
+        }
+    }
+
+    public void initializeRecentProject(){
+        Project project = null;
+        if(pref.getString(Settings.KEY_PREF_LANG, "").compareTo("") != 0) {
+            project = Project.getProjectFromPreferences(this);
+        } else {
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+            List<Project> projects = db.getAllProjects();
+            if(projects.size() > 0){
+                project = projects.get(0);
+            }
+        }
+        if(project != null) {
+            ConstantsDatabaseHelper cdb = new ConstantsDatabaseHelper(this);
+            ProjectAdapter.initializeProjectCard(this, project, cdb, findViewById(R.id.recent_project));
+        } else {
+            findViewById(R.id.recent_project).setVisibility(View.GONE);
         }
     }
 
@@ -263,6 +291,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     populateProjectList();
                     hideProjectsIfEmpty(mAdapter.getCount());
                     removeProjectFromPreferences(project);
+                    mNumProjects--;
+                    initializeViews();
                 }
             }
         });

@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.ProjectManager;
 import android.app.Activity;
 
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -42,7 +43,7 @@ public class ProjectAdapter extends ArrayAdapter {
     Activity mCtx;
     ConstantsDatabaseHelper mDb;
 
-    public ProjectAdapter(Activity context, List<Project> projectList){
+    public ProjectAdapter(Activity context, List<Project> projectList) {
         super(context, R.layout.project_list_item, projectList);
         mCtx = context;
         mProjectList = projectList;
@@ -50,9 +51,9 @@ public class ProjectAdapter extends ArrayAdapter {
         mDb = new ConstantsDatabaseHelper(context);
     }
 
-    public View getView(final int position, View convertView, final ViewGroup parent){
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         ViewHolder holder;
-        if(convertView == null) {
+        if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.project_list_item, null);
             holder = new ViewHolder();
             holder.mBook = (TextView) convertView.findViewById(R.id.book_text_view);
@@ -67,41 +68,59 @@ public class ProjectAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        String book = mDb.getBookName(mProjectList.get(position).getSlug());
-        String language = mDb.getLanguageName(mProjectList.get(position).getTargetLanguage());
-
-        holder.mBook.setText(book);
-        holder.mLanguage.setText(language);
-
-        holder.mRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Project.loadProjectIntoPreferences(mCtx, mProjectList.get(position));
-                v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
-            }
-        });
-
-        holder.mInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment info = new ProjectInfoDialog();
-                Bundle args = new Bundle();
-                args.putParcelable(Project.PROJECT_EXTRA, mProjectList.get(position));
-                info.setArguments(args);
-                info.show(mCtx.getFragmentManager(), "title");
-            }
-        });
-
-        holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), ActivityChapterList.class);
-                intent.putExtra(Project.PROJECT_EXTRA, mProjectList.get(position));
-                v.getContext().startActivity(intent);
-            }
-        });
+        initializeProjectCard(mCtx, mProjectList.get(position), mDb, holder.mLanguage, holder.mBook, holder.mInfo, holder.mRecord, holder.mTextLayout);
 
         return convertView;
     }
 
+    public static void initializeProjectCard(final Activity ctx, final Project project, ConstantsDatabaseHelper dB, TextView languageView, TextView bookView,
+                                             ImageButton infoView, ImageButton recordView, LinearLayout textLayout) {
+
+        if(project.isOBS()){
+            bookView.setText("Open Bible Stories");
+        } else {
+            String book = dB.getBookName(project.getSlug());
+            bookView.setText(book);
+        }
+
+        String language = dB.getLanguageName(project.getTargetLanguage());
+        languageView.setText(language);
+
+        recordView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Project.loadProjectIntoPreferences(ctx, project);
+                v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
+            }
+        });
+
+        infoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment info = new ProjectInfoDialog();
+                Bundle args = new Bundle();
+                args.putParcelable(Project.PROJECT_EXTRA, project);
+                info.setArguments(args);
+                info.show(ctx.getFragmentManager(), "title");
+            }
+        });
+
+        textLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ActivityChapterList.class);
+                intent.putExtra(Project.PROJECT_EXTRA, project);
+                v.getContext().startActivity(intent);
+            }
+        });
+    }
+
+    public static void initializeProjectCard(final Activity ctx, final Project project, ConstantsDatabaseHelper db, View projectCard) {
+        TextView languageView = (TextView) projectCard.findViewById(R.id.language_text_view);
+        TextView bookView = (TextView) projectCard.findViewById(R.id.book_text_view);
+        ImageButton info = (ImageButton) projectCard.findViewById(R.id.info_button);
+        ImageButton record = (ImageButton) projectCard.findViewById(R.id.record_button);
+        LinearLayout textLayout = (LinearLayout) projectCard.findViewById(R.id.text_layout);
+        initializeProjectCard(ctx, project, db, languageView, bookView, info, record, textLayout);
+    }
 }

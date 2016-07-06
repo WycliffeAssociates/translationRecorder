@@ -60,9 +60,13 @@ public class ProjectInfoDialog extends DialogFragment {
         TextView translator = (TextView) view.findViewById(R.id.translators);
 
         String languageCode = mProject.getTargetLanguage();
-        String bookCode = mProject.getSlug();
         String language = db.getLanguageName(languageCode);
+        String bookCode = mProject.getSlug();
         String book = db.getBookName(bookCode);
+        if(mProject.isOBS()){
+            bookCode = "obs";
+            book = "Open Bible Stories";
+        }
         String translators = mProject.getContributors();
 
         title.setText(book + " - " + language);

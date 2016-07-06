@@ -118,7 +118,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     layout="@layout/project_list_item"
-                    android:layout_marginBottom="@dimen/default_padding_m" />
+                    android:layout_marginBottom="@dimen/default_padding_m"
+                    android:id="@+id/recent_project" />
 
                 <ListView
                     android:layout_width="match_parent"

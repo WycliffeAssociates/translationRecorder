@@ -5,7 +5,9 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,19 +45,34 @@ public class ChapterAdapter extends ArrayAdapter {
     Project mProject;
 
     public ChapterAdapter(Activity context, Project project, Chunks chunks){
-        super(context, R.layout.project_list_item, createList(chunks.getNumChapters()));
+        super(context, R.layout.project_list_item, createList(chunks.getNumChapters(), project));
         mCtx = context;
         mLayoutInflater = context.getLayoutInflater();
         mDb = new ConstantsDatabaseHelper(context);
         mProject = project;
     }
 
-    private static List<Integer> createList(int numChapters) {
-        List<Integer> chapterList = new ArrayList<>();
+    private static List<Pair<Integer, Boolean>> createList(int numChapters, Project project) {
+        List<Pair<Integer, Boolean>> chapterList = new ArrayList<>();
+        int chapter;
         for(int i = 0; i < numChapters; i++){
-            chapterList.add(new Integer(i+1));
+            chapter = i + 1;
+            chapterList.add(new Pair<>( chapter, (isChapterStarted(project, chapter)) ));
         }
         return chapterList;
+    }
+
+    private static boolean isChapterStarted(Project project, int chapter){
+        File dir = Project.getProjectDirectory(project);
+        File[] files = dir.listFiles();
+        if(files != null) {
+            for (File f : files) {
+                if (f.getName().compareTo(String.format("%02d", chapter)) == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public View getView(final int position, View convertView, final ViewGroup parent){
@@ -77,6 +95,15 @@ public class ChapterAdapter extends ArrayAdapter {
         holder.mChapterView.setText("Chapter " + (position+1));
         holder.mBook.setVisibility(View.INVISIBLE);
         holder.mInfo.setVisibility(View.INVISIBLE);
+
+
+        Pair<Integer, Boolean> chapter = (Pair<Integer, Boolean>)this.getItem(position);
+        //if the chapter doesn't exist, gray it out
+        if(chapter.second == false){
+            holder.mChapterView.setTextColor(convertView.getContext().getResources().getColor(R.color.text_light_disabled));
+        } else {
+            holder.mChapterView.setTextColor(convertView.getContext().getResources().getColor(R.color.dark_primary_text));
+        }
 
         holder.mRecord.setOnClickListener(new View.OnClickListener() {
             @Override
