@@ -28,6 +28,7 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.project.Chunks;
+import wycliffeassociates.recordingapp.widgets.VerseCard;
 
 /**
  * Created by sarabiaj on 6/29/2016.
@@ -39,6 +40,7 @@ public class VerseAdapter extends ArrayAdapter {
         TextView mVerseView, mBook;
         ImageView mRecord, mPlayback;
         LinearLayout mTextLayout;
+        VerseCard mVerseCard;
     }
 
     LayoutInflater mLayoutInflater;
@@ -65,20 +67,22 @@ public class VerseAdapter extends ArrayAdapter {
             for (int i = 0; i < numChunks; i++) {
                 firstvs = chunkList.get(i).get(Chunks.FIRST_VERSE);
                 endvs = chunkList.get(i).get(Chunks.LAST_VERSE);
-                result.add(new Pair(new Pair(firstvs, endvs), isVerseStarted(project, chapter, firstvs, endvs)));
+                boolean exists = getVerseFiles(project, chapter, firstvs, endvs).size() > 0;
+                result.add(new Pair(new Pair(firstvs, endvs), exists));
             }
         } else {
             numChunks = Integer.parseInt(chunkList.get(numChunks-1).get(Chunks.LAST_VERSE));
             for (int i = 0; i < numChunks; i++) {
                 firstvs = String.valueOf(i+1);
                 endvs = "-1";
-                result.add(new Pair(new Pair(firstvs, endvs), isVerseStarted(project, chapter, firstvs, endvs)));
+                boolean exists = getVerseFiles(project, chapter, firstvs, endvs).size() > 0;
+                result.add(new Pair(new Pair(firstvs, endvs), exists));
             }
         }
         return result;
     }
 
-    public static boolean isVerseStarted(Project project, int chapter, String firstvs, String endvs){
+    public static List<File> getVerseFiles(Project project, int chapter, String firstvs, String endvs){
         File root = Project.getProjectDirectory(project);
         String chap = String.valueOf(chapter);
         if(chap.length() == 1){
@@ -89,15 +93,16 @@ public class VerseAdapter extends ArrayAdapter {
         FileNameExtractor fne;
         int first = Integer.parseInt(firstvs);
         int end = Integer.parseInt(endvs);
+        ArrayList<File> resultFiles = new ArrayList<>();
         if(files != null){
             for(File file : files){
                 fne = new FileNameExtractor(file);
                 if(fne.getStartVerse() == first && fne.getEndVerse() == end){
-                    return true;
+                    resultFiles.add(file);
                 }
             }
         }
-        return false;
+        return resultFiles;
     }
 
     public View getView(final int position, View convertView, final ViewGroup parent){
@@ -109,6 +114,7 @@ public class VerseAdapter extends ArrayAdapter {
             holder.mVerseView = (TextView) convertView.findViewById(R.id.verse_text_view);
             holder.mPlayback = (ImageView) convertView.findViewById(R.id.play_button);
             holder.mRecord = (ImageView) convertView.findViewById(R.id.record_button);
+            holder.mVerseCard = (VerseCard) convertView.findViewById(R.id.verse_card);
             //holder.mTextLayout = (LinearLayout) convertView.findViewById(R.id.text_layout);
 
             // Link the cached views to the convertView
@@ -144,6 +150,11 @@ public class VerseAdapter extends ArrayAdapter {
                 v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
             }
         });
+
+        String firstvs, endvs;
+        firstvs = ((Pair<Pair<String,String>, Boolean>)getItem(position)).first.first;
+        endvs = ((Pair<Pair<String,String>, Boolean>)getItem(position)).first.second;
+        holder.mVerseCard.initialize(getVerseFiles(mProject, mChapter, firstvs, endvs));
 //
 //        holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
 //            @Override

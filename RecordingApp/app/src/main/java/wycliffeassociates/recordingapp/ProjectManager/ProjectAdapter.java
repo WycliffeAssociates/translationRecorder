@@ -115,6 +115,8 @@ public class ProjectAdapter extends ArrayAdapter {
                 v.getContext().startActivity(intent);
             }
         });
+
+
     }
 
     public static void initializeProjectCard(final Activity ctx, final Project project, ConstantsDatabaseHelper db, View projectCard) {
