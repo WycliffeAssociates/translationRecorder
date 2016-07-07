@@ -30,7 +30,8 @@ public class VerseCard extends FrameLayout {
     MediaPlayer mMediaPlayer;
     List<File> mFiles;
     TextView mTakes, mTimeElapsed, mTimeDuration;
-    ImageButton play, pause;
+    ImageButton mPlay, mPause;
+    AudioPlayer mAudioPlayer;
     int mTakeIndex = 0;
 
     public VerseCard(Context context) {
@@ -74,20 +75,11 @@ public class VerseCard extends FrameLayout {
             @Override
             public void onClick(View v) {
                 mTakeIndex++;
-                mTakeIndex %= mFiles.size();
-                mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
-                try {
-                    if(mMediaPlayer.isPlaying()) {
-                        mMediaPlayer.stop();
-                    }
-                    mMediaPlayer.reset();
-                    mMediaPlayer.setDataSource(mFiles.get(mTakeIndex).getAbsolutePath());
-                    mMediaPlayer.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }  catch (IllegalStateException e){
-
+                if(mTakeIndex >= mFiles.size()){
+                    mTakeIndex = 0;
                 }
+                mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
+                mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
             }
         });
 
@@ -95,43 +87,14 @@ public class VerseCard extends FrameLayout {
             @Override
             public void onClick(View v) {
                 mTakeIndex--;
-                mTakeIndex %= mFiles.size();
-                mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
-                try {
-                    if(mMediaPlayer.isPlaying()) {
-                        mMediaPlayer.stop();
-                    }
-                    mMediaPlayer.reset();
-                    mMediaPlayer.setDataSource(mFiles.get(mTakeIndex).getAbsolutePath());
-                    mMediaPlayer.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (IllegalStateException e){
-
+                if(mTakeIndex < 0){
+                    mTakeIndex = mFiles.size()-1;
                 }
+                mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
+                mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
             }
         });
 
-        findViewById(R.id.playButton).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMediaPlayer.start();
-                pause.setVisibility(View.VISIBLE);
-                play.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        findViewById(R.id.pauseButton).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMediaPlayer.pause();
-                pause.setVisibility(View.INVISIBLE);
-                play.setVisibility(View.VISIBLE);
-            }
-        });
-
-        play = (ImageButton)findViewById(R.id.playButton);
-        pause = (ImageButton)findViewById(R.id.pauseButton);
 
         findViewById(R.id.delete_button).setOnClickListener(new OnClickListener() {
             @Override
@@ -140,59 +103,35 @@ public class VerseCard extends FrameLayout {
             }
         });
 
+        mPlay = (ImageButton)findViewById(R.id.playButton);
+        mPause = (ImageButton)findViewById(R.id.pauseButton);
+
+        mPlay.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAudioPlayer.play();
+            }
+        });
+
+        mPause.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAudioPlayer.pause();
+            }
+        });
+
         mSeekBar = (SeekBar)findViewById(R.id.seekBar);
         mTimeElapsed = (TextView)findViewById(R.id.timeProgress);
         mTimeDuration = (TextView)findViewById(R.id.timeDuration);
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
+        mAudioPlayer = new AudioPlayer(mTimeElapsed, mTimeDuration, mPlay, mPause, mSeekBar);
 
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mMediaPlayer != null && fromUser) {
-                    mMediaPlayer.seekTo(progress);
-                    final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
-                    mTimeElapsed.setText(time);
-                    mTimeElapsed.invalidate();
-                }
-            }
-        });
     }
 
     public void initialize(List<File> files){
         mFiles = files;
         if(files.size() > 0) {
-            try {
-                mMediaPlayer = new MediaPlayer();
-                mMediaPlayer.setDataSource(files.get(mTakeIndex).getCanonicalPath());
-                mMediaPlayer.prepare();
-                mSeekBar.setMax(mMediaPlayer.getDuration());
-                mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        pause.setVisibility(View.INVISIBLE);
-                        play.setVisibility(View.VISIBLE);
-                        mSeekBar.setProgress(mSeekBar.getMax());
-                        int duration = mSeekBar.getMax();
-                        final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
-                                mTimeDuration.setText(time);
-                                mTimeDuration.invalidate();
-
-                        if(mMediaPlayer.isPlaying()) {
-                            mMediaPlayer.seekTo(0);
-                        }
-                    }
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (IllegalStateException e){
-
-            }
+            mAudioPlayer.loadFile(files.get(mTakeIndex));
         }
         mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
     }

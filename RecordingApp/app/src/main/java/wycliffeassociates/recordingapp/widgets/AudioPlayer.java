@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp.widgets;
 
 import android.media.MediaPlayer;
+import android.media.TimedText;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
@@ -18,20 +19,17 @@ import java.io.IOException;
 public class AudioPlayer {
 
     MediaPlayer mMediaPlayer;
-    File mFile;
     TextView mProgress, mDuration;
     ImageButton mPlay, mPause;
     SeekBar mSeekBar;
 
-    public AudioPlayer(File file, TextView progress, TextView duration, ImageButton play, ImageButton pause, SeekBar seek){
-        mFile = file;
+    public AudioPlayer(TextView progress, TextView duration, ImageButton play, ImageButton pause, SeekBar seek){
         mProgress = progress;
         mDuration = duration;
         mPlay = play;
         mPause = pause;
         mSeekBar = seek;
         mMediaPlayer = new MediaPlayer();
-        loadFile(file);
     }
 
     private void switchPlayPauseButton(boolean isPlaying) {
@@ -46,6 +44,12 @@ public class AudioPlayer {
 
     public void loadFile(File file){
         try {
+//            if(mMediaPlayer.isPlaying()){
+//                mMediaPlayer.pause();
+//            }
+//            mMediaPlayer.stop();
+            switchPlayPauseButton(false);
+            mMediaPlayer.reset();
             mMediaPlayer.setDataSource(file.getCanonicalPath());
             mMediaPlayer.prepare();
             int duration = mMediaPlayer.getDuration();
