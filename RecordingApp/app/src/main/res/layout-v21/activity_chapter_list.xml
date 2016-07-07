@@ -13,11 +13,13 @@
         android:layout_height="@dimen/abc_action_bar_default_height_material"
         app:theme="@style/TR.Toolbar"
         app:popupTheme="@style/TR.Popup"
+        android:elevation="4dp"
         />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <LinearLayout
             android:id="@+id/chapter_list_layout"
@@ -25,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:weightSum="100"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            >
 
             <LinearLayout
                 android:orientation="vertical"
@@ -44,8 +47,9 @@
                     />
 
             </LinearLayout>
-        </LinearLayout>
-    </RelativeLayout>
 
+        </LinearLayout>
+
+    </RelativeLayout>
 
 </LinearLayout>
