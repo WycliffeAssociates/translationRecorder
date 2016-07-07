@@ -136,6 +136,7 @@
                     android:layout_marginBottom="@dimen/default_padding_m"
                     card_view:cardCornerRadius="@dimen/default_padding_xxs"
                     card_view:cardBackgroundColor="@color/card_bg"
+                    android:id="@+id/recent_project"
                     >
 
                     <include

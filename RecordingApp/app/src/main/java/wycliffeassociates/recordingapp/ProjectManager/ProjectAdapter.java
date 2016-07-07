@@ -122,7 +122,7 @@ public class ProjectAdapter extends ArrayAdapter {
         TextView bookView = (TextView) projectCard.findViewById(R.id.book_text_view);
         ImageButton info = (ImageButton) projectCard.findViewById(R.id.info_button);
         ImageButton record = (ImageButton) projectCard.findViewById(R.id.record_button);
-        LinearLayout textLayout = (LinearLayout) projectCard.findViewById(R.id.text_layout);
+        LinearLayout textLayout = (LinearLayout) projectCard.findViewById(R.id.text_layout);;
         initializeProjectCard(ctx, project, db, languageView, bookView, info, record, textLayout);
     }
 }
