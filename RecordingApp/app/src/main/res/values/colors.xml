@@ -41,6 +41,7 @@
 
     <color name="pure_white">#ffffff</color>
     <color name="off_white">#F3F3F3</color>
+    <color name="light_gray_0">#CCCCCC</color>
     <color name="gray_0">#999999</color>
     <color name="dark_gray_1">#5F5F5F</color>
     <color name="dark_gray_0">#3C3635</color>

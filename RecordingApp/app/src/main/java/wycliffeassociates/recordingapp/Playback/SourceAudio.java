@@ -89,7 +89,7 @@ public class SourceAudio extends LinearLayout {
         String book = sp.getString(Settings.KEY_PREF_BOOK, "");
         String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
         String srcLoc = sp.getString(Settings.KEY_PREF_SRC_LOC, null);
-        if(srcLoc == null){
+        if(srcLoc == null || srcLoc.compareTo("") == 0){
             return null;
         }
         Uri uri = Uri.parse(srcLoc);

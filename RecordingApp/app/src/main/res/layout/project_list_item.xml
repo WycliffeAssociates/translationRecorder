@@ -11,12 +11,14 @@
     >
 
     <LinearLayout
+        android:id="@+id/text_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:clickable="true"
         android:weightSum="100"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        >
 
         <TextView
             android:id="@+id/language_text_view"
@@ -47,7 +49,7 @@
             android:id="@+id/progress_pie"
             android:layout_width="42dp"
             android:layout_height="42dp"
-            android:src="@drawable/ic_action_create"
+            android:src="@drawable/empty_progress"
             android:minWidth="48dp"
             android:layout_weight="0" />
 
@@ -59,6 +61,7 @@
             android:weightSum="30"
             android:gravity="right">
 
+
             <ImageButton
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -66,7 +69,8 @@
                 android:src="@drawable/ic_information_grey600_36dp"
                 android:clickable="true"
                 android:id="@+id/info_button"
-                android:background="@color/transparent" />
+                android:background="@color/transparent"
+                />
 
             <ImageButton
                 android:layout_width="0dp"
@@ -75,7 +79,8 @@
                 android:src="@drawable/ic_microphone_grey600_36dp"
                 android:clickable="true"
                 android:id="@+id/record_button"
-                android:background="@color/transparent" />
+                android:background="@color/transparent"
+                />
 
         </LinearLayout>
 

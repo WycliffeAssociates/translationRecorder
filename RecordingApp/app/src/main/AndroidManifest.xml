@@ -62,6 +62,8 @@
         <activity android:name="com.door43.login.LoginDoor43Activity" />
         <activity android:name="com.door43.login.legal.LegalDocumentActivity" />
         <activity android:name=".ProjectManager.ActivityProjectManager" />
+        <activity android:name=".ProjectManager.ActivityChapterList" />
+        <activity android:name=".ProjectManager.ActivityVerseList" />
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />

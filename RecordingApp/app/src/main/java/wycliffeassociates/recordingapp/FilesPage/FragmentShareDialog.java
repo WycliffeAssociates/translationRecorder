@@ -70,20 +70,20 @@ public class FragmentShareDialog extends DialogFragment implements View.OnClickL
             //sd and dir should fall through, they both use FolderExport
             case R.id.share_sd_card:
             case R.id.share_dir:
-                exp = new FolderExport(mFileItemList, mAdapter, mCurrentDir);
+                //exp = new FolderExport(mFileItemList, mAdapter, mCurrentDir);
                 break;
             case R.id.share_amazon:
-                exp = new S3Export(mFileItemList, mAdapter, mCurrentDir);
+                //exp = new S3Export(mFileItemList, mAdapter, mCurrentDir);
                 break;
             case R.id.share_app:
-                exp = new AppExport(mFileItemList, mAdapter, mCurrentDir);
+                //exp = new AppExport(mFileItemList, mAdapter, mCurrentDir);
                 break;
             default:
                 Toast.makeText(getActivity(), "Feature Coming Soon", Toast.LENGTH_LONG).show();
                 return;
         }
         //callback using the selected exporter
-        mExportDelegator.delegateExport(exp);
+        //mExportDelegator.delegateExport(exp);
         this.dismiss();
     }
 

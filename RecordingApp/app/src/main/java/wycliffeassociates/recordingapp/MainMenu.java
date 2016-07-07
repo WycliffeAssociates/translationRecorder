@@ -15,6 +15,7 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
 
@@ -23,13 +24,12 @@ import java.io.IOException;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.ProjectManager.ActivityProjectManager;
-import wycliffeassociates.recordingapp.ProjectManager.DatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.BugReportDialog;
 import wycliffeassociates.recordingapp.Reporting.GithubReporter;
 import wycliffeassociates.recordingapp.Reporting.GlobalExceptionHandler;
 import wycliffeassociates.recordingapp.Reporting.Logger;
-import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
@@ -70,20 +70,21 @@ public class MainMenu extends Activity{
         System.out.println("External files dir is " + Environment.getExternalStorageDirectory());
 
         initApp();
+    }
 
-        DatabaseHelper db = new DatabaseHelper(this);
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         mNumProjects = db.getNumProjects();
 
         btnRecord = (RelativeLayout) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( pref.getString("resume", "").compareTo("") == 0 ) {
-                    if (mNumProjects <= 0) {
-                        setupNewProject();
-                    } else {
-                        promptProjectList();
-                    }
+                if (mNumProjects <= 0 || emptyPreferences()) {
+                    setupNewProject();
                 } else {
                     startRecordingScreen();
                 }
@@ -100,6 +101,14 @@ public class MainMenu extends Activity{
             }
         });
 
+        initViews();
+    }
+
+    private boolean emptyPreferences(){
+        if(pref.getString(Settings.KEY_PREF_LANG,"").compareTo("") == 0){
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -125,7 +134,7 @@ public class MainMenu extends Activity{
     }
 
     private void promptProjectList(){
-        final DatabaseHelper db = new DatabaseHelper(this);
+        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
         final CharSequence[] items = getProjectList(projects);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -147,11 +156,11 @@ public class MainMenu extends Activity{
     }
 
     private void promptDeleteProject(final Project p){
-        final DatabaseHelper db = new DatabaseHelper(this);
+        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final CharSequence[] items = new CharSequence[]{"Continue Project", "Delete Project"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Continue " + p.getTargetLang() + " " + p.getSlug() + "?");
+        builder.setTitle("Continue " + p.getTargetLanguage() + " " + p.getSlug() + "?");
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
@@ -177,7 +186,7 @@ public class MainMenu extends Activity{
         list[0] = "New Project";
         for(int i = 1; i <= projects.size(); i++){
             Project p = projects.get(i-1);
-            CharSequence c = (p.getProject().compareTo("obs") != 0)? p.getTargetLang() + ": " + p.getSlug() : p.getTargetLang() + ": " + "Open Bible Stories";
+            CharSequence c = (p.getProject().compareTo("obs") != 0)? p.getTargetLanguage() + ": " + p.getSlug() : p.getTargetLanguage() + ": " + "Open Bible Stories";
             list[i] = c;
         }
         for(CharSequence c : list){
@@ -187,7 +196,7 @@ public class MainMenu extends Activity{
     }
 
     private void addProjectToDatabase(Project project){
-        DatabaseHelper db = new DatabaseHelper(this);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.addProject(project);
     }
 
@@ -196,11 +205,11 @@ public class MainMenu extends Activity{
 
         pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
         pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLang()).commit();
+        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
         pref.edit().putString(Settings.KEY_PREF_SOURCE, project.getSource()).commit();
         pref.edit().putString(Settings.KEY_PREF_PROJECT, project.getProject()).commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSrcLang()).commit();
+        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
 
         //FIXME: find the last place worked on?
         pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
@@ -262,6 +271,23 @@ public class MainMenu extends Activity{
                 traceFile.renameTo(move);
             }
         }
+    }
+
+    private void initViews(){
+        ConstantsDatabaseHelper db = new ConstantsDatabaseHelper(this);
+        TextView languageView = (TextView) findViewById(R.id.language_view);
+        String language = pref.getString(Settings.KEY_PREF_LANG, "");
+        if(language.compareTo("") != 0){
+            language = db.getLanguageName(language);
+        }
+        languageView.setText(language);
+
+        TextView bookView = (TextView) findViewById(R.id.book_view);
+        String book = pref.getString(Settings.KEY_PREF_BOOK, "");
+        if(book.compareTo("") != 0){
+            book = db.getBookName(book);
+        }
+        bookView.setText(book);
     }
 
     private void initApp(){

@@ -5,9 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.project.Book;
+import wycliffeassociates.recordingapp.project.Language;
+import wycliffeassociates.recordingapp.project.ParseJSON;
+
 import com.door43.login.ProfileActivity;
 import com.door43.login.TermsOfUseActivity;
 import com.door43.login.core.Profile;
+
+import org.json.JSONException;
 
 /**
  * Created by sarabiaj on 5/5/2016.
@@ -16,6 +22,32 @@ public class SplashScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Thread initDb = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initDatabase();
+            }
+        });
+        initDb.start();
+    }
+
+    private void initDatabase(){
+        ConstantsDatabaseHelper db = new ConstantsDatabaseHelper(this);
+        ParseJSON parse = new ParseJSON(this);
+        try {
+            Book[] books = parse.pullBooks();
+            Language[] languages = parse.pullLangNames();
+            for(Book book : books){
+                db.addBook(book);
+            }
+            for(Language language : languages){
+                db.addLanguage(language);
+            }
+            System.out.println("Proof: en is " + db.getLanguageName("en"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

@@ -1,6 +1,5 @@
 package wycliffeassociates.recordingapp.Recording;
 
-import android.app.ProgressDialog;
 import android.media.AudioFormat;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -18,11 +17,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
@@ -468,7 +465,7 @@ public class WavFile implements Parcelable{
 
         public Metadata(Project p, String chapter, String startVerse, String endVerse){
             mProject = p.getProject();
-            mLanguage = p.getTargetLang();
+            mLanguage = p.getTargetLanguage();
             mSource = p.getSource();
             mSlug = p.getSlug();
             mBookNumber = p.getBookNumber();

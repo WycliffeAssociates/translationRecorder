@@ -71,6 +71,7 @@ public class Settings extends Activity {
     public static final String KEY_PREF_SRC_LOC = "pref_src_loc";
     public static final String KEY_SDK_LEVEL = "pref_sdk_level";
     public static final String KEY_PROFILE = "pref_profile";
+    public static final String KEY_PACKAGE = "pref_package";
     public static final String KEY_TERMS_ACCEPTED = "pref_terms_accepted";
 
     MyAutoCompleteTextView setLangCode,setBookCode;

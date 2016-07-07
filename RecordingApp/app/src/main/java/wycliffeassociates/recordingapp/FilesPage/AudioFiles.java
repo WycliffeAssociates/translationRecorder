@@ -51,9 +51,9 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
+    private final String STATE_PROGRESS = "upload_progress";
     private static final String TOP_LIST_ITEM = "top_list_item";
     private static final String TOP_LIST_ITEM_OFFSET = "top_list_item_offset";
-    private final String STATE_PROGRESS = "upload_progress";
     private boolean checkAll = true;
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
