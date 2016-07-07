@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -19,10 +18,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
-import wycliffeassociates.recordingapp.FilesPage.FragmentShareDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -46,7 +44,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
-    FloatingActionButton mAddProject;
+    ImageView mAddProject;
     ListView mProjectList;
     SharedPreferences pref;
     ListAdapter mAdapter;
@@ -68,9 +66,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_management);
+
         Toolbar mToolbar = (Toolbar) findViewById(R.id.project_management_toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("Project Management");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Project Management");
+        }
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         mCtx = this;
@@ -140,7 +141,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private void initializeViews(){
         mProjectLayout = (LinearLayout) findViewById(R.id.project_list_layout);
         mNewProjectButton = (Button) findViewById(R.id.new_project_button);
-        mAddProject = (FloatingActionButton) findViewById(R.id.new_project_fab);
+        mAddProject = (ImageView) findViewById(R.id.new_project_fab);
         mProjectList = (ListView) findViewById(R.id.project_list);
 
         mAddProject.setOnClickListener(btnClick);
@@ -206,8 +207,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         mAdapter = new ProjectAdapter(this, projects);
 
         mProjectList.setAdapter(mAdapter);
-//        mProjectList.setDividerHeight(0);
-//        mProjectList.setDivider(null);
     }
 
     //sets the profile in the preferences to "" then returns to the splash screen

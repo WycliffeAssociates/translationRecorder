@@ -13,6 +13,7 @@
         android:layout_height="@dimen/abc_action_bar_default_height_material"
         app:theme="@style/TR.Toolbar"
         app:popupTheme="@style/TR.Popup"
+        android:elevation="@dimen/appbar_elevation"
         />
 
     <RelativeLayout
@@ -20,7 +21,7 @@
         android:layout_height="match_parent"
         >
 
-        <com.github.clans.fab.FloatingActionButton
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/new_project_fab"
             android:layout_width="@dimen/abc_action_button_min_width_material"
             android:layout_height="@dimen/abc_action_button_min_height_material"
@@ -29,9 +30,7 @@
             android:layout_marginBottom="@dimen/default_padding_m"
             android:layout_marginEnd="@dimen/default_padding_m"
             android:src="@drawable/ic_action_create_light"
-            app:fab_colorNormal="@color/accent"
-            app:fab_colorPressed="@color/accent_dark"
-            app:fab_colorRipple="@color/white"
+            app:backgroundTint="@color/secondary"
             />
 
         <Button
@@ -143,7 +142,7 @@
                         layout="@layout/project_list_item"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/recent_project" />
+                        />
 
                 </android.support.v7.widget.CardView>
 

@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
     <item
         android:id="@+id/action_more"
         android:icon="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
         android:orderInCategory="1"
         app:showAsAction="always"
-        android:title="More">
+        android:title="More"
+        >
+
         <menu>
+
             <item
                 android:id="@+id/action_settings"
                 android:title="Settings"
@@ -15,6 +21,7 @@
                 android:orderInCategory="100"
                 app:showAsAction="never"
                 />
+
             <item
                 android:id="@+id/action_logout"
                 android:title="Logout"
@@ -22,7 +29,9 @@
                 android:orderInCategory="200"
                 app:showAsAction="never"
                 />
+
         </menu>
+
     </item>
 
 </menu>
