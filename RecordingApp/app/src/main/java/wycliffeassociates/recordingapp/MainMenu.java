@@ -347,6 +347,7 @@ public class MainMenu extends Activity{
             FileNameExtractor fne = new FileNameExtractor(v);
             boolean found = false;
             String path =  rootPath + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
+            String name = fne.getNameWithoutTake() + "_t" + String.format("%02d", fne.getTake()) + ".wav";
             File searchName = new File(path, name);
             if(searchName != null && searchName.exists()) {
                 //check if the names match up; exclude the path to get to them or the file extention
