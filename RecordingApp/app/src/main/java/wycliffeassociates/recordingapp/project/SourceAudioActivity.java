@@ -30,6 +30,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     private boolean mSetLanguage = false;
     private final int REQUEST_SOURCE_LOCATION = 42;
     private final int REQUEST_SOURCE_LANGUAGE = 43;
+    private int mCurrentFragment;
     private Searchable mFragment;
     private FragmentManager mFragmentManager;
     protected String mSearchText;
@@ -58,6 +59,13 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
 //        // status bar is hidden, so hide that too if necessary.
 //        ActionBar actionBar = getActionBar();
 //        actionBar.hide();
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("New Project - Source Audio");
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     @Override
@@ -103,6 +111,17 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
             searchViewAction.setQuery(mSearchText, true);
         }
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public void setSourceLanguage(){

@@ -44,6 +44,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     public static final int MODE = BASE_PROJECT+4;
     public static final int SOURCE_LANGUAGE = BASE_PROJECT+5;
     private int mCurrentFragment = BASE_PROJECT;
+    private int mLastFragment = mCurrentFragment;
 
     private static final int SOURCE_AUDIO_REQUEST = 42;
 
@@ -114,7 +115,8 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             setResult(RESULT_OK, intent);
             finish();
         } else if (resultCode == RESULT_CANCELED){
-            finish();
+            mCurrentFragment = mLastFragment;
+            this.displayFragment();
         }
     }
 
@@ -122,6 +124,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     public void onItemClick(Object result) {
         if (mCurrentFragment == TARGET_LANGUAGE && result instanceof Language) {
             ((Project)mProject).setTargetLanguage(((Language)result).getCode());
+            mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == PROJECT && result instanceof String){
@@ -134,12 +137,14 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 project = "obs";
             }
             ((Project)mProject).setProject(project);
+            mLastFragment = mCurrentFragment;
             mCurrentFragment = project.compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
             this.displayFragment();
         } else if (mCurrentFragment == BOOK && result instanceof Book){
             Book book = (Book)result;
             mProject.setBookNumber(book.getOrder());
             mProject.setSlug(book.getSlug());
+            mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == SOURCE_TEXT && result instanceof String){
@@ -152,10 +157,12 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 source = "reg";
             }
             ((Project)mProject).setSource((String)source);
+            mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == MODE && result instanceof String){
             ((Project)mProject).setMode(((String) result).toLowerCase());
+            mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
         }
