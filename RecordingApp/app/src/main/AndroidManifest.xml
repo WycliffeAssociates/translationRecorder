@@ -46,7 +46,7 @@
 
         <activity android:name=".project.SourceAudioActivity" />
         <activity android:name=".project.ProjectWizardActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
+            android:theme="@style/TR" />
 
 
         <activity android:name=".FilesPage.ExportFiles" />
