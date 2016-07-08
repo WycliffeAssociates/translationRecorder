@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -51,11 +52,17 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         super.onCreate(savedInstanceState);
         mFragmentManager = getFragmentManager();
 
-        mFragment = new ScrollableListFragment.Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(this), this)).setSearchHint("Choose Target Language:").build();
-        mFragmentManager.beginTransaction().add(R.id.fragment_container,mFragment).commit();
+        this.displayFragment();
         mProject = new Project();
 
         setContentView(R.layout.activity_scrollable_list);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("New Project");
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     @Override
@@ -113,15 +120,13 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
 
     @Override
     public void onItemClick(Object result) {
-        if(result instanceof Language && mCurrentFragment == TARGET_LANGUAGE){
+        if (mCurrentFragment == TARGET_LANGUAGE && result instanceof Language) {
             ((Project)mProject).setTargetLanguage(((Language)result).getCode());
-            mFragmentManager.beginTransaction().remove(mFragment).commit();
-            mFragment = new ScrollableListFragment.Builder(new ProjectCategoryAdapter(new String[]{"Bible: OT", "Bible: NT", "Open Bible Stories"}, this)).setSearchHint("Choose a Project").build();
-            mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
             mCurrentFragment++;
-        } else if (result instanceof String && mCurrentFragment == PROJECT){
+            this.displayFragment();
+        } else if (mCurrentFragment == PROJECT && result instanceof String){
             String project = "";
-            if(((String)result).compareTo("Bible: OT") == 0){
+            if (((String)result).compareTo("Bible: OT") == 0) {
                 project = "ot";
             } else if (((String)result).compareTo("Bible: NT") == 0){
                 project = "nt";
@@ -129,25 +134,15 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 project = "obs";
             }
             ((Project)mProject).setProject(project);
-            mFragmentManager.beginTransaction().remove(mFragment).commit();
-            if(project.compareTo("obs") == 0){
-                mCurrentFragment = SOURCE_LANGUAGE;
-                Intent intent = new Intent(this, SourceAudioActivity.class);
-                intent.putExtra(Project.PROJECT_EXTRA, mProject);
-                startActivityForResult(intent, SOURCE_AUDIO_REQUEST);
-            }
-            mFragment = new ScrollableListFragment.Builder(new TargetBookAdapter(ParseJSON.getBooks(this, project), this)).setSearchHint("Choose a Book").build();
-            mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
-            mCurrentFragment++;
-        } else if (result instanceof Book  && mCurrentFragment == BOOK){
+            mCurrentFragment = project.compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
+            this.displayFragment();
+        } else if (mCurrentFragment == BOOK && result instanceof Book){
             Book book = (Book)result;
             mProject.setBookNumber(book.getOrder());
             mProject.setSlug(book.getSlug());
-            mFragmentManager.beginTransaction().remove(mFragment).commit();
-            mFragment = new ScrollableListFragment.Builder(new ProjectCategoryAdapter(new String[]{"Unlocked Literal Bible", "Unlocked Dynamic Bible", "Regular"}, this)).setSearchHint("Choose Translation Type").build();
-            mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
             mCurrentFragment++;
-        } else if (result instanceof String && mCurrentFragment == SOURCE_TEXT){
+            this.displayFragment();
+        } else if (mCurrentFragment == SOURCE_TEXT && result instanceof String){
             String source = "";
             if(((String)result).compareTo("Unlocked Literal Bible") == 0){
                 source = "ulb";
@@ -157,17 +152,80 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 source = "reg";
             }
             ((Project)mProject).setSource((String)source);
-            mFragmentManager.beginTransaction().remove(mFragment).commit();
-            mFragment = new ScrollableListFragment.Builder(new ModeCategoryAdapter(new String[]{"Verse", "Chunk"}, this)).setSearchHint("Choose a Mode").build();
-            mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
             mCurrentFragment++;
-        } else if ( result instanceof  String && mCurrentFragment == MODE){
+            this.displayFragment();
+        } else if (mCurrentFragment == MODE && result instanceof String){
             ((Project)mProject).setMode(((String) result).toLowerCase());
+            mCurrentFragment++;
+            this.displayFragment();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (mCurrentFragment > TARGET_LANGUAGE) {
+                    mCurrentFragment--;
+                    this.displayFragment();
+                } else {
+                    this.finish();
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void displayFragment() {
+        // Remove old fragment, if there's any
+        if (mFragment != null) {
             mFragmentManager.beginTransaction().remove(mFragment).commit();
+        }
+        // Build a new fragment based on the current step
+        switch (mCurrentFragment) {
+            case TARGET_LANGUAGE:
+                mFragment = new ScrollableListFragment
+                        .Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(this), this))
+                        .setSearchHint("Choose Target Language:")
+                        .build();
+                break;
+            case PROJECT:
+                mFragment = new ScrollableListFragment
+                        .Builder(new ProjectCategoryAdapter(new String[]{"Bible: OT", "Bible: NT", "Open Bible Stories"}, this))
+                        .setSearchHint("Choose a Project")
+                        .build();
+                break;
+            case BOOK:
+                mFragment = new ScrollableListFragment
+                        .Builder(new TargetBookAdapter(ParseJSON.getBooks(this, mProject.getProject()), this))
+                        .setSearchHint("Choose a Book")
+                        .build();
+                break;
+            case SOURCE_TEXT:
+                mFragment = new ScrollableListFragment
+                        .Builder(new ProjectCategoryAdapter(new String[]{"Unlocked Literal Bible", "Unlocked Dynamic Bible", "Regular"}, this))
+                        .setSearchHint("Choose Translation Type")
+                        .build();
+                break;
+            case MODE:
+                mFragment = new ScrollableListFragment
+                        .Builder(new ModeCategoryAdapter(new String[]{"Verse", "Chunk"}, this))
+                        .setSearchHint("Choose a Mode")
+                        .build();
+                break;
+            default:
+                mFragment = null;
+                break;
+        }
+        if (mFragment != null) {
+            // Display fragment if a new one is built
+            mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment).commit();
+        } else {
+            // Route to SourceAudioActivity if there's no new fragment
             Intent intent = new Intent(this, SourceAudioActivity.class);
             intent.putExtra(Project.PROJECT_EXTRA, mProject);
             startActivityForResult(intent, SOURCE_AUDIO_REQUEST);
         }
     }
-
 }
