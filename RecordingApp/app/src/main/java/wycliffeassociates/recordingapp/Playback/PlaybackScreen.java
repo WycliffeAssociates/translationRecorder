@@ -87,6 +87,7 @@ public class PlaybackScreen extends Activity{
         recordedFilename = getIntent().getStringExtra("recordedFilename");
         if(getIntent().hasExtra("wavfile")){
             mWavFile = getIntent().getParcelableExtra("wavfile");
+            recordedFilename = mWavFile.getFile().getName();
         } else {
             mWavFile = new WavFile(new File(recordedFilename));
         }

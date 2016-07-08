@@ -172,7 +172,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
     public void onResume(){
         super.onResume();
         // Cleanup any leftover visualization files
-        removeUnusedVisualizationFiles(currentDir);
+        removeUnusedVisualizationFiles();
 
         //get files in the directory
         File f = new File(currentDir);
@@ -427,21 +427,24 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
         hideFragment(R.id.file_actions);
     }
 
-    private void removeUnusedVisualizationFiles(String filesDir){
-        File visFilesLocation = new File(AudioInfo.pathToVisFile);
+    private void removeUnusedVisualizationFiles(){
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File visFilesLocation = new File(root, "Visualization");
         File[] visFiles = visFilesLocation.listFiles();
         if(visFiles == null){
             return;
         }
+        String rootPath = root.getAbsolutePath();
         for(File v : visFiles){
             FileNameExtractor fne = new FileNameExtractor(v);
             boolean found = false;
-            String path = pref.getString("root_directory", "") + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
+            String path =  rootPath + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
             String name = fne.getLang() + "_" + fne.getSource() + "_" + fne.getBook() + "_" + String.format("%02d", fne.getChapter()) + "-" + String.format("%02d", fne.getChunk()) + "_" + String.format("%02d", fne.getTake()) + ".wav";
             File searchName = new File(path, name);
             if(searchName != null && searchName.exists()) {
                 //check if the names match up; exclude the path to get to them or the file extention
                 if (extractFilename(searchName).equals(extractFilename(v))) {
+                    System.out.println("Kept " + v.getName());
                     continue;
                 }
             }
@@ -535,7 +538,7 @@ public class AudioFiles extends Activity implements FragmentShareDialog.ExportDe
                 }
             }
         }
-        removeUnusedVisualizationFiles(currentDir);
+        removeUnusedVisualizationFiles();
     }
 
     private ArrayList<FileItem> sortAudioItem(ArrayList<FileItem> nList, int sort) {

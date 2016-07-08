@@ -132,6 +132,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                 logout();
                 return true;
             case R.id.action_settings:
+                Intent intent = new Intent(this, Settings.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

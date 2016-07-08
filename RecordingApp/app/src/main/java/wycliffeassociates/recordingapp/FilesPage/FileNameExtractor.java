@@ -95,7 +95,7 @@ public class FileNameExtractor {
         Pattern p = Pattern.compile(FILENAME_PATTERN);
         Matcher m = p.matcher(file);
         boolean found = m.find();
-        System.out.println("file is " + file + "\npattern is " + p.pattern());
+        //System.out.println("file is " + file + "\npattern is " + p.pattern());
         //m.group starts with the pattern, so the first group is at 1
         if(found){
             mLang = m.group(1);

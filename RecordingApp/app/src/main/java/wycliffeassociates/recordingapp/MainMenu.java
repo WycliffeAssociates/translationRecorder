@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.ActivityProjectManager;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -330,7 +331,48 @@ public class MainMenu extends Activity{
             brd.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             brd.show(fm, "Bug Report Dialog");
         }
+
+        removeUnusedVisualizationFiles();
     }
+
+    private void removeUnusedVisualizationFiles(){
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File visFilesLocation = new File(root, "Visualization");
+        File[] visFiles = visFilesLocation.listFiles();
+        if(visFiles == null){
+            return;
+        }
+        String rootPath = root.getAbsolutePath();
+        for(File v : visFiles){
+            FileNameExtractor fne = new FileNameExtractor(v);
+            boolean found = false;
+            String path =  rootPath + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
+            File searchName = new File(path, name);
+            if(searchName != null && searchName.exists()) {
+                //check if the names match up; exclude the path to get to them or the file extention
+                if (extractFilename(searchName).equals(extractFilename(v))) {
+                    continue;
+                }
+            }
+            if(!found){
+                System.out.println("Removing " + v.getName());
+                v.delete();
+            }
+        }
+    }
+
+    private String extractFilename(File a){
+        if(a.isDirectory()){
+            return "";
+        }
+        String nameWithExtention = a.getName();
+        if(nameWithExtention.lastIndexOf('.') < 0 || nameWithExtention.lastIndexOf('.') > nameWithExtention.length()){
+            return "";
+        }
+        String filename = nameWithExtention.substring(0, nameWithExtention.lastIndexOf('.'));
+        return filename;
+    }
+
 
     public void configureLogger(int minLogLevel, File logDir) {
         File logFile = new File(logDir, "log.txt");

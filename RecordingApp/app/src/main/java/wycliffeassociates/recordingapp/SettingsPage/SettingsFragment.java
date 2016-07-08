@@ -75,36 +75,6 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
             System.out.println("UPDATING SUMMARY FOR: " + k);
             updateSummaryText(sharedPref, k);
         }
-
-
-        Preference button = (Preference)findPreference(Settings.KEY_PROFILE);
-        try {
-            button.setSummary("Logged in as: " +Profile.fromJSON(new JSONObject(sharedPref.getString(Settings.KEY_PROFILE, ""))).getFullName());
-        } catch (Exception e) {
-            button.setSummary("");
-        }
-        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putString(Settings.KEY_PROFILE, "").commit();
-                ((Activity) context).finishAffinity();
-                Intent intent = new Intent(context, SplashScreen.class);
-                startActivity(intent);
-                return true;
-            }
-        });
-
-        Preference releaseButton = (Preference)findPreference("resume");
-        releaseButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putString("resume", "").commit();
-                ((Activity) context).finishAffinity();
-                Intent intent = new Intent(context, SplashScreen.class);
-                startActivity(intent);
-                return true;
-            }
-        });
     }
 
     @Override

@@ -122,14 +122,12 @@ public class Settings extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.settings);
+        setContentView(R.layout.settings);
         PreferenceManager.setDefaultValues(this, R.xml.preference, false);
     }
 
     public void onBackPressed(View v) {
-        Intent intent = new Intent(Settings.this, MainMenu.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        finish();
     }
 
 
