@@ -33,7 +33,8 @@
         <activity android:name=".MainMenu" />
         <activity android:name=".FilesPage.AudioFiles" />
         <activity android:name=".SettingsPage.Settings"
-            android:windowSoftInputMode="stateUnchanged"/>
+            android:windowSoftInputMode="stateUnchanged"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
 
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
 
@@ -44,7 +45,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".project.SourceAudioActivity" />
+        <activity android:name=".project.SourceAudioActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
         <activity android:name=".project.ProjectWizardActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
 

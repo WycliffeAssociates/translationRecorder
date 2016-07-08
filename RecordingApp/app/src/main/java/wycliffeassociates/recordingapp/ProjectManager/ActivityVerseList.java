@@ -19,7 +19,7 @@ import wycliffeassociates.recordingapp.project.Chunks;
  */
 public class ActivityVerseList extends AppCompatActivity {
 
-
+    String mChapter;
     Project mProject;
     ConstantsDatabaseHelper mDb;
 
@@ -29,7 +29,8 @@ public class ActivityVerseList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
-        String chapter = getIntent().getStringExtra(Settings.KEY_PREF_CHAPTER);
+        mChapter = getIntent().getStringExtra(Settings.KEY_PREF_CHAPTER);
+
         mDb = new ConstantsDatabaseHelper(this);
 
         String languageCode = mProject.getTargetLanguage();
@@ -40,14 +41,18 @@ public class ActivityVerseList extends AppCompatActivity {
         setContentView(R.layout.activity_verse_list);
         Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(language + " - " + book + " - Chapter " + chapter);
+        getSupportActionBar().setTitle(language + " - " + book + " - Chapter " + mChapter);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         try {
             Chunks chunks = new Chunks(this, mProject.getSlug());
             ListView chapterList = (ListView)findViewById(R.id.chapter_list);
-            chapterList.setAdapter(new VerseAdapter(this, mProject, chunks, Integer.parseInt(chapter)));
+            chapterList.setAdapter(new VerseAdapter(this, mProject, chunks, Integer.parseInt(mChapter)));
         } catch (IOException e) {
             e.printStackTrace();
         }

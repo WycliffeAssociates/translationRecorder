@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.widgets;
 
 import android.media.MediaPlayer;
 import android.media.TimedText;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
@@ -22,6 +23,7 @@ public class AudioPlayer {
     TextView mProgress, mDuration;
     ImageButton mPlay, mPause;
     SeekBar mSeekBar;
+    private Handler mHandler;
 
     public AudioPlayer(TextView progress, TextView duration, ImageButton play, ImageButton pause, SeekBar seek){
         mProgress = progress;
@@ -54,7 +56,10 @@ public class AudioPlayer {
             mMediaPlayer.prepare();
             int duration = mMediaPlayer.getDuration();
             mSeekBar.setMax(duration);
+            mSeekBar.setProgress(0);
+
             final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
+            mProgress.setText("00:00:00");
             mDuration.setText(time);
             mDuration.invalidate();
             mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -102,6 +107,27 @@ public class AudioPlayer {
             try {
                 mMediaPlayer.start();
                 switchPlayPauseButton(true);
+
+                mHandler = new Handler();
+                mSeekBar.setProgress(0);
+                System.out.println(mSeekBar.getProgress());
+                mSeekBar.invalidate();
+                Runnable loop = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMediaPlayer != null) {
+                            int mCurrentPosition = mMediaPlayer.getCurrentPosition();
+                            if (mCurrentPosition > mSeekBar.getProgress()) {
+                                mSeekBar.setProgress(mCurrentPosition);
+                                final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
+                                mProgress.setText(time);
+                                mProgress.invalidate();
+                            }
+                        }
+                        mHandler.postDelayed(this, 200);
+                    }
+                };
+                loop.run();
             } catch (IllegalStateException e){
 
             }

@@ -41,7 +41,11 @@ public class ActivityChapterList extends AppCompatActivity {
         getSupportActionBar().setTitle(language + " - " + book);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         try {
             Chunks chunks = new Chunks(this, mProject.getSlug());
             ListView chapterList = (ListView)findViewById(R.id.chapter_list);

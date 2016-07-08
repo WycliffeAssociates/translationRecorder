@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -33,6 +34,7 @@ public class VerseCard extends FrameLayout {
     ImageButton mPlay, mPause;
     AudioPlayer mAudioPlayer;
     int mTakeIndex = 0;
+    Handler mHandler;
 
     public VerseCard(Context context) {
         this(context, null);
@@ -63,11 +65,22 @@ public class VerseCard extends FrameLayout {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), PlaybackScreen.class);
-                WavFile wavFile = new WavFile(mFiles.get(mTakeIndex));
+                WavFile wavFile = new WavFile(mFiles.get(mFiles.size()-1));
                 intent.putExtra("wavfile", wavFile);
                 intent.putExtra("loadfile", true);
                 v.getContext().startActivity(intent);
 
+            }
+        });
+
+        findViewById(R.id.edit_take_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), PlaybackScreen.class);
+                WavFile wavFile = new WavFile(mFiles.get(mTakeIndex));
+                intent.putExtra("wavfile", wavFile);
+                intent.putExtra("loadfile", true);
+                v.getContext().startActivity(intent);
             }
         });
 
