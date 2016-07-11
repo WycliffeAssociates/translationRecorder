@@ -61,7 +61,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
 //        actionBar.hide();
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("New Project - Source Audio");
+            getSupportActionBar().setTitle("Source Audio");
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
