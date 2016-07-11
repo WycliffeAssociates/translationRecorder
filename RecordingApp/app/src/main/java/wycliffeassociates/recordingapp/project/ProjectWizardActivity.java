@@ -44,7 +44,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     public static final int MODE = BASE_PROJECT+4;
     public static final int SOURCE_LANGUAGE = BASE_PROJECT+5;
     private int mCurrentFragment = BASE_PROJECT;
-    private int mLastFragment = mCurrentFragment;
+    private int mLastFragment;
 
     private static final int SOURCE_AUDIO_REQUEST = 42;
 
@@ -124,7 +124,6 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     public void onItemClick(Object result) {
         if (mCurrentFragment == TARGET_LANGUAGE && result instanceof Language) {
             ((Project)mProject).setTargetLanguage(((Language)result).getCode());
-            mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == PROJECT && result instanceof String){
@@ -144,7 +143,6 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             Book book = (Book)result;
             mProject.setBookNumber(book.getOrder());
             mProject.setSlug(book.getSlug());
-            mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == SOURCE_TEXT && result instanceof String){
@@ -157,7 +155,6 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 source = "reg";
             }
             ((Project)mProject).setSource((String)source);
-            mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == MODE && result instanceof String){
