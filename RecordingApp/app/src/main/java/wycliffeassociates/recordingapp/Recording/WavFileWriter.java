@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.Recording;
 
+import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,11 +23,17 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 
 public class WavFileWriter extends Service{
 
+    public static final String KEY_WAV_FILE = "wavfile";
     private String filename = null;
     private String nameWithoutExtension = null;
     private String visTempFile = "visualization.vis";
-    private Project mProject;
     public static int largest = 0;
+
+    public static Intent getIntent(Context ctx, WavFile wavFile){
+        Intent intent = new Intent(ctx, WavFileWriter.class);
+        intent.putExtra(KEY_WAV_FILE, wavFile);
+        return intent;
+    }
 
     @Override
     public void onCreate(){
@@ -34,17 +42,15 @@ public class WavFileWriter extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        final WavFile audioFile = intent.getParcelableExtra("wavfile");
-        filename = intent.getStringExtra("audioFileName");
-        mProject = intent.getParcelableExtra(Project.PROJECT_EXTRA);
-        nameWithoutExtension = filename.substring(filename.lastIndexOf("/")+1, filename.lastIndexOf("."));
+        final WavFile audioFile = intent.getParcelableExtra(KEY_WAV_FILE);
+        nameWithoutExtension = audioFile.getFile().getName().substring(0, filename.lastIndexOf("."));
         Logger.w(this.toString(),"Passed in string name " + filename);
         Thread writingThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 boolean stopped = false;
                 try {
-                    FileOutputStream rawAudio = new FileOutputStream(filename, true);
+                    FileOutputStream rawAudio = new FileOutputStream(audioFile.getFile(), true);
                     while(!stopped){
                         RecordingMessage message = RecordingQueues.writingQueue.take();
                         if(message.isStopped()){

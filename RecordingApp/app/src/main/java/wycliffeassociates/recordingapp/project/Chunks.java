@@ -62,6 +62,9 @@ public class Chunks {
                 currentChapter = chapter;
             }
         }
+        //add last
+        mChunks.add(temp);
+
         long end = System.currentTimeMillis();
         System.out.println("Total time is: " + (end-start) +"ms");
     }

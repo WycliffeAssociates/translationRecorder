@@ -3,11 +3,13 @@ package wycliffeassociates.recordingapp.FilesPage;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Environment;
 
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
@@ -67,6 +69,26 @@ public class FileNameExtractor {
             mTake = -1;
         }
     }
+
+    private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse){
+        this(project.getTargetLanguage(), project.getSource(), project.getBookNumber(), project.getSlug(), project.getProject(), chapterIntToString(project, chapter), unitIntToString(startVerse),
+                unitIntToString(endVerse), "00");
+    }
+
+    public static String chapterIntToString(Project project, int chapter){
+        String result;
+        if(project.getSlug().compareTo("psa") == 0){
+            result = String.format("%03d", chapter);
+        } else {
+            result = String.format("%02d", chapter);
+        }
+        return result;
+    }
+
+    public static String unitIntToString(int unit){
+        return String.format("%02d", unit);
+    }
+
 
     public FileNameExtractor(SharedPreferences pref){
         this(pref.getString(Settings.KEY_PREF_LANG, ""),
@@ -164,6 +186,11 @@ public class FileNameExtractor {
         return out;
     }
 
+    public static File getDirectoryFromProject(Project project, int chapter){
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        return new File(root, project.getTargetLanguage() + "/" + project.getSource() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
+    }
+
     public static File getFileFromFileName(SharedPreferences pref, File file){
         File dir = getDirectoryFromFile(pref, file);
         if(file.getName().contains(".wav")) {
@@ -227,5 +254,29 @@ public class FileNameExtractor {
             }
         }
         return maxTake;
+    }
+
+    private static int getLargestTake(File directory, String nameWithoutTake){
+        File[] files = directory.listFiles();
+        if(files == null){
+            return 0;
+        }
+        int maxTake = 0;
+        for(File f : files){
+            FileNameExtractor fne = new FileNameExtractor(f);
+            if(nameWithoutTake.compareTo((fne.getNameWithoutTake())) == 0){
+                maxTake = (maxTake < fne.getTake())? fne.getTake() : maxTake;
+            }
+        }
+        return maxTake;
+    }
+
+    public static File createFile(Project project, int chapter, int startVerse, int endVerse) {
+        FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
+        File dir = fne.getDirectoryFromProject(project, chapter);
+        String nameWithoutTake = fne.getNameWithoutTake();
+        int take = fne.getLargestTake(dir, nameWithoutTake);
+        return new File(dir, nameWithoutTake + String.format("%02d", take));
+
     }
 }

@@ -39,7 +39,7 @@ public class FragmentExitDialog extends DialogFragment implements View.OnClickLi
                 dismiss();
                 break;
             case R.id.btnDelete: {
-                rs.deleteTempFile();
+                //rs.deleteTempFile();
                 rs.finish();
                 break;
             }

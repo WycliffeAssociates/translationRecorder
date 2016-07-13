@@ -17,6 +17,8 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.amazonaws.mobileconnectors.cognito.Record;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -134,66 +136,10 @@ public class MainMenu extends Activity{
         startActivityForResult(new Intent(getBaseContext(), ProjectWizardActivity.class), PROJECT_WIZARD_REQUEST);
     }
 
-    private void promptProjectList(){
-        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        final List<Project> projects = db.getAllProjects();
-        final CharSequence[] items = getProjectList(projects);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("Continue an existing Project?");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-                if (items[item].equals("New Project")) {
-                    setupNewProject();
-                } else {
-                    promptDeleteProject(projects.get(item-1));
-//                    loadProject(projects.get(item-1));
-//                    startRecordingScreen();
-                }
-            }
-        });
-        builder.show();
-    }
-
-    private void promptDeleteProject(final Project p){
-        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        final CharSequence[] items = new CharSequence[]{"Continue Project", "Delete Project"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("Continue " + p.getTargetLanguage() + " " + p.getSlug() + "?");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-                if (items[item].equals("Continue Project")) {
-                    loadProject(p);
-                    startRecordingScreen();
-                } else {
-                    db.deleteProject(p);
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.show();
-    }
-
     private void startRecordingScreen(){
-        Intent intent = new Intent(this, RecordingScreen.class);
+        Project project = Project.getProjectFromPreferences(this);
+        Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
         startActivity(intent);
-    }
-
-    private CharSequence[] getProjectList(List<Project> projects){
-        CharSequence[] list = new CharSequence[projects.size()+1];
-        list[0] = "New Project";
-        for(int i = 1; i <= projects.size(); i++){
-            Project p = projects.get(i-1);
-            CharSequence c = (p.getProject().compareTo("obs") != 0)? p.getTargetLanguage() + ": " + p.getSlug() : p.getTargetLanguage() + ": " + "Open Bible Stories";
-            list[i] = c;
-        }
-        for(CharSequence c : list){
-            System.out.println(c);
-        }
-        return list;
     }
 
     private void addProjectToDatabase(Project project){

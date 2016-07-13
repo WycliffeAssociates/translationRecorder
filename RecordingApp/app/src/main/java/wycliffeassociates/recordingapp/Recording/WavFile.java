@@ -20,6 +20,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
