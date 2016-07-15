@@ -47,6 +47,12 @@ public class WavFile implements Parcelable{
     private int mTotalDataLength = 0;
     private int mMetadataLength = 0;
 
+    public static WavFile createNewWavFile(File file, Project project, String chapter, String startVerse, String endVerse) throws IOException {
+        WavFile wavFile = new WavFile(file);
+        wavFile.setMetadata(project, chapter, startVerse, endVerse);
+        wavFile.overwriteHeaderData();
+        return wavFile;
+    }
 
     //Files without a valid wav header will be blown away and replaced with an empty wav file
     //not sure if this is good, but should the assumption be that the alternative is a file containing
@@ -62,6 +68,8 @@ public class WavFile implements Parcelable{
                 } else {
                     rawPcmToWav();
                 }
+            } else {
+                initializeWavFile();
             }
         } catch (JSONException e){
             e.printStackTrace();
@@ -152,6 +160,7 @@ public class WavFile implements Parcelable{
             rawPcmToWav();
         } else {
             try {
+                mFile.getParentFile().mkdirs();
                 FileOutputStream fos = new FileOutputStream(mFile, false);
                 BufferedOutputStream bos = new BufferedOutputStream(fos);
                 mTotalDataLength = HEADER_SIZE - 8;
@@ -314,9 +323,9 @@ public class WavFile implements Parcelable{
     public void overwriteHeaderData(){
         try {
             //if total length is still just the header, then check the file size
-            if(mTotalDataLength == HEADER_SIZE - 8){
-                mTotalAudioLength = (int)mFile.length() - HEADER_SIZE;
-                mTotalDataLength = mTotalAudioLength + HEADER_SIZE - 8;
+            if(mTotalDataLength == (HEADER_SIZE - 8)) {
+                mTotalAudioLength = (int) mFile.length() - HEADER_SIZE - mMetadataLength;
+                mTotalDataLength = mTotalAudioLength + HEADER_SIZE - 8 + mMetadataLength;
             }
 
             RandomAccessFile fileAccessor = new RandomAccessFile(mFile, "rw");

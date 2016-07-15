@@ -91,8 +91,8 @@ public class ProjectAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 Project.loadProjectIntoPreferences(ctx, project);
-                Settings.updateFilename(ctx);
-                v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
+                //TODO: should find place left off at?
+                v.getContext().startActivity(RecordingScreen.getNewRecordingIntent(v.getContext(), project, 1, 1));
             }
         });
 

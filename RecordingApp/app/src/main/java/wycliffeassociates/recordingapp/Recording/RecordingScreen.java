@@ -6,11 +6,7 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -19,12 +15,9 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
@@ -33,13 +26,10 @@ import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
-import wycliffeassociates.recordingapp.project.Book;
 import wycliffeassociates.recordingapp.project.Chunks;
-import wycliffeassociates.recordingapp.project.ParseJSON;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
-import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 public class RecordingScreen extends Activity implements InsertTaskFragment.Insert{
 
@@ -53,13 +43,10 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private static final int DEFAULT_CHAPTER = 1;
     private static final int DEFAULT_UNIT = 1;
 
-    private final Context context = this;
-
     //View
-    private TextView filenameView;
-    private WaveformView mainCanvas;
+    private WaveformView mMainWavView;
     private VolumeBar mVolumeBar;
-    private MinimapView minimap;
+    private MinimapView mMinimapWavView;
     private TextView mSourceView;
     private TextView mLanguageView;
     private TextView mBookView;
@@ -74,14 +61,12 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private boolean isRecording = false;
     private boolean isPausedRecording = false;
     private boolean hasStartedRecording = false;
-    private boolean mDeleteTempFile = false;
     private boolean mInserting = false;
     private boolean mInsertMode = false;
 
     private SourceAudio mSrcPlayer;
-    private int mInsertLoc = 0;
     private InsertTaskFragment mInsertTaskFragment;
-    private ProgressDialog mPd;
+    private ProgressDialog mProgressDialog;
     private WavFile mNewRecording;
     private WavFile mLoadedWav;
     ConstantsDatabaseHelper mConstantsDB;
@@ -93,6 +78,12 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private List<Map<String, String>> mChunksList;
     private int mNumChapters;
     private String mStartVerse;
+    public static Intent getInsertIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit, int locationMs){
+        Intent intent = getRerecordIntent(ctx, project, wavFile, chapter, unit);
+        intent.putExtra(KEY_INSERT_LOCATION, locationMs);
+        return intent;
+    }
+
     private String mEndVerse;
 
     public static Intent getNewRecordingIntent(Context ctx, Project project, int chapter, int unit){
@@ -103,13 +94,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         return intent;
     }
 
-    public static Intent getRerecordIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit, int locationMs){
-        Intent intent = new Intent(ctx, RecordingScreen.class);
-        intent.putExtra(KEY_PROJECT, project);
+    public static Intent getRerecordIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit){
+        Intent intent = getNewRecordingIntent(ctx, project, chapter, unit);
         intent.putExtra(KEY_WAV_FILE, wavFile);
-        intent.putExtra(KEY_CHAPTER, chapter);
-        intent.putExtra(KEY_UNIT, unit);
-        intent.putExtra(KEY_INSERT_LOCATION, locationMs);
         return intent;
     }
 
@@ -121,10 +108,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         setContentView(R.layout.recording_screen);
 
         initialize(getIntent());
-        initTaskFragment(savedInstanceState);
+        initializeTaskFragment(savedInstanceState);
 
-
-        manager = new UIDataManager(mainCanvas, minimap, mVolumeBar, null, null, this, UIDataManager.RECORDING_MODE, true);
+        manager = new UIDataManager(mMainWavView, mMinimapWavView, mVolumeBar, null, null, this, UIDataManager.RECORDING_MODE);
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(true);
         mSrcPlayer.initSrcAudio();
@@ -150,12 +136,14 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mUnit = intent.getIntExtra(KEY_UNIT, DEFAULT_UNIT);
         if(intent.hasExtra(KEY_WAV_FILE)) {
             mLoadedWav = intent.getParcelableExtra(KEY_WAV_FILE);
+        }
+        if(intent.hasExtra(KEY_INSERT_LOCATION)){
             mInsertLocation = intent.getIntExtra(KEY_INSERT_LOCATION, 0);
             mInsertMode = true;
         }
     }
 
-    private void initTaskFragment(Bundle savedInstanceState){
+    private void initializeTaskFragment(Bundle savedInstanceState){
         FragmentManager fm = getFragmentManager();
         mInsertTaskFragment = (InsertTaskFragment)fm.findFragmentByTag(TAG_INSERT_TASK_FRAGMENT);
         if(mInsertTaskFragment == null){
@@ -173,8 +161,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void findViews(){
         mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
-        mainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
-        minimap = ((MinimapView) findViewById(R.id.minimap));
+        mMainWavView = ((WaveformView) findViewById(R.id.main_canvas));
+        mMinimapWavView = ((MinimapView) findViewById(R.id.minimap));
         mVolumeBar = (VolumeBar) findViewById((R.id.volumeBar1));
         mBookView = (TextView) findViewById(R.id.file_book);
         mSourceView = (TextView) findViewById(R.id.file_project);
@@ -182,7 +170,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
         mChapterPicker = (UnitPicker) findViewById(R.id.chapter_picker);
 
-        mainCanvas.disableGestures();
+        mMainWavView.disableGestures();
         if(mInsertMode) {
             mChunkPicker.displayIncrementDecrement(false);
             mChapterPicker.displayIncrementDecrement(false);
@@ -261,7 +249,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         } else {
             Logger.e(this.toString(), "values was null or of zero length");
         }
-
     }
 
     private int getChunkIndex(List<Map<String,String>> chunks, int chunk) {
@@ -293,9 +280,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     @Override
     public void onDestroy(){
         mSrcPlayer.cleanup();
-        if(mPd != null && mPd.isShowing()){
-            mPd.dismiss();
-            mPd = null;
+        if(mProgressDialog != null && mProgressDialog.isShowing()){
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
         super.onDestroy();
     }
@@ -341,10 +328,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             RecordingQueues.clearQueues();
             try {
                 File file = FileNameExtractor.createFile(mProject, mChapter, Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse));
-                mNewRecording = new WavFile(file, mProject, String.valueOf(mChapter), mStartVerse, mEndVerse);
-                mNewRecording.initializeWavFile();
-            } catch (JSONException e) {
-                e.printStackTrace();
+                mNewRecording = WavFile.createNewWavFile(file, mProject, String.valueOf(mChapter), mStartVerse, mEndVerse);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -368,15 +352,13 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
             isRecording = false;
             isPausedRecording = false;
-            Intent intent = new Intent(this, PlaybackScreen.class);
-//            if(mInsertMode){
-//                finalizeInsert(mFileToInsertInto, recordedFilename, mInsertLoc);
-//            } else {
-//                intent.putExtra("recordedFilename", recordedFilename);
-//                intent.putExtra("wavfile", mWavFile);
-//                startActivity(intent);
-//                this.finish();
-//            }
+            if(mInsertMode){
+                finalizeInsert(mLoadedWav, mNewRecording, mInsertLocation);
+            } else {
+                Intent intent = PlaybackScreen.getPlaybackIntent(this, mNewRecording, mProject, mChapter, mUnit);
+                startActivity(intent);
+                this.finish();
+            }
         }
     }
 
@@ -404,13 +386,13 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     }
 
     private void displayProgressDialog(){
-        mPd = new ProgressDialog(this);
-        mPd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mPd.setTitle("Inserting recording");
-        mPd.setMessage("Please wait...");
-        mPd.setIndeterminate(true);
-        mPd.setCancelable(false);
-        mPd.show();
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setTitle("Inserting recording");
+        mProgressDialog.setMessage("Please wait...");
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
     }
 
     private void setButtonHandlers() {
@@ -429,28 +411,26 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         enableButton(R.id.btnPauseRecording, true);
     }
 
-    private void finalizeInsert(String to, String from, int insertLoc){
+    private void finalizeInsert(WavFile base, WavFile insertClip, int insertLoc){
+        //need to reparse the sizes after recording; updates to the object aren't reflected due to parceling to the writing service
+        mNewRecording.parseChunkSizes();
+        mLoadedWav.parseChunkSizes();
         mInserting = true;
         displayProgressDialog();
-        //to = FileNameExtractor.getFileFromFileName(pref, to).toString();
-        writeInsert(from, to, insertLoc);
-    }
-
-    public void insertCallback(String resultingFilename){
-        mInserting = false;
-        mPd.dismiss();
-        Intent intent = new Intent(this, PlaybackScreen.class);
-        File old = new File(resultingFilename);
-
-        intent.putExtra("recordedFilename", old.toString());
-        intent.putExtra("loadFile", true);
-        startActivity(intent);
-        this.finish();
+        writeInsert(base, insertClip, insertLoc);
     }
 
     @Override
-    public void writeInsert(String to, String from, int insertLoc){
-        //mInsertTaskFragment.writeInsert(to, from, insertLoc, pref);
+    public void writeInsert(WavFile base, WavFile insertClip, int insertLoc){
+        mInsertTaskFragment.writeInsert(base, insertClip, insertLoc);
+    }
+
+    public void insertCallback(WavFile result){
+        mInserting = false;
+        mProgressDialog.dismiss();
+        Intent intent = PlaybackScreen.getPlaybackIntent(this, mNewRecording, mProject, mChapter, mUnit);
+        startActivity(intent);
+        this.finish();
     }
 
     private View.OnClickListener btnClick = new View.OnClickListener() {

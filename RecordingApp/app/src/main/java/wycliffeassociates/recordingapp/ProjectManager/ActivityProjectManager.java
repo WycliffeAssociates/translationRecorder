@@ -257,7 +257,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     addProjectToDatabase(project);
                     loadProject(project);
                     finish();
-                    Intent intent = new Intent(this, RecordingScreen.class);
+                    //TODO: should find place left off at?
+                    Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
                     startActivity(intent);
                 } else {
                     onResume();

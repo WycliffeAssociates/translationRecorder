@@ -56,17 +56,14 @@ public class UIDataManager {
     private final TextView timerView;
     private TextView durationView;
     private boolean playbackOrRecording;
-    private boolean isALoadedFile = false;
     private CutOp mCutOp;
     private WavPlayer mPlayer;
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile) {
-        this(mainWave, minimap, null, start, end, ctx, playbackOrRecording, isALoadedFile);
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording) {
+        this(mainWave, minimap, null, start, end, ctx, playbackOrRecording);
     }
 
-    public UIDataManager(WaveformView mainWave, MinimapView minimap, VolumeBar volume, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording, boolean isALoadedFile){
-        Logger.w(UIDataManager.class.toString(), "Is a loaded file: " + isALoadedFile);
-        this.isALoadedFile = isALoadedFile;
+    public UIDataManager(WaveformView mainWave, MinimapView minimap, VolumeBar volume, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording){
         this.playbackOrRecording = playbackOrRecording;
         Logger.w(UIDataManager.class.toString(), "Playback mode: " + playbackOrRecording);
         mainWave.setUIDataManager(this);

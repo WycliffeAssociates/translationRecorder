@@ -23,7 +23,7 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  */
 public class InsertTaskFragment extends Fragment {
     public interface Insert{
-        void writeInsert(String to, String from, int insertLoc);
+        void writeInsert(WavFile base, WavFile insertClip, int insertLoc);
     }
 
     private RecordingScreen mCtx;
@@ -45,25 +45,23 @@ public class InsertTaskFragment extends Fragment {
         super.onDetach();
     }
 
-    public void writeInsert(final String destination, final String previousRecording, final int insertTime, final  SharedPreferences pref) {
+    public void writeInsert(final WavFile base, final WavFile insertClip, final int insertTime) {
         Thread write = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     int insertLoc = timeToIndex(insertTime);
-                    WavFile base = new WavFile(new File(previousRecording));
-                    WavFile insert = new WavFile(new File(destination));
-                    WavFile result = WavFile.insertWavFile(base, insert, insertLoc);
-                    insert.getFile().delete();
-                    File vis = new File(AudioInfo.pathToVisFile + "/" + FileNameExtractor.getNameWithoutExtention(insert.getFile())+".vis");
+                    WavFile result = WavFile.insertWavFile(base, insertClip, insertLoc);
+                    insertClip.getFile().delete();
+                    File vis = new File(AudioInfo.pathToVisFile + "/" + FileNameExtractor.getNameWithoutExtention(insertClip.getFile())+".vis");
                     vis.delete();
-                    result.getFile().renameTo(insert.getFile());
+                    result.getFile().renameTo(insertClip.getFile());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e){
                     e.printStackTrace();
                 }
-                mCtx.insertCallback(destination);
+                mCtx.insertCallback(insertClip);
             }
         });
         write.start();

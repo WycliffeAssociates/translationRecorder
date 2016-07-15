@@ -136,18 +136,8 @@ public class VerseAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 Project.loadProjectIntoPreferences(mCtx, mProject);
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mCtx);
-                String startVerse, endVerse, verse;
-                startVerse = ((Pair<Pair<String,String>, Boolean>)getItem(position)).first.first;
-                verse = ((Pair<Pair<String,String>, Boolean>)getItem(position)).first.first;
-                endVerse = ((Pair<Pair<String,String>, Boolean>)getItem(position)).first.second;
-                pref.edit().putString(Settings.KEY_PREF_START_VERSE, startVerse).commit();
-                pref.edit().putString(Settings.KEY_PREF_END_VERSE, endVerse).commit();
-                pref.edit().putString(Settings.KEY_PREF_VERSE, verse).commit();
-                pref.edit().putString(Settings.KEY_PREF_CHUNK, verse).commit();
-                pref.edit().putString(Settings.KEY_PREF_CHAPTER, String.valueOf(mChapter)).commit();
-                Settings.updateFilename(getContext());
-                v.getContext().startActivity(new Intent(v.getContext(), RecordingScreen.class));
+                int startVerse = Integer.parseInt(((Pair<Pair<String,String>, Boolean>)getItem(position)).first.first);
+                v.getContext().startActivity(RecordingScreen.getNewRecordingIntent(v.getContext(), mProject, mChapter, startVerse));
             }
         });
 

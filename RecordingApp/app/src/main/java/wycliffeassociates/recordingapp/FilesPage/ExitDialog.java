@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp;
+package wycliffeassociates.recordingapp.FilesPage;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -7,31 +7,33 @@ import android.widget.ImageButton;
 
 import java.io.File;
 
+import wycliffeassociates.recordingapp.R;
+
 /**
  * Created by Emmanuel on 8/5/2015.
  */
 public class ExitDialog extends Dialog implements View.OnClickListener {
 
-    protected boolean isPlaying = false;
-    protected String filename = null;
-    protected boolean keepFile = false;
+    protected boolean mIsPlaying = false;
+    protected File mFile = null;
+    protected boolean mKeepFile = false;
 
-    public static ExitDialog Build(Activity a, int theme, boolean keepFile, boolean isPlaying, String filename){
+    public static ExitDialog Build(Activity a, int theme, boolean keepFile, boolean isPlaying, File file){
         ExitDialog exit = new ExitDialog(a, theme);
-        exit.setFilename(filename);
+        exit.setFile(file);
         exit.setIsPlaying(isPlaying);
         exit.setKeepFile(keepFile);
         return exit;
     }
 
-    public void setKeepFile(boolean loadedFile){ this.keepFile = loadedFile;}
+    public void setKeepFile(boolean loadedFile){ mKeepFile = loadedFile;}
 
     public void setIsPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
+        mIsPlaying = isPlaying;
     }
 
-    public void setFilename(String filename){
-        this.filename = filename;
+    public void setFile(File file){
+        mFile = file;
     }
 
     protected Activity activity;
@@ -63,9 +65,8 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                 dismiss();
                 break;
             case R.id.btnDelete: {
-                if (filename != null && !keepFile){
-                    File file = new File(filename);
-                    file.delete();
+                if (mFile != null && !mKeepFile){
+                    mFile.delete();
                 }
                 activity.finish();
                 break;

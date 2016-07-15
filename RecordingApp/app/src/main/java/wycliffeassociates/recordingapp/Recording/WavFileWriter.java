@@ -1,11 +1,9 @@
 package wycliffeassociates.recordingapp.Recording;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 import org.json.JSONException;
 
@@ -17,16 +15,13 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 
 public class WavFileWriter extends Service{
 
     public static final String KEY_WAV_FILE = "wavfile";
-    private String filename = null;
     private String nameWithoutExtension = null;
-    private String visTempFile = "visualization.vis";
     public static int largest = 0;
 
     public static Intent getIntent(Context ctx, WavFile wavFile){
@@ -43,8 +38,8 @@ public class WavFileWriter extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         final WavFile audioFile = intent.getParcelableExtra(KEY_WAV_FILE);
-        nameWithoutExtension = audioFile.getFile().getName().substring(0, filename.lastIndexOf("."));
-        Logger.w(this.toString(),"Passed in string name " + filename);
+        String name = audioFile.getFile().getName();
+        nameWithoutExtension = name.substring(0, name.lastIndexOf("."));
         Thread writingThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -96,10 +91,11 @@ public class WavFileWriter extends Service{
                 try {
                     File dir = new File(AudioInfo.fileDir+"/Visualization");
                     if(!dir.exists()){
-                        dir.mkdir();
+                        dir.mkdirs();
                     }
                     File file = new File(AudioInfo.pathToVisFile + nameWithoutExtension +".vis");
                     if(!file.exists()){
+                        file.getParentFile().mkdirs();
                         file.createNewFile();
                         //Logger.w(this.toString(), "created a new vis file");
                     }
@@ -292,18 +288,4 @@ public class WavFileWriter extends Service{
             e.printStackTrace();
         }
     }
-
-
-
-    /**
-     * Writes the Wave header to a file
-     *
-     * @param out filename of the .wav file being created
-     * @throws IOException
-     */
-    private void writeWaveFileHeaderPlaceholder(FileOutputStream out) throws IOException {
-        byte[] header = new byte[44];
-        out.write(header);
-    }
-
 }
