@@ -19,6 +19,7 @@ import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.WavFile;
 
@@ -35,6 +36,9 @@ public class VerseCard extends FrameLayout {
     AudioPlayer mAudioPlayer;
     int mTakeIndex = 0;
     Handler mHandler;
+    private Project mProject;
+    private int mChapter;
+    private int mUnit;
 
     public VerseCard(Context context) {
         this(context, null);
@@ -64,10 +68,8 @@ public class VerseCard extends FrameLayout {
         findViewById(R.id.play_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), PlaybackScreen.class);
                 WavFile wavFile = new WavFile(mFiles.get(mFiles.size()-1));
-                intent.putExtra("wavfile", wavFile);
-                intent.putExtra("loadfile", true);
+                Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mUnit);
                 v.getContext().startActivity(intent);
 
             }
@@ -76,10 +78,8 @@ public class VerseCard extends FrameLayout {
         findViewById(R.id.edit_take_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), PlaybackScreen.class);
                 WavFile wavFile = new WavFile(mFiles.get(mTakeIndex));
-                intent.putExtra("wavfile", wavFile);
-                intent.putExtra("loadfile", true);
+                Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mUnit);
                 v.getContext().startActivity(intent);
             }
         });
@@ -141,7 +141,10 @@ public class VerseCard extends FrameLayout {
 
     }
 
-    public void initialize(List<File> files){
+    public void initialize(List<File> files, Project project, int chapter, int unit){
+        mProject = project;
+        mChapter = chapter;
+        mUnit = unit;
         mFiles = files;
         if(files.size() > 0) {
             mAudioPlayer.loadFile(files.get(mTakeIndex));

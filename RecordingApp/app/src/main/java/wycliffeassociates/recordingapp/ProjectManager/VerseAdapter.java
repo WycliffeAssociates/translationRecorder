@@ -144,7 +144,7 @@ public class VerseAdapter extends ArrayAdapter {
         String firstvs, endvs;
         firstvs = ((Pair<Pair<String,String>, Boolean>)getItem(position)).first.first;
         endvs = ((Pair<Pair<String,String>, Boolean>)getItem(position)).first.second;
-        holder.mVerseCard.initialize(getVerseFiles(mProject, mChapter, firstvs, endvs));
+        holder.mVerseCard.initialize(getVerseFiles(mProject, mChapter, firstvs, endvs), mProject, mChapter, Integer.parseInt(firstvs));
 //
 //        holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
 //            @Override
