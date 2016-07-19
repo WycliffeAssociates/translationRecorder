@@ -94,7 +94,7 @@ public class PlaybackScreen extends Activity{
         initializeViews();
         setButtonHandlers();
         enableButtons();
-        mSrcPlayer.initSrcAudio(mProject, FilenameUtils.removeExtension(mWavFile.getFile().getName()), mChapter);
+        mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
         initializeController();
     }
 
