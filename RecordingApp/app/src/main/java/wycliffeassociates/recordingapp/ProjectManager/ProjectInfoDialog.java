@@ -58,14 +58,19 @@ public class ProjectInfoDialog extends DialogFragment {
         TextView projectTitle = (TextView) view.findViewById(R.id.project_title);
         TextView languageTitle = (TextView) view.findViewById(R.id.language_title);
         TextView translator = (TextView) view.findViewById(R.id.translators);
+        TextView translationType = (TextView) view.findViewById(R.id.translation_type_title);
+        TextView unitType = (TextView) view.findViewById(R.id.unit_title);
 
         String languageCode = mProject.getTargetLanguage();
         String language = db.getLanguageName(languageCode);
         String bookCode = mProject.getSlug();
         String book = db.getBookName(bookCode);
+        String translation = mProject.getSource();
         if(mProject.isOBS()){
             bookCode = "obs";
             book = "Open Bible Stories";
+            translationType.setVisibility(View.GONE);
+            unitType.setVisibility(View.GONE);
         }
         String translators = mProject.getContributors();
 
@@ -73,6 +78,15 @@ public class ProjectInfoDialog extends DialogFragment {
         projectTitle.setText(book + " (" + bookCode + ")");
         languageTitle.setText(language + " (" + languageCode + ")");
         translator.setText(translators);
+        if(translation.compareTo("ulb") == 0) {
+            translationType.setText("Unlocked Literal Bible (" + translation + ")");
+        } else if(translation.compareTo("udb") == 0) {
+            translationType.setText("Unlocked Dynamic Bible (" + translation + ")");
+        } else {
+            translationType.setText("Regular (" + translation.toUpperCase() + ")");
+        }
+
+        unitType.setText(mProject.getMode());
 
         ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
         ImageButton sdcard_button = (ImageButton) view.findViewById(R.id.sdcard_button);

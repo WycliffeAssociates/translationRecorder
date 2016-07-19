@@ -60,4 +60,6 @@
     <string name="pref_ftp_password_summary">@string/pref_ftp_password_value</string>
     <string name="pref_sync_summary">Sync data with server</string>
     <string name="pref_restore_default_summary">Revert all settings to initial value</string>
+    <string name="unit">Unit</string>
+    <string name="translation_type">Translation Type</string>
 </resources>

@@ -76,6 +76,50 @@
                 android:layout_width="match_parent"
                 android:paddingTop="@dimen/dialog_controls_margin"
                 android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/translation_type"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/translation_type_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Unlocked Literal Bible (ULB)"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/unit"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/unit_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Verse"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
                 android:layout_height="wrap_content"
                 android:visibility="gone">
                 <TextView
