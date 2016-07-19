@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/abc_action_bar_default_height_material"
         android:elevation="@dimen/appbar_elevation"
-        app:theme="@style/TR.Toolbar"
+        android:theme="@style/TR.Toolbar"
         app:popupTheme="@style/TR.Popup"
         />
 

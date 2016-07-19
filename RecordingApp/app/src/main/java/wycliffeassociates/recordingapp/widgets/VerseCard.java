@@ -68,9 +68,11 @@ public class VerseCard extends FrameLayout {
         findViewById(R.id.play_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                WavFile wavFile = new WavFile(mFiles.get(mFiles.size()-1));
-                Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mUnit);
-                v.getContext().startActivity(intent);
+                if(mFiles.size() > 0) {
+                    WavFile wavFile = new WavFile(mFiles.get(mFiles.size() - 1));
+                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mUnit);
+                    v.getContext().startActivity(intent);
+                }
 
             }
         });
@@ -78,33 +80,39 @@ public class VerseCard extends FrameLayout {
         findViewById(R.id.edit_take_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                WavFile wavFile = new WavFile(mFiles.get(mTakeIndex));
-                Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mUnit);
-                v.getContext().startActivity(intent);
+                if(mFiles.size() > 0) {
+                    WavFile wavFile = new WavFile(mFiles.get(mTakeIndex));
+                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mUnit);
+                    v.getContext().startActivity(intent);
+                }
             }
         });
 
         findViewById(R.id.inc_take).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTakeIndex++;
-                if(mTakeIndex >= mFiles.size()){
-                    mTakeIndex = 0;
+                if(mFiles.size() > 0) {
+                    mTakeIndex++;
+                    if (mTakeIndex >= mFiles.size()) {
+                        mTakeIndex = 0;
+                    }
+                    refreshTakeText();
+                    mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
                 }
-                mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
-                mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
             }
         });
 
         findViewById(R.id.dec_take).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTakeIndex--;
-                if(mTakeIndex < 0){
-                    mTakeIndex = mFiles.size()-1;
+                if(mFiles.size() > 0) {
+                    mTakeIndex--;
+                    if (mTakeIndex < 0) {
+                        mTakeIndex = mFiles.size() - 1;
+                    }
+                    refreshTakeText();
+                    mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
                 }
-                mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
-                mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
             }
         });
 
@@ -112,7 +120,9 @@ public class VerseCard extends FrameLayout {
         findViewById(R.id.delete_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteFile();
+                if(mFiles.size() > 0) {
+                    deleteFile();
+                }
             }
         });
 
@@ -122,7 +132,9 @@ public class VerseCard extends FrameLayout {
         mPlay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAudioPlayer.play();
+                if(mFiles.size() > 0) {
+                    mAudioPlayer.play();
+                }
             }
         });
 
@@ -149,11 +161,15 @@ public class VerseCard extends FrameLayout {
         if(files.size() > 0) {
             mAudioPlayer.loadFile(files.get(mTakeIndex));
         }
-        mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
+        refreshTakeText();
     }
 
     public void refreshTakeText(){
-        mTakes.setText("Take " + (mTakeIndex+1) + " of " + mFiles.size());
+        if(mFiles.size() > 0) {
+            mTakes.setText("Take " + (mTakeIndex + 1) + " of " + mFiles.size());
+        } else {
+            mTakes.setText("Take 0 of " + mFiles.size());
+        }
     }
 
     public void deleteFile(){
