@@ -137,6 +137,15 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/chapter_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_padding_l"
+            android:text="Chapter"
+            android:textColor="@color/text_light"
+            android:textSize="18sp" />
+
+        <TextView
             android:id="@+id/file_chapter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -277,6 +277,10 @@ public class FileNameExtractor {
         String nameWithoutTake = fne.getNameWithoutTake();
         int take = fne.getLargestTake(dir, nameWithoutTake)+1;
         return new File(dir, nameWithoutTake + "_t" + String.format("%02d", take) + ".wav");
+    }
 
+    public static String getNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
+        FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
+        return fne.getNameWithoutTake();
     }
 }

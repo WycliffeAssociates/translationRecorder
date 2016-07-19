@@ -59,7 +59,7 @@ public class VerseAdapter extends ArrayAdapter {
     }
 
     private static List<Pair<Pair<String, String>, Boolean>> createList(Project project, Chunks chunks, int chapter) {
-        List<Map<String, String>> chunkList = chunks.getChunks(chapter);
+        List<Map<String, String>> chunkList = chunks.getChunks(project, chapter);
         int numChunks = chunkList.size();
         String firstvs, endvs;
         ArrayList<Pair<Pair<String, String>, Boolean>> result = new ArrayList<>();

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.provider.DocumentFile;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -42,6 +44,9 @@ public class SourceAudio extends LinearLayout {
     private TextView mNoSourceMsg;
     private Handler mHandler;
     private volatile boolean mPlayerReleased = false;
+    private Project mProject;
+    private String mFileName;
+    private int mChapter;
 
     public SourceAudio(Context context) {
         this(context, null);
@@ -84,10 +89,6 @@ public class SourceAudio extends LinearLayout {
 
     private DocumentFile getSourceAudioDirectory(){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-        String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-        String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-        String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-        String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
         String srcLoc = sp.getString(Settings.KEY_PREF_SRC_LOC, null);
         if(srcLoc == null || srcLoc.compareTo("") == 0){
             return null;
@@ -96,13 +97,13 @@ public class SourceAudio extends LinearLayout {
         if(uri != null){
             DocumentFile df = DocumentFile.fromTreeUri(mCtx, uri);
             if(df != null) {
-                DocumentFile langDf = df.findFile(lang);
+                DocumentFile langDf = df.findFile(mProject.getTargetLanguage());
                 if(langDf != null) {
-                    DocumentFile srcDf = langDf.findFile(src);
+                    DocumentFile srcDf = langDf.findFile(mProject.getSource());
                     if(srcDf != null) {
-                        DocumentFile bookDf = srcDf.findFile(book);
+                        DocumentFile bookDf = srcDf.findFile(mProject.getSlug());
                         if(bookDf != null) {
-                            DocumentFile chapDf = bookDf.findFile(chap);
+                            DocumentFile chapDf = bookDf.findFile(FileNameExtractor.chapterIntToString(mProject, mChapter));
                             return chapDf;
                         }
                     }
@@ -117,14 +118,10 @@ public class SourceAudio extends LinearLayout {
         if(directory == null){
             return null;
         }
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-        FileNameExtractor fne = new FileNameExtractor(sp);
-        String filename = fne.getNameWithoutTake();
-
         String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
         DocumentFile[] files = directory.listFiles();
         for(DocumentFile f : files){
-            if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(filename) == 0){
+            if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
                 //make sure the filetype is supported
                 String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
                 for(String s : filetypes){
@@ -143,13 +140,10 @@ public class SourceAudio extends LinearLayout {
         if(directory == null || !directory.exists()){
             return null;
         } else {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-            FileNameExtractor fne = new FileNameExtractor(sp);
-            String filename = fne.getNameWithoutTake();
             String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
             File[] files = directory.listFiles();
             for(File f : files){
-                if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(filename) == 0){
+                if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
                     //make sure the filetype is supported
                     String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
                     for(String s : filetypes){
@@ -164,15 +158,7 @@ public class SourceAudio extends LinearLayout {
     }
 
     private File getSourceAudioFileDirectoryKitkat(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-        String lang = sp.getString(Settings.KEY_PREF_LANG_SRC, "");
-        String src = sp.getString(Settings.KEY_PREF_SOURCE, "");
-        String book = sp.getString(Settings.KEY_PREF_BOOK, "");
-        String chap = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHAPTER, "1")));
-        String chunk = String.format("%02d", Integer.parseInt(sp.getString(Settings.KEY_PREF_CHUNK, "1")));
-        String filename = lang+"_"+src+"_"+book+"_"+chap+"-"+chunk;
-        String path = sp.getString(Settings.KEY_PREF_SRC_LOC, "");
-        File file = new File(path, lang + "/" + src + "/" + book + "/" + chap);
+        File file = mProject.getProjectDirectory(mProject);
         return file;
     }
 
@@ -186,11 +172,12 @@ public class SourceAudio extends LinearLayout {
         }
     }
 
-    public void initSrcAudio(){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mCtx);
-        int sdk = pref.getInt(Settings.KEY_SDK_LEVEL, 21);
+    public void initSrcAudio(Project project, String fileName, int chapter){
+        mProject = project;
+        mFileName = fileName;
+        mChapter = chapter;
         Object src;
-        if(sdk >= 21) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             src = getSourceAudioFile();
         } else {
             src = getSourceAudioFileKitkat();
@@ -317,7 +304,7 @@ public class SourceAudio extends LinearLayout {
         }
     }
 
-    public void reset(){
+    public void reset(Project project, String fileName, int chapter){
         cleanup();
         mSrcPlayer = null;
         mSrcPlayer = new MediaPlayer();
@@ -331,7 +318,7 @@ public class SourceAudio extends LinearLayout {
                 mSrcTimeElapsed.invalidate();
             }
         });
-        initSrcAudio();
+        initSrcAudio(project, fileName, chapter);
     }
 
     public void setEnabled(boolean enable) {

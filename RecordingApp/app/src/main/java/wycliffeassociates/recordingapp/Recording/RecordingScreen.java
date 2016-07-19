@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONException;
 
 import java.io.File;
@@ -78,6 +79,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private List<Map<String, String>> mChunksList;
     private int mNumChapters;
     private String mStartVerse;
+    private TextView mModeView;
+
     public static Intent getInsertIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit, int locationMs){
         Intent intent = getRerecordIntent(ctx, project, wavFile, chapter, unit);
         intent.putExtra(KEY_INSERT_LOCATION, locationMs);
@@ -113,7 +116,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         manager = new UIDataManager(mMainWavView, mMinimapWavView, mVolumeBar, null, null, this, UIDataManager.RECORDING_MODE);
         startService(new Intent(this, WavRecorder.class));
         manager.listenForRecording(true);
-        mSrcPlayer.initSrcAudio();
+        mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
     }
 
     private void initialize(Intent intent){
@@ -169,7 +173,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mLanguageView = (TextView) findViewById(R.id.file_language);
         mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
         mChapterPicker = (UnitPicker) findViewById(R.id.chapter_picker);
-
+        mModeView = (TextView) findViewById(R.id.file_unit_label);
         mMainWavView.disableGestures();
         if(mInsertMode) {
             mChunkPicker.displayIncrementDecrement(false);
@@ -186,6 +190,14 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         String bookName = mConstantsDB.getBookName(bookCode);
         mBookView.setText(bookName);
         mBookView.postInvalidate();
+
+        if(mProject.getMode().compareTo("chunk") == 0){
+            mModeView.setText("Chunk");
+        } else {
+            mModeView.setText("Verse");
+        }
+
+        mSourceView.setText(mProject.getSource().toUpperCase());
     }
 
     private void initializeUnitPickers() throws IOException{
@@ -194,7 +206,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         } else {
             mChunks = new Chunks(this, mProject.getSlug());
             mNumChapters = mChunks.getNumChapters();
-            mChunksList = mChunks.getChunks(mChapter);
+            mChunksList = mChunks.getChunks(mProject,  mChapter);
         }
         initializeChunkPicker();
         initializeChapterPicker();
@@ -217,7 +229,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             setChunk(newVal + 1);
-                            mSrcPlayer.reset();
+                            mUnit = newVal + 1;
+//                            mSrcPlayer.reset(mProject, FilenameUtils.removeExtension(mNewRecording.getFile().getName()), mChapter);
                         }
                     });
                 } else {
@@ -241,9 +254,11 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                     mUnit = 1;
                     mChapter = newVal + 1;
-                    mChunksList = mChunks.getChunks(mChapter);
+                    mChunkPicker.setCurrent(0);
+                    mChunksList = mChunks.getChunks(mProject, mChapter);
                     initializeChunkPicker();
-                    mSrcPlayer.reset();
+                    mSrcPlayer.reset(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                            Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                 }
             });
         } else {

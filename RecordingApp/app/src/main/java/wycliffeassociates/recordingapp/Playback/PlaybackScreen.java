@@ -12,6 +12,8 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -20,6 +22,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
+import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -64,6 +67,7 @@ public class PlaybackScreen extends Activity{
     private Project mProject;
     private int mChapter;
     private int mUnit;
+    private ConstantsDatabaseHelper mConstantsDB;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit){
         Intent intent = new Intent(ctx, PlaybackScreen.class);
@@ -83,13 +87,14 @@ public class PlaybackScreen extends Activity{
     }
 
     private void initialize(Intent intent){
+        mConstantsDB = new ConstantsDatabaseHelper(this);
         isSaved = true;
         parseIntent(intent);
         findViews();
         initializeViews();
         setButtonHandlers();
         enableButtons();
-        mSrcPlayer.initSrcAudio();
+        mSrcPlayer.initSrcAudio(mProject, FilenameUtils.removeExtension(mWavFile.getFile().getName()), mChapter);
         initializeController();
     }
 
@@ -122,7 +127,7 @@ public class PlaybackScreen extends Activity{
         mLangView.setText(mProject.getTargetLanguage().toUpperCase());
         if(!mProject.isOBS()) {
             mSourceView.setText(mProject.getSource().toUpperCase());
-            mBookView.setText(mProject.getSlug().toUpperCase());
+            mBookView.setText(mConstantsDB.getBookName(mProject.getSlug()));
         } else {
             mSourceView.setText("");
             mBookView.setText("Open Bible Stories");
@@ -130,6 +135,11 @@ public class PlaybackScreen extends Activity{
         mChapterView.setText(String.format("%d", mChapter));
         mChunkView.setText(String.format("%d", mUnit));
 
+        if(mProject.getMode().compareTo("chunk") == 0){
+            mUnitView.setText("Chunk");
+        } else {
+            mUnitView.setText("Verse");
+        }
         // By default, select the minimap view over the source playback
         mSwitchToMinimap.setSelected(true);
 
