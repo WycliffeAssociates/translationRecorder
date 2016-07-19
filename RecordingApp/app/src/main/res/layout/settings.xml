@@ -46,6 +46,13 @@
             android:layout_height="match_parent"
             class="wycliffeassociates.recordingapp.SettingsPage.SettingsFragment"/>
 
+        <fragment
+            android:id="@+id/fragment_scroll_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            class="wycliffeassociates.recordingapp.SettingsPage.SettingsFragment"/>
+
+
     </FrameLayout>
 
 

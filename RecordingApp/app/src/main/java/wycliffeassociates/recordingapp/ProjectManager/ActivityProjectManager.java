@@ -239,8 +239,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         pref.edit().putString(Settings.KEY_PREF_START_VERSE, "1").commit();
         pref.edit().putString(Settings.KEY_PREF_END_VERSE, "1").commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK, "1").commit();
-
-        Settings.updateFilename(this);
     }
 
     private void addProjectToDatabase(Project project){
