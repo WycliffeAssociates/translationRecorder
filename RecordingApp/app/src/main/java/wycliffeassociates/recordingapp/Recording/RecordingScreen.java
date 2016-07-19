@@ -183,7 +183,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void initializeViews(){
         String languageCode = mProject.getTargetLanguage();
-        mLanguageView.setText(languageCode);
+        mLanguageView.setText(languageCode.toUpperCase());
         mLanguageView.postInvalidate();
 
         String bookCode = mProject.getSlug();
