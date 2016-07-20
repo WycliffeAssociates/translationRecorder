@@ -122,7 +122,7 @@ public class MainMenu extends Activity{
                     Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
                     addProjectToDatabase(project);
                     loadProject(project);
-                    Intent intent = new Intent(this, RecordingScreen.class);
+                    Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
                     startActivity(intent);
                 } else {
                     onResume();
