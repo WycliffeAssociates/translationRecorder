@@ -88,8 +88,13 @@ public class SourceAudio extends LinearLayout {
     }
 
     private DocumentFile getSourceAudioDirectory(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-        String srcLoc = sp.getString(Settings.KEY_PREF_SRC_LOC, null);
+        String srcLoc = mProject.getSourceAudioPath();
+        String sourceLang = mProject.getSourceLanguage();
+        if(srcLoc.compareTo("") == 0 || sourceLang.compareTo("") == 0) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
+            srcLoc = sp.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, null);
+            sourceLang = sp.getString(Settings.KEY_PREF_GLOBAL_LANG_SRC, null);
+        }
         if(srcLoc == null || srcLoc.compareTo("") == 0){
             return null;
         }
@@ -97,7 +102,7 @@ public class SourceAudio extends LinearLayout {
         if(uri != null){
             DocumentFile df = DocumentFile.fromTreeUri(mCtx, uri);
             if(df != null) {
-                DocumentFile langDf = df.findFile(mProject.getTargetLanguage());
+                DocumentFile langDf = df.findFile(sourceLang);
                 if(langDf != null) {
                     DocumentFile srcDf = langDf.findFile(mProject.getSource());
                     if(srcDf != null) {

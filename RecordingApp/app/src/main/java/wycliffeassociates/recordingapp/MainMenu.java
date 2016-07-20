@@ -163,8 +163,6 @@ public class MainMenu extends Activity{
         pref.edit().putString(Settings.KEY_PREF_START_VERSE, "1").commit();
         pref.edit().putString(Settings.KEY_PREF_END_VERSE, "1").commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK, "1").commit();
-
-        Settings.updateFilename(this);
     }
 
     public void report(final String message) {

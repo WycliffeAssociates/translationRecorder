@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
     <PreferenceCategory
         android:title="Translation Recorder Settings"
         android:key="pref_key_app_settings"
@@ -8,7 +9,7 @@
 
         <!--Not sure the default should be in the strings file; do other languages change directory text? -->
         <PreferenceScreen
-            android:key="pref_src_loc"
+            android:key="pref_global_src_loc"
             android:layout="@layout/custom_pref"
             android:title="Source Audio Location"
             android:summary="/storage/emulated/0/TranslationRecorder"
@@ -19,7 +20,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="pref_lang_src"
+            android:key="pref_global_lang_src"
             android:layout="@layout/custom_pref"
             android:title="Source Language"
             android:summary="@string/pref_default_lang"
