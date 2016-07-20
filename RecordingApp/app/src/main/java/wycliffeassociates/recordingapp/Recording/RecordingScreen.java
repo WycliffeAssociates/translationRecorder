@@ -129,6 +129,11 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         enableButtons();
         try {
             initializeUnitPickers();
+            if(mLoadedWav != null){
+                // Take away increment and decrement buttons
+                mChunkPicker.displayIncrementDecrement(false);
+                mChapterPicker.displayIncrementDecrement(false);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -229,7 +234,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             setChunk(newVal + 1);
-                            mUnit = newVal + 1;
 //                            mSrcPlayer.reset(mProject, FilenameUtils.removeExtension(mNewRecording.getFile().getName()), mChapter);
                         }
                     });
@@ -397,6 +401,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         if(mChunks != null) {
             mStartVerse = mChunksList.get(idx-1).get(Chunks.FIRST_VERSE);
             mEndVerse = mChunksList.get(idx-1).get(Chunks.LAST_VERSE);
+            mUnit = Integer.parseInt(mStartVerse);
         }
     }
 
