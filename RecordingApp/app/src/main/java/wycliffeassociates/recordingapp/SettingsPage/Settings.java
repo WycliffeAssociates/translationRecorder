@@ -16,6 +16,8 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -52,14 +54,16 @@ import wycliffeassociates.recordingapp.MainMenu;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.connectivity.LanguageNamesRequest;
 import wycliffeassociates.recordingapp.project.Language;
+import wycliffeassociates.recordingapp.project.ParseJSON;
 import wycliffeassociates.recordingapp.project.ScrollableListFragment;
+import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
 
 /**
  *
  * The settings page -- for all persistent options/information.
  *
  */
-public class Settings extends Activity implements ScrollableListFragment.OnItemClickListener {
+public class Settings extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener, SettingsFragment.LanguageSelector {
     public static final String KEY_PREF_PROJECT = "pref_project";
     public static final String KEY_PREF_SOURCE = "pref_source";
     public static final String KEY_PREF_LANG = "pref_lang";
@@ -76,10 +80,15 @@ public class Settings extends Activity implements ScrollableListFragment.OnItemC
     public static final String KEY_SDK_LEVEL = "pref_sdk_level";
     public static final String KEY_PROFILE = "pref_profile";
 
+    public static final String KEY_PREF_GLOBAL_SOURCE_LOC = "pref_global_src_loc";
+    public static final String KEY_PREF_GLOBAL_LANG_SRC = "pref_global_lang_src";
+
+
     private String mSearchText;
     private FragmentManager mFragmentManager;
     private Fragment mFragment;
     public static boolean displayingList = false;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +96,14 @@ public class Settings extends Activity implements ScrollableListFragment.OnItemC
         displayingList = false;
         mFragmentManager = getFragmentManager();
         setContentView(R.layout.settings);
-        PreferenceManager.setDefaultValues(this, R.xml.preference, false);
+;        PreferenceManager.setDefaultValues(this, R.xml.preference, false);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Settings");
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     public void onBackPressed(View v) {
@@ -109,12 +125,12 @@ public class Settings extends Activity implements ScrollableListFragment.OnItemC
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu){
+        mMenu = menu;
         super.onPrepareOptionsMenu(menu);
         //if(mFragment instanceof LanguageListFragment) {
         menu.findItem(R.id.action_update).setVisible(false);
-//        } else {
-//            menu.findItem(R.id.action_update).setVisible(false);
-//        }
+        menu.findItem(R.id.action_search).setVisible(false);
+
         SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
         final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
@@ -127,7 +143,7 @@ public class Settings extends Activity implements ScrollableListFragment.OnItemC
             @Override
             public boolean onQueryTextChange(String s) {
                 mSearchText = s;
-                ((ScrollableListFragment)(mFragmentManager.findFragmentById(R.layout.fragment_scroll_list))).onSearchQuery(s);
+                ((ScrollableListFragment)(mFragmentManager.findFragmentById(R.id.fragment_scroll_list))).onSearchQuery(s);
                 return true;
             }
         });
@@ -142,9 +158,20 @@ public class Settings extends Activity implements ScrollableListFragment.OnItemC
     @Override
     public void onItemClick(Object result) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        pref.edit().putString(KEY_PREF_LANG_SRC, ((Language)result).getCode()).commit();
+        pref.edit().putString(KEY_PREF_GLOBAL_LANG_SRC, ((Language)result).getCode()).commit();
         mFragmentManager.beginTransaction().remove(mFragmentManager.findFragmentById(R.id.fragment_scroll_list)).commit();
         displayingList = false;
+        mMenu.findItem(R.id.action_search).setVisible(false);
     }
 
+    @Override
+    public void sourceLanguageSelected() {
+        mMenu.findItem(R.id.action_search).setVisible(true);
+        Settings.displayingList = true;
+        mFragment = new ScrollableListFragment
+                .Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(this), this))
+                .setSearchHint("Choose Source Language:")
+                .build();
+        mFragmentManager.beginTransaction().add(R.id.fragment_scroll_list, mFragment).commit();
+    }
 }

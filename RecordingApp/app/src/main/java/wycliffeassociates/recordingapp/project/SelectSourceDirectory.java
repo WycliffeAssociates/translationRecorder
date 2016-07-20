@@ -68,7 +68,7 @@ public class SelectSourceDirectory extends Activity {
                 Uri dir = selectedDirectory.getUri();
                 String uristring = dir.toString();
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                pref.edit().putString(Settings.KEY_PREF_SRC_LOC, uristring).commit();
+                pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, uristring).commit();
                 pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
 
                 intent.putExtra(SOURCE_LOCATION, uristring);
@@ -79,7 +79,7 @@ public class SelectSourceDirectory extends Activity {
             if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
                 String dirString = resultData.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                pref.edit().putString(Settings.KEY_PREF_SRC_LOC, dirString).commit();
+                pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, dirString).commit();
                 pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
                 System.out.println(pref.getInt(Settings.KEY_SDK_LEVEL, 21));
 

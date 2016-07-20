@@ -36,34 +36,29 @@ import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
  */
 public class SettingsFragment extends PreferenceFragment  implements SharedPreferences.OnSharedPreferenceChangeListener{
 
-    Activity mParent;
+    LanguageSelector mParent;
     SharedPreferences mSharedPreferences;
-    FragmentManager mFragmentManager;
-    ScrollableListFragment mFragment;
-    public static final String LANGUAGE_TAG= "language_tag";
+
+    interface LanguageSelector{
+        void sourceLanguageSelected();
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preference);
         mSharedPreferences = getPreferenceScreen().getSharedPreferences();
-        mParent = getActivity();
-        mFragmentManager = getFragmentManager();
+        mParent = (LanguageSelector) getActivity();
         // Below is the code to clear the SharedPreferences. Use it wisely.
         // mSharedPreferences.edit().clear().commit();
 
         // Register listener(s)
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        Preference button = (Preference)findPreference(Settings.KEY_PREF_LANG_SRC);
+        Preference button = (Preference)findPreference(Settings.KEY_PREF_GLOBAL_LANG_SRC);
         button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Settings.displayingList = true;
-                mFragment = new ScrollableListFragment
-                        .Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(mParent), mParent))
-                        .setSearchHint("Choose Source Language:")
-                        .build();
-                mFragmentManager.beginTransaction().add(R.id.fragment_scroll_list, mFragment).commit();
+                mParent.sourceLanguageSelected();
                 return true;
             }
         });
@@ -101,15 +96,15 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     }
 
     private void updateSummariesSetViaActivities(SharedPreferences mSharedPreferences){
-        String uristring = mSharedPreferences.getString(Settings.KEY_PREF_SRC_LOC, "");
+        String uristring = mSharedPreferences.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, "");
         Uri dir = Uri.parse(uristring);
         if(dir != null) {
             uristring = dir.getLastPathSegment();
             //This removes "primary:", though maybe this is helpful in identifying between sd card and internal storage.
             //uristring = uristring.substring(uristring.indexOf(":")+1, uristring.length());
-            findPreference(Settings.KEY_PREF_SRC_LOC).setSummary(uristring);
+            findPreference(Settings.KEY_PREF_GLOBAL_SOURCE_LOC).setSummary(uristring);
         } else {
-            findPreference(Settings.KEY_PREF_SRC_LOC).setSummary(mSharedPreferences.getString(Settings.KEY_PREF_SRC_LOC, ""));
+            findPreference(Settings.KEY_PREF_GLOBAL_SOURCE_LOC).setSummary(mSharedPreferences.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, ""));
         }
     }
 
