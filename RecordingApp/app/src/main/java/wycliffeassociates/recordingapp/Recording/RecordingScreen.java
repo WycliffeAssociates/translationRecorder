@@ -234,7 +234,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             setChunk(newVal + 1);
-//                            mSrcPlayer.reset(mProject, FilenameUtils.removeExtension(mNewRecording.getFile().getName()), mChapter);
+                            mSrcPlayer.reset(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                                    Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                         }
                     });
                 } else {
