@@ -58,10 +58,13 @@ public class VerseCard extends FrameLayout {
             @Override
             public void onClick(View v) {
                 View expanded = findViewById(R.id.expanded_card);
+                View play = findViewById(R.id.play_button);
                 if(expanded.getVisibility() == GONE){
                     expanded.setVisibility(VISIBLE);
+                    play.setVisibility(GONE);
                 } else {
                     expanded.setVisibility(GONE);
+                    play.setVisibility(VISIBLE);
                 }
             }
         });
