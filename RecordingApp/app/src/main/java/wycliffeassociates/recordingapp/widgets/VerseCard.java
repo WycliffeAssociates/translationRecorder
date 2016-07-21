@@ -185,8 +185,14 @@ public class VerseCard extends FrameLayout {
                 if(which == dialog.BUTTON_POSITIVE){
                     mFiles.get(mTakeIndex).delete();
                     mFiles.remove(mTakeIndex);
-                    mTakeIndex = 0;
+                    //keep the same index in the list, unless the one removed was the last take.
+                    if(mTakeIndex > mFiles.size()-1){
+                        mTakeIndex--;
+                    }
                     refreshTakeText();
+                    if(mFiles.size() > 0){
+                        mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
+                    }
                 }
             }
         });
