@@ -90,12 +90,12 @@ public class SourceAudio extends LinearLayout {
     private DocumentFile getSourceAudioDirectory(){
         String srcLoc = mProject.getSourceAudioPath();
         String sourceLang = mProject.getSourceLanguage();
-        if(srcLoc.compareTo("") == 0 || sourceLang.compareTo("") == 0) {
+        if(srcLoc == null || sourceLang == null || srcLoc.compareTo("") == 0 || sourceLang.compareTo("") == 0) {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
             srcLoc = sp.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, null);
             sourceLang = sp.getString(Settings.KEY_PREF_GLOBAL_LANG_SRC, null);
         }
-        if(srcLoc == null || srcLoc.compareTo("") == 0){
+        if(srcLoc == null || sourceLang == null || srcLoc.compareTo("") == 0 || sourceLang.compareTo("") == 0) {
             return null;
         }
         Uri uri = Uri.parse(srcLoc);
