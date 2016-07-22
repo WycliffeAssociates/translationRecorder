@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
@@ -20,8 +21,15 @@ import com.amazonaws.mobileconnectors.cognito.Record;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -100,19 +108,9 @@ public class SourceAudio extends LinearLayout {
         }
         Uri uri = Uri.parse(srcLoc);
         if(uri != null){
-            DocumentFile df = DocumentFile.fromTreeUri(mCtx, uri);
+            DocumentFile df = DocumentFile.fromSingleUri(mCtx, uri);
             if(df != null) {
-                DocumentFile langDf = df.findFile(sourceLang);
-                if(langDf != null) {
-                    DocumentFile srcDf = langDf.findFile(mProject.getSource());
-                    if(srcDf != null) {
-                        DocumentFile bookDf = srcDf.findFile(mProject.getSlug());
-                        if(bookDf != null) {
-                            DocumentFile chapDf = bookDf.findFile(FileNameExtractor.chapterIntToString(mProject, mChapter));
-                            return chapDf;
-                        }
-                    }
-                }
+                return df;
             }
         }
         return null;
@@ -124,48 +122,84 @@ public class SourceAudio extends LinearLayout {
             return null;
         }
         String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
-        DocumentFile[] files = directory.listFiles();
-        for(DocumentFile f : files){
-            if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
-                //make sure the filetype is supported
-                String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
-                for(String s : filetypes){
-                    if(ext.compareTo(s) == 0){
-                        return f;
-                    }
+
+        Uri uri = directory.getUri();
+        try {
+            InputStream is = mCtx.getContentResolver().openInputStream(uri);
+            BufferedInputStream bis = new BufferedInputStream(is);
+
+            File temp = File.createTempFile("temp.", "wav");
+            FileOutputStream fos = new FileOutputStream(temp);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            ZipInputStream zis = new ZipInputStream(bis);
+            ZipEntry ze;
+            String extractedName;
+            do{
+                ze = zis.getNextEntry();
+                extractedName = ze.getName();
+                try {
+                    extractedName = extractedName.substring(extractedName.lastIndexOf("/"), extractedName.lastIndexOf("."));
+                } catch (StringIndexOutOfBoundsException e){
+                    extractedName = "";
                 }
-            }
+            } while(extractedName.compareTo(mFileName) != 0 && ze != null);
+
+            long size = ze.getSize();
+            bos.write(zis.read(new byte[(int)size]));
+            zis.closeEntry();
+            bos.close();
+            fos.close();
+            zis.close();
+            bis.close();
+            is.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+//        DocumentFile[] files = directory.listFiles();
+//        for(DocumentFile f : files){
+//            if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
+//                //make sure the filetype is supported
+//                String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
+//                for(String s : filetypes){
+//                    if(ext.compareTo(s) == 0){
+//                        return f;
+//                    }
+//                }
+//            }
+//        }
 
         return null;
     }
 
-    private File getSourceAudioFileKitkat(){
-        File directory = getSourceAudioFileDirectoryKitkat();
-        if(directory == null || !directory.exists()){
-            return null;
-        } else {
-            String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
-            File[] files = directory.listFiles();
-            for(File f : files){
-                if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
-                    //make sure the filetype is supported
-                    String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
-                    for(String s : filetypes){
-                        if(ext.compareTo(s) == 0){
-                            return f;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private File getSourceAudioFileDirectoryKitkat(){
-        File file = mProject.getProjectDirectory(mProject);
-        return file;
-    }
+//    private File getSourceAudioFileKitkat(){
+//        File directory = getSourceAudioFileDirectoryKitkat();
+//        if(directory == null || !directory.exists()){
+//            return null;
+//        } else {
+//            String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
+//            File[] files = directory.listFiles();
+//            for(File f : files){
+//                if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
+//                    //make sure the filetype is supported
+//                    String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
+//                    for(String s : filetypes){
+//                        if(ext.compareTo(s) == 0){
+//                            return f;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//
+//    private File getSourceAudioFileDirectoryKitkat(){
+//        File file = mProject.getProjectDirectory(mProject);
+//        return file;
+//    }
 
     private void switchPlayPauseBtn(boolean isPlaying) {
         if (isPlaying) {
@@ -182,11 +216,12 @@ public class SourceAudio extends LinearLayout {
         mFileName = fileName;
         mChapter = chapter;
         Object src;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             src = getSourceAudioFile();
-        } else {
-            src = getSourceAudioFileKitkat();
-        }
+        //}
+//        else {
+//            src = getSourceAudioFileKitkat();
+//        }
         //Uri sourceAudio = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ATranslationRecorder%2FSource%2Fen%2Fulb%2Fgen%2F01%2Fen_ulb_gen_01-01.wav");
         if(src == null || (src instanceof DocumentFile && !((DocumentFile)src).exists()) || (src instanceof File && !((File)src).exists())){
             showNoSource(true);
