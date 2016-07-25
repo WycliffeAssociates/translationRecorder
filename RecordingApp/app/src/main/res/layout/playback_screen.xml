@@ -13,7 +13,9 @@
         android:paddingStart="@dimen/default_padding_m"
         android:paddingEnd="@dimen/default_padding_m"
         android:background="@color/very_dark_gray_1"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:elevation="4dp"
+        >
 
         <TextView
             android:id="@+id/file_language"
@@ -145,7 +147,7 @@
     <RelativeLayout
         android:id="@+id/top_bar_container"
         android:layout_width="match_parent"
-        android:layout_height="92dp"
+        android:layout_height="124dp"
         android:background="@color/very_dark_gray_1" >
 
         <wycliffeassociates.recordingapp.Playback.SourceAudio
@@ -178,8 +180,8 @@
                 android:layout_weight="1"
                 android:paddingLeft="@dimen/default_padding_m"
                 android:paddingRight="@dimen/default_padding_m"
-                android:paddingTop="@dimen/default_padding_s"
-                android:paddingBottom="@dimen/default_padding_s"
+                android:paddingTop="@dimen/default_padding_m"
+                android:paddingBottom="@dimen/default_padding_m"
                 android:background="#00000000"
                 android:src="@drawable/minimap"
                 android:scaleType="fitCenter"
@@ -193,8 +195,8 @@
                 android:layout_weight="1"
                 android:paddingLeft="@dimen/default_padding_m"
                 android:paddingRight="@dimen/default_padding_m"
-                android:paddingTop="@dimen/default_padding_s"
-                android:paddingBottom="@dimen/default_padding_s"
+                android:paddingTop="@dimen/default_padding_m"
+                android:paddingBottom="@dimen/default_padding_m"
                 android:background="@color/mostly_black"
                 android:src="@drawable/hearing"
                 android:scaleType="fitCenter"
