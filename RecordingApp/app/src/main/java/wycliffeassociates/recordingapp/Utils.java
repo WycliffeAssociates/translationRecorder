@@ -17,4 +17,9 @@ public class Utils {
         }
         fileOrDirectory.delete();
     }
+
+    // http://stackoverflow.com/questions/5725892/how-to-capitalize-the-first-letter-of-word-in-a-string-using-java
+    public static String capitalizeFirstLetter(String string) {
+        return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+    }
 }
