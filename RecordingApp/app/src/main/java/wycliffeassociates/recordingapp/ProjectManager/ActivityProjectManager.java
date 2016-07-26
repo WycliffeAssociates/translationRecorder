@@ -281,27 +281,30 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     @Override
     public void onDelete(final Project project) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Delete recordings?");
-        builder.setIcon(R.drawable.ic_delete_black_36dp);
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(which == dialog.BUTTON_POSITIVE){
-                    Project.deleteProject(mCtx, project);
-                    populateProjectList();
-                    hideProjectsIfEmpty(mAdapter.getCount());
-                    removeProjectFromPreferences(project);
-                    mNumProjects--;
-                    initializeViews();
+        builder
+            .setTitle("Delete Project")
+            .setMessage("Deleting this project will remove all associated verse and chunk " +
+                "recordings.\n\nAre you sure?")
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == dialog.BUTTON_POSITIVE) {
+                        Project.deleteProject(mCtx, project);
+                        populateProjectList();
+                        hideProjectsIfEmpty(mAdapter.getCount());
+                        removeProjectFromPreferences(project);
+                        mNumProjects--;
+                        initializeViews();
+                    }
                 }
-            }
-        });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+            })
+            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
         AlertDialog dialog = builder.create();
         dialog.show();
     }
