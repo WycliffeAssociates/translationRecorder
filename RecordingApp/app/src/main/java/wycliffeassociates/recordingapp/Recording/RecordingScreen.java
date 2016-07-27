@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.apache.commons.io.FilenameUtils;
@@ -47,6 +48,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     //View
     private WaveformView mMainWavView;
     private VolumeBar mVolumeBar;
+    private RelativeLayout mToolBar;
     private MinimapView mMinimapWavView;
     private TextView mSourceView;
     private TextView mLanguageView;
@@ -173,6 +175,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mMainWavView = ((WaveformView) findViewById(R.id.main_canvas));
         mMinimapWavView = ((MinimapView) findViewById(R.id.minimap));
         mVolumeBar = (VolumeBar) findViewById((R.id.volumeBar1));
+        mToolBar = (RelativeLayout) findViewById(R.id.toolbar);
         mBookView = (TextView) findViewById(R.id.file_book);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mLanguageView = (TextView) findViewById(R.id.file_language);
@@ -200,6 +203,10 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             mModeView.setText("Chunk");
         } else {
             mModeView.setText("Verse");
+        }
+
+        if(mInsertMode) {
+            mToolBar.setBackgroundColor(getResources().getColor(R.color.secondary));
         }
 
         mSourceView.setText(mProject.getSource().toUpperCase());
