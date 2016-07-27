@@ -63,6 +63,7 @@ public class SelectSourceDirectory extends Activity {
             if(requestCode == SRC_LOC) {
                 Uri uri = resultData.getData();
 
+
                 getApplicationContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                 String uristring = uri.toString();

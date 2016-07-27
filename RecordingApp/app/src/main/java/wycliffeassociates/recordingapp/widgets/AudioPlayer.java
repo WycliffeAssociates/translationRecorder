@@ -24,6 +24,7 @@ public class AudioPlayer {
     ImageButton mPlay, mPause;
     SeekBar mSeekBar;
     private Handler mHandler;
+    private boolean mPlayerReleased= false;
 
     public AudioPlayer(TextView progress, TextView duration, ImageButton play, ImageButton pause, SeekBar seek){
         mProgress = progress;
@@ -32,6 +33,43 @@ public class AudioPlayer {
         mPause = pause;
         mSeekBar = seek;
         mMediaPlayer = new MediaPlayer();
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (mMediaPlayer != null && fromUser) {
+                    mMediaPlayer.seekTo(progress);
+                    final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
+                    mProgress.setText(time);
+                    mProgress.invalidate();
+                }
+            }
+        });
+
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                switchPlayPauseButton(false);
+                mSeekBar.setProgress(mSeekBar.getMax());
+                int duration = mSeekBar.getMax();
+                final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
+
+                mDuration.setText(time);
+                mDuration.invalidate();
+
+                if(mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.seekTo(0);
+                }
+            }
+        });
     }
 
     private void switchPlayPauseButton(boolean isPlaying) {
@@ -46,64 +84,22 @@ public class AudioPlayer {
 
     public void loadFile(File file){
         try {
-//            if(mMediaPlayer.isPlaying()){
-//                mMediaPlayer.pause();
-//            }
-//            mMediaPlayer.stop();
             switchPlayPauseButton(false);
             mMediaPlayer.reset();
-            mMediaPlayer.setDataSource(file.getCanonicalPath());
+            mMediaPlayer.setDataSource(file.getAbsolutePath());
             mMediaPlayer.prepare();
             int duration = mMediaPlayer.getDuration();
             mSeekBar.setMax(duration);
-            mSeekBar.setProgress(0);
-
             final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
-            mProgress.setText("00:00:00");
             mDuration.setText(time);
             mDuration.invalidate();
-            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    switchPlayPauseButton(false);
-                    mSeekBar.setProgress(mSeekBar.getMax());
-                    int duration = mSeekBar.getMax();
-                    final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
-                            mDuration.setText(time);
-                            mDuration.invalidate();
-                    if(mMediaPlayer.isPlaying()) {
-                        mMediaPlayer.seekTo(0);
-                    }
-                }
-            });
-            mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if (mMediaPlayer != null && fromUser) {
-                        mMediaPlayer.seekTo(progress);
-                        final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
-                        mProgress.setText(time);
-                        mProgress.invalidate();
-                    }
-                }
-            });
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-        } catch (IllegalStateException e){
-
         }
     }
 
     public void play(){
-        if(!mMediaPlayer.isPlaying()) {
+        if(mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
             try {
                 mMediaPlayer.start();
                 switchPlayPauseButton(true);
@@ -115,7 +111,7 @@ public class AudioPlayer {
                 Runnable loop = new Runnable() {
                     @Override
                     public void run() {
-                        if (mMediaPlayer != null) {
+                        if (mMediaPlayer != null && !mPlayerReleased) {
                             int mCurrentPosition = mMediaPlayer.getCurrentPosition();
                             if (mCurrentPosition > mSeekBar.getProgress()) {
                                 mSeekBar.setProgress(mCurrentPosition);
@@ -135,7 +131,7 @@ public class AudioPlayer {
     }
 
     public void pause(){
-        if(mMediaPlayer.isPlaying()) {
+        if(mMediaPlayer != null && !mPlayerReleased && mMediaPlayer.isPlaying()) {
             try {
                 mMediaPlayer.pause();
                 switchPlayPauseButton(false);
@@ -145,10 +141,19 @@ public class AudioPlayer {
         }
     }
 
+    public void cleanup(){
+        synchronized (mMediaPlayer){
+            if(!mPlayerReleased && mMediaPlayer.isPlaying()){
+                mMediaPlayer.pause();
+            }
+            mMediaPlayer.release();
+            mPlayerReleased = true;
+        }
+    }
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        mMediaPlayer.reset();
-        mMediaPlayer.release();
+        cleanup();
     }
 }

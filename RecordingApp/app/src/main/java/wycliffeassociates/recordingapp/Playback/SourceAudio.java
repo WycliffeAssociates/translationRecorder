@@ -7,8 +7,11 @@ import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.support.v4.os.EnvironmentCompat;
 import android.support.v4.provider.DocumentFile;
 import android.util.AttributeSet;
 import android.view.View;
@@ -17,17 +20,16 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.amazonaws.mobileconnectors.cognito.Record;
 
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -35,7 +37,10 @@ import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.project.adapters.SourceTextAdapter;
+import wycliffeassociates.recordingapp.widgets.AudioPlayer;
 
 /**
  * Created by sarabiaj on 4/13/2016.
@@ -46,7 +51,7 @@ public class SourceAudio extends LinearLayout {
     private SeekBar mSeekBar;
     private TextView mSrcTimeElapsed;
     private TextView mSrcTimeDuration;
-    private MediaPlayer mSrcPlayer;
+    private AudioPlayer mSrcPlayer;
     private ImageButton mBtnSrcPlay;
     private ImageButton mBtnSrcPause;
     private TextView mNoSourceMsg;
@@ -55,6 +60,7 @@ public class SourceAudio extends LinearLayout {
     private Project mProject;
     private String mFileName;
     private int mChapter;
+    private File mTemp;
 
     public SourceAudio(Context context) {
         this(context, null);
@@ -69,6 +75,14 @@ public class SourceAudio extends LinearLayout {
         init();
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if(mTemp != null && mTemp.exists()) {
+            mTemp.delete();
+        }
+    }
+
     private void init(){
         inflate(getContext(), R.layout.source_audio, this);
         mSrcTimeElapsed = (TextView) findViewById(R.id.timeProgress);
@@ -77,7 +91,7 @@ public class SourceAudio extends LinearLayout {
         mBtnSrcPlay = (ImageButton) findViewById(R.id.playButton);
         mBtnSrcPause = (ImageButton) findViewById(R.id.pauseButton);
         mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
-        mSrcPlayer = new MediaPlayer();
+        mSrcPlayer = new AudioPlayer(mSrcTimeElapsed, mSrcTimeDuration, mBtnSrcPlay, mBtnSrcPause, mSeekBar);
         mCtx = (Activity) getContext();
 
         OnClickListener onClickListener = new OnClickListener() {
@@ -95,7 +109,7 @@ public class SourceAudio extends LinearLayout {
         mBtnSrcPause.setOnClickListener(onClickListener);
     }
 
-    private DocumentFile getSourceAudioDirectory(){
+    private Uri getSourceAudioDirectory(){
         String srcLoc = mProject.getSourceAudioPath();
         String sourceLang = mProject.getSourceLanguage();
         if(srcLoc == null || sourceLang == null || srcLoc.compareTo("") == 0 || sourceLang.compareTo("") == 0) {
@@ -108,98 +122,82 @@ public class SourceAudio extends LinearLayout {
         }
         Uri uri = Uri.parse(srcLoc);
         if(uri != null){
-            DocumentFile df = DocumentFile.fromSingleUri(mCtx, uri);
-            if(df != null) {
-                return df;
-            }
+            return uri;
         }
         return null;
     }
 
-    private DocumentFile getSourceAudioFile(){
-        DocumentFile directory = getSourceAudioDirectory();
-        if(directory == null){
+    private boolean filesMatch(FileNameExtractor one, FileNameExtractor two){
+        if(one == null || two == null){
+            return false;
+        }
+        if(one.getBookNumber() == two.getBookNumber()) {
+            if (one.getChapter() == two.getChapter()) {
+                if(one.getStartVerse() == two.getStartVerse()){
+                    if(one.getEndVerse() == two.getEndVerse()){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private File getSourceAudioFile() {
+        Uri uri = getSourceAudioDirectory();
+        if (uri == null) {
             return null;
         }
         String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
 
-        Uri uri = directory.getUri();
         try {
             InputStream is = mCtx.getContentResolver().openInputStream(uri);
-            BufferedInputStream bis = new BufferedInputStream(is);
+            XarFile xar = new XarFile(is, "cmn_ulb_b55_2ti_c04_v19_t01.wav");
+            XarEntry entry = xar.getEntry();
+            InputStream file = xar.getInputStream(entry);
+            System.out.println(System.currentTimeMillis());
 
-            File temp = File.createTempFile("temp.", "wav");
-            FileOutputStream fos = new FileOutputStream(temp);
+            mTemp = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/temp.wav");
+            FileOutputStream fos = new FileOutputStream(mTemp);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
-            ZipInputStream zis = new ZipInputStream(bis);
-            ZipEntry ze;
-            String extractedName;
-            do{
-                ze = zis.getNextEntry();
-                extractedName = ze.getName();
-                try {
-                    extractedName = extractedName.substring(extractedName.lastIndexOf("/"), extractedName.lastIndexOf("."));
-                } catch (StringIndexOutOfBoundsException e){
-                    extractedName = "";
-                }
-            } while(extractedName.compareTo(mFileName) != 0 && ze != null);
 
-            long size = ze.getSize();
-            bos.write(zis.read(new byte[(int)size]));
-            zis.closeEntry();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = file.read(buffer)) != -1) {
+                bos.write(buffer, 0, len);
+            }
+
             bos.close();
             fos.close();
-            zis.close();
-            bis.close();
-            is.close();
+
+//            ZipInputStream zis = new ZipInputStream(is);
+//            ZipEntry ze;
+//            String extractedName;
+//            do {
+//                ze = zis.getNextEntry();
+//                extractedName = ze.getName();
+//                try {
+//                    extractedName = extractedName.substring(extractedName.lastIndexOf("/"), extractedName.lastIndexOf("."));
+//                } catch (StringIndexOutOfBoundsException e) {
+//                    extractedName = "";
+//                }
+//            } while (extractedName.compareTo(mFileName) != 0 && ze != null);
+//
+//            long size = ze.getSize();
+//            bos.write(zis.read(new byte[(int) size]));
+//            zis.closeEntry();
+//            bos.close();
+//            fos.close();
+//            zis.close();
+//            //bis.close();
+//            is.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-//        DocumentFile[] files = directory.listFiles();
-//        for(DocumentFile f : files){
-//            if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
-//                //make sure the filetype is supported
-//                String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
-//                for(String s : filetypes){
-//                    if(ext.compareTo(s) == 0){
-//                        return f;
-//                    }
-//                }
-//            }
-//        }
-
-        return null;
+        return mTemp;
     }
-
-//    private File getSourceAudioFileKitkat(){
-//        File directory = getSourceAudioFileDirectoryKitkat();
-//        if(directory == null || !directory.exists()){
-//            return null;
-//        } else {
-//            String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
-//            File[] files = directory.listFiles();
-//            for(File f : files){
-//                if(FileNameExtractor.getNameWithoutTake(f.getName()).compareTo(mFileName) == 0){
-//                    //make sure the filetype is supported
-//                    String ext = FilenameUtils.getExtension(f.getName()).toLowerCase();
-//                    for(String s : filetypes){
-//                        if(ext.compareTo(s) == 0){
-//                            return f;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//    private File getSourceAudioFileDirectoryKitkat(){
-//        File file = mProject.getProjectDirectory(mProject);
-//        return file;
-//    }
 
     private void switchPlayPauseBtn(boolean isPlaying) {
         if (isPlaying) {
@@ -212,153 +210,41 @@ public class SourceAudio extends LinearLayout {
     }
 
     public void initSrcAudio(Project project, String fileName, int chapter){
+        if(mTemp != null && mTemp.exists()){
+            mTemp.delete();
+        }
         mProject = project;
         mFileName = fileName;
         mChapter = chapter;
-        Object src;
-        //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            src = getSourceAudioFile();
-        //}
-//        else {
-//            src = getSourceAudioFileKitkat();
-//        }
-        //Uri sourceAudio = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ATranslationRecorder%2FSource%2Fen%2Fulb%2Fgen%2F01%2Fen_ulb_gen_01-01.wav");
-        if(src == null || (src instanceof DocumentFile && !((DocumentFile)src).exists()) || (src instanceof File && !((File)src).exists())){
+        File src = getSourceAudioFile();
+        if(src == null || !src.exists()){
             showNoSource(true);
             return;
         }
         showNoSource(false);
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mSrcPlayer != null && fromUser) {
-                    mSrcPlayer.seekTo(progress);
-                    final String time = String.format("%02d:%02d:%02d", progress / 3600000, (progress / 60000) % 60, (progress / 1000) % 60);
-                    mCtx.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSrcTimeElapsed.setText(time);
-                            mSrcTimeElapsed.invalidate();
-                        }
-                    });
-                }
-            }
-        });
-        try {
-            mSrcPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    switchPlayPauseBtn(false);
-                    mSeekBar.setProgress(mSeekBar.getMax());
-                    int duration = mSeekBar.getMax();
-                    final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
-                    mCtx.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSrcTimeDuration.setText(time);
-                            mSrcTimeDuration.invalidate();
-                        }
-                    });
-                    if(mSrcPlayer.isPlaying()) {
-                        mSrcPlayer.seekTo(0);
-                    }
-                }
-            });
-            if(src != null && src instanceof DocumentFile) {
-                mSrcPlayer.setDataSource(mCtx, ((DocumentFile) src).getUri());
-            } else if (src != null && src instanceof File){
-                mSrcPlayer.setDataSource(((File) src).getAbsolutePath());
-            }
-            mSrcPlayer.prepare();
-            int duration = mSrcPlayer.getDuration();
-            mSeekBar.setMax(duration);
-            final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
-            mCtx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mSrcTimeDuration.setText(time);
-                    mSrcTimeDuration.invalidate();
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mSrcPlayer.loadFile(src);
     }
 
-    public void cleanup(){
-        synchronized (mSrcPlayer){
-            if(!mPlayerReleased && mSrcPlayer.isPlaying()){
-                mSrcPlayer.pause();
-            }
-            mSrcPlayer.release();
-            mPlayerReleased = true;
-        }
-    }
 
     public void playSource() {
-        switchPlayPauseBtn(true);
-        if (mSrcPlayer != null) {
-            mSrcPlayer.start();
-            mHandler = new Handler();
-            mCtx.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mSeekBar.setProgress(0);
-                    System.out.println(mSeekBar.getProgress());
-                    mSeekBar.invalidate();
-                    Runnable loop = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mSrcPlayer != null && !mPlayerReleased) {
-                                synchronized (mSrcPlayer) {
-                                    int mCurrentPosition = mSrcPlayer.getCurrentPosition();
-                                    if (mCurrentPosition > mSeekBar.getProgress()) {
-                                        mSeekBar.setProgress(mCurrentPosition);
-                                        final String time = String.format("%02d:%02d:%02d", mCurrentPosition / 3600000, (mCurrentPosition / 60000) % 60, (mCurrentPosition / 1000) % 60);
-                                        mSrcTimeElapsed.setText(time);
-                                        mSrcTimeElapsed.invalidate();
-                                    }
-                                }
-                            }
-                            mHandler.postDelayed(this, 200);
-                        }
-                    };
-                    loop.run();
-                }
-            });
-        }
+        mSrcPlayer.play();
     }
 
     public void pauseSource(){
-        switchPlayPauseBtn(false);
-        if(mSrcPlayer != null && !mPlayerReleased && mSrcPlayer.isPlaying()){
-            mSrcPlayer.pause();
-        }
+        mSrcPlayer.pause();
     }
 
     public void reset(Project project, String fileName, int chapter){
-        cleanup();
-        mSrcPlayer = null;
-        mSrcPlayer = new MediaPlayer();
-        mPlayerReleased = false;
+        mSrcPlayer.cleanup();
         mSeekBar.setProgress(0);
         switchPlayPauseBtn(false);
-        mCtx.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mSrcTimeElapsed.setText("00:00:00");
-                mSrcTimeElapsed.invalidate();
-            }
-        });
+        mSrcTimeElapsed.setText("00:00:00");
+        mSrcTimeElapsed.invalidate();
         initSrcAudio(project, fileName, chapter);
+    }
+
+    public void cleanup(){
+        mSrcPlayer.cleanup();
     }
 
     public void setEnabled(boolean enable) {
