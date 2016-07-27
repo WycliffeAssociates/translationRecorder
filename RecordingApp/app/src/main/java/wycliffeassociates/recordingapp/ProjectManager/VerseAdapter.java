@@ -27,6 +27,7 @@ import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.VerseCard;
 
@@ -123,7 +124,8 @@ public class VerseAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.mVerseView.setText(mProject.getMode() + " " + ((Pair<Pair<String,String>, Boolean>)(getItem(position))).first.first);
+        String mode = Utils.capitalizeFirstLetter(mProject.getMode());
+        holder.mVerseView.setText(mode + " " + ((Pair<Pair<String,String>, Boolean>)(getItem(position))).first.first);
         if(((Pair<Pair<String,String>, Boolean>)(getItem(position))).second){
             holder.mVerseView.setTextColor(mCtx.getResources().getColor(R.color.dark_primary_text));
         } else {

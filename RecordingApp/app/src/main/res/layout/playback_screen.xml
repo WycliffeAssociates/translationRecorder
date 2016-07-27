@@ -6,106 +6,16 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent" >
 
-    <RelativeLayout
-        android:id="@+id/top_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="92dp"
-        android:background="@color/very_dark_gray_1" >
-
-        <wycliffeassociates.recordingapp.Playback.SourceAudio
-            android:id="@+id/srcAudioPlayer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_toStartOf="@+id/view_switch_container"
-            android:gravity="center_vertical"
-            android:visibility="invisible"
-            />
-
-        <wycliffeassociates.recordingapp.AudioVisualization.MinimapView
-            android:id="@+id/minimap"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:layout_toStartOf="@id/view_switch_container" />
-
-        <LinearLayout
-            android:id="@+id/view_switch_container"
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            >
-
-            <ImageButton
-                android:id="@+id/switch_minimap"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:paddingLeft="@dimen/default_padding_m"
-                android:paddingRight="@dimen/default_padding_m"
-                android:paddingTop="@dimen/default_padding_s"
-                android:paddingBottom="@dimen/default_padding_s"
-                android:background="#00000000"
-                android:src="@drawable/minimap"
-                android:scaleType="fitCenter"
-
-                />
-
-            <ImageButton
-                android:id="@+id/switch_source_playback"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:paddingLeft="@dimen/default_padding_m"
-                android:paddingRight="@dimen/default_padding_m"
-                android:paddingTop="@dimen/default_padding_s"
-                android:paddingBottom="@dimen/default_padding_s"
-                android:background="@color/mostly_black"
-                android:src="@drawable/hearing"
-                android:scaleType="fitCenter"
-                />
-
-        </LinearLayout>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/canvas_container"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/mostly_black" >
-
-        <wycliffeassociates.recordingapp.AudioVisualization.WaveformView
-            android:id="@+id/main_canvas"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <wycliffeassociates.recordingapp.Playback.MarkerView
-            android:id="@+id/startmarker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:nextFocusDown="@+id/endmarker"
-            android:src="@drawable/ic_startmarker_cyan" />
-
-        <wycliffeassociates.recordingapp.Playback.MarkerView
-            android:id="@+id/endmarker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:nextFocusDown="@+id/info"
-            android:nextFocusUp="@+id/startmarker"
-            android:src="@drawable/ic_endmarker_cyan"
-            android:layout_alignParentBottom="true" />
-
-    </RelativeLayout>
-
     <LinearLayout
         android:id="@+id/file_bar"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
         android:paddingStart="@dimen/default_padding_m"
         android:paddingEnd="@dimen/default_padding_m"
         android:background="@color/very_dark_gray_1"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:elevation="4dp"
+        >
 
         <TextView
             android:id="@+id/file_language"
@@ -186,8 +96,9 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:background="#00000000"
-                android:src="@drawable/ic_refresh_white_48dp"
-                android:scaleType="fitCenter" />
+                android:src="@drawable/redo_variant"
+                android:scaleType="fitCenter"
+                android:layout_marginRight="@dimen/default_padding_s"/>
 
             <ImageButton
                 android:id="@+id/btnInsertRecord"
@@ -202,6 +113,98 @@
 
 
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/canvas_container"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/mostly_black" >
+
+        <wycliffeassociates.recordingapp.AudioVisualization.WaveformView
+            android:id="@+id/main_canvas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <wycliffeassociates.recordingapp.Playback.MarkerView
+            android:id="@+id/startmarker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:nextFocusDown="@+id/endmarker"
+            android:src="@drawable/ic_startmarker_cyan" />
+
+        <wycliffeassociates.recordingapp.Playback.MarkerView
+            android:id="@+id/endmarker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:nextFocusDown="@+id/info"
+            android:nextFocusUp="@+id/startmarker"
+            android:src="@drawable/ic_endmarker_cyan"
+            android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/top_bar_container"
+        android:layout_width="match_parent"
+        android:layout_height="124dp"
+        android:background="@color/very_dark_gray_1" >
+
+        <wycliffeassociates.recordingapp.Playback.SourceAudio
+            android:id="@+id/srcAudioPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toStartOf="@+id/view_switch_container"
+            android:gravity="center_vertical"
+            android:visibility="invisible"
+            />
+
+        <wycliffeassociates.recordingapp.AudioVisualization.MinimapView
+            android:id="@+id/minimap"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_toStartOf="@id/view_switch_container" />
+
+        <LinearLayout
+            android:id="@+id/view_switch_container"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            >
+
+            <ImageButton
+                android:id="@+id/switch_minimap"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:paddingLeft="@dimen/default_padding_m"
+                android:paddingRight="@dimen/default_padding_m"
+                android:paddingTop="@dimen/default_padding_m"
+                android:paddingBottom="@dimen/default_padding_m"
+                android:background="#00000000"
+                android:src="@drawable/minimap"
+                android:scaleType="fitCenter"
+
+                />
+
+            <ImageButton
+                android:id="@+id/switch_source_playback"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:paddingLeft="@dimen/default_padding_m"
+                android:paddingRight="@dimen/default_padding_m"
+                android:paddingTop="@dimen/default_padding_m"
+                android:paddingBottom="@dimen/default_padding_m"
+                android:background="@color/mostly_black"
+                android:src="@drawable/hearing"
+                android:scaleType="fitCenter"
+                />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/toolbar"
