@@ -54,6 +54,7 @@ public class VerseCard extends FrameLayout {
 
         mTakes = (TextView) findViewById(R.id.take_view);
         findViewById(R.id.expanded_card).setVisibility(View.GONE);
+
         findViewById(R.id.base_card).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +69,16 @@ public class VerseCard extends FrameLayout {
                 }
             }
         });
+
+        findViewById(R.id.card_root).setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                // Return false to propagate the long click through the parent, which is the
+                //    ListView item.
+                return false;
+            }
+        });
+
         findViewById(R.id.play_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

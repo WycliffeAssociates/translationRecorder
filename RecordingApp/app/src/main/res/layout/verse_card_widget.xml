@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -11,8 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/default_padding_m"
-        android:id="@+id/base_card"
-        >
+        android:id="@+id/base_card">
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,13 +41,14 @@
                 />
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:id="@+id/play_button"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:src="@drawable/ic_play_blue"
                 android:scaleType="fitCenter"
                 android:layout_marginLeft="@dimen/default_padding_m"
                 android:visibility="visible"
-                android:id="@+id/play_button" />
+                />
 
 
         </LinearLayout>
