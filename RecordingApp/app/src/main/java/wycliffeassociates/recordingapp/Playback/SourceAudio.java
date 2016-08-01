@@ -21,6 +21,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 
+import com.wycliffeassociates.io.ArchiveOfHolding;
+import com.wycliffeassociates.io.ArchiveOfHoldingEntry;
+import com.wycliffeassociates.io.LanguageLevel;
+
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -79,7 +84,7 @@ public class SourceAudio extends LinearLayout {
     protected void finalize() throws Throwable {
         super.finalize();
         if(mTemp != null && mTemp.exists()) {
-            mTemp.delete();
+            //mTemp.delete();
         }
     }
 
@@ -151,46 +156,51 @@ public class SourceAudio extends LinearLayout {
         String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
 
         try {
+            long start = System.currentTimeMillis();
             InputStream is = mCtx.getContentResolver().openInputStream(uri);
-            XarFile xar = new XarFile(is, "cmn_ulb_b55_2ti_c04_v19_t01.wav");
-            XarEntry entry = xar.getEntry();
-            InputStream file = xar.getInputStream(entry);
-            System.out.println(System.currentTimeMillis());
-
-            mTemp = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/temp.wav");
+            LanguageLevel ll = new LanguageLevel();
+            ArchiveOfHolding aoh = new ArchiveOfHolding(is, ll);
+            String importantSection = mFileName.substring(mFileName.lastIndexOf("b_b"), mFileName.length());
+            ArchiveOfHoldingEntry entry = aoh.getEntry(importantSection, mProject.getSourceLanguage(),
+                    mProject.getSource(), mProject.getSlug(), FileNameExtractor.chapterIntToString(mProject, mChapter));
+            String extension = null;
+            if(entry == null){
+                return null;
+            } else {
+                String entryName = entry.getName();
+                boolean invalid = true;
+                for(int i = 0; i < filetypes.length; i++){
+                    if(entryName.contains(filetypes[i])){
+                        invalid = false;
+                        extension = filetypes[i];
+                        break;
+                    }
+                }
+                if(invalid){
+                    return null;
+                }
+            }
+            InputStream file = entry.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(file);
+            mTemp = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/temp" + extension);
             FileOutputStream fos = new FileOutputStream(mTemp);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
 
+            System.out.println("Took " + (System.currentTimeMillis()-start) + " ms to parse file");
             byte[] buffer = new byte[1024];
             int len;
-            while ((len = file.read(buffer)) != -1) {
+            while ((len = bis.read(buffer)) != -1) {
                 bos.write(buffer, 0, len);
             }
+            long end = System.currentTimeMillis();
 
+            System.out.println("Took " + (end-start) + " ms to parse and write file");
+            bis.close();
+            is.close();
+            file.close();
+            bos.flush();
             bos.close();
             fos.close();
-
-//            ZipInputStream zis = new ZipInputStream(is);
-//            ZipEntry ze;
-//            String extractedName;
-//            do {
-//                ze = zis.getNextEntry();
-//                extractedName = ze.getName();
-//                try {
-//                    extractedName = extractedName.substring(extractedName.lastIndexOf("/"), extractedName.lastIndexOf("."));
-//                } catch (StringIndexOutOfBoundsException e) {
-//                    extractedName = "";
-//                }
-//            } while (extractedName.compareTo(mFileName) != 0 && ze != null);
-//
-//            long size = ze.getSize();
-//            bos.write(zis.read(new byte[(int) size]));
-//            zis.closeEntry();
-//            bos.close();
-//            fos.close();
-//            zis.close();
-//            //bis.close();
-//            is.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -211,7 +221,7 @@ public class SourceAudio extends LinearLayout {
 
     public void initSrcAudio(Project project, String fileName, int chapter){
         if(mTemp != null && mTemp.exists()){
-            mTemp.delete();
+            //mTemp.delete();
         }
         mProject = project;
         mFileName = fileName;
@@ -235,7 +245,7 @@ public class SourceAudio extends LinearLayout {
     }
 
     public void reset(Project project, String fileName, int chapter){
-        mSrcPlayer.cleanup();
+        mSrcPlayer.reset();
         mSeekBar.setProgress(0);
         switchPlayPauseBtn(false);
         mSrcTimeElapsed.setText("00:00:00");

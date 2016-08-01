@@ -61,6 +61,7 @@ dependencies {
     }
     compile files('src/main/lib/zip4j_1.3.2.jar')
     compile project(':door43login')
+    compile files('src/main/lib/archive_of_holding_0.9.jar')
 }
 
 configurations.all {

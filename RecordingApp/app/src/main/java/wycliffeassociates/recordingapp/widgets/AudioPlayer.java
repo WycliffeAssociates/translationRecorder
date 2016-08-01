@@ -33,7 +33,10 @@ public class AudioPlayer {
         mPause = pause;
         mSeekBar = seek;
         mMediaPlayer = new MediaPlayer();
+        attachListeners();
+    }
 
+    private void attachListeners(){
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -85,7 +88,6 @@ public class AudioPlayer {
     public void loadFile(File file){
         try {
             switchPlayPauseButton(false);
-            mMediaPlayer.reset();
             mMediaPlayer.setDataSource(file.getAbsolutePath());
             mMediaPlayer.prepare();
             int duration = mMediaPlayer.getDuration();
@@ -138,6 +140,15 @@ public class AudioPlayer {
             } catch (IllegalStateException e) {
 
             }
+        }
+    }
+
+    public void reset(){
+        synchronized (mMediaPlayer){
+            if(!mPlayerReleased && mMediaPlayer.isPlaying()){
+                mMediaPlayer.pause();
+            }
+            mMediaPlayer.reset();
         }
     }
 
