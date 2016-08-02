@@ -66,6 +66,7 @@ public class SourceAudio extends LinearLayout {
     private String mFileName;
     private int mChapter;
     private File mTemp;
+    private static final String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
 
     public SourceAudio(Context context) {
         this(context, null);
@@ -114,86 +115,79 @@ public class SourceAudio extends LinearLayout {
         mBtnSrcPause.setOnClickListener(onClickListener);
     }
 
-    private Uri getSourceAudioDirectory(){
-        String srcLoc = mProject.getSourceAudioPath();
-        String sourceLang = mProject.getSourceLanguage();
-        if(srcLoc == null || sourceLang == null || srcLoc.compareTo("") == 0 || sourceLang.compareTo("") == 0) {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
-            srcLoc = sp.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, null);
-            sourceLang = sp.getString(Settings.KEY_PREF_GLOBAL_LANG_SRC, null);
-        }
-        if(srcLoc == null || sourceLang == null || srcLoc.compareTo("") == 0 || sourceLang.compareTo("") == 0) {
+    private Uri getUriFromString(String sourceLanguage, String sourceLocation){
+        if(sourceLocation == null || sourceLanguage == null || sourceLocation.compareTo("") == 0 || sourceLanguage.compareTo("") == 0) {
             return null;
         }
-        Uri uri = Uri.parse(srcLoc);
+        Uri uri = Uri.parse(sourceLocation);
         if(uri != null){
             return uri;
         }
         return null;
     }
 
-    private File getSourceAudioFile() {
-        Uri uri = getSourceAudioDirectory();
-        if (uri == null) {
-            return null;
-        }
-        String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
-
-        try {
-            long start = System.currentTimeMillis();
-            InputStream is = mCtx.getContentResolver().openInputStream(uri);
-            LanguageLevel ll = new LanguageLevel();
-            ArchiveOfHolding aoh = new ArchiveOfHolding(is, ll);
-            String importantSection = mFileName.substring(mFileName.lastIndexOf("b_b"), mFileName.length());
-            ArchiveOfHoldingEntry entry = aoh.getEntry(importantSection, mProject.getSourceLanguage(),
-                    mProject.getSource(), mProject.getSlug(), FileNameExtractor.chapterIntToString(mProject, mChapter));
-            String extension = null;
-            if(entry == null){
-                return null;
-            } else {
-                String entryName = entry.getName();
-                boolean invalid = true;
-                for(int i = 0; i < filetypes.length; i++){
-                    if(entryName.contains(filetypes[i])){
-                        invalid = false;
-                        extension = filetypes[i];
-                        break;
-                    }
-                }
-                if(invalid){
-                    return null;
-                }
+    private String getExtensionIfValid(String filename){
+        String extension = null;
+        for(int i = 0; i < filetypes.length; i++){
+            if(filename.contains(filetypes[i])){
+                extension = filetypes[i];
+                break;
             }
-            InputStream file = entry.getInputStream();
-            BufferedInputStream bis = new BufferedInputStream(file);
-            mTemp = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/temp" + extension);
-            FileOutputStream fos = new FileOutputStream(mTemp);
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-            System.out.println("Took " + (System.currentTimeMillis()-start) + " ms to parse file");
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = bis.read(buffer)) != -1) {
-                bos.write(buffer, 0, len);
-            }
-            long end = System.currentTimeMillis();
-
-            System.out.println("Took " + (end-start) + " ms to parse and write file");
-            bis.close();
-            is.close();
-            file.close();
-            bos.flush();
-            bos.close();
-            fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return mTemp;
+        return extension;
     }
 
-    private void switchPlayPauseBtn(boolean isPlaying) {
+    private boolean getAudioFromUri(String sourceLanguage, Uri uri) throws IOException, FileNotFoundException{
+        InputStream is = mCtx.getContentResolver().openInputStream(uri);
+        LanguageLevel ll = new LanguageLevel();
+        ArchiveOfHolding aoh = new ArchiveOfHolding(is, ll);
+        String importantSection = mFileName.substring(mFileName.lastIndexOf("_b"), mFileName.length());
+        ArchiveOfHoldingEntry entry = aoh.getEntry(importantSection, sourceLanguage,
+                mProject.getSource(), mProject.getSlug(), FileNameExtractor.chapterIntToString(mProject, mChapter));
+        if(entry == null){
+            return false;
+        }
+        String extension = getExtensionIfValid(entry.getName());
+        InputStream file = entry.getInputStream();
+        BufferedInputStream bis = new BufferedInputStream(file);
+        mTemp = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/temp" + extension);
+        FileOutputStream fos = new FileOutputStream(mTemp);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = bis.read(buffer)) != -1) {
+            bos.write(buffer, 0, len);
+        }
+        bis.close();
+        is.close();
+        file.close();
+        bos.flush();
+        bos.close();
+        fos.close();
+
+        return true;
+    }
+
+    private void loadAudioFile() throws IOException {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
+
+        String projectSourceLocation = mProject.getSourceAudioPath();
+        String projectSourceLanguage = mProject.getSourceLanguage();
+        String globalSourceLocation = sp.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, null);
+        String globalSourceLanguage = sp.getString(Settings.KEY_PREF_GLOBAL_LANG_SRC, null);
+
+        Uri projectUri = getUriFromString(projectSourceLanguage, projectSourceLocation);
+        Uri globalUri = getUriFromString(globalSourceLanguage, globalSourceLocation);
+
+        boolean gotFile = false;
+        if (projectUri != null) {
+            gotFile = getAudioFromUri(projectSourceLanguage, projectUri);
+        } if(!gotFile && globalUri != null){
+            getAudioFromUri(globalSourceLanguage, globalUri);
+        }
+    }
+
+    private void switchPlayPauseButton(boolean isPlaying) {
         if (isPlaying) {
             mBtnSrcPause.setVisibility(View.VISIBLE);
             mBtnSrcPlay.setVisibility(View.INVISIBLE);
@@ -205,18 +199,23 @@ public class SourceAudio extends LinearLayout {
 
     public void initSrcAudio(Project project, String fileName, int chapter){
         if(mTemp != null && mTemp.exists()){
-            //mTemp.delete();
+            mTemp.delete();
+            mTemp = null;
         }
         mProject = project;
         mFileName = fileName;
         mChapter = chapter;
-        File src = getSourceAudioFile();
-        if(src == null || !src.exists()){
+        try {
+            loadAudioFile();
+        } catch (IOException e) {
+            mTemp = null;
+        }
+        if(mTemp == null || !mTemp.exists()){
             showNoSource(true);
             return;
         }
         showNoSource(false);
-        mSrcPlayer.loadFile(src);
+        mSrcPlayer.loadFile(mTemp);
     }
 
 
@@ -231,7 +230,7 @@ public class SourceAudio extends LinearLayout {
     public void reset(Project project, String fileName, int chapter){
         mSrcPlayer.reset();
         mSeekBar.setProgress(0);
-        switchPlayPauseBtn(false);
+        switchPlayPauseButton(false);
         mSrcTimeElapsed.setText("00:00:00");
         mSrcTimeElapsed.invalidate();
         initSrcAudio(project, fileName, chapter);
