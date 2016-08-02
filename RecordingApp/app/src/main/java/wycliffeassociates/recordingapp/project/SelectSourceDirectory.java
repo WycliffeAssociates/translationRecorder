@@ -35,23 +35,24 @@ public class SelectSourceDirectory extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceBundle){
         super.onCreate(savedInstanceBundle);
-        if(Build.VERSION.SDK_INT >= 21) {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        //if(Build.VERSION.SDK_INT >= 21) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("*/*");
             startActivityForResult(intent, SRC_LOC);
-        } else {
-            final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
-
-            final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
-                    .newDirectoryName("DirChooserSample")
-                    .allowReadOnlyDirectory(true)
-                    .allowNewDirectoryNameModification(true)
-                    .build();
-
-            chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
-
-            // REQUEST_DIRECTORY is a constant integer to identify the request, e.g. 0
-            startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
-        }
+//        } else {
+//            final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
+//
+//            final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+//                    .newDirectoryName("DirChooserSample")
+//                    .allowReadOnlyDirectory(true)
+//                    .allowNewDirectoryNameModification(true)
+//                    .build();
+//
+//            chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+//
+//            // REQUEST_DIRECTORY is a constant integer to identify the request, e.g. 0
+//            startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
+//        }
     }
 
 
@@ -60,13 +61,13 @@ public class SelectSourceDirectory extends Activity {
         Intent intent = new Intent();
         if (resultCode == Activity.RESULT_OK) {
             if(requestCode == SRC_LOC) {
-                Uri treeUri = resultData.getData();
+                Uri uri = resultData.getData();
 
-                getApplicationContext().getContentResolver().takePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-                DocumentFile selectedDirectory = DocumentFile.fromTreeUri(this, treeUri);
-                Uri dir = selectedDirectory.getUri();
-                String uristring = dir.toString();
+                getApplicationContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                String uristring = uri.toString();
+
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
                 pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, uristring).commit();
                 pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
@@ -75,18 +76,18 @@ public class SelectSourceDirectory extends Activity {
                 intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
             }
         }
-         else if (requestCode == REQUEST_DIRECTORY){
-            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
-                String dirString = resultData.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, dirString).commit();
-                pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
-                System.out.println(pref.getInt(Settings.KEY_SDK_LEVEL, 21));
-
-                intent.putExtra(SOURCE_LOCATION, dirString);
-                intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
-            }
-        }
+//         else if (requestCode == REQUEST_DIRECTORY){
+//            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
+//                String dirString = resultData.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
+//                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+//                pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, dirString).commit();
+//                pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
+//                System.out.println(pref.getInt(Settings.KEY_SDK_LEVEL, 21));
+//
+//                intent.putExtra(SOURCE_LOCATION, dirString);
+//                intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
+//            }
+//        }
         setResult(resultCode, intent);
         this.finish();
     }
