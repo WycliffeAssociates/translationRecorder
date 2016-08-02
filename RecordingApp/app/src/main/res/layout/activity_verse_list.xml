@@ -16,42 +16,28 @@
         app:popupTheme="@style/TR.Popup"
         />
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/chapter_list_layout"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:weightSum="100"
+        android:visibility="visible"
+        android:gravity="center_horizontal"
         >
 
-        <LinearLayout
-            android:id="@+id/chapter_list_layout"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:weightSum="100"
-            android:visibility="visible"
-            android:gravity="center_horizontal"
-            >
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/chapter_list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="80"
+            android:scrollbars="vertical"
+            android:paddingTop="@dimen/default_padding_m"
+            android:paddingBottom="@dimen/default_padding_m"
+            android:clipToPadding="false"
+            android:divider="@color/background_material_light"
+            />
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="80"
-                >
-
-                <ListView
-                    android:id="@+id/chapter_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:divider="@color/background_material_light"
-                    android:paddingTop="@dimen/default_padding_m"
-                    android:paddingBottom="@dimen/default_padding_m"
-                    android:clipToPadding="false"
-                    />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>
