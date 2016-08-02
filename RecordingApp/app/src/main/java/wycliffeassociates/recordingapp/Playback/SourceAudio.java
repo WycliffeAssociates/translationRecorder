@@ -132,22 +132,6 @@ public class SourceAudio extends LinearLayout {
         return null;
     }
 
-    private boolean filesMatch(FileNameExtractor one, FileNameExtractor two){
-        if(one == null || two == null){
-            return false;
-        }
-        if(one.getBookNumber() == two.getBookNumber()) {
-            if (one.getChapter() == two.getChapter()) {
-                if(one.getStartVerse() == two.getStartVerse()){
-                    if(one.getEndVerse() == two.getEndVerse()){
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     private File getSourceAudioFile() {
         Uri uri = getSourceAudioDirectory();
         if (uri == null) {
