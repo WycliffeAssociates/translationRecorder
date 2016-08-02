@@ -105,7 +105,6 @@ public class AudioPlayer {
             try {
                 mMediaPlayer.start();
                 switchPlayPauseButton(true);
-
                 mHandler = new Handler();
                 mSeekBar.setProgress(0);
                 System.out.println(mSeekBar.getProgress());

@@ -29,7 +29,6 @@ import wycliffeassociates.recordingapp.Recording.WavFile;
 public class VerseCard extends FrameLayout {
 
     private SeekBar mSeekBar;
-    MediaPlayer mMediaPlayer;
     List<File> mFiles;
     TextView mTakes, mTimeElapsed, mTimeDuration;
     ImageButton mPlay, mPause;
@@ -60,6 +59,10 @@ public class VerseCard extends FrameLayout {
                 View expanded = findViewById(R.id.expanded_card);
                 View play = findViewById(R.id.play_button);
                 if(expanded.getVisibility() == GONE){
+                    if(mFiles.size() > 0) {
+                        mAudioPlayer.reset();
+                        mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
+                    }
                     expanded.setVisibility(VISIBLE);
                     play.setVisibility(GONE);
                 } else {
@@ -100,6 +103,7 @@ public class VerseCard extends FrameLayout {
                         mTakeIndex = 0;
                     }
                     refreshTakeText();
+                    mAudioPlayer.reset();
                     mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
                 }
             }
@@ -114,6 +118,7 @@ public class VerseCard extends FrameLayout {
                         mTakeIndex = mFiles.size() - 1;
                     }
                     refreshTakeText();
+                    mAudioPlayer.reset();
                     mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
                 }
             }
@@ -161,9 +166,6 @@ public class VerseCard extends FrameLayout {
         mChapter = chapter;
         mUnit = unit;
         mFiles = files;
-        if(files.size() > 0) {
-            mAudioPlayer.loadFile(files.get(mTakeIndex));
-        }
         refreshTakeText();
     }
 
@@ -191,6 +193,7 @@ public class VerseCard extends FrameLayout {
                     }
                     refreshTakeText();
                     if(mFiles.size() > 0){
+                        mAudioPlayer.reset();
                         mAudioPlayer.loadFile(mFiles.get(mTakeIndex));
                     }
                 }
