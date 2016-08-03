@@ -58,51 +58,53 @@ public class UnitCard {
         return mTitle;
     }
 
-    public void toggleExpansion(View body, View footer, View unitPlayBtn) {
+    public void toggleExpansion(UnitCardAdapter.ViewHolder vh) {
         if (mIsExpanded) {
-            this.collapse(body, footer, unitPlayBtn);
+            this.collapse(vh);
         } else {
-            this.expand(body, footer, unitPlayBtn);
+            this.expand(vh);
         }
     }
 
-    public void expand(View body, View footer, View unitPlayBtn) {
-        System.out.println("Expand");
-        body.setVisibility(View.VISIBLE);
-        footer.setVisibility(View.VISIBLE);
-        unitPlayBtn.setVisibility(View.GONE);
+    public void expand(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Expand");
+        vh.mCardBody.setVisibility(View.VISIBLE);
+        vh.mCardFooter.setVisibility(View.VISIBLE);
+        vh.mUnitPlayBtn.setVisibility(View.GONE);
         mIsExpanded = true;
     }
 
-    public void collapse(View body, View footer, View unitPlayBtn) {
-        System.out.println("Collapse");
-        body.setVisibility(View.GONE);
-        footer.setVisibility(View.GONE);
-        unitPlayBtn.setVisibility(View.VISIBLE);
+    public void collapse(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Collapse");
+        vh.mCardBody.setVisibility(View.GONE);
+        vh.mCardFooter.setVisibility(View.GONE);
+        vh.mUnitPlayBtn.setVisibility(View.VISIBLE);
         mIsExpanded = false;
     }
 
-    public void raise(CardView card, LinearLayout container) {
-        System.out.println("Raise");
-        card.setCardElevation(12f);
-        container.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
+    public void raise(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Raise");
+        vh.mCardView.setCardElevation(8f);
+        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
+        vh.mUnitTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
         mIsSelected = true;
     }
 
-    public void drop(CardView card, LinearLayout container) {
-        System.out.println("Drop");
-        card.setCardElevation(2f);
-        container.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
+    public void drop(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Drop");
+        vh.mCardView.setCardElevation(2f);
+        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
+        vh.mUnitTitle.setTextColor(mCtx.getResources().getColor(R.color.primary_text_default_material_light));
         mIsSelected = false;
     }
 
-//    public void toggleRaiseDrop(CardView card) {
-//        System.out.println("Toggle Raise/Drop");
-//        if (mIsSelected) {
-//            drop(card);
-//        } else
-//            raise(card);
-//    }
+    public void toggleRaiseDrop(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Toggle Raise/Drop");
+        if (mIsSelected) {
+            drop(vh);
+        } else
+            raise(vh);
+    }
 
     public boolean isExpanded() {
         return mIsExpanded;
@@ -116,16 +118,16 @@ public class UnitCard {
         return (new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Card Header Click");
+                // System.out.println("Card Header Click");
                 if (!mIsExpanded) {
                     vh.setIsRecyclable(false);
-                    expand(vh.mCardBody, vh.mCardFooter, vh.mUnitPlayBtn);
+                    expand(vh);
                     if (!expandedCards.contains(position)) {
                         expandedCards.add(position);
                     }
                 } else {
                     vh.setIsRecyclable(true);
-                    collapse(vh.mCardBody, vh.mCardFooter, vh.mUnitPlayBtn);
+                    collapse(vh);
                     if (expandedCards.contains(position)) {
                         expandedCards.remove(expandedCards.indexOf(position));
                     }
@@ -138,7 +140,7 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Record Unit");
+                // System.out.println("Record Unit");
                 Project.loadProjectIntoPreferences(view.getContext(), project);
                 int startVerse = Integer.parseInt(mFirstVerse);
                 view.getContext().startActivity(RecordingScreen.getNewRecordingIntent(view.getContext(), project, chapter, startVerse));

@@ -103,9 +103,6 @@ public class ActivityVerseList extends AppCompatActivity {
     }
 
     private void prepareUnitCardData() {
-//        for (int i = 0; i < 100; i++) {
-//            mUnitCardList.add(new UnitCard("Wat", Integer.toString(i)));
-//        }
 
         try {
             Chunks chunks = new Chunks(this, mProject.getSlug());
@@ -114,7 +111,6 @@ public class ActivityVerseList extends AppCompatActivity {
             for (Map<String, String> unit : map) {
                 mUnitCardList.add(new UnitCard(this, mode, unit.get(Chunks.FIRST_VERSE)));
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

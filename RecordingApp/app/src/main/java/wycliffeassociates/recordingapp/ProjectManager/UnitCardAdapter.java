@@ -85,10 +85,10 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mMultiSelector.setSelectable(false);
             mMultiSelector.clearSelections();
             for (ViewHolder vh : mSelectedCards) {
-                System.out.println(vh);
-                vh.mUnitCard.drop(vh.mCardView, vh.mCardContainer);
+                vh.mUnitCard.drop(vh);
             }
             mSelectedCards.clear();
+            notifyDataSetChanged();
         }
     };
 
@@ -132,21 +132,26 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             view.setLongClickable(true);
         }
 
-        // Called on onBindViewHolder
+        // Called on onBindViewHolder, when the view is visible on the screen
         public void  bindViewHolder(ViewHolder holder, int position, UnitCard unitCard) {
+            // Capture the UnitCard object
             mUnitCard = unitCard;
+
+            // Set card views based on the UnitCard object
             mUnitTitle.setText(unitCard.getTitle());
 
+            // Expand card if it's already expanded
             if (mExpandedCards.contains(position)) {
-                unitCard.expand(holder.mCardBody, holder.mCardFooter, holder.mUnitPlayBtn);
+                unitCard.expand(holder);
             } else {
-                unitCard.collapse(holder.mCardBody, holder.mCardFooter, holder.mUnitPlayBtn);
+                unitCard.collapse(holder);
             }
 
+            // Raise card, and show appropriate visual cue, if it's already selected
             if (mMultiSelector.isSelected(position, 0)) {
-                unitCard.raise(holder.mCardView, holder.mCardContainer);
+                unitCard.raise(holder);
             } else {
-                unitCard.drop(holder.mCardView, holder.mCardContainer);
+                unitCard.drop(holder);
             }
         }
 
@@ -155,14 +160,17 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             if (mUnitCard == null) {
                 return;
             }
+
+            // Simulate tapping
             mMultiSelector.tapSelection(this);
 
+            // If in selection mode, toggle selection status along with its visual cues
             if (mMultiSelector.isSelectable()){
                 if (mUnitCard.isSelected()) {
-                    mUnitCard.drop(mCardView, mCardContainer);
+                    mUnitCard.drop(this);
                     mSelectedCards.remove(this);
                 } else {
-                    mUnitCard.raise(mCardView, mCardContainer);
+                    mUnitCard.raise(this);
                     mSelectedCards.add(this);
                 }
             }
@@ -170,13 +178,10 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
         @Override
         public boolean onLongClick(View view) {
-            AppCompatActivity activity = (AppCompatActivity) mCtx;
-            activity.startSupportActionMode(mMultiSelectMode);
+            mCtx.startSupportActionMode(mMultiSelectMode);
             mMultiSelector.setSelected(this, true);
-
-            mUnitCard.raise(mCardView, mCardContainer);
+            mUnitCard.raise(this);
             mSelectedCards.add(this);
-
             return true;
         }
 
@@ -203,7 +208,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        System.out.println("onBindViewHolder: " + position + " " + mExpandedCards);
         UnitCard unitCard = mUnitCardList.get(position);
         holder.bindViewHolder(holder, position, unitCard);
 
