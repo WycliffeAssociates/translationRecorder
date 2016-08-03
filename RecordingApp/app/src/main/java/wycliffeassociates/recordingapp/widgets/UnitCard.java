@@ -1,12 +1,16 @@
 package wycliffeassociates.recordingapp.widgets;
 
+import android.content.Context;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.CardView;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import java.util.List;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
+import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 
 /**
@@ -23,16 +27,19 @@ public class UnitCard {
 
     // State
     private boolean mIsExpanded = false;
+    private boolean mIsSelected = false;
 
     // Attributes
     private String mTitle;
+    private Context mCtx;
 
 
     // Constructors
-    public UnitCard(String mode, String firstVerse) {
+    public UnitCard(Context ctx, String mode, String firstVerse) {
         this.init();
         mTitle = mode + " " + firstVerse;
         mFirstVerse = firstVerse;
+        mCtx = ctx;
     }
 
 
@@ -75,9 +82,35 @@ public class UnitCard {
         mIsExpanded = false;
     }
 
+    public void raise(CardView card, LinearLayout container) {
+        System.out.println("Raise");
+        card.setCardElevation(12f);
+        container.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
+        mIsSelected = true;
+    }
+
+    public void drop(CardView card, LinearLayout container) {
+        System.out.println("Drop");
+        card.setCardElevation(2f);
+        container.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
+        mIsSelected = false;
+    }
+
+//    public void toggleRaiseDrop(CardView card) {
+//        System.out.println("Toggle Raise/Drop");
+//        if (mIsSelected) {
+//            drop(card);
+//        } else
+//            raise(card);
+//    }
+
     public boolean isExpanded() {
         return mIsExpanded;
     }
+
+    public boolean isSelected() { return mIsSelected; }
+
+    public void setSelected(boolean isSelected) { mIsSelected = isSelected; }
 
     public View.OnClickListener createHeaderOnClick(final UnitCardAdapter.ViewHolder vh, final List<Integer> expandedCards, final int position) {
         return (new View.OnClickListener() {

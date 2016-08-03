@@ -112,7 +112,7 @@ public class ActivityVerseList extends AppCompatActivity {
             List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);
             String mode = Utils.capitalizeFirstLetter(mProject.getMode());
             for (Map<String, String> unit : map) {
-                mUnitCardList.add(new UnitCard(mode, unit.get(Chunks.FIRST_VERSE)));
+                mUnitCardList.add(new UnitCard(this, mode, unit.get(Chunks.FIRST_VERSE)));
             }
 
         } catch (IOException e) {
