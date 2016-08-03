@@ -4,9 +4,12 @@ import android.content.Context;
 import android.media.Image;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -15,7 +18,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
+import com.bignerdranch.android.multiselector.MultiSelectorBindingHolder;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 
 import java.util.ArrayList;
@@ -30,22 +35,56 @@ import wycliffeassociates.recordingapp.Utils;
  */
 public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHolder> {
 
-    private Context mCtx;
+    private AppCompatActivity mCtx;
     private Project mProject;
     private int mChapterNum;
     private List<UnitCard> mUnitCardList;
-    private List<Integer> mExpandedCards = new ArrayList<Integer>();
+    private List<Integer> mExpandedCards = new ArrayList<>();
     private MultiSelector mMultiSelector = new MultiSelector();
 
     // Constructor
-    public UnitCardAdapter(Context context, Project project, int chapter, List<UnitCard> unitCardList) {
+    public UnitCardAdapter(AppCompatActivity context, Project project, int chapter, List<UnitCard> unitCardList) {
         mUnitCardList = unitCardList;
         mCtx = context;
         mProject = project;
         mChapterNum = chapter;
+//        mExpandedCards = new ArrayList<Integer>();
+//        mMultiSelector = new MultiSelector();
     }
 
+    private ActionMode.Callback mMultiSelectMode = new ModalMultiSelectorCallback(mMultiSelector) {
+
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            mMultiSelector.clearSelections();
+            mMultiSelector.setSelectable(true);
+            return false;
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            System.out.println("onCreateActionMode");
+            mCtx.getMenuInflater().inflate(R.menu.unit_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            System.out.println("onActionItemClicked");
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+//            super.onDestroyActionMode(actionMode);
+            mMultiSelector.setSelectable(false);
+            System.out.println(getSelectedCards());
+        }
+    };
+
     public class ViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
+
         public RelativeLayout mCardHeader, mCardFooter;
         public TextView mUnitTitle, mCurrentTake;
         public LinearLayout mCardBody;
@@ -78,6 +117,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             view.setLongClickable(true);
         }
 
+        // Called on onBindViewHolder
         public void  bindViewHolder(UnitCard unitCard) {
             mUnitCard = unitCard;
             mUnitTitle.setText(unitCard.getTitle());
@@ -85,21 +125,21 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
         @Override
         public void onClick(View view) {
-            System.out.println("It works?");
+            System.out.println("ViewHolder clicked");
             if (mUnitCard == null) {
                 return;
             }
-            if (!mMultiSelector.tapSelection(this)) {
-                System.out.println("Click");
-            }
+            boolean res = mMultiSelector.tapSelection(this);
+            System.out.println(res + " " + mMultiSelector.isSelectable());
         }
 
         @Override
         public boolean onLongClick(View view) {
-            System.out.println("Long click works?");
-//            AppCompatActivity activity = (AppCompatActivity) mCtx;
-//            activity.startSupportActionMode(mDeleteMode);
-//            mMultiSelector.setSelected(this, true);
+            System.out.println("ViewHolder long-clicked");
+            AppCompatActivity activity = (AppCompatActivity) mCtx;
+            activity.startSupportActionMode(mMultiSelectMode);
+            mMultiSelector.setSelected(this, true);
+            System.out.println(getSelectedCards());
             return true;
         }
     }
@@ -121,7 +161,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         UnitCard unitCard = mUnitCardList.get(position);
         holder.bindViewHolder(unitCard);
 
-//        this.setListeners(unitCard, holder, position);
+        // this.setListeners(unitCard, holder, position);
 
         if (mExpandedCards.contains(position)) {
             unitCard.expand(holder.mCardBody, holder.mCardFooter, holder.mUnitPlayBtn);
@@ -136,6 +176,16 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         return mUnitCardList.size();
     }
 
+    public List<UnitCard> getSelectedCards() {
+        List<UnitCard> cards = new ArrayList<>();
+        for (int i = getItemCount(); i >= 0; i--) {
+            if (mMultiSelector.isSelected(i, 0)) {
+                cards.add(mUnitCardList.get(i));
+            }
+        }
+        return cards;
+    }
+
     // Set listeners for unit and take actions
     private void setListeners(final UnitCard unitCard, final ViewHolder holder, final int position) {
 
@@ -145,7 +195,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             @Override
             public boolean onLongClick(View view) {
                 System.out.println("Card Header Long Click");
-                mMultiSelector.setSelectable(true);
                 return true;
             }
         });
