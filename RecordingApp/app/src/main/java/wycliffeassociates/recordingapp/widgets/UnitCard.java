@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp.widgets;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.CardView;
 import android.view.View;
@@ -53,39 +54,130 @@ public class UnitCard {
         return mTitle;
     }
 
-    public void toggleExpansion(View body, View footer, View unitPlayBtn) {
-        if (mIsExpanded) {
-            this.collapse(body, footer, unitPlayBtn);
-        } else {
-            this.expand(body, footer, unitPlayBtn);
-        }
-    }
+//    public void toggleExpansion(UnitCardAdapter.ViewHolder vh) {
+//        if (mIsExpanded) {
+//            this.collapse(vh);
+//        } else {
+//            this.expand(vh);
+//        }
+//    }
 
-    public void expand(View body, View footer, View unitPlayBtn) {
-        System.out.println("Expand");
-        body.setVisibility(View.VISIBLE);
-        footer.setVisibility(View.VISIBLE);
-        unitPlayBtn.setVisibility(View.GONE);
+    public void expand(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Expand");
+        vh.mCardBody.setVisibility(View.VISIBLE);
+        vh.mCardFooter.setVisibility(View.VISIBLE);
+        vh.mUnitPlayBtn.setVisibility(View.GONE);
         mIsExpanded = true;
     }
 
-    public void collapse(View body, View footer, View unitPlayBtn) {
-        System.out.println("Collapse");
-        body.setVisibility(View.GONE);
-        footer.setVisibility(View.GONE);
-        unitPlayBtn.setVisibility(View.VISIBLE);
+    public void collapse(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Collapse");
+        vh.mCardBody.setVisibility(View.GONE);
+        vh.mCardFooter.setVisibility(View.GONE);
+        vh.mUnitPlayBtn.setVisibility(View.VISIBLE);
         mIsExpanded = false;
     }
 
-    public boolean isExpanded(){
+    public void raise(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Raise");
+        vh.mCardView.setCardElevation(8f);
+        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
+        vh.mUnitTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
+
+        // Different implementations that are based on API version. Kind off ridiculous.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_record, mCtx.getTheme())
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_white, mCtx.getTheme())
+            );
+        } else {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_record)
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_white)
+            );
+        }
+
+//        mIsSelected = true;
+    }
+
+    public void drop(UnitCardAdapter.ViewHolder vh) {
+        // System.out.println("Drop");
+        vh.mCardView.setCardElevation(2f);
+        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
+        vh.mUnitTitle.setTextColor(
+            mCtx.getResources().getColor(R.color.primary_text_default_material_light)
+        );
+
+        // Different implementations that are based on API version. Possibly worse than browser
+        // compatibility.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(
+                    R.drawable.ic_microphone_grey600_36dp, mCtx.getTheme()
+                )
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_blue, mCtx.getTheme())
+            );
+        } else {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_microphone_grey600_36dp)
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_blue)
+            );
+        }
+
+//        mIsSelected = false;
+    }
+
+//    public void toggleRaiseDrop(UnitCardAdapter.ViewHolder vh) {
+//        // System.out.println("Toggle Raise/Drop");
+//        if (mIsSelected) {
+//            drop(vh);
+//        } else
+//            raise(vh);
+//    }
+
+    public boolean isExpanded() {
         return mIsExpanded;
     }
+
+//    public boolean isSelected() { return mIsSelected; }
+
+//    public void setSelected(boolean isSelected) { mIsSelected = isSelected; }
+
+//    public View.OnClickListener toggleExpansion(final UnitCardAdapter.ViewHolder vh, final List<Integer> expandedCards, final int position) {
+//        return (new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // System.out.println("Card Header Click");
+//                if (!mIsExpanded) {
+//                    vh.setIsRecyclable(false);
+//                    expand(vh);
+//                    if (!expandedCards.contains(position)) {
+//                        expandedCards.add(position);
+//                    }
+//                } else {
+//                    vh.setIsRecyclable(true);
+//                    collapse(vh);
+//                    if (expandedCards.contains(position)) {
+//                        expandedCards.remove(expandedCards.indexOf(position));
+//                    }
+//                }
+//            }
+//        });
+//    }
 
     public View.OnClickListener getUnitRecordOnClick(final Project project, final int chapter) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Record Unit");
+                // System.out.println("Record Unit");
                 Project.loadProjectIntoPreferences(view.getContext(), project);
                 int startVerse = Integer.parseInt(mFirstVerse);
                 view.getContext().startActivity(RecordingScreen.getNewRecordingIntent(view.getContext(), project, chapter, startVerse));
