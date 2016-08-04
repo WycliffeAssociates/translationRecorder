@@ -16,7 +16,6 @@ import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 /**
  * Created by leongv on 7/28/2016.
  */
-//public class UnitCard extends FrameLayout{
 public class UnitCard {
 
     private final String mFirstVerse;
@@ -27,12 +26,10 @@ public class UnitCard {
 
     // State
     private boolean mIsExpanded = false;
-    private boolean mIsSelected = false;
 
     // Attributes
     private String mTitle;
     private Context mCtx;
-
 
     // Constructors
     public UnitCard(Context ctx, String mode, String firstVerse) {
@@ -42,12 +39,10 @@ public class UnitCard {
         mCtx = ctx;
     }
 
-
     // Private API
     private void init() {
 
     }
-
 
     // Public API
     public void setTitle(String title) {
@@ -82,56 +77,8 @@ public class UnitCard {
         mIsExpanded = false;
     }
 
-    public void raise(CardView card, LinearLayout container) {
-        System.out.println("Raise");
-        card.setCardElevation(12f);
-        container.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
-        mIsSelected = true;
-    }
-
-    public void drop(CardView card, LinearLayout container) {
-        System.out.println("Drop");
-        card.setCardElevation(2f);
-        container.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
-        mIsSelected = false;
-    }
-
-//    public void toggleRaiseDrop(CardView card) {
-//        System.out.println("Toggle Raise/Drop");
-//        if (mIsSelected) {
-//            drop(card);
-//        } else
-//            raise(card);
-//    }
-
-    public boolean isExpanded() {
+    public boolean isExpanded(){
         return mIsExpanded;
-    }
-
-    public boolean isSelected() { return mIsSelected; }
-
-    public void setSelected(boolean isSelected) { mIsSelected = isSelected; }
-
-    public View.OnClickListener createHeaderOnClick(final UnitCardAdapter.ViewHolder vh, final List<Integer> expandedCards, final int position) {
-        return (new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Card Header Click");
-                if (!mIsExpanded) {
-                    vh.setIsRecyclable(false);
-                    expand(vh.mCardBody, vh.mCardFooter, vh.mUnitPlayBtn);
-                    if (!expandedCards.contains(position)) {
-                        expandedCards.add(position);
-                    }
-                } else {
-                    vh.setIsRecyclable(true);
-                    collapse(vh.mCardBody, vh.mCardFooter, vh.mUnitPlayBtn);
-                    if (expandedCards.contains(position)) {
-                        expandedCards.remove(expandedCards.indexOf(position));
-                    }
-                }
-            }
-        });
     }
 
     public View.OnClickListener getUnitRecordOnClick(final Project project, final int chapter) {

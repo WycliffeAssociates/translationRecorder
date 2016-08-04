@@ -1,14 +1,9 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +17,6 @@ import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
-import com.bignerdranch.android.multiselector.MultiSelectorBindingHolder;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 
 import java.util.ArrayList;
@@ -30,7 +24,6 @@ import java.util.List;
 
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.widgets.UnitCard;
-import wycliffeassociates.recordingapp.Utils;
 
 /**
  * Created by leongv on 7/28/2016.
@@ -45,9 +38,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     private List<ViewHolder> mSelectedCards = new ArrayList<>();
     private MultiSelector mMultiSelector = new MultiSelector();
 
-
-
-
     // Constructor
     public UnitCardAdapter(AppCompatActivity context, Project project, int chapter, List<UnitCard> unitCardList) {
         mUnitCardList = unitCardList;
@@ -55,9 +45,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         mProject = project;
         mChapterNum = chapter;
     }
-
-
-
 
     private ActionMode.Callback mMultiSelectMode = new ModalMultiSelectorCallback(mMultiSelector) {
 
@@ -84,16 +71,9 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public void onDestroyActionMode(ActionMode actionMode) {
             mMultiSelector.setSelectable(false);
             mMultiSelector.clearSelections();
-            for (ViewHolder vh : mSelectedCards) {
-                System.out.println(vh);
-                vh.mUnitCard.drop(vh.mCardView, vh.mCardContainer);
-            }
-            mSelectedCards.clear();
+            notifyDataSetChanged();
         }
     };
-
-
-
 
     public class ViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
 
@@ -104,6 +84,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public ImageButton mDeleteTakeBtn, mPlayTakeBtn, mEditTakeBtn;
         public UnitCard mUnitCard;
         public CardView mCardView;
+        public int mPosition;
 
         public ViewHolder(View view) {
             super(view, mMultiSelector);
@@ -113,6 +94,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mCardHeader = (RelativeLayout) view.findViewById(R.id.cardHeader);
             mCardBody = (LinearLayout) view.findViewById(R.id.cardBody);
             mCardFooter = (RelativeLayout) view.findViewById(R.id.cardFooter);
+
 
             // Views
             mUnitTitle = (TextView) view.findViewById(R.id.unitTitle);
@@ -136,17 +118,12 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public void  bindViewHolder(ViewHolder holder, int position, UnitCard unitCard) {
             mUnitCard = unitCard;
             mUnitTitle.setText(unitCard.getTitle());
-
+            mPosition = position;
+            setListeners(mUnitCard, this, position);
             if (mExpandedCards.contains(position)) {
                 unitCard.expand(holder.mCardBody, holder.mCardFooter, holder.mUnitPlayBtn);
             } else {
                 unitCard.collapse(holder.mCardBody, holder.mCardFooter, holder.mUnitPlayBtn);
-            }
-
-            if (mMultiSelector.isSelected(position, 0)) {
-                unitCard.raise(holder.mCardView, holder.mCardContainer);
-            } else {
-                unitCard.drop(holder.mCardView, holder.mCardContainer);
             }
         }
 
@@ -155,16 +132,13 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             if (mUnitCard == null) {
                 return;
             }
-            mMultiSelector.tapSelection(this);
-
-            if (mMultiSelector.isSelectable()){
-                if (mUnitCard.isSelected()) {
-                    mUnitCard.drop(mCardView, mCardContainer);
-                    mSelectedCards.remove(this);
-                } else {
-                    mUnitCard.raise(mCardView, mCardContainer);
-                    mSelectedCards.add(this);
+            if(mMultiSelector.isSelectable()) {
+                if(mUnitCard.isExpanded()){
+                    toggleExpansion(this, mExpandedCards, mPosition);
                 }
+                mMultiSelector.tapSelection(this);
+            } else {
+                toggleExpansion(this, mExpandedCards, mPosition);
             }
         }
 
@@ -173,22 +147,12 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             AppCompatActivity activity = (AppCompatActivity) mCtx;
             activity.startSupportActionMode(mMultiSelectMode);
             mMultiSelector.setSelected(this, true);
-
-            mUnitCard.raise(mCardView, mCardContainer);
-            mSelectedCards.add(this);
-
+            if(mUnitCard.isExpanded()){
+                toggleExpansion(this, mExpandedCards, mPosition);
+            }
             return true;
         }
-
-        @Override
-        public void setDefaultModeBackgroundDrawable(Drawable defaultModeBackgroundDrawable) {}
-
-        @Override
-        public void setSelectionModeBackgroundDrawable(Drawable selectionModeBackgroundDrawable) {}
     }
-
-
-
 
     // Create new views (invoked by the layout manager)
     @Override
@@ -206,8 +170,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         System.out.println("onBindViewHolder: " + position + " " + mExpandedCards);
         UnitCard unitCard = mUnitCardList.get(position);
         holder.bindViewHolder(holder, position, unitCard);
-
-        // this.setListeners(unitCard, holder, position);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -215,9 +177,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     public int getItemCount() {
         return mUnitCardList.size();
     }
-
-
-
 
     public List<UnitCard> getSelectedCards() {
         List<UnitCard> cards = new ArrayList<>();
@@ -229,18 +188,25 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         return cards;
     }
 
+    public void toggleExpansion(final UnitCardAdapter.ViewHolder vh, final List<Integer> expandedCards, final int position) {
+        System.out.println("Card Header Click");
+        if (!vh.mUnitCard.isExpanded()) {
+            //vh.setIsRecyclable(false);
+            vh.mUnitCard.expand(vh.mCardBody, vh.mCardFooter, vh.mUnitPlayBtn);
+            if (!expandedCards.contains(position)) {
+                expandedCards.add(position);
+            }
+        } else {
+            //vh.setIsRecyclable(true);
+            vh.mUnitCard.collapse(vh.mCardBody, vh.mCardFooter, vh.mUnitPlayBtn);
+            if (expandedCards.contains(position)) {
+                expandedCards.remove(expandedCards.indexOf(position));
+            }
+        }
+    }
+
     // Set listeners for unit and take actions
     private void setListeners(final UnitCard unitCard, final ViewHolder holder, final int position) {
-
-        holder.mCardHeader.setOnClickListener(unitCard.createHeaderOnClick(holder, mExpandedCards, position));
-
-        holder.mCardHeader.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                System.out.println("Card Header Long Click");
-                return true;
-            }
-        });
 
         holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mProject, mChapterNum));
 
