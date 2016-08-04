@@ -1,6 +1,7 @@
 package wycliffeassociates.recordingapp.widgets;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.CardView;
 import android.view.View;
@@ -87,6 +88,24 @@ public class UnitCard {
         vh.mCardView.setCardElevation(8f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
         vh.mUnitTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
+
+        // Different implementations that are based on API version. Kind off ridiculous.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_record, mCtx.getTheme())
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_white, mCtx.getTheme())
+            );
+        } else {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_record)
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_white)
+            );
+        }
+
         mIsSelected = true;
     }
 
@@ -94,7 +113,29 @@ public class UnitCard {
         // System.out.println("Drop");
         vh.mCardView.setCardElevation(2f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
-        vh.mUnitTitle.setTextColor(mCtx.getResources().getColor(R.color.primary_text_default_material_light));
+        vh.mUnitTitle.setTextColor(
+            mCtx.getResources().getColor(R.color.primary_text_default_material_light)
+        );
+
+        // Different implementations that are based on API version. Possibly worse than browser
+        // compatibility.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(
+                    R.drawable.ic_microphone_grey600_36dp, mCtx.getTheme()
+                )
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_blue, mCtx.getTheme())
+            );
+        } else {
+            vh.mUnitRecordBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_microphone_grey600_36dp)
+            );
+            vh.mUnitPlayBtn.setImageDrawable(
+                mCtx.getResources().getDrawable(R.drawable.ic_play_blue)
+            );
+        }
         mIsSelected = false;
     }
 
