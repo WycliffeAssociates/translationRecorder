@@ -52,13 +52,24 @@
                     >
 
                     <ImageView
+                        android:id="@+id/unitCheckLevel"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_unit_card_check_level"
+                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:duplicateParentState="true"
+                        />
+
+                    <ImageView
                         android:id="@+id/unitRecordBtn"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_microphone_grey600_36dp"
+                        android:src="@drawable/selector_unit_card_record"
                         android:layout_marginLeft="@dimen/default_padding_m"
                         android:layout_gravity="center_vertical"
+                        android:duplicateParentState="true"
                         />
 
                     <ImageView
@@ -66,9 +77,10 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_play_blue"
+                        android:src="@drawable/selector_unit_card_play"
                         android:layout_marginLeft="@dimen/default_padding_m"
                         android:visibility="visible"
+                        android:duplicateParentState="true"
                         />
 
                 </LinearLayout>
@@ -147,7 +159,7 @@
                             android:id="@+id/deleteTakeBtn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/ic_delete_grey600_36dp"
+                            android:src="@drawable/delete"
                             android:background="#00000000"
                             android:layout_gravity="center"
                             />
@@ -187,8 +199,8 @@
 
                         <ImageButton
                             android:id="@+id/pauseTakeBtn"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_pause_black_48dp"
                             android:visibility="invisible"

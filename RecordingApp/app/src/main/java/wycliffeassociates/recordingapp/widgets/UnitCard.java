@@ -1,6 +1,9 @@
 package wycliffeassociates.recordingapp.widgets;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.CardView;
@@ -31,6 +34,7 @@ public class UnitCard {
     // Attributes
     private String mTitle;
     private Context mCtx;
+    private Resources.Theme mTheme;
 
 
 
@@ -39,6 +43,7 @@ public class UnitCard {
         mTitle = mode + " " + firstVerse;
         mFirstVerse = firstVerse;
         mCtx = ctx;
+        mTheme = mCtx.getTheme();
     }
 
 
@@ -69,23 +74,7 @@ public class UnitCard {
         vh.mCardView.setCardElevation(8f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
         vh.mUnitTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
-
-        // Different implementations that are based on API version. Kind off ridiculous.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            vh.mUnitRecordBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(R.drawable.ic_record, mCtx.getTheme())
-            );
-            vh.mUnitPlayBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(R.drawable.ic_play_white, mCtx.getTheme())
-            );
-        } else {
-            vh.mUnitRecordBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(R.drawable.ic_record)
-            );
-            vh.mUnitPlayBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(R.drawable.ic_play_white)
-            );
-        }
+        vh.mUnitActions.setEnabled(false);
     }
 
     public void drop(UnitCardAdapter.ViewHolder vh) {
@@ -94,26 +83,7 @@ public class UnitCard {
         vh.mUnitTitle.setTextColor(
             mCtx.getResources().getColor(R.color.primary_text_default_material_light)
         );
-
-        // Different implementations that are based on API version. Possibly worse than browser
-        // compatibility.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            vh.mUnitRecordBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(
-                    R.drawable.ic_microphone_grey600_36dp, mCtx.getTheme()
-                )
-            );
-            vh.mUnitPlayBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(R.drawable.ic_play_blue, mCtx.getTheme())
-            );
-        } else {
-            vh.mUnitRecordBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(R.drawable.ic_microphone_grey600_36dp)
-            );
-            vh.mUnitPlayBtn.setImageDrawable(
-                mCtx.getResources().getDrawable(R.drawable.ic_play_blue)
-            );
-        }
+        vh.mUnitActions.setEnabled(true);
     }
 
     public boolean isExpanded() {

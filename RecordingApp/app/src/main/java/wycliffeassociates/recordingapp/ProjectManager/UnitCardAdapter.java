@@ -78,7 +78,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                 vh.mUnitCard.drop(vh);
             }
             mSelectedCards.clear();
-            notifyDataSetChanged();
         }
     };
 
@@ -87,12 +86,11 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
         public RelativeLayout mCardHeader, mCardFooter;
         public TextView mUnitTitle, mCurrentTake;
-        public LinearLayout mCardBody, mCardContainer;
-        public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
+        public LinearLayout mCardBody, mCardContainer, mUnitActions;
+        public ImageView mCheckLevel, mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
         public ImageButton mDeleteTakeBtn, mPlayTakeBtn, mEditTakeBtn;
         public UnitCard mUnitCard;
         public CardView mCardView;
-        public int mPosition;
 
         public ViewHolder(View view) {
             super(view, mMultiSelector);
@@ -102,12 +100,14 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mCardHeader = (RelativeLayout) view.findViewById(R.id.cardHeader);
             mCardBody = (LinearLayout) view.findViewById(R.id.cardBody);
             mCardFooter = (RelativeLayout) view.findViewById(R.id.cardFooter);
+            mUnitActions = (LinearLayout) view.findViewById(R.id.unitActions);
 
             // Views
             mUnitTitle = (TextView) view.findViewById(R.id.unitTitle);
             mCurrentTake = (TextView) view.findViewById(R.id.currentTakeView);
 
             // Buttons
+            mCheckLevel = (ImageView) view.findViewById(R.id.unitCheckLevel);
             mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
             mUnitPlayBtn = (ImageView) view.findViewById(R.id.unitPlayBtn);
             mDeleteTakeBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);
@@ -128,7 +128,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
             // Set card views based on the UnitCard object
             mUnitTitle.setText(unitCard.getTitle());
-            mPosition = position;
             setListeners(mUnitCard, this, position);
 
             // Expand card if it's already expanded before
@@ -157,23 +156,22 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             if(mMultiSelector.isSelectable()) {
                 // Close card if it is expanded in multi-select mode
                 if(mUnitCard.isExpanded()){
-                    toggleExpansion(this, mExpandedCards, mPosition);
+                    toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
                 }
 
                 // Select/de-select item
                 mMultiSelector.tapSelection(this);
 
                 // Raise/drop card
-                if (mMultiSelector.isSelected(mPosition, 0)) {
+                if (mMultiSelector.isSelected(this.getAdapterPosition(), 0)) {
                     mSelectedCards.add(this);
                     mUnitCard.raise(this);
                 } else {
                     mSelectedCards.remove(this);
                     mUnitCard.drop(this);
                 }
-
             } else {
-                toggleExpansion(this, mExpandedCards, mPosition);
+                toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
             }
         }
 
@@ -184,12 +182,17 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
             // Close card if it is expanded on entering multi-select mode
             if(mUnitCard.isExpanded()){
-                toggleExpansion(this, mExpandedCards, mPosition);
+                toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
             }
 
             mSelectedCards.add(this);
             mUnitCard.raise(this);
             return true;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString();
         }
 
         @Override
@@ -203,7 +206,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     // Create new views (invoked by the layout manager)
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        System.out.println("onCreateViewHolder");
         View v = LayoutInflater.from(parent.getContext())
                                .inflate(R.layout.unit_card, parent, false);
         // Set the view's size, margins, padding and layout params here
