@@ -2,7 +2,6 @@ package wycliffeassociates.recordingapp.ProjectManager;
 
 import android.content.Context;
 import android.content.Intent;
-import android.gesture.Gesture;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -10,19 +9,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
-import android.view.ActionMode;
-import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
-
-import com.bignerdranch.android.multiselector.MultiSelector;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,23 +18,20 @@ import java.util.Map;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.SettingsPage.InternsPreferencesManager;
-import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.UnitCard;
-import wycliffeassociates.recordingapp.widgets.VerseCard;
 
 /**
  * Created by sarabiaj on 6/30/2016.
  */
-public class ActivityVerseList extends AppCompatActivity {
+public class ActivityUnitList extends AppCompatActivity {
 
     public static String PROJECT_KEY = "project_key";
     public static String CHAPTER_KEY = "chapter_key";
 
     public static Intent getActivityVerseListIntent(Context ctx, Project p, int chapter){
-        Intent intent = new Intent(ctx, ActivityVerseList.class);
+        Intent intent = new Intent(ctx, ActivityUnitList.class);
         intent.putExtra(PROJECT_KEY, p);
         intent.putExtra(CHAPTER_KEY, chapter);
         return intent;
@@ -64,7 +48,7 @@ public class ActivityVerseList extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_verse_list);
+        setContentView(R.layout.activity_unit_list);
 
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
         mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
@@ -103,7 +87,7 @@ public class ActivityVerseList extends AppCompatActivity {
     }
 
     private void prepareUnitCardData() {
-
+        // NOTE: This possibly need to be in onResume()
         try {
             Chunks chunks = new Chunks(this, mProject.getSlug());
             List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);

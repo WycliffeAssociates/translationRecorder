@@ -32,20 +32,17 @@ public class UnitCard {
     private String mTitle;
     private Context mCtx;
 
+
+
     // Constructors
     public UnitCard(Context ctx, String mode, String firstVerse) {
-        this.init();
         mTitle = mode + " " + firstVerse;
         mFirstVerse = firstVerse;
         mCtx = ctx;
     }
 
-    // Private API
-    private void init() {
 
-    }
 
-    // Public API
     public void setTitle(String title) {
         mTitle = title;
     }
@@ -54,16 +51,7 @@ public class UnitCard {
         return mTitle;
     }
 
-//    public void toggleExpansion(UnitCardAdapter.ViewHolder vh) {
-//        if (mIsExpanded) {
-//            this.collapse(vh);
-//        } else {
-//            this.expand(vh);
-//        }
-//    }
-
     public void expand(UnitCardAdapter.ViewHolder vh) {
-        // System.out.println("Expand");
         vh.mCardBody.setVisibility(View.VISIBLE);
         vh.mCardFooter.setVisibility(View.VISIBLE);
         vh.mUnitPlayBtn.setVisibility(View.GONE);
@@ -71,7 +59,6 @@ public class UnitCard {
     }
 
     public void collapse(UnitCardAdapter.ViewHolder vh) {
-        // System.out.println("Collapse");
         vh.mCardBody.setVisibility(View.GONE);
         vh.mCardFooter.setVisibility(View.GONE);
         vh.mUnitPlayBtn.setVisibility(View.VISIBLE);
@@ -79,7 +66,6 @@ public class UnitCard {
     }
 
     public void raise(UnitCardAdapter.ViewHolder vh) {
-        // System.out.println("Raise");
         vh.mCardView.setCardElevation(8f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
         vh.mUnitTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
@@ -100,12 +86,9 @@ public class UnitCard {
                 mCtx.getResources().getDrawable(R.drawable.ic_play_white)
             );
         }
-
-//        mIsSelected = true;
     }
 
     public void drop(UnitCardAdapter.ViewHolder vh) {
-        // System.out.println("Drop");
         vh.mCardView.setCardElevation(2f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
         vh.mUnitTitle.setTextColor(
@@ -131,53 +114,16 @@ public class UnitCard {
                 mCtx.getResources().getDrawable(R.drawable.ic_play_blue)
             );
         }
-
-//        mIsSelected = false;
     }
-
-//    public void toggleRaiseDrop(UnitCardAdapter.ViewHolder vh) {
-//        // System.out.println("Toggle Raise/Drop");
-//        if (mIsSelected) {
-//            drop(vh);
-//        } else
-//            raise(vh);
-//    }
 
     public boolean isExpanded() {
         return mIsExpanded;
     }
 
-//    public boolean isSelected() { return mIsSelected; }
-
-//    public void setSelected(boolean isSelected) { mIsSelected = isSelected; }
-
-//    public View.OnClickListener toggleExpansion(final UnitCardAdapter.ViewHolder vh, final List<Integer> expandedCards, final int position) {
-//        return (new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // System.out.println("Card Header Click");
-//                if (!mIsExpanded) {
-//                    vh.setIsRecyclable(false);
-//                    expand(vh);
-//                    if (!expandedCards.contains(position)) {
-//                        expandedCards.add(position);
-//                    }
-//                } else {
-//                    vh.setIsRecyclable(true);
-//                    collapse(vh);
-//                    if (expandedCards.contains(position)) {
-//                        expandedCards.remove(expandedCards.indexOf(position));
-//                    }
-//                }
-//            }
-//        });
-//    }
-
     public View.OnClickListener getUnitRecordOnClick(final Project project, final int chapter) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // System.out.println("Record Unit");
                 Project.loadProjectIntoPreferences(view.getContext(), project);
                 int startVerse = Integer.parseInt(mFirstVerse);
                 view.getContext().startActivity(RecordingScreen.getNewRecordingIntent(view.getContext(), project, chapter, startVerse));

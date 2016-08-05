@@ -103,7 +103,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mCardBody = (LinearLayout) view.findViewById(R.id.cardBody);
             mCardFooter = (RelativeLayout) view.findViewById(R.id.cardFooter);
 
-
             // Views
             mUnitTitle = (TextView) view.findViewById(R.id.unitTitle);
             mCurrentTake = (TextView) view.findViewById(R.id.currentTakeView);
