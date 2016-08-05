@@ -81,23 +81,12 @@ public class ActivityUnitList extends AppCompatActivity {
 
         // Set its animator
         mUnitList.setItemAnimator(new DefaultItemAnimator());
-
-        // Fill the data list for the recycler view
-        prepareUnitCardData();
     }
 
-    private void prepareUnitCardData() {
-        // NOTE: This possibly need to be in onResume()
-        try {
-            Chunks chunks = new Chunks(this, mProject.getSlug());
-            List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);
-            String mode = Utils.capitalizeFirstLetter(mProject.getMode());
-            for (Map<String, String> unit : map) {
-                mUnitCardList.add(new UnitCard(this, mode, unit.get(Chunks.FIRST_VERSE)));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        prepareUnitCardData();
     }
 
     @Override
@@ -109,6 +98,21 @@ public class ActivityUnitList extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    private void prepareUnitCardData() {
+        try {
+            Chunks chunks = new Chunks(this, mProject.getSlug());
+            List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);
+            String mode = Utils.capitalizeFirstLetter(mProject.getMode());
+            for (Map<String, String> unit : map) {
+                mUnitCardList.add(new UnitCard(this, mode, unit.get(Chunks.FIRST_VERSE)));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
