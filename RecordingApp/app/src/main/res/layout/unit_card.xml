@@ -82,6 +82,7 @@
                 android:orientation="vertical"
                 android:layout_marginTop="@dimen/default_padding_m"
                 android:visibility="gone"
+                android:clickable="true"
                 >
 
                 <LinearLayout
@@ -242,6 +243,7 @@
                 android:padding="@dimen/default_padding_m"
                 android:background="@drawable/border_top"
                 android:visibility="gone"
+                android:clickable="true"
                 >
 
                 <ImageView

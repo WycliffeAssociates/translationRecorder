@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
@@ -86,10 +87,11 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     public class ViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public RelativeLayout mCardHeader, mCardFooter;
-        public TextView mUnitTitle, mCurrentTake;
+        public TextView mUnitTitle, mCurrentTake, mProgress, mDuration;
         public LinearLayout mCardBody, mCardContainer;
         public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
-        public ImageButton mDeleteTakeBtn, mPlayTakeBtn, mEditTakeBtn;
+        public ImageButton mDeleteTakeBtn, mPlayTakeBtn, mEditTakeBtn, mPauseTakeBtn;
+        public SeekBar mSeekBar;
         public UnitCard mUnitCard;
         public CardView mCardView;
         public int mPosition;
@@ -106,6 +108,9 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             // Views
             mUnitTitle = (TextView) view.findViewById(R.id.unitTitle);
             mCurrentTake = (TextView) view.findViewById(R.id.currentTakeView);
+            mSeekBar = (SeekBar) view.findViewById(R.id.seekBar);
+            mProgress = (TextView) view.findViewById(R.id.timeElapsed);
+            mDuration = (TextView) view.findViewById(R.id.timeDuration);
 
             // Buttons
             mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
@@ -115,6 +120,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mEditTakeBtn = (ImageButton) view.findViewById(R.id.editTakeBtn);
             mPrevTakeBtn = (ImageView) view.findViewById(R.id.prevTakeBtn);
             mNextTakeBtn = (ImageView) view.findViewById(R.id.nextTakeBtn);
+            mPauseTakeBtn = (ImageButton) view.findViewById(R.id.pauseTakeBtn);
 
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
@@ -267,12 +273,9 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             }
         });
 
-        holder.mPlayTakeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Play Take");
-            }
-        });
+        holder.mPlayTakeBtn.setOnClickListener(unitCard.getPlayTakeOnClickListener(holder));
+
+        holder.mPauseTakeBtn.setOnClickListener(unitCard.getPauseTakeOnClickListener(holder));
 
         holder.mEditTakeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,19 +284,9 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             }
         });
 
-        holder.mNextTakeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Next Take");
-            }
-        });
+        holder.mNextTakeBtn.setOnClickListener(unitCard.getIncrementTakeOnClickListener(holder.mCurrentTake, holder));
 
-        holder.mPrevTakeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Previous Take");
-            }
-        });
+        holder.mPrevTakeBtn.setOnClickListener(unitCard.getDecrementTakeOnClickListener(holder.mCurrentTake, holder));
     };
 
 }

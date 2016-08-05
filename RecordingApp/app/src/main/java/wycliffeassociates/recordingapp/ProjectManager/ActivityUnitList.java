@@ -106,9 +106,8 @@ public class ActivityUnitList extends AppCompatActivity {
         try {
             Chunks chunks = new Chunks(this, mProject.getSlug());
             List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);
-            String mode = Utils.capitalizeFirstLetter(mProject.getMode());
             for (Map<String, String> unit : map) {
-                mUnitCardList.add(new UnitCard(this, mode, unit.get(Chunks.FIRST_VERSE)));
+                mUnitCardList.add(new UnitCard(this, mProject, String.valueOf(mChapterNum), unit.get(Chunks.FIRST_VERSE), unit.get(Chunks.LAST_VERSE)));
             }
         } catch (IOException e) {
             e.printStackTrace();
