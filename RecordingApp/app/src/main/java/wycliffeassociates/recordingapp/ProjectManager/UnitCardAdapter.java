@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.animation.StateListAnimator;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.CardView;
@@ -38,6 +40,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     private List<Integer> mExpandedCards = new ArrayList<>();
     private List<ViewHolder> mSelectedCards = new ArrayList<>();
     private MultiSelector mMultiSelector = new MultiSelector();
+    private ActionMode mActionMode;
 
 
     // Constructor
@@ -119,6 +122,13 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
             view.setLongClickable(true);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                setSelectionModeStateListAnimator(null);
+                setDefaultModeStateListAnimator(null);
+            }
+            setSelectionModeBackgroundDrawable(null);
+            setDefaultModeBackgroundDrawable(null);
         }
 
         // Called on onBindViewHolder, when the view is visible on the screen
@@ -170,6 +180,11 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                     mSelectedCards.remove(this);
                     mUnitCard.drop(this);
                 }
+
+                // Finish action mode if all cards are de-selected
+                if (mActionMode != null && mSelectedCards.size() <= 0) {
+                    mActionMode.finish();
+                }
             } else {
                 toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
             }
@@ -177,7 +192,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
         @Override
         public boolean onLongClick(View view) {
-            mCtx.startSupportActionMode(mMultiSelectMode);
+            mActionMode = mCtx.startSupportActionMode(mMultiSelectMode);
             mMultiSelector.setSelected(this, true);
 
             // Close card if it is expanded on entering multi-select mode
@@ -189,17 +204,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mUnitCard.raise(this);
             return true;
         }
-
-        @Override
-        public String toString() {
-            return super.toString();
-        }
-
-        @Override
-        public void setDefaultModeBackgroundDrawable(Drawable defaultModeBackgroundDrawable) {}
-
-        @Override
-        public void setSelectionModeBackgroundDrawable(Drawable selectionModeBackgroundDrawable) {}
     }
 
 
