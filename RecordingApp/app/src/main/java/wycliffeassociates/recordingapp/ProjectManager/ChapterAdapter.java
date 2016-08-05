@@ -116,10 +116,8 @@ public class ChapterAdapter extends ArrayAdapter {
         holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), ActivityVerseList.class);
-                intent.putExtra(Settings.KEY_PREF_CHAPTER, String.valueOf((position+1)));
-                intent.putExtra(Project.PROJECT_EXTRA, mProject);
-                v.getContext().startActivity(intent);
+                Intent verseListIntent = ActivityUnitList.getActivityVerseListIntent(v.getContext(), mProject, (position+1));
+                v.getContext().startActivity(verseListIntent);
             }
         });
 
