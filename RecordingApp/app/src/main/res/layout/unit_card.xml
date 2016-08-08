@@ -255,7 +255,7 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/default_padding_m"
                 android:background="@drawable/border_top"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:clickable="true"
                 >
 
@@ -265,17 +265,38 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/chevron_left"
                     android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     />
 
-                <TextView
-                    android:id="@+id/currentTakeView"
+                <LinearLayout
+                    android:id="@+id/currentTakeInfo"
+                    android:orientation="vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Take 1 of 10"
-                    android:textSize="@dimen/text_size_m"
-                    android:textColor="@color/dark_secondary_text"
                     android:layout_centerInParent="true"
-                    />
+                    android:gravity="center_horizontal"
+                    >
+
+                    <TextView
+                        android:id="@+id/currentTakeView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Take 1 of 10"
+                        android:textSize="@dimen/text_size_m"
+                        android:textColor="@color/primary_text_default_material_light"
+                        />
+
+                    <TextView
+                        android:id="@+id/currentTakeTimeStamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00/00/0000  00:00 AM"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                        android:textColor="@color/secondary_text_default_material_light"
+                        />
+
+                </LinearLayout>
+
 
                 <ImageView
                     android:id="@+id/nextTakeBtn"
@@ -283,6 +304,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/chevron_right"
                     android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     />
 
             </RelativeLayout>
