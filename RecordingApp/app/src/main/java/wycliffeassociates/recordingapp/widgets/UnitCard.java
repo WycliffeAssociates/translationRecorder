@@ -2,8 +2,12 @@ package wycliffeassociates.recordingapp.widgets;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -21,10 +25,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Utils;
 
 /**
@@ -292,6 +298,73 @@ public class UnitCard {
             public void onClick(View v) {
                 AudioPlayer ap = getAudioPlayer(vh);
                 ap.pause();
+            }
+        };
+    }
+
+    public View.OnClickListener getEditOnClickListener(){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<File> takes = getTakeList();
+                if(takes.size() > 0) {
+                    WavFile wavFile = new WavFile(takes.get(mTakeIndex));
+                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, Integer.parseInt(mChapter), Integer.parseInt(mFirstVerse));
+                    v.getContext().startActivity(intent);
+                }
+            }
+        };
+    }
+
+    public View.OnClickListener getDeleteTakeOnClickListener(final UnitCardAdapter.ViewHolder vh){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
+                builder.setTitle("Delete recording?");
+                builder.setIcon(R.drawable.ic_delete_black_36dp);
+                final List<File> takes = getTakeList();
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == dialog.BUTTON_POSITIVE){
+                            takes.get(mTakeIndex).delete();
+                            takes.remove(mTakeIndex);
+                            //keep the same index in the list, unless the one removed was the last take.
+                            if(mTakeIndex > takes.size()-1){
+                                mTakeIndex--;
+                            }
+                            refreshTakeText(takes, vh.mCurrentTake);
+                            if(takes.size() > 0){
+                                AudioPlayer audioPlayer = getAudioPlayer(vh);
+                                audioPlayer.reset();
+                                audioPlayer.loadFile(takes.get(mTakeIndex));
+                            }
+                        }
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        };
+    }
+
+    public View.OnClickListener getPlayLatestTakeOnClickListener(){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<File> takes = getTakeList();
+                if(takes.size() > 0) {
+                    WavFile wavFile = new WavFile(takes.get(takes.size()-1));
+                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, Integer.parseInt(mChapter), Integer.parseInt(mFirstVerse));
+                    v.getContext().startActivity(intent);
+                }
             }
         };
     }

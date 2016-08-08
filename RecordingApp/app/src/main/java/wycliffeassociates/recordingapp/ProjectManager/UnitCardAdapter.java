@@ -135,7 +135,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             // Set card views based on the UnitCard object
             mUnitTitle.setText(unitCard.getTitle());
             mPosition = position;
-            setListeners(mUnitCard, this, position);
+            setListeners(mUnitCard, this);
 
             // Expand card if it's already expanded before
             if (mExpandedCards.contains(position)) {
@@ -255,34 +255,19 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     }
 
     // Set listeners for unit and take actions
-    private void setListeners(final UnitCard unitCard, final ViewHolder holder, final int position) {
+    private void setListeners(final UnitCard unitCard, final ViewHolder holder) {
 
         holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mProject, mChapterNum));
 
-        holder.mUnitPlayBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Play Unit");
-            }
-        });
+        holder.mUnitPlayBtn.setOnClickListener(unitCard.getPlayLatestTakeOnClickListener());
 
-        holder.mDeleteTakeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Delete Take");
-            }
-        });
+        holder.mDeleteTakeBtn.setOnClickListener(unitCard.getDeleteTakeOnClickListener(holder));
 
         holder.mPlayTakeBtn.setOnClickListener(unitCard.getPlayTakeOnClickListener(holder));
 
         holder.mPauseTakeBtn.setOnClickListener(unitCard.getPauseTakeOnClickListener(holder));
 
-        holder.mEditTakeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Edit Take");
-            }
-        });
+        holder.mEditTakeBtn.setOnClickListener(unitCard.getEditOnClickListener());
 
         holder.mNextTakeBtn.setOnClickListener(unitCard.getIncrementTakeOnClickListener(holder.mCurrentTake, holder));
 
