@@ -5,6 +5,7 @@
     >
 
     <item
+        app:state_light="false"
         app:state_zero="true"
         android:drawable="@drawable/star_o"
         />
@@ -24,6 +25,16 @@
         android:drawable="@drawable/star_green"
         />
 
-    <item android:drawable="@drawable/star_o" />
+    <!--<item android:drawable="@drawable/star_o" />-->
+
+    <item
+        app:state_light="true"
+        app:state_zero="true"
+        android:drawable="@drawable/star_white_o"
+        />
+
+    <item
+        app:state_light="true"
+        android:drawable="@drawable/star_white_o" />
 
 </selector>

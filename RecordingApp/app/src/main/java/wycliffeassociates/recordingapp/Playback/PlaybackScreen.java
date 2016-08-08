@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.commons.io.FilenameUtils;
@@ -26,6 +27,7 @@ import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.TakeRatingButton;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
@@ -252,6 +254,12 @@ public class PlaybackScreen extends Activity{
         mManager.updateUI();
     }
 
+    private void openRating(TakeRatingButton v) {
+        System.out.println("Open Rating");
+        // NOTE: Temporary implementation. Launch/open Rating fragment/dialog here.
+        v.incrementRating();
+    }
+
     private void rerecord(){
         Intent intent = RecordingScreen.getRerecordIntent(this, mProject, mWavFile, mChapter, mUnit);
         save(intent);
@@ -353,6 +361,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
+        findViewById(R.id.btnRate).setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
         findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
@@ -408,6 +417,12 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnClear: {
                     clearMarkers();
+                    break;
+                }
+                case R.id.btnRate: {
+                    // NOTE: Probably don't need to pass in the view once we implement it the right
+                    // way
+                    openRating((TakeRatingButton) v);
                     break;
                 }
                 case R.id.btnUndo: {
