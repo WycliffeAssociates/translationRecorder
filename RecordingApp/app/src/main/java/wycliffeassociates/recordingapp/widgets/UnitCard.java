@@ -86,9 +86,15 @@ public class UnitCard {
         vh.mUnitActions.setEnabled(true);
     }
 
+    public void togglePlayPause(UnitCardAdapter.ViewHolder vh) {
+        vh.mCardView.setActivated(!vh.mUnitActions.isActivated());
+    }
+
     public boolean isExpanded() {
         return mIsExpanded;
     }
+
+
 
     public View.OnClickListener getUnitRecordOnClick(final Project project, final int chapter) {
         return new View.OnClickListener() {
@@ -97,6 +103,26 @@ public class UnitCard {
                 Project.loadProjectIntoPreferences(view.getContext(), project);
                 int startVerse = Integer.parseInt(mFirstVerse);
                 view.getContext().startActivity(RecordingScreen.getNewRecordingIntent(view.getContext(), project, chapter, startVerse));
+            }
+        };
+    }
+
+    public View.OnClickListener getUnitPlayOnClick(final UnitCardAdapter.ViewHolder holder) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("Play unit");
+                togglePlayPause(holder);
+            }
+        };
+    }
+
+    public View.OnClickListener getTakePlayOnClick(final UnitCardAdapter.ViewHolder holder) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("Play take");
+                togglePlayPause(holder);
             }
         };
     }

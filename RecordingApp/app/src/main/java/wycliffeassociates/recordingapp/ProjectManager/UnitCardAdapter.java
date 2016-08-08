@@ -259,12 +259,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
         holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mProject, mChapterNum));
 
-        holder.mUnitPlayBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Play Unit");
-            }
-        });
+        holder.mUnitPlayBtn.setOnClickListener(unitCard.getUnitPlayOnClick(holder));
 
         holder.mDeleteTakeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -273,12 +268,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             }
         });
 
-        holder.mPlayTakeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Play Take");
-            }
-        });
+        holder.mPlayTakeBtn.setOnClickListener(unitCard.getTakePlayOnClick(holder));
 
         holder.mEditTakeBtn.setOnClickListener(new View.OnClickListener() {
             @Override

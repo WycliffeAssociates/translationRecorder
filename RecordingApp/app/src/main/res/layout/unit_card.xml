@@ -59,6 +59,7 @@
                         android:src="@drawable/selector_unit_card_check_level"
                         android:layout_marginLeft="@dimen/default_padding_m"
                         android:duplicateParentState="true"
+                        android:clickable="true"
                         />
 
                     <ImageView
@@ -70,6 +71,7 @@
                         android:layout_marginLeft="@dimen/default_padding_m"
                         android:layout_gravity="center_vertical"
                         android:duplicateParentState="true"
+                        android:clickable="true"
                         />
 
                     <ImageView
@@ -81,6 +83,7 @@
                         android:layout_marginLeft="@dimen/default_padding_m"
                         android:visibility="visible"
                         android:duplicateParentState="true"
+                        android:clickable="true"
                         />
 
                 </LinearLayout>
@@ -192,21 +195,11 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_play_blue"
+                            android:src="@drawable/selector_unit_card_play"
                             android:visibility="visible"
                             android:background="#00000000"
                             android:layout_gravity="center"
-                            />
-
-                        <ImageButton
-                            android:id="@+id/pauseTakeBtn"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/ic_pause_black_48dp"
-                            android:visibility="invisible"
-                            android:background="#00000000"
-                            android:layout_gravity="center"
+                            android:duplicateParentState="true"
                             />
 
                     </FrameLayout>
