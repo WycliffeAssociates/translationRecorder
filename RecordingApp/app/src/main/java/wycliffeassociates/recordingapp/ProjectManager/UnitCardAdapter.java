@@ -97,8 +97,9 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public RelativeLayout mCardHeader, mCardFooter;
         public TextView mUnitTitle, mCurrentTake;
         public LinearLayout mCardBody, mCardContainer, mUnitActions;
-        public ImageView mCheckLevel, mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
+        public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
         public ImageButton mDeleteTakeBtn, mPlayTakeBtn, mEditTakeBtn;
+        public CheckLevelButton mCheckLevelBtn;
         public UnitCard mUnitCard;
         public CardView mCardView;
 
@@ -117,7 +118,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mCurrentTake = (TextView) view.findViewById(R.id.currentTakeView);
 
             // Buttons
-            mCheckLevel = (ImageView) view.findViewById(R.id.unitCheckLevel);
+            mCheckLevelBtn = (CheckLevelButton) view.findViewById(R.id.unitCheckLevel);
             mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
             mUnitPlayBtn = (ImageView) view.findViewById(R.id.unitPlayBtn);
             mDeleteTakeBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);
@@ -263,6 +264,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
     // Set listeners for unit and take actions
     private void setListeners(final UnitCard unitCard, final ViewHolder holder, final int position) {
+
+        holder.mCheckLevelBtn.setOnClickListener(unitCard.getCheckLevelOnClick(holder));
 
         holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mProject, mChapterNum));
 

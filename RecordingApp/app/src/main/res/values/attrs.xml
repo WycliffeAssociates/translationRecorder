@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="checking_level">
+
+        <attr name="state_zero" format="boolean" />
+        <attr name="state_one" format="boolean" />
+        <attr name="state_two" format="boolean" />
+        <attr name="state_three" format="boolean" />
+
+    </declare-styleable>
+
+</resources>

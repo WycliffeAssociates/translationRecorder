@@ -51,7 +51,7 @@
                     android:layout_centerVertical="true"
                     >
 
-                    <ImageView
+                    <wycliffeassociates.recordingapp.ProjectManager.CheckLevelButton
                         android:id="@+id/unitCheckLevel"
                         android:layout_width="36dp"
                         android:layout_height="36dp"

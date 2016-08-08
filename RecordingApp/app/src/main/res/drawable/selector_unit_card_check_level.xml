@@ -1,10 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<selector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/wycliffeassociates.recordingapp"
+    >
+
     <item
+        app:state_zero="true"
         android:state_enabled="true"
-        android:drawable="@drawable/box_0_black_o" />
+        android:drawable="@drawable/box_0_black_o"
+        />
+
     <item
+        app:state_one="true"
+        android:state_enabled="true"
+        android:drawable="@drawable/box_1"
+        />
+
+    <item
+        app:state_two="true"
+        android:state_enabled="true"
+        android:drawable="@drawable/box_2"
+        />
+
+    <item
+        app:state_three="true"
+        android:state_enabled="true"
+        android:drawable="@drawable/box_3"
+        />
+
+    <item
+        app:state_zero="true"
         android:state_enabled="false"
         android:drawable="@drawable/box_0_white_o_disabled" />
+
+    <item
+        app:state_one="true"
+        android:state_enabled="false"
+        android:drawable="@drawable/box_1_disabled"
+        />
+
+    <item
+        app:state_two="true"
+        android:state_enabled="false"
+        android:drawable="@drawable/box_2_disabled"
+        />
+
+    <item
+        app:state_three="true"
+        android:state_enabled="false"
+        android:drawable="@drawable/box_3_disabled"
+        />
+
     <item android:drawable="@drawable/box_0_black_o" />
+
 </selector>

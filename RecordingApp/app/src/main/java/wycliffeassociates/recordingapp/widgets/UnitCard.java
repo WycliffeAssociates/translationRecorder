@@ -111,7 +111,6 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Play unit");
                 togglePlayPause(holder);
             }
         };
@@ -121,8 +120,19 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Play take");
                 togglePlayPause(holder);
+            }
+        };
+    }
+
+    public View.OnClickListener getCheckLevelOnClick(final UnitCardAdapter.ViewHolder holder) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Just a proof of concept. We don't want to actually increment it this way.
+                holder.mCheckLevelBtn.incrementCheckLevel();
+
+                // TODO: Launch a fragment/dialog here
             }
         };
     }
