@@ -100,6 +100,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
         public ImageButton mDeleteTakeBtn, mPlayTakeBtn, mEditTakeBtn;
         public CheckLevelButton mCheckLevelBtn;
+        public TakeRatingButton mTakeRatingBtn;
         public UnitCard mUnitCard;
         public CardView mCardView;
 
@@ -119,6 +120,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
             // Buttons
             mCheckLevelBtn = (CheckLevelButton) view.findViewById(R.id.unitCheckLevel);
+            mTakeRatingBtn = (TakeRatingButton) view.findViewById(R.id.rateTakeBtn);
             mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
             mUnitPlayBtn = (ImageView) view.findViewById(R.id.unitPlayBtn);
             mDeleteTakeBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);
@@ -286,6 +288,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                 System.out.println("Edit Take");
             }
         });
+
+        holder.mTakeRatingBtn.setOnClickListener(unitCard.getTakeRatingOnClick(holder));
 
         holder.mNextTakeBtn.setOnClickListener(new View.OnClickListener() {
             @Override

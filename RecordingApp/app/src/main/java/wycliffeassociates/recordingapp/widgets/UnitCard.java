@@ -137,4 +137,16 @@ public class UnitCard {
         };
     }
 
+    public View.OnClickListener getTakeRatingOnClick(final UnitCardAdapter.ViewHolder holder) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Just a proof of concept. We don't want to actually increment it this way.
+                holder.mTakeRatingBtn.incrementRating();
+
+                // TODO: Launch a fragment/dialog here
+            }
+        };
+    }
+
 }
