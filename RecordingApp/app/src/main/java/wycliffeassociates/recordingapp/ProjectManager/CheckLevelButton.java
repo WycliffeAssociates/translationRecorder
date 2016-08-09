@@ -56,7 +56,6 @@ public class CheckLevelButton extends ImageView {
     // NOTE: This is written only for testing purposes. We eventually want to remove this (or make
     // it private).
     public void incrementCheckLevel() {
-        System.out.println("Increment check level");
         if (mCheckLevel >= LEVEL_THREE) {
             mCheckLevel = LEVEL_ZERO;
         } else {

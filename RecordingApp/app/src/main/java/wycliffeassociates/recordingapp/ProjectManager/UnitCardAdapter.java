@@ -71,7 +71,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.set_units_checking_level:
-                    System.out.println("Set checking level for selected units");
+                    System.out.println("Placeholder: Set checking level for selected units");
                     break;
                 default:
                     System.out.println("Default action");
