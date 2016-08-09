@@ -69,6 +69,7 @@ public final class ProjectContract {
             + COLUMN_TARGET_LANG + TEXTCOMMA
             + COLUMN_SLUG + TEXTCOMMA
             + COLUMN_SOURCE + TEXTCOMMA
+            + COLUMN_MODE + TEXTCOMMA
             + COLUMN_CHAPTER + INTCOMMA
             + COLUMN_START_VS + INTCOMMA
             + COLUMN_END_VS + INTCOMMA

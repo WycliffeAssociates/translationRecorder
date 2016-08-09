@@ -27,6 +27,7 @@ import java.util.List;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
@@ -328,11 +329,18 @@ public class UnitCard {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(which == dialog.BUTTON_POSITIVE){
+                            File selectedFile = takes.get(mTakeIndex);
+                            FileNameExtractor fne = new FileNameExtractor(selectedFile);
+                            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                            db.deleteTake(fne);
+                            db.close();
                             takes.get(mTakeIndex).delete();
                             takes.remove(mTakeIndex);
                             //keep the same index in the list, unless the one removed was the last take.
                             if(mTakeIndex > takes.size()-1){
                                 mTakeIndex--;
+                                //make sure the index is not negative
+                                mTakeIndex = Math.max(mTakeIndex, 0);
                             }
                             refreshTakeText(takes, vh.mCurrentTake);
                             if(takes.size() > 0){

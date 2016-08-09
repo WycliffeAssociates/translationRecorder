@@ -175,6 +175,14 @@ public class FileNameExtractor {
         return mTake;
     }
 
+    public String getMode(){
+        if(mEndVerse == -1){
+            return "verse";
+        } else {
+            return "chunk";
+        }
+    }
+
     public boolean matched(){
         return mMatched;
     }

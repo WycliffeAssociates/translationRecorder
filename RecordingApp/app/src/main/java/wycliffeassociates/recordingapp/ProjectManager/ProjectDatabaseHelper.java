@@ -58,11 +58,13 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(ProjectContract.CREATE_PROFILE_TABLE);
+        db.execSQL(ProjectContract.CREATE_TAKES_TABLE);
         System.out.println();
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(ProjectContract.DELETE_ENTRIES);
+        db.execSQL(ProjectContract.DELETE_TAKES);
         onCreate(db);
 
     }
@@ -90,6 +92,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_TARGET_LANG + " = '" + fne.getLang() + "' AND " +
                 COLUMN_SOURCE + " = '" + fne.getSource() + "' AND " +
                 COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
+                COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
+                COLUMN_MODE + " + '" + fne.getMode() + "' AND " +
                 COLUMN_CHAPTER + " = " + fne.getChapter() + " AND " +
                 COLUMN_START_VS + " = " + fne.getStartVerse() + " AND " +
                 COLUMN_END_VS + " = " + fne.getEndVerse() + " AND " +
@@ -132,7 +136,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteTake(FileNameExtractor fne){
         SQLiteDatabase db = getWritableDatabase();
-        String delete = "DELETE * FROM " + TABLE_TAKES + " WHERE " +
+        String delete = "DELETE FROM " + TABLE_TAKES + " WHERE " +
                 COLUMN_TARGET_LANG + " = '" + fne.getLang() + "' AND " +
                 COLUMN_SOURCE + " = '" + fne.getSource() + "' AND " +
                 COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
@@ -169,6 +173,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             cv.put(COLUMN_TARGET_LANG, fne.getLang());
             cv.put(COLUMN_SOURCE, fne.getSource());
             cv.put(COLUMN_SLUG, fne.getBook());
+            cv.put(COLUMN_MODE, fne.getMode());
             cv.put(COLUMN_CHAPTER, fne.getChapter());
             cv.put(COLUMN_START_VS, fne.getStartVerse());
             cv.put(COLUMN_END_VS, fne.getEndVerse());

@@ -87,6 +87,7 @@ public class ActivityUnitList extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         prepareUnitCardData();
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

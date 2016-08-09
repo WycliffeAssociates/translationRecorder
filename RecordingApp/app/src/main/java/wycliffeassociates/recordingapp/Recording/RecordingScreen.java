@@ -27,6 +27,7 @@ import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.R;
@@ -379,6 +380,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
             isRecording = false;
             isPausedRecording = false;
+            addTakeToDb();
             if(mInsertMode){
                 finalizeInsert(mLoadedWav, mNewRecording, mInsertLocation);
             } else {
@@ -387,6 +389,13 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 this.finish();
             }
         }
+    }
+
+    private void addTakeToDb(){
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        FileNameExtractor fne = new FileNameExtractor(mNewRecording.getFile());
+        db.addTake(fne, 0, 0);
+        db.close();
     }
 
     @Override
