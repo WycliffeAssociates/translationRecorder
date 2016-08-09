@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.commons.io.FilenameUtils;
@@ -27,11 +26,11 @@ import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.ProjectManager.TakeRatingButton;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 /**
  * Created by sarabiaj on 11/10/2015.
@@ -254,10 +253,10 @@ public class PlaybackScreen extends Activity{
         mManager.updateUI();
     }
 
-    private void openRating(TakeRatingButton v) {
+    private void openRating(FourStepImageView v) {
         System.out.println("Open Rating");
         // NOTE: Temporary implementation. Launch/open Rating fragment/dialog here.
-        v.incrementRating();
+        v.incrementStep();
     }
 
     private void rerecord(){
@@ -422,7 +421,7 @@ public class PlaybackScreen extends Activity{
                 case R.id.btnRate: {
                     // NOTE: Probably don't need to pass in the view once we implement it the right
                     // way
-                    openRating((TakeRatingButton) v);
+                    openRating((FourStepImageView) v);
                     break;
                 }
                 case R.id.btnUndo: {

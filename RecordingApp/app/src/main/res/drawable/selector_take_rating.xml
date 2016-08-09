@@ -5,36 +5,34 @@
     >
 
     <item
-        app:state_light="false"
-        app:state_zero="true"
+        app:light_mode="false"
+        app:step_zero="true"
         android:drawable="@drawable/star_o"
         />
 
     <item
-        app:state_one="true"
+        app:step_one="true"
         android:drawable="@drawable/star_red"
         />
 
     <item
-        app:state_two="true"
+        app:step_two="true"
         android:drawable="@drawable/star_yellow"
         />
 
     <item
-        app:state_three="true"
+        app:step_three="true"
         android:drawable="@drawable/star_green"
         />
 
-    <!--<item android:drawable="@drawable/star_o" />-->
-
     <item
-        app:state_light="true"
-        app:state_zero="true"
+        app:light_mode="true"
+        app:step_zero="true"
         android:drawable="@drawable/star_white_o"
         />
 
     <item
-        app:state_light="true"
+        app:light_mode="true"
         android:drawable="@drawable/star_white_o" />
 
 </selector>

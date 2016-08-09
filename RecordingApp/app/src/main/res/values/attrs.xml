@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="checking_level">
+    <declare-styleable name="four_step_image_view">
 
-        <attr name="state_light" format="boolean" />
-        <attr name="state_zero" format="boolean" />
-        <attr name="state_one" format="boolean" />
-        <attr name="state_two" format="boolean" />
-        <attr name="state_three" format="boolean" />
+        <attr name="light_mode" format="boolean" />
+        <attr name="step" format="integer" />
+        <attr name="step_zero" format="boolean" />
+        <attr name="step_one" format="boolean" />
+        <attr name="step_two" format="boolean" />
+        <attr name="step_three" format="boolean" />
 
     </declare-styleable>
 

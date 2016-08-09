@@ -130,7 +130,7 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 // Just a proof of concept. We don't want to actually increment it this way.
-                holder.mCheckLevelBtn.incrementCheckLevel();
+                holder.mCheckLevelBtn.incrementStep();
 
                 // TODO: Launch a fragment/dialog here
             }
@@ -142,7 +142,7 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 // Just a proof of concept. We don't want to actually increment it this way.
-                holder.mTakeRatingBtn.incrementRating();
+                holder.mTakeRatingBtn.incrementStep();
 
                 // TODO: Launch a fragment/dialog here
             }

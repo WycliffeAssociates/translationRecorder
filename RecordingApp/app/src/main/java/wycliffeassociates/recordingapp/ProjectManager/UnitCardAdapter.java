@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 import wycliffeassociates.recordingapp.widgets.UnitCard;
 
 /**
@@ -99,8 +100,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public LinearLayout mCardBody, mCardContainer, mUnitActions;
         public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
         public ImageButton mDeleteTakeBtn, mPlayTakeBtn, mEditTakeBtn;
-        public CheckLevelButton mCheckLevelBtn;
-        public TakeRatingButton mTakeRatingBtn;
+        public FourStepImageView mCheckLevelBtn, mTakeRatingBtn;
         public UnitCard mUnitCard;
         public CardView mCardView;
 
@@ -119,8 +119,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mCurrentTake = (TextView) view.findViewById(R.id.currentTakeView);
 
             // Buttons
-            mCheckLevelBtn = (CheckLevelButton) view.findViewById(R.id.unitCheckLevel);
-            mTakeRatingBtn = (TakeRatingButton) view.findViewById(R.id.rateTakeBtn);
+            mCheckLevelBtn = (FourStepImageView) view.findViewById(R.id.unitCheckLevel);
+            mTakeRatingBtn = (FourStepImageView) view.findViewById(R.id.rateTakeBtn);
             mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
             mUnitPlayBtn = (ImageView) view.findViewById(R.id.unitPlayBtn);
             mDeleteTakeBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);

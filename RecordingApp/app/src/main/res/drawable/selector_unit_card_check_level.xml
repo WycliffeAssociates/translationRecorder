@@ -5,48 +5,48 @@
     >
 
     <item
-        app:state_zero="true"
+        app:step_zero="true"
         android:state_enabled="true"
         android:drawable="@drawable/box_0_black_o"
         />
 
     <item
-        app:state_one="true"
+        app:step_one="true"
         android:state_enabled="true"
         android:drawable="@drawable/box_1"
         />
 
     <item
-        app:state_two="true"
+        app:step_two="true"
         android:state_enabled="true"
         android:drawable="@drawable/box_2"
         />
 
     <item
-        app:state_three="true"
+        app:step_three="true"
         android:state_enabled="true"
         android:drawable="@drawable/box_3"
         />
 
     <item
-        app:state_zero="true"
+        app:step_zero="true"
         android:state_enabled="false"
         android:drawable="@drawable/box_0_white_o_disabled" />
 
     <item
-        app:state_one="true"
+        app:step_one="true"
         android:state_enabled="false"
         android:drawable="@drawable/box_1_disabled"
         />
 
     <item
-        app:state_two="true"
+        app:step_two="true"
         android:state_enabled="false"
         android:drawable="@drawable/box_2_disabled"
         />
 
     <item
-        app:state_three="true"
+        app:step_three="true"
         android:state_enabled="false"
         android:drawable="@drawable/box_3_disabled"
         />

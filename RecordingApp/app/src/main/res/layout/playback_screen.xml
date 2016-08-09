@@ -91,7 +91,7 @@
             android:layout_weight="1"
             android:gravity="center_vertical|right">
 
-            <wycliffeassociates.recordingapp.ProjectManager.TakeRatingButton
+            <wycliffeassociates.recordingapp.widgets.FourStepImageView
                 xmlns:app="http://schemas.android.com/apk/res/wycliffeassociates.recordingapp"
                 android:id="@+id/btnRate"
                 android:layout_width="36dp"
@@ -100,7 +100,7 @@
                 android:scaleType="fitCenter"
                 android:layout_marginStart="@dimen/default_padding_m"
                 android:clickable="true"
-                app:state_light="true"
+                app:light_mode="true"
                 />
 
             <ImageButton
