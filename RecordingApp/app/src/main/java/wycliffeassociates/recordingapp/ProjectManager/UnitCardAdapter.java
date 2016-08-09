@@ -98,7 +98,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
         public RelativeLayout mCardHeader, mCardFooter;
         public SeekBar mSeekBar;
-        public TextView mUnitTitle, mCurrentTake, mProgress, mDuration;
+        public TextView mUnitTitle, mCurrentTake, mProgress, mDuration, mCurrentTakeTimeStamp;
         public LinearLayout mCardBody, mCardContainer, mUnitActions;
         public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
         public ImageButton mTakeDeleteBtn, mTakePlayPauseBtn, mTakeEditBtn;
@@ -119,6 +119,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             // Views
             mUnitTitle = (TextView) view.findViewById(R.id.unitTitle);
             mCurrentTake = (TextView) view.findViewById(R.id.currentTakeView);
+            mCurrentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
             mSeekBar = (SeekBar) view.findViewById(R.id.seekBar);
             mProgress = (TextView) view.findViewById(R.id.timeElapsed);
             mDuration = (TextView) view.findViewById(R.id.timeDuration);

@@ -21,9 +21,12 @@ import android.widget.TextView;
 import java.io.File;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -138,18 +141,28 @@ public class UnitCard {
     private void refreshTakes(UnitCardAdapter.ViewHolder vh) {
         //if the soft reference still has the takes, cool, if not, repopulate them
         List<File> takes = getTakeList();
-        refreshTakeText(takes, vh.mCurrentTake);
+        refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
     }
 
-    private void refreshTakeText(List<File> takes, final TextView takeView) {
+    private void refreshTakeText(List<File> takes, final TextView takeView, final TextView timestamp) {
         final String text;
         if (takes.size() > 0) {
             text = "Take " + (mTakeIndex + 1) + " of " + takes.size();
+            long created = takes.get(mTakeIndex).lastModified();
+            timestamp.setText(convertTime(created));
         } else {
             text = "Take 0 of " + takes.size();
+            timestamp.setText("");
+
         }
         takeView.setText(text);
         takeView.invalidate();
+    }
+
+    private String convertTime(long time){
+        Date date = new Date(time);
+        Format format = new SimpleDateFormat("MMMM d, yyyy  HH:mm ");
+        return format.format(date);
     }
 
     private List<File> populateTakeList() {
@@ -229,7 +242,7 @@ public class UnitCard {
                     if (mTakeIndex >= takes.size()) {
                         mTakeIndex = 0;
                     }
-                    refreshTakeText(takes, takeView);
+                    refreshTakeText(takes, takeView, vh.mCurrentTakeTimeStamp);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -246,7 +259,7 @@ public class UnitCard {
                     if (mTakeIndex < 0) {
                         mTakeIndex = takes.size() - 1;
                     }
-                    refreshTakeText(takes, takeView);
+                    refreshTakeText(takes, takeView, vh.mCurrentTakeTimeStamp);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -278,7 +291,7 @@ public class UnitCard {
                                 //make sure the index is not negative
                                 mTakeIndex = Math.max(mTakeIndex, 0);
                             }
-                            refreshTakeText(takes, vh.mCurrentTake);
+                            refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
                             if(takes.size() > 0){
                                 AudioPlayer audioPlayer = getAudioPlayer(vh);
                                 audioPlayer.reset();
