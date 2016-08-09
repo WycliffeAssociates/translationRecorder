@@ -30,6 +30,7 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 /**
  * Created by sarabiaj on 11/10/2015.
@@ -252,6 +253,12 @@ public class PlaybackScreen extends Activity{
         mManager.updateUI();
     }
 
+    private void openRating(FourStepImageView v) {
+        System.out.println("Open Rating");
+        // NOTE: Temporary implementation. Launch/open Rating fragment/dialog here.
+        v.incrementStep();
+    }
+
     private void rerecord(){
         Intent intent = RecordingScreen.getRerecordIntent(this, mProject, mWavFile, mChapter, mUnit);
         save(intent);
@@ -353,6 +360,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
+        findViewById(R.id.btnRate).setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
         findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
@@ -408,6 +416,12 @@ public class PlaybackScreen extends Activity{
                 }
                 case R.id.btnClear: {
                     clearMarkers();
+                    break;
+                }
+                case R.id.btnRate: {
+                    // NOTE: Probably don't need to pass in the view once we implement it the right
+                    // way
+                    openRating((FourStepImageView) v);
                     break;
                 }
                 case R.id.btnUndo: {

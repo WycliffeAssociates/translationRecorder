@@ -12,18 +12,8 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/play"
+        android:src="@drawable/selector_source_audio_play"
         android:visibility="visible"
-        android:background="#00000000" />
-
-    <ImageButton
-        android:id="@+id/pauseButton"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="-36dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_pause_white_48dp"
-        android:visibility="invisible"
         android:background="#00000000" />
 
     <TextView

@@ -21,16 +21,15 @@ public class AudioPlayer {
 
     MediaPlayer mMediaPlayer;
     TextView mProgress, mDuration;
-    ImageButton mPlay, mPause;
+    ImageButton mPlay;
     SeekBar mSeekBar;
     private Handler mHandler;
     private boolean mPlayerReleased= false;
 
-    public AudioPlayer(TextView progress, TextView duration, ImageButton play, ImageButton pause, SeekBar seek){
+    public AudioPlayer(TextView progress, TextView duration, ImageButton play, SeekBar seek){
         mProgress = progress;
         mDuration = duration;
         mPlay = play;
-        mPause = pause;
         mSeekBar = seek;
         mMediaPlayer = new MediaPlayer();
         attachListeners();
@@ -60,7 +59,7 @@ public class AudioPlayer {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                switchPlayPauseButton(false);
+                togglePlayPauseButton(false);
                 mSeekBar.setProgress(mSeekBar.getMax());
                 int duration = mSeekBar.getMax();
                 final String time = String.format("%02d:%02d:%02d", duration / 3600000, (duration / 60000) % 60, (duration / 1000) % 60);
@@ -75,19 +74,17 @@ public class AudioPlayer {
         });
     }
 
-    private void switchPlayPauseButton(boolean isPlaying) {
+    private void togglePlayPauseButton(boolean isPlaying) {
         if (isPlaying) {
-            mPause.setVisibility(View.VISIBLE);
-            mPlay.setVisibility(View.INVISIBLE);
+            mPlay.setActivated(true);
         } else {
-            mPlay.setVisibility(View.VISIBLE);
-            mPause.setVisibility(View.INVISIBLE);
+            mPlay.setActivated(false);
         }
     }
 
     public void loadFile(File file){
         try {
-            switchPlayPauseButton(false);
+            togglePlayPauseButton(false);
             mMediaPlayer.setDataSource(file.getAbsolutePath());
             mMediaPlayer.prepare();
             int duration = mMediaPlayer.getDuration();
@@ -104,7 +101,7 @@ public class AudioPlayer {
         if(mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
             try {
                 mMediaPlayer.start();
-                switchPlayPauseButton(true);
+                togglePlayPauseButton(true);
                 mHandler = new Handler();
                 mSeekBar.setProgress(0);
                 System.out.println(mSeekBar.getProgress());
@@ -135,7 +132,7 @@ public class AudioPlayer {
         if(mMediaPlayer != null && !mPlayerReleased && mMediaPlayer.isPlaying()) {
             try {
                 mMediaPlayer.pause();
-                switchPlayPauseButton(false);
+                togglePlayPauseButton(false);
             } catch (IllegalStateException e) {
 
             }

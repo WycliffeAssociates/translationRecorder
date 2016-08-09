@@ -58,7 +58,6 @@ public class SourceAudio extends LinearLayout {
     private TextView mSrcTimeDuration;
     private AudioPlayer mSrcPlayer;
     private ImageButton mBtnSrcPlay;
-    private ImageButton mBtnSrcPause;
     private TextView mNoSourceMsg;
     private Handler mHandler;
     private volatile boolean mPlayerReleased = false;
@@ -95,24 +94,20 @@ public class SourceAudio extends LinearLayout {
         mSrcTimeDuration = (TextView) findViewById(R.id.timeDuration);
         mSeekBar = (SeekBar) findViewById(R.id.seekBar);
         mBtnSrcPlay = (ImageButton) findViewById(R.id.playButton);
-        mBtnSrcPause = (ImageButton) findViewById(R.id.pauseButton);
         mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
-        mSrcPlayer = new AudioPlayer(mSrcTimeElapsed, mSrcTimeDuration, mBtnSrcPlay, mBtnSrcPause, mSeekBar);
+        mSrcPlayer = new AudioPlayer(mSrcTimeElapsed, mSrcTimeDuration, mBtnSrcPlay, mSeekBar);
         mCtx = (Activity) getContext();
 
-        OnClickListener onClickListener = new OnClickListener() {
+        mBtnSrcPlay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v.getId() == R.id.playButton) {
-                    playSource();
-                } else if (v.getId() == R.id.pauseButton){
+                if(mBtnSrcPlay.isActivated()){
                     pauseSource();
+                } else {
+                    playSource();
                 }
             }
-        };
-
-        mBtnSrcPlay.setOnClickListener(onClickListener);
-        mBtnSrcPause.setOnClickListener(onClickListener);
+        });
     }
 
     private Uri getUriFromString(String sourceLanguage, String sourceLocation){
@@ -187,16 +182,6 @@ public class SourceAudio extends LinearLayout {
         }
     }
 
-    private void switchPlayPauseButton(boolean isPlaying) {
-        if (isPlaying) {
-            mBtnSrcPause.setVisibility(View.VISIBLE);
-            mBtnSrcPlay.setVisibility(View.INVISIBLE);
-        } else {
-            mBtnSrcPlay.setVisibility(View.VISIBLE);
-            mBtnSrcPause.setVisibility(View.INVISIBLE);
-        }
-    }
-
     public void initSrcAudio(Project project, String fileName, int chapter){
         if(mTemp != null && mTemp.exists()){
             mTemp.delete();
@@ -230,7 +215,6 @@ public class SourceAudio extends LinearLayout {
     public void reset(Project project, String fileName, int chapter){
         mSrcPlayer.reset();
         mSeekBar.setProgress(0);
-        switchPlayPauseButton(false);
         mSrcTimeElapsed.setText("00:00:00");
         mSrcTimeElapsed.invalidate();
         initSrcAudio(project, fileName, chapter);
