@@ -253,7 +253,7 @@ public class UnitCard {
                     if (mTakeIndex >= takes.size()) {
                         mTakeIndex = 0;
                     }
-                    refreshTakeText(takes, takeView, vh.mCurrentTakeTimeStamp);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -270,7 +270,7 @@ public class UnitCard {
                     if (mTakeIndex < 0) {
                         mTakeIndex = takes.size() - 1;
                     }
-                    refreshTakeText(takes, takeView, vh.mCurrentTakeTimeStamp);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -302,7 +302,7 @@ public class UnitCard {
                                 //make sure the index is not negative
                                 mTakeIndex = Math.max(mTakeIndex, 0);
                             }
-                            refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
+                            refreshTakes(vh);
                             if(takes.size() > 0){
                                 AudioPlayer audioPlayer = getAudioPlayer(vh);
                                 audioPlayer.reset();

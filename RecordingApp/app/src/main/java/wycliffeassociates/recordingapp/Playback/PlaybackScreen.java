@@ -26,6 +26,7 @@ import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
@@ -62,6 +63,7 @@ public class PlaybackScreen extends Activity{
     private TextView mChapterView;
     private TextView mUnitView;
     private TextView mChunkView;
+    private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
@@ -114,7 +116,7 @@ public class PlaybackScreen extends Activity{
         mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
-
+        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
         mLangView = (TextView) findViewById(R.id.file_language);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mBookView = (TextView) findViewById(R.id.file_book);
@@ -149,6 +151,13 @@ public class PlaybackScreen extends Activity{
 
         mStartMarker.setOrientation(MarkerView.LEFT);
         mEndMarker.setOrientation(MarkerView.RIGHT);
+
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
+        int rating = db.getRating(fne);
+        mRateBtn.setStep(rating);
+        mRateBtn.invalidate();
+        db.close();
     }
 
     private void initializeController(){
@@ -257,6 +266,9 @@ public class PlaybackScreen extends Activity{
         System.out.println("Open Rating");
         // NOTE: Temporary implementation. Launch/open Rating fragment/dialog here.
         v.incrementStep();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        db.setRating(new FileNameExtractor(mWavFile.getFile()), v.getStep());
+        db.close();
     }
 
     private void rerecord(){
