@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ImageView;
 
 import wycliffeassociates.recordingapp.R;
@@ -78,6 +79,7 @@ public class FourStepImageView extends ImageView {
         } else {
             mStep = 0;
         }
+        System.out.println("Setting step: " + mStep);
         refreshDrawableState();
     }
 

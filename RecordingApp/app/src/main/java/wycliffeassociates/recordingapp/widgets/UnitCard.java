@@ -11,6 +11,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -32,8 +33,10 @@ import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
+import wycliffeassociates.recordingapp.ProjectManager.CheckingDialogFragment;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.RatingDialogFragment;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
@@ -62,7 +65,7 @@ public class UnitCard {
     private final String mEndVerse;
     private SoftReference<List<File>> mTakeList;
     private SoftReference<AudioPlayer> mAudioPlayer;
-    private Context mCtx;
+    private Activity mCtx;
     private Resources.Theme mTheme;
 
 
@@ -380,9 +383,11 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 // Just a proof of concept. We don't want to actually increment it this way.
-                holder.mUnitCheckLevelBtn.incrementStep();
+                // holder.mUnitCheckLevelBtn.incrementStep();
 
                 // TODO: Launch a fragment/dialog here
+                CheckingDialogFragment dialog = new CheckingDialogFragment();
+                dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
             }
         };
     }
@@ -392,9 +397,11 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 // Just a proof of concept. We don't want to actually increment it this way.
-                holder.mTakeRatingBtn.incrementStep();
+                // holder.mTakeRatingBtn.incrementStep();
 
                 // TODO: Launch a fragment/dialog here
+                RatingDialogFragment dialog = new RatingDialogFragment();
+                dialog.show(mCtx.getFragmentManager(), "RatingDialogFragment");
             }
         };
     }

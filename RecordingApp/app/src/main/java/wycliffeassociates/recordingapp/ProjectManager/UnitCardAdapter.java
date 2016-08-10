@@ -94,7 +94,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     };
 
 
-    public class ViewHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class ViewHolder extends SwappingHolder implements View.OnClickListener,
+            View.OnLongClickListener {
 
         public RelativeLayout mCardHeader, mCardFooter;
         public SeekBar mSeekBar;
@@ -270,13 +271,13 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     // Set listeners for unit and take actions
     private void setListeners(final UnitCard unitCard, final ViewHolder holder) {
 
+        holder.mUnitCheckLevelBtn.setOnClickListener(unitCard.getUnitCheckLevelOnClick(holder));
         holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mProject, mChapterNum));
         holder.mUnitPlayBtn.setOnClickListener(unitCard.getLatestTakeEditOnClick());
         holder.mTakeDeleteBtn.setOnClickListener(unitCard.getTakeDeleteOnClick(holder));
         holder.mTakePlayPauseBtn.setOnClickListener(unitCard.getTakePlayPauseOnClick(holder));
         holder.mTakeEditBtn.setOnClickListener(unitCard.getTakeEditOnClickListener());
         holder.mTakeRatingBtn.setOnClickListener(unitCard.getTakeRatingOnClick(holder));
-        holder.mUnitCheckLevelBtn.setOnClickListener(unitCard.getUnitCheckLevelOnClick(holder));
         holder.mNextTakeBtn.setOnClickListener(unitCard.getTakeIncrementOnClick(holder.mCurrentTake, holder));
         holder.mPrevTakeBtn.setOnClickListener(unitCard.getTakeDecrementOnClick(holder.mCurrentTake, holder));
     };

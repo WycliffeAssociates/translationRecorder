@@ -25,7 +25,8 @@ import wycliffeassociates.recordingapp.widgets.UnitCard;
 /**
  * Created by sarabiaj on 6/30/2016.
  */
-public class ActivityUnitList extends AppCompatActivity {
+public class ActivityUnitList extends AppCompatActivity implements CheckingDialogFragment.DialogListener,
+        RatingDialogFragment.DialogListener{
 
     public static String PROJECT_KEY = "project_key";
     public static String CHAPTER_KEY = "chapter_key";
@@ -101,6 +102,35 @@ public class ActivityUnitList extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onPositiveClick(CheckingDialogFragment dialog) {
+        System.out.println("OK");
+        // NOTE: Set rating for the take here?
+        System.out.println(dialog.getCheckingLevel());
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onPositiveClick(RatingDialogFragment dialog) {
+        System.out.println("OK");
+        // NOTE: Set rating for the take here?
+        System.out.println(dialog.getRating());
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onNegativeClick(CheckingDialogFragment dialog) {
+        System.out.println("Cancel out of Checking dialog");
+        // NOTE: Do nothing?
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onNegativeClick(RatingDialogFragment dialog) {
+        System.out.println("Cancel out of Rating dialog");
+        // NOTE: Do nothing?
+        dialog.dismiss();
+    }
 
 
     private void prepareUnitCardData() {
