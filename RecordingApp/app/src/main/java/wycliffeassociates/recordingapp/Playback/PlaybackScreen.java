@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +28,7 @@ import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.RatingDialogFragment;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
@@ -35,7 +38,7 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 /**
  * Created by sarabiaj on 11/10/2015.
  */
-public class PlaybackScreen extends Activity{
+public class PlaybackScreen extends Activity implements RatingDialogFragment.DialogListener {
 
     //Constants for WAV format
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
@@ -62,6 +65,7 @@ public class PlaybackScreen extends Activity{
     private TextView mChapterView;
     private TextView mUnitView;
     private TextView mChunkView;
+    private FourStepImageView mBtnRate;
 
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
@@ -88,6 +92,8 @@ public class PlaybackScreen extends Activity{
     }
 
     private void initialize(Intent intent){
+        mBtnRate = (FourStepImageView) findViewById(R.id.btnRate);
+
         mConstantsDB = new ConstantsDatabaseHelper(this);
         isSaved = true;
         parseIntent(intent);
@@ -180,6 +186,23 @@ public class PlaybackScreen extends Activity{
         SectionMarkers.clearMarkers(mManager);
     }
 
+    @Override
+    public void onPositiveClick(RatingDialogFragment dialog) {
+        System.out.println("OK");
+        // NOTE: Set rating for the take here?
+        System.out.println(dialog.getRating());
+        dialog.dismiss();
+        mBtnRate.setStep(dialog.getRating());
+    }
+
+    @Override
+    public void onNegativeClick(RatingDialogFragment dialog) {
+        System.out.println("Cancel");
+        // NOTE: Do nothing?
+        dialog.dismiss();
+
+    }
+
     private void playRecording() {
         isPlaying = true;
         mManager.play();
@@ -256,7 +279,9 @@ public class PlaybackScreen extends Activity{
     private void openRating(FourStepImageView v) {
         System.out.println("Open Rating");
         // NOTE: Temporary implementation. Launch/open Rating fragment/dialog here.
-        v.incrementStep();
+//        v.incrementStep();
+        RatingDialogFragment dialog = new RatingDialogFragment();
+        dialog.show(getFragmentManager(), "RatingDialogFragment");
     }
 
     private void rerecord(){
@@ -360,7 +385,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
-        findViewById(R.id.btnRate).setOnClickListener(btnClick);
+        mBtnRate.setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
         findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
