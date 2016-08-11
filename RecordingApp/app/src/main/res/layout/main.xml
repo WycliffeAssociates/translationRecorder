@@ -34,7 +34,7 @@
             android:layout_centerInParent="true"
             android:src="@drawable/ic_record"
             android:contentDescription="@string/record_content_desc"
-            android:clickable="true"
+            android:clickable="false"
             />
 
         <TextView
