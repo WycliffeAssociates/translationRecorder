@@ -37,7 +37,7 @@ public class CheckingDialogFragment extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Rate this take")
+                .setTitle("Set the checking level")
                 .setView(inflater.inflate(R.layout.dialog_checking, null))
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -66,10 +66,9 @@ public class CheckingDialogFragment extends DialogFragment {
                 levelOne.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        System.out.println("Level one");
-                        levelOne.setStep(1);
-                        levelTwo.setStep(0);
-                        levelThree.setStep(0);
+                        levelOne.setActivated(true);
+                        levelTwo.setActivated(false);
+                        levelThree.setActivated(false);
                         mCheckingLevel = 1;
                     }
                 });
@@ -77,10 +76,9 @@ public class CheckingDialogFragment extends DialogFragment {
                 levelTwo.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        System.out.println("Level two");
-                        levelOne.setStep(2);
-                        levelTwo.setStep(2);
-                        levelThree.setStep(0);
+                        levelOne.setActivated(false);
+                        levelTwo.setActivated(true);
+                        levelThree.setActivated(false);
                         mCheckingLevel = 2;
                     }
                 });
@@ -88,10 +86,9 @@ public class CheckingDialogFragment extends DialogFragment {
                 levelThree.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        System.out.println("Level three");
-                        levelOne.setStep(3);
-                        levelTwo.setStep(3);
-                        levelThree.setStep(3);
+                        levelOne.setActivated(false);
+                        levelTwo.setActivated(false);
+                        levelThree.setActivated(true);
                         mCheckingLevel = 3;
                     }
                 });

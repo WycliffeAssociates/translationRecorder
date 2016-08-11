@@ -18,7 +18,7 @@
             android:layout_width="128dp"
             android:layout_height="128dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/selector_unit_card_check_level"
+            android:src="@drawable/selector_check_level_one"
             android:padding="@dimen/default_padding_m"
             />
 
@@ -27,7 +27,7 @@
             android:layout_width="128dp"
             android:layout_height="128dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/selector_unit_card_check_level"
+            android:src="@drawable/selector_check_level_two"
             android:padding="@dimen/default_padding_m"
             />
 
@@ -36,7 +36,7 @@
             android:layout_width="128dp"
             android:layout_height="128dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/selector_unit_card_check_level"
+            android:src="@drawable/selector_check_level_three"
             android:padding="@dimen/default_padding_m"
             />
 
