@@ -56,10 +56,6 @@ public class RatingDialogFragment extends DialogFragment {
             @Override
             public void onShow(DialogInterface dialog) {
                 AlertDialog alertDialog= (AlertDialog) dialog;
-
-                // Button positiveBtn = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                // positiveBtn.setBackground(getResources().getDrawable(R.drawable.delete));
-
                 final FourStepImageView oneStar = (FourStepImageView) alertDialog.findViewById(R.id.one_star_rating);
                 final FourStepImageView twoStar = (FourStepImageView) alertDialog.findViewById(R.id.two_star_rating);
                 final FourStepImageView threeStar = (FourStepImageView) alertDialog.findViewById(R.id.three_star_rating);
@@ -67,7 +63,6 @@ public class RatingDialogFragment extends DialogFragment {
                 oneStar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        System.out.println("One star");
                         oneStar.setStep(1);
                         twoStar.setStep(0);
                         threeStar.setStep(0);
@@ -78,7 +73,6 @@ public class RatingDialogFragment extends DialogFragment {
                 twoStar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        System.out.println("Two star");
                         oneStar.setStep(2);
                         twoStar.setStep(2);
                         threeStar.setStep(0);
@@ -89,7 +83,6 @@ public class RatingDialogFragment extends DialogFragment {
                 threeStar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        System.out.println("Three star");
                         oneStar.setStep(3);
                         twoStar.setStep(3);
                         threeStar.setStep(3);

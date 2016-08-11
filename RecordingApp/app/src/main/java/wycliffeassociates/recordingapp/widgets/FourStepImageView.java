@@ -79,7 +79,6 @@ public class FourStepImageView extends ImageView {
         } else {
             mStep = 0;
         }
-        System.out.println("Setting step: " + mStep);
         refreshDrawableState();
     }
 
