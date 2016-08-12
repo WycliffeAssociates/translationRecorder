@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    >
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/chapter_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_padding_xs"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="@dimen/cardview_default_elevation"
+        >
+
+        <LinearLayout
+            android:id="@+id/chapter_card_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/card_bg"
+            >
+
+            <RelativeLayout
+                android:id="@+id/card_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/default_padding_m"
+                >
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chapter 1"
+                    android:textSize="20sp"
+                    android:textColor="@color/primary_text_default_material_light"
+                    android:textStyle="bold"
+                    android:layout_centerVertical="true"
+                    />
+
+                <LinearLayout
+                    android:id="@+id/actions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    >
+
+                    <wycliffeassociates.recordingapp.widgets.FourStepImageView
+                        android:id="@+id/check_level_btn"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_unit_card_check_level"
+                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:duplicateParentState="true"
+                        android:clickable="true"
+                        />
+
+                    <ImageView
+                        android:id="@+id/compile_btn"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_chapter_compile"
+                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:layout_gravity="center_vertical"
+                        android:duplicateParentState="true"
+                        android:clickable="true"
+                        />
+
+                    <ImageView
+                        android:id="@+id/record_btn"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_unit_card_record"
+                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:visibility="visible"
+                        android:duplicateParentState="true"
+                        android:clickable="true"
+                        />
+
+                    <ImageView
+                        android:id="@+id/expand_btn"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_chapter_card_expand_toggle"
+                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:visibility="visible"
+                        android:duplicateParentState="true"
+                        android:clickable="true"
+                        />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/card_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/default_padding_m"
+                android:visibility="visible"
+                android:clickable="true"
+                >
+
+                <LinearLayout
+                    android:id="@+id/chapter_playback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/default_padding_m"
+                    >
+
+                    <TextView
+                        android:id="@+id/time_elapsed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00:00"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:layout_gravity="center_vertical|right"
+                        />
+
+                    <SeekBar
+                        android:id="@+id/seek_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/default_padding_m"
+                        android:layout_marginEnd="@dimen/default_padding_m"
+                        android:layout_weight="1"
+                        />
+
+                    <TextView
+                        android:id="@+id/time_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="00:00:00"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                        />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/playback_actions"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/default_padding_m"
+                    android:paddingStart="42dp"
+                    android:paddingEnd="42dp"
+                    android:weightSum="100"
+                    >
+
+                    <FrameLayout
+                        android:id="@+id/delete_chapter_audio_container"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <ImageButton
+                            android:id="@+id/delete_chapter_audio_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/delete"
+                            android:background="#00000000"
+                            android:layout_gravity="center"
+                            />
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/extra_container_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <!-- -->
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/play_pause_chapter_container"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <ImageButton
+                            android:id="@+id/play_pause_chapter_btn"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/selector_unit_card_play"
+                            android:visibility="visible"
+                            android:background="#00000000"
+                            android:layout_gravity="center"
+                            />
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/extra_container_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <!---->
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/extra_container_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <!-- -->
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</FrameLayout>
