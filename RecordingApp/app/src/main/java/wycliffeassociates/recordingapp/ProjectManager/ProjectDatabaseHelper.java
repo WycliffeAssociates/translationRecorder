@@ -92,8 +92,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_TARGET_LANG + " = '" + fne.getLang() + "' AND " +
                 COLUMN_SOURCE + " = '" + fne.getSource() + "' AND " +
                 COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
-                COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
-                COLUMN_MODE + " + '" + fne.getMode() + "' AND " +
+                COLUMN_MODE + " = '" + fne.getMode() + "' AND " +
                 COLUMN_CHAPTER + " = " + fne.getChapter() + " AND " +
                 COLUMN_START_VS + " = " + fne.getStartVerse() + " AND " +
                 COLUMN_END_VS + " = " + fne.getEndVerse() + " AND " +
@@ -260,7 +259,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     private int getIntFromTakeTable(FileNameExtractor fne, String column){
         String query = getTakeQuery(fne);
         SQLiteDatabase db = getReadableDatabase();
-        db.execSQL(query);
         Cursor cursor = db.rawQuery(query, null);
         getProjectTableIds(cursor);
         int val = 0;
@@ -272,8 +270,25 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return val;
     }
 
+    private int getCheckingLevel(FileNameExtractor fne, String column){
+        String query = getTakeQuery(fne);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        getProjectTableIds(cursor);
+        int val = 0;
+        //if there are multiple takes, the checking level is 0, otherwise check the value
+        if(cursor.getCount() == 1) {
+            if (cursor.moveToFirst()) {
+                val = cursor.getInt(cursor.getColumnIndex(column));
+            }
+        }
+        cursor.close();
+        db.close();
+        return val;
+    }
+
     private void setIntInTakeTable(FileNameExtractor fne, String column, int value){
-        String query = "UPDATE " + TABLE_TAKES + " SET " + column + "=" + value
+        String insertCommand = "UPDATE " + TABLE_TAKES + " SET " + column + "=" + value
                 + " WHERE " +
                 COLUMN_TARGET_LANG + " = '" + fne.getLang() + "' AND " +
                 COLUMN_SOURCE + " = '" + fne.getSource() + "' AND " +
@@ -284,7 +299,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_TAKE_NUM + " = " + fne.getTake() + "";
 
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(query);
+        db.execSQL(insertCommand);
         db.close();
     }
 

@@ -1,6 +1,8 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +28,8 @@ import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.RatingDialogFragment;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
@@ -35,7 +39,7 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 /**
  * Created by sarabiaj on 11/10/2015.
  */
-public class PlaybackScreen extends Activity{
+public class PlaybackScreen extends Activity implements RatingDialogFragment.DialogListener {
 
     //Constants for WAV format
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
@@ -62,6 +66,8 @@ public class PlaybackScreen extends Activity{
     private TextView mChapterView;
     private TextView mUnitView;
     private TextView mChunkView;
+    private FourStepImageView mRateBtn;
+
 
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
@@ -88,6 +94,8 @@ public class PlaybackScreen extends Activity{
     }
 
     private void initialize(Intent intent){
+        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
+
         mConstantsDB = new ConstantsDatabaseHelper(this);
         isSaved = true;
         parseIntent(intent);
@@ -114,7 +122,7 @@ public class PlaybackScreen extends Activity{
         mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
-
+        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
         mLangView = (TextView) findViewById(R.id.file_language);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mBookView = (TextView) findViewById(R.id.file_book);
@@ -149,6 +157,13 @@ public class PlaybackScreen extends Activity{
 
         mStartMarker.setOrientation(MarkerView.LEFT);
         mEndMarker.setOrientation(MarkerView.RIGHT);
+
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
+        int rating = db.getRating(fne);
+        mRateBtn.setStep(rating);
+        mRateBtn.invalidate();
+        db.close();
     }
 
     private void initializeController(){
@@ -178,6 +193,19 @@ public class PlaybackScreen extends Activity{
         mManager.release();
         mSrcPlayer.cleanup();
         SectionMarkers.clearMarkers(mManager);
+    }
+
+    @Override
+    public void onPositiveClick(RatingDialogFragment dialog) {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        db.close();
+        mRateBtn.setStep(dialog.getRating());
+    }
+
+    @Override
+    public void onNegativeClick(RatingDialogFragment dialog) {
+        dialog.dismiss();
     }
 
     private void playRecording() {
@@ -255,8 +283,8 @@ public class PlaybackScreen extends Activity{
 
     private void openRating(FourStepImageView v) {
         System.out.println("Open Rating");
-        // NOTE: Temporary implementation. Launch/open Rating fragment/dialog here.
-        v.incrementStep();
+        RatingDialogFragment dialog = RatingDialogFragment.newInstance(mWavFile.getFile().getName());
+        dialog.show(getFragmentManager(), "RatingDialogFragment");
     }
 
     private void rerecord(){
@@ -360,7 +388,7 @@ public class PlaybackScreen extends Activity{
         findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
         findViewById(R.id.btnCut).setOnClickListener(btnClick);
         findViewById(R.id.btnClear).setOnClickListener(btnClick);
-        findViewById(R.id.btnRate).setOnClickListener(btnClick);
+        mRateBtn.setOnClickListener(btnClick);
         findViewById(R.id.btnUndo).setOnClickListener(btnClick);
         findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
         findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);

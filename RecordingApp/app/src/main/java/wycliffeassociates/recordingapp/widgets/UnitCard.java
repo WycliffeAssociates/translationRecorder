@@ -11,6 +11,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -32,8 +33,10 @@ import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
+import wycliffeassociates.recordingapp.ProjectManager.CheckingDialogFragment;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.RatingDialogFragment;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
@@ -50,9 +53,14 @@ public class UnitCard {
 
     }
 
+    //Constants
+    public static boolean RATING_MODE = true;
+    public static boolean CHECKING_MODE = false;
+
     // State
     private boolean mIsExpanded = false;
     private int mTakeIndex = 0;
+    private int mCheckingLevel = 0;
 
     // Attributes
     private String mTitle;
@@ -62,7 +70,7 @@ public class UnitCard {
     private final String mEndVerse;
     private SoftReference<List<File>> mTakeList;
     private SoftReference<AudioPlayer> mAudioPlayer;
-    private Context mCtx;
+    private Activity mCtx;
     private Resources.Theme mTheme;
 
 
@@ -142,6 +150,26 @@ public class UnitCard {
         //if the soft reference still has the takes, cool, if not, repopulate them
         List<File> takes = getTakeList();
         refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
+        if(takes.size() > 0) {
+            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn, RATING_MODE);
+            if(takes.size() == 1){
+                refreshTakeRating(takes.get(0), vh.mUnitCheckLevelBtn, CHECKING_MODE);
+            }
+        }
+    }
+
+    private void refreshTakeRating(File take, FourStepImageView ratingView, boolean mode){
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        int rating;
+        FileNameExtractor fne = new FileNameExtractor(take);
+        if(mode == RATING_MODE) {
+            rating = db.getRating(fne);
+        } else {
+            rating = db.getCheckingLevel(fne);
+        }
+        ratingView.setStep(rating);
+        ratingView.invalidate();
+        db.close();
     }
 
     private void refreshTakeText(List<File> takes, final TextView takeView, final TextView timestamp) {
@@ -242,7 +270,7 @@ public class UnitCard {
                     if (mTakeIndex >= takes.size()) {
                         mTakeIndex = 0;
                     }
-                    refreshTakeText(takes, takeView, vh.mCurrentTakeTimeStamp);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -259,7 +287,7 @@ public class UnitCard {
                     if (mTakeIndex < 0) {
                         mTakeIndex = takes.size() - 1;
                     }
-                    refreshTakeText(takes, takeView, vh.mCurrentTakeTimeStamp);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -291,7 +319,7 @@ public class UnitCard {
                                 //make sure the index is not negative
                                 mTakeIndex = Math.max(mTakeIndex, 0);
                             }
-                            refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
+                            refreshTakes(vh);
                             if(takes.size() > 0){
                                 AudioPlayer audioPlayer = getAudioPlayer(vh);
                                 audioPlayer.reset();
@@ -354,24 +382,14 @@ public class UnitCard {
         };
     }
 
-    public View.OnClickListener getTakePauseOnClick(final UnitCardAdapter.ViewHolder vh){
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AudioPlayer ap = getAudioPlayer(vh);
-                ap.pause();
-            }
-        };
-    }
-
     public View.OnClickListener getUnitCheckLevelOnClick(final UnitCardAdapter.ViewHolder holder) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Just a proof of concept. We don't want to actually increment it this way.
-                holder.mUnitCheckLevelBtn.incrementStep();
-
-                // TODO: Launch a fragment/dialog here
+                List<File> takes = getTakeList();
+                String name = takes.get(mTakeIndex).getName();
+                CheckingDialogFragment dialog = CheckingDialogFragment.newInstance(name);
+                dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
             }
         };
     }
@@ -380,10 +398,10 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Just a proof of concept. We don't want to actually increment it this way.
-                holder.mTakeRatingBtn.incrementStep();
-
-                // TODO: Launch a fragment/dialog here
+                List<File> takes = getTakeList();
+                String name = takes.get(mTakeIndex).getName();
+                RatingDialogFragment dialog = RatingDialogFragment.newInstance(name);
+                dialog.show(mCtx.getFragmentManager(), "RatingDialogFragment");
             }
         };
     }
