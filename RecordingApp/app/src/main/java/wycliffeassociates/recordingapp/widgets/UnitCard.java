@@ -94,7 +94,7 @@ public class UnitCard {
     }
 
     public void expand(UnitCardAdapter.ViewHolder vh) {
-        refreshTakes(vh);
+//        refreshTakes(vh);
         refreshAudioPlayer(vh);
         vh.mCardBody.setVisibility(View.VISIBLE);
         vh.mCardFooter.setVisibility(View.VISIBLE);
@@ -146,17 +146,17 @@ public class UnitCard {
         mIsExpanded = false;
     }
 
-    private void refreshTakes(UnitCardAdapter.ViewHolder vh) {
-        //if the soft reference still has the takes, cool, if not, repopulate them
-        List<File> takes = getTakeList();
-        refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
-        if(takes.size() > 0) {
-            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn, RATING_MODE);
-            if(takes.size() == 1){
-                refreshTakeRating(takes.get(0), vh.mUnitCheckLevelBtn, CHECKING_MODE);
-            }
-        }
-    }
+//    private void refreshTakes(UnitCardAdapter.ViewHolder vh) {
+//        //if the soft reference still has the takes, cool, if not, repopulate them
+//        List<File> takes = getTakeList();
+//        refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
+//        if(takes.size() > 0) {
+//            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn, RATING_MODE);
+//            if(takes.size() == 1){
+//                refreshTakeRating(takes.get(0), vh.mUnitCheckLevelBtn, CHECKING_MODE);
+//            }
+//        }
+//    }
 
     private void refreshTakeRating(File take, FourStepImageView ratingView, boolean mode){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
@@ -270,7 +270,7 @@ public class UnitCard {
                     if (mTakeIndex >= takes.size()) {
                         mTakeIndex = 0;
                     }
-                    refreshTakes(vh);
+//                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -287,7 +287,7 @@ public class UnitCard {
                     if (mTakeIndex < 0) {
                         mTakeIndex = takes.size() - 1;
                     }
-                    refreshTakes(vh);
+//                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -319,7 +319,7 @@ public class UnitCard {
                                 //make sure the index is not negative
                                 mTakeIndex = Math.max(mTakeIndex, 0);
                             }
-                            refreshTakes(vh);
+//                            refreshTakes(vh);
                             if(takes.size() > 0){
                                 AudioPlayer audioPlayer = getAudioPlayer(vh);
                                 audioPlayer.reset();
@@ -402,6 +402,16 @@ public class UnitCard {
                 String name = takes.get(mTakeIndex).getName();
                 RatingDialogFragment dialog = RatingDialogFragment.newInstance(name);
                 dialog.show(mCtx.getFragmentManager(), "RatingDialogFragment");
+            }
+        };
+    }
+
+    public View.OnClickListener getTakeSelectOnClick(final UnitCardAdapter.ViewHolder holder) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("HEY");
+                view.setActivated(!view.isActivated());
             }
         };
     }
