@@ -270,6 +270,23 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return val;
     }
 
+    private int getCheckingLevel(FileNameExtractor fne, String column){
+        String query = getTakeQuery(fne);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        getProjectTableIds(cursor);
+        int val = 0;
+        //if there are multiple takes, the checking level is 0, otherwise check the value
+        if(cursor.getCount() == 1) {
+            if (cursor.moveToFirst()) {
+                val = cursor.getInt(cursor.getColumnIndex(column));
+            }
+        }
+        cursor.close();
+        db.close();
+        return val;
+    }
+
     private void setIntInTakeTable(FileNameExtractor fne, String column, int value){
         String insertCommand = "UPDATE " + TABLE_TAKES + " SET " + column + "=" + value
                 + " WHERE " +

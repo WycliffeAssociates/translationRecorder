@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.Chunks;
@@ -104,18 +105,20 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     @Override
     public void onPositiveClick(CheckingDialogFragment dialog) {
-        System.out.println("OK");
-        // NOTE: Set rating for the take here?
-        System.out.println(dialog.getCheckingLevel());
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
+        db.close();
         dialog.dismiss();
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onPositiveClick(RatingDialogFragment dialog) {
-        System.out.println("OK");
-        // NOTE: Set rating for the take here?
-        System.out.println(dialog.getRating());
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        db.close();
         dialog.dismiss();
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

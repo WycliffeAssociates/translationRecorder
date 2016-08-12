@@ -197,19 +197,15 @@ public class PlaybackScreen extends Activity implements RatingDialogFragment.Dia
 
     @Override
     public void onPositiveClick(RatingDialogFragment dialog) {
-        System.out.println("OK");
-        // NOTE: Set rating for the take here?
-        System.out.println(dialog.getRating());
-        dialog.dismiss();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        db.close();
         mRateBtn.setStep(dialog.getRating());
     }
 
     @Override
     public void onNegativeClick(RatingDialogFragment dialog) {
-        System.out.println("Cancel");
-        // NOTE: Do nothing?
         dialog.dismiss();
-
     }
 
     private void playRecording() {
@@ -287,13 +283,7 @@ public class PlaybackScreen extends Activity implements RatingDialogFragment.Dia
 
     private void openRating(FourStepImageView v) {
         System.out.println("Open Rating");
-        // NOTE: Temporary implementation. Launch/open Rating fragment/dialog here.
-//        v.incrementStep();
-//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-//        db.setRating(new FileNameExtractor(mWavFile.getFile()), v.getStep());
-//        db.close();
-//        v.incrementStep();
-        RatingDialogFragment dialog = new RatingDialogFragment();
+        RatingDialogFragment dialog = RatingDialogFragment.newInstance(mWavFile.getFile().getName());
         dialog.show(getFragmentManager(), "RatingDialogFragment");
     }
 

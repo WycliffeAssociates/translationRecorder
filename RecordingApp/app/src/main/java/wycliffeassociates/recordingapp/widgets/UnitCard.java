@@ -53,9 +53,14 @@ public class UnitCard {
 
     }
 
+    //Constants
+    public static boolean RATING_MODE = true;
+    public static boolean CHECKING_MODE = false;
+
     // State
     private boolean mIsExpanded = false;
     private int mTakeIndex = 0;
+    private int mCheckingLevel = 0;
 
     // Attributes
     private String mTitle;
@@ -146,13 +151,22 @@ public class UnitCard {
         List<File> takes = getTakeList();
         refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
         if(takes.size() > 0) {
-            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn);
+            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn, RATING_MODE);
+            if(takes.size() == 1){
+                refreshTakeRating(takes.get(0), vh.mUnitCheckLevelBtn, CHECKING_MODE);
+            }
         }
     }
 
-    private void refreshTakeRating(File take, FourStepImageView ratingView){
+    private void refreshTakeRating(File take, FourStepImageView ratingView, boolean mode){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        int rating = db.getRating(new FileNameExtractor(take));
+        int rating;
+        FileNameExtractor fne = new FileNameExtractor(take);
+        if(mode == RATING_MODE) {
+            rating = db.getRating(fne);
+        } else {
+            rating = db.getCheckingLevel(fne);
+        }
         ratingView.setStep(rating);
         ratingView.invalidate();
         db.close();
@@ -368,25 +382,13 @@ public class UnitCard {
         };
     }
 
-    public View.OnClickListener getTakePauseOnClick(final UnitCardAdapter.ViewHolder vh){
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AudioPlayer ap = getAudioPlayer(vh);
-                ap.pause();
-            }
-        };
-    }
-
     public View.OnClickListener getUnitCheckLevelOnClick(final UnitCardAdapter.ViewHolder holder) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Just a proof of concept. We don't want to actually increment it this way.
-                // holder.mUnitCheckLevelBtn.incrementStep();
-
-                // TODO: Launch a fragment/dialog here
-                CheckingDialogFragment dialog = new CheckingDialogFragment();
+                List<File> takes = getTakeList();
+                String name = takes.get(mTakeIndex).getName();
+                CheckingDialogFragment dialog = CheckingDialogFragment.newInstance(name);
                 dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
             }
         };
@@ -396,11 +398,9 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Just a proof of concept. We don't want to actually increment it this way.
-                // holder.mTakeRatingBtn.incrementStep();
-
-                // TODO: Launch a fragment/dialog here
-                RatingDialogFragment dialog = new RatingDialogFragment();
+                List<File> takes = getTakeList();
+                String name = takes.get(mTakeIndex).getName();
+                RatingDialogFragment dialog = RatingDialogFragment.newInstance(name);
                 dialog.show(mCtx.getFragmentManager(), "RatingDialogFragment");
             }
         };

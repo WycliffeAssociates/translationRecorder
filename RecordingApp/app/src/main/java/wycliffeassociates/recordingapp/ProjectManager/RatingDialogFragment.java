@@ -18,19 +18,29 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  */
 public class RatingDialogFragment extends DialogFragment {
 
+    public static String TAKE_KEY = "key_take_name";
     public interface DialogListener {
-        public void onPositiveClick(RatingDialogFragment dialog);
-        public void onNegativeClick(RatingDialogFragment dialog);
-    }
+        void onPositiveClick(RatingDialogFragment dialog);
+        void onNegativeClick(RatingDialogFragment dialog);
 
+    }
     private int mRating;
-    DialogListener mListener;
+    private DialogListener mListener;
+    private String mTakeName;
+
+    public static RatingDialogFragment newInstance(String takeName){
+        RatingDialogFragment rate = new RatingDialogFragment();
+        Bundle args = new Bundle();
+        args.putString(TAKE_KEY, takeName);
+        rate.setArguments(args);
+        return rate;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // NOTE: Code to check current rating here. Maybe?
-        // mRating = ??
+        Bundle args = getArguments();
+        mTakeName = args.getString(TAKE_KEY);
     }
 
     @Override
@@ -107,5 +117,9 @@ public class RatingDialogFragment extends DialogFragment {
 
     public int getRating() {
         return mRating;
+    }
+
+    public String getTakeName(){
+        return mTakeName;
     }
 }
