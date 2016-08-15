@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.ProjectManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -10,28 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.project.Book;
+import wycliffeassociates.recordingapp.project.Language;
 
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.TABLE_PROJECT;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_TARGET_LANG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SLUG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_PROJECT;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_MODE;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_BOOK_NUM;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_CONTRIBUTORS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE_AUDIO_PATH;
-
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.TABLE_TAKES;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_CHAPTER;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_START_VS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_END_VS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_RATING;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_CHECKING;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_TAKE_NUM;
-
-
-
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.*;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -57,14 +40,21 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(ProjectContract.CREATE_PROFILE_TABLE);
-        db.execSQL(ProjectContract.CREATE_TAKES_TABLE);
-        System.out.println();
+        db.execSQL(LanguageEntry.CREATE_LANGUAGE_TABLE);
+        db.execSQL(BookEntry.CREATE_BOOK_TABLE);
+        db.execSQL(ProjectEntry.CREATE_PROJECT_TABLE);
+        db.execSQL(ChapterEntry.CREATE_CHAPTER_TABLE);
+        db.execSQL(UnitEntry.CREATE_UNIT_TABLE);
+        db.execSQL(TakeEntry.CREATE_TAKE_TABLE);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(ProjectContract.DELETE_ENTRIES);
-        db.execSQL(ProjectContract.DELETE_TAKES);
+        db.execSQL(DELETE_LANGUAGE);
+        db.execSQL(DELETE_BOOKS);
+        db.execSQL(DELETE_PROJECTS);
+        db.execSQL(DELETE_CHAPTERS);
+        db.execSQL(DELETE_UNITS);
+        db.execSQL(DELETE_TAKES);
         onCreate(db);
 
     }
@@ -74,16 +64,90 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
     public void clearTable(){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT);
+        db.execSQL("DELETE FROM " + TABLE_PROJECT);
+        db.close();
     }
 
+    public boolean languageExists(String code){
+        SQLiteDatabase db = getReadableDatabase();
+        final String languageCountQuery = "SELECT COUNT(*) FROM " + LanguageEntry.TABLE_LANGUAGE + " WHERE " + LanguageEntry.LANGUAGE_CODE + "=?";
+        boolean exists =  (DatabaseUtils.longForQuery(db, languageCountQuery, new String[]{code})) > 0;
+        db.close();
+        return exists;
+    }
+
+    public boolean bookExists(String slug){
+        SQLiteDatabase db = getReadableDatabase();
+        final String bookCountQuery = "SELECT COUNT(*) FROM " + BookEntry.TABLE_BOOK + " WHERE " + BookEntry.BOOK_SLUG + "=?";
+        boolean exists = (DatabaseUtils.longForQuery(db, bookCountQuery, new String[]{slug})) > 0;
+        db.close();
+        return exists;
+    }
+
+    public boolean projectExists(Project project){
+        SQLiteDatabase db = getReadableDatabase();
+        final String projectCountQuery = "SELECT COUNT(*) FROM " + ProjectEntry.TABLE_PROJECT + " WHERE " + ProjectEntry.PROJECT_TARGET_LANGUAGE_FK + "=?"
+                + " AND " + ProjectEntry.PROJECT_BOOK_FK + "=? AND" + ProjectEntry.PROJECT_VERSION + "=?";
+        String languageCode = project.getTargetLanguage();
+        int languageId = getLanguageId(languageCode);
+        String slug = project.getSlug();
+        int bookId = getBookId(slug);
+        boolean exists = (DatabaseUtils.longForQuery(db, projectCountQuery, new String[]{String.valueOf(languageId),String.valueOf(bookId), project.getSource()})) > 0;
+        db.close();
+        return exists;
+    }
+
+    public boolean unitExists(Project project, int chapter, int unit){
+        return false;
+    }
+
+    public boolean takeExists(Project project, int chapter, int start, int end){
+        return false;
+    }
+
+    public int getLanguageId(String code){
+        SQLiteDatabase db = getReadableDatabase();
+        final String languageIdQuery = "SELECT " + LanguageEntry._ID + " FROM " + LanguageEntry.TABLE_LANGUAGE + " WHERE " + LanguageEntry.LANGUAGE_CODE + "=?";
+        int id = (int)DatabaseUtils.longForQuery(db, languageIdQuery, new String[]{code});
+        db.close();
+        return id;
+    }
+
+    public int getBookId(String slug){
+        SQLiteDatabase db = getReadableDatabase();
+        final String bookIdQuery = "SELECT " + BookEntry._ID + " FROM " + BookEntry.TABLE_BOOK + " WHERE " + BookEntry.BOOK_SLUG + "=?";
+        int id = (int)DatabaseUtils.longForQuery(db, bookIdQuery, new String[]{slug});
+        db.close();
+        return id;
+    }
+
+    public void addLanguage(String code, String name){
+        SQLiteDatabase db = getWritableDatabase();
+        if(!languageExists(code)) {
+            ContentValues cv = new ContentValues();
+            cv.put(LanguageEntry.LANGUAGE_CODE, code);
+            cv.put(LanguageEntry.LANGUAGE_NAME, name);
+            long result = db.insert(LanguageEntry.TABLE_LANGUAGE, null, cv);
+        }
+        db.close();
+    }
+
+    public void addBook(String slug, String name){
+        SQLiteDatabase db = getWritableDatabase();
+        if(!bookExists(slug)) {
+            ContentValues cv = new ContentValues();
+            cv.put(BookEntry.BOOK_SLUG, slug);
+            cv.put(BookEntry.BOOK_NAME, name);
+            long result = db.insert(BookEntry.TABLE_BOOK, null, cv);
+        }
+        db.close();
+    }
+
+
+
     public String getProjectQuery(Project project){
-        String query = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT + " WHERE " +
-                ProjectContract.ProjectEntry.COLUMN_SLUG + " = '" + project.getSlug() + "' AND " +
-                ProjectContract.ProjectEntry.COLUMN_SOURCE + " = '" + project.getSource() + "' AND " +
-                ProjectContract.ProjectEntry.COLUMN_TARGET_LANG + " = '" + project.getTargetLanguage() + "' AND " +
-                ProjectContract.ProjectEntry.COLUMN_MODE + " = '" + project.getMode() + "' AND " +
-                ProjectContract.ProjectEntry.COLUMN_PROJECT + " = '" + project.getProject() + "'";
+        String query = "SELECT * FROM " + TABLE_PROJECT + " INNER JOIN 
+                ;
         return query;
     }
 

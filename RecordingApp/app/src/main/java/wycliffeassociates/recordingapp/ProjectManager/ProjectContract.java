@@ -1,21 +1,6 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
-import android.media.Rating;
 import android.provider.BaseColumns;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.TABLE_PROJECT;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.TABLE_TAKES;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_TARGET_LANG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SLUG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_PROJECT;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_MODE;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_SOURCE_LANG;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_CHAPTER;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_START_VS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_END_VS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_RATING;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_CHECKING;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry.COLUMN_TAKE_NUM;
 
 /**
  * Created by sarabiaj on 5/19/2016.
@@ -24,25 +9,115 @@ public final class ProjectContract {
 
     public ProjectContract() {}
 
-    public static abstract class ProjectEntry implements BaseColumns{
+    public static abstract class LanguageEntry implements BaseColumns {
+        public static final String TABLE_LANGUAGE = "languages";
+        public static final String LANGUAGE_CODE = "code";
+        public static final String LANGUAGE_NAME = "name";
+
+        public static final String CREATE_LANGUAGE_TABLE = "CREATE TABLE " + TABLE_LANGUAGE + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + LANGUAGE_CODE + TEXTCOMMA
+                + LANGUAGE_NAME + TEXT
+                + ");";
+    }
+
+    public static abstract class BookEntry implements BaseColumns {
+        public static final String TABLE_BOOK = "books";
+        public static final String BOOK_SLUG = "slug";
+        public static final String BOOK_NAME = "name";
+        public static final String BOOK_NUMBER = "number";
+        public static final String BOOK_ANTHOLOGY = "anthology";
+
+        public static final String CREATE_BOOK_TABLE = "CREATE TABLE " + TABLE_BOOK + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + BOOK_SLUG + TEXTCOMMA
+                + BOOK_NAME + TEXTCOMMA
+                + BOOK_NUMBER + INTCOMMA
+                + BOOK_ANTHOLOGY + TEXT
+                + ");";
+    }
+
+    public static abstract class ChapterEntry implements BaseColumns {
+        public static final String TABLE_CHAPTER = "chapters";
+        public static final String CHAPTER_PROJECT_FK = "project";
+        public static final String CHAPTER_NUMBER = "number";
+        public static final String CHAPTER_NOTES = "notes";
+        public static final String CHAPTER_PROGRESS = "progress";
+        public static final String CHAPTER_CHECKING_LEVEL = "checking";
+
+        public static final String CREATE_CHAPTER_TABLE = "CREATE TABLE " + TABLE_CHAPTER + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + CHAPTER_PROJECT_FK + INTCOMMA
+                + CHAPTER_NUMBER + INTCOMMA
+                + CHAPTER_NOTES + TEXTCOMMA
+                + CHAPTER_PROGRESS + INTCOMMA
+                + CHAPTER_CHECKING_LEVEL + INTCOMMA
+                + "FOREIGN KEY(" + CHAPTER_PROJECT_FK + ") REFERENCES " + ProjectEntry.TABLE_PROJECT + "(" + _ID + ")"
+                + ");";
+    }
+
+    public static abstract class UnitEntry implements BaseColumns {
+        public static final String TABLE_UNIT = "units";
+        public static final String UNIT_PROJECT_FK = "project_fk";
+        public static final String UNIT_CHAPTER_FK = "chapter_fk";
+        public static final String UNIT_START_VERSE = "start_verse";
+        public static final String UNIT_END_VERSE = "end_verse";
+        public static final String UNIT_NOTES = "notes";
+        public static final String UNIT_CHOSEN_TAKE = "chosen_take";
+
+        public static final String CREATE_UNIT_TABLE = "CREATE TABLE " + TABLE_UNIT + " ("
+                + _ID + " INTEGER PRIMARY KEY"
+                + UNIT_PROJECT_FK + INTCOMMA
+                + UNIT_CHAPTER_FK + INTCOMMA
+                + UNIT_START_VERSE + INTCOMMA
+                + UNIT_END_VERSE + INTCOMMA
+                + UNIT_NOTES + TEXTCOMMA
+                + UNIT_CHOSEN_TAKE + INTCOMMA
+                + "FOREIGN KEY(" + UNIT_PROJECT_FK + ") REFERENCES " + ProjectEntry.TABLE_PROJECT + "(" + _ID + ")"
+                + "FOREIGN KEY(" + UNIT_CHAPTER_FK + ") REFERENCES " + ChapterEntry.TABLE_CHAPTER + "(" + _ID + ")"
+                + ");";
+    }
+
+    public static abstract class TakeEntry implements BaseColumns {
+        public static final String TABLE_TAKE = "takes";
+        public static final String TAKE_UNIT_FK = "unit_fk";
+        public static final String TAKE_RATING = "rating";
+        public static final String TAKE_NOTES = "notes";
+        public static final String TAKE_NUMBER = "number";
+
+        public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
+                + _ID + " INTEGER PRIMARY KEY"
+                + TAKE_UNIT_FK + INTCOMMA
+                + TAKE_RATING + INTCOMMA
+                + TAKE_NOTES + TEXTCOMMA
+                + TAKE_NUMBER + INTCOMMA
+                + ");";
+    }
+
+    public static abstract class ProjectEntry implements BaseColumns {
         public static final String TABLE_PROJECT = "projects";
-        public static final String KEY_ID = "key_id";
-        public static final String COLUMN_TARGET_LANG = "key_target_lang";
-        public static final String COLUMN_SOURCE_LANG = "key_source_lang";
-        public static final String COLUMN_SLUG = "key_slug";
-        public static final String COLUMN_BOOK_NUM = "key_book_num";
-        public static final String COLUMN_SOURCE = "key_source";
-        public static final String COLUMN_PROJECT= "key_project";
-        public static final String COLUMN_MODE = "key_mode";
-        public static final String COLUMN_CONTRIBUTORS = "key_contributors";
-        public static final String COLUMN_SOURCE_AUDIO_PATH = "key_source_audio_path";
-        public static final String TABLE_TAKES = "takes";
-        public static final String COLUMN_CHAPTER = "key_chapter";
-        public static final String COLUMN_START_VS = "key_start_vs";
-        public static final String COLUMN_END_VS = "key_end_vs";
-        public static final String COLUMN_RATING = "key_rating";
-        public static final String COLUMN_CHECKING = "key_checking";
-        public static final String COLUMN_TAKE_NUM = "key_take_num";
+        public static final String PROJECT_TARGET_LANGUAGE_FK = "target_language_fk";
+        public static final String PROJECT_BOOK_FK = "book_fk";
+        public static final String PROJECT_VERSION = "version";
+        public static final String PROJECT_SOURCE_LANGUAGE_FK = "source_lang_fk";
+        public static final String PROJECT_SOURCE_AUDIO_PATH = "source_audio_path";
+        public static final String PROJECT_CONTRIBUTORS = "contributors";
+        public static final String PROJECT_NOTES = "notes";
+        public static final String PROJECT_PROGRESS = "progress";
+
+        public static final String CREATE_PROJECT_TABLE = "CREATE TABLE " + TABLE_PROJECT + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + PROJECT_TARGET_LANGUAGE_FK + TEXTCOMMA
+                + PROJECT_BOOK_FK + TEXTCOMMA
+                + PROJECT_VERSION + TEXTCOMMA
+                + PROJECT_SOURCE_LANGUAGE_FK + TEXTCOMMA
+                + PROJECT_SOURCE_AUDIO_PATH + TEXTCOMMA
+                + PROJECT_CONTRIBUTORS + TEXTCOMMA
+                + PROJECT_NOTES + TEXTCOMMA
+                + PROJECT_PROGRESS + TEXTCOMMA
+                + "FOREIGN KEY(" + PROJECT_TARGET_LANGUAGE_FK + ") REFERENCES " + LanguageEntry.TABLE_LANGUAGE + "(" + _ID + ")"
+                + "FOREIGN KEY(" + PROJECT_SOURCE_LANGUAGE_FK + ") REFERENCES " + LanguageEntry.TABLE_LANGUAGE + "(" + _ID + ")"
+                + " );";
     }
 
     public static final String TEXT = " TEXT";
@@ -51,34 +126,11 @@ public final class ProjectContract {
     public static final String TEXTCOMMA = " TEXT,";
     public static final String INTCOMMA = " INTEGER,";
 
-    public static final String CREATE_PROFILE_TABLE = "CREATE TABLE " + ProjectEntry.TABLE_PROJECT + " ("
-            + ProjectEntry._ID + " INTEGER PRIMARY KEY,"
-            + ProjectEntry.COLUMN_TARGET_LANG + TEXTCOMMA
-            + ProjectEntry.COLUMN_SOURCE_LANG + TEXTCOMMA
-            + ProjectEntry.COLUMN_SLUG + TEXTCOMMA
-            + ProjectEntry.COLUMN_BOOK_NUM + TEXTCOMMA
-            + ProjectEntry.COLUMN_SOURCE + TEXTCOMMA
-            + ProjectEntry.COLUMN_PROJECT + TEXTCOMMA
-            + ProjectEntry.COLUMN_MODE + TEXTCOMMA
-            + ProjectEntry.COLUMN_CONTRIBUTORS + TEXTCOMMA
-            + ProjectEntry.COLUMN_SOURCE_AUDIO_PATH + TEXT
-            + " )";
-
-    public static final String CREATE_TAKES_TABLE = "CREATE TABLE " + TABLE_TAKES + " ("
-            + ProjectEntry._ID + " INTEGER PRIMARY KEY,"
-            + COLUMN_TARGET_LANG + TEXTCOMMA
-            + COLUMN_SLUG + TEXTCOMMA
-            + COLUMN_SOURCE + TEXTCOMMA
-            + COLUMN_MODE + TEXTCOMMA
-            + COLUMN_CHAPTER + INTCOMMA
-            + COLUMN_START_VS + INTCOMMA
-            + COLUMN_END_VS + INTCOMMA
-            + COLUMN_TAKE_NUM + INTCOMMA
-            + COLUMN_RATING + INTCOMMA
-            + COLUMN_CHECKING + INTEGER
-            + " )";
-
-    public static final String DELETE_ENTRIES = "DROP TABLE IF EXISTS " + ProjectEntry.TABLE_PROJECT;
-    public static final String DELETE_TAKES = "DROP TABLE IF EXISTS " + ProjectEntry.TABLE_TAKES;
+    public static final String DELETE_LANGUAGE = "DROP TABLE IF EXISTS " + LanguageEntry.TABLE_LANGUAGE;
+    public static final String DELETE_BOOKS = "DROP TABLE IF EXISTS " + BookEntry.TABLE_BOOK;
+    public static final String DELETE_PROJECTS = "DROP TABLE IF EXISTS " + ProjectEntry.TABLE_PROJECT;
+    public static final String DELETE_CHAPTERS = "DROP TABLE IF EXISTS " + ChapterEntry.TABLE_CHAPTER;
+    public static final String DELETE_UNITS = "DROP TABLE IF EXISTS " + UnitEntry.TABLE_UNIT;
+    public static final String DELETE_TAKES = "DROP TABLE IF EXISTS " + TakeEntry.TABLE_TAKE;
 }
 
