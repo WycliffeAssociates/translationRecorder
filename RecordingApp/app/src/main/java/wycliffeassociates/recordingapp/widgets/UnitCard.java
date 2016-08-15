@@ -50,7 +50,6 @@ public class UnitCard {
 
     public interface OnClickListener extends View.OnClickListener {
         void onClick(View v, UnitCardAdapter.ViewHolder vh, List<Integer> expandedCards, int position);
-
     }
 
     //Constants

@@ -59,7 +59,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         // Setup toolbar
         String language = mDb.getLanguageName(mProject.getTargetLanguage());
         String book = mDb.getBookName(mProject.getSlug());
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(language + " - " + book + " - Chapter " + mChapterNum);
@@ -68,7 +68,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         }
 
         // Find the recycler view
-        mUnitList = (RecyclerView) findViewById(R.id.chapter_list);
+        mUnitList = (RecyclerView) findViewById(R.id.unit_list);
         mUnitList.setHasFixedSize(false);
 
         // Set its layout manager
