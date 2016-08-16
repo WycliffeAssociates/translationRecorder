@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
@@ -60,17 +61,21 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            mCtx.getMenuInflater().inflate(R.menu.unit_menu, menu);
+            mCtx.getMenuInflater().inflate(R.menu.chapter_menu, menu);
             return true;
         }
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.set_units_checking_level:
+                case R.id.chapters_checking_level:
                     // NOTE: Currently only pass in placeholder text
                     CheckingDialogFragment dialog = CheckingDialogFragment.newInstance("Test");
                     dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
+                    break;
+                case R.id.chapters_compile:
+                    System.out.println("Multi Compile");
+                    Toast.makeText(mCtx, "Multi Compile", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     System.out.println("Default action");

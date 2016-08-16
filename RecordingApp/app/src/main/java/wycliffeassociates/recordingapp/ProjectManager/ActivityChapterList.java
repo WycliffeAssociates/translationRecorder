@@ -29,7 +29,7 @@ import wycliffeassociates.recordingapp.widgets.UnitCard;
  * Created by sarabiaj on 6/28/2016.
  */
 public class ActivityChapterList extends AppCompatActivity implements
-        CheckingDialogFragment.DialogListener, RatingDialogFragment.DialogListener {
+        CheckingDialogFragment.DialogListener {
 
     public static String PROJECT_KEY = "project_key";
 
@@ -93,6 +93,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     @Override
     public void onPositiveClick(CheckingDialogFragment dialog) {
+        System.out.println("Positive click");
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
         db.close();
@@ -101,24 +102,8 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     @Override
-    public void onPositiveClick(RatingDialogFragment dialog) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
-        db.close();
-        dialog.dismiss();
-        mAdapter.notifyDataSetChanged();
-    }
-
-    @Override
     public void onNegativeClick(CheckingDialogFragment dialog) {
         System.out.println("Cancel out of Checking dialog");
-        // NOTE: Do nothing?
-        dialog.dismiss();
-    }
-
-    @Override
-    public void onNegativeClick(RatingDialogFragment dialog) {
-        System.out.println("Cancel out of Rating dialog");
         // NOTE: Do nothing?
         dialog.dismiss();
     }
