@@ -409,7 +409,6 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("HEY");
                 view.setActivated(!view.isActivated());
             }
         };

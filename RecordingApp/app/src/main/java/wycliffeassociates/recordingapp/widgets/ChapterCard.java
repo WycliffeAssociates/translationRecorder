@@ -2,10 +2,12 @@ package wycliffeassociates.recordingapp.widgets;
 
 import android.app.Activity;
 import android.view.View;
+import android.widget.Toast;
 
 import java.lang.ref.SoftReference;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.ProjectManager.CheckingDialogFragment;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
@@ -36,8 +38,9 @@ public class ChapterCard {
 
     // State
     private boolean mIsEmpty = true;
-    private boolean mIsCompiled = false;
+    private boolean mIsCompiled = true;
     private boolean mIsExpanded = false;
+    private boolean mCanCompile = true;
 
     // Constructor
     public ChapterCard(Activity ctx, Project proj) {
@@ -98,38 +101,56 @@ public class ChapterCard {
     // Public API
     public void expand(ChapterCardAdapter.ViewHolder vh) {
         // refreshAudioPlayer(vh);
-        vh.mCardBody.setVisibility(View.VISIBLE);
         vh.mExpandBtn.setActivated(true);
+        vh.mCardBody.setVisibility(View.VISIBLE);
+        // vh.setIsRecyclable(false);
         mIsExpanded = true;
     }
 
     public void collapse(ChapterCardAdapter.ViewHolder vh) {
         vh.mCardBody.setVisibility(View.GONE);
         vh.mExpandBtn.setActivated(false);
+        // vh.setIsRecyclable(true);
         mIsExpanded = false;
     }
 
     public void raise(ChapterCardAdapter.ViewHolder vh) {
-         vh.mCardView.setCardElevation(8f);
-         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
-         vh.mTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
-         vh.mActions.setEnabled(false);
+        vh.mCardView.setCardElevation(8f);
+        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
+        vh.mTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
+        vh.mCheckLevelBtn.setEnabled(false);
+        vh.mCompileBtn.setEnabled(false);
+        vh.mRecordBtn.setEnabled(false);
+        vh.mExpandBtn.setEnabled(false);
+        // Compile button activated status gets reset by multiSelector. This is a way to correct it.
+        vh.mCompileBtn.setActivated(canCompile());
     }
 
     public void drop(ChapterCardAdapter.ViewHolder vh) {
-         vh.mCardView.setCardElevation(2f);
-         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
-         vh.mTitle.setTextColor(
-                 mCtx.getResources().getColor(R.color.primary_text_default_material_light)
-         );
-         vh.mActions.setEnabled(true);
+        vh.mCardView.setCardElevation(2f);
+        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
+        vh.mTitle.setTextColor(
+                mCtx.getResources().getColor(R.color.primary_text_default_material_light)
+        );
+        vh.mCheckLevelBtn.setEnabled(true);
+        vh.mCompileBtn.setEnabled(true);
+        vh.mRecordBtn.setEnabled(true);
+        vh.mExpandBtn.setEnabled(true);
+        // Compile button activated status gets reset by multiSelector. This is a way to correct it.
+        vh.mCompileBtn.setActivated(canCompile());
+    }
+
+    public boolean canCompile() {
+        return mCanCompile;
     }
 
     public View.OnClickListener getCheckLevelOnClick(ChapterCardAdapter.ViewHolder vh) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Check level");
+                // NOTE: Currently only pass in placeholder text
+                CheckingDialogFragment dialog = CheckingDialogFragment.newInstance("Test");
+                dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
             }
         };
     }
@@ -139,6 +160,7 @@ public class ChapterCard {
             @Override
             public void onClick(View view) {
                 System.out.println("Compile");
+                Toast.makeText(mCtx, "Compile", Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -148,6 +170,7 @@ public class ChapterCard {
             @Override
             public void onClick(View view) {
                 System.out.println("Record");
+                Toast.makeText(mCtx, "Record", Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -171,6 +194,7 @@ public class ChapterCard {
             @Override
             public void onClick(View view) {
                 System.out.println("Delete");
+                Toast.makeText(mCtx, "Delete", Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -179,7 +203,9 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                view.setActivated(!view.isActivated());
                 System.out.println("Play/Pause");
+                Toast.makeText(mCtx, "Play/Pause", Toast.LENGTH_SHORT).show();
             }
         };
     }

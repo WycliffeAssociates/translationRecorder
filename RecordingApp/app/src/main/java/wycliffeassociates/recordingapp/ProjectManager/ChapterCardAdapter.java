@@ -68,7 +68,9 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.set_units_checking_level:
-                    System.out.println("Placeholder: Set checking level for selected units");
+                    // NOTE: Currently only pass in placeholder text
+                    CheckingDialogFragment dialog = CheckingDialogFragment.newInstance("Test");
+                    dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
                     break;
                 default:
                     System.out.println("Default action");
@@ -82,7 +84,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             mMultiSelector.setSelectable(false);
             mMultiSelector.clearSelections();
             for (ViewHolder vh : mSelectedCards) {
-                // vh.mChapterCard.drop(vh);
+                 vh.mChapterCard.drop(vh);
             }
             mSelectedCards.clear();
         }
@@ -143,9 +145,19 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             mChapterCard = chapterCard;
             // Set card views based on the ChapterCard object
             mTitle.setText(chapterCard.getTitle());
+
+            holder.mCompileBtn.setActivated(mChapterCard.canCompile());
+            if (mChapterCard.isCompiled()) {
+                mCheckLevelBtn.setVisibility(View.VISIBLE);
+                mExpandBtn.setVisibility(View.VISIBLE);
+            } else {
+                mCheckLevelBtn.setVisibility(View.INVISIBLE);
+                mExpandBtn.setVisibility(View.INVISIBLE);
+            }
+
             setListeners(this, mChapterCard);
             // Expand card if it's already expanded before
-            if (mExpandedCards.contains(position)) {
+            if (mChapterCard.isExpanded()) {
                 chapterCard.expand(holder);
             } else {
                 chapterCard.collapse(holder);
@@ -162,7 +174,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         @Override
         public void onClick(View view) {
-            if (mChapterCard == null) {
+            if (mChapterCard == null || !mChapterCard.isCompiled()) {
                 return;
             }
 
@@ -172,7 +184,6 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                     toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
                 }
 
-                // Select/de-select item
                 mMultiSelector.tapSelection(this);
 
                 // Raise/drop card
@@ -196,6 +207,10 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         @Override
         public boolean onLongClick(View view) {
+            if (!mChapterCard.isCompiled()) {
+                return false;
+            }
+
             mActionMode = mCtx.startSupportActionMode(mMultiSelectMode);
             mMultiSelector.setSelected(this, true);
 
