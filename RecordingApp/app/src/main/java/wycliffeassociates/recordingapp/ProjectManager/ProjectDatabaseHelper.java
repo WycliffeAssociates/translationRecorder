@@ -6,13 +6,10 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
-import wycliffeassociates.recordingapp.project.Book;
-import wycliffeassociates.recordingapp.project.Language;
 
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.*;
 
@@ -24,15 +21,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "translation_projects";
 
-    private int mIdSlug;
-    private int mIdTargetLang;
-    private int mIdSourceLang;
-    private int mIdSource;
-    private int mIdMode;
-    private int mIdProject;
-    private int mIdContributors;
-    private int mIdBookNum;
-    private int mIdSourceAudioPath;
 
     public ProjectDatabaseHelper(Context ctx){
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
@@ -60,12 +48,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
-    }
-
-    public void clearTable(){
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_PROJECT);
-        db.close();
     }
 
     public boolean languageExists(String code){
@@ -97,12 +79,35 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return exists;
     }
 
-    public boolean unitExists(Project project, int chapter, int unit){
-        return false;
+    public boolean chapterExists(Project project, int chapter){
+        SQLiteDatabase db = getReadableDatabase();
+        final String chapterCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
+                ChapterEntry.TABLE_CHAPTER, ChapterEntry.CHAPTER_PROJECT_FK, ChapterEntry.CHAPTER_NUMBER);
+        String projectId = String.valueOf(getProjectId(project));
+        boolean exists = (DatabaseUtils.longForQuery(db, chapterCountQuery, new String[]{projectId, String.valueOf(chapter)})) > 0;
+        db.close();
+        return exists;
     }
 
-    public boolean takeExists(Project project, int chapter, int start, int end){
-        return false;
+    public boolean unitExists(Project project, int chapter, int startVerse){
+        SQLiteDatabase db = getReadableDatabase();
+        final String unitCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=? AND %s=?",
+                UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK, UnitEntry.UNIT_CHAPTER_FK, UnitEntry.UNIT_START_VERSE);
+        String projectId = String.valueOf(getProjectId(project));
+        String chapterId = String.valueOf(getChapterId(project, chapter));
+        boolean exists = (DatabaseUtils.longForQuery(db, unitCountQuery, new String[]{projectId, chapterId, String.valueOf(startVerse)})) > 0;
+        db.close();
+        return exists;
+    }
+
+    public boolean takeExists(Project project, int chapter, int startVerse, int take){
+        SQLiteDatabase db = getReadableDatabase();
+        final String takeCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
+                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+        String unitId = String.valueOf(getUnitId(project, chapter, startVerse));
+        boolean exists = (DatabaseUtils.longForQuery(db, takeCountQuery, new String[]{unitId, String.valueOf(take)})) > 0;
+        db.close();
+        return exists;
     }
 
     public int getLanguageId(String code){
@@ -119,6 +124,114 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         int id = (int)DatabaseUtils.longForQuery(db, bookIdQuery, new String[]{slug});
         db.close();
         return id;
+    }
+
+    public int getProjectId(Project project){
+        return getProjectId(project.getTargetLanguage(), project.getSlug(), project.getMode());
+    }
+
+    public int getProjectId(String languageCode, String slug, String version){
+        SQLiteDatabase db = getReadableDatabase();
+        final String projectIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=? AND %s",
+                ProjectEntry._ID, ProjectEntry.TABLE_PROJECT, ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, ProjectEntry.PROJECT_BOOK_FK, ProjectEntry.PROJECT_VERSION);
+        String languageId = String.valueOf(getLanguageId(languageCode));
+        String bookId = String.valueOf(getBookId(slug));
+        int id = (int)DatabaseUtils.longForQuery(db, projectIdQuery, new String[]{languageId, bookId, version});
+        db.close();
+        return id;
+    }
+
+    public int getChapterId(Project project, int chapter){
+        return getChapterId(project.getTargetLanguage(), project.getSlug(), project.getMode(), chapter);
+    }
+
+    public int getChapterId(String languageCode, String slug, String version, int chapter){
+        SQLiteDatabase db = getReadableDatabase();
+        final String chapterIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
+                ChapterEntry._ID, ChapterEntry.TABLE_CHAPTER, ChapterEntry.CHAPTER_PROJECT_FK, ChapterEntry.CHAPTER_NUMBER);
+        String projectId = String.valueOf(getProjectId(languageCode, slug, version));
+        int id = (int)DatabaseUtils.longForQuery(db, chapterIdQuery, new String[]{projectId, String.valueOf(chapter)});
+        db.close();
+        return id;
+    }
+
+    public int getUnitId(Project project, int chapter, int startVerse){
+        return getUnitId(project.getTargetLanguage(), project.getSlug(), project.getMode(), chapter, startVerse);
+    }
+
+    public int getUnitId(String languageCode, String slug, String version, int chapter, int startVerse){
+        SQLiteDatabase db = getReadableDatabase();
+        final String unitIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=? AND %s=?",
+                UnitEntry._ID, UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK, UnitEntry.UNIT_CHAPTER_FK, UnitEntry.UNIT_START_VERSE);
+        String projectId = String.valueOf(getProjectId(languageCode, slug, version));
+        String chapterId = String.valueOf(getChapterId(languageCode, slug, version, chapter));
+        int id = (int) DatabaseUtils.longForQuery(db, unitIdQuery, new String[]{projectId, chapterId, String.valueOf(startVerse)});
+        db.close();
+        return id;
+    }
+
+    public int getTakeId(FileNameExtractor fne){
+        SQLiteDatabase db = getReadableDatabase();
+        final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
+                TakeEntry._ID, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getMode(), fne.getChapter(), fne.getStartVerse()));
+        int id = (int) DatabaseUtils.longForQuery(db, unitId, new String[]{unitId, String.valueOf(fne.getTake())});
+        db.close();
+        return id;
+    }
+
+    public String getLanguageName(String code){
+        SQLiteDatabase db = getReadableDatabase();
+        final String languageNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                LanguageEntry.LANGUAGE_NAME, LanguageEntry.TABLE_LANGUAGE, LanguageEntry.LANGUAGE_CODE);
+        String name = DatabaseUtils.stringForQuery(db, languageNameQuery, new String[]{code});
+        db.close();
+        return name;
+    }
+
+    public String getLanguageCode(int id){
+        SQLiteDatabase db = getReadableDatabase();
+        final String languageNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                LanguageEntry.LANGUAGE_CODE, LanguageEntry.TABLE_LANGUAGE, LanguageEntry._ID);
+        String code = DatabaseUtils.stringForQuery(db, languageNameQuery, new String[]{String.valueOf(id)});
+        db.close();
+        return code;
+    }
+
+    public String getBookName(String slug){
+        SQLiteDatabase db = getReadableDatabase();
+        final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                BookEntry.BOOK_NAME, BookEntry.TABLE_BOOK, BookEntry.BOOK_SLUG);
+        String name = DatabaseUtils.stringForQuery(db, bookNameQuery, new String[]{slug});
+        db.close();
+        return name;
+    }
+
+    public String getBookSlug(int id){
+        SQLiteDatabase db = getReadableDatabase();
+        final String bookSlugQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                BookEntry.BOOK_SLUG, BookEntry.TABLE_BOOK, BookEntry._ID);
+        String slug = DatabaseUtils.stringForQuery(db, bookSlugQuery, new String[]{String.valueOf(id)});
+        db.close();
+        return slug;
+    }
+
+    public String getBookAnthology(String slug){
+        SQLiteDatabase db = getReadableDatabase();
+        final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                BookEntry.BOOK_ANTHOLOGY, BookEntry.TABLE_BOOK, BookEntry.BOOK_SLUG);
+        String anthology = DatabaseUtils.stringForQuery(db, bookNameQuery, new String[]{slug});
+        db.close();
+        return anthology;
+    }
+
+    public int getBookNumber(String slug){
+        SQLiteDatabase db = getReadableDatabase();
+        final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                BookEntry.BOOK_NUMBER, BookEntry.TABLE_BOOK, BookEntry.BOOK_SLUG);
+        int number = (int)DatabaseUtils.longForQuery(db, bookNameQuery, new String[]{slug});
+        db.close();
+        return number;
     }
 
     public void addLanguage(String code, String name){
@@ -143,144 +256,38 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-
-
-    public String getProjectQuery(Project project){
-        String query = "SELECT * FROM " + TABLE_PROJECT + " INNER JOIN 
-                ;
-        return query;
-    }
-
-    public String getTakeQuery(FileNameExtractor fne){
-        String query = "SELECT * FROM " + TABLE_TAKES + " WHERE " +
-                COLUMN_TARGET_LANG + " = '" + fne.getLang() + "' AND " +
-                COLUMN_SOURCE + " = '" + fne.getSource() + "' AND " +
-                COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
-                COLUMN_MODE + " = '" + fne.getMode() + "' AND " +
-                COLUMN_CHAPTER + " = " + fne.getChapter() + " AND " +
-                COLUMN_START_VS + " = " + fne.getStartVerse() + " AND " +
-                COLUMN_END_VS + " = " + fne.getEndVerse() + " AND " +
-                COLUMN_TAKE_NUM + " = " + fne.getTake() + "";
-        return query;
-    }
-
-    public boolean deleteProject(Project p){
-        SQLiteDatabase db = getWritableDatabase();
-
-        //Delete the project entry from the projects table as well as all individual files related from the takes table
-        boolean success = (db.delete(TABLE_PROJECT,
-                COLUMN_PROJECT + "=? AND " +
-                COLUMN_SLUG + "=? AND " +
-                COLUMN_TARGET_LANG + "=? AND " +
-                COLUMN_MODE + "=? AND " +
-                COLUMN_SOURCE + "=?",
-                new String[]{
-                        p.getProject(),
-                        p.getSlug(),
-                        p.getTargetLanguage(),
-                        p.getMode(),
-                        p.getSource()
-                }
-        ) > 0) && (db.delete(TABLE_PROJECT,
-                COLUMN_TARGET_LANG + "=? AND " +
-                COLUMN_SOURCE + "=? AND " +
-                COLUMN_SLUG + "=? AND " +
-                COLUMN_MODE + "=?",
-                new String[]{
-                        p.getTargetLanguage(),
-                        p.getSource(),
-                        p.getSlug(),
-                        p.getMode()
-                }
-        ) > 0);
-        db.close();
-        return success;
-    }
-
-    public void deleteTake(FileNameExtractor fne){
-        SQLiteDatabase db = getWritableDatabase();
-        String delete = "DELETE FROM " + TABLE_TAKES + " WHERE " +
-                COLUMN_TARGET_LANG + " = '" + fne.getLang() + "' AND " +
-                COLUMN_SOURCE + " = '" + fne.getSource() + "' AND " +
-                COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
-                COLUMN_CHAPTER + " = " + fne.getChapter() + " AND " +
-                COLUMN_START_VS + " = " + fne.getStartVerse() + " AND " +
-                COLUMN_END_VS + " = " + fne.getEndVerse() + " AND " +
-                COLUMN_TAKE_NUM + " = " + fne.getTake() + "";
-        db.execSQL(delete);
-        db.close();
-    }
-
     public void addProject(Project p){
         SQLiteDatabase db = getWritableDatabase();
-        if(!checkIfExists(p)) {
-            ContentValues cv = new ContentValues();
-            cv.put(COLUMN_TARGET_LANG, p.getTargetLanguage());
-            cv.put(COLUMN_SOURCE_LANG, p.getSourceLanguage());
-            cv.put(COLUMN_SLUG, p.getSlug());
-            cv.put(COLUMN_SOURCE, p.getSource());
-            cv.put(COLUMN_MODE, p.getMode());
-            cv.put(COLUMN_BOOK_NUM, p.getBookNumber());
-            cv.put(COLUMN_PROJECT, p.getProject());
-            cv.put(COLUMN_CONTRIBUTORS, p.getContributors());
-            cv.put(COLUMN_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
-            long result = db.insert(ProjectContract.ProjectEntry.TABLE_PROJECT, null, cv);
-        }
+        ContentValues cv = new ContentValues();
+
+        int targetLanguageId = getLanguageId(p.getTargetLanguage());
+        int sourceLanguageId = getLanguageId(p.getSourceLanguage());
+        int bookId = getBookId(p.getSlug());
+
+        cv.put(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, targetLanguageId);
+        cv.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, sourceLanguageId);
+        cv.put(ProjectEntry.PROJECT_BOOK_FK, bookId);
+        cv.put(ProjectEntry.PROJECT_VERSION, p.getSource());
+        cv.put(ProjectEntry.PROJECT_MODE, p.getMode());
+        cv.put(ProjectEntry.PROJECT_CONTRIBUTORS, p.getContributors());
+        cv.put(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
+        cv.put(ProjectEntry.PROJECT_NOTES, "");
+        cv.put(ProjectEntry.PROJECT_PROGRESS, "");
+
+        long result = db.insert(ProjectEntry.TABLE_PROJECT, null, cv);
         db.close();
     }
 
-    public void addTake(FileNameExtractor fne, int rating, int checking){
+    public void addTake(FileNameExtractor fne, int rating){
+        int unitId = getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
         SQLiteDatabase db = getWritableDatabase();
-        if(!checkIfExists(fne)){
-            ContentValues cv = new ContentValues();
-            cv.put(COLUMN_TARGET_LANG, fne.getLang());
-            cv.put(COLUMN_SOURCE, fne.getSource());
-            cv.put(COLUMN_SLUG, fne.getBook());
-            cv.put(COLUMN_MODE, fne.getMode());
-            cv.put(COLUMN_CHAPTER, fne.getChapter());
-            cv.put(COLUMN_START_VS, fne.getStartVerse());
-            cv.put(COLUMN_END_VS, fne.getEndVerse());
-            cv.put(COLUMN_TAKE_NUM, fne.getTake());
-            cv.put(COLUMN_RATING, rating);
-            cv.put(COLUMN_CHECKING, checking);
-            long result = db.insert(TABLE_TAKES, null, cv);
-        }
+        ContentValues cv = new ContentValues();
+        cv.put(TakeEntry.TAKE_UNIT_FK, unitId);
+        cv.put(TakeEntry.TAKE_RATING, rating);
+        cv.put(TakeEntry.TAKE_NOTES, "");
+        cv.put(TakeEntry.TAKE_NUMBER, fne.getTake());
+        long result = db.insert(TakeEntry.TABLE_TAKE, null, cv);
         db.close();
-    }
-
-    private void getProjectTableIds(Cursor cursor){
-        mIdSlug = cursor.getColumnIndex(COLUMN_SLUG);
-        mIdTargetLang = cursor.getColumnIndex(COLUMN_TARGET_LANG);
-        mIdSourceLang = cursor.getColumnIndex(COLUMN_SOURCE_LANG);
-        mIdSource = cursor.getColumnIndex(COLUMN_SOURCE);
-        mIdMode = cursor.getColumnIndex(COLUMN_MODE);
-        mIdBookNum = cursor.getColumnIndex(COLUMN_BOOK_NUM);
-        mIdProject = cursor.getColumnIndex(COLUMN_PROJECT);
-        mIdContributors = cursor.getColumnIndex(COLUMN_CONTRIBUTORS);
-        mIdSourceAudioPath = cursor.getColumnIndex(COLUMN_SOURCE_AUDIO_PATH);
-    }
-
-    public boolean checkIfExists(Project project){
-        String query = getProjectQuery(project);
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-        if(cursor.getCount() > 0){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean checkIfExists(FileNameExtractor fne){
-        String query = getTakeQuery(fne);
-
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-        if(cursor.getCount() > 0){
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public List<Project> getAllProjects(){
@@ -288,20 +295,23 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String query = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT;
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
-        getProjectTableIds(cursor);
-
         if(cursor.moveToFirst()){
             do {
                 Project project = new Project();
-                project.setSource(cursor.getString(mIdSource));
-                project.setTargetLanguage(cursor.getString(mIdTargetLang));
-                project.setSourceLanguage(cursor.getString(mIdSourceLang));
-                project.setMode(cursor.getString(mIdMode));
-                project.setSlug(cursor.getString(mIdSlug));
-                project.setProject(cursor.getString(mIdProject));
-                project.setBookNumber(cursor.getString(mIdBookNum));
-                project.setContributors(cursor.getString(mIdContributors));
-                project.setSourceAudioPath(cursor.getString(mIdSourceAudioPath));
+                project.setSource(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_VERSION)));
+                String targetLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK)));
+                project.setTargetLanguage(targetLanguageCode);
+                String sourceLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK)));
+                project.setSourceLanguage(sourceLanguageCode);
+                project.setMode(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_MODE)));
+                String slug = getBookSlug(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_BOOK_FK)));
+                project.setSlug(slug);
+                String anthology = getBookAnthology(slug);
+                project.setProject(anthology);
+                int number = getBookNumber(slug);
+                project.setBookNumber(number);
+                project.setContributors(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_CONTRIBUTORS)));
+                project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
                 projectList.add(project);
             } while(cursor.moveToNext());
         }
@@ -320,66 +330,63 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    private int getIntFromTakeTable(FileNameExtractor fne, String column){
-        String query = getTakeQuery(fne);
+    public int getTakeRating(FileNameExtractor fne){
+        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-        getProjectTableIds(cursor);
-        int val = 0;
-        if(cursor.moveToFirst()){
-            val = cursor.getInt(cursor.getColumnIndex(column));
-        }
-        cursor.close();
+        final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
+                TakeEntry.TAKE_RATING, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+        int rating = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId, String.valueOf(fne.getTake())});
         db.close();
-        return val;
+        return rating;
     }
 
-    private int getCheckingLevel(FileNameExtractor fne, String column){
-        String query = getTakeQuery(fne);
+    public int getChosenTake(Project project, int chapter, int startVerse){
+        String unitId = String.valueOf(getUnitId(project, chapter, startVerse));
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-        getProjectTableIds(cursor);
-        int val = 0;
-        //if there are multiple takes, the checking level is 0, otherwise check the value
-        if(cursor.getCount() == 1) {
-            if (cursor.moveToFirst()) {
-                val = cursor.getInt(cursor.getColumnIndex(column));
-            }
-        }
-        cursor.close();
+        final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
+                UnitEntry.UNIT_CHOSEN_TAKE, UnitEntry.TABLE_UNIT, UnitEntry._ID);
+        int take = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId});
         db.close();
-        return val;
+        return take;
     }
 
-    private void setIntInTakeTable(FileNameExtractor fne, String column, int value){
-        String insertCommand = "UPDATE " + TABLE_TAKES + " SET " + column + "=" + value
-                + " WHERE " +
-                COLUMN_TARGET_LANG + " = '" + fne.getLang() + "' AND " +
-                COLUMN_SOURCE + " = '" + fne.getSource() + "' AND " +
-                COLUMN_SLUG + " = '" + fne.getBook() + "' AND " +
-                COLUMN_CHAPTER + " = " + fne.getChapter() + " AND " +
-                COLUMN_START_VS + " = " + fne.getStartVerse() + " AND " +
-                COLUMN_END_VS + " = " + fne.getEndVerse() + " AND " +
-                COLUMN_TAKE_NUM + " = " + fne.getTake() + "";
+    public void setTakeRating(FileNameExtractor fne, int rating){
+        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
+        SQLiteDatabase db = getReadableDatabase();
+        final String replaceTakeWhere = String.format("WHERE %s=? AND %s=?",
+                , TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+        ContentValues replaceWith = new ContentValues();
+        replaceWith.put(TakeEntry.TAKE_RATING, rating);
+        db.update(TakeEntry.TAKE_RATING, replaceWith, replaceTakeWhere, new String[]{unitId, String.valueOf(fne.getTake())});
+        db.close();
+    }
 
+    public void deleteProject(Project p){
+        String projectId = String.valueOf(getProjectId(p));
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(insertCommand);
+        final String deleteTakes = String.format("DELETE FROM %s WHERE %s IN (SELECT %s FROM %s WHERE %s=?)",
+                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, UnitEntry._ID, UnitEntry.TABLE_UNIT, UnitEntry._ID);
+        db.execSQL(deleteTakes, new String[]{projectId});
+        final String deleteUnits = String.format("DELETE FROM %s WHERE %s=?",
+                UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK);
+        db.execSQL(deleteUnits, new String[]{projectId});
+        final String deleteChapters = String.format("DELETE FROM %s WHERE %s=?",
+                ChapterEntry.TABLE_CHAPTER, ChapterEntry.CHAPTER_PROJECT_FK);
+        db.execSQL(deleteChapters, new String[]{projectId});
+        final String deleteProject = String.format("DELETE FROM %s WHERE %s=?",
+                ProjectEntry.TABLE_PROJECT, ProjectEntry._ID);
+        db.execSQL(deleteProject, new String[]{projectId});
         db.close();
     }
 
-    public int getRating(FileNameExtractor fne){
-        return getIntFromTakeTable(fne, COLUMN_RATING);
+    public void deleteTake(FileNameExtractor fne){
+        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
+        SQLiteDatabase db = getWritableDatabase();
+        final String deleteTake = String.format("DELETE FROM %s WHERE %s=? AND %s=?",
+                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+        db.execSQL(deleteTake, new String[]{unitId, String.valueOf(fne.getTake())});
+        db.close();
     }
 
-    public int getCheckingLevel(FileNameExtractor fne){
-        return getIntFromTakeTable(fne, COLUMN_CHECKING);
-    }
 
-    public void setRating(FileNameExtractor fne, int rating){
-        setIntInTakeTable(fne, COLUMN_RATING, rating);
-    }
-
-    public void setCheckingLevel(FileNameExtractor fne, int checkingLevel){
-        setIntInTakeTable(fne, COLUMN_CHECKING, checkingLevel);
-    }
 }
