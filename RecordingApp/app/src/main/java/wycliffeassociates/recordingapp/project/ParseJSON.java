@@ -54,8 +54,9 @@ public class ParseJSON {
             JSONObject bookObj = booksJSON.getJSONObject(i);
             String name = bookObj.getString("name");
             String slug = bookObj.getString("slug");
-            int order = bookObj.getInt("sort");
-            Book book = new Book(slug, name, order);
+            String anthology = bookObj.getString("anth");
+            int order = bookObj.getInt("num");
+            Book book = new Book(slug, name, anthology, order);
             books.add(book);
         }
         Collections.sort(books, new Comparator<Book>() {

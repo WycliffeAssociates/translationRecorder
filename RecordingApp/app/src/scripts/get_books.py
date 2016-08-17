@@ -16,16 +16,33 @@ OUTPUT = []
 #skip obs for now, loop over all books
 for x in range(0, 66):
     #gives book name and order (the books are stored out of order in the json)
-    slug = DATA["cat"][0]["langs"][1]["vers"][0]["toc"][x]["slug"]
-    name = DATA["cat"][0]["langs"][1]["vers"][0]["toc"][x]["title"]
+
+    #Having to navigate through DATA a bit because the location of English may move as more languages are added
+    #Using English because the list of books may not be complete in other languages
+    #0 index after cat is for Bible, 1 contains data for obs
+    #0 index after vers is for ULB, though UDB would also be fine for this case
+    slug = DATA["cat"][0]["langs"]
+    #just a pointer, since the full path is dynamic-ish
+    langIdx = []
+    for langIdx in slug:
+        if langIdx['lc'] == 'en':
+            slug = langIdx["vers"][0]["toc"][x]["slug"]
+    name = langIdx["vers"][0]["toc"][x]["title"]
     #sort+1 so that 0 can be for OBS in the future
-    sort = x+1
+    number = x+1
+    #anthology designates what higher collection a book is a part of
+    anthology = 'ot'
+    #door43 convention skips number 40. Makes sense to change the sort to be book number
+    if number > 39:
+        number = number + 1
+        anthology = 'nt'
 
     #create a dictionary to store the book's data
     book = {}
     book['slug'] = slug
     book['name'] = name
-    book['sort'] = sort
+    book['num'] = number
+    book['anth'] = anthology
     #add to the list of books
     OUTPUT.append(book)
 

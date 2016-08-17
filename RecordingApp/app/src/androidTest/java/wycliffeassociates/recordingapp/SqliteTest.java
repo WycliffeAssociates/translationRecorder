@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.project.Book;
@@ -50,6 +51,9 @@ public class SqliteTest {
         //mDb.addProject(p3);
         assertEquals(2, mDb.getNumProjects());
 
+        mDb.addChapter(p, 1);
+        mDb.addUnit(p, 1, 1);
+
         Project databaseProject1 = mDb.getAllProjects().get(0);
         Project databaseProject2 = mDb.getAllProjects().get(1);
         //Project databaseProject3 = mDb.getAllProjects().get(2);
@@ -74,6 +78,14 @@ public class SqliteTest {
         assertEquals(p2.getContributors(), databaseProject2.getContributors());
         assertEquals(p2.getSourceAudioPath(), databaseProject2.getSourceAudioPath());
 
+        FileNameExtractor fne = new FileNameExtractor("en_ulb_b41_mat_c01_v01_t01.wav");
+        FileNameExtractor fne2 = new FileNameExtractor("en_ulb_b41_mat_c01_v01_t02.wav");
+
+        mDb.addTake(fne, 0);
+
+        assertEquals(true, mDb.takeExists(fne));
+        assertEquals(false, mDb.takeExists(fne2));
+
 //        assertEquals(p3.getTargetLanguage(), databaseProject3.getTargetLanguage());
 //        assertEquals(p3.getSourceLanguage(), databaseProject3.getSourceLanguage());
 //        assertEquals(p3.getSlug(), databaseProject3.getSlug());
@@ -91,7 +103,7 @@ public class SqliteTest {
             Book[] books = parse.pullBooks();
             Language[] languages = parse.pullLangNames();
             for (Book book : books) {
-                db.addBook(book.getSlug(), book.getName());
+                db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
             }
             for (Language language : languages) {
                 db.addLanguage(language.getCode(), language.getName());

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.project.Book;
 import wycliffeassociates.recordingapp.project.Language;
@@ -22,54 +24,53 @@ public class SplashScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        Thread initDb = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                initDatabase();
-//            }
-//        });
-//        initDb.start();
+        Thread initDb = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initDatabase();
+            }
+        });
+        initDb.start();
     }
 
     private void initDatabase(){
-        ConstantsDatabaseHelper db = new ConstantsDatabaseHelper(this);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         ParseJSON parse = new ParseJSON(this);
         try {
             Book[] books = parse.pullBooks();
             Language[] languages = parse.pullLangNames();
-            for(Book book : books){
-                db.addBook(book);
+            for (Book book : books) {
+                db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
             }
-            for(Language language : languages){
-                db.addLanguage(language);
+            for (Language language : languages) {
+                db.addLanguage(language.getCode(), language.getName());
             }
             System.out.println("Proof: en is " + db.getLanguageName("en"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        String profile = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PROFILE, "");
-//        boolean termsOfUseAccepted = false;
-//        if(profile.compareTo("") != 0) {
-//            try {
-//                termsOfUseAccepted = TermsOfUseActivity.termsAccepted(profile, this);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if(profile.compareTo("") == 0 || !termsOfUseAccepted) {
-//            Intent intent = new Intent(this, ProfileActivity.class);
-//            intent.putExtra(Profile.PROFILE_KEY, profile);
-//            startActivityForResult(intent, 42);
-//        } else {
-//            startActivity(new Intent(this, MainMenu.class));
-//            finish();
-//        }
+        String profile = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PROFILE, "");
+        boolean termsOfUseAccepted = false;
+        if(profile.compareTo("") != 0) {
+            try {
+                termsOfUseAccepted = TermsOfUseActivity.termsAccepted(profile, this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if(profile.compareTo("") == 0 || !termsOfUseAccepted) {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            intent.putExtra(Profile.PROFILE_KEY, profile);
+            startActivityForResult(intent, 42);
+        } else {
+            startActivity(new Intent(this, MainMenu.class));
+            finish();
+        }
     }
 
     @Override

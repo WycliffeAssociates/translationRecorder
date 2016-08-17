@@ -394,7 +394,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private void addTakeToDb(){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         FileNameExtractor fne = new FileNameExtractor(mNewRecording.getFile());
-        //db.addTake(fne, 0, 0);
+        db.addTake(fne, 0);
         db.close();
     }
 
