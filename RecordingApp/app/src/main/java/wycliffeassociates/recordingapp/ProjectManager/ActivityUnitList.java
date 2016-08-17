@@ -106,7 +106,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     @Override
     public void onPositiveClick(CheckingDialogFragment dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
+        //db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
         db.close();
         dialog.dismiss();
         mAdapter.notifyDataSetChanged();
@@ -115,7 +115,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     @Override
     public void onPositiveClick(RatingDialogFragment dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        //db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
         db.close();
         dialog.dismiss();
         mAdapter.notifyDataSetChanged();

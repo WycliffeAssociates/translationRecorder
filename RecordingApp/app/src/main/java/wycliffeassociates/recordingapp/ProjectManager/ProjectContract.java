@@ -13,7 +13,7 @@ public final class ProjectContract {
         public static final String TABLE_LANGUAGE = "languages";
         public static final String LANGUAGE_CODE = "code";
         public static final String LANGUAGE_NAME = "name";
-        public static final String LANGUAGE_UNIQUE_CONSTRAINT = "unique";
+        public static final String LANGUAGE_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_LANGUAGE_TABLE = "CREATE TABLE " + TABLE_LANGUAGE + " ("
                 + _ID + " INTEGER PRIMARY KEY,"
@@ -29,7 +29,7 @@ public final class ProjectContract {
         public static final String BOOK_NAME = "name";
         public static final String BOOK_NUMBER = "number";
         public static final String BOOK_ANTHOLOGY = "anthology";
-        public static final String BOOK_UNIQUE_CONSTRAINT = "unique";
+        public static final String BOOK_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_BOOK_TABLE = "CREATE TABLE " + TABLE_BOOK + " ("
                 + _ID + " INTEGER PRIMARY KEY,"
@@ -48,7 +48,7 @@ public final class ProjectContract {
         public static final String CHAPTER_NOTES = "notes";
         public static final String CHAPTER_PROGRESS = "progress";
         public static final String CHAPTER_CHECKING_LEVEL = "checking";
-        public static final String CHAPTER_UNIQUE_CONSTRAINT = "unique";
+        public static final String CHAPTER_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_CHAPTER_TABLE = "CREATE TABLE " + TABLE_CHAPTER + " ("
                 + _ID + " INTEGER PRIMARY KEY,"
@@ -70,10 +70,10 @@ public final class ProjectContract {
         public static final String UNIT_END_VERSE = "end_verse";
         public static final String UNIT_NOTES = "notes";
         public static final String UNIT_CHOSEN_TAKE = "chosen_take";
-        public static final String UNIT_UNIQUE_CONSTRAINT = "unique";
+        public static final String UNIT_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_UNIT_TABLE = "CREATE TABLE " + TABLE_UNIT + " ("
-                + _ID + " INTEGER PRIMARY KEY"
+                + _ID + " INTEGER PRIMARY KEY, "
                 + UNIT_PROJECT_FK + INTCOMMA
                 + UNIT_CHAPTER_FK + INTCOMMA
                 + UNIT_START_VERSE + INTCOMMA
@@ -92,10 +92,10 @@ public final class ProjectContract {
         public static final String TAKE_RATING = "rating";
         public static final String TAKE_NOTES = "notes";
         public static final String TAKE_NUMBER = "number";
-        public static final String TAKE_UNIQUE_CONSTRAINT = "unique";
+        public static final String TAKE_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
-                + _ID + " INTEGER PRIMARY KEY"
+                + _ID + " INTEGER PRIMARY KEY, "
                 + TAKE_UNIT_FK + INTCOMMA
                 + TAKE_RATING + INTCOMMA
                 + TAKE_NOTES + TEXTCOMMA
@@ -115,7 +115,7 @@ public final class ProjectContract {
         public static final String PROJECT_CONTRIBUTORS = "contributors";
         public static final String PROJECT_NOTES = "notes";
         public static final String PROJECT_PROGRESS = "progress";
-        public static final String PROJECT_UNIQUE_CONSTRAINT = "unique";
+        public static final String PROJECT_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_PROJECT_TABLE = "CREATE TABLE " + TABLE_PROJECT + " ("
                 + _ID + " INTEGER PRIMARY KEY,"

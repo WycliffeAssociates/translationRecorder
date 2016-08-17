@@ -46,15 +46,26 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
 
     }
+
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
+    }
+
+    public void deleteAllTables(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(DELETE_LANGUAGE);
+        db.execSQL(DELETE_BOOKS);
+        db.execSQL(DELETE_PROJECTS);
+        db.execSQL(DELETE_CHAPTERS);
+        db.execSQL(DELETE_UNITS);
+        db.execSQL(DELETE_TAKES);
+        onCreate(db);
     }
 
     public boolean languageExists(String code){
         SQLiteDatabase db = getReadableDatabase();
         final String languageCountQuery = "SELECT COUNT(*) FROM " + LanguageEntry.TABLE_LANGUAGE + " WHERE " + LanguageEntry.LANGUAGE_CODE + "=?";
         boolean exists =  (DatabaseUtils.longForQuery(db, languageCountQuery, new String[]{code})) > 0;
-        db.close();
         return exists;
     }
 
@@ -62,51 +73,46 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         final String bookCountQuery = "SELECT COUNT(*) FROM " + BookEntry.TABLE_BOOK + " WHERE " + BookEntry.BOOK_SLUG + "=?";
         boolean exists = (DatabaseUtils.longForQuery(db, bookCountQuery, new String[]{slug})) > 0;
-        db.close();
         return exists;
     }
 
     public boolean projectExists(Project project){
-        SQLiteDatabase db = getReadableDatabase();
-        final String projectCountQuery = "SELECT COUNT(*) FROM " + ProjectEntry.TABLE_PROJECT + " WHERE " + ProjectEntry.PROJECT_TARGET_LANGUAGE_FK + "=?"
-                + " AND " + ProjectEntry.PROJECT_BOOK_FK + "=? AND" + ProjectEntry.PROJECT_VERSION + "=?";
         String languageCode = project.getTargetLanguage();
         int languageId = getLanguageId(languageCode);
         String slug = project.getSlug();
         int bookId = getBookId(slug);
+        SQLiteDatabase db = getReadableDatabase();
+        final String projectCountQuery = "SELECT COUNT(*) FROM " + ProjectEntry.TABLE_PROJECT + " WHERE " + ProjectEntry.PROJECT_TARGET_LANGUAGE_FK + "=?"
+                + " AND " + ProjectEntry.PROJECT_BOOK_FK + "=? AND" + ProjectEntry.PROJECT_VERSION + "=?";
         boolean exists = (DatabaseUtils.longForQuery(db, projectCountQuery, new String[]{String.valueOf(languageId),String.valueOf(bookId), project.getSource()})) > 0;
-        db.close();
         return exists;
     }
 
     public boolean chapterExists(Project project, int chapter){
+        String projectId = String.valueOf(getProjectId(project));
         SQLiteDatabase db = getReadableDatabase();
         final String chapterCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
                 ChapterEntry.TABLE_CHAPTER, ChapterEntry.CHAPTER_PROJECT_FK, ChapterEntry.CHAPTER_NUMBER);
-        String projectId = String.valueOf(getProjectId(project));
         boolean exists = (DatabaseUtils.longForQuery(db, chapterCountQuery, new String[]{projectId, String.valueOf(chapter)})) > 0;
-        db.close();
         return exists;
     }
 
     public boolean unitExists(Project project, int chapter, int startVerse){
+        String projectId = String.valueOf(getProjectId(project));
+        String chapterId = String.valueOf(getChapterId(project, chapter));
         SQLiteDatabase db = getReadableDatabase();
         final String unitCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=? AND %s=?",
                 UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK, UnitEntry.UNIT_CHAPTER_FK, UnitEntry.UNIT_START_VERSE);
-        String projectId = String.valueOf(getProjectId(project));
-        String chapterId = String.valueOf(getChapterId(project, chapter));
         boolean exists = (DatabaseUtils.longForQuery(db, unitCountQuery, new String[]{projectId, chapterId, String.valueOf(startVerse)})) > 0;
-        db.close();
         return exists;
     }
 
     public boolean takeExists(Project project, int chapter, int startVerse, int take){
+        String unitId = String.valueOf(getUnitId(project, chapter, startVerse));
         SQLiteDatabase db = getReadableDatabase();
         final String takeCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
                 TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
-        String unitId = String.valueOf(getUnitId(project, chapter, startVerse));
         boolean exists = (DatabaseUtils.longForQuery(db, takeCountQuery, new String[]{unitId, String.valueOf(take)})) > 0;
-        db.close();
         return exists;
     }
 
@@ -114,7 +120,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         final String languageIdQuery = "SELECT " + LanguageEntry._ID + " FROM " + LanguageEntry.TABLE_LANGUAGE + " WHERE " + LanguageEntry.LANGUAGE_CODE + "=?";
         int id = (int)DatabaseUtils.longForQuery(db, languageIdQuery, new String[]{code});
-        db.close();
         return id;
     }
 
@@ -122,7 +127,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         final String bookIdQuery = "SELECT " + BookEntry._ID + " FROM " + BookEntry.TABLE_BOOK + " WHERE " + BookEntry.BOOK_SLUG + "=?";
         int id = (int)DatabaseUtils.longForQuery(db, bookIdQuery, new String[]{slug});
-        db.close();
         return id;
     }
 
@@ -131,13 +135,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getProjectId(String languageCode, String slug, String version){
+        String languageId = String.valueOf(getLanguageId(languageCode));
+        String bookId = String.valueOf(getBookId(slug));
         SQLiteDatabase db = getReadableDatabase();
         final String projectIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=? AND %s",
                 ProjectEntry._ID, ProjectEntry.TABLE_PROJECT, ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, ProjectEntry.PROJECT_BOOK_FK, ProjectEntry.PROJECT_VERSION);
-        String languageId = String.valueOf(getLanguageId(languageCode));
-        String bookId = String.valueOf(getBookId(slug));
         int id = (int)DatabaseUtils.longForQuery(db, projectIdQuery, new String[]{languageId, bookId, version});
-        db.close();
         return id;
     }
 
@@ -146,12 +149,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getChapterId(String languageCode, String slug, String version, int chapter){
+        String projectId = String.valueOf(getProjectId(languageCode, slug, version));
         SQLiteDatabase db = getReadableDatabase();
         final String chapterIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
                 ChapterEntry._ID, ChapterEntry.TABLE_CHAPTER, ChapterEntry.CHAPTER_PROJECT_FK, ChapterEntry.CHAPTER_NUMBER);
-        String projectId = String.valueOf(getProjectId(languageCode, slug, version));
         int id = (int)DatabaseUtils.longForQuery(db, chapterIdQuery, new String[]{projectId, String.valueOf(chapter)});
-        db.close();
         return id;
     }
 
@@ -160,23 +162,21 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getUnitId(String languageCode, String slug, String version, int chapter, int startVerse){
+        String projectId = String.valueOf(getProjectId(languageCode, slug, version));
+        String chapterId = String.valueOf(getChapterId(languageCode, slug, version, chapter));
         SQLiteDatabase db = getReadableDatabase();
         final String unitIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=? AND %s=?",
                 UnitEntry._ID, UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK, UnitEntry.UNIT_CHAPTER_FK, UnitEntry.UNIT_START_VERSE);
-        String projectId = String.valueOf(getProjectId(languageCode, slug, version));
-        String chapterId = String.valueOf(getChapterId(languageCode, slug, version, chapter));
         int id = (int) DatabaseUtils.longForQuery(db, unitIdQuery, new String[]{projectId, chapterId, String.valueOf(startVerse)});
-        db.close();
         return id;
     }
 
     public int getTakeId(FileNameExtractor fne){
+        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getMode(), fne.getChapter(), fne.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
         final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
                 TakeEntry._ID, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
-        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getMode(), fne.getChapter(), fne.getStartVerse()));
         int id = (int) DatabaseUtils.longForQuery(db, unitId, new String[]{unitId, String.valueOf(fne.getTake())});
-        db.close();
         return id;
     }
 
@@ -185,7 +185,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String languageNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
                 LanguageEntry.LANGUAGE_NAME, LanguageEntry.TABLE_LANGUAGE, LanguageEntry.LANGUAGE_CODE);
         String name = DatabaseUtils.stringForQuery(db, languageNameQuery, new String[]{code});
-        db.close();
         return name;
     }
 
@@ -194,7 +193,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String languageNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
                 LanguageEntry.LANGUAGE_CODE, LanguageEntry.TABLE_LANGUAGE, LanguageEntry._ID);
         String code = DatabaseUtils.stringForQuery(db, languageNameQuery, new String[]{String.valueOf(id)});
-        db.close();
         return code;
     }
 
@@ -203,7 +201,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
                 BookEntry.BOOK_NAME, BookEntry.TABLE_BOOK, BookEntry.BOOK_SLUG);
         String name = DatabaseUtils.stringForQuery(db, bookNameQuery, new String[]{slug});
-        db.close();
         return name;
     }
 
@@ -212,7 +209,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String bookSlugQuery = String.format("SELECT %s FROM %s WHERE %s=?",
                 BookEntry.BOOK_SLUG, BookEntry.TABLE_BOOK, BookEntry._ID);
         String slug = DatabaseUtils.stringForQuery(db, bookSlugQuery, new String[]{String.valueOf(id)});
-        db.close();
         return slug;
     }
 
@@ -221,7 +217,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
                 BookEntry.BOOK_ANTHOLOGY, BookEntry.TABLE_BOOK, BookEntry.BOOK_SLUG);
         String anthology = DatabaseUtils.stringForQuery(db, bookNameQuery, new String[]{slug});
-        db.close();
         return anthology;
     }
 
@@ -230,40 +225,32 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
                 BookEntry.BOOK_NUMBER, BookEntry.TABLE_BOOK, BookEntry.BOOK_SLUG);
         int number = (int)DatabaseUtils.longForQuery(db, bookNameQuery, new String[]{slug});
-        db.close();
         return number;
     }
 
     public void addLanguage(String code, String name){
         SQLiteDatabase db = getWritableDatabase();
-        if(!languageExists(code)) {
-            ContentValues cv = new ContentValues();
-            cv.put(LanguageEntry.LANGUAGE_CODE, code);
-            cv.put(LanguageEntry.LANGUAGE_NAME, name);
-            long result = db.insert(LanguageEntry.TABLE_LANGUAGE, null, cv);
-        }
-        db.close();
+        ContentValues cv = new ContentValues();
+        cv.put(LanguageEntry.LANGUAGE_CODE, code);
+        cv.put(LanguageEntry.LANGUAGE_NAME, name);
+        long result = db.insert(LanguageEntry.TABLE_LANGUAGE, null, cv);
     }
 
     public void addBook(String slug, String name){
         SQLiteDatabase db = getWritableDatabase();
-        if(!bookExists(slug)) {
-            ContentValues cv = new ContentValues();
-            cv.put(BookEntry.BOOK_SLUG, slug);
-            cv.put(BookEntry.BOOK_NAME, name);
-            long result = db.insert(BookEntry.TABLE_BOOK, null, cv);
-        }
-        db.close();
+        ContentValues cv = new ContentValues();
+        cv.put(BookEntry.BOOK_SLUG, slug);
+        cv.put(BookEntry.BOOK_NAME, name);
+        long result = db.insert(BookEntry.TABLE_BOOK, null, cv);
     }
 
     public void addProject(Project p){
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues cv = new ContentValues();
-
         int targetLanguageId = getLanguageId(p.getTargetLanguage());
         int sourceLanguageId = getLanguageId(p.getSourceLanguage());
         int bookId = getBookId(p.getSlug());
 
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
         cv.put(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, targetLanguageId);
         cv.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, sourceLanguageId);
         cv.put(ProjectEntry.PROJECT_BOOK_FK, bookId);
@@ -275,11 +262,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectEntry.PROJECT_PROGRESS, "");
 
         long result = db.insert(ProjectEntry.TABLE_PROJECT, null, cv);
-        db.close();
     }
 
     public void addTake(FileNameExtractor fne, int rating){
         int unitId = getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
+
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(TakeEntry.TAKE_UNIT_FK, unitId);
@@ -287,7 +274,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(TakeEntry.TAKE_NOTES, "");
         cv.put(TakeEntry.TAKE_NUMBER, fne.getTake());
         long result = db.insert(TakeEntry.TABLE_TAKE, null, cv);
-        db.close();
     }
 
     public List<Project> getAllProjects(){
@@ -316,7 +302,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             } while(cursor.moveToNext());
         }
         cursor.close();
-        db.close();
         return projectList;
     }
 
@@ -326,7 +311,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(countQuery, null);
         int count = cursor.getCount();
         cursor.close();
-        db.close();
         return count;
     }
 
@@ -336,7 +320,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
                 TakeEntry.TAKE_RATING, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
         int rating = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId, String.valueOf(fne.getTake())});
-        db.close();
         return rating;
     }
 
@@ -346,7 +329,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
                 UnitEntry.UNIT_CHOSEN_TAKE, UnitEntry.TABLE_UNIT, UnitEntry._ID);
         int take = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId});
-        db.close();
         return take;
     }
 
@@ -354,11 +336,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
         final String replaceTakeWhere = String.format("WHERE %s=? AND %s=?",
-                , TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(TakeEntry.TAKE_RATING, rating);
         db.update(TakeEntry.TAKE_RATING, replaceWith, replaceTakeWhere, new String[]{unitId, String.valueOf(fne.getTake())});
-        db.close();
     }
 
     public void deleteProject(Project p){
@@ -376,7 +357,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String deleteProject = String.format("DELETE FROM %s WHERE %s=?",
                 ProjectEntry.TABLE_PROJECT, ProjectEntry._ID);
         db.execSQL(deleteProject, new String[]{projectId});
-        db.close();
     }
 
     public void deleteTake(FileNameExtractor fne){
@@ -385,7 +365,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String deleteTake = String.format("DELETE FROM %s WHERE %s=? AND %s=?",
                 TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
         db.execSQL(deleteTake, new String[]{unitId, String.valueOf(fne.getTake())});
-        db.close();
     }
 
 

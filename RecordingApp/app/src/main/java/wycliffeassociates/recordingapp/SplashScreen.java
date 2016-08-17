@@ -22,13 +22,13 @@ public class SplashScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Thread initDb = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                initDatabase();
-            }
-        });
-        initDb.start();
+//        Thread initDb = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                initDatabase();
+//            }
+//        });
+//        initDb.start();
     }
 
     private void initDatabase(){
@@ -53,23 +53,23 @@ public class SplashScreen extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        String profile = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PROFILE, "");
-        boolean termsOfUseAccepted = false;
-        if(profile.compareTo("") != 0) {
-            try {
-                termsOfUseAccepted = TermsOfUseActivity.termsAccepted(profile, this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        if(profile.compareTo("") == 0 || !termsOfUseAccepted) {
-            Intent intent = new Intent(this, ProfileActivity.class);
-            intent.putExtra(Profile.PROFILE_KEY, profile);
-            startActivityForResult(intent, 42);
-        } else {
-            startActivity(new Intent(this, MainMenu.class));
-            finish();
-        }
+//        String profile = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PROFILE, "");
+//        boolean termsOfUseAccepted = false;
+//        if(profile.compareTo("") != 0) {
+//            try {
+//                termsOfUseAccepted = TermsOfUseActivity.termsAccepted(profile, this);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if(profile.compareTo("") == 0 || !termsOfUseAccepted) {
+//            Intent intent = new Intent(this, ProfileActivity.class);
+//            intent.putExtra(Profile.PROFILE_KEY, profile);
+//            startActivityForResult(intent, 42);
+//        } else {
+//            startActivity(new Intent(this, MainMenu.class));
+//            finish();
+//        }
     }
 
     @Override

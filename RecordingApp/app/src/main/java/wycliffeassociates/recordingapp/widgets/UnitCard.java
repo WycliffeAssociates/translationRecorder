@@ -163,11 +163,11 @@ public class UnitCard {
         int rating;
         FileNameExtractor fne = new FileNameExtractor(take);
         if(mode == RATING_MODE) {
-            rating = db.getRating(fne);
+            //rating = db.getRating(fne);
         } else {
-            rating = db.getCheckingLevel(fne);
+            //rating = db.getCheckingLevel(fne);
         }
-        ratingView.setStep(rating);
+        //ratingView.setStep(rating);
         ratingView.invalidate();
         db.close();
     }
