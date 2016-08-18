@@ -6,14 +6,14 @@
 
     <item
         android:id="@+id/chapters_checking_level"
-        android:icon="@drawable/box_0_white"
+        android:icon="@drawable/selector_check_level_cab"
         android:title="Set Chapters Level"
         app:showAsAction="ifRoom"
         />
 
     <item
         android:id="@+id/chapters_compile"
-        android:icon="@drawable/buffer_white"
+        android:icon="@drawable/selector_chapter_compile_white"
         android:title="Compile Chapters"
         app:showAsAction="ifRoom"
         />
