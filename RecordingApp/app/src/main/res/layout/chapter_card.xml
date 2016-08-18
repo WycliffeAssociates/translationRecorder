@@ -8,7 +8,7 @@
     >
 
     <android.support.v7.widget.CardView
-        android:id="@+id/unitCard"
+        android:id="@+id/chapter_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/default_padding_xs"
@@ -17,25 +17,25 @@
         >
 
         <LinearLayout
-            android:id="@+id/unitCardContainer"
+            android:id="@+id/chapter_card_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/card_bg"
+            android:background="@color/yellow"
             >
 
             <RelativeLayout
-                android:id="@+id/cardHeader"
+                android:id="@+id/card_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/default_padding_m"
                 >
 
                 <TextView
-                    android:id="@+id/unitTitle"
+                    android:id="@+id/title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Unit 1"
+                    android:text="Chapter 1"
                     android:textSize="20sp"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textStyle="bold"
@@ -43,46 +43,57 @@
                     />
 
                 <LinearLayout
-                    android:id="@+id/unitActions"
+                    android:id="@+id/actions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:clickable="true">
+                    android:clickable="true"
+                    >
 
                     <wycliffeassociates.recordingapp.widgets.FourStepImageView
-                        android:id="@+id/unitCheckLevel"
+                        android:id="@+id/check_level_btn"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_unit_card_check_level"
                         android:layout_marginLeft="@dimen/default_padding_m"
-                        android:duplicateParentState="true"
+                        android:visibility="visible"
+                        android:duplicateParentState="false"
                         android:clickable="true"
-                        android:visibility="gone"
                         />
 
                     <ImageView
-                        android:id="@+id/unitRecordBtn"
+                        android:id="@+id/compile_btn"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_chapter_compile"
+                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:duplicateParentState="false"
+                        android:clickable="true"
+                        />
+
+                    <ImageView
+                        android:id="@+id/record_btn"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_unit_card_record"
                         android:layout_marginLeft="@dimen/default_padding_m"
-                        android:layout_gravity="center_vertical"
-                        android:duplicateParentState="true"
+                        android:duplicateParentState="false"
                         android:clickable="true"
                         />
 
                     <ImageView
-                        android:id="@+id/unitPlayBtn"
+                        android:id="@+id/expand_btn"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/selector_unit_card_play"
+                        android:src="@drawable/selector_chapter_card_expand_toggle"
                         android:layout_marginLeft="@dimen/default_padding_m"
                         android:visibility="visible"
-                        android:duplicateParentState="true"
+                        android:duplicateParentState="false"
                         android:clickable="true"
                         />
 
@@ -91,7 +102,7 @@
             </RelativeLayout>
 
             <LinearLayout
-                android:id="@+id/cardBody"
+                android:id="@+id/card_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -101,7 +112,7 @@
                 >
 
                 <LinearLayout
-                    android:id="@+id/unitPlayback"
+                    android:id="@+id/chapter_playback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -109,7 +120,7 @@
                     >
 
                     <TextView
-                        android:id="@+id/timeElapsed"
+                        android:id="@+id/time_elapsed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="00:00:00"
@@ -119,7 +130,7 @@
                         />
 
                     <SeekBar
-                        android:id="@+id/seekBar"
+                        android:id="@+id/seek_bar"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -129,7 +140,7 @@
                         />
 
                     <TextView
-                        android:id="@+id/timeDuration"
+                        android:id="@+id/time_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -141,7 +152,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/takeActions"
+                    android:id="@+id/playback_actions"
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -152,7 +163,7 @@
                     >
 
                     <FrameLayout
-                        android:id="@+id/deleteTakeContainer"
+                        android:id="@+id/delete_chapter_audio_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="20"
@@ -160,7 +171,7 @@
                         >
 
                         <ImageButton
-                            android:id="@+id/deleteTakeBtn"
+                            android:id="@+id/delete_chapter_audio_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/delete"
@@ -171,27 +182,19 @@
                     </FrameLayout>
 
                     <FrameLayout
-                        android:id="@+id/extraContainer"
+                        android:id="@+id/extra_container_1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="20"
                         android:layout_gravity="center_vertical"
                         >
 
-                        <ImageButton
-                            android:id="@+id/editTakeBtn"
-                            android:src="@drawable/waveform_black"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:scaleType="fitXY"
-                            android:background="#00000000"
-                            android:layout_gravity="center"
-                            />
+                        <!-- -->
 
                     </FrameLayout>
 
                     <FrameLayout
-                        android:id="@+id/playPauseTakeContainer"
+                        android:id="@+id/play_pause_chapter_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="20"
@@ -199,7 +202,7 @@
                         >
 
                         <ImageButton
-                            android:id="@+id/playTakeBtn"
+                            android:id="@+id/play_pause_chapter_btn"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:scaleType="fitCenter"
@@ -212,109 +215,32 @@
                     </FrameLayout>
 
                     <FrameLayout
-                        android:id="@+id/editTakeContainer"
+                        android:id="@+id/extra_container_2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="20"
                         android:layout_gravity="center_vertical"
                         >
 
-                        <ImageButton
-                            android:id="@+id/selectTakeBtn"
-                            android:src="@drawable/selector_take_selection"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:scaleType="fitXY"
-                            android:background="#00000000"
-                            android:layout_gravity="center"
-                            />
+                        <!---->
 
                     </FrameLayout>
 
                     <FrameLayout
-                        android:id="@+id/RateTakeContainer"
+                        android:id="@+id/extra_container_3"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="20"
                         android:layout_gravity="center_vertical"
                         >
 
-                        <wycliffeassociates.recordingapp.widgets.FourStepImageView
-                            android:id="@+id/rateTakeBtn"
-                            android:src="@drawable/selector_take_rating"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:scaleType="fitXY"
-                            android:background="#00000000"
-                            android:layout_gravity="center"
-                            />
+                        <!-- -->
 
                     </FrameLayout>
 
                 </LinearLayout>
 
             </LinearLayout>
-
-            <RelativeLayout
-                android:id="@+id/cardFooter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="@dimen/default_padding_m"
-                android:background="@drawable/border_top"
-                android:visibility="visible"
-                android:clickable="true"
-                >
-
-                <ImageView
-                    android:id="@+id/prevTakeBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/chevron_left"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    />
-
-                <LinearLayout
-                    android:id="@+id/currentTakeInfo"
-                    android:orientation="vertical"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:gravity="center_horizontal"
-                    >
-
-                    <TextView
-                        android:id="@+id/currentTakeView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Take 1 of 10"
-                        android:textSize="@dimen/text_size_m"
-                        android:textColor="@color/primary_text_default_material_light"
-                        />
-
-                    <TextView
-                        android:id="@+id/currentTakeTimeStamp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="00/00/0000  00:00 AM"
-                        android:textSize="@dimen/abc_text_size_small_material"
-                        android:textColor="@color/secondary_text_default_material_light"
-                        />
-
-                </LinearLayout>
-
-
-                <ImageView
-                    android:id="@+id/nextTakeBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/chevron_right"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    />
-
-            </RelativeLayout>
 
         </LinearLayout>
 

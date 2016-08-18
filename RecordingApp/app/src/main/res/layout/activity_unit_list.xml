@@ -8,7 +8,7 @@
     >
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/chapter_list_toolbar"
+        android:id="@+id/unit_list_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/abc_action_bar_default_height_material"
         android:elevation="@dimen/appbar_elevation"
@@ -17,17 +17,16 @@
         />
 
     <LinearLayout
-        android:id="@+id/chapter_list_layout"
+        android:id="@+id/unit_list_layout"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:weightSum="100"
-        android:visibility="visible"
         android:gravity="center_horizontal"
         >
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/chapter_list"
+            android:id="@+id/unit_list"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="80"

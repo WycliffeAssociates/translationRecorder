@@ -102,8 +102,9 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public TextView mUnitTitle, mCurrentTake, mProgress, mDuration, mCurrentTakeTimeStamp;
         public LinearLayout mCardBody, mCardContainer, mUnitActions;
         public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
-        public ImageButton mTakeDeleteBtn, mTakePlayPauseBtn, mTakeEditBtn;
-        public FourStepImageView mUnitCheckLevelBtn, mTakeRatingBtn;
+        public ImageButton mTakeDeleteBtn, mTakePlayPauseBtn, mTakeEditBtn, mTakeSelectBtn;
+//        public FourStepImageView mUnitCheckLevelBtn, mTakeRatingBtn;
+        public FourStepImageView mTakeRatingBtn;
         public UnitCard mUnitCard;
         public CardView mCardView;
 
@@ -127,13 +128,14 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mCurrentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
 
             // Buttons
-            mUnitCheckLevelBtn = (FourStepImageView) view.findViewById(R.id.unitCheckLevel);
+//            mUnitCheckLevelBtn = (FourStepImageView) view.findViewById(R.id.unitCheckLevel);
             mTakeRatingBtn = (FourStepImageView) view.findViewById(R.id.rateTakeBtn);
             mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
             mUnitPlayBtn = (ImageView) view.findViewById(R.id.unitPlayBtn);
             mTakeDeleteBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);
             mTakePlayPauseBtn = (ImageButton) view.findViewById(R.id.playTakeBtn);
             mTakeEditBtn = (ImageButton) view.findViewById(R.id.editTakeBtn);
+            mTakeSelectBtn = (ImageButton) view.findViewById(R.id.selectTakeBtn);
             mPrevTakeBtn = (ImageView) view.findViewById(R.id.prevTakeBtn);
             mNextTakeBtn = (ImageView) view.findViewById(R.id.nextTakeBtn);
 
@@ -272,15 +274,16 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     // Set listeners for unit and take actions
     private void setListeners(final UnitCard unitCard, final ViewHolder holder) {
 
-        holder.mUnitCheckLevelBtn.setOnClickListener(unitCard.getUnitCheckLevelOnClick(holder));
+//        holder.mUnitCheckLevelBtn.setOnClickListener(unitCard.getUnitCheckLevelOnClick(holder));
         holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mProject, mChapterNum));
         holder.mUnitPlayBtn.setOnClickListener(unitCard.getLatestTakeEditOnClick());
         holder.mTakeDeleteBtn.setOnClickListener(unitCard.getTakeDeleteOnClick(holder));
         holder.mTakePlayPauseBtn.setOnClickListener(unitCard.getTakePlayPauseOnClick(holder));
         holder.mTakeEditBtn.setOnClickListener(unitCard.getTakeEditOnClickListener());
         holder.mTakeRatingBtn.setOnClickListener(unitCard.getTakeRatingOnClick(holder));
+        holder.mTakeSelectBtn.setOnClickListener(unitCard.getTakeSelectOnClick(holder));
         holder.mNextTakeBtn.setOnClickListener(unitCard.getTakeIncrementOnClick(holder.mCurrentTake, holder));
         holder.mPrevTakeBtn.setOnClickListener(unitCard.getTakeDecrementOnClick(holder.mCurrentTake, holder));
-    };
+    }
 
 }

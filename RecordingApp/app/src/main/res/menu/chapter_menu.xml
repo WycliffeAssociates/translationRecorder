@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <item
+        android:id="@+id/chapters_checking_level"
+        android:icon="@drawable/box_0_white"
+        android:title="Set Chapters Level"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/chapters_compile"
+        android:icon="@drawable/buffer_white"
+        android:title="Compile Chapters"
+        app:showAsAction="ifRoom"
+        />
+
+</menu>

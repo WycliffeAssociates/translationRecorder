@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/wycliffeassociates.recordingapp"
+    >
+
+    <item
+        android:state_activated="true"
+        android:drawable="@drawable/check_green"
+        />
+
+    <item
+        android:drawable="@drawable/check_black"
+        />
+
+</selector>

@@ -19,15 +19,14 @@ import java.util.Map;
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.UnitCard;
 
 /**
  * Created by sarabiaj on 6/30/2016.
  */
-public class ActivityUnitList extends AppCompatActivity implements CheckingDialogFragment.DialogListener,
-        RatingDialogFragment.DialogListener{
+public class ActivityUnitList extends AppCompatActivity implements CheckingDialog.DialogListener,
+        RatingDialog.DialogListener{
 
     public static String PROJECT_KEY = "project_key";
     public static String CHAPTER_KEY = "chapter_key";
@@ -59,7 +58,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         // Setup toolbar
         String language = mDb.getLanguageName(mProject.getTargetLanguage());
         String book = mDb.getBookName(mProject.getSlug());
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(language + " - " + book + " - Chapter " + mChapterNum);
@@ -68,7 +67,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         }
 
         // Find the recycler view
-        mUnitList = (RecyclerView) findViewById(R.id.chapter_list);
+        mUnitList = (RecyclerView) findViewById(R.id.unit_list);
         mUnitList.setHasFixedSize(false);
 
         // Set its layout manager
@@ -104,16 +103,16 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     }
 
     @Override
-    public void onPositiveClick(CheckingDialogFragment dialog) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        //db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
-        db.close();
+    public void onPositiveClick(CheckingDialog dialog) {
+//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+//        db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
+//        db.close();
         dialog.dismiss();
         mAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onPositiveClick(RatingDialogFragment dialog) {
+    public void onPositiveClick(RatingDialog dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
         db.close();
@@ -122,14 +121,14 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     }
 
     @Override
-    public void onNegativeClick(CheckingDialogFragment dialog) {
+    public void onNegativeClick(CheckingDialog dialog) {
         System.out.println("Cancel out of Checking dialog");
         // NOTE: Do nothing?
         dialog.dismiss();
     }
 
     @Override
-    public void onNegativeClick(RatingDialogFragment dialog) {
+    public void onNegativeClick(RatingDialog dialog) {
         System.out.println("Cancel out of Rating dialog");
         // NOTE: Do nothing?
         dialog.dismiss();
