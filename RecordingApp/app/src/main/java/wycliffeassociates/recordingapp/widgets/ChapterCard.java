@@ -3,9 +3,11 @@ package wycliffeassociates.recordingapp.widgets;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.File;
 import java.lang.ref.SoftReference;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import wycliffeassociates.recordingapp.ProjectManager.CompileDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 
 /**
  * Created by leongv on 8/15/2016.
@@ -47,25 +50,28 @@ public class ChapterCard {
 
 
     // Constructor
-    public ChapterCard(Activity ctx, Project proj) {
+    public ChapterCard(Activity ctx, Project proj, int chapter) {
         mCtx = ctx;
         mProject = proj;
-        double x = Math.random();
-        if (x >= 0.6) {
-            mIsEmpty = true;
-            mCanCompile = false;
-            mIsCompiled = false;
-        } else if (x >= 0.3) {
-            mIsEmpty = false;
-            mCanCompile = true;
-            mIsCompiled = false;
-        } else {
-            mIsEmpty = false;
-            mCanCompile = true;
-            mIsCompiled = true;
-        }
+        refreshChapterStarted(proj, chapter);
+        mTitle = "Chapter " + chapter;
+        mCanCompile = false;
+        mIsCompiled = false;
     }
 
+    public void refreshChapterStarted(Project project, int chapter){
+        File dir = Project.getProjectDirectory(project);
+        File[] files = dir.listFiles();
+        if(files != null) {
+            for (File f : files) {
+                if (f.getName().compareTo(String.format("%02d", chapter)) == 0) {
+                    mIsEmpty = false;
+                    return;
+                }
+            }
+        }
+        mIsEmpty = true;
+    }
 
     // Setters
     public void setTitle(String title) {
@@ -168,7 +174,7 @@ public class ChapterCard {
         vh.mCardView.setCardElevation(2f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
         vh.mTitle.setTextColor(
-                mCtx.getResources().getColor(R.color.primary_text_default_material_light)
+                mCtx.getResources().getColor((isEmpty())? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
         );
         setIconsEnabled(vh, true);
         // Compile button activated status gets reset by multiSelector. This is a way to correct it.
@@ -205,12 +211,12 @@ public class ChapterCard {
         };
     }
 
-    public View.OnClickListener getRecordOnClick(ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getRecordOnClick(final ChapterCardAdapter.ViewHolder vh) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Record");
-                Toast.makeText(mCtx, "Record", Toast.LENGTH_SHORT).show();
+                Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, vh.getAdapterPosition()+1, 1);
+                mCtx.startActivity(intent);
             }
         };
     }

@@ -80,7 +80,7 @@ public class UnitCard {
     }
 
     public void expand(UnitCardAdapter.ViewHolder vh) {
-//        refreshTakes(vh);
+        refreshTakes(vh);
         refreshAudioPlayer(vh);
         vh.mCardBody.setVisibility(View.VISIBLE);
         vh.mCardFooter.setVisibility(View.VISIBLE);
@@ -250,7 +250,7 @@ public class UnitCard {
                     if (mTakeIndex >= takes.size()) {
                         mTakeIndex = 0;
                     }
-//                    refreshTakes(vh);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -267,7 +267,7 @@ public class UnitCard {
                     if (mTakeIndex < 0) {
                         mTakeIndex = takes.size() - 1;
                     }
-//                    refreshTakes(vh);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -278,44 +278,46 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
-                builder.setTitle("Delete recording?");
-                builder.setIcon(R.drawable.ic_delete_black_36dp);
                 final List<File> takes = getTakeList();
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(which == dialog.BUTTON_POSITIVE){
-                            File selectedFile = takes.get(mTakeIndex);
-                            FileNameExtractor fne = new FileNameExtractor(selectedFile);
-                            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-                            db.deleteTake(fne);
-                            db.close();
-                            takes.get(mTakeIndex).delete();
-                            takes.remove(mTakeIndex);
-                            //keep the same index in the list, unless the one removed was the last take.
-                            if(mTakeIndex > takes.size()-1){
-                                mTakeIndex--;
-                                //make sure the index is not negative
-                                mTakeIndex = Math.max(mTakeIndex, 0);
-                            }
-//                            refreshTakes(vh);
-                            if(takes.size() > 0){
-                                AudioPlayer audioPlayer = getAudioPlayer(vh);
-                                audioPlayer.reset();
-                                audioPlayer.loadFile(takes.get(mTakeIndex));
+                if (takes.size() > 0) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
+                    builder.setTitle("Delete recording?");
+                    builder.setIcon(R.drawable.ic_delete_black_36dp);
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == dialog.BUTTON_POSITIVE) {
+                                File selectedFile = takes.get(mTakeIndex);
+                                FileNameExtractor fne = new FileNameExtractor(selectedFile);
+                                ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                                db.deleteTake(fne);
+                                db.close();
+                                takes.get(mTakeIndex).delete();
+                                takes.remove(mTakeIndex);
+                                //keep the same index in the list, unless the one removed was the last take.
+                                if (mTakeIndex > takes.size() - 1) {
+                                    mTakeIndex--;
+                                    //make sure the index is not negative
+                                    mTakeIndex = Math.max(mTakeIndex, 0);
+                                }
+                                refreshTakes(vh);
+                                if (takes.size() > 0) {
+                                    AudioPlayer audioPlayer = getAudioPlayer(vh);
+                                    audioPlayer.reset();
+                                    audioPlayer.loadFile(takes.get(mTakeIndex));
+                                }
                             }
                         }
-                    }
-                });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                    });
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         };
     }
@@ -379,9 +381,11 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 List<File> takes = getTakeList();
-                String name = takes.get(mTakeIndex).getName();
-                RatingDialog dialog = RatingDialog.newInstance(name);
-                dialog.show(mCtx.getFragmentManager(), "single_take_rating");
+                if(takes.size() > 0) {
+                    String name = takes.get(mTakeIndex).getName();
+                    RatingDialog dialog = RatingDialog.newInstance(name);
+                    dialog.show(mCtx.getFragmentManager(), "single_take_rating");
+                }
             }
         };
     }
