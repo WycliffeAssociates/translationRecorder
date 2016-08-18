@@ -115,7 +115,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     @Override
     public void onPositiveClick(RatingDialogFragment dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        //db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
         db.close();
         dialog.dismiss();
         mAdapter.notifyDataSetChanged();

@@ -127,7 +127,7 @@ public final class ProjectContract {
                 + PROJECT_SOURCE_AUDIO_PATH + TEXTCOMMA
                 + PROJECT_CONTRIBUTORS + TEXTCOMMA
                 + PROJECT_NOTES + TEXTCOMMA
-                + PROJECT_PROGRESS + TEXTCOMMA
+                + PROJECT_PROGRESS + INTCOMMA
                 + "FOREIGN KEY(" + PROJECT_TARGET_LANGUAGE_FK + ") REFERENCES " + LanguageEntry.TABLE_LANGUAGE + "(" + _ID + ")"
                 + "FOREIGN KEY(" + PROJECT_SOURCE_LANGUAGE_FK + ") REFERENCES " + LanguageEntry.TABLE_LANGUAGE + "(" + _ID + ")"
                 + "CONSTRAINT " + PROJECT_UNIQUE_CONSTRAINT + " UNIQUE(" + PROJECT_BOOK_FK + "," +  PROJECT_TARGET_LANGUAGE_FK + "," + PROJECT_VERSION + ")"

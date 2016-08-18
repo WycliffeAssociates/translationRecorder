@@ -151,23 +151,19 @@ public class UnitCard {
         List<File> takes = getTakeList();
         refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
         if(takes.size() > 0) {
-            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn, RATING_MODE);
+            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn);
             if(takes.size() == 1){
-                refreshTakeRating(takes.get(0), vh.mUnitCheckLevelBtn, CHECKING_MODE);
+                refreshTakeRating(takes.get(0), vh.mUnitCheckLevelBtn);
             }
         }
     }
 
-    private void refreshTakeRating(File take, FourStepImageView ratingView, boolean mode){
+    private void refreshTakeRating(File take, FourStepImageView ratingView){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int rating;
         FileNameExtractor fne = new FileNameExtractor(take);
-        if(mode == RATING_MODE) {
-            //rating = db.getRating(fne);
-        } else {
-            //rating = db.getCheckingLevel(fne);
-        }
-        //ratingView.setStep(rating);
+        rating = db.getTakeRating(fne);
+        ratingView.setStep(rating);
         ratingView.invalidate();
         db.close();
     }

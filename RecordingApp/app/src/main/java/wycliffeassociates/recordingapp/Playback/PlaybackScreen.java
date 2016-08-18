@@ -160,8 +160,8 @@ public class PlaybackScreen extends Activity implements RatingDialogFragment.Dia
 
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
-        //int rating = db.getRating(fne);
-        //mRateBtn.setStep(rating);
+        int rating = db.getTakeRating(fne);
+        mRateBtn.setStep(rating);
         mRateBtn.invalidate();
         db.close();
     }
@@ -198,7 +198,7 @@ public class PlaybackScreen extends Activity implements RatingDialogFragment.Dia
     @Override
     public void onPositiveClick(RatingDialogFragment dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        //db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
         db.close();
         mRateBtn.setStep(dialog.getRating());
     }

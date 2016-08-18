@@ -30,7 +30,7 @@ public class SplashScreen extends Activity {
                 initDatabase();
             }
         });
-        initDb.start();
+        //initDb.start();
     }
 
     private void initDatabase(){

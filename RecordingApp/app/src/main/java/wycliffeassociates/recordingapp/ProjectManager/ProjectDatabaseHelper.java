@@ -320,20 +320,25 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
     public void addProject(Project p) throws IllegalArgumentException{
         int targetLanguageId = getLanguageId(p.getTargetLanguage());
-        int sourceLanguageId = getLanguageId(p.getSourceLanguage());
+        Integer sourceLanguageId = null;
+        if(p.getSourceLanguage() != null && !p.getSourceLanguage().equals("")) {
+            sourceLanguageId = getLanguageId(p.getSourceLanguage());
+        }
         int bookId = getBookId(p.getSlug());
 
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, targetLanguageId);
-        cv.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, sourceLanguageId);
+        if(sourceLanguageId != null) {
+            cv.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, sourceLanguageId);
+        }
         cv.put(ProjectEntry.PROJECT_BOOK_FK, bookId);
         cv.put(ProjectEntry.PROJECT_VERSION, p.getSource());
         cv.put(ProjectEntry.PROJECT_MODE, p.getMode());
         cv.put(ProjectEntry.PROJECT_CONTRIBUTORS, p.getContributors());
         cv.put(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
         cv.put(ProjectEntry.PROJECT_NOTES, "");
-        cv.put(ProjectEntry.PROJECT_PROGRESS, "");
+        cv.put(ProjectEntry.PROJECT_PROGRESS, 0);
 
         long result = db.insert(ProjectEntry.TABLE_PROJECT, null, cv);
     }
@@ -374,10 +379,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String version = fne.getSource();
         int chapter = fne.getChapter();
         int start = fne.getStartVerse();
-        if(!unitExists(language, book, version, chapter, start)){
-            if(!chapterExists(language, book, version, chapter)){
-                addChapter(language, book, version, chapter);
-            }
+        //If the chapter doesn't exist, then the unit can't either
+        if(!chapterExists(language, book, version, chapter)){
+            addChapter(language, book, version, chapter);
+            addUnit(language, book, version, chapter, start);
+        //chapter could exist, but unit may not yet
+        } else if (!unitExists(language, book, version, chapter, start)){
             addUnit(language, book, version, chapter, start);
         }
         int unitId = getUnitId(language, book, version, chapter, start);
@@ -402,8 +409,13 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 project.setSource(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_VERSION)));
                 String targetLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK)));
                 project.setTargetLanguage(targetLanguageCode);
-                String sourceLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK)));
-                project.setSourceLanguage(sourceLanguageCode);
+                int sourceLanguageIndex = cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK);
+                //Source language could be null
+                if(cursor.getType(sourceLanguageIndex) == Cursor.FIELD_TYPE_INTEGER) {
+                    String sourceLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK)));
+                    project.setSourceLanguage(sourceLanguageCode);
+                    project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
+                }
                 project.setMode(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_MODE)));
                 String slug = getBookSlug(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_BOOK_FK)));
                 project.setSlug(slug);
@@ -412,7 +424,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 int number = getBookNumber(slug);
                 project.setBookNumber(number);
                 project.setContributors(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_CONTRIBUTORS)));
-                project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
+
                 projectList.add(project);
             } while(cursor.moveToNext());
         }
@@ -450,18 +462,18 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     public void setTakeRating(FileNameExtractor fne, int rating){
         String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
-        final String replaceTakeWhere = String.format("WHERE %s=? AND %s=?",
-                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+        final String replaceTakeWhere = String.format("%s=? AND %s=?",
+                TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(TakeEntry.TAKE_RATING, rating);
-        db.update(TakeEntry.TAKE_RATING, replaceWith, replaceTakeWhere, new String[]{unitId, String.valueOf(fne.getTake())});
+        db.update(TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{unitId, String.valueOf(fne.getTake())});
     }
 
     public void deleteProject(Project p){
         String projectId = String.valueOf(getProjectId(p));
         SQLiteDatabase db = getWritableDatabase();
         final String deleteTakes = String.format("DELETE FROM %s WHERE %s IN (SELECT %s FROM %s WHERE %s=?)",
-                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, UnitEntry._ID, UnitEntry.TABLE_UNIT, UnitEntry._ID);
+                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, UnitEntry._ID, UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK);
         db.execSQL(deleteTakes, new String[]{projectId});
         final String deleteUnits = String.format("DELETE FROM %s WHERE %s=?",
                 UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK);
