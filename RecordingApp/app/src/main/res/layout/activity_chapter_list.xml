@@ -22,25 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:weightSum="100"
-        android:gravity="center_horizontal">
-
-        <!--<LinearLayout-->
-            <!--android:orientation="vertical"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_weight="80"-->
-            <!--&gt;-->
-
-            <!--<ListView-->
-                <!--android:id="@+id/chapter_list"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:paddingTop="@dimen/default_padding_l"-->
-                <!--android:paddingBottom="@dimen/default_padding_l"-->
-                <!--android:clipToPadding="false"-->
-                <!--/>-->
-
-        <!--</LinearLayout>-->
+        android:gravity="center_horizontal"
+        >
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/chapter_list"

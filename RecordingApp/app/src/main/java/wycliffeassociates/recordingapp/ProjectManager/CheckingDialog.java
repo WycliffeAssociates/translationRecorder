@@ -15,31 +15,37 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 /**
  * Created by leongv on 8/9/2016.
  */
-public class CheckingDialogFragment extends DialogFragment {
+public class CheckingDialog extends DialogFragment {
 
-    public static String TAKE_KEY = "key_take_name";
+    public static String CHAPTER_NAMES_KEY = "key_chapter_names";
+
     public interface DialogListener {
-        void onPositiveClick(CheckingDialogFragment dialog);
-        void onNegativeClick(CheckingDialogFragment dialog);
+        void onPositiveClick(CheckingDialog dialog);
+        void onNegativeClick(CheckingDialog dialog);
     }
 
     private int mCheckingLevel;
     DialogListener mListener;
-    private String mTakeName;
+    private String[] mChapterNames;
 
-    public static CheckingDialogFragment newInstance(String takeName){
-        CheckingDialogFragment check = new CheckingDialogFragment();
+    public static CheckingDialog newInstance(String[] chapterNames){
         Bundle args = new Bundle();
-        args.putString(TAKE_KEY, takeName);
+        args.putStringArray(CHAPTER_NAMES_KEY, chapterNames);
+        CheckingDialog check = new CheckingDialog();
         check.setArguments(args);
         return check;
+    }
+
+    public static CheckingDialog newInstance(String chapterName){
+        String[] chapterNames = {chapterName};
+        return newInstance(chapterNames);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mTakeName = args.getString(TAKE_KEY);
+        mChapterNames = args.getStringArray(CHAPTER_NAMES_KEY);
     }
 
     @Override
@@ -51,12 +57,12 @@ public class CheckingDialogFragment extends DialogFragment {
                 .setView(inflater.inflate(R.layout.dialog_checking, null))
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mListener.onPositiveClick(CheckingDialogFragment.this);
+                        mListener.onPositiveClick(CheckingDialog.this);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mListener.onNegativeClick(CheckingDialogFragment.this);
+                        mListener.onNegativeClick(CheckingDialog.this);
                     }
                 })
                 .create();
@@ -122,7 +128,11 @@ public class CheckingDialogFragment extends DialogFragment {
         return mCheckingLevel;
     }
 
-    public String getTakeName(){
-        return mTakeName;
+    public String[] getChapterNames(){
+        return mChapterNames;
+    }
+
+    public String getChapterName(int position) {
+        return mChapterNames[position];
     }
 }

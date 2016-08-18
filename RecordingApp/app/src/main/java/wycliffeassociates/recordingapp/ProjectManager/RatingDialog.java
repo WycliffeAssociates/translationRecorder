@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
@@ -16,20 +15,20 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 /**
  * Created by leongv on 8/9/2016.
  */
-public class RatingDialogFragment extends DialogFragment {
+public class RatingDialog extends DialogFragment {
 
     public static String TAKE_KEY = "key_take_name";
     public interface DialogListener {
-        void onPositiveClick(RatingDialogFragment dialog);
-        void onNegativeClick(RatingDialogFragment dialog);
+        void onPositiveClick(RatingDialog dialog);
+        void onNegativeClick(RatingDialog dialog);
 
     }
     private int mRating;
     private DialogListener mListener;
     private String mTakeName;
 
-    public static RatingDialogFragment newInstance(String takeName){
-        RatingDialogFragment rate = new RatingDialogFragment();
+    public static RatingDialog newInstance(String takeName){
+        RatingDialog rate = new RatingDialog();
         Bundle args = new Bundle();
         args.putString(TAKE_KEY, takeName);
         rate.setArguments(args);
@@ -52,12 +51,12 @@ public class RatingDialogFragment extends DialogFragment {
             .setView(inflater.inflate(R.layout.dialog_rating, null))
             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    mListener.onPositiveClick(RatingDialogFragment.this);
+                    mListener.onPositiveClick(RatingDialog.this);
                 }
             })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    mListener.onNegativeClick(RatingDialogFragment.this);
+                    mListener.onNegativeClick(RatingDialog.this);
                 }
             })
             .create();

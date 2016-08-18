@@ -1,42 +1,29 @@
 package wycliffeassociates.recordingapp.widgets;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.provider.MediaStore;
-import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
-import wycliffeassociates.recordingapp.ProjectManager.CheckingDialogFragment;
+import wycliffeassociates.recordingapp.ProjectManager.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
-import wycliffeassociates.recordingapp.ProjectManager.RatingDialogFragment;
+import wycliffeassociates.recordingapp.ProjectManager.RatingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
@@ -387,8 +374,8 @@ public class UnitCard {
             public void onClick(View view) {
                 List<File> takes = getTakeList();
                 String name = takes.get(mTakeIndex).getName();
-                CheckingDialogFragment dialog = CheckingDialogFragment.newInstance(name);
-                dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
+                CheckingDialog dialog = CheckingDialog.newInstance(name);
+                dialog.show(mCtx.getFragmentManager(), "single_unit_checking_level");
             }
         };
     }
@@ -399,8 +386,8 @@ public class UnitCard {
             public void onClick(View view) {
                 List<File> takes = getTakeList();
                 String name = takes.get(mTakeIndex).getName();
-                RatingDialogFragment dialog = RatingDialogFragment.newInstance(name);
-                dialog.show(mCtx.getFragmentManager(), "RatingDialogFragment");
+                RatingDialog dialog = RatingDialog.newInstance(name);
+                dialog.show(mCtx.getFragmentManager(), "single_take_rating");
             }
         };
     }

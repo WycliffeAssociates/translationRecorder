@@ -1,8 +1,6 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -13,8 +11,6 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +25,7 @@ import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
-import wycliffeassociates.recordingapp.ProjectManager.RatingDialogFragment;
+import wycliffeassociates.recordingapp.ProjectManager.RatingDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
@@ -39,7 +35,7 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 /**
  * Created by sarabiaj on 11/10/2015.
  */
-public class PlaybackScreen extends Activity implements RatingDialogFragment.DialogListener {
+public class PlaybackScreen extends Activity implements RatingDialog.DialogListener {
 
     //Constants for WAV format
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
@@ -196,7 +192,7 @@ public class PlaybackScreen extends Activity implements RatingDialogFragment.Dia
     }
 
     @Override
-    public void onPositiveClick(RatingDialogFragment dialog) {
+    public void onPositiveClick(RatingDialog dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
         db.close();
@@ -204,7 +200,7 @@ public class PlaybackScreen extends Activity implements RatingDialogFragment.Dia
     }
 
     @Override
-    public void onNegativeClick(RatingDialogFragment dialog) {
+    public void onNegativeClick(RatingDialog dialog) {
         dialog.dismiss();
     }
 
@@ -283,8 +279,8 @@ public class PlaybackScreen extends Activity implements RatingDialogFragment.Dia
 
     private void openRating(FourStepImageView v) {
         System.out.println("Open Rating");
-        RatingDialogFragment dialog = RatingDialogFragment.newInstance(mWavFile.getFile().getName());
-        dialog.show(getFragmentManager(), "RatingDialogFragment");
+        RatingDialog dialog = RatingDialog.newInstance(mWavFile.getFile().getName());
+        dialog.show(getFragmentManager(), "single_unit_rating");
     }
 
     private void rerecord(){

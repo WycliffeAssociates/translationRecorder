@@ -10,26 +10,19 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
-import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
-import wycliffeassociates.recordingapp.widgets.UnitCard;
 
 /**
  * Created by sarabiaj on 6/28/2016.
  */
 public class ActivityChapterList extends AppCompatActivity implements
-        CheckingDialogFragment.DialogListener {
+        CheckingDialog.DialogListener, CompileDialog.DialogListener {
 
     public static String PROJECT_KEY = "project_key";
 
@@ -92,19 +85,38 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     @Override
-    public void onPositiveClick(CheckingDialogFragment dialog) {
-        System.out.println("Positive click");
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
-        db.close();
+    public void onPositiveClick(CheckingDialog dialog) {
+        for (String s : dialog.getChapterNames()) {
+            System.out.println(s);
+        }
+//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+//        db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
+//        db.close();
+        if (mAdapter.isInActionMode()) {
+            mAdapter.getActionMode().finish();
+        }
         dialog.dismiss();
-        mAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onNegativeClick(CheckingDialogFragment dialog) {
-        System.out.println("Cancel out of Checking dialog");
-        // NOTE: Do nothing?
+    public void onPositiveClick(CompileDialog dialog) {
+        for (String s : dialog.getChapterNames()) {
+            System.out.println("Hip" + s);
+        }
+        this.onNegativeClick(dialog);
+        if (mAdapter.isInActionMode()) {
+            mAdapter.getActionMode().finish();
+        }
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onNegativeClick(CheckingDialog dialog) {
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onNegativeClick(CompileDialog dialog) {
         dialog.dismiss();
     }
 
@@ -120,7 +132,6 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-        // NOTE: Debug code
         for (int i = 0; i <= 50; i++) {
             mChapterCardList.add(new ChapterCard(this, mProject));
         }

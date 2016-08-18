@@ -1,16 +1,18 @@
 package wycliffeassociates.recordingapp.widgets;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.View;
 import android.widget.Toast;
 
 import java.lang.ref.SoftReference;
 import java.util.List;
 
-import wycliffeassociates.recordingapp.ProjectManager.CheckingDialogFragment;
+import wycliffeassociates.recordingapp.ProjectManager.CheckingDialog;
+import wycliffeassociates.recordingapp.ProjectManager.CompileDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
-import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -41,12 +43,29 @@ public class ChapterCard {
     private boolean mIsCompiled = true;
     private boolean mIsExpanded = false;
     private boolean mCanCompile = true;
+    private boolean mIconsClickable = true;
+
 
     // Constructor
     public ChapterCard(Activity ctx, Project proj) {
         mCtx = ctx;
         mProject = proj;
+        double x = Math.random();
+        if (x >= 0.6) {
+            mIsEmpty = true;
+            mCanCompile = false;
+            mIsCompiled = false;
+        } else if (x >= 0.3) {
+            mIsEmpty = false;
+            mCanCompile = true;
+            mIsCompiled = false;
+        } else {
+            mIsEmpty = false;
+            mCanCompile = true;
+            mIsCompiled = true;
+        }
     }
+
 
     // Setters
     public void setTitle(String title) {
@@ -73,6 +92,25 @@ public class ChapterCard {
         }
     }
 
+    public void setIconsEnabled(ChapterCardAdapter.ViewHolder vh, boolean enabled) {
+        vh.mCheckLevelBtn.setEnabled(enabled);
+        vh.mCompileBtn.setEnabled(enabled);
+        vh.mRecordBtn.setEnabled(enabled);
+        vh.mExpandBtn.setEnabled(enabled);
+    }
+
+    public void setIconsClickable(boolean clickable) {
+        mIconsClickable = clickable;
+    }
+
+    public void setIconsClickable(ChapterCardAdapter.ViewHolder vh) {
+        vh.mCheckLevelBtn.setClickable(mIconsClickable);
+        vh.mCompileBtn.setClickable(mIconsClickable);
+        vh.mRecordBtn.setClickable(mIconsClickable);
+        vh.mExpandBtn.setClickable(mIconsClickable);
+    }
+
+
     // Getters
     public String getTitle() {
         return mTitle;
@@ -98,6 +136,9 @@ public class ChapterCard {
         return mIsExpanded;
     }
 
+    public boolean areIconsClickable() { return mIconsClickable; }
+
+
     // Public API
     public void expand(ChapterCardAdapter.ViewHolder vh) {
         // refreshAudioPlayer(vh);
@@ -118,10 +159,7 @@ public class ChapterCard {
         vh.mCardView.setCardElevation(8f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
         vh.mTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
-        vh.mCheckLevelBtn.setEnabled(false);
-        vh.mCompileBtn.setEnabled(false);
-        vh.mRecordBtn.setEnabled(false);
-        vh.mExpandBtn.setEnabled(false);
+        setIconsEnabled(vh, false);
         // Compile button activated status gets reset by multiSelector. This is a way to correct it.
         vh.mCompileBtn.setActivated(canCompile());
     }
@@ -132,10 +170,7 @@ public class ChapterCard {
         vh.mTitle.setTextColor(
                 mCtx.getResources().getColor(R.color.primary_text_default_material_light)
         );
-        vh.mCheckLevelBtn.setEnabled(true);
-        vh.mCompileBtn.setEnabled(true);
-        vh.mRecordBtn.setEnabled(true);
-        vh.mExpandBtn.setEnabled(true);
+        setIconsEnabled(vh, true);
         // Compile button activated status gets reset by multiSelector. This is a way to correct it.
         vh.mCompileBtn.setActivated(canCompile());
     }
@@ -148,9 +183,9 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // NOTE: Currently only pass in placeholder text
-                CheckingDialogFragment dialog = CheckingDialogFragment.newInstance("Test");
-                dialog.show(mCtx.getFragmentManager(), "CheckingDialogFragment");
+                // NOTE: Currently only pass in placeholder text. Replace with chapter name.
+                CheckingDialog dialog = CheckingDialog.newInstance("chapter_audio_1.test");
+                dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
     }
@@ -159,8 +194,13 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Compile");
-                Toast.makeText(mCtx, "Compile", Toast.LENGTH_SHORT).show();
+                if (isCompiled()) {
+                    CompileDialog dialog = CompileDialog.newInstance(getTitle());
+                    dialog.show(mCtx.getFragmentManager(), "single_chapter_compile");
+                } else {
+                    System.out.println("Compile");
+                    Toast.makeText(mCtx, "Compile", Toast.LENGTH_SHORT).show();
+                }
             }
         };
     }
@@ -210,4 +250,8 @@ public class ChapterCard {
         };
     }
 
+    public void compile() {
+        // NOTE: Compile here
+        System.out.println("Compile");
+    }
 }
