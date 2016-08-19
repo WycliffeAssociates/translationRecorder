@@ -218,23 +218,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                     mChapterCard.drop(this);
                 }
 
-                if (mActionMode != null) {
-                    mActionMode.getMenu().findItem(R.id.chapters_checking_level).setEnabled(true);
-                    for (ChapterCard chapterCard : getSelectedCards()) {
-                        if (!chapterCard.canCompile()) {
-                            mActionMode.getMenu().findItem(R.id.chapters_checking_level).setEnabled(false);
-                            break;
-                        }
-                    }
-
-                    mActionMode.getMenu().getItem(MULTI_CHECK_LEVEL_BTN).setEnabled(true);
-                    for (ChapterCard chapterCard : getSelectedCards()) {
-                        if (!chapterCard.isCompiled()) {
-                            mActionMode.getMenu().getItem(MULTI_CHECK_LEVEL_BTN).setEnabled(false);
-                            break;
-                        }
-                    }
-                }
+                setAvailableActions();
 
                 // Finish action mode if all cards are de-selected
                 if (mActionMode != null && mSelectedCards.size() <= 0) {
@@ -265,20 +249,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
             mChapterCard.raise(this);
 
-
-            for (ChapterCard chapterCard : getSelectedCards()) {
-                if (!chapterCard.canCompile()) {
-                    mActionMode.getMenu().getItem(MULTI_COMPILE_BTN).setEnabled(false);
-                    break;
-                }
-            }
-
-            for (ChapterCard chapterCard : getSelectedCards()) {
-                if (!chapterCard.isCompiled()) {
-                    mActionMode.getMenu().getItem(MULTI_CHECK_LEVEL_BTN).setEnabled(false);
-                    break;
-                }
-            }
+            setAvailableActions();
 
             return true;
         }
@@ -313,6 +284,23 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         holder.mExpandBtn.setOnClickListener(chapterCard.getExpandOnClick(holder));
         holder.mDeleteBtn.setOnClickListener(chapterCard.getDeleteOnClick(holder));
         holder.mPlayPauseBtn.setOnClickListener(chapterCard.getPlayPauseOnClick(holder));
+    }
+
+    private void setAvailableActions() {
+        if (mActionMode == null) {
+            return;
+        }
+
+        boolean checkEnabled = true;
+
+        for (ChapterCard chapterCard : getSelectedCards()) {
+            if (!chapterCard.isCompiled()) {
+                checkEnabled = false;
+                break;
+            }
+        }
+
+        mActionMode.getMenu().findItem(R.id.chapters_checking_level).setEnabled(checkEnabled);
     }
 
 
@@ -355,4 +343,5 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         }
         return cards;
     }
+
 }
