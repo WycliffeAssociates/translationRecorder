@@ -69,7 +69,7 @@ public final class ProjectContract {
         public static final String UNIT_START_VERSE = "start_verse";
         public static final String UNIT_END_VERSE = "end_verse";
         public static final String UNIT_NOTES = "notes";
-        public static final String UNIT_CHOSEN_TAKE = "chosen_take";
+        public static final String UNIT_CHOSEN_TAKE_FK = "chosen_take_fk";
         public static final String UNIT_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_UNIT_TABLE = "CREATE TABLE " + TABLE_UNIT + " ("
@@ -79,9 +79,10 @@ public final class ProjectContract {
                 + UNIT_START_VERSE + INTCOMMA
                 + UNIT_END_VERSE + INTCOMMA
                 + UNIT_NOTES + TEXTCOMMA
-                + UNIT_CHOSEN_TAKE + INTCOMMA
+                + UNIT_CHOSEN_TAKE_FK + INTCOMMA
                 + "FOREIGN KEY(" + UNIT_PROJECT_FK + ") REFERENCES " + ProjectEntry.TABLE_PROJECT + "(" + _ID + ")"
                 + "FOREIGN KEY(" + UNIT_CHAPTER_FK + ") REFERENCES " + ChapterEntry.TABLE_CHAPTER + "(" + _ID + ")"
+                + "FOREIGN KEY(" + UNIT_CHOSEN_TAKE_FK + ") REFERENCES " + TakeEntry.TABLE_TAKE + "(" + _ID + ")"
                 + "CONSTRAINT " + UNIT_UNIQUE_CONSTRAINT + " UNIQUE(" + UNIT_PROJECT_FK + "," +  UNIT_CHAPTER_FK + "," + UNIT_START_VERSE + ")"
                 + ");";
     }

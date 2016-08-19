@@ -11,6 +11,7 @@ import java.io.File;
 import java.lang.ref.SoftReference;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.CompileDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -61,10 +62,11 @@ public class ChapterCard {
 
     public void refreshChapterStarted(Project project, int chapter){
         File dir = Project.getProjectDirectory(project);
+        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
         File[] files = dir.listFiles();
         if(files != null) {
             for (File f : files) {
-                if (f.getName().compareTo(String.format("%02d", chapter)) == 0) {
+                if (f.getName().equals(chapterString)) {
                     mIsEmpty = false;
                     return;
                 }
@@ -143,7 +145,6 @@ public class ChapterCard {
     }
 
     public boolean areIconsClickable() { return mIconsClickable; }
-
 
     // Public API
     public void expand(ChapterCardAdapter.ViewHolder vh) {

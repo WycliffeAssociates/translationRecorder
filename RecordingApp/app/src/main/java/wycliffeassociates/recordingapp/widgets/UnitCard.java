@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.File;
@@ -47,6 +48,7 @@ public class UnitCard {
     private boolean mIsExpanded = false;
     private int mTakeIndex = 0;
     private int mCheckingLevel = 0;
+    private boolean mIsEmpty = true;
 
     // Attributes
     private String mTitle;
@@ -69,6 +71,25 @@ public class UnitCard {
         mProject = project;
         mCtx = ctx;
         mTheme = mCtx.getTheme();
+    }
+
+    public void refreshUnitStarted(Project project, int chapter, int startVerse) {
+        File dir = Project.getProjectDirectory(project);
+        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        File chapterDir = new File(dir, chapterString);
+        if(chapterDir.exists()) {
+            File[] files = chapterDir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    FileNameExtractor fne = new FileNameExtractor(f);
+                    if (fne.getStartVerse() == startVerse) {
+                        mIsEmpty = false;
+                        return;
+                    }
+                }
+            }
+        }
+        mIsEmpty = true;
     }
 
     public void setTitle(String title) {
@@ -137,10 +158,22 @@ public class UnitCard {
         List<File> takes = getTakeList();
         refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
         if(takes.size() > 0) {
-            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn);
+            File take = takes.get(mTakeIndex);
+            refreshTakeRating(take, vh.mTakeRatingBtn);
+            refreshSelectedTake(take, vh.mTakeSelectBtn);
         }
     }
 
+    private void refreshSelectedTake(File take, ImageButton selectTake){
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        FileNameExtractor fne = new FileNameExtractor(take);
+        int chosen = db.getChosenTake(fne);
+        if(chosen == fne.getTake()){
+            selectTake.setActivated(true);
+        } else {
+            selectTake.setActivated(false);
+        }
+    }
 
     private void refreshTakeRating(File take, FourStepImageView ratingView){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
@@ -220,13 +253,17 @@ public class UnitCard {
         vh.mCardView.setCardElevation(2f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
         vh.mUnitTitle.setTextColor(
-                mCtx.getResources().getColor(R.color.primary_text_default_material_light)
+                mCtx.getResources().getColor((isEmpty())? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
         );
         vh.mUnitActions.setEnabled(true);
     }
 
     public boolean isExpanded() {
         return mIsExpanded;
+    }
+
+    public boolean isEmpty() {
+        return mIsEmpty;
     }
 
     public View.OnClickListener getUnitRecordOnClick(final Project project, final int chapter) {
@@ -394,7 +431,18 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                view.setActivated(!view.isActivated());
+                List<File> takes = getTakeList();
+                if(takes.size() > 0) {
+                    ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                    FileNameExtractor fne = new FileNameExtractor(takes.get(mTakeIndex));
+                    if(view.isActivated()){
+                        view.setActivated(false);
+                        db.removeSelectedTake(fne);
+                    } else {
+                        view.setActivated(true);
+                        db.setSelectedTake(fne);
+                    }
+                }
             }
         };
     }
