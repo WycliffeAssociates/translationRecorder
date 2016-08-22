@@ -535,4 +535,20 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    public int getNumStartedUnits(Project project, int chapter, int totalNumUnits) {
+
+        String chapterId = String.valueOf(getChapterId(project, chapter));
+        //SELECT COUNT(UnitEntry.ID) FROM UnitEntry.TABLE_UNIT WHERE UnitEntry.UNIT_CHAPTER_FK=chapterId
+        final String unitCountQuery = String.format("SELECT COUNT(%s) FROM %s WHERE %s=?",
+                UnitEntry._ID, UnitEntry.TABLE_UNIT, UnitEntry.UNIT_CHAPTER_FK);
+        SQLiteDatabase db = getReadableDatabase();
+        int unitCount = (int)DatabaseUtils.longForQuery(db, unitCountQuery, new String[]{chapterId});
+        if(unitCount==totalNumUnits){
+            final String takeCoundQuery = String.format("SELECT COUNT(%s) FROM %s WHERE %s=?");
+            for(int i = 0; i < totalNumUnits; i++){
+
+            }
+        }
+        return 0;
+    }
 }

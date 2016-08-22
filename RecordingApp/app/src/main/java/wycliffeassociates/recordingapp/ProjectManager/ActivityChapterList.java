@@ -86,7 +86,9 @@ public class ActivityChapterList extends AppCompatActivity implements
         super.onResume();
         for(int i = 0; i < mChapterCardList.size(); i++){
             mChapterCardList.get(i).refreshChapterStarted(mProject, i+1);
+            mChapterCardList.get(i).canCompile();
         }
+
         mAdapter.notifyDataSetChanged();
     }
 

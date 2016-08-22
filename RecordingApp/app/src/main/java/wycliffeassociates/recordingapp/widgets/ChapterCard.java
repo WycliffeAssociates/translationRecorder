@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.List;
 
@@ -16,8 +17,10 @@ import wycliffeassociates.recordingapp.ProjectManager.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.CompileDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
  * Created by leongv on 8/15/2016.
@@ -25,14 +28,15 @@ import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 public class ChapterCard {
 
     public interface OnClickListener extends View.OnClickListener {
+
         void onClick(View v, ChapterCardAdapter.ViewHolder vh, List<Integer> expandedCards, int position);
     }
-
     // Constants
     public int MIN_CHECKING_LEVEL = 0;
     public int MAX_CHECKING_LEVEL = 3;
     public int MIN_PROGRESS = 0;
     public int MAX_PROGRESS = 100;
+    private final int mChapter;
 
     // Attributes
     private Activity mCtx;
@@ -58,6 +62,7 @@ public class ChapterCard {
         mTitle = "Chapter " + chapter;
         mCanCompile = false;
         mIsCompiled = false;
+        mChapter = chapter;
     }
 
     public void refreshChapterStarted(Project project, int chapter){
@@ -185,6 +190,20 @@ public class ChapterCard {
     public boolean canCompile() {
         return mCanCompile;
     }
+
+//    public void determineCompilablitiy(){
+//        try {
+//            Chunks chunks = new Chunks(mCtx, mProject.getSlug());
+//            int numUnits = chunks.getChunks(mProject, mChapter).size();
+//            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+//            int numStarted = db.getNumStartedUnits();
+//            if(numUnits == numStarted){
+//                mCanCompile = true;
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public View.OnClickListener getCheckLevelOnClick(ChapterCardAdapter.ViewHolder vh) {
         return new View.OnClickListener() {
