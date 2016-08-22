@@ -220,7 +220,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 TakeEntry._ID, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
         int id = -1;
         try {
-            id = (int) DatabaseUtils.longForQuery(db, unitId, new String[]{unitId, String.valueOf(fne.getTake())});
+            id = (int) DatabaseUtils.longForQuery(db, takeIdQuery, new String[]{unitId, String.valueOf(fne.getTake())});
         } catch (SQLiteDoneException e){
             throw new IllegalArgumentException("Take not found in database.");
         }
@@ -450,13 +450,43 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return rating;
     }
 
-    public int getChosenTake(Project project, int chapter, int startVerse){
-        String unitId = String.valueOf(getUnitId(project, chapter, startVerse));
+    public int getChosenTake(String languageCode, String slug, String version, int chapter, int startVerse){
+        String unitId = String.valueOf(getUnitId(languageCode, slug, version, chapter, startVerse));
         SQLiteDatabase db = getReadableDatabase();
-        final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
-                UnitEntry.UNIT_CHOSEN_TAKE, UnitEntry.TABLE_UNIT, UnitEntry._ID);
-        int take = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId});
-        return take;
+        final String getTake = String.format("SELECT %s FROM %s WHERE %s=?",
+                UnitEntry.UNIT_CHOSEN_TAKE_FK, UnitEntry.TABLE_UNIT, UnitEntry._ID);
+        //int take = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId});
+        Cursor cursor = db.rawQuery(getTake, new String[]{unitId});
+        int takeIdCol = cursor.getColumnIndex(UnitEntry.UNIT_CHOSEN_TAKE_FK);
+        if(cursor.moveToFirst()) {
+            if (!cursor.isNull(takeIdCol)) {
+                int takeId = cursor.getInt(takeIdCol);
+                cursor.close();
+                final String getTakeNumber = String.format("SELECT %s FROM %s WHERE %s=?", TakeEntry.TAKE_NUMBER, TakeEntry.TABLE_TAKE, TakeEntry._ID);
+                cursor = db.rawQuery(getTakeNumber, new String[]{String.valueOf(takeId)});
+                if(cursor.moveToFirst()) {
+                    int takeNumCol = cursor.getColumnIndex(TakeEntry.TAKE_NUMBER);
+                    int takeNum = cursor.getInt(takeNumCol);
+                    cursor.close();
+                    return takeNum;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int getChosenTake(FileNameExtractor fne){
+        return getChosenTake(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
+    }
+
+    public void setSelectedTake(FileNameExtractor fne){
+        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
+        String takeId = String.valueOf(getTakeId(fne));
+        SQLiteDatabase db = getReadableDatabase();
+        final String replaceTakeWhere = String.format("%s=?", UnitEntry._ID);
+        ContentValues replaceWith = new ContentValues();
+        replaceWith.put(UnitEntry.UNIT_CHOSEN_TAKE_FK, takeId);
+        db.update(UnitEntry.TABLE_UNIT, replaceWith, replaceTakeWhere, new String[]{unitId});
     }
 
     public void setTakeRating(FileNameExtractor fne, int rating){
@@ -467,6 +497,16 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(TakeEntry.TAKE_RATING, rating);
         db.update(TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{unitId, String.valueOf(fne.getTake())});
+    }
+
+    public void removeSelectedTake(FileNameExtractor fne){
+        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
+        SQLiteDatabase db = getReadableDatabase();
+        final String replaceTakeWhere = String.format("%s=?",
+                UnitEntry._ID);
+        ContentValues replaceWith = new ContentValues();
+        replaceWith.putNull(UnitEntry.UNIT_CHOSEN_TAKE_FK);
+        db.update(UnitEntry.TABLE_UNIT, replaceWith, replaceTakeWhere, new String[]{unitId});
     }
 
     public void deleteProject(Project p){

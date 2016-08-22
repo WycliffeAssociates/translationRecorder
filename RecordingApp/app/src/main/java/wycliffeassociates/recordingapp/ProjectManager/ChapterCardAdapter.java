@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
@@ -178,6 +180,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 chapterCard.collapse(holder);
             }
 
+
             // Raise card, and show appropriate visual cue, if it's already selected
             if (mMultiSelector.isSelected(position, 0)) {
                 mSelectedCards.add(getAdapterPosition());
@@ -194,11 +197,11 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         public void onClick(View view) {
             // Completing a chapter (hence can be compiled) is the minimum requirements to
             //    include a chapter in multi-selection
-            if (mChapterCard == null || !mChapterCard.canCompile()) {
+            if (mChapterCard == null) {
                 return;
             }
 
-            if(mMultiSelector.isSelectable()) {
+            if(mMultiSelector.isSelectable() && mChapterCard.canCompile()) {
                 // Close card if it is expanded in multi-select mode
                 if(mChapterCard.isExpanded()){
                     toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
@@ -223,10 +226,8 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 }
 
             } else {
-
-                // Go start an activity for unit list
-                System.out.println("Start an acitivty");
-
+                Intent intent = ActivityUnitList.getActivityVerseListIntent(mCtx, mProject, getAdapterPosition()+1);
+                mCtx.startActivity(intent);
             }
         }
 

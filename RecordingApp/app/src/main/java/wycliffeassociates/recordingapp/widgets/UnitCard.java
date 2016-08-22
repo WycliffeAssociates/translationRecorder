@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.File;
@@ -47,6 +48,7 @@ public class UnitCard {
     private boolean mIsExpanded = false;
     private int mTakeIndex = 0;
     private int mCheckingLevel = 0;
+    private boolean mIsEmpty = true;
 
     // Attributes
     private String mTitle;
@@ -71,6 +73,25 @@ public class UnitCard {
         mTheme = mCtx.getTheme();
     }
 
+    public void refreshUnitStarted(Project project, int chapter, int startVerse) {
+        File dir = Project.getProjectDirectory(project);
+        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        File chapterDir = new File(dir, chapterString);
+        if(chapterDir.exists()) {
+            File[] files = chapterDir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    FileNameExtractor fne = new FileNameExtractor(f);
+                    if (fne.getStartVerse() == startVerse) {
+                        mIsEmpty = false;
+                        return;
+                    }
+                }
+            }
+        }
+        mIsEmpty = true;
+    }
+
     public void setTitle(String title) {
         mTitle = title;
     }
@@ -80,7 +101,7 @@ public class UnitCard {
     }
 
     public void expand(UnitCardAdapter.ViewHolder vh) {
-//        refreshTakes(vh);
+        refreshTakes(vh);
         refreshAudioPlayer(vh);
         vh.mCardBody.setVisibility(View.VISIBLE);
         vh.mCardFooter.setVisibility(View.VISIBLE);
@@ -137,10 +158,22 @@ public class UnitCard {
         List<File> takes = getTakeList();
         refreshTakeText(takes, vh.mCurrentTake, vh.mCurrentTakeTimeStamp);
         if(takes.size() > 0) {
-            refreshTakeRating(takes.get(mTakeIndex), vh.mTakeRatingBtn);
+            File take = takes.get(mTakeIndex);
+            refreshTakeRating(take, vh.mTakeRatingBtn);
+            refreshSelectedTake(take, vh.mTakeSelectBtn);
         }
     }
 
+    private void refreshSelectedTake(File take, ImageButton selectTake){
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        FileNameExtractor fne = new FileNameExtractor(take);
+        int chosen = db.getChosenTake(fne);
+        if(chosen == fne.getTake()){
+            selectTake.setActivated(true);
+        } else {
+            selectTake.setActivated(false);
+        }
+    }
 
     private void refreshTakeRating(File take, FourStepImageView ratingView){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
@@ -220,13 +253,17 @@ public class UnitCard {
         vh.mCardView.setCardElevation(2f);
         vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
         vh.mUnitTitle.setTextColor(
-                mCtx.getResources().getColor(R.color.primary_text_default_material_light)
+                mCtx.getResources().getColor((isEmpty())? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
         );
         vh.mUnitActions.setEnabled(true);
     }
 
     public boolean isExpanded() {
         return mIsExpanded;
+    }
+
+    public boolean isEmpty() {
+        return mIsEmpty;
     }
 
     public View.OnClickListener getUnitRecordOnClick(final Project project, final int chapter) {
@@ -250,7 +287,7 @@ public class UnitCard {
                     if (mTakeIndex >= takes.size()) {
                         mTakeIndex = 0;
                     }
-//                    refreshTakes(vh);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -267,7 +304,7 @@ public class UnitCard {
                     if (mTakeIndex < 0) {
                         mTakeIndex = takes.size() - 1;
                     }
-//                    refreshTakes(vh);
+                    refreshTakes(vh);
                     refreshAudioPlayer(vh);
                 }
             }
@@ -278,44 +315,46 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
-                builder.setTitle("Delete recording?");
-                builder.setIcon(R.drawable.ic_delete_black_36dp);
                 final List<File> takes = getTakeList();
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(which == dialog.BUTTON_POSITIVE){
-                            File selectedFile = takes.get(mTakeIndex);
-                            FileNameExtractor fne = new FileNameExtractor(selectedFile);
-                            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-                            db.deleteTake(fne);
-                            db.close();
-                            takes.get(mTakeIndex).delete();
-                            takes.remove(mTakeIndex);
-                            //keep the same index in the list, unless the one removed was the last take.
-                            if(mTakeIndex > takes.size()-1){
-                                mTakeIndex--;
-                                //make sure the index is not negative
-                                mTakeIndex = Math.max(mTakeIndex, 0);
-                            }
-//                            refreshTakes(vh);
-                            if(takes.size() > 0){
-                                AudioPlayer audioPlayer = getAudioPlayer(vh);
-                                audioPlayer.reset();
-                                audioPlayer.loadFile(takes.get(mTakeIndex));
+                if (takes.size() > 0) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
+                    builder.setTitle("Delete recording?");
+                    builder.setIcon(R.drawable.ic_delete_black_36dp);
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == dialog.BUTTON_POSITIVE) {
+                                File selectedFile = takes.get(mTakeIndex);
+                                FileNameExtractor fne = new FileNameExtractor(selectedFile);
+                                ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                                db.deleteTake(fne);
+                                db.close();
+                                takes.get(mTakeIndex).delete();
+                                takes.remove(mTakeIndex);
+                                //keep the same index in the list, unless the one removed was the last take.
+                                if (mTakeIndex > takes.size() - 1) {
+                                    mTakeIndex--;
+                                    //make sure the index is not negative
+                                    mTakeIndex = Math.max(mTakeIndex, 0);
+                                }
+                                refreshTakes(vh);
+                                if (takes.size() > 0) {
+                                    AudioPlayer audioPlayer = getAudioPlayer(vh);
+                                    audioPlayer.reset();
+                                    audioPlayer.loadFile(takes.get(mTakeIndex));
+                                }
                             }
                         }
-                    }
-                });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                    });
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         };
     }
@@ -379,9 +418,11 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 List<File> takes = getTakeList();
-                String name = takes.get(mTakeIndex).getName();
-                RatingDialog dialog = RatingDialog.newInstance(name);
-                dialog.show(mCtx.getFragmentManager(), "single_take_rating");
+                if(takes.size() > 0) {
+                    String name = takes.get(mTakeIndex).getName();
+                    RatingDialog dialog = RatingDialog.newInstance(name);
+                    dialog.show(mCtx.getFragmentManager(), "single_take_rating");
+                }
             }
         };
     }
@@ -390,7 +431,18 @@ public class UnitCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                view.setActivated(!view.isActivated());
+                List<File> takes = getTakeList();
+                if(takes.size() > 0) {
+                    ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                    FileNameExtractor fne = new FileNameExtractor(takes.get(mTakeIndex));
+                    if(view.isActivated()){
+                        view.setActivated(false);
+                        db.removeSelectedTake(fne);
+                    } else {
+                        view.setActivated(true);
+                        db.setSelectedTake(fne);
+                    }
+                }
             }
         };
     }

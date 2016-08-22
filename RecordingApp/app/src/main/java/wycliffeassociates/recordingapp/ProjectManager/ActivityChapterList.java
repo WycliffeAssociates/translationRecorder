@@ -11,11 +11,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
 
 /**
@@ -75,12 +77,16 @@ public class ActivityChapterList extends AppCompatActivity implements
 
         // Set its animator
         mChapterList.setItemAnimator(new DefaultItemAnimator());
+
+        prepareChapterCardData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        prepareChapterCardData();
+        for(int i = 0; i < mChapterCardList.size(); i++){
+            mChapterCardList.get(i).refreshChapterStarted(mProject, i+1);
+        }
         mAdapter.notifyDataSetChanged();
     }
 
@@ -132,9 +138,15 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-        for (int i = 0; i <= 50; i++) {
-            mChapterCardList.add(new ChapterCard(this, mProject));
+        try {
+            Chunks chunks = new Chunks(this, mProject.getSlug());
+            for (int i = 0; i < chunks.getNumChapters(); i++) {
+                mChapterCardList.add(new ChapterCard(this, mProject, i+1));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
 
 //        try {
 //            Chunks chunks = new Chunks(this, mProject.getSlug());
