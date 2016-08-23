@@ -27,6 +27,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         CheckingDialog.DialogListener, CompileDialog.DialogListener {
 
     public static String PROJECT_KEY = "project_key";
+    private Chunks mChunks;
 
     public static Intent getActivityVerseListIntent(Context ctx, Project p){
         Intent intent = new Intent(ctx, ActivityUnitList.class);
@@ -61,6 +62,13 @@ public class ActivityChapterList extends AppCompatActivity implements
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        try {
+            mChunks = new Chunks(this, mProject.getSlug());
+        } catch (Exception e) {
+
+        }
+
+
         // Find the recycler view
         mChapterList = (RecyclerView) findViewById(R.id.chapter_list);
         mChapterList.setHasFixedSize(false);
@@ -84,9 +92,13 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        int numChapters = mChunks.getNumChapters();
+        int[] numStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
         for(int i = 0; i < mChapterCardList.size(); i++){
             mChapterCardList.get(i).refreshChapterStarted(mProject, i+1);
-            mChapterCardList.get(i).canCompile();
+            mChapterCardList.get(i).setCanCompile(numStarted[i] == mChunks.getNumChunks(mProject, i + 1));
+
         }
 
         mAdapter.notifyDataSetChanged();
@@ -140,15 +152,10 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-        try {
-            Chunks chunks = new Chunks(this, mProject.getSlug());
-            for (int i = 0; i < chunks.getNumChapters(); i++) {
+
+            for (int i = 0; i < mChunks.getNumChapters(); i++) {
                 mChapterCardList.add(new ChapterCard(this, mProject, i+1));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
 
 //        try {
 //            Chunks chunks = new Chunks(this, mProject.getSlug());

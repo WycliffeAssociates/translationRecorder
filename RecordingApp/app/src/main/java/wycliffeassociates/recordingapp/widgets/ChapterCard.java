@@ -58,11 +58,11 @@ public class ChapterCard {
     public ChapterCard(Activity ctx, Project proj, int chapter) {
         mCtx = ctx;
         mProject = proj;
-        refreshChapterStarted(proj, chapter);
         mTitle = "Chapter " + chapter;
         mCanCompile = false;
         mIsCompiled = false;
         mChapter = chapter;
+        refreshChapterStarted(proj, chapter);
     }
 
     public void refreshChapterStarted(Project project, int chapter){
@@ -191,19 +191,19 @@ public class ChapterCard {
         return mCanCompile;
     }
 
-//    public void determineCompilablitiy(){
-//        try {
-//            Chunks chunks = new Chunks(mCtx, mProject.getSlug());
-//            int numUnits = chunks.getChunks(mProject, mChapter).size();
-//            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-//            int numStarted = db.getNumStartedUnits();
-//            if(numUnits == numStarted){
-//                mCanCompile = true;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
+//    public void refreshCanCompile(int numUnits){
+//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+//        int numStarted = db.getNumStartedUnits(mProject, mChapter);
+//        if(numUnits == numStarted){
+//            mCanCompile = true;
+//        }
+//        if(numStarted > 0){
+//            mIsEmpty = false;
 //        }
 //    }
+    public void setCanCompile(boolean yes){
+        mCanCompile = yes;
+    }
 
     public View.OnClickListener getCheckLevelOnClick(ChapterCardAdapter.ViewHolder vh) {
         return new View.OnClickListener() {
