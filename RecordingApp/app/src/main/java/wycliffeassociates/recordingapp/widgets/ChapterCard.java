@@ -224,6 +224,8 @@ public class ChapterCard {
                     CompileDialog dialog = CompileDialog.newInstance(getTitle());
                     dialog.show(mCtx.getFragmentManager(), "single_chapter_compile");
                 } else {
+                    ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                    List<String> files = db.getTakesForChapterCompilation(mProject, mChapter);
                     System.out.println("Compile");
                     Toast.makeText(mCtx, "Compile", Toast.LENGTH_SHORT).show();
                 }

@@ -411,7 +411,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void addTake(FileNameExtractor fne, int rating){
+    public void addTake(FileNameExtractor fne, String takeFilename, int rating){
         String book = fne.getBook();
         String language = fne.getLang();
         String version = fne.getSource();
@@ -433,6 +433,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(TakeEntry.TAKE_RATING, rating);
         cv.put(TakeEntry.TAKE_NOTES, "");
         cv.put(TakeEntry.TAKE_NUMBER, fne.getTake());
+        cv.put(TakeEntry.TAKE_FILENAME, takeFilename);
         long result = db.insert(TakeEntry.TABLE_TAKE, null, cv);
         db.close();
     }
@@ -621,8 +622,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.rawQuery(numUnitsStarted, new String[]{projectId});
+        int[] numStartedUnits = new int[numUnits];
+
         if(c.getCount() > 0) {
-            int[] numStartedUnits = new int[numUnits];
             c.moveToFirst();
             do {
                 int chapterNum = c.getInt(0);
@@ -631,6 +633,36 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             } while (c.moveToNext());
             return numStartedUnits;
         }
-        return null;
+        return numStartedUnits;
+    }
+
+    public List<String> getTakesForChapterCompilation(Project project, int chapter){
+        String chapterId = String.valueOf(getChapterId(project, chapter));
+
+        final String chapterCompilationQuery = String.format(
+                "SELECT name, MAX(score) FROM " +
+                    "(SELECT u.%s as uid, t.%s AS name, (%s * 1000 + t.%s) + CASE WHEN %s IS NOT NULL AND %s=t.%s THEN 10000 ELSE 1 END AS score " + //_id, name, rating, _id, chosen_take_fk, chosen_take_fk, _id
+                        "FROM %s c " + //chapters
+                            "INNER JOIN %s u ON c.%s=u.%s " + //units, id, chapter_fk
+                            "INNER JOIN %s t ON t.%s=u.%s " + //takes, unit_fk, id
+                        "WHERE c.%s=?) " + //id, project_fk
+                "GROUP BY uid",
+                UnitEntry._ID, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_RATING, TakeEntry.TAKE_NUMBER, UnitEntry.UNIT_CHOSEN_TAKE_FK, UnitEntry.UNIT_CHOSEN_TAKE_FK, TakeEntry._ID,
+                ChapterEntry.TABLE_CHAPTER,
+                UnitEntry.TABLE_UNIT, ChapterEntry._ID, UnitEntry.UNIT_CHAPTER_FK,
+                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, UnitEntry._ID,
+                ChapterEntry._ID
+        );
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(chapterCompilationQuery, new String[]{chapterId});
+        List<String> takesToCompile = null;
+        if(c.getCount() > 0){
+            takesToCompile  = new ArrayList<>();
+            c.moveToFirst();
+            do {
+                takesToCompile.add(c.getString(0));
+            } while(c.moveToNext());
+        }
+        return takesToCompile;
     }
 }

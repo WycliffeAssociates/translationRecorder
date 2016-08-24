@@ -68,7 +68,6 @@ public class ActivityChapterList extends AppCompatActivity implements
 
         }
 
-
         // Find the recycler view
         mChapterList = (RecyclerView) findViewById(R.id.chapter_list);
         mChapterList.setHasFixedSize(false);
@@ -109,9 +108,6 @@ public class ActivityChapterList extends AppCompatActivity implements
         for (String s : dialog.getChapterNames()) {
             System.out.println(s);
         }
-//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-//        db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
-//        db.close();
         if (mAdapter.isInActionMode()) {
             mAdapter.getActionMode().finish();
         }

@@ -43,7 +43,7 @@ public final class ProjectContract {
 
     public static abstract class ChapterEntry implements BaseColumns {
         public static final String TABLE_CHAPTER = "chapters";
-        public static final String CHAPTER_PROJECT_FK = "project";
+        public static final String CHAPTER_PROJECT_FK = "project_fk";
         public static final String CHAPTER_NUMBER = "number";
         public static final String CHAPTER_NOTES = "notes";
         public static final String CHAPTER_PROGRESS = "progress";
@@ -93,6 +93,7 @@ public final class ProjectContract {
         public static final String TAKE_RATING = "rating";
         public static final String TAKE_NOTES = "notes";
         public static final String TAKE_NUMBER = "number";
+        public static final String TAKE_FILENAME = "filename";
         public static final String TAKE_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
@@ -101,6 +102,7 @@ public final class ProjectContract {
                 + TAKE_RATING + INTCOMMA
                 + TAKE_NOTES + TEXTCOMMA
                 + TAKE_NUMBER + INTCOMMA
+                + TAKE_FILENAME + TEXTCOMMA
                 + "CONSTRAINT " + TAKE_UNIQUE_CONSTRAINT + " UNIQUE(" + TAKE_UNIT_FK + "," +  TAKE_NUMBER + ")"
                 + ");";
     }
