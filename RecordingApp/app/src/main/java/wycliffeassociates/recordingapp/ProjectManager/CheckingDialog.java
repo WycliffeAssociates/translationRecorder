@@ -17,7 +17,8 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  */
 public class CheckingDialog extends DialogFragment {
 
-    public static String CHAPTER_NAMES_KEY = "key_chapter_names";
+    public static String CHAPTERS_KEY = "key_chapters";
+    public static String PROJECT_KEY = "key_project";
 
     public interface DialogListener {
         void onPositiveClick(CheckingDialog dialog);
@@ -26,26 +27,29 @@ public class CheckingDialog extends DialogFragment {
 
     private int mCheckingLevel;
     DialogListener mListener;
-    private String[] mChapterNames;
+    private int[] mChapters;
+    private Project mProject;
 
-    public static CheckingDialog newInstance(String[] chapterNames){
+    public static CheckingDialog newInstance(Project project, int[] chapters){
         Bundle args = new Bundle();
-        args.putStringArray(CHAPTER_NAMES_KEY, chapterNames);
+        args.putIntArray(CHAPTERS_KEY, chapters);
+        args.putParcelable(PROJECT_KEY, project);
         CheckingDialog check = new CheckingDialog();
         check.setArguments(args);
         return check;
     }
 
-    public static CheckingDialog newInstance(String chapterName){
-        String[] chapterNames = {chapterName};
-        return newInstance(chapterNames);
+    public static CheckingDialog newInstance(Project project, int chapter){
+        int[] chapters = {chapter};
+        return newInstance(project, chapters);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mChapterNames = args.getStringArray(CHAPTER_NAMES_KEY);
+        mChapters = args.getIntArray(CHAPTERS_KEY);
+        mProject = args.getParcelable(PROJECT_KEY);
     }
 
     @Override
@@ -128,11 +132,16 @@ public class CheckingDialog extends DialogFragment {
         return mCheckingLevel;
     }
 
-    public String[] getChapterNames(){
-        return mChapterNames;
+    public int[] getChapters(){
+        return mChapters;
     }
 
-    public String getChapterName(int position) {
-        return mChapterNames[position];
+    public Project getProject(){
+        return mProject;
     }
+
+    //public String[] getChapterNames(){
+    //    return mChapterNames;
+    //}
+
 }

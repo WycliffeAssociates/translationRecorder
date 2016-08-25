@@ -175,9 +175,9 @@ public class SourceAudio extends LinearLayout {
         Uri globalUri = getUriFromString(globalSourceLanguage, globalSourceLocation);
 
         boolean gotFile = false;
-        if (projectUri != null) {
+        if (projectUri != null && !projectUri.equals("")) {
             gotFile = getAudioFromUri(projectSourceLanguage, projectUri);
-        } if(!gotFile && globalUri != null){
+        } if(!gotFile && globalUri != null && !globalUri.equals("")){
             getAudioFromUri(globalSourceLanguage, globalUri);
         }
     }

@@ -8,7 +8,11 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
@@ -16,8 +20,12 @@ import wycliffeassociates.recordingapp.ProjectManager.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.CompileDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
  * Created by leongv on 8/15/2016.
@@ -25,19 +33,21 @@ import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 public class ChapterCard {
 
     public interface OnClickListener extends View.OnClickListener {
+
         void onClick(View v, ChapterCardAdapter.ViewHolder vh, List<Integer> expandedCards, int position);
     }
-
     // Constants
     public int MIN_CHECKING_LEVEL = 0;
     public int MAX_CHECKING_LEVEL = 3;
     public int MIN_PROGRESS = 0;
     public int MAX_PROGRESS = 100;
+    private final int mChapter;
 
     // Attributes
     private Activity mCtx;
     private Project mProject;
     private SoftReference<AudioPlayer> mAudioPlayer;
+    private File mChapterWav;
     private String mTitle = "";
     private int mCheckingLevel = 0;
     private int mProgress = 0;
@@ -54,10 +64,12 @@ public class ChapterCard {
     public ChapterCard(Activity ctx, Project proj, int chapter) {
         mCtx = ctx;
         mProject = proj;
-        refreshChapterStarted(proj, chapter);
         mTitle = "Chapter " + chapter;
         mCanCompile = false;
         mIsCompiled = false;
+        mChapter = chapter;
+        refreshChapterStarted(proj, chapter);
+        refreshChapterCompiled(proj, chapter);
     }
 
     public void refreshChapterStarted(Project project, int chapter){
@@ -73,6 +85,27 @@ public class ChapterCard {
             }
         }
         mIsEmpty = true;
+    }
+
+    public void refreshChapterCompiled(Project project, int chapter){
+        File dir = Project.getProjectDirectory(project);
+        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        File chapterDir = new File(dir, chapterString);
+        if(chapterDir.exists()) {
+            mChapterWav = new File(chapterDir, "chapter.wav");
+            if(mChapterWav.exists()){
+                mIsCompiled = true;
+                return;
+            }
+        }
+        mIsCompiled = false;
+    }
+
+    public void refreshCheckingLevel(Project project, int chapter){
+        if(mIsCompiled){
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+            mCheckingLevel = db.getChapterCheckingLevel(project, chapter);
+        }
     }
 
     // Setters
@@ -148,11 +181,34 @@ public class ChapterCard {
 
     // Public API
     public void expand(ChapterCardAdapter.ViewHolder vh) {
-        // refreshAudioPlayer(vh);
+        refreshAudioPlayer(vh);
         vh.mExpandBtn.setActivated(true);
         vh.mCardBody.setVisibility(View.VISIBLE);
         // vh.setIsRecyclable(false);
         mIsExpanded = true;
+    }
+
+    private void refreshAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
+        AudioPlayer ap = getAudioPlayer(vh);
+        ap.reset();
+        ap.loadFile(mChapterWav);
+    }
+
+    private AudioPlayer getAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
+        AudioPlayer ap = null;
+        if (mAudioPlayer != null) {
+            ap = mAudioPlayer.get();
+        }
+        if (ap == null) {
+            ap = initializeAudioPlayer(vh);
+        }
+        return ap;
+    }
+
+    private AudioPlayer initializeAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
+        AudioPlayer ap = new AudioPlayer(vh.mElapsed, vh.mDuration, vh.mPlayPauseBtn, vh.mSeekBar);
+        mAudioPlayer = new SoftReference<AudioPlayer>(ap);
+        return ap;
     }
 
     public void collapse(ChapterCardAdapter.ViewHolder vh) {
@@ -186,27 +242,43 @@ public class ChapterCard {
         return mCanCompile;
     }
 
+//    public void refreshCanCompile(int numUnits){
+//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+//        int numStarted = db.getNumStartedUnits(mProject, mChapter);
+//        if(numUnits == numStarted){
+//            mCanCompile = true;
+//        }
+//        if(numStarted > 0){
+//            mIsEmpty = false;
+//        }
+//    }
+    public void setCanCompile(boolean yes){
+        mCanCompile = yes;
+    }
+
     public View.OnClickListener getCheckLevelOnClick(ChapterCardAdapter.ViewHolder vh) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // NOTE: Currently only pass in placeholder text. Replace with chapter name.
-                CheckingDialog dialog = CheckingDialog.newInstance("chapter_audio_1.test");
+                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
     }
 
-    public View.OnClickListener getCompileOnClick(ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getCompileOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isCompiled()) {
-                    CompileDialog dialog = CompileDialog.newInstance(getTitle());
-                    dialog.show(mCtx.getFragmentManager(), "single_chapter_compile");
+                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter);
+                    dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
                 } else {
-                    System.out.println("Compile");
-                    Toast.makeText(mCtx, "Compile", Toast.LENGTH_SHORT).show();
+                    if(canCompile()) {
+                        compile();
+                    }
+                    adapter.notifyItemChanged(vh.getAdapterPosition());
                 }
             }
         };
@@ -231,34 +303,86 @@ public class ChapterCard {
                     collapse(vh);
                 } else {
                     expand(vh);
+                    AudioPlayer ap = getAudioPlayer(vh);
+                    ap.play();
                 }
             }
         };
     }
 
-    public View.OnClickListener getDeleteOnClick(ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getDeleteOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Delete");
-                Toast.makeText(mCtx, "Delete", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
+                builder.setTitle("Delete Chapter Recording?");
+                builder.setIcon(R.drawable.ic_delete_black_36dp);
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == dialog.BUTTON_POSITIVE) {
+                            mChapterWav.delete();
+                            mIsCompiled = false;
+                            collapse(vh);
+                            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                            db.setCheckingLevel(mProject, mChapter, 0);
+                            adapter.notifyItemChanged(vh.getAdapterPosition());
+                        }
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         };
     }
 
-    public View.OnClickListener getPlayPauseOnClick(ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getPlayPauseOnClick(final ChapterCardAdapter.ViewHolder vh) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                view.setActivated(!view.isActivated());
-                System.out.println("Play/Pause");
-                Toast.makeText(mCtx, "Play/Pause", Toast.LENGTH_SHORT).show();
+                AudioPlayer ap = getAudioPlayer(vh);
+                if(vh.mPlayPauseBtn.isActivated()) {
+                    ap.pause();
+                } else {
+                    ap.play();
+                }
             }
         };
     }
 
     public void compile() {
-        // NOTE: Compile here
-        System.out.println("Compile");
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        List<String> files = db.getTakesForChapterCompilation(mProject, mChapter);
+        Collections.sort(files, new Comparator<String>() {
+            @Override
+            public int compare(String lhs, String rhs) {
+                FileNameExtractor fneLeft = new FileNameExtractor(lhs);
+                FileNameExtractor fneRight = new FileNameExtractor(rhs);
+                int startLeft = fneLeft.getStartVerse();
+                int startRight = fneRight.getStartVerse();
+                if(startLeft < startRight){
+                    return -1;
+                } else if(startLeft == startRight) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        List<WavFile> wavFiles = new ArrayList<>();
+        File base = FileNameExtractor.getDirectoryFromProject(mProject, mChapter);
+        for(String s : files){
+            File f = new File(base, s);
+            wavFiles.add(new WavFile(f));
+        }
+        WavFile.compileChapter(mProject, mChapter, wavFiles);
+        mIsCompiled = true;
+        Toast.makeText(mCtx, "Compile", Toast.LENGTH_SHORT).show();
     }
 }

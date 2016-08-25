@@ -89,7 +89,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     protected void onResume() {
         super.onResume();
         for(int i = 0; i < mUnitCardList.size(); i++){
-            mUnitCardList.get(i).refreshUnitStarted(mProject, mChapterNum, i+1);
+            mUnitCardList.get(i).refreshUnitStarted(mProject, mChapterNum, mUnitCardList.get(i).getStartVerse());
         }
         mAdapter.notifyDataSetChanged();
     }
@@ -143,7 +143,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             Chunks chunks = new Chunks(this, mProject.getSlug());
             List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);
             for (Map<String, String> unit : map) {
-                mUnitCardList.add(new UnitCard(this, mProject, String.valueOf(mChapterNum), unit.get(Chunks.FIRST_VERSE), unit.get(Chunks.LAST_VERSE)));
+                mUnitCardList.add(new UnitCard(this, mProject, mChapterNum, Integer.parseInt(unit.get(Chunks.FIRST_VERSE)), Integer.parseInt(unit.get(Chunks.LAST_VERSE))));
             }
         } catch (IOException e) {
             e.printStackTrace();

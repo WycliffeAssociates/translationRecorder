@@ -75,16 +75,19 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            int[] chapters = new int[mSelectedCards.size()];
+            for(int i = 0; i < mSelectedCards.size(); i++){
+                chapters[i] = mSelectedCards.get(i) + 1;
+            }
             switch (item.getItemId()) {
                 case R.id.chapters_checking_level:
                     // NOTE: Currently only pass in placeholder text. Replace with real chapter names.
-                    String[] chapterNames = {"chapter_audio_2.test", "chapter_audio_3.test"};
-                    CheckingDialog dialog = CheckingDialog.newInstance(chapterNames);
+                    CheckingDialog dialog = CheckingDialog.newInstance(mProject, chapters);
                     dialog.show(mCtx.getFragmentManager(), "multi_chapter_checking_level");
                     break;
                 case R.id.chapters_compile:
-                    System.out.println("Multi Compile");
-                    Toast.makeText(mCtx, "Multi Compile", Toast.LENGTH_SHORT).show();
+                    CompileDialog compileDialog = CompileDialog.newInstance(mProject, chapters);
+                    compileDialog.show(mCtx.getFragmentManager(), "multi_chapter_compile");
                     break;
                 default:
                     System.out.println("Default action");
@@ -161,7 +164,8 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             mChapterCard = chapterCard;
             // Set card views based on the ChapterCard object
             mTitle.setText(chapterCard.getTitle());
-
+            chapterCard.refreshCheckingLevel(mProject, position+1);
+            mCheckLevelBtn.setStep(chapterCard.getCheckingLevel());
             holder.mCompileBtn.setActivated(mChapterCard.canCompile());
             if (mChapterCard.isCompiled()) {
                 mCheckLevelBtn.setVisibility(View.VISIBLE);
@@ -279,10 +283,10 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
     // Private Methods
     private void setListeners(final ViewHolder holder, final ChapterCard chapterCard) {
         holder.mCheckLevelBtn.setOnClickListener(chapterCard.getCheckLevelOnClick(holder));
-        holder.mCompileBtn.setOnClickListener(chapterCard.getCompileOnClick(holder));
+        holder.mCompileBtn.setOnClickListener(chapterCard.getCompileOnClick(holder, this));
         holder.mRecordBtn.setOnClickListener(chapterCard.getRecordOnClick(holder));
         holder.mExpandBtn.setOnClickListener(chapterCard.getExpandOnClick(holder));
-        holder.mDeleteBtn.setOnClickListener(chapterCard.getDeleteOnClick(holder));
+        holder.mDeleteBtn.setOnClickListener(chapterCard.getDeleteOnClick(holder, this));
         holder.mPlayPauseBtn.setOnClickListener(chapterCard.getPlayPauseOnClick(holder));
     }
 

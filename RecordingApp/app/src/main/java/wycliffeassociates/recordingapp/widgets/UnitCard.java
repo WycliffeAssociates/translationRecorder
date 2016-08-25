@@ -47,15 +47,14 @@ public class UnitCard {
     // State
     private boolean mIsExpanded = false;
     private int mTakeIndex = 0;
-    private int mCheckingLevel = 0;
     private boolean mIsEmpty = true;
 
     // Attributes
     private String mTitle;
     private final Project mProject;
-    private final String mChapter;
-    private final String mFirstVerse;
-    private final String mEndVerse;
+    private final int mChapter;
+    private final int mFirstVerse;
+    private final int mEndVerse;
     private SoftReference<List<File>> mTakeList;
     private SoftReference<AudioPlayer> mAudioPlayer;
     private Activity mCtx;
@@ -63,7 +62,7 @@ public class UnitCard {
 
 
     // Constructors
-    public UnitCard(Activity ctx, Project project, String chapter, String firstVerse, String endVerse) {
+    public UnitCard(Activity ctx, Project project, int chapter, int firstVerse, int endVerse) {
         mTitle = Utils.capitalizeFirstLetter(project.getMode()) + " " + firstVerse;
         mFirstVerse = firstVerse;
         mEndVerse = endVerse;
@@ -98,6 +97,10 @@ public class UnitCard {
 
     public String getTitle() {
         return mTitle;
+    }
+
+    public int getStartVerse(){
+        return mFirstVerse;
     }
 
     public void expand(UnitCardAdapter.ViewHolder vh) {
@@ -208,16 +211,13 @@ public class UnitCard {
 
     private List<File> populateTakeList() {
         File root = Project.getProjectDirectory(mProject);
-        String chap = String.valueOf(mChapter);
-        if (chap.length() == 1) {
-            chap = "0" + chap;
-        }
+        String chap = FileNameExtractor.chapterIntToString(mProject, mChapter);
         File folder = new File(root, chap);
         File[] files = folder.listFiles();
         FileNameExtractor fne;
-        int first = Integer.parseInt(mFirstVerse);
-        int end = Integer.parseInt(mEndVerse);
-        if (mProject.getMode().compareTo("verse") == 0) {
+        int first = mFirstVerse;
+        int end = mEndVerse;
+        if (mProject.getMode().equals("verse") || first == end) {
             end = -1;
         }
         //Get only the files of the appropriate unit
@@ -271,7 +271,7 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 Project.loadProjectIntoPreferences(view.getContext(), project);
-                int startVerse = Integer.parseInt(mFirstVerse);
+                int startVerse = mFirstVerse;
                 view.getContext().startActivity(RecordingScreen.getNewRecordingIntent(view.getContext(), project, chapter, startVerse));
             }
         };
@@ -366,7 +366,7 @@ public class UnitCard {
                 List<File> takes = getTakeList();
                 if(takes.size() > 0) {
                     WavFile wavFile = new WavFile(takes.get(mTakeIndex));
-                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, Integer.parseInt(mChapter), Integer.parseInt(mFirstVerse));
+                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mFirstVerse);
                     v.getContext().startActivity(intent);
                 }
             }
@@ -380,7 +380,7 @@ public class UnitCard {
                 List<File> takes = getTakeList();
                 if(takes.size() > 0) {
                     WavFile wavFile = new WavFile(takes.get(takes.size()-1));
-                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, Integer.parseInt(mChapter), Integer.parseInt(mFirstVerse));
+                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mFirstVerse);
                     v.getContext().startActivity(intent);
                 }
             }
@@ -397,18 +397,6 @@ public class UnitCard {
                 } else {
                     ap.play();
                 }
-            }
-        };
-    }
-
-    public View.OnClickListener getUnitCheckLevelOnClick(final UnitCardAdapter.ViewHolder holder) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                List<File> takes = getTakeList();
-                String name = takes.get(mTakeIndex).getName();
-                CheckingDialog dialog = CheckingDialog.newInstance(name);
-                dialog.show(mCtx.getFragmentManager(), "single_unit_checking_level");
             }
         };
     }
