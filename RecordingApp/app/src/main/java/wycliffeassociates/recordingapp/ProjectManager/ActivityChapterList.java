@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
 
@@ -97,7 +99,10 @@ public class ActivityChapterList extends AppCompatActivity implements
         for(int i = 0; i < mChapterCardList.size(); i++){
             mChapterCardList.get(i).refreshChapterStarted(mProject, i+1);
             mChapterCardList.get(i).setCanCompile(numStarted[i] == mChunks.getNumChunks(mProject, i + 1));
-
+            mChapterCardList.get(i).refreshChapterCompiled(mProject, i+1);
+            if(mChapterCardList.get(i).isCompiled()) {
+                mChapterCardList.get(i).setCheckingLevel(db.getChapterCheckingLevel(mProject, i+1));
+            }
         }
 
         mAdapter.notifyDataSetChanged();
@@ -105,21 +110,23 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     @Override
     public void onPositiveClick(CheckingDialog dialog) {
-        for (String s : dialog.getChapterNames()) {
-            System.out.println(s);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        int[] chapters = dialog.getChapters();
+        for(int i =0; i < chapters.length; i++) {
+            db.setCheckingLevel(dialog.getProject(), chapters[i], dialog.getCheckingLevel());
         }
-        if (mAdapter.isInActionMode()) {
-            mAdapter.getActionMode().finish();
-        }
+        db.close();
         dialog.dismiss();
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onPositiveClick(CompileDialog dialog) {
-        for (String s : dialog.getChapterNames()) {
-            System.out.println("Hip" + s);
+        int[] chapters = dialog.getChapters();
+        for(int i = 0; i < chapters.length; i++){
+            mChapterCardList.get(chapters[i]-1).compile();
+            mAdapter.notifyItemChanged(chapters[i]-1);
         }
-        this.onNegativeClick(dialog);
         if (mAdapter.isInActionMode()) {
             mAdapter.getActionMode().finish();
         }

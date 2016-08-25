@@ -14,10 +14,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
@@ -549,6 +553,52 @@ public class WavFile implements Parcelable{
             json.put("endv", mEndVerse);
             return json;
         }
+    }
+
+    public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile){
+        File root = FileNameExtractor.getDirectoryFromProject(project, chapter);
+        File chap = new File(root, "chapter.wav");
+        chap.delete();
+        WavFile chapterWav = new WavFile(chap);
+        try {
+            FileOutputStream os = new FileOutputStream(chap, true);
+            BufferedOutputStream bos = new BufferedOutputStream(os);
+            long filesize =0;
+            System.out.println(chap.length());
+            for(WavFile wav : toCompile){
+                byte[] buffer = new byte[5096];
+                long sizeRemaining = wav.getTotalAudioLength();
+                filesize += sizeRemaining;
+                FileInputStream fis = new FileInputStream(wav.getFile());
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                bis.skip(44);
+                int len;
+                while (sizeRemaining > 0) {
+                    if (buffer.length < sizeRemaining) {
+                        buffer = new byte[(int) sizeRemaining];
+                    }
+                    len = bis.read(buffer);
+                    bos.write(buffer);
+                    if (len == -1) {
+                        break;
+                    }
+                    sizeRemaining -= len;
+                }
+                bis.close();
+                fis.close();
+            }
+            bos.flush();
+            bos.close();
+            os.close();
+            chapterWav.overwriteHeaderData();
+            System.out.println((int)chap.length() + " " +  (int)filesize);
+            return chapterWav;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static WavFile insertWavFile(WavFile base, WavFile insert, int insertIndex) throws IOException, JSONException{

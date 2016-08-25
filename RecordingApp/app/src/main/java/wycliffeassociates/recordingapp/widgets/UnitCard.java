@@ -47,7 +47,6 @@ public class UnitCard {
     // State
     private boolean mIsExpanded = false;
     private int mTakeIndex = 0;
-    private int mCheckingLevel = 0;
     private boolean mIsEmpty = true;
 
     // Attributes
@@ -398,18 +397,6 @@ public class UnitCard {
                 } else {
                     ap.play();
                 }
-            }
-        };
-    }
-
-    public View.OnClickListener getUnitCheckLevelOnClick(final UnitCardAdapter.ViewHolder holder) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                List<File> takes = getTakeList();
-                String name = takes.get(mTakeIndex).getName();
-                CheckingDialog dialog = CheckingDialog.newInstance(name);
-                dialog.show(mCtx.getFragmentManager(), "single_unit_checking_level");
             }
         };
     }

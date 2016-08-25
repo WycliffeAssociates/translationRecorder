@@ -483,6 +483,16 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public int getChapterCheckingLevel(Project project, int chapter){
+        String chapterId = String.valueOf(getChapterId(project, chapter));
+        SQLiteDatabase db = getReadableDatabase();
+        final String getChapter = String.format("SELECT %s FROM %s WHERE %s=?",
+                ChapterEntry.CHAPTER_CHECKING_LEVEL, ChapterEntry.TABLE_CHAPTER, ChapterEntry._ID);
+        int checkingLevel = (int)DatabaseUtils.longForQuery(db, getChapter, new String[]{chapterId});
+        db.close();
+        return checkingLevel;
+    }
+
     public int getTakeRating(FileNameExtractor fne){
         String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
@@ -544,6 +554,16 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(TakeEntry.TAKE_RATING, rating);
         db.update(TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{unitId, String.valueOf(fne.getTake())});
+        db.close();
+    }
+
+    public void setCheckingLevel(Project project, int chapter, int checkingLevel){
+        String chapterId = String.valueOf(getChapterId(project, chapter));
+        SQLiteDatabase db = getReadableDatabase();
+        final String replaceChapterWhere = String.format("%s=?", ChapterEntry._ID);
+        ContentValues replaceWith = new ContentValues();
+        replaceWith.put(ChapterEntry.CHAPTER_CHECKING_LEVEL, checkingLevel);
+        db.update(ChapterEntry.TABLE_CHAPTER, replaceWith, replaceChapterWhere, new String[]{chapterId});
         db.close();
     }
 
