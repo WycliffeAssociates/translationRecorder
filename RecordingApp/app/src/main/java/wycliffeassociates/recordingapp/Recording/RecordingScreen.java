@@ -12,9 +12,6 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.apache.commons.io.FilenameUtils;
-import org.json.JSONException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +19,6 @@ import java.util.Map;
 
 import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
-import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
@@ -54,7 +50,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private TextView mSourceView;
     private TextView mLanguageView;
     private TextView mBookView;
-    private UnitPicker mChunkPicker;
+    private UnitPicker mUnitPicker;
     private UnitPicker mChapterPicker;
 
     //Controller
@@ -65,6 +61,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private boolean isRecording = false;
     private boolean isPausedRecording = false;
     private boolean hasStartedRecording = false;
+    private boolean isChunkMode = false;
     private boolean mInserting = false;
     private boolean mInsertMode = false;
 
@@ -129,10 +126,10 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         setButtonHandlers();
         enableButtons();
         try {
-            initializeUnitPickers();
+            initializePickers();
             if(mLoadedWav != null){
                 // Take away increment and decrement buttons
-                mChunkPicker.displayIncrementDecrement(false);
+                mUnitPicker.displayIncrementDecrement(false);
                 mChapterPicker.displayIncrementDecrement(false);
             }
         } catch (IOException e) {
@@ -151,6 +148,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             mInsertLocation = intent.getIntExtra(KEY_INSERT_LOCATION, 0);
             mInsertMode = true;
         }
+        isChunkMode = mProject.getMode().compareTo("chunk") == 0;
     }
 
     private void initializeTaskFragment(Bundle savedInstanceState){
@@ -178,12 +176,12 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mBookView = (TextView) findViewById(R.id.file_book);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mLanguageView = (TextView) findViewById(R.id.file_language);
-        mChunkPicker = (UnitPicker) findViewById(R.id.unit_picker);
+        mUnitPicker = (UnitPicker) findViewById(R.id.unit_picker);
         mChapterPicker = (UnitPicker) findViewById(R.id.chapter_picker);
         mModeView = (TextView) findViewById(R.id.file_unit_label);
         mMainWavView.disableGestures();
         if(mInsertMode) {
-            mChunkPicker.displayIncrementDecrement(false);
+            mUnitPicker.displayIncrementDecrement(false);
             mChapterPicker.displayIncrementDecrement(false);
         }
     }
@@ -199,7 +197,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mBookView.setText(bookName);
         mBookView.postInvalidate();
 
-        if(mProject.getMode().compareTo("chunk") == 0){
+        if(isChunkMode){
             mModeView.setText("Chunk");
         } else {
             mModeView.setText("Verse");
@@ -212,7 +210,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mSourceView.setText(mProject.getSource().toUpperCase());
     }
 
-    private void initializeUnitPickers() throws IOException{
+    private void initializePickers() throws IOException{
         if(mProject.isOBS()){
             //mNumChapters = OBS_SIZE;
         } else {
@@ -220,24 +218,28 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             mNumChapters = mChunks.getNumChapters();
             mChunksList = mChunks.getChunks(mProject,  mChapter);
         }
-        initializeChunkPicker();
+        initializeUnitPicker();
         initializeChapterPicker();
     }
 
-    private void initializeChunkPicker(){
+    private void initializeUnitPicker(){
         final String[] values = new String[mChunksList.size()];
-        for(int i = 0; i < mChunksList.size(); i++){
-            values[i] = mChunksList.get(i).get(Chunks.FIRST_VERSE);
+        if (isChunkMode) {
+            setDisplayValuesAsRange(values);
+        } else {
+            for(int i = 0; i < mChunksList.size(); i++){
+                values[i] = mChunksList.get(i).get(Chunks.FIRST_VERSE);
+            }
         }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (values != null && values.length > 0) {
-                    mChunkPicker.setDisplayedValues(values);
-                    mChunkPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
+                    mUnitPicker.setDisplayedValues(values);
+                    mUnitPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
                     setChunk(getChunkIndex(mChunksList, mUnit) + 1);
                     //reinitialize all of the filenames
-                    mChunkPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
+                    mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             setChunk(newVal + 1);
@@ -266,9 +268,9 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                 public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                     mUnit = 1;
                     mChapter = newVal + 1;
-                    mChunkPicker.setCurrent(0);
+                    mUnitPicker.setCurrent(0);
                     mChunksList = mChunks.getChunks(mProject, mChapter);
-                    initializeChunkPicker();
+                    initializeUnitPicker();
                     mSrcPlayer.reset(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                 }
@@ -285,6 +287,22 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             }
         }
         return 1;
+    }
+
+    private void setDisplayValuesAsRange(String[] values) {
+        Map<String, String> chunk;
+        String firstVerse, lastVerse;
+
+        for(int i = 0; i < mChunksList.size(); i++){
+            chunk = mChunksList.get(i);
+            firstVerse = chunk.get(Chunks.FIRST_VERSE);
+            lastVerse = chunk.get(Chunks.LAST_VERSE);
+            if (firstVerse.compareTo(lastVerse) == 0) {
+                values[i] = firstVerse;
+            } else {
+                values[i] = firstVerse.concat("-").concat(lastVerse);
+            }
+        }
     }
 
     @Override
@@ -337,7 +355,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mSrcPlayer.setEnabled(false);
 
         // Take away increment and decrement buttons
-        mChunkPicker.displayIncrementDecrement(false);
+        mUnitPicker.displayIncrementDecrement(false);
         mChapterPicker.displayIncrementDecrement(false);
         hasStartedRecording = true;
         stopService(new Intent(this, WavRecorder.class));

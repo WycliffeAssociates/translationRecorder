@@ -14,6 +14,7 @@ import wycliffeassociates.recordingapp.R;
  */
 public class UnitPicker extends LinearLayout {
 
+    private int layout = R.layout.unit_picker;
     private ImageButton mIncrementButton;
     private ImageButton mDecrementButton;
     private EditText mText;
@@ -39,7 +40,7 @@ public class UnitPicker extends LinearLayout {
     }
 
     private void init() {
-        inflate(getContext(), R.layout.unit_picker, this);
+        inflate(getContext(), layout, this);
         mIncrementButton = (ImageButton) findViewById(R.id.increment);
         mDecrementButton = (ImageButton) findViewById(R.id.decrement);
         mText = (EditText) findViewById(R.id.text);
@@ -51,11 +52,7 @@ public class UnitPicker extends LinearLayout {
         OnClickListener onClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v.getId() == R.id.increment) {
-                    changeValueByOne(true);
-                } else {
-                    changeValueByOne(false);
-                }
+                changeValueByOne(v.getId() == R.id.increment);
             }
         };
 
@@ -117,6 +114,10 @@ public class UnitPicker extends LinearLayout {
 
     public String[] getDisplayedValues() {
         return mDisplayedValues;
+    }
+
+    public String getCurrentDisplayedValue() {
+        return mDisplayedValues[mCurrent];
     }
 
     public void increment() {
