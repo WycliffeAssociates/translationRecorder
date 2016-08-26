@@ -50,7 +50,7 @@ public class ProjectInfoDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.project_layout_dialog, null);
 
-        ConstantsDatabaseHelper db = new ConstantsDatabaseHelper(getActivity());
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
 
         mProject = getArguments().getParcelable(Project.PROJECT_EXTRA);
 

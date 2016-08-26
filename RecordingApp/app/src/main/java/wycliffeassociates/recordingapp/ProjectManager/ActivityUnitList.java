@@ -40,7 +40,6 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     private int mChapterNum;
     private Project mProject;
-    private ConstantsDatabaseHelper mDb;
     private List<UnitCard> mUnitCardList;
     private UnitCardAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -53,11 +52,11 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
         mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
-        mDb = new ConstantsDatabaseHelper(this);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
 
         // Setup toolbar
-        String language = mDb.getLanguageName(mProject.getTargetLanguage());
-        String book = mDb.getBookName(mProject.getSlug());
+        String language = db.getLanguageName(mProject.getTargetLanguage());
+        String book = db.getBookName(mProject.getSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {

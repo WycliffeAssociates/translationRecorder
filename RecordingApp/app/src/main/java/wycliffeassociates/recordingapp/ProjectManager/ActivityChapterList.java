@@ -38,7 +38,6 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private Project mProject;
-    private ConstantsDatabaseHelper mDb;
     private List<ChapterCard> mChapterCardList;
     private ChapterCardAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -51,7 +50,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         setContentView(R.layout.activity_chapter_list);
 
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
-        mDb = new ConstantsDatabaseHelper(this);
+        ProjectDatabaseHelper mDb = new ProjectDatabaseHelper(this);
 
         // Setup toolbar
         String language = mDb.getLanguageName(mProject.getTargetLanguage());

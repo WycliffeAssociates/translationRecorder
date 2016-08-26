@@ -219,7 +219,7 @@ public class MainMenu extends Activity{
     }
 
     private void initViews(){
-        ConstantsDatabaseHelper db = new ConstantsDatabaseHelper(this);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         TextView languageView = (TextView) findViewById(R.id.language_view);
         String language = pref.getString(Settings.KEY_PREF_LANG, "");
         if(language.compareTo("") != 0){

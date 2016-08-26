@@ -41,14 +41,12 @@ public class ChapterAdapter extends ArrayAdapter {
 
     LayoutInflater mLayoutInflater;
     Activity mCtx;
-    ConstantsDatabaseHelper mDb;
     Project mProject;
 
     public ChapterAdapter(Activity context, Project project, Chunks chunks){
         super(context, R.layout.project_list_item, createList(chunks.getNumChapters(), project));
         mCtx = context;
         mLayoutInflater = context.getLayoutInflater();
-        mDb = new ConstantsDatabaseHelper(context);
         mProject = project;
     }
 

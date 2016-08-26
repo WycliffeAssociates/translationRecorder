@@ -42,14 +42,14 @@ public class ProjectAdapter extends ArrayAdapter {
     LayoutInflater mLayoutInflater;
     List<Project> mProjectList;
     Activity mCtx;
-    ConstantsDatabaseHelper mDb;
+    ProjectDatabaseHelper mDb;
 
     public ProjectAdapter(Activity context, List<Project> projectList) {
         super(context, R.layout.project_list_item, projectList);
         mCtx = context;
         mProjectList = projectList;
         mLayoutInflater = context.getLayoutInflater();
-        mDb = new ConstantsDatabaseHelper(context);
+        mDb = new ProjectDatabaseHelper(context);
     }
 
     public View getView(final int position, View convertView, final ViewGroup parent) {
@@ -74,7 +74,7 @@ public class ProjectAdapter extends ArrayAdapter {
         return convertView;
     }
 
-    public static void initializeProjectCard(final Activity ctx, final Project project, ConstantsDatabaseHelper dB, TextView languageView, TextView bookView,
+    public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper dB, TextView languageView, TextView bookView,
                                              ImageButton infoView, ImageButton recordView, LinearLayout textLayout) {
 
         if(project.isOBS()){
@@ -119,7 +119,7 @@ public class ProjectAdapter extends ArrayAdapter {
 
     }
 
-    public static void initializeProjectCard(final Activity ctx, final Project project, ConstantsDatabaseHelper db, View projectCard) {
+    public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper db, View projectCard) {
         TextView languageView = (TextView) projectCard.findViewById(R.id.language_text_view);
         TextView bookView = (TextView) projectCard.findViewById(R.id.book_text_view);
         ImageButton info = (ImageButton) projectCard.findViewById(R.id.info_button);

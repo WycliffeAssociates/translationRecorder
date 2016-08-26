@@ -73,7 +73,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private ProgressDialog mProgressDialog;
     private WavFile mNewRecording;
     private WavFile mLoadedWav;
-    ConstantsDatabaseHelper mConstantsDB;
     private Project mProject;
     private int mChapter = DEFAULT_CHAPTER;
     private int mUnit = DEFAULT_UNIT;
@@ -124,7 +123,6 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     }
 
     private void initialize(Intent intent){
-        mConstantsDB = new ConstantsDatabaseHelper(this);
         findViews();
         parseIntent(intent);
         initializeViews();
@@ -196,7 +194,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         mLanguageView.postInvalidate();
 
         String bookCode = mProject.getSlug();
-        String bookName = mConstantsDB.getBookName(bookCode);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        String bookName = db.getBookName(bookCode);
         mBookView.setText(bookName);
         mBookView.postInvalidate();
 

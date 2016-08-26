@@ -70,7 +70,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private Project mProject;
     private int mChapter;
     private int mUnit;
-    private ConstantsDatabaseHelper mConstantsDB;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit){
         Intent intent = new Intent(ctx, PlaybackScreen.class);
@@ -91,8 +90,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private void initialize(Intent intent){
         mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
-
-        mConstantsDB = new ConstantsDatabaseHelper(this);
         isSaved = true;
         parseIntent(intent);
         findViews();
@@ -132,7 +129,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mLangView.setText(mProject.getTargetLanguage().toUpperCase());
         if(!mProject.isOBS()) {
             mSourceView.setText(mProject.getSource().toUpperCase());
-            mBookView.setText(mConstantsDB.getBookName(mProject.getSlug()));
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+            mBookView.setText(db.getBookName(mProject.getSlug()));
         } else {
             mSourceView.setText("");
             mBookView.setText("Open Bible Stories");

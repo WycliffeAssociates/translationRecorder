@@ -172,8 +172,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             }
         }
         if(project != null) {
-            ConstantsDatabaseHelper cdb = new ConstantsDatabaseHelper(this);
-            ProjectAdapter.initializeProjectCard(this, project, cdb, findViewById(R.id.recent_project));
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+            ProjectAdapter.initializeProjectCard(this, project, db, findViewById(R.id.recent_project));
         } else {
             findViewById(R.id.recent_project).setVisibility(View.GONE);
         }
