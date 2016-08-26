@@ -166,6 +166,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             mTitle.setText(chapterCard.getTitle());
             chapterCard.refreshCheckingLevel(mProject, position+1);
             mCheckLevelBtn.setStep(chapterCard.getCheckingLevel());
+
             holder.mCompileBtn.setActivated(mChapterCard.canCompile());
             if (mChapterCard.isCompiled()) {
                 mCheckLevelBtn.setVisibility(View.VISIBLE);
@@ -183,7 +184,6 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             } else {
                 chapterCard.collapse(holder);
             }
-
 
             // Raise card, and show appropriate visual cue, if it's already selected
             if (mMultiSelector.isSelected(position, 0)) {
