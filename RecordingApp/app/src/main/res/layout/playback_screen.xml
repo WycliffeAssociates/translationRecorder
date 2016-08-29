@@ -96,9 +96,9 @@
                 android:id="@+id/btnRate"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                android:layout_marginStart="24dp"
                 android:src="@drawable/selector_take_rating"
                 android:scaleType="fitCenter"
-                android:layout_marginStart="@dimen/default_padding_m"
                 android:clickable="true"
                 app:light_mode="true"
                 />
@@ -107,19 +107,21 @@
                 android:id="@+id/btnRerecord"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                android:layout_marginStart="24dp"
                 android:background="#00000000"
                 android:src="@drawable/redo"
                 android:scaleType="fitCenter"
-                android:layout_marginStart="@dimen/default_padding_m"/>
+                />
 
             <ImageButton
                 android:id="@+id/btnInsertRecord"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_marginStart="@dimen/default_padding_m"
+                android:layout_marginStart="24dp"
                 android:background="#00000000"
                 android:src="@drawable/insert_recording_white"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitCenter"
+                />
 
         </LinearLayout>
 
