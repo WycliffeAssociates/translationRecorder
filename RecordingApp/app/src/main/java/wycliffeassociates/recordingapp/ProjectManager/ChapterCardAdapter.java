@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.filippudak.ProgressPieView.ProgressPieView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +123,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         public ImageButton mDeleteBtn, mPlayPauseBtn;
         public FourStepImageView mCheckLevelBtn;
         public SeekBar mSeekBar;
+        public ProgressPieView mProgressPie;
 
         public ViewHolder(View view) {
             super(view, mMultiSelector);
@@ -137,6 +139,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             mSeekBar = (SeekBar) view.findViewById(R.id.seek_bar);
             mElapsed = (TextView) view.findViewById(R.id.time_elapsed);
             mDuration = (TextView) view.findViewById(R.id.time_duration);
+            mProgressPie = (ProgressPieView) view.findViewById(R.id.progress_pie);
 
             // Buttons
             mCheckLevelBtn = (FourStepImageView) view.findViewById(R.id.check_level_btn);
@@ -160,13 +163,18 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         // Called on onBindViewHolder, when the view is visible on the screen
         public void  bindViewHolder(ViewHolder holder, int position, ChapterCard chapterCard) {
-            // Capture the ChapterCard object
             mChapterCard = chapterCard;
-            // Set card views based on the ChapterCard object
+
             mTitle.setText(chapterCard.getTitle());
-            chapterCard.refreshCheckingLevel(mProject, position+1);
-            mCheckLevelBtn.setStep(chapterCard.getCheckingLevel());
-            holder.mCompileBtn.setActivated(mChapterCard.canCompile());
+
+            mChapterCard.refreshProgress(mProject, position+1);
+            mProgressPie.setProgress(mChapterCard.getProgress());
+
+            mChapterCard.refreshCheckingLevel(mProject, position+1);
+            mCheckLevelBtn.setStep(mChapterCard.getCheckingLevel());
+
+            mCompileBtn.setActivated(mChapterCard.canCompile());
+
             if (mChapterCard.isCompiled()) {
                 mCheckLevelBtn.setVisibility(View.VISIBLE);
                 mExpandBtn.setVisibility(View.VISIBLE);
@@ -175,26 +183,25 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 mExpandBtn.setVisibility(View.INVISIBLE);
             }
 
-            setListeners(this, mChapterCard);
-
             // Expand card if it's already expanded before
             if (mChapterCard.isExpanded()) {
-                chapterCard.expand(holder);
+                mChapterCard.expand(holder);
             } else {
-                chapterCard.collapse(holder);
+                mChapterCard.collapse(holder);
             }
-
 
             // Raise card, and show appropriate visual cue, if it's already selected
             if (mMultiSelector.isSelected(position, 0)) {
                 mSelectedCards.add(getAdapterPosition());
-                chapterCard.raise(holder);
+                mChapterCard.raise(holder);
             } else {
                 mSelectedCards.remove((Integer)getAdapterPosition());
-                chapterCard.drop(holder);
+                mChapterCard.drop(holder);
             }
 
             mChapterCard.setIconsClickable(holder);
+
+            setListeners(this, mChapterCard);
         }
 
         @Override
@@ -205,7 +212,11 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 return;
             }
 
-            if(mMultiSelector.isSelectable() && mChapterCard.canCompile()) {
+            if(mMultiSelector.isSelectable()) {
+                if (!mChapterCard.canCompile()) {
+                    return;
+                }
+
                 // Close card if it is expanded in multi-select mode
                 if(mChapterCard.isExpanded()){
                     toggleExpansion(this, mExpandedCards, this.getAdapterPosition());

@@ -16,6 +16,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.filippudak.ProgressPieView.ProgressPieView;
+
 import java.util.List;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
@@ -37,6 +39,7 @@ public class ProjectAdapter extends ArrayAdapter {
         TextView mLanguage, mBook;
         ImageButton mRecord, mInfo;
         LinearLayout mTextLayout;
+        ProgressPieView mProgressPie;
     }
 
     LayoutInflater mLayoutInflater;
@@ -62,6 +65,7 @@ public class ProjectAdapter extends ArrayAdapter {
             holder.mInfo = (ImageButton) convertView.findViewById(R.id.info_button);
             holder.mRecord = (ImageButton) convertView.findViewById(R.id.record_button);
             holder.mTextLayout = (LinearLayout) convertView.findViewById(R.id.text_layout);
+            holder.mProgressPie = (ProgressPieView) convertView.findViewById(R.id.progress_pie);
 
             // Link the cached views to the convertView
             convertView.setTag(holder);
@@ -69,13 +73,13 @@ public class ProjectAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        initializeProjectCard(mCtx, mProjectList.get(position), mDb, holder.mLanguage, holder.mBook, holder.mInfo, holder.mRecord, holder.mTextLayout);
+        initializeProjectCard(mCtx, mProjectList.get(position), mDb, holder.mLanguage, holder.mBook, holder.mInfo, holder.mRecord, holder.mTextLayout, holder.mProgressPie);
 
         return convertView;
     }
 
     public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper dB, TextView languageView, TextView bookView,
-                                             ImageButton infoView, ImageButton recordView, LinearLayout textLayout) {
+                                             ImageButton infoView, ImageButton recordView, LinearLayout textLayout, ProgressPieView progressPie) {
 
         if(project.isOBS()){
             bookView.setText("Open Bible Stories");
@@ -86,6 +90,9 @@ public class ProjectAdapter extends ArrayAdapter {
 
         String language = dB.getLanguageName(project.getTargetLanguage());
         languageView.setText(language);
+
+        // TODO: Set actual progress here
+        progressPie.setProgress((int) Math.round(Math.random() * 100.0));
 
         recordView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,7 +131,8 @@ public class ProjectAdapter extends ArrayAdapter {
         TextView bookView = (TextView) projectCard.findViewById(R.id.book_text_view);
         ImageButton info = (ImageButton) projectCard.findViewById(R.id.info_button);
         ImageButton record = (ImageButton) projectCard.findViewById(R.id.record_button);
-        LinearLayout textLayout = (LinearLayout) projectCard.findViewById(R.id.text_layout);;
-        initializeProjectCard(ctx, project, db, languageView, bookView, info, record, textLayout);
+        LinearLayout textLayout = (LinearLayout) projectCard.findViewById(R.id.text_layout);
+        ProgressPieView progressPie = (ProgressPieView) projectCard.findViewById(R.id.progress_pie);
+        initializeProjectCard(ctx, project, db, languageView, bookView, info, record, textLayout, progressPie);
     }
 }

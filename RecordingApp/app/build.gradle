@@ -51,6 +51,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.0.+'
     compile 'com.github.clans:fab:1.6.4'
     compile 'com.bignerdranch.android:recyclerview-multiselect:+'
+    compile 'com.github.filippudak.progresspieview:library:1.0.+'
     compile files('src/main/lib/commons-io-2.4.jar')
     androidTestCompile 'com.android.support.test:runner:0.3'
     androidTestCompile 'com.android.support.test:rules:0.3'
