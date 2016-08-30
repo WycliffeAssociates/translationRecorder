@@ -60,6 +60,13 @@
         <activity android:name=".ProjectManager.ActivityUnitList"
             />
 
+        <activity android:name=".project.SelectSourceDirectory">
+            <intent-filter>
+                <action android:name="wycliffeassociates.recordingapp.SettingsPage.SELECT_SRC_INTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".project.SourceAudioActivity"
             android:theme="@style/TR"
             />
