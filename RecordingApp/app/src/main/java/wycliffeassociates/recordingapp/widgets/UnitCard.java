@@ -48,6 +48,7 @@ public class UnitCard {
     private boolean mIsExpanded = false;
     private int mTakeIndex = 0;
     private boolean mIsEmpty = true;
+    private int mCurrentTakeRating;
 
     // Attributes
     private String mTitle;
@@ -180,10 +181,9 @@ public class UnitCard {
 
     private void refreshTakeRating(File take, FourStepImageView ratingView){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        int rating;
         FileNameExtractor fne = new FileNameExtractor(take);
-        rating = db.getTakeRating(fne);
-        ratingView.setStep(rating);
+        mCurrentTakeRating = db.getTakeRating(fne);
+        ratingView.setStep(mCurrentTakeRating);
         ratingView.invalidate();
         db.close();
     }
@@ -408,7 +408,7 @@ public class UnitCard {
                 List<File> takes = getTakeList();
                 if(takes.size() > 0) {
                     String name = takes.get(mTakeIndex).getName();
-                    RatingDialog dialog = RatingDialog.newInstance(name);
+                    RatingDialog dialog = RatingDialog.newInstance(name, mCurrentTakeRating);
                     dialog.show(mCtx.getFragmentManager(), "single_take_rating");
                 }
             }

@@ -70,6 +70,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private Project mProject;
     private int mChapter;
     private int mUnit;
+    private int mRating;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit){
         Intent intent = new Intent(ctx, PlaybackScreen.class);
@@ -154,8 +155,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
-        int rating = db.getTakeRating(fne);
-        mRateBtn.setStep(rating);
+        mRating = db.getTakeRating(fne);
+        mRateBtn.setStep(mRating);
         mRateBtn.invalidate();
         db.close();
     }
@@ -191,10 +192,11 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     @Override
     public void onPositiveClick(RatingDialog dialog) {
+        mRating = dialog.getRating();
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), mRating);
         db.close();
-        mRateBtn.setStep(dialog.getRating());
+        mRateBtn.setStep(mRating);
     }
 
     @Override
@@ -276,8 +278,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void openRating(FourStepImageView v) {
-        System.out.println("Open Rating");
-        RatingDialog dialog = RatingDialog.newInstance(mWavFile.getFile().getName());
+        RatingDialog dialog = RatingDialog.newInstance(mWavFile.getFile().getName(), mRating);
         dialog.show(getFragmentManager(), "single_unit_rating");
     }
 
