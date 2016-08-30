@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
@@ -19,6 +21,8 @@ public class CheckingDialog extends DialogFragment {
 
     public static String CHAPTERS_KEY = "key_chapters";
     public static String PROJECT_KEY = "key_project";
+    public static String CURRENT_LEVEL_KEY = "key_current_checking_level";
+    public static int NO_LEVEL_SELECTED = -1;
 
     public interface DialogListener {
         void onPositiveClick(CheckingDialog dialog);
@@ -29,19 +33,23 @@ public class CheckingDialog extends DialogFragment {
     DialogListener mListener;
     private int[] mChapterIndicies;
     private Project mProject;
+    private ImageButton mLevelZero;
+    private FourStepImageView mLevelOne, mLevelTwo, mLevelThree;
+    private Button mPositiveBtn;
 
-    public static CheckingDialog newInstance(Project project, int[] chapterIndicies){
+    public static CheckingDialog newInstance(Project project, int[] chapterIndicies, int checkingLevel){
         Bundle args = new Bundle();
         args.putIntArray(CHAPTERS_KEY, chapterIndicies);
         args.putParcelable(PROJECT_KEY, project);
+        args.putInt(CURRENT_LEVEL_KEY, checkingLevel);
         CheckingDialog check = new CheckingDialog();
         check.setArguments(args);
         return check;
     }
 
-    public static CheckingDialog newInstance(Project project, int chapterIndex){
+    public static CheckingDialog newInstance(Project project, int chapterIndex, int checkingLevel){
         int[] chapterIndicies = {chapterIndex};
-        return newInstance(project, chapterIndicies);
+        return newInstance(project, chapterIndicies, checkingLevel);
     }
 
     @Override
@@ -50,6 +58,7 @@ public class CheckingDialog extends DialogFragment {
         Bundle args = getArguments();
         mChapterIndicies = args.getIntArray(CHAPTERS_KEY);
         mProject = args.getParcelable(PROJECT_KEY);
+        mCheckingLevel = args.getInt(CURRENT_LEVEL_KEY);
     }
 
     @Override
@@ -76,42 +85,45 @@ public class CheckingDialog extends DialogFragment {
             public void onShow(DialogInterface dialog) {
                 AlertDialog alertDialog= (AlertDialog) dialog;
 
-                // Button positiveBtn = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                // positiveBtn.setBackground(getResources().getDrawable(R.drawable.delete));
+                mLevelZero = (ImageButton) alertDialog.findViewById(R.id.check_level_zero);
+                mLevelOne = (FourStepImageView) alertDialog.findViewById(R.id.check_level_one);
+                mLevelTwo = (FourStepImageView) alertDialog.findViewById(R.id.check_level_two);
+                mLevelThree = (FourStepImageView) alertDialog.findViewById(R.id.check_level_three);
+                mPositiveBtn = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
 
-                final FourStepImageView levelOne = (FourStepImageView) alertDialog.findViewById(R.id.check_level_one);
-                final FourStepImageView levelTwo = (FourStepImageView) alertDialog.findViewById(R.id.check_level_two);
-                final FourStepImageView levelThree = (FourStepImageView) alertDialog.findViewById(R.id.check_level_three);
-
-                levelOne.setOnClickListener(new View.OnClickListener() {
+                mLevelZero.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        levelOne.setActivated(true);
-                        levelTwo.setActivated(false);
-                        levelThree.setActivated(false);
-                        mCheckingLevel = 1;
+                        setCheckingLevel(0);
                     }
                 });
 
-                levelTwo.setOnClickListener(new View.OnClickListener() {
+                mLevelOne.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        levelOne.setActivated(false);
-                        levelTwo.setActivated(true);
-                        levelThree.setActivated(false);
-                        mCheckingLevel = 2;
+                        setCheckingLevel(1);
                     }
                 });
 
-                levelThree.setOnClickListener(new View.OnClickListener() {
+                mLevelTwo.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        levelOne.setActivated(false);
-                        levelTwo.setActivated(false);
-                        levelThree.setActivated(true);
-                        mCheckingLevel = 3;
+                        setCheckingLevel(2);
                     }
                 });
+
+                mLevelThree.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        setCheckingLevel(3);
+                    }
+                });
+
+                setCheckingLevel(mCheckingLevel);
+
+                if (mCheckingLevel == NO_LEVEL_SELECTED) {
+                    mPositiveBtn.setEnabled(false);
+                }
             }
         });
 
@@ -128,6 +140,15 @@ public class CheckingDialog extends DialogFragment {
         }
     }
 
+    private void setCheckingLevel(int checkingLevel) {
+        mCheckingLevel = checkingLevel;
+        mPositiveBtn.setEnabled(true);
+        mLevelZero.setActivated(checkingLevel == 0);
+        mLevelOne.setActivated(checkingLevel == 1);
+        mLevelTwo.setActivated(checkingLevel == 2);
+        mLevelThree.setActivated(checkingLevel == 3);
+    }
+
     public int getCheckingLevel() {
         return mCheckingLevel;
     }
@@ -139,9 +160,5 @@ public class CheckingDialog extends DialogFragment {
     public Project getProject(){
         return mProject;
     }
-
-    //public String[] getChapterNames(){
-    //    return mChapterNames;
-    //}
 
 }

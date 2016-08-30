@@ -13,6 +13,16 @@
         android:layout_gravity="center"
         >
 
+        <ImageButton
+            android:id="@+id/check_level_zero"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/selector_check_level_zero"
+            android:padding="@dimen/default_padding_m"
+            android:background="@color/transparent"
+            />
+
         <wycliffeassociates.recordingapp.widgets.FourStepImageView
             android:id="@+id/check_level_one"
             android:layout_width="128dp"

@@ -265,7 +265,7 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1);
+                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1, mCheckingLevel);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
