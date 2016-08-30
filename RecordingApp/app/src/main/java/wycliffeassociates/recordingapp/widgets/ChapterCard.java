@@ -276,7 +276,8 @@ public class ChapterCard {
             @Override
             public void onClick(View view) {
                 if(canCompile()) {
-                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter, isCompiled());
+                    //pass in chapter index, not chapter number
+                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter-1, isCompiled());
                     dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
                     adapter.notifyItemChanged(vh.getAdapterPosition());
                     //compile();
