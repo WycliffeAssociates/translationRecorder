@@ -69,15 +69,25 @@ public class WavFileWriter extends Service{
                     Logger.w(this.toString(), "raw audio thread closed file");
                     RecordingQueues.writingQueue.clear();
                     Logger.e(this.toString(), "raw audio queue finishing, sending done message");
-                    RecordingQueues.doneWriting.put(new Boolean(true));
                 } catch (FileNotFoundException e) {
+                    Logger.e(this.toString(), "File not found exception in writing thread", e);
                     e.printStackTrace();
                 } catch (InterruptedException e) {
+                    Logger.e(this.toString(), "Interrupted Exception in writing queue", e);
                     e.printStackTrace();
                 } catch (IOException e ) {
+                    Logger.e(this.toString(), "IO Exception in writing queue", e);
                     e.printStackTrace();
                 } catch (JSONException e) {
+                    Logger.e(this.toString(), "JSON Exception in writing queue", e);
                     e.printStackTrace();
+                } finally {
+                    try {
+                        RecordingQueues.doneWriting.put(new Boolean(true));
+                    } catch (InterruptedException e) {
+                        Logger.e(this.toString(), "InterruptedException in finally of writing queue", e);
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -132,13 +142,22 @@ public class WavFileWriter extends Service{
                     Logger.w(this.toString(), "exited compression thread loop");
                     RecordingQueues.compressionQueue.clear();
                     Logger.w(this.toString(), "Compression queue finishing, sending done message");
-                    RecordingQueues.doneWritingCompressed.put(new Boolean(true));
                 } catch (FileNotFoundException e) {
+                    Logger.e(this.toString(), "File not found exception in compression thread", e);
                     e.printStackTrace();
                 } catch (InterruptedException e) {
+                    Logger.e(this.toString(), "Interrupted Exception in compression queue", e);
                     e.printStackTrace();
                 } catch (IOException e ) {
+                    Logger.e(this.toString(), "IO Exception in compression queue", e);
                     e.printStackTrace();
+                } finally {
+                    try {
+                        RecordingQueues.doneWritingCompressed.put(new Boolean(true));
+                    } catch (InterruptedException e) {
+                        Logger.e(this.toString(), "InterruptedException in finally of Compression queue", e);
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -148,7 +167,7 @@ public class WavFileWriter extends Service{
         return START_STICKY;
     }
 
-    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording){
+    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording) throws IOException {
         byte[] data = new byte[increment];
         byte[] minAndMax = new byte[2*AudioInfo.SIZE_OF_SHORT];
         //while there is more data in the arraylist than one increment
@@ -159,12 +178,8 @@ public class WavFileWriter extends Service{
             }
             //write the min/max to the minAndMax array
             getMinAndMaxFromArray(data, minAndMax);
-            try {
-                //write the minAndMax array to the compressed file
-                compressedFile.write(minAndMax);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            //write the minAndMax array to the compressed file
+            compressedFile.write(minAndMax);
 
         }
         //if the recording was stopped and there is less data than a full increment, grab the remaining data
@@ -175,11 +190,7 @@ public class WavFileWriter extends Service{
                 remaining[i] = list.remove(0);
             }
             getMinAndMaxFromArray(remaining, minAndMax);
-            try {
-                compressedFile.write(minAndMax);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            compressedFile.write(minAndMax);
         }
     }
 
@@ -280,8 +291,10 @@ public class WavFileWriter extends Service{
             fileAccessor.write(header);
             fileAccessor.close();
         } catch (FileNotFoundException e) {
+            Logger.e("WavFileWriter", "File Not Found Exception in writing header", e);
             e.printStackTrace();
         } catch (IOException e){
+            Logger.e("WavFileWriter", "IO Exception in writing header", e);
             e.printStackTrace();
         }
     }

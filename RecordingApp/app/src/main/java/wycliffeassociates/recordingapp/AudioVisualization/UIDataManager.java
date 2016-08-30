@@ -313,8 +313,8 @@ public class UIDataManager {
                 boolean isPaused = false;
                 double maxDB = 0;
                 long timeDelay = System.currentTimeMillis();
-                while (!isStopped) {
-                    try {
+                try {
+                    while (!isStopped) {
                         RecordingMessage message = RecordingQueues.UIQueue.take();
                         isStopped = message.isStopped();
                         isPaused = message.isPaused();
@@ -323,24 +323,23 @@ public class UIDataManager {
                             byte[] buffer = message.getData();
                             double max = getPeakVolume(buffer);
                             double db = Math.abs(max);
-                            if(db > maxDB && ((System.currentTimeMillis() - timeDelay) < 33)){
+                            if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 33)) {
                                 maxDB = db;
-                                mVolume.setDb((int)maxDB);
+                                mVolume.setDb((int) maxDB);
                                 mVolume.postInvalidate();
                                 mainWave.resetFrameCount();
                                 timeDelay = System.currentTimeMillis();
-                            }
-                            else if(((System.currentTimeMillis() - timeDelay) > 33)){
+                            } else if (((System.currentTimeMillis() - timeDelay) > 33)) {
                                 maxDB = db;
                                 mVolume.setDb((int) maxDB);
                                 mainWave.resetFrameCount();
                                 mVolume.postInvalidate();
                                 timeDelay = System.currentTimeMillis();
                             }
-                            if(isRecording) {
+                            if (isRecording) {
                                 mainWave.setBuffer(buffer);
                                 mainWave.postInvalidate();
-                                if(timer != null) {
+                                if (timer != null) {
                                     long t = timer.getTimeElapsed();
                                     final String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
                                     ctx.runOnUiThread(new Runnable() {
@@ -351,8 +350,8 @@ public class UIDataManager {
                                         }
                                     });
                                 }
-                            //if only running the volume meter, the queues need to be emptied
-                            } else if(onlyVolumeTest) {
+                                //if only running the volume meter, the queues need to be emptied
+                            } else if (onlyVolumeTest) {
                                 mainWave.setBuffer(null);
                                 RecordingQueues.writingQueue.clear();
                                 RecordingQueues.compressionQueue.clear();
@@ -362,13 +361,21 @@ public class UIDataManager {
                             mainWave.setBuffer(null);
                             mainWave.postInvalidate();
                             Logger.w(this.toString(), "UI thread received a stop message");
-                            RecordingQueues.doneUI.put(new Boolean(true));
                             return;
                         }
+                    }
+                } catch (InterruptedException e) {
+                    Logger.e(this.toString(), "Interruption exception in UI thread for recording", e);
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        RecordingQueues.doneUI.put(new Boolean(true));
                     } catch (InterruptedException e) {
+                        Logger.e(this.toString(), "Interruption exception in finally of UI thread for recording", e);
                         e.printStackTrace();
                     }
                 }
+
                 mainWave.setDrawingFromBuffer(false);
             }
         });

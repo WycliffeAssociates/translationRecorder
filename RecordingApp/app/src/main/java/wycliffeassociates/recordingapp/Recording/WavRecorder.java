@@ -8,6 +8,7 @@ import android.media.MediaRecorder;
 import android.os.IBinder;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 
 /**
@@ -84,6 +85,7 @@ public class WavRecorder extends Service {
                     RecordingQueues.writingQueue.put(temp);
                     RecordingQueues.compressionQueue.put(temp);
                 } catch (InterruptedException e) {
+                    Logger.e(this.toString(), "InterruptedException in feeding to queues", e);
                     e.printStackTrace();
                 }
             }
