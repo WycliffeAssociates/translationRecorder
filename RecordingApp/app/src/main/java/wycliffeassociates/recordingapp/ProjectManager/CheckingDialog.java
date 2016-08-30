@@ -27,28 +27,28 @@ public class CheckingDialog extends DialogFragment {
 
     private int mCheckingLevel;
     DialogListener mListener;
-    private int[] mChapters;
+    private int[] mChapterIndicies;
     private Project mProject;
 
-    public static CheckingDialog newInstance(Project project, int[] chapters){
+    public static CheckingDialog newInstance(Project project, int[] chapterIndicies){
         Bundle args = new Bundle();
-        args.putIntArray(CHAPTERS_KEY, chapters);
+        args.putIntArray(CHAPTERS_KEY, chapterIndicies);
         args.putParcelable(PROJECT_KEY, project);
         CheckingDialog check = new CheckingDialog();
         check.setArguments(args);
         return check;
     }
 
-    public static CheckingDialog newInstance(Project project, int chapter){
-        int[] chapters = {chapter};
-        return newInstance(project, chapters);
+    public static CheckingDialog newInstance(Project project, int chapterIndex){
+        int[] chapterIndicies = {chapterIndex};
+        return newInstance(project, chapterIndicies);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mChapters = args.getIntArray(CHAPTERS_KEY);
+        mChapterIndicies = args.getIntArray(CHAPTERS_KEY);
         mProject = args.getParcelable(PROJECT_KEY);
     }
 
@@ -132,8 +132,8 @@ public class CheckingDialog extends DialogFragment {
         return mCheckingLevel;
     }
 
-    public int[] getChapters(){
-        return mChapters;
+    public int[] getChapterIndicies(){
+        return mChapterIndicies;
     }
 
     public Project getProject(){

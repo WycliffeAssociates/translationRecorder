@@ -1,5 +1,7 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,10 +14,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
+import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.WavFile;
@@ -26,10 +31,22 @@ import wycliffeassociates.recordingapp.widgets.ChapterCard;
  * Created by sarabiaj on 6/28/2016.
  */
 public class ActivityChapterList extends AppCompatActivity implements
-        CheckingDialog.DialogListener, CompileDialog.DialogListener {
+        CheckingDialog.DialogListener, CompileDialog.DialogListener, UpdateProgressCallback {
 
     public static String PROJECT_KEY = "project_key";
+    public static final String STATE_COMPILING = "compiling";
+    private static final String TAG_COMPILE_CHAPTER_TASK_FRAGMENT = "tag_compile_chapter";
     private Chunks mChunks;
+    private ProgressDialog mPd;
+    private volatile boolean mIsCompiling = false;
+    private Project mProject;
+    private List<ChapterCard> mChapterCardList;
+    private ChapterCardAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+    private RecyclerView mChapterList;
+    private CompileChapterTaskFragment mCompileChapterTaskFragment;
+    private volatile int mProgress = 0;
+    private static final String STATE_PROGRESS = "progress";
 
     public static Intent getActivityVerseListIntent(Context ctx, Project p){
         Intent intent = new Intent(ctx, ActivityUnitList.class);
@@ -37,22 +54,32 @@ public class ActivityChapterList extends AppCompatActivity implements
         return intent;
     }
 
-    private Project mProject;
-    private List<ChapterCard> mChapterCardList;
-    private ChapterCardAdapter mAdapter;
-    private LinearLayoutManager mLayoutManager;
-    private RecyclerView mChapterList;
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_list);
 
-        mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
-        ProjectDatabaseHelper mDb = new ProjectDatabaseHelper(this);
+
+        FragmentManager fm = getFragmentManager();
+        mCompileChapterTaskFragment = (CompileChapterTaskFragment) fm.findFragmentByTag(TAG_COMPILE_CHAPTER_TASK_FRAGMENT);
+        if(savedInstanceState != null){
+            if(savedInstanceState.getBoolean(STATE_COMPILING)) {
+                mProgress = savedInstanceState.getInt(STATE_PROGRESS);
+                mIsCompiling = true;
+                compileProgress(mProgress);
+            }
+        }
+
+        //check if fragment was retained from a screen rotation
+        if(mCompileChapterTaskFragment == null){
+            mCompileChapterTaskFragment = new CompileChapterTaskFragment();
+            fm.beginTransaction().add(mCompileChapterTaskFragment, TAG_COMPILE_CHAPTER_TASK_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        }
 
         // Setup toolbar
+        mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
+        ProjectDatabaseHelper mDb = new ProjectDatabaseHelper(this);
         String language = mDb.getLanguageName(mProject.getTargetLanguage());
         String book = mDb.getBookName(mProject.getSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
@@ -103,16 +130,68 @@ public class ActivityChapterList extends AppCompatActivity implements
                 mChapterCardList.get(i).setCheckingLevel(db.getChapterCheckingLevel(mProject, i+1));
             }
         }
-
         mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(mPd != null && mPd.isShowing()){
+            mPd.dismiss();
+            mPd = null;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saveInstanceState){
+        saveInstanceState.putBoolean(STATE_COMPILING, mIsCompiling);
+        saveInstanceState.putInt(STATE_PROGRESS, mProgress);
+        super.onSaveInstanceState(saveInstanceState);
+    }
+
+    public void compileProgress(int progress){
+        mPd = new ProgressDialog(this);
+        mPd.setTitle("Compiling Chapter");
+        mPd.setMessage("Please Wait...");
+        mPd.setProgress(progress);
+        mPd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mPd.setCancelable(false);
+        mPd.setMax(100);
+        mPd.show();
+    }
+
+    @Override
+    public void setIsCompiling(){
+        mIsCompiling = true;
+        compileProgress(0);
+    }
+
+    public void setCompilingProgress(int progress){
+        mProgress = progress;
+        mPd.setProgress(progress);
+    }
+
+    public void onCompileCompleted(final int[] chaptersModified){
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mPd.dismiss();
+                ProjectDatabaseHelper db = new ProjectDatabaseHelper(ActivityChapterList.this);
+                for(int i : chaptersModified){
+                    mAdapter.notifyItemChanged(i);
+                    db.setCheckingLevel(mProject, i+1, 0);
+                }
+                mIsCompiling = false;
+            }
+        });
     }
 
     @Override
     public void onPositiveClick(CheckingDialog dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        int[] chapters = dialog.getChapters();
+        int[] chapters = dialog.getChapterIndicies();
         for(int i =0; i < chapters.length; i++) {
-            db.setCheckingLevel(dialog.getProject(), chapters[i], dialog.getCheckingLevel());
+            db.setCheckingLevel(dialog.getProject(), chapters[i]+1, dialog.getCheckingLevel());
         }
         db.close();
         dialog.dismiss();
@@ -121,15 +200,11 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     @Override
     public void onPositiveClick(CompileDialog dialog) {
-        int[] chapters = dialog.getChapters();
-        for(int i = 0; i < chapters.length; i++){
-            mChapterCardList.get(chapters[i]-1).compile();
-            mAdapter.notifyItemChanged(chapters[i]-1);
+        List<ChapterCard> toCompile = new ArrayList<>();
+        for(int i : dialog.getChapterInicies()){
+            toCompile.add(mChapterCardList.get(i));
         }
-        if (mAdapter.isInActionMode()) {
-            mAdapter.getActionMode().finish();
-        }
-        dialog.dismiss();
+        mCompileChapterTaskFragment.compile(toCompile, dialog.getChapterInicies());
     }
 
     @Override
@@ -154,18 +229,9 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-
             for (int i = 0; i < mChunks.getNumChapters(); i++) {
                 mChapterCardList.add(new ChapterCard(this, mProject, i+1));
             }
-
-//        try {
-//            Chunks chunks = new Chunks(this, mProject.getSlug());
-//            ListView chapterList = (ListView)findViewById(R.id.chapter_list);
-//            chapterList.setAdapter(new ChapterAdapter(this, mProject, chunks));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
 }

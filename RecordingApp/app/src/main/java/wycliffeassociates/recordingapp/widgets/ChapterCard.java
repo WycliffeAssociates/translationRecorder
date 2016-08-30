@@ -260,8 +260,7 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // NOTE: Currently only pass in placeholder text. Replace with chapter name.
-                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter);
+                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
@@ -271,14 +270,11 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isCompiled()) {
-                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter);
+                if(canCompile()) {
+                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter, isCompiled());
                     dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
-                } else {
-                    if(canCompile()) {
-                        compile();
-                    }
                     adapter.notifyItemChanged(vh.getAdapterPosition());
+                    //compile();
                 }
             }
         };
@@ -383,6 +379,6 @@ public class ChapterCard {
         }
         WavFile.compileChapter(mProject, mChapter, wavFiles);
         mIsCompiled = true;
-        Toast.makeText(mCtx, "Compile", Toast.LENGTH_SHORT).show();
+        setCheckingLevel(0);
     }
 }

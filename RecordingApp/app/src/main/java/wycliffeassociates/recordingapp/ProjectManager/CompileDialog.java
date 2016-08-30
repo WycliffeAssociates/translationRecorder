@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -13,6 +14,7 @@ import android.os.Bundle;
 public class CompileDialog extends DialogFragment {
 
     public static String CHAPTERS_KEY = "key_chapters";
+    public static String COMPILED_KEY = "key_compiled";
     public static String PROJECT_KEY = "key_project";
 
     public interface DialogListener {
@@ -21,33 +23,47 @@ public class CompileDialog extends DialogFragment {
     }
 
     DialogListener mListener;
-    private int[] mChapters;
+    private int[] mChapterIndices;
     private Project mProject;
+    private boolean mAlreadyCompiled;
 
-    public static CompileDialog newInstance(Project project, int[] chapters){
+    public static CompileDialog newInstance(Project project, int[] chapterIndices, boolean[] isCompiled){
         Bundle args = new Bundle();
-        args.putIntArray(CHAPTERS_KEY, chapters);
+        args.putIntArray(CHAPTERS_KEY, chapterIndices);
         args.putParcelable(PROJECT_KEY, project);
+        args.putBooleanArray(COMPILED_KEY, isCompiled);
         CompileDialog check = new CompileDialog();
         check.setArguments(args);
         return check;
     }
 
-    public static CompileDialog newInstance(Project project, int chapter){
-        int[] chapterNames = {chapter};
-        return newInstance(project, chapter);
+    public static CompileDialog newInstance(Project project, int chapterIndex, boolean isCompiled){
+        int[] chapterIndices = {chapterIndex};
+        boolean[] compiled = {isCompiled};
+        return newInstance(project, chapterIndices, compiled);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mChapters = args.getIntArray(CHAPTERS_KEY);
+
+        mChapterIndices = args.getIntArray(CHAPTERS_KEY);
         mProject = args.getParcelable(PROJECT_KEY);
+        boolean[] compiled = args.getBooleanArray(COMPILED_KEY);
+        mAlreadyCompiled = false;
+        for(int i = 0; i < compiled.length; i++){
+            if(compiled[i] == true){
+                mAlreadyCompiled = true;
+            }
+        }
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if(!mAlreadyCompiled){
+            mListener.onPositiveClick(CompileDialog.this);
+        }
         return new AlertDialog.Builder(getActivity())
             .setTitle("Warning")
             .setMessage("Re-compiling a chapter will over-write the current audio and reset the checking level.")
@@ -74,8 +90,8 @@ public class CompileDialog extends DialogFragment {
         }
     }
 
-    public int[] getChapters(){
-        return mChapters;
+    public int[] getChapterInicies(){
+        return mChapterIndices;
     }
 
     public Project getProject(){
