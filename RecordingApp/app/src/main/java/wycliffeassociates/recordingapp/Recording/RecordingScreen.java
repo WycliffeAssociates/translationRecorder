@@ -394,7 +394,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             long start = System.currentTimeMillis();
             Logger.w(this.toString(), "Stopping recording");
             RecordingQueues.stopQueues(this);
-            System.out.println("took " + (System.currentTimeMillis() - start) + " to finish writing");
+            Logger.w(this.toString(), "SUCCESS: exited queues, took " + (System.currentTimeMillis() - start) + " to finish writing");
             isRecording = false;
             isPausedRecording = false;
             addTakeToDb();

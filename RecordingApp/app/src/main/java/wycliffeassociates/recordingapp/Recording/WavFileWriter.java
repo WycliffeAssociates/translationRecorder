@@ -45,25 +45,30 @@ public class WavFileWriter extends Service{
             public void run() {
                 boolean stopped = false;
                 try {
+                    //WARNING DO NOT USE BUFFERED OUTPUT HERE, WILL CAUSE END LINE TO BE OFF IN PLAYBACK
                     FileOutputStream rawAudio = new FileOutputStream(audioFile.getFile(), true);
                     while(!stopped){
                         RecordingMessage message = RecordingQueues.writingQueue.take();
                         if(message.isStopped()){
+                            Logger.w(this.toString(), "raw audio thread received a stop message");
                             stopped = true;
                         }
                         else {
-                            if(!message.isPaused())
+                            if(!message.isPaused()) {
                                 rawAudio.write(message.getData());
-                            else
-                                System.out.println("paused writing");
+                            }
+                            else {
+                                Logger.w(this.toString(), "raw audio thread received a pause message");
+                            }
                         }
                     }
+                    Logger.w(this.toString(), "raw audio thread exited loop");
                     audioFile.overwriteHeaderData();
                     audioFile.writeMetadata();
-                    System.out.println("writing to file");
                     rawAudio.close();
+                    Logger.w(this.toString(), "raw audio thread closed file");
                     RecordingQueues.writingQueue.clear();
-                    Logger.e(this.toString(), "Writing queue finishing, sending done message");
+                    Logger.e(this.toString(), "raw audio queue finishing, sending done message");
                     RecordingQueues.doneWriting.put(new Boolean(true));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -80,12 +85,9 @@ public class WavFileWriter extends Service{
         Thread compressionThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                //Logger.w(this.toString(), "starting compression thread");
+                Logger.w(this.toString(), "starting compression thread");
                 int increment = AudioInfo.COMPRESSION_RATE;
-                //System.out.println("Increment is " + increment);
                 boolean stopped = false;
-                //int numRemoved = 0;
-                //int count = 0;
                 boolean stoppedRecording = false;
                 ArrayList<Byte> byteArrayList = new ArrayList<>();
                 try {
@@ -97,44 +99,39 @@ public class WavFileWriter extends Service{
                     if(!file.exists()){
                         file.getParentFile().mkdirs();
                         file.createNewFile();
-                        //Logger.w(this.toString(), "created a new vis file");
+                        Logger.w(this.toString(), "created a new vis file");
                     }
+                    //WARNING DO NOT USE BUFFERED OUTPUT HERE, WILL CAUSE END LINE TO BE OFF IN PLAYBACK
                     FileOutputStream compressedFile = new FileOutputStream(file);
                     while(!stopped){
-                        //Logger.w(this.toString(), "continue loop");
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
-                        //Logger.w(this.toString(), "took a message from the queue");
                         if(message.isStopped()){
-                            //Logger.w(this.toString(), "message contained stop");
+                            Logger.w(this.toString(), "Compression thread received a stop message");
                             stopped = true;
                             stoppedRecording = true;
-                            //Logger.w(this.toString(), "writing remaining data");
+                            Logger.w(this.toString(), "Compression thread writing remaining data");
                             writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                             compressedFile.close();
-                            //Logger.w(this.toString(), "closing file");
+                            Logger.w(this.toString(), "Compression thread closed file");
                         }
                         else {
                             if (!message.isPaused()){
-                                //Logger.w(this.toString(), "message contained data");
                                 byte[] dataFromQueue = message.getData();
                                 for(byte x : dataFromQueue){
                                     byteArrayList.add(new Byte(x));
-                                    //count++;
                                 }
                                 if(byteArrayList.size() >= increment) {
-                                    //Logger.w(this.toString(), "writing data to file");
                                     writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                                 }
                             }
                             else{
-                                //System.out.println("paused writing");
+                                Logger.w(this.toString(), "Compression thread received a pause message");
                             }
                         }
                     }
-                    //Logger.w(this.toString(), "exited loop");
-                    //System.out.println("total count was " + count + " num removed is " + numRemoved);
+                    Logger.w(this.toString(), "exited compression thread loop");
                     RecordingQueues.compressionQueue.clear();
-                    //Logger.e(this.toString(), "Compression queue finishing, sending done message");
+                    Logger.w(this.toString(), "Compression queue finishing, sending done message");
                     RecordingQueues.doneWritingCompressed.put(new Boolean(true));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();

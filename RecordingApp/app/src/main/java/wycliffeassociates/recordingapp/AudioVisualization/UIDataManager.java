@@ -361,6 +361,7 @@ public class UIDataManager {
                         if (isStopped) {
                             mainWave.setBuffer(null);
                             mainWave.postInvalidate();
+                            Logger.w(this.toString(), "UI thread received a stop message");
                             RecordingQueues.doneUI.put(new Boolean(true));
                             return;
                         }
