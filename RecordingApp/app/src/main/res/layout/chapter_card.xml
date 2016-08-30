@@ -21,15 +21,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/yellow"
+            android:background="@color/card_bg"
             >
 
             <RelativeLayout
                 android:id="@+id/card_header"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/default_padding_m"
-                >
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/title"
@@ -40,7 +38,8 @@
                     android:textColor="@color/primary_text_default_material_light"
                     android:textStyle="bold"
                     android:layout_centerVertical="true"
-                    />
+                    android:padding="@dimen/default_padding_m"
+                    android:clickable="false" />
 
                 <LinearLayout
                     android:id="@+id/actions"
@@ -49,7 +48,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:clickable="true"
-                    >
+                    android:padding="@dimen/default_padding_m">
 
                     <wycliffeassociates.recordingapp.widgets.FourStepImageView
                         android:id="@+id/check_level_btn"
@@ -90,7 +89,7 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/selector_chapter_card_expand_toggle"
+                        android:src="@drawable/selector_card_expand_toggle"
                         android:layout_marginLeft="@dimen/default_padding_m"
                         android:visibility="visible"
                         android:duplicateParentState="false"

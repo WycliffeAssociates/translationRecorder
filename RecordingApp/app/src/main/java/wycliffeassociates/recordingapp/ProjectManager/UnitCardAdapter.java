@@ -101,9 +101,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         public SeekBar mSeekBar;
         public TextView mUnitTitle, mCurrentTake, mProgress, mDuration, mCurrentTakeTimeStamp;
         public LinearLayout mCardBody, mCardContainer, mUnitActions;
-        public ImageView mUnitRecordBtn, mUnitPlayBtn, mPrevTakeBtn, mNextTakeBtn;
+        public ImageView mUnitRecordBtn, mUnitExpandBtn, mPrevTakeBtn, mNextTakeBtn;
         public ImageButton mTakeDeleteBtn, mTakePlayPauseBtn, mTakeEditBtn, mTakeSelectBtn;
-//        public FourStepImageView mUnitCheckLevelBtn, mTakeRatingBtn;
         public FourStepImageView mTakeRatingBtn;
         public UnitCard mUnitCard;
         public CardView mCardView;
@@ -128,10 +127,9 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             mCurrentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
 
             // Buttons
-//            mUnitCheckLevelBtn = (FourStepImageView) view.findViewById(R.id.unitCheckLevel);
             mTakeRatingBtn = (FourStepImageView) view.findViewById(R.id.rateTakeBtn);
             mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
-            mUnitPlayBtn = (ImageView) view.findViewById(R.id.unitPlayBtn);
+            mUnitExpandBtn = (ImageView) view.findViewById(R.id.unitExpandBtn);
             mTakeDeleteBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);
             mTakePlayPauseBtn = (ImageButton) view.findViewById(R.id.playTakeBtn);
             mTakeEditBtn = (ImageButton) view.findViewById(R.id.editTakeBtn);
@@ -183,7 +181,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             if(mMultiSelector.isSelectable()) {
                 // Close card if it is expanded in multi-select mode
                 if(mUnitCard.isExpanded()){
-                    toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
+                    toggleExpansion(this, mExpandedCards);
                 }
 
                 // Select/de-select item
@@ -202,8 +200,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                 if (mActionMode != null && mSelectedCards.size() <= 0) {
                     mActionMode.finish();
                 }
-            } else {
-                toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
             }
         }
 
@@ -214,7 +210,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
             // Close card if it is expanded on entering multi-select mode
             if(mUnitCard.isExpanded()){
-                toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
+                toggleExpansion(this, mExpandedCards);
             }
 
             mSelectedCards.add(this);
@@ -257,7 +253,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     }
 
 
-    public void toggleExpansion(final UnitCardAdapter.ViewHolder vh, final List<Integer> expandedCards, final int position) {
+    public void toggleExpansion(final UnitCardAdapter.ViewHolder vh, final List<Integer> expandedCards) {
+        int position = vh.getAdapterPosition();
         if (!vh.mUnitCard.isExpanded()) {
             vh.mUnitCard.expand(vh);
             if (!expandedCards.contains(position)) {
@@ -276,7 +273,12 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
 //        holder.mUnitCheckLevelBtn.setOnClickListener(unitCard.getUnitCheckLevelOnClick(holder));
         holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mProject, mChapterNum));
-        holder.mUnitPlayBtn.setOnClickListener(unitCard.getLatestTakeEditOnClick());
+        holder.mUnitExpandBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleExpansion(holder, mExpandedCards);
+            }
+        });
         holder.mTakeDeleteBtn.setOnClickListener(unitCard.getTakeDeleteOnClick(holder));
         holder.mTakePlayPauseBtn.setOnClickListener(unitCard.getTakePlayPauseOnClick(holder));
         holder.mTakeEditBtn.setOnClickListener(unitCard.getTakeEditOnClickListener());

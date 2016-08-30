@@ -109,8 +109,15 @@ public class UnitCard {
         refreshAudioPlayer(vh);
         vh.mCardBody.setVisibility(View.VISIBLE);
         vh.mCardFooter.setVisibility(View.VISIBLE);
-        vh.mUnitPlayBtn.setVisibility(View.GONE);
+        vh.mUnitActions.setActivated(true);
         mIsExpanded = true;
+    }
+
+    public void collapse(UnitCardAdapter.ViewHolder vh) {
+        vh.mCardBody.setVisibility(View.GONE);
+        vh.mCardFooter.setVisibility(View.GONE);
+        vh.mUnitActions.setActivated(false);
+        mIsExpanded = false;
     }
 
     private void refreshAudioPlayer(UnitCardAdapter.ViewHolder vh) {
@@ -148,13 +155,6 @@ public class UnitCard {
             ap = initializeAudioPlayer(vh);
         }
         return ap;
-    }
-
-    public void collapse(UnitCardAdapter.ViewHolder vh) {
-        vh.mCardBody.setVisibility(View.GONE);
-        vh.mCardFooter.setVisibility(View.GONE);
-        vh.mUnitPlayBtn.setVisibility(View.VISIBLE);
-        mIsExpanded = false;
     }
 
     private void refreshTakes(UnitCardAdapter.ViewHolder vh) {

@@ -28,7 +28,6 @@
                 android:id="@+id/cardHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/default_padding_m"
                 >
 
                 <TextView
@@ -40,6 +39,7 @@
                     android:textColor="@color/primary_text_default_material_light"
                     android:textStyle="bold"
                     android:layout_centerVertical="true"
+                    android:padding="@dimen/default_padding_m"
                     />
 
                 <LinearLayout
@@ -48,19 +48,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:clickable="true">
-
-                    <wycliffeassociates.recordingapp.widgets.FourStepImageView
-                        android:id="@+id/unitCheckLevel"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/selector_unit_card_check_level"
-                        android:layout_marginLeft="@dimen/default_padding_m"
-                        android:duplicateParentState="true"
-                        android:clickable="true"
-                        android:visibility="gone"
-                        />
+                    android:clickable="true"
+                    android:padding="@dimen/default_padding_m"
+                    >
 
                     <ImageView
                         android:id="@+id/unitRecordBtn"
@@ -68,22 +58,23 @@
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_unit_card_record"
-                        android:layout_marginLeft="@dimen/default_padding_m"
                         android:layout_gravity="center_vertical"
                         android:duplicateParentState="true"
                         android:clickable="true"
+                        android:cropToPadding="false"
                         />
 
                     <ImageView
-                        android:id="@+id/unitPlayBtn"
+                        android:id="@+id/unitExpandBtn"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/selector_unit_card_play"
-                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:src="@drawable/selector_card_expand_toggle"
                         android:visibility="visible"
                         android:duplicateParentState="true"
                         android:clickable="true"
+                        android:cropToPadding="false"
+                        android:layout_marginLeft="@dimen/default_padding_m"
                         />
 
                 </LinearLayout>
