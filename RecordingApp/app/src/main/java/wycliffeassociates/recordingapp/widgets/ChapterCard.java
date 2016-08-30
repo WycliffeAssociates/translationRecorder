@@ -108,6 +108,11 @@ public class ChapterCard {
         }
     }
 
+    public void refreshProgress(Project project, int chapter) {
+        // TODO: Set actual progress here
+        setProgress((int) Math.round(Math.random() * 100));
+    }
+
     // Setters
     public void setTitle(String title) {
         mTitle = title;

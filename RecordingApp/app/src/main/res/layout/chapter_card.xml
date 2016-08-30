@@ -2,6 +2,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:ppv="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
@@ -49,6 +50,19 @@
                     android:layout_centerVertical="true"
                     android:clickable="true"
                     android:padding="@dimen/default_padding_m">
+
+                    <com.filippudak.ProgressPieView.ProgressPieView
+                        android:id="@+id/progress_pie"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        ppv:ppvStrokeWidth="0dp"
+                        ppv:ppvStrokeColor="@color/transparent"
+                        ppv:ppvProgressColor="@color/primary"
+                        ppv:ppvBackgroundColor="@color/primary_text_disabled_material_light"
+                        android:clickable="true"
+                        ppv:ppvProgress="65"
+                        android:layout_marginEnd="@dimen/default_padding_l"
+                        />
 
                     <wycliffeassociates.recordingapp.widgets.FourStepImageView
                         android:id="@+id/check_level_btn"
