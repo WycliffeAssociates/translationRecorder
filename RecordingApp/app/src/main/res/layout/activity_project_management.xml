@@ -135,17 +135,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     card_view:cardCornerRadius="@dimen/default_padding_xxs"
-                    card_view:cardBackgroundColor="@color/card_bg"
                     card_view:cardElevation="@dimen/cardview_default_elevation"
                     android:layout_marginLeft="@dimen/default_padding_xxs"
                     android:layout_marginRight="@dimen/default_padding_xxs"
                     >
 
                     <include
+                        android:id="@+id/recent_project"
                         layout="@layout/project_list_item"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/recent_project" />
+                        />
 
                 </android.support.v7.widget.CardView>
 
