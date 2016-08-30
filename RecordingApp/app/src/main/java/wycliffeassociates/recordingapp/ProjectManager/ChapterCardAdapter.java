@@ -78,7 +78,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int[] chapters = new int[mSelectedCards.size()];
             for(int i = 0; i < mSelectedCards.size(); i++){
-                chapters[i] = mSelectedCards.get(i) + 1;
+                chapters[i] = mSelectedCards.get(i);
             }
             switch (item.getItemId()) {
                 case R.id.chapters_checking_level:
@@ -87,7 +87,11 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                     dialog.show(mCtx.getFragmentManager(), "multi_chapter_checking_level");
                     break;
                 case R.id.chapters_compile:
-                    CompileDialog compileDialog = CompileDialog.newInstance(mProject, chapters);
+                    boolean[] isCompiled = new boolean[mSelectedCards.size()];
+                    for(int i = 0; i < mSelectedCards.size(); i++){
+                        isCompiled[i] = mChapterCardList.get(mSelectedCards.get(i)).isCompiled();
+                    }
+                    CompileDialog compileDialog = CompileDialog.newInstance(mProject, chapters, isCompiled);
                     compileDialog.show(mCtx.getFragmentManager(), "multi_chapter_compile");
                     break;
                 default:
@@ -192,8 +196,10 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
             // Raise card, and show appropriate visual cue, if it's already selected
             if (mMultiSelector.isSelected(position, 0)) {
-                mSelectedCards.add(getAdapterPosition());
                 mChapterCard.raise(holder);
+                if(!mSelectedCards.contains(getAdapterPosition())){
+                    mSelectedCards.add(getAdapterPosition());
+                }
             } else {
                 mSelectedCards.remove((Integer)getAdapterPosition());
                 mChapterCard.drop(holder);

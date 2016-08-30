@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -95,10 +96,16 @@ public class SplashScreen extends Activity {
             Book[] books = parse.pullBooks();
             Language[] languages = parse.pullLangNames();
             for (Book book : books) {
-                db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
+                try {
+                    db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
+                } catch (SQLiteConstraintException e) {
+                }
             }
             for (Language language : languages) {
-                db.addLanguage(language.getCode(), language.getName());
+                try {
+                    db.addLanguage(language.getCode(), language.getName());
+                } catch (SQLiteConstraintException e){
+                }
             }
             System.out.println("Proof: en is " + db.getLanguageName("en"));
         } catch (JSONException e) {
