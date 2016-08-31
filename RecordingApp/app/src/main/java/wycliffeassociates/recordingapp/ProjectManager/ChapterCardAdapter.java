@@ -247,6 +247,13 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 }
 
             } else {
+                mChapterCard.pauseAudio(this);
+                // NOTE: This will force the audio player to be re-initialized when the user comes
+                //    back to ActivityChapterList from ActivityVerseList. If not, the play/pause
+                //    toggling will break because the audio player will still refer to the old
+                //    play/pause icon.
+                mChapterCard.destroyAudioPlayer();
+
                 Intent intent = ActivityUnitList.getActivityVerseListIntent(mCtx, mProject, getAdapterPosition()+1);
                 mCtx.startActivity(intent);
             }
@@ -277,6 +284,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
     }
 
 
+    // Overrides
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())

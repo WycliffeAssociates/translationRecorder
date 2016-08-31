@@ -184,21 +184,8 @@ public class ChapterCard {
 
     public boolean areIconsClickable() { return mIconsClickable; }
 
-    // Public API
-    public void expand(ChapterCardAdapter.ViewHolder vh) {
-        refreshAudioPlayer(vh);
-        vh.mExpandBtn.setActivated(true);
-        vh.mCardBody.setVisibility(View.VISIBLE);
-        // vh.setIsRecyclable(false);
-        mIsExpanded = true;
-    }
 
-    private void refreshAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
-        AudioPlayer ap = getAudioPlayer(vh);
-        ap.reset();
-        ap.loadFile(mChapterWav);
-    }
-
+    // Private Methods
     private AudioPlayer getAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
         AudioPlayer ap = null;
         if (mAudioPlayer != null) {
@@ -216,10 +203,24 @@ public class ChapterCard {
         return ap;
     }
 
+    private void refreshAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
+        AudioPlayer ap = getAudioPlayer(vh);
+        ap.reset();
+        ap.loadFile(mChapterWav);
+    }
+
+
+    // Public API
+    public void expand(ChapterCardAdapter.ViewHolder vh) {
+        refreshAudioPlayer(vh);
+        vh.mExpandBtn.setActivated(true);
+        vh.mCardBody.setVisibility(View.VISIBLE);
+        mIsExpanded = true;
+    }
+
     public void collapse(ChapterCardAdapter.ViewHolder vh) {
         vh.mCardBody.setVisibility(View.GONE);
         vh.mExpandBtn.setActivated(false);
-        // vh.setIsRecyclable(true);
         mIsExpanded = false;
     }
 
@@ -243,6 +244,22 @@ public class ChapterCard {
         vh.mCompileBtn.setActivated(canCompile());
     }
 
+    public void playAudio(ChapterCardAdapter.ViewHolder vh) {
+        getAudioPlayer(vh).play();
+    }
+
+    public void pauseAudio(ChapterCardAdapter.ViewHolder vh) {
+        getAudioPlayer(vh).pause();
+    }
+
+    public void destroyAudioPlayer() {
+        if (mAudioPlayer != null) {
+            mAudioPlayer.get().reset();
+            mAudioPlayer = null;
+        }
+    }
+
+
     public boolean canCompile() {
         return mCanCompile;
     }
@@ -257,105 +274,9 @@ public class ChapterCard {
 //            mIsEmpty = false;
 //        }
 //    }
+
     public void setCanCompile(boolean yes){
         mCanCompile = yes;
-    }
-
-    public View.OnClickListener getCheckLevelOnClick(ChapterCardAdapter.ViewHolder vh) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1);
-                dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
-            }
-        };
-    }
-
-    public View.OnClickListener getCompileOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(canCompile()) {
-                    //pass in chapter index, not chapter number
-                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter-1, isCompiled());
-                    dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
-                    adapter.notifyItemChanged(vh.getAdapterPosition());
-                    //compile();
-                }
-            }
-        };
-    }
-
-    public View.OnClickListener getRecordOnClick(final ChapterCardAdapter.ViewHolder vh) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, vh.getAdapterPosition()+1, 1);
-                mCtx.startActivity(intent);
-            }
-        };
-    }
-
-    public View.OnClickListener getExpandOnClick(final ChapterCardAdapter.ViewHolder vh) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Expand");
-                if (mIsExpanded) {
-                    collapse(vh);
-                } else {
-                    expand(vh);
-                    AudioPlayer ap = getAudioPlayer(vh);
-                    ap.play();
-                }
-            }
-        };
-    }
-
-    public View.OnClickListener getDeleteOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
-                builder.setTitle("Delete Chapter Recording?");
-                builder.setIcon(R.drawable.ic_delete_black_36dp);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == dialog.BUTTON_POSITIVE) {
-                            mChapterWav.delete();
-                            mIsCompiled = false;
-                            collapse(vh);
-                            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-                            db.setCheckingLevel(mProject, mChapter, 0);
-                            adapter.notifyItemChanged(vh.getAdapterPosition());
-                        }
-                    }
-                });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        };
-    }
-
-    public View.OnClickListener getPlayPauseOnClick(final ChapterCardAdapter.ViewHolder vh) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AudioPlayer ap = getAudioPlayer(vh);
-                if(vh.mPlayPauseBtn.isActivated()) {
-                    ap.pause();
-                } else {
-                    ap.play();
-                }
-            }
-        };
     }
 
     public void compile() {
@@ -386,5 +307,112 @@ public class ChapterCard {
         WavFile.compileChapter(mProject, mChapter, wavFiles);
         mIsCompiled = true;
         setCheckingLevel(0);
+    }
+
+    public View.OnClickListener getCheckLevelOnClick(final ChapterCardAdapter.ViewHolder vh) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pauseAudio(vh);
+                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1);
+                dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
+            }
+        };
+    }
+
+    public View.OnClickListener getCompileOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(canCompile()) {
+                    pauseAudio(vh);
+                    // NOTE: This will force the audio player to be re-initialized when exiting the
+                    //    dialog. If not, the play/pause toggling will break because the audio
+                    //    player will still refer to the old play/pause icon.
+                    //refreshAudioPlayer(vh);
+                    //destroyAudioPlayer();
+                    //pass in chapter index, not chapter number
+                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter-1, isCompiled());
+                    dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
+//                    adapter.notifyItemChanged(vh.getAdapterPosition());
+                }
+            }
+        };
+    }
+
+    public View.OnClickListener getRecordOnClick(final ChapterCardAdapter.ViewHolder vh) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pauseAudio(vh);
+                // NOTE: This will force the audio player to be re-initialized when the user comes
+                //    back to ActivityChapterList from NewRecording. If not, the play/pause
+                //    toggling will break because the audio player will still refer to the old
+                //    play/pause icon.
+                destroyAudioPlayer();
+                Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, vh.getAdapterPosition()+1, 1);
+                mCtx.startActivity(intent);
+            }
+        };
+    }
+
+    public View.OnClickListener getExpandOnClick(final ChapterCardAdapter.ViewHolder vh) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mIsExpanded) {
+                    pauseAudio(vh);
+                    collapse(vh);
+                } else {
+                    expand(vh);
+                    playAudio(vh);
+                }
+            }
+        };
+    }
+
+    public View.OnClickListener getDeleteOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pauseAudio(vh);
+                AlertDialog dialog = new AlertDialog.Builder(mCtx)
+                    .setTitle("Delete Chapter Recording?")
+                    .setIcon(R.drawable.ic_delete_black_36dp)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            destroyAudioPlayer();
+                            mChapterWav.delete();
+                            mIsCompiled = false;
+                            collapse(vh);
+                            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                            db.setCheckingLevel(mProject, mChapter, 0);
+                            adapter.notifyItemChanged(vh.getAdapterPosition());
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create();
+                dialog.show();
+            }
+        };
+    }
+
+    public View.OnClickListener getPlayPauseOnClick(final ChapterCardAdapter.ViewHolder vh) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(vh.mPlayPauseBtn.isActivated()) {
+                    pauseAudio(vh);
+                } else {
+                    playAudio(vh);
+                }
+            }
+        };
     }
 }

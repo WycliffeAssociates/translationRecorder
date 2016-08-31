@@ -75,11 +75,7 @@ public class AudioPlayer {
     }
 
     private void togglePlayPauseButton(boolean isPlaying) {
-        if (isPlaying) {
-            mPlay.setActivated(true);
-        } else {
-            mPlay.setActivated(false);
-        }
+        mPlay.setActivated(isPlaying);
     }
 
     public void loadFile(File file){
@@ -145,7 +141,13 @@ public class AudioPlayer {
                 mMediaPlayer.pause();
             }
             mMediaPlayer.reset();
+            mSeekBar.setProgress(0);
+            mProgress.setText("00:00:00");
         }
+    }
+
+    public boolean isPlaying() {
+        return mMediaPlayer != null && mMediaPlayer.isPlaying();
     }
 
     public void cleanup(){
