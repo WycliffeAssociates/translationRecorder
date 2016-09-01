@@ -217,8 +217,8 @@ public class ChapterCard {
     // Public API
     public void expand(ChapterCardAdapter.ViewHolder vh) {
         refreshAudioPlayer(vh);
-        vh.mExpandBtn.setActivated(true);
         vh.mCardBody.setVisibility(View.VISIBLE);
+        vh.mExpandBtn.setActivated(true);
         mIsExpanded = true;
     }
 
@@ -316,15 +316,9 @@ public class ChapterCard {
             public void onClick(View view) {
                 if(canCompile()) {
                     pauseAudio(vh);
-                    // NOTE: This will force the audio player to be re-initialized when exiting the
-                    //    dialog. If not, the play/pause toggling will break because the audio
-                    //    player will still refer to the old play/pause icon.
-                    //refreshAudioPlayer(vh);
-                    //destroyAudioPlayer();
                     //pass in chapter index, not chapter number
                     CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter-1, isCompiled());
                     dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
-//                    adapter.notifyItemChanged(vh.getAdapterPosition());
                 }
             }
         };
@@ -336,7 +330,8 @@ public class ChapterCard {
             public void onClick(View view) {
                 pauseAudio(vh);
                 destroyAudioPlayer();
-                Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, vh.getAdapterPosition()+1, 1);
+                int chapter = vh.getAdapterPosition() + 1;
+                Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, chapter, 1);
                 mCtx.startActivity(intent);
             }
         };

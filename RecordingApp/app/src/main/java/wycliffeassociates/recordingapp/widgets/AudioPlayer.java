@@ -57,7 +57,9 @@ public class AudioPlayer {
     // Setters
     public void setSeekBarView(SeekBar seekBar) {
         mSeekBar = seekBar;
-        mSeekBar.setMax(mMediaPlayer.getDuration());
+        if (isLoaded()) {
+            mSeekBar.setMax(mMediaPlayer.getDuration());
+        }
         updateProgress(mCurrentProgress);
     }
 
