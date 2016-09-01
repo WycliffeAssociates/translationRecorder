@@ -5,10 +5,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
-import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,11 +19,9 @@ import wycliffeassociates.recordingapp.ProjectManager.CompileDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
-import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
-import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
  * Created by leongv on 8/15/2016.
@@ -33,9 +29,9 @@ import wycliffeassociates.recordingapp.project.Chunks;
 public class ChapterCard {
 
     public interface OnClickListener extends View.OnClickListener {
-
         void onClick(View v, ChapterCardAdapter.ViewHolder vh, List<Integer> expandedCards, int position);
     }
+
     // Constants
     public int MIN_CHECKING_LEVEL = 0;
     public int MAX_CHECKING_LEVEL = 3;
@@ -113,6 +109,7 @@ public class ChapterCard {
         setProgress((int) Math.round(Math.random() * 100));
     }
 
+
     // Setters
     public void setTitle(String title) {
         mTitle = title;
@@ -170,6 +167,10 @@ public class ChapterCard {
         return mProgress;
     }
 
+    public boolean canCompile() {
+        return mCanCompile;
+    }
+
     public boolean isEmpty() {
         return mIsEmpty;
     }
@@ -205,8 +206,11 @@ public class ChapterCard {
 
     private void refreshAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
         AudioPlayer ap = getAudioPlayer(vh);
-        ap.reset();
-        ap.loadFile(mChapterWav);
+        if (!ap.isLoaded()) {
+            ap.reset();
+            ap.loadFile(mChapterWav);
+        }
+        ap.refreshView(vh.mElapsed, vh.mDuration, vh.mPlayPauseBtn, vh.mSeekBar);
     }
 
 
@@ -254,29 +258,15 @@ public class ChapterCard {
 
     public void destroyAudioPlayer() {
         if (mAudioPlayer != null) {
-            mAudioPlayer.get().reset();
+            AudioPlayer ap = mAudioPlayer.get();
+            ap.pause();
+            ap.reset();
             mAudioPlayer = null;
         }
     }
 
-
-    public boolean canCompile() {
-        return mCanCompile;
-    }
-
-//    public void refreshCanCompile(int numUnits){
-//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-//        int numStarted = db.getNumStartedUnits(mProject, mChapter);
-//        if(numUnits == numStarted){
-//            mCanCompile = true;
-//        }
-//        if(numStarted > 0){
-//            mIsEmpty = false;
-//        }
-//    }
-
-    public void setCanCompile(boolean yes){
-        mCanCompile = yes;
+    public void setCanCompile(boolean canCompile){
+        mCanCompile = canCompile;
     }
 
     public void compile() {
@@ -345,10 +335,6 @@ public class ChapterCard {
             @Override
             public void onClick(View view) {
                 pauseAudio(vh);
-                // NOTE: This will force the audio player to be re-initialized when the user comes
-                //    back to ActivityChapterList from NewRecording. If not, the play/pause
-                //    toggling will break because the audio player will still refer to the old
-                //    play/pause icon.
                 destroyAudioPlayer();
                 Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, vh.getAdapterPosition()+1, 1);
                 mCtx.startActivity(intent);
@@ -365,7 +351,6 @@ public class ChapterCard {
                     collapse(vh);
                 } else {
                     expand(vh);
-                    playAudio(vh);
                 }
             }
         };
