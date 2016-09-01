@@ -43,7 +43,9 @@ import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
  * Created by sarabiaj on 6/23/2016.
  */
 public class ActivityProjectManager extends AppCompatActivity implements ProjectInfoDialog.InfoDialogCallback,
-                                ProjectInfoDialog.ExportDelegator, Export.ProgressUpdateCallback{
+                                ProjectInfoDialog.ExportDelegator, Export.ProgressUpdateCallback, DatabaseResyncTaskFragment.DatabaseResyncCallback{
+
+
 
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
@@ -54,16 +56,23 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private int mNumProjects = 0;
     Activity mCtx;
     private ProgressDialog mPd;
+    private ProgressDialog mDatabaseProgressDialog;
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
     private volatile boolean mExporting = false;
     private ExportTaskFragment mExportTaskFragment;
+    private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
+    private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
+
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
+    private final String STATE_RESYNC = "db_resync";
     private final String STATE_PROGRESS = "upload_progress";
 
     public static final int PROJECT_WIZARD_REQUEST = RESULT_FIRST_USER;
+    private volatile int mDbProgress = 0;
+    private boolean mDbResyncing = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,11 +90,13 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
         FragmentManager fm = getFragmentManager();
         mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
+        mDatabaseResyncTaskFragment = (DatabaseResyncTaskFragment) fm.findFragmentByTag(TAG_DATABASE_RESYNC_FRAGMENT);
 
         if(savedInstanceState != null) {
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
             mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
             mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
+            mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
         }
 
         //check if fragment was retained from a screen rotation
@@ -100,14 +111,39 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                 exportProgress(mProgress);
             }
         }
+        if(mDatabaseResyncTaskFragment == null){
+            mDatabaseResyncTaskFragment = new DatabaseResyncTaskFragment();
+            fm.beginTransaction().add(mDatabaseResyncTaskFragment, TAG_DATABASE_RESYNC_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        } else if(mDbResyncing){
+            dbProgress();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if(!mDbResyncing) {
+            dbProgress();
+            mDatabaseResyncTaskFragment.resyncDatabase();
+        }
+    }
+
+    public void dbProgress(){
+        mDbResyncing = true;
+        mDatabaseProgressDialog = new ProgressDialog(this);
+        mDatabaseProgressDialog.setTitle("Resyncing Database");
+        mDatabaseProgressDialog.setMessage("Please Wait...");
+        mDatabaseProgressDialog.setIndeterminate(true);
+        mDatabaseProgressDialog.setCancelable(false);
+        mDatabaseProgressDialog.show();
+    }
+
+    public void onDatabaseResynced(){
+        mDatabaseProgressDialog.dismiss();
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.resyncDbWithFs(getAllTakes());
         mNumProjects = db.getNumProjects();
+        mDbResyncing = false;
         initializeViews();
     }
 
@@ -119,6 +155,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
+        savedInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
     }
 
     @Override
@@ -181,40 +218,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         } else {
             findViewById(R.id.recent_project).setVisibility(View.GONE);
         }
-    }
-
-    public void resyncDatabaseWithFilesystem(){
-        List<ContentValues> takes = getAllTakes();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.resyncDbWithFs(takes);
-    }
-
-    public List<ContentValues> getAllTakes(){
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File[] dirs = root.listFiles();
-        List<ContentValues> files = new LinkedList<>();
-        //files shouldn't be at this level, and the app currently could not handle adding them in this way.
-        //skip the visualization folder
-        for(File f : dirs){
-            if(f.isDirectory() && !f.getName().equals("Visualization")){
-                files.addAll(getFilesInDirectory(f.listFiles()));
-            }
-        }
-        return files;
-    }
-
-    public List<ContentValues> getFilesInDirectory(File[] files){
-        List<ContentValues> list = new LinkedList<>();
-        for(File f : files){
-            if(f.isDirectory()) {
-                list.addAll(getFilesInDirectory(f.listFiles()));
-            } else {
-                ContentValues cv = new ContentValues();
-                cv.put(ProjectContract.TempEntry.TEMP_TAKE_NAME, f.getName());
-                list.add(cv);
-            }
-        }
-        return list;
     }
 
     public void hideProjectsIfEmpty(int numProjects){
@@ -414,6 +417,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if(mPd != null && mPd.isShowing()){
             mPd.dismiss();
             mPd = null;
+        }
+        if(mDatabaseProgressDialog != null && mDatabaseProgressDialog.isShowing()){
+            mDatabaseProgressDialog.dismiss();
+            mDatabaseProgressDialog = null;
         }
     }
 

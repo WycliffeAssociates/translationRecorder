@@ -725,8 +725,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         for(ContentValues value : takes){
             db.insert(TempEntry.TABLE_TEMP, null, value);
         }
-        db.setTransactionSuccessful();
-        db.endTransaction();
         final String getMissingTakes = String.format("SELECT t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
                 TempEntry.TEMP_TAKE_NAME, TempEntry.TABLE_TEMP, TakeEntry.TABLE_TAKE, TempEntry.TEMP_TAKE_NAME, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_FILENAME);
         Cursor c = db.rawQuery(getMissingTakes, null);
@@ -754,6 +752,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 db.delete(TakeEntry.TABLE_TAKE, deleteTake, new String[]{String.valueOf(c.getInt(idIndex))});
             } while (c.moveToNext());
         }
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.execSQL(DELETE_TEMP);
     }
 }
