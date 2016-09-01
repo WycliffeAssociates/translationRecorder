@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v4.app.NavUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,14 +83,16 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean projectExists(Project project){
-        String languageCode = project.getTargetLanguage();
+        return projectExists(project.getTargetLanguage(), project.getSlug(), project.getSource());
+    }
+
+    public boolean projectExists(String languageCode, String slug, String version){
         int languageId = getLanguageId(languageCode);
-        String slug = project.getSlug();
         int bookId = getBookId(slug);
         SQLiteDatabase db = getReadableDatabase();
         final String projectCountQuery = "SELECT COUNT(*) FROM " + ProjectEntry.TABLE_PROJECT + " WHERE " + ProjectEntry.PROJECT_TARGET_LANGUAGE_FK + "=?"
-                + " AND " + ProjectEntry.PROJECT_BOOK_FK + "=? AND" + ProjectEntry.PROJECT_VERSION + "=?";
-        boolean exists = (DatabaseUtils.longForQuery(db, projectCountQuery, new String[]{String.valueOf(languageId),String.valueOf(bookId), project.getSource()})) > 0;
+                + " AND " + ProjectEntry.PROJECT_BOOK_FK + "=? AND " + ProjectEntry.PROJECT_VERSION + "=?";
+        boolean exists = (DatabaseUtils.longForQuery(db, projectCountQuery, new String[]{String.valueOf(languageId),String.valueOf(bookId), version})) > 0;
         //db.close();
         return exists;
     }
@@ -338,7 +341,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(LanguageEntry.LANGUAGE_CODE, code);
         cv.put(LanguageEntry.LANGUAGE_NAME, name);
-        long result = db.insert(LanguageEntry.TABLE_LANGUAGE, null, cv);
+        long result = db.insertWithOnConflict(LanguageEntry.TABLE_LANGUAGE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         //db.close();
     }
 
@@ -349,7 +352,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(BookEntry.BOOK_NAME, name);
         cv.put(BookEntry.BOOK_ANTHOLOGY, anthology);
         cv.put(BookEntry.BOOK_NUMBER, bookNumber);
-        long result = db.insert(BookEntry.TABLE_BOOK, null, cv);
+        long result = db.insertWithOnConflict(BookEntry.TABLE_BOOK, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         //db.close();
     }
 
@@ -372,6 +375,28 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectEntry.PROJECT_MODE, p.getMode());
         cv.put(ProjectEntry.PROJECT_CONTRIBUTORS, p.getContributors());
         cv.put(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
+        cv.put(ProjectEntry.PROJECT_NOTES, "");
+        cv.put(ProjectEntry.PROJECT_PROGRESS, 0);
+
+        long result = db.insert(ProjectEntry.TABLE_PROJECT, null, cv);
+        //db.close();
+    }
+
+    public void addProject(String languageCode, String slug, String version, String mode) throws IllegalArgumentException{
+        int targetLanguageId = getLanguageId(languageCode);
+        Integer sourceLanguageId = null;
+
+        int bookId = getBookId(slug);
+
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, targetLanguageId);
+        if(sourceLanguageId != null) {
+            cv.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, sourceLanguageId);
+        }
+        cv.put(ProjectEntry.PROJECT_BOOK_FK, bookId);
+        cv.put(ProjectEntry.PROJECT_VERSION, version);
+        cv.put(ProjectEntry.PROJECT_MODE, mode);
         cv.put(ProjectEntry.PROJECT_NOTES, "");
         cv.put(ProjectEntry.PROJECT_PROGRESS, 0);
 
@@ -411,14 +436,18 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(FileNameExtractor fne, String takeFilename, int rating){
+    public void addTake(FileNameExtractor fne, String takeFilename, int rating) {
         String book = fne.getBook();
         String language = fne.getLang();
         String version = fne.getSource();
         int chapter = fne.getChapter();
         int start = fne.getStartVerse();
+        if(!projectExists(language, book, version)){
+            addProject(language, book, version, fne.getMode());
+            addChapter(language, book, version, chapter);
+            addUnit(language, book, version, chapter, start);
         //If the chapter doesn't exist, then the unit can't either
-        if(!chapterExists(language, book, version, chapter)){
+        } else if(!chapterExists(language, book, version, chapter)){
             addChapter(language, book, version, chapter);
             addUnit(language, book, version, chapter, start);
         //chapter could exist, but unit may not yet
@@ -435,7 +464,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(TakeEntry.TAKE_NUMBER, fne.getTake());
         cv.put(TakeEntry.TAKE_FILENAME, takeFilename);
         long result = db.insert(TakeEntry.TABLE_TAKE, null, cv);
-        //db.close();
     }
 
     public List<Project> getAllProjects(){
@@ -581,6 +609,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     public void deleteProject(Project p){
         String projectId = String.valueOf(getProjectId(p));
         SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
         final String deleteTakes = String.format("DELETE FROM %s WHERE %s IN (SELECT %s FROM %s WHERE %s=?)",
                 TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, UnitEntry._ID, UnitEntry.TABLE_UNIT, UnitEntry.UNIT_PROJECT_FK);
         db.execSQL(deleteTakes, new String[]{projectId});
@@ -593,6 +622,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String deleteProject = String.format("DELETE FROM %s WHERE %s=?",
                 ProjectEntry.TABLE_PROJECT, ProjectEntry._ID);
         db.execSQL(deleteProject, new String[]{projectId});
+        db.setTransactionSuccessful();
+        db.endTransaction();
         //db.close();
     }
 
@@ -684,5 +715,45 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             } while(c.moveToNext());
         }
         return takesToCompile;
+    }
+
+    public void resyncDbWithFs(List<ContentValues> takes) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(DELETE_TEMP);
+        db.execSQL(TempEntry.CREATE_TEMP_TABLE);
+        db.beginTransaction();
+        for(ContentValues value : takes){
+            db.insert(TempEntry.TABLE_TEMP, null, value);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        final String getMissingTakes = String.format("SELECT t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+                TempEntry.TEMP_TAKE_NAME, TempEntry.TABLE_TEMP, TakeEntry.TABLE_TAKE, TempEntry.TEMP_TAKE_NAME, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_FILENAME);
+        Cursor c = db.rawQuery(getMissingTakes, null);
+        if(c.getCount() > 0){
+            int index = c.getColumnIndex(TempEntry.TEMP_TAKE_NAME);
+            c.moveToFirst();
+            do {
+                FileNameExtractor fne = new FileNameExtractor(c.getString(index));
+                addTake(fne, c.getString(index), 0);
+            } while (c.moveToNext());
+        }
+        c.close();
+        final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+                TakeEntry.TAKE_FILENAME, TakeEntry._ID, TakeEntry.TABLE_TAKE, TempEntry.TABLE_TEMP, TempEntry.TEMP_TAKE_NAME, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_FILENAME);
+        c = db.rawQuery(deleteDanglingReferences, null);
+        if(c.getCount() > 0) {
+            int idIndex = c.getColumnIndex(TakeEntry._ID);
+            final String deleteTake = String.format("%s=?", TakeEntry._ID);
+            final String removeSelectedTake = String.format("%s=?", UnitEntry.UNIT_CHOSEN_TAKE_FK);
+            c.moveToFirst();
+            do {
+                ContentValues cv = new ContentValues();
+                cv.putNull(UnitEntry.UNIT_CHOSEN_TAKE_FK);
+                db.update(UnitEntry.TABLE_UNIT, cv, removeSelectedTake, new String[] {String.valueOf(c.getInt(idIndex))});
+                db.delete(TakeEntry.TABLE_TAKE, deleteTake, new String[]{String.valueOf(c.getInt(idIndex))});
+            } while (c.moveToNext());
+        }
+        db.execSQL(DELETE_TEMP);
     }
 }

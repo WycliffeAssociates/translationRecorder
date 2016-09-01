@@ -137,6 +137,16 @@ public final class ProjectContract {
                 + " );";
     }
 
+    public static abstract class TempEntry implements BaseColumns {
+        public static final String TABLE_TEMP = "stuff";
+        public static final String TEMP_TAKE_NAME = "filename";
+
+        public static final String CREATE_TEMP_TABLE = "CREATE TABLE " + TABLE_TEMP + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + TEMP_TAKE_NAME + " TEXT"
+                + " );";
+    }
+
     public static final String TEXT = " TEXT";
     public static final String INTEGER = " INTEGER";
     public static final String COMMA = ",";
@@ -149,5 +159,7 @@ public final class ProjectContract {
     public static final String DELETE_CHAPTERS = "DROP TABLE IF EXISTS " + ChapterEntry.TABLE_CHAPTER;
     public static final String DELETE_UNITS = "DROP TABLE IF EXISTS " + UnitEntry.TABLE_UNIT;
     public static final String DELETE_TAKES = "DROP TABLE IF EXISTS " + TakeEntry.TABLE_TAKE;
+
+    public static final String DELETE_TEMP = "DROP TABLE IF EXISTS stuff";
 }
 
