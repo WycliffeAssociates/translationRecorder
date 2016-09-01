@@ -5,10 +5,12 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -23,10 +25,11 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
 import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
@@ -40,7 +43,9 @@ import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
  * Created by sarabiaj on 6/23/2016.
  */
 public class ActivityProjectManager extends AppCompatActivity implements ProjectInfoDialog.InfoDialogCallback,
-                                ProjectInfoDialog.ExportDelegator, Export.ProgressUpdateCallback{
+                                ProjectInfoDialog.ExportDelegator, Export.ProgressUpdateCallback, DatabaseResyncTaskFragment.DatabaseResyncCallback{
+
+
 
     LinearLayout mProjectLayout;
     Button mNewProjectButton;
@@ -51,16 +56,23 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private int mNumProjects = 0;
     Activity mCtx;
     private ProgressDialog mPd;
+    private ProgressDialog mDatabaseProgressDialog;
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
     private volatile boolean mExporting = false;
     private ExportTaskFragment mExportTaskFragment;
+    private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
+    private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
+
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
+    private final String STATE_RESYNC = "db_resync";
     private final String STATE_PROGRESS = "upload_progress";
 
     public static final int PROJECT_WIZARD_REQUEST = RESULT_FIRST_USER;
+    private volatile int mDbProgress = 0;
+    private boolean mDbResyncing = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,11 +90,13 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
         FragmentManager fm = getFragmentManager();
         mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
+        mDatabaseResyncTaskFragment = (DatabaseResyncTaskFragment) fm.findFragmentByTag(TAG_DATABASE_RESYNC_FRAGMENT);
 
         if(savedInstanceState != null) {
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
             mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
             mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
+            mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
         }
 
         //check if fragment was retained from a screen rotation
@@ -97,13 +111,39 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                 exportProgress(mProgress);
             }
         }
+        if(mDatabaseResyncTaskFragment == null){
+            mDatabaseResyncTaskFragment = new DatabaseResyncTaskFragment();
+            fm.beginTransaction().add(mDatabaseResyncTaskFragment, TAG_DATABASE_RESYNC_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        } else if(mDbResyncing){
+            dbProgress();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if(!mDbResyncing) {
+            dbProgress();
+            mDatabaseResyncTaskFragment.resyncDatabase();
+        }
+    }
+
+    public void dbProgress(){
+        mDbResyncing = true;
+        mDatabaseProgressDialog = new ProgressDialog(this);
+        mDatabaseProgressDialog.setTitle("Resyncing Database");
+        mDatabaseProgressDialog.setMessage("Please Wait...");
+        mDatabaseProgressDialog.setIndeterminate(true);
+        mDatabaseProgressDialog.setCancelable(false);
+        mDatabaseProgressDialog.show();
+    }
+
+    public void onDatabaseResynced(){
+        mDatabaseProgressDialog.dismiss();
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         mNumProjects = db.getNumProjects();
+        mDbResyncing = false;
         initializeViews();
     }
 
@@ -115,6 +155,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
+        savedInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
     }
 
     @Override
@@ -376,6 +417,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if(mPd != null && mPd.isShowing()){
             mPd.dismiss();
             mPd = null;
+        }
+        if(mDatabaseProgressDialog != null && mDatabaseProgressDialog.isShowing()){
+            mDatabaseProgressDialog.dismiss();
+            mDatabaseProgressDialog = null;
         }
     }
 

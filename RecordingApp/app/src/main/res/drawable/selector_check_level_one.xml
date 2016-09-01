@@ -3,7 +3,7 @@
 
     <item
         android:state_activated="false"
-        android:drawable="@drawable/box_1_black_o"
+        android:drawable="@drawable/box_1_black_o_disabled"
         />
 
     <item

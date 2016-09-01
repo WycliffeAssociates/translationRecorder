@@ -84,8 +84,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             }
             switch (item.getItemId()) {
                 case R.id.chapters_checking_level:
-                    // NOTE: Currently only pass in placeholder text. Replace with real chapter names.
-                    CheckingDialog dialog = CheckingDialog.newInstance(mProject, chapters);
+                    CheckingDialog dialog = CheckingDialog.newInstance(mProject, chapters, getCommonCheckingLevel());
                     dialog.show(mCtx.getFragmentManager(), "multi_chapter_checking_level");
                     break;
                 case R.id.chapters_compile:
@@ -352,6 +351,23 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         }
 
         mActionMode.getMenu().findItem(R.id.chapters_checking_level).setEnabled(checkEnabled);
+    }
+
+    private int getCommonCheckingLevel() {
+        List<ChapterCard> selectedCards = getSelectedCards();
+        int length = selectedCards.size();
+        int checkingLevel = length >= 1 ? selectedCards.get(0).getCheckingLevel() : CheckingDialog.NO_LEVEL_SELECTED;
+
+        // If there are more items, check if their checking level is similar. If not, set the
+        // checking level to an empty value
+        for (int i = 1; i < length; i++) {
+            if (selectedCards.get(i).getCheckingLevel() != checkingLevel) {
+                checkingLevel = CheckingDialog.NO_LEVEL_SELECTED;
+                break;
+            }
+        }
+
+        return checkingLevel;
     }
 
 

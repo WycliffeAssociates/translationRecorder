@@ -170,51 +170,63 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                 mSelectedCards.remove(this);
                 unitCard.drop(holder);
             }
+            // Hide expand icon if it's empty
+            if (unitCard.isEmpty()) {
+                mUnitExpandBtn.setVisibility(View.INVISIBLE);
+            } else {
+                mUnitExpandBtn.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
         public void onClick(View view) {
-            if (mUnitCard == null) {
-                return;
-            }
-
-            if(mMultiSelector.isSelectable()) {
-                // Close card if it is expanded in multi-select mode
-                if(mUnitCard.isExpanded()){
-                    toggleExpansion(this, mExpandedCards);
-                }
-
-                // Select/de-select item
-                mMultiSelector.tapSelection(this);
-
-                // Raise/drop card
-                if (mMultiSelector.isSelected(this.getAdapterPosition(), 0)) {
-                    mSelectedCards.add(this);
-                    mUnitCard.raise(this);
-                } else {
-                    mSelectedCards.remove(this);
-                    mUnitCard.drop(this);
-                }
-
-                // Finish action mode if all cards are de-selected
-                if (mActionMode != null && mSelectedCards.size() <= 0) {
-                    mActionMode.finish();
-                }
-            }
+            // NOTE: There is no action that needs multi-select at unit level at this point
+//            if (mUnitCard == null) {
+//                return;
+//            }
+//
+//            if(mMultiSelector.isSelectable() && !mUnitCard.isEmpty()) {
+//
+//                // Close card if it is expanded in multi-select mode
+//                if(mUnitCard.isExpanded()){
+//                    toggleExpansion(this, mExpandedCards);
+//                }
+//
+//                // Select/de-select item
+//                mMultiSelector.tapSelection(this);
+//
+//                // Raise/drop card
+//                if (mMultiSelector.isSelected(this.getAdapterPosition(), 0)) {
+//                    mSelectedCards.add(this);
+//                    mUnitCard.raise(this);
+//                } else {
+//                    mSelectedCards.remove(this);
+//                    mUnitCard.drop(this);
+//                }
+//
+//                // Finish action mode if all cards are de-selected
+//                if (mActionMode != null && mSelectedCards.size() <= 0) {
+//                    mActionMode.finish();
+//                }
+//            }
         }
 
         @Override
         public boolean onLongClick(View view) {
-            mActionMode = mCtx.startSupportActionMode(mMultiSelectMode);
-            mMultiSelector.setSelected(this, true);
+            // NOTE: There is no action that needs multi-select at unit level at this point
+//            if (!mUnitCard.isEmpty()) {
+//                mActionMode = mCtx.startSupportActionMode(mMultiSelectMode);
+//                mMultiSelector.setSelected(this, true);
+//
+//                // Close card if it is expanded on entering multi-select mode
+//                if(mUnitCard.isExpanded()){
+//                    toggleExpansion(this, mExpandedCards);
+//                }
+//
+//                mSelectedCards.add(this);
+//                mUnitCard.raise(this);
+//            }
 
-            // Close card if it is expanded on entering multi-select mode
-            if(mUnitCard.isExpanded()){
-                toggleExpansion(this, mExpandedCards);
-            }
-
-            mSelectedCards.add(this);
-            mUnitCard.raise(this);
             return true;
         }
     }

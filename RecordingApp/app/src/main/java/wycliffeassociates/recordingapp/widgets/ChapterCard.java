@@ -304,7 +304,7 @@ public class ChapterCard {
             @Override
             public void onClick(View view) {
                 pauseAudio(vh);
-                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1);
+                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1, mCheckingLevel);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
