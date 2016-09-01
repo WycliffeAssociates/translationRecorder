@@ -338,7 +338,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(LanguageEntry.LANGUAGE_CODE, code);
         cv.put(LanguageEntry.LANGUAGE_NAME, name);
-        long result = db.insert(LanguageEntry.TABLE_LANGUAGE, null, cv);
+        long result = db.insertWithOnConflict(LanguageEntry.TABLE_LANGUAGE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         //db.close();
     }
 
@@ -349,7 +349,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(BookEntry.BOOK_NAME, name);
         cv.put(BookEntry.BOOK_ANTHOLOGY, anthology);
         cv.put(BookEntry.BOOK_NUMBER, bookNumber);
-        long result = db.insert(BookEntry.TABLE_BOOK, null, cv);
+        long result = db.insertWithOnConflict(BookEntry.TABLE_BOOK, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         //db.close();
     }
 
