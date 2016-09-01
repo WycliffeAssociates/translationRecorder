@@ -96,16 +96,10 @@ public class SplashScreen extends Activity {
             Book[] books = parse.pullBooks();
             Language[] languages = parse.pullLangNames();
             for (Book book : books) {
-                try {
-                    db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
-                } catch (SQLiteConstraintException e) {
-                }
+                db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
             }
             for (Language language : languages) {
-                try {
-                    db.addLanguage(language.getCode(), language.getName());
-                } catch (SQLiteConstraintException e){
-                }
+                db.addLanguage(language.getCode(), language.getName());
             }
             System.out.println("Proof: en is " + db.getLanguageName("en"));
         } catch (JSONException e) {
