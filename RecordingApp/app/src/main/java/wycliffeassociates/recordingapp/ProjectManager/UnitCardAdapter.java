@@ -170,6 +170,12 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                 mSelectedCards.remove(this);
                 unitCard.drop(holder);
             }
+            // Hide expand icon if it's empty
+            if (unitCard.isEmpty()) {
+                mUnitExpandBtn.setVisibility(View.INVISIBLE);
+            } else {
+                mUnitExpandBtn.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override

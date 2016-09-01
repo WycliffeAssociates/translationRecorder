@@ -197,7 +197,6 @@ public class UnitCard {
         } else {
             text = "Take 0 of " + takes.size();
             timestamp.setText("");
-
         }
         takeView.setText(text);
         takeView.invalidate();
