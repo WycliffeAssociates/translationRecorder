@@ -31,11 +31,14 @@ import wycliffeassociates.recordingapp.widgets.ChapterCard;
  * Created by sarabiaj on 6/28/2016.
  */
 public class ActivityChapterList extends AppCompatActivity implements
-        CheckingDialog.DialogListener, CompileDialog.DialogListener, UpdateProgressCallback {
+        CheckingDialog.DialogListener, CompileDialog.DialogListener, UpdateProgressCallback, DatabaseResyncTaskFragment.DatabaseResyncCallback {
 
     public static String PROJECT_KEY = "project_key";
     public static final String STATE_COMPILING = "compiling";
+    private final String STATE_RESYNC = "db_resync";
     private static final String TAG_COMPILE_CHAPTER_TASK_FRAGMENT = "tag_compile_chapter";
+    private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
+
     private Chunks mChunks;
     private ProgressDialog mPd;
     private volatile boolean mIsCompiling = false;
@@ -47,6 +50,9 @@ public class ActivityChapterList extends AppCompatActivity implements
     private CompileChapterTaskFragment mCompileChapterTaskFragment;
     private volatile int mProgress = 0;
     private static final String STATE_PROGRESS = "progress";
+    private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
+    private boolean mDbResyncing;
+    private ProgressDialog mDatabaseProgressDialog;
 
     public static Intent getActivityVerseListIntent(Context ctx, Project p){
         Intent intent = new Intent(ctx, ActivityUnitList.class);
@@ -68,6 +74,7 @@ public class ActivityChapterList extends AppCompatActivity implements
                 mIsCompiling = true;
                 compileProgress(mProgress);
             }
+            mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC);
         }
 
         //check if fragment was retained from a screen rotation
@@ -75,6 +82,13 @@ public class ActivityChapterList extends AppCompatActivity implements
             mCompileChapterTaskFragment = new CompileChapterTaskFragment();
             fm.beginTransaction().add(mCompileChapterTaskFragment, TAG_COMPILE_CHAPTER_TASK_FRAGMENT).commit();
             fm.executePendingTransactions();
+        }
+        if(mDatabaseResyncTaskFragment == null){
+            mDatabaseResyncTaskFragment = new DatabaseResyncTaskFragment();
+            fm.beginTransaction().add(mDatabaseResyncTaskFragment, TAG_DATABASE_RESYNC_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        } else if(mDbResyncing){
+            dbProgress();
         }
 
         // Setup toolbar
@@ -116,9 +130,33 @@ public class ActivityChapterList extends AppCompatActivity implements
         prepareChapterCardData();
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
+        if(!mDbResyncing) {
+            dbProgress();
+            mDatabaseResyncTaskFragment.resyncDatabase();
+        }
+    }
+
+    public void dbProgress(){
+        mDbResyncing = true;
+        mDatabaseProgressDialog = new ProgressDialog(this);
+        mDatabaseProgressDialog.setTitle("Resyncing Database");
+        mDatabaseProgressDialog.setMessage("Please Wait...");
+        mDatabaseProgressDialog.setIndeterminate(true);
+        mDatabaseProgressDialog.setCancelable(false);
+        mDatabaseProgressDialog.show();
+    }
+
+    public void onDatabaseResynced(){
+        mDatabaseProgressDialog.dismiss();
+        mDbResyncing = false;
+        refreshChapterCards();
+    }
+
+    public void refreshChapterCards(){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int numChapters = mChunks.getNumChapters();
         int[] numStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
@@ -152,6 +190,7 @@ public class ActivityChapterList extends AppCompatActivity implements
     public void onSaveInstanceState(Bundle saveInstanceState){
         saveInstanceState.putBoolean(STATE_COMPILING, mIsCompiling);
         saveInstanceState.putInt(STATE_PROGRESS, mProgress);
+        saveInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
         super.onSaveInstanceState(saveInstanceState);
     }
 

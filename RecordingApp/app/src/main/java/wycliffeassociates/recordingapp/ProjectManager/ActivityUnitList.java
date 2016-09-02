@@ -1,5 +1,7 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
+import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,10 +28,13 @@ import wycliffeassociates.recordingapp.widgets.UnitCard;
  * Created by sarabiaj on 6/30/2016.
  */
 public class ActivityUnitList extends AppCompatActivity implements CheckingDialog.DialogListener,
-        RatingDialog.DialogListener{
+        RatingDialog.DialogListener, DatabaseResyncTaskFragment.DatabaseResyncCallback{
 
     public static String PROJECT_KEY = "project_key";
     public static String CHAPTER_KEY = "chapter_key";
+
+    private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
+    private final String STATE_RESYNC = "db_resync";
 
     public static Intent getActivityVerseListIntent(Context ctx, Project p, int chapter){
         Intent intent = new Intent(ctx, ActivityUnitList.class);
@@ -44,7 +49,9 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private UnitCardAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
     private RecyclerView mUnitList;
-
+    private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
+    private boolean mDbResyncing;
+    private ProgressDialog mDatabaseProgressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +61,19 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
         mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        FragmentManager fm = getFragmentManager();
+
+        if(savedInstanceState != null){
+            mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC);
+        }
+
+        if(mDatabaseResyncTaskFragment == null){
+            mDatabaseResyncTaskFragment = new DatabaseResyncTaskFragment();
+            fm.beginTransaction().add(mDatabaseResyncTaskFragment, TAG_DATABASE_RESYNC_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        } else if(mDbResyncing){
+            dbProgress();
+        }
 
         // Setup toolbar
         String language = db.getLanguageName(mProject.getTargetLanguage());
@@ -88,6 +108,35 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     @Override
     protected void onResume() {
         super.onResume();
+        if(!mDbResyncing) {
+            dbProgress();
+            mDatabaseResyncTaskFragment.resyncDatabase();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saveInstanceState){
+        saveInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
+        super.onSaveInstanceState(saveInstanceState);
+    }
+
+    public void dbProgress(){
+        mDbResyncing = true;
+        mDatabaseProgressDialog = new ProgressDialog(this);
+        mDatabaseProgressDialog.setTitle("Resyncing Database");
+        mDatabaseProgressDialog.setMessage("Please Wait...");
+        mDatabaseProgressDialog.setIndeterminate(true);
+        mDatabaseProgressDialog.setCancelable(false);
+        mDatabaseProgressDialog.show();
+    }
+
+    public void onDatabaseResynced(){
+        mDatabaseProgressDialog.dismiss();
+        mDbResyncing = false;
+        refreshUnitCards();
+    }
+
+    public void refreshUnitCards(){
         for(int i = 0; i < mUnitCardList.size(); i++){
             mUnitCardList.get(i).refreshUnitStarted(mProject, mChapterNum, mUnitCardList.get(i).getStartVerse());
         }
