@@ -39,9 +39,11 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  */
 public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.ViewHolder> {
 
+    // Constants
     private int MULTI_CHECK_LEVEL_BTN = 0;
     private int MULTI_COMPILE_BTN = 1;
 
+    // Attributes
     private AppCompatActivity mCtx;
     private Project mProject;
     private List<ChapterCard> mChapterCardList;
@@ -110,7 +112,6 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             mSelectedCards.clear();
             setIconsClickable(true);
         }
-
     };
 
 
@@ -164,20 +165,24 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             setDefaultModeBackgroundDrawable(null);
         }
 
-        // Called on onBindViewHolder, when the view is visible on the screen
         public void  bindViewHolder(ViewHolder holder, int position, ChapterCard chapterCard) {
             mChapterCard = chapterCard;
 
+            // Title
             mTitle.setText(chapterCard.getTitle());
 
+            // Progress Pie
             mChapterCard.refreshProgress(mProject, position+1);
             mProgressPie.setProgress(mChapterCard.getProgress());
 
+            // Checking Level
             mChapterCard.refreshCheckingLevel(mProject, position+1);
             mCheckLevelBtn.setStep(mChapterCard.getCheckingLevel());
 
+            // Compile
             mCompileBtn.setActivated(mChapterCard.canCompile());
 
+            // Checking Level and Expansion
             if (mChapterCard.isCompiled()) {
                 mCheckLevelBtn.setVisibility(View.VISIBLE);
                 mExpandBtn.setVisibility(View.VISIBLE);
@@ -204,6 +209,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 mChapterCard.drop(holder);
             }
 
+            // Clickable
             mChapterCard.setIconsClickable(holder);
 
             setListeners(this, mChapterCard);
@@ -246,6 +252,9 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 }
 
             } else {
+                mChapterCard.pauseAudio(this);
+                mChapterCard.destroyAudioPlayer();
+
                 Intent intent = ActivityUnitList.getActivityVerseListIntent(mCtx, mProject, getAdapterPosition()+1);
                 mCtx.startActivity(intent);
             }
@@ -276,6 +285,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
     }
 
 
+    // Overrides
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -293,6 +303,26 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
     @Override
     public int getItemCount() {
         return mChapterCardList.size();
+    }
+
+
+    // Getters
+    public List<ChapterCard> getSelectedCards() {
+        List<ChapterCard> cards = new ArrayList<>();
+        for (int i = getItemCount(); i >= 0; i--) {
+            if (mMultiSelector.isSelected(i, 0)) {
+                cards.add(mChapterCardList.get(i));
+            }
+        }
+        return cards;
+    }
+
+    public boolean isInActionMode() {
+        return mActionMode != null;
+    }
+
+    public ActionMode getActionMode() {
+        return mActionMode;
     }
 
 
@@ -356,14 +386,6 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         }
     }
 
-    public boolean isInActionMode() {
-        return mActionMode != null;
-    }
-
-    public ActionMode getActionMode() {
-        return mActionMode;
-    }
-
     public void setIconsClickable(boolean clickable) {
         for (int i = 0; i < mChapterCardList.size(); i++) {
             mChapterCardList.get(i).setIconsClickable(clickable);
@@ -371,14 +393,12 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         }
     }
 
-    public List<ChapterCard> getSelectedCards() {
-        List<ChapterCard> cards = new ArrayList<>();
-        for (int i = getItemCount(); i >= 0; i--) {
-            if (mMultiSelector.isSelected(i, 0)) {
-                cards.add(mChapterCardList.get(i));
+    public void exitCleanUp() {
+        for (ChapterCard cc : mChapterCardList) {
+            if (cc.isExpanded()) {
+                cc.destroyAudioPlayer();
             }
         }
-        return cards;
     }
 
 }

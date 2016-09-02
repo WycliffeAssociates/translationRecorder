@@ -134,9 +134,15 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        mAdapter.exitCleanUp();
+    }
+
+    @Override
     public void onDestroy(){
         super.onDestroy();
-        if(mPd != null && mPd.isShowing()){
+        if (mPd != null && mPd.isShowing()){
             mPd.dismiss();
             mPd = null;
         }
@@ -189,13 +195,13 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     public void onPositiveClick(CheckingDialog dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        int[] chapters = dialog.getChapterIndicies();
-        for(int i =0; i < chapters.length; i++) {
-            db.setCheckingLevel(dialog.getProject(), chapters[i]+1, dialog.getCheckingLevel());
+        int[] chapterIndicies = dialog.getChapterIndicies();
+        for(int i = 0; i < chapterIndicies.length; i++) {
+            int position = chapterIndicies[i];
+            db.setCheckingLevel(dialog.getProject(), position+1, dialog.getCheckingLevel());
+            mAdapter.notifyItemChanged(position);
         }
         db.close();
-        dialog.dismiss();
-        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -203,6 +209,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         List<ChapterCard> toCompile = new ArrayList<>();
         for(int i : dialog.getChapterInicies()){
             toCompile.add(mChapterCardList.get(i));
+            mChapterCardList.get(i).destroyAudioPlayer();
         }
         mCompileChapterTaskFragment.compile(toCompile, dialog.getChapterInicies());
     }

@@ -239,7 +239,7 @@ public class Logger {
     /**
      * Empties the log file
      */
-    public static void flush() {
+    public synchronized static void flush() {
         if (sInstance.mLogFile != null) {
             sInstance.mLogFile.delete();
         } else {
@@ -263,7 +263,7 @@ public class Logger {
      * @param logMessageTag A tag identifying a group of log messages.
      * @param logMessage    The message to add to the log.
      */
-    private void logToFile(Level level, String logMessageTag, String logMessage) {
+    private synchronized void logToFile(Level level, String logMessageTag, String logMessage) {
         // filter out logging levels
         if (level.getIndex() >= mMinLoggingLevel.getIndex() && mLogFile != null) {
             try {
@@ -298,7 +298,7 @@ public class Logger {
      * Returns a list of log entries
      * @return
      */
-    public static List<Entry> getLogEntries() {
+    public synchronized static List<Entry> getLogEntries() {
         List<Entry> logs = new ArrayList<>();
         if (sInstance.mLogFile != null) {
             try {

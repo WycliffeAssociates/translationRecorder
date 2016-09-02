@@ -45,6 +45,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private LinearLayoutManager mLayoutManager;
     private RecyclerView mUnitList;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +95,12 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        mAdapter.exitCleanUp();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -106,11 +113,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     @Override
     public void onPositiveClick(CheckingDialog dialog) {
-//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-//        db.setCheckingLevel(new FileNameExtractor(dialog.getTakeName()), dialog.getCheckingLevel());
-//        db.close();
-        dialog.dismiss();
-        mAdapter.notifyDataSetChanged();
+        // NOTE: Deprecated
     }
 
     @Override
@@ -118,21 +121,16 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
         db.close();
-        dialog.dismiss();
         mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onNegativeClick(CheckingDialog dialog) {
-        System.out.println("Cancel out of Checking dialog");
-        // NOTE: Do nothing?
         dialog.dismiss();
     }
 
     @Override
     public void onNegativeClick(RatingDialog dialog) {
-        System.out.println("Cancel out of Rating dialog");
-        // NOTE: Do nothing?
         dialog.dismiss();
     }
 
@@ -148,5 +146,4 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             e.printStackTrace();
         }
     }
-
 }
