@@ -314,7 +314,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
             }
         }
 
-        File dir = Project.getProjectDirectory(mProject);
+        File dir = new File(Project.getProjectDirectory(mProject), FileNameExtractor.chapterIntToString(mProject, mChapter));
         File from = mWavFile.getFile();
         int takeInt = FileNameExtractor.getLargestTake(dir, from)+1;
         String take = String.format("%02d", takeInt);
@@ -346,6 +346,9 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                         mManager.writeCut(toTemp, to, from, pd);
                         to.delete();
                         toTemp.renameTo(to);
+                        ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
+                        db.addTake(new FileNameExtractor(to), to.getName(), 0);
+                        db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));
                         File toVis = new File(AudioInfo.pathToVisFile, oldName + ".vis");
