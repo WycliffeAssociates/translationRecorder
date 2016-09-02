@@ -287,8 +287,7 @@ public class UnitCard {
     public void destroyAudioPlayer() {
         if (mAudioPlayer != null) {
             AudioPlayer ap = mAudioPlayer.get();
-            ap.pause();
-            ap.reset();
+            ap.cleanup();
             mAudioPlayer = null;
         }
     }

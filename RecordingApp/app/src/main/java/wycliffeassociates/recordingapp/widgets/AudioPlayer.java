@@ -14,6 +14,8 @@ import org.w3c.dom.Text;
 import java.io.File;
 import java.io.IOException;
 
+import wycliffeassociates.recordingapp.Reporting.Logger;
+
 /**
  * Created by sarabiaj on 7/7/2016.
  */
@@ -49,8 +51,11 @@ public class AudioPlayer {
     // Overrides
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
-        cleanup();
+        try {
+            cleanup();
+        } finally {
+            super.finalize();
+        }
     }
 
 
@@ -132,6 +137,13 @@ public class AudioPlayer {
                 }
             }
         });
+        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                Logger.e(mp.toString(), "onError called, error what is " + what + " error extra is " + extra);
+                return false;
+            }
+        });
     }
 
     private void togglePlayPauseButton(boolean isPlaying) {
@@ -164,6 +176,7 @@ public class AudioPlayer {
             mDuration = convertTimeToString(duration);
             updateDurationView(mDuration);
         } catch (IOException e) {
+            Logger.w(this.toString(), "loading a file threw an IO exception");
             e.printStackTrace();
         }
     }
@@ -191,7 +204,7 @@ public class AudioPlayer {
                 };
                 loop.run();
             } catch (IllegalStateException e){
-
+                Logger.w(this.toString(), "playing threw an illegal state exception");
             }
         }
     }
@@ -202,7 +215,7 @@ public class AudioPlayer {
                 mMediaPlayer.pause();
                 togglePlayPauseButton(false);
             } catch (IllegalStateException e) {
-
+                Logger.w(this.toString(), "Pausing threw an illegal state exception");
             }
         }
     }
@@ -221,10 +234,13 @@ public class AudioPlayer {
 
     public void cleanup(){
         synchronized (mMediaPlayer){
-            if(!mPlayerReleased && mMediaPlayer.isPlaying()){
-                mMediaPlayer.pause();
+            if(!mPlayerReleased) {
+                if(mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.stop();
+                }
+                mMediaPlayer.reset();
+                mMediaPlayer.release();
             }
-            mMediaPlayer.release();
             mPlayerReleased = true;
         }
     }
