@@ -42,6 +42,7 @@ public class ChapterCard {
     // Attributes
     private Activity mCtx;
     private Project mProject;
+    private ChapterCardAdapter.ViewHolder mViewHolder;
     private SoftReference<AudioPlayer> mAudioPlayer;
     private File mChapterWav;
     private String mTitle = "";
@@ -50,9 +51,9 @@ public class ChapterCard {
 
     // State
     private boolean mIsEmpty = true;
-    private boolean mIsCompiled = true;
+    private boolean mCanCompile = false;
+    private boolean mIsCompiled = false;
     private boolean mIsExpanded = false;
-    private boolean mCanCompile = true;
     private boolean mIconsClickable = true;
 
 
@@ -61,8 +62,6 @@ public class ChapterCard {
         mCtx = ctx;
         mProject = proj;
         mTitle = "Chapter " + chapter;
-        mCanCompile = false;
-        mIsCompiled = false;
         mChapter = chapter;
         refreshChapterStarted(proj, chapter);
         refreshChapterCompiled(proj, chapter);
@@ -111,6 +110,10 @@ public class ChapterCard {
 
 
     // Setters
+    public void setViewHolder(ChapterCardAdapter.ViewHolder vh) {
+        mViewHolder = vh;
+    }
+
     public void setTitle(String title) {
         mTitle = title;
     }
@@ -135,26 +138,32 @@ public class ChapterCard {
         }
     }
 
-    public void setIconsEnabled(ChapterCardAdapter.ViewHolder vh, boolean enabled) {
-        vh.mCheckLevelBtn.setEnabled(enabled);
-        vh.mCompileBtn.setEnabled(enabled);
-        vh.mRecordBtn.setEnabled(enabled);
-        vh.mExpandBtn.setEnabled(enabled);
+    public void setIconsEnabled(boolean enabled) {
+        if (mViewHolder != null) {
+            mViewHolder.checkLevelBtn.setEnabled(enabled);
+            mViewHolder.compileBtn.setEnabled(enabled);
+            mViewHolder.recordBtn.setEnabled(enabled);
+            mViewHolder.expandBtn.setEnabled(enabled);
+        }
     }
 
     public void setIconsClickable(boolean clickable) {
         mIconsClickable = clickable;
     }
 
-    public void setIconsClickable(ChapterCardAdapter.ViewHolder vh) {
-        vh.mCheckLevelBtn.setClickable(mIconsClickable);
-        vh.mCompileBtn.setClickable(mIconsClickable);
-        vh.mRecordBtn.setClickable(mIconsClickable);
-        vh.mExpandBtn.setClickable(mIconsClickable);
+    public void setIconsClickable() {
+        mViewHolder.checkLevelBtn.setClickable(mIconsClickable);
+        mViewHolder.compileBtn.setClickable(mIconsClickable);
+        mViewHolder.recordBtn.setClickable(mIconsClickable);
+        mViewHolder.expandBtn.setClickable(mIconsClickable);
     }
 
 
     // Getters
+    public ChapterCardAdapter.ViewHolder getViewHolder() {
+        return mViewHolder;
+    }
+
     public String getTitle() {
         return mTitle;
     }
@@ -187,73 +196,90 @@ public class ChapterCard {
 
 
     // Private Methods
-    private AudioPlayer getAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
+    private AudioPlayer getAudioPlayer() {
         AudioPlayer ap = null;
         if (mAudioPlayer != null) {
             ap = mAudioPlayer.get();
         }
         if (ap == null) {
-            ap = initializeAudioPlayer(vh);
+            ap = initializeAudioPlayer();
         }
         return ap;
     }
 
-    private AudioPlayer initializeAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
-        AudioPlayer ap = new AudioPlayer(vh.mElapsed, vh.mDuration, vh.mPlayPauseBtn, vh.mSeekBar);
+    private AudioPlayer initializeAudioPlayer() {
+        AudioPlayer ap = new AudioPlayer();
+        if (mViewHolder != null) {
+            ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.playPauseBtn, mViewHolder.seekBar);
+        }
         mAudioPlayer = new SoftReference<AudioPlayer>(ap);
         return ap;
     }
 
-    private void refreshAudioPlayer(ChapterCardAdapter.ViewHolder vh) {
-        AudioPlayer ap = getAudioPlayer(vh);
+    private void refreshAudioPlayer() {
+        AudioPlayer ap = getAudioPlayer();
         if (!ap.isLoaded()) {
             ap.reset();
             ap.loadFile(mChapterWav);
         }
-        ap.refreshView(vh.mElapsed, vh.mDuration, vh.mPlayPauseBtn, vh.mSeekBar);
+        ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.playPauseBtn, mViewHolder.seekBar);
     }
 
 
     // Public API
-    public void expand(ChapterCardAdapter.ViewHolder vh) {
-        refreshAudioPlayer(vh);
-        vh.mCardBody.setVisibility(View.VISIBLE);
-        vh.mExpandBtn.setActivated(true);
+    public void expand() {
+        refreshAudioPlayer();
+        if (mViewHolder != null) {
+            mViewHolder.cardBody.setVisibility(View.VISIBLE);
+            mViewHolder.expandBtn.setActivated(true);
+        }
         mIsExpanded = true;
     }
 
-    public void collapse(ChapterCardAdapter.ViewHolder vh) {
-        vh.mCardBody.setVisibility(View.GONE);
-        vh.mExpandBtn.setActivated(false);
+    public void collapse() {
+        if (mViewHolder != null) {
+            mViewHolder.cardBody.setVisibility(View.GONE);
+            mViewHolder.expandBtn.setActivated(false);
+        }
         mIsExpanded = false;
     }
 
-    public void raise(ChapterCardAdapter.ViewHolder vh) {
-        vh.mCardView.setCardElevation(8f);
-        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
-        vh.mTitle.setTextColor(mCtx.getResources().getColor(R.color.text_light));
-        setIconsEnabled(vh, false);
-        // Compile button activated status gets reset by multiSelector. This is a way to correct it.
-        vh.mCompileBtn.setActivated(canCompile());
+    public void raise() {
+        if (mViewHolder != null) {
+            mViewHolder.cardView.setCardElevation(8f);
+            mViewHolder.cardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
+            mViewHolder.title.setTextColor(mCtx.getResources().getColor(R.color.text_light));
+            // Compile button activated status gets reset by multiSelector. This is a way to correct it.
+            mViewHolder.compileBtn.setActivated(canCompile());
+        }
+        setIconsEnabled(false);
     }
 
-    public void drop(ChapterCardAdapter.ViewHolder vh) {
-        vh.mCardView.setCardElevation(2f);
-        vh.mCardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
-        vh.mTitle.setTextColor(
-                mCtx.getResources().getColor((isEmpty())? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
-        );
-        setIconsEnabled(vh, true);
-        // Compile button activated status gets reset by multiSelector. This is a way to correct it.
-        vh.mCompileBtn.setActivated(canCompile());
+    public void drop() {
+        if (mViewHolder != null) {
+            mViewHolder.cardView.setCardElevation(2f);
+            mViewHolder.cardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
+            mViewHolder.title.setTextColor(
+                    mCtx.getResources().getColor((isEmpty())? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
+            );
+            // Compile button activated status gets reset by multiSelector. This is a way to correct it.
+            mViewHolder.compileBtn.setActivated(canCompile());
+        }
+        setIconsEnabled(true);
     }
 
-    public void playAudio(ChapterCardAdapter.ViewHolder vh) {
-        getAudioPlayer(vh).play();
+    public void playAudio() {
+        AudioPlayer ap = getAudioPlayer();
+        if (ap != null) {
+            ap.play();
+        }
     }
 
-    public void pauseAudio(ChapterCardAdapter.ViewHolder vh) {
-        getAudioPlayer(vh).pause();
+    public void pauseAudio() {
+        AudioPlayer ap = getAudioPlayer();
+        if (ap != null) {
+            ap.pause();
+        }
     }
 
     public void destroyAudioPlayer() {
@@ -298,23 +324,23 @@ public class ChapterCard {
         setCheckingLevel(0);
     }
 
-    public View.OnClickListener getCheckLevelOnClick(final ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getCheckLevelOnClick() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pauseAudio(vh);
+                pauseAudio();
                 CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1, mCheckingLevel);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
     }
 
-    public View.OnClickListener getCompileOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
+    public View.OnClickListener getCompileOnClick() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(canCompile()) {
-                    pauseAudio(vh);
+                    pauseAudio();
                     //pass in chapter index, not chapter number
                     CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter-1, isCompiled());
                     dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
@@ -323,38 +349,38 @@ public class ChapterCard {
         };
     }
 
-    public View.OnClickListener getRecordOnClick(final ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getRecordOnClick() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pauseAudio(vh);
+                pauseAudio();
                 destroyAudioPlayer();
-                int chapter = vh.getAdapterPosition() + 1;
+                int chapter = mViewHolder.getAdapterPosition() + 1;
                 Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, chapter, 1);
                 mCtx.startActivity(intent);
             }
         };
     }
 
-    public View.OnClickListener getExpandOnClick(final ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getExpandOnClick() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mIsExpanded) {
-                    pauseAudio(vh);
-                    collapse(vh);
+                    pauseAudio();
+                    collapse();
                 } else {
-                    expand(vh);
+                    expand();
                 }
             }
         };
     }
 
-    public View.OnClickListener getDeleteOnClick(final ChapterCardAdapter.ViewHolder vh, final ChapterCardAdapter adapter) {
+    public View.OnClickListener getDeleteOnClick(final ChapterCardAdapter adapter) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pauseAudio(vh);
+                pauseAudio();
                 AlertDialog dialog = new AlertDialog.Builder(mCtx)
                     .setTitle("Delete Chapter Recording?")
                     .setIcon(R.drawable.ic_delete_black_36dp)
@@ -364,10 +390,10 @@ public class ChapterCard {
                             destroyAudioPlayer();
                             mChapterWav.delete();
                             mIsCompiled = false;
-                            collapse(vh);
+                            collapse();
                             ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
                             db.setCheckingLevel(mProject, mChapter, 0);
-                            adapter.notifyItemChanged(vh.getAdapterPosition());
+                            adapter.notifyItemChanged(mViewHolder.getAdapterPosition());
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -382,14 +408,14 @@ public class ChapterCard {
         };
     }
 
-    public View.OnClickListener getPlayPauseOnClick(final ChapterCardAdapter.ViewHolder vh) {
+    public View.OnClickListener getPlayPauseOnClick() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(vh.mPlayPauseBtn.isActivated()) {
-                    pauseAudio(vh);
+                if(mViewHolder.playPauseBtn.isActivated()) {
+                    pauseAudio();
                 } else {
-                    playAudio(vh);
+                    playAudio();
                 }
             }
         };
