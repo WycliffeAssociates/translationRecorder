@@ -26,6 +26,7 @@ import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.Utils;
 
 /**
@@ -200,6 +201,7 @@ public class UnitCard {
     private void refreshTakeRating(File take){
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         FileNameExtractor fne = new FileNameExtractor(take);
+        Logger.w(this.toString(), "Refreshing take rating for " + take.getName());
         mCurrentTakeRating = db.getTakeRating(fne);
         if (mViewHolder != null) {
             mViewHolder.takeRatingBtn.setStep(mCurrentTakeRating);
