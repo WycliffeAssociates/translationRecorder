@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.BookEntry;
 import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ChapterEntry;
@@ -190,6 +191,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getProjectId(String languageCode, String slug, String version) throws IllegalArgumentException {
+        Logger.w(this.toString(), "Trying to get project Id for " + languageCode + " " + slug + " " + version);
         String languageId = String.valueOf(getLanguageId(languageCode));
         String bookId = String.valueOf(getBookId(slug));
         SQLiteDatabase db = getReadableDatabase();
@@ -211,6 +213,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getChapterId(String languageCode, String slug, String version, int chapter){
+        Logger.w(this.toString(), "trying to get chapter id for chapter " + chapter);
         String projectId = String.valueOf(getProjectId(languageCode, slug, version));
         SQLiteDatabase db = getReadableDatabase();
         final String chapterIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
@@ -231,6 +234,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getUnitId(String languageCode, String slug, String version, int chapter, int startVerse) throws IllegalArgumentException{
+        Logger.w(this.toString(), "Trying to get unit Id for start verse " + startVerse);
         String projectId = String.valueOf(getProjectId(languageCode, slug, version));
         String chapterId = String.valueOf(getChapterId(languageCode, slug, version, chapter));
         SQLiteDatabase db = getReadableDatabase();
@@ -248,6 +252,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getTakeId(FileNameExtractor fne) throws IllegalArgumentException{
+        Logger.w(this.toString(), "Attempting to get take id for " + fne.getLang() + " " + fne.getBook() + " " + fne.getSource() + " verse start " + fne.getStartVerse() +  " take " + fne.getTake());
         String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
         final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
