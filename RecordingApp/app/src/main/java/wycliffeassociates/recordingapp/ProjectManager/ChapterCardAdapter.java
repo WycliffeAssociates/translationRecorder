@@ -35,10 +35,6 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  */
 public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.ViewHolder> {
 
-    // Constants
-    private int MULTI_CHECK_LEVEL_BTN = 0;
-    private int MULTI_COMPILE_BTN = 1;
-
     // Attributes
     private AppCompatActivity mCtx;
     private Project mProject;
@@ -67,6 +63,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            mActionMode = actionMode;
             mCtx.getMenuInflater().inflate(R.menu.chapter_menu, menu);
             setIconsClickable(false);
             return true;
@@ -106,6 +103,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 notifyItemChanged(i);
             }
             mSelectedCards.clear();
+            mActionMode = null;
             setIconsClickable(true);
         }
     };
@@ -114,40 +112,40 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
     public class ViewHolder extends SwappingHolder implements View.OnClickListener,
             View.OnLongClickListener {
 
-        public ChapterCard mChapterCard;
-        public CardView mCardView;
-        public RelativeLayout mCardHeader;
-        public LinearLayout mCardBody, mCardContainer, mActions;
-        public TextView mTitle, mElapsed, mDuration;
-        public ImageView mRecordBtn, mCompileBtn, mExpandBtn;
-        public ImageButton mDeleteBtn, mPlayPauseBtn;
-        public FourStepImageView mCheckLevelBtn;
-        public SeekBar mSeekBar;
-        public ProgressPieView mProgressPie;
+        public ChapterCard chapterCard;
+        public CardView cardView;
+        public RelativeLayout cardHeader;
+        public LinearLayout cardBody, cardContainer, actions;
+        public TextView title, elapsed, duration;
+        public ImageView recordBtn, compileBtn, expandBtn;
+        public ImageButton deleteBtn, playPauseBtn;
+        public FourStepImageView checkLevelBtn;
+        public SeekBar seekBar;
+        public ProgressPieView progressPie;
 
         public ViewHolder(View view) {
             super(view, mMultiSelector);
             // Containers
-            mCardView = (CardView) view.findViewById(R.id.chapter_card);
-            mCardContainer = (LinearLayout) view.findViewById(R.id.chapter_card_container);
-            mCardHeader = (RelativeLayout) view.findViewById(R.id.card_header);
-            mCardBody = (LinearLayout) view.findViewById(R.id.card_body);
-            mActions = (LinearLayout) view.findViewById(R.id.actions);
+            cardView = (CardView) view.findViewById(R.id.chapter_card);
+            cardContainer = (LinearLayout) view.findViewById(R.id.chapter_card_container);
+            cardHeader = (RelativeLayout) view.findViewById(R.id.card_header);
+            cardBody = (LinearLayout) view.findViewById(R.id.card_body);
+            actions = (LinearLayout) view.findViewById(R.id.actions);
 
             // Views
-            mTitle = (TextView) view.findViewById(R.id.title);
-            mSeekBar = (SeekBar) view.findViewById(R.id.seek_bar);
-            mElapsed = (TextView) view.findViewById(R.id.time_elapsed);
-            mDuration = (TextView) view.findViewById(R.id.time_duration);
-            mProgressPie = (ProgressPieView) view.findViewById(R.id.progress_pie);
+            title = (TextView) view.findViewById(R.id.title);
+            seekBar = (SeekBar) view.findViewById(R.id.seek_bar);
+            elapsed = (TextView) view.findViewById(R.id.time_elapsed);
+            duration = (TextView) view.findViewById(R.id.time_duration);
+            progressPie = (ProgressPieView) view.findViewById(R.id.progress_pie);
 
             // Buttons
-            mCheckLevelBtn = (FourStepImageView) view.findViewById(R.id.check_level_btn);
-            mRecordBtn = (ImageView) view.findViewById(R.id.record_btn);
-            mCompileBtn = (ImageView) view.findViewById(R.id.compile_btn);
-            mExpandBtn = (ImageView) view.findViewById(R.id.expand_btn);
-            mDeleteBtn = (ImageButton) view.findViewById(R.id.delete_chapter_audio_btn);
-            mPlayPauseBtn = (ImageButton) view.findViewById(R.id.play_pause_chapter_btn);
+            checkLevelBtn = (FourStepImageView) view.findViewById(R.id.check_level_btn);
+            recordBtn = (ImageView) view.findViewById(R.id.record_btn);
+            compileBtn = (ImageView) view.findViewById(R.id.compile_btn);
+            expandBtn = (ImageView) view.findViewById(R.id.expand_btn);
+            deleteBtn = (ImageButton) view.findViewById(R.id.delete_chapter_audio_btn);
+            playPauseBtn = (ImageButton) view.findViewById(R.id.play_pause_chapter_btn);
 
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
@@ -161,71 +159,72 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             setDefaultModeBackgroundDrawable(null);
         }
 
-        public void  bindViewHolder(ViewHolder holder, int position, ChapterCard chapterCard) {
-            mChapterCard = chapterCard;
+        public void  bindViewHolder(ViewHolder holder, int pos, ChapterCard cc) {
+            chapterCard = cc;
+            chapterCard.setViewHolder(holder);
 
             // Title
-            mTitle.setText(chapterCard.getTitle());
+            title.setText(chapterCard.getTitle());
 
             // Progress Pie
-            mChapterCard.refreshProgress(mProject, position+1);
-            mProgressPie.setProgress(mChapterCard.getProgress());
+            chapterCard.refreshProgress(mProject, pos+1);
+            progressPie.setProgress(chapterCard.getProgress());
 
             // Checking Level
-            mChapterCard.refreshCheckingLevel(mProject, position+1);
-            mCheckLevelBtn.setStep(mChapterCard.getCheckingLevel());
+            chapterCard.refreshCheckingLevel(mProject, pos+1);
+            checkLevelBtn.setStep(chapterCard.getCheckingLevel());
 
             // Compile
-            mCompileBtn.setActivated(mChapterCard.canCompile());
+            compileBtn.setActivated(chapterCard.canCompile());
 
             // Checking Level and Expansion
-            if (mChapterCard.isCompiled()) {
-                mCheckLevelBtn.setVisibility(View.VISIBLE);
-                mExpandBtn.setVisibility(View.VISIBLE);
+            if (chapterCard.isCompiled()) {
+                checkLevelBtn.setVisibility(View.VISIBLE);
+                expandBtn.setVisibility(View.VISIBLE);
             } else {
-                mCheckLevelBtn.setVisibility(View.INVISIBLE);
-                mExpandBtn.setVisibility(View.INVISIBLE);
+                checkLevelBtn.setVisibility(View.INVISIBLE);
+                expandBtn.setVisibility(View.INVISIBLE);
             }
 
             // Expand card if it's already expanded before
-            if (mChapterCard.isExpanded()) {
-                mChapterCard.expand(holder);
+            if (chapterCard.isExpanded()) {
+                chapterCard.expand();
             } else {
-                mChapterCard.collapse(holder);
+                chapterCard.collapse();
             }
 
             // Raise card, and show appropriate visual cue, if it's already selected
-            if (mMultiSelector.isSelected(position, 0)) {
-                mChapterCard.raise(holder);
+            if (mMultiSelector.isSelected(pos, 0)) {
+                chapterCard.raise();
                 if(!mSelectedCards.contains(getAdapterPosition())){
                     mSelectedCards.add(getAdapterPosition());
                 }
             } else {
                 mSelectedCards.remove((Integer)getAdapterPosition());
-                mChapterCard.drop(holder);
+                chapterCard.drop();
             }
 
             // Clickable
-            mChapterCard.setIconsClickable(holder);
+            chapterCard.setIconsClickable(!isInActionMode());
 
-            setListeners(this, mChapterCard);
+            setListeners(this, chapterCard);
         }
 
         @Override
         public void onClick(View view) {
             // Completing a chapter (hence can be compiled) is the minimum requirements to
             //    include a chapter in multi-selection
-            if (mChapterCard == null) {
+            if (chapterCard == null) {
                 return;
             }
 
             if(mMultiSelector.isSelectable()) {
-                if (!mChapterCard.canCompile()) {
+                if (!chapterCard.canCompile()) {
                     return;
                 }
 
                 // Close card if it is expanded in multi-select mode
-                if(mChapterCard.isExpanded()){
+                if(chapterCard.isExpanded()){
                     toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
                 }
 
@@ -234,10 +233,10 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 // Raise/drop card
                 if (mMultiSelector.isSelected(this.getAdapterPosition(), 0)) {
                     mSelectedCards.add(getAdapterPosition());
-                    mChapterCard.raise(this);
+                    chapterCard.raise();
                 } else {
                     mSelectedCards.remove((Integer)getAdapterPosition());
-                    mChapterCard.drop(this);
+                    chapterCard.drop();
                 }
 
                 setAvailableActions();
@@ -248,8 +247,8 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 }
 
             } else {
-                mChapterCard.pauseAudio(this);
-                mChapterCard.destroyAudioPlayer();
+                chapterCard.pauseAudio();
+                chapterCard.destroyAudioPlayer();
 
                 Intent intent = ActivityUnitList.getActivityVerseListIntent(mCtx, mProject, getAdapterPosition()+1);
                 mCtx.startActivity(intent);
@@ -260,19 +259,19 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         public boolean onLongClick(View view) {
             // Completing a chapter (hence can be compiled) is the minimum requirements to
             //    include a chapter in multi-selection
-            if (!mChapterCard.canCompile()) {
+            if (!chapterCard.canCompile()) {
                 return false;
             }
 
-            mActionMode = mCtx.startSupportActionMode(mMultiSelectMode);
+            mCtx.startSupportActionMode(mMultiSelectMode);
             mMultiSelector.setSelected(this, true);
 
             // Close card if it is expanded on entering multi-select mode
-            if(mChapterCard.isExpanded()){
+            if(chapterCard.isExpanded()){
                 toggleExpansion(this, mExpandedCards, this.getAdapterPosition());
             }
 
-            mChapterCard.raise(this);
+            chapterCard.raise();
 
             setAvailableActions();
 
@@ -324,12 +323,12 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
     // Private Methods
     private void setListeners(final ViewHolder holder, final ChapterCard chapterCard) {
-        holder.mCheckLevelBtn.setOnClickListener(chapterCard.getCheckLevelOnClick(holder));
-        holder.mCompileBtn.setOnClickListener(chapterCard.getCompileOnClick(holder, this));
-        holder.mRecordBtn.setOnClickListener(chapterCard.getRecordOnClick(holder));
-        holder.mExpandBtn.setOnClickListener(chapterCard.getExpandOnClick(holder));
-        holder.mDeleteBtn.setOnClickListener(chapterCard.getDeleteOnClick(holder, this));
-        holder.mPlayPauseBtn.setOnClickListener(chapterCard.getPlayPauseOnClick(holder));
+        holder.checkLevelBtn.setOnClickListener(chapterCard.getCheckLevelOnClick());
+        holder.compileBtn.setOnClickListener(chapterCard.getCompileOnClick());
+        holder.recordBtn.setOnClickListener(chapterCard.getRecordOnClick());
+        holder.expandBtn.setOnClickListener(chapterCard.getExpandOnClick());
+        holder.deleteBtn.setOnClickListener(chapterCard.getDeleteOnClick(this));
+        holder.playPauseBtn.setOnClickListener(chapterCard.getPlayPauseOnClick());
     }
 
     private void setAvailableActions() {
@@ -369,13 +368,13 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
     // Public API
     public void toggleExpansion(final ChapterCardAdapter.ViewHolder vh, final List<Integer> expandedCards, final int position) {
-        if (!vh.mChapterCard.isExpanded()) {
-            vh.mChapterCard.expand(vh);
+        if (!vh.chapterCard.isExpanded()) {
+            vh.chapterCard.expand();
             if (!expandedCards.contains(position)) {
                 expandedCards.add(position);
             }
         } else {
-            vh.mChapterCard.collapse(vh);
+            vh.chapterCard.collapse();
             if (expandedCards.contains(position)) {
                 expandedCards.remove(expandedCards.indexOf(position));
             }

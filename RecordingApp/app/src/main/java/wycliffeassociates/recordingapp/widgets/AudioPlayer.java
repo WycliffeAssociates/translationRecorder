@@ -16,20 +16,16 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  */
 public class AudioPlayer {
 
-    // Constants
-    private String DEFAULT_TIME_ELAPSED = "00:00:00";
-    private String DEFAULT_TIME_DURATION = "00:00:00";
-
     // Views
-    private MediaPlayer mMediaPlayer;
     private TextView mElapsedView, mDurationView;
     private ImageButton mPlayPauseBtn;
     private SeekBar mSeekBar;
-    private Handler mHandler;
 
     // Attributes
+    private MediaPlayer mMediaPlayer;
+    private Handler mHandler;
     private int mCurrentProgress = 0;
-    private String mElapsed, mDuration;
+    private int mDuration;
 
     // State
     private boolean mPlayerReleased = false;
@@ -37,6 +33,10 @@ public class AudioPlayer {
 
 
     // Constructor
+    public AudioPlayer() {
+        mMediaPlayer = new MediaPlayer();
+    }
+
     public AudioPlayer(TextView elapsedView, TextView durationView, ImageButton playPauseBtn, SeekBar seekBar){
         mMediaPlayer = new MediaPlayer();
         refreshView(elapsedView, durationView, playPauseBtn, seekBar);
@@ -60,7 +60,7 @@ public class AudioPlayer {
         if (isLoaded()) {
             mSeekBar.setMax(mMediaPlayer.getDuration());
         }
-        updateProgress(mCurrentProgress);
+        updateSeekBar(mCurrentProgress);
     }
 
     public void setPlayPauseBtn(ImageButton playPauseBtn) {
@@ -70,7 +70,7 @@ public class AudioPlayer {
 
     public void setElapsedView(TextView elapsedView) {
         mElapsedView = elapsedView;
-        updateElapsedView(mElapsed);
+        updateElapsedView(mCurrentProgress);
         if (mSeekBar != null) {
             attachSeekBarListener();
         }
@@ -86,12 +86,12 @@ public class AudioPlayer {
 
 
     // Getters
-    public boolean isPlaying() {
-        return mMediaPlayer != null && mMediaPlayer.isPlaying();
-    }
-
     public boolean isLoaded() {
         return mIsLoaded;
+    }
+
+    public boolean isPlaying() {
+        return mMediaPlayer != null && mMediaPlayer.isPlaying();
     }
 
 
@@ -110,8 +110,7 @@ public class AudioPlayer {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (mMediaPlayer != null && fromUser) {
                     mMediaPlayer.seekTo(progress);
-                    mElapsed = convertTimeToString(progress);
-                    updateElapsedView(mElapsed);
+                    updateElapsedView(progress);
                 }
             }
         });
@@ -122,11 +121,11 @@ public class AudioPlayer {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 togglePlayPauseButton(false);
-                updateProgress(mSeekBar.getMax());
-                int duration = mSeekBar.getMax();
-                mDuration = convertTimeToString(duration);
-                updateDurationView(mDuration);
-
+                if (mSeekBar != null) {
+                    int max = mSeekBar.getMax();
+                    updateSeekBar(max);
+                    updateDurationView(max);
+                }
                 if(mMediaPlayer.isPlaying()) {
                     mMediaPlayer.seekTo(0);
                 }
@@ -142,7 +141,9 @@ public class AudioPlayer {
     }
 
     private void togglePlayPauseButton(boolean isPlaying) {
-        mPlayPauseBtn.setActivated(isPlaying);
+        if (mPlayPauseBtn != null) {
+            mPlayPauseBtn.setActivated(isPlaying);
+        }
     }
 
     private String convertTimeToString(int time) {
@@ -166,10 +167,11 @@ public class AudioPlayer {
             mMediaPlayer.setDataSource(file.getAbsolutePath());
             mIsLoaded = true;
             mMediaPlayer.prepare();
-            int duration = mMediaPlayer.getDuration();
-            mSeekBar.setMax(duration);
-            mDuration = convertTimeToString(duration);
-            updateDurationView(mDuration);
+            if (mSeekBar != null) {
+                mDuration = mMediaPlayer.getDuration();
+                mSeekBar.setMax(mDuration);
+                updateDurationView(mDuration);
+            }
         } catch (IOException e) {
             Logger.w(this.toString(), "loading a file threw an IO exception");
             e.printStackTrace();
@@ -180,18 +182,17 @@ public class AudioPlayer {
         if(mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
             try {
                 mMediaPlayer.start();
-                togglePlayPauseButton(true);
                 mHandler = new Handler();
-                updateProgress(0);
+                togglePlayPauseButton(true);
+                updateSeekBar(0);
                 Runnable loop = new Runnable() {
                     @Override
                     public void run() {
                         if (mMediaPlayer != null && !mPlayerReleased) {
                             mCurrentProgress = mMediaPlayer.getCurrentPosition();
-                            if (mCurrentProgress > mSeekBar.getProgress()) {
-                                updateProgress(mCurrentProgress);
-                                mElapsed = convertTimeToString(mCurrentProgress);
-                                updateElapsedView(mElapsed);
+                            updateElapsedView(mCurrentProgress);
+                            if (mSeekBar != null && mCurrentProgress > mSeekBar.getProgress()) {
+                                updateSeekBar(mCurrentProgress);
                             }
                         }
                         mHandler.postDelayed(this, 200);
@@ -222,8 +223,8 @@ public class AudioPlayer {
             }
             mMediaPlayer.reset();
             mIsLoaded = false;
-            updateProgress(0);
-            updateElapsedView(null);
+            updateSeekBar(0);
+            updateElapsedView(0);
         }
     }
 
@@ -240,18 +241,26 @@ public class AudioPlayer {
         }
     }
 
-    public void updateElapsedView(String elapsed) {
-        mElapsedView.setText(elapsed == null ? DEFAULT_TIME_ELAPSED : elapsed);
+    public void updateElapsedView(int elapsed) {
+        if (mElapsedView == null) {
+            return;
+        }
+        mElapsedView.setText(convertTimeToString(elapsed));
         mElapsedView.invalidate();
     }
 
-    public void updateDurationView(String duration) {
-        mDurationView.setText(duration == null ? DEFAULT_TIME_DURATION : duration);
+    public void updateDurationView(int duration) {
+        if (mDurationView == null) {
+            return;
+        }
+        mDurationView.setText(convertTimeToString(duration));
         mDurationView.invalidate();
     }
 
-    public void updateProgress(int progress) {
-        mSeekBar.setProgress(progress);
-        mSeekBar.invalidate();
+    public void updateSeekBar(int progress) {
+        if (mSeekBar != null) {
+            mSeekBar.setProgress(progress);
+            mSeekBar.invalidate();
+        }
     }
 }
