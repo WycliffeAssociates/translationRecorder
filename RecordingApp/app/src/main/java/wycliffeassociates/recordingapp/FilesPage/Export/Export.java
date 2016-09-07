@@ -2,6 +2,8 @@ package wycliffeassociates.recordingapp.FilesPage.Export;
 
 import android.app.Fragment;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -18,10 +20,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
 import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 12/10/2015.
@@ -47,11 +49,12 @@ public abstract class Export {
 //    String mCurrentDir;
     File mProjectToExport;
     Fragment mCtx;
+    Handler mHandler;
     volatile boolean mZipDone = false;
     ProgressUpdateCallback mProgressCallback;
     Project mProject;
     File mZipFile;
-
+    public static final int PROGRESS_REFRESH_RATE = 200; //200 ms refresh for progress dialog (arbitrary value)
 //    /**
 //     * Initializes the basic shared data all export operations use
 //     * @param fileItemList List of audio items contained on the Files page, used to determine checked items
@@ -67,6 +70,7 @@ public abstract class Export {
     public Export(File directoryToExport, Project project){
         mProjectToExport = directoryToExport;
         mProject = project;
+        mHandler = new Handler(Looper.getMainLooper());
     }
 
     public void setFragmentContext(Fragment f){
@@ -174,27 +178,40 @@ public abstract class Export {
 
                     zipper.addFolder(projectToZip, zp);
 
-                    mCtx.getActivity().runOnUiThread(new Runnable() {
+                    mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             mProgressCallback.setCurrentFile(pm.getFileName());
                         }
                     });
                     while(pm.getState() == ProgressMonitor.STATE_BUSY){
-                        mProgressCallback.setUploadProgress(pm.getPercentDone());
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mProgressCallback.setUploadProgress(pm.getPercentDone());
+                            }
+                        });
+                        Thread.sleep(PROGRESS_REFRESH_RATE);
                     }
 
                 } catch (ZipException e) {
                     e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                mCtx.getActivity().runOnUiThread(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         mProgressCallback.dismissProgress();
                         export.handleUserInput();
                     }
                 });
-                mProgressCallback.setZipping(false);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mProgressCallback.setZipping(false);
+                    }
+                });
                 mZipDone = true;
             }
         });

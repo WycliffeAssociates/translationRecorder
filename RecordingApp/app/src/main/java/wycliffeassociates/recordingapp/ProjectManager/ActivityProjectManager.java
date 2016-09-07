@@ -88,18 +88,22 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         mCtx = this;
 
-        FragmentManager fm = getFragmentManager();
-        mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
-        mDatabaseResyncTaskFragment = (DatabaseResyncTaskFragment) fm.findFragmentByTag(TAG_DATABASE_RESYNC_FRAGMENT);
-
         if(savedInstanceState != null) {
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
             mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
             mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
             mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
         }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Moved this section to onResume so that these dialogs pop up above the dialog info fragment
         //check if fragment was retained from a screen rotation
+        FragmentManager fm = getFragmentManager();
+        mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
+        mDatabaseResyncTaskFragment = (DatabaseResyncTaskFragment) fm.findFragmentByTag(TAG_DATABASE_RESYNC_FRAGMENT);
         if(mExportTaskFragment == null){
             mExportTaskFragment = new ExportTaskFragment();
             fm.beginTransaction().add(mExportTaskFragment, TAG_EXPORT_TASK_FRAGMENT).commit();
@@ -118,11 +122,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         } else if(mDbResyncing){
             dbProgress();
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         if(!mDbResyncing) {
             dbProgress();
             mDatabaseResyncTaskFragment.resyncDatabase();
