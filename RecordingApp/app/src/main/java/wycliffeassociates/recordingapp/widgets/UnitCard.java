@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import java.io.File;
 import java.lang.ref.SoftReference;
@@ -308,7 +306,9 @@ public class UnitCard {
     public void destroyAudioPlayer() {
         if (mAudioPlayer != null) {
             AudioPlayer ap = mAudioPlayer.get();
-            ap.cleanup();
+            if (ap != null) {
+                ap.cleanup();
+            }
             mAudioPlayer = null;
         }
     }

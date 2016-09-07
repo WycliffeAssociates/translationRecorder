@@ -279,7 +279,9 @@ public class ChapterCard {
     public void destroyAudioPlayer() {
         if (mAudioPlayer != null) {
             AudioPlayer ap = mAudioPlayer.get();
-            ap.cleanup();
+            if (ap != null) {
+                ap.cleanup();
+            }
             mAudioPlayer = null;
         }
     }
