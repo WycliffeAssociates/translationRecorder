@@ -90,9 +90,13 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
     }
 
+    //This code exists here rather than onResume due to the potential for onResume() -> onResume()
+    //This scenario occurs when the user begins to create a new project and backs out. Calling onResume()
+    //twice will result in two background processes trying to sync the database, and only one reference
+    //will be kept in the activity- thus leaking the reference to the first dialog causing in it never closing
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart(){
+        super.onStart();
         //Moved this section to onResume so that these dialogs pop up above the dialog info fragment
         //check if fragment was retained from a screen rotation
         FragmentManager fm = getFragmentManager();
@@ -121,6 +125,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mDatabaseResyncTaskFragment.resyncDatabase();
         }
     }
+    
 
     public void dbProgress(){
         mDbResyncing = true;
@@ -398,12 +403,20 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     @Override
-    public void onDestroy(){
-        super.onDestroy();
+    public void onPause(){
+        super.onPause();
+        dismissExportProgressDialog();
+        dismissDatabaseResyncProgressDialog();
+    }
+
+    private void dismissExportProgressDialog(){
         if(mPd != null && mPd.isShowing()){
             mPd.dismiss();
             mPd = null;
         }
+    }
+
+    private void dismissDatabaseResyncProgressDialog(){
         if(mDatabaseProgressDialog != null && mDatabaseProgressDialog.isShowing()){
             mDatabaseProgressDialog.dismiss();
             mDatabaseProgressDialog = null;
