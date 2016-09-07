@@ -54,88 +54,88 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     }
 
 
-    private ActionMode.Callback mMultiSelectMode = new ModalMultiSelectorCallback(mMultiSelector) {
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            mMultiSelector.clearSelections();
-            mMultiSelector.setSelectable(true);
-            return false;
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            mCtx.getMenuInflater().inflate(R.menu.unit_menu, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.set_units_checking_level:
-                    System.out.println("Placeholder: Set checking level for selected units");
-                    break;
-                default:
-                    System.out.println("Default action");
-                    break;
-            }
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode actionMode) {
-            mMultiSelector.setSelectable(false);
-            mMultiSelector.clearSelections();
-            for (ViewHolder vh : mSelectedCards) {
-                vh.mUnitCard.drop(vh);
-            }
-            mSelectedCards.clear();
-        }
-    };
+//    private ActionMode.Callback mMultiSelectMode = new ModalMultiSelectorCallback(mMultiSelector) {
+//
+//        @Override
+//        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+//            mMultiSelector.clearSelections();
+//            mMultiSelector.setSelectable(true);
+//            return false;
+//        }
+//
+//        @Override
+//        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+//            mCtx.getMenuInflater().inflate(R.menu.unit_menu, menu);
+//            return true;
+//        }
+//
+//        @Override
+//        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+//            switch (item.getItemId()) {
+//                case R.id.set_units_checking_level:
+//                    System.out.println("Placeholder: Set checking level for selected units");
+//                    break;
+//                default:
+//                    System.out.println("Default action");
+//                    break;
+//            }
+//            return false;
+//        }
+//
+//        @Override
+//        public void onDestroyActionMode(ActionMode actionMode) {
+//            mMultiSelector.setSelectable(false);
+//            mMultiSelector.clearSelections();
+//            for (ViewHolder vh : mSelectedCards) {
+//                vh.unitCard.drop();
+//            }
+//            mSelectedCards.clear();
+//        }
+//    };
 
 
     public class ViewHolder extends SwappingHolder implements View.OnClickListener,
             View.OnLongClickListener {
 
-        public RelativeLayout mCardHeader, mCardFooter;
-        public SeekBar mSeekBar;
-        public TextView mUnitTitle, mCurrentTake, mProgress, mDuration, mCurrentTakeTimeStamp;
-        public LinearLayout mCardBody, mCardContainer, mUnitActions;
-        public ImageView mUnitRecordBtn, mUnitExpandBtn, mPrevTakeBtn, mNextTakeBtn;
-        public ImageButton mTakeDeleteBtn, mTakePlayPauseBtn, mTakeEditBtn, mTakeSelectBtn;
-        public FourStepImageView mTakeRatingBtn;
-        public UnitCard mUnitCard;
-        public CardView mCardView;
+        public RelativeLayout cardHeader, cardFooter;
+        public SeekBar seekBar;
+        public TextView unitTitle, currentTake, elapsed, duration, currentTakeTimeStamp;
+        public LinearLayout cardBody, cardContainer, unitActions;
+        public ImageView unitRecordBtn, unitExpandBtn, prevTakeBtn, nextTakeBtn;
+        public ImageButton takeDeleteBtn, takePlayPauseBtn, takeEditBtn, takeSelectBtn;
+        public FourStepImageView takeRatingBtn;
+        public UnitCard unitCard;
+        public CardView cardView;
 
         public ViewHolder(View view) {
             super(view, mMultiSelector);
             // Containers
-            mCardView = (CardView) view.findViewById(R.id.unitCard);
-            mCardContainer = (LinearLayout) view.findViewById(R.id.unitCardContainer);
-            mCardHeader = (RelativeLayout) view.findViewById(R.id.cardHeader);
-            mCardBody = (LinearLayout) view.findViewById(R.id.cardBody);
-            mCardFooter = (RelativeLayout) view.findViewById(R.id.cardFooter);
-            mUnitActions = (LinearLayout) view.findViewById(R.id.unitActions);
+            cardView = (CardView) view.findViewById(R.id.unitCard);
+            cardContainer = (LinearLayout) view.findViewById(R.id.unitCardContainer);
+            cardHeader = (RelativeLayout) view.findViewById(R.id.cardHeader);
+            cardBody = (LinearLayout) view.findViewById(R.id.cardBody);
+            cardFooter = (RelativeLayout) view.findViewById(R.id.cardFooter);
+            unitActions = (LinearLayout) view.findViewById(R.id.unitActions);
 
             // Views
-            mUnitTitle = (TextView) view.findViewById(R.id.unitTitle);
-            mCurrentTake = (TextView) view.findViewById(R.id.currentTakeView);
-            mCurrentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
-            mSeekBar = (SeekBar) view.findViewById(R.id.seekBar);
-            mProgress = (TextView) view.findViewById(R.id.timeElapsed);
-            mDuration = (TextView) view.findViewById(R.id.timeDuration);
-            mCurrentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
+            unitTitle = (TextView) view.findViewById(R.id.unitTitle);
+            currentTake = (TextView) view.findViewById(R.id.currentTakeView);
+            currentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
+            seekBar = (SeekBar) view.findViewById(R.id.seekBar);
+            elapsed = (TextView) view.findViewById(R.id.timeElapsed);
+            duration = (TextView) view.findViewById(R.id.timeDuration);
+            currentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
 
             // Buttons
-            mTakeRatingBtn = (FourStepImageView) view.findViewById(R.id.rateTakeBtn);
-            mUnitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
-            mUnitExpandBtn = (ImageView) view.findViewById(R.id.unitExpandBtn);
-            mTakeDeleteBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);
-            mTakePlayPauseBtn = (ImageButton) view.findViewById(R.id.playTakeBtn);
-            mTakeEditBtn = (ImageButton) view.findViewById(R.id.editTakeBtn);
-            mTakeSelectBtn = (ImageButton) view.findViewById(R.id.selectTakeBtn);
-            mPrevTakeBtn = (ImageView) view.findViewById(R.id.prevTakeBtn);
-            mNextTakeBtn = (ImageView) view.findViewById(R.id.nextTakeBtn);
+            takeRatingBtn = (FourStepImageView) view.findViewById(R.id.rateTakeBtn);
+            unitRecordBtn = (ImageView) view.findViewById(R.id.unitRecordBtn);
+            unitExpandBtn = (ImageView) view.findViewById(R.id.unitExpandBtn);
+            takeDeleteBtn = (ImageButton) view.findViewById(R.id.deleteTakeBtn);
+            takePlayPauseBtn = (ImageButton) view.findViewById(R.id.playTakeBtn);
+            takeEditBtn = (ImageButton) view.findViewById(R.id.editTakeBtn);
+            takeSelectBtn = (ImageButton) view.findViewById(R.id.selectTakeBtn);
+            prevTakeBtn = (ImageView) view.findViewById(R.id.prevTakeBtn);
+            nextTakeBtn = (ImageView) view.findViewById(R.id.nextTakeBtn);
 
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
@@ -150,47 +150,48 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         }
 
         // Called on onBindViewHolder, when the view is visible on the screen
-        public void  bindViewHolder(ViewHolder holder, int position, UnitCard unitCard) {
+        public void  bindViewHolder(ViewHolder holder, int position, UnitCard uc) {
             // Capture the UnitCard object
-            mUnitCard = unitCard;
+            unitCard = uc;
+            unitCard.setViewHolder(holder);
             // Set card views based on the UnitCard object
-            mUnitTitle.setText(unitCard.getTitle());
+            unitTitle.setText(unitCard.getTitle());
             // Expand card if it's already expanded before
             if (unitCard.isExpanded()) {
-                unitCard.expand(holder);
+                unitCard.expand();
             } else {
-                unitCard.collapse(holder);
+                unitCard.collapse();
             }
             // Raise card, and show appropriate visual cue, if it's already selected
             if (mMultiSelector.isSelected(position, 0)) {
                 mSelectedCards.add(this);
-                unitCard.raise(holder);
+                unitCard.raise();
             } else {
                 mSelectedCards.remove(this);
-                unitCard.drop(holder);
+                unitCard.drop();
             }
 
             // Hide expand icon if it's empty
             if (unitCard.isEmpty()) {
-                mUnitExpandBtn.setVisibility(View.INVISIBLE);
+                unitExpandBtn.setVisibility(View.INVISIBLE);
             } else {
-                mUnitExpandBtn.setVisibility(View.VISIBLE);
+                unitExpandBtn.setVisibility(View.VISIBLE);
             }
 
-            setListeners(mUnitCard, this);
+            setListeners(unitCard, this);
         }
 
         @Override
         public void onClick(View view) {
             // NOTE: There is no action that needs multi-select at unit level at this point
-//            if (mUnitCard == null) {
+//            if (unitCard == null) {
 //                return;
 //            }
 //
-//            if(mMultiSelector.isSelectable() && !mUnitCard.isEmpty()) {
+//            if(mMultiSelector.isSelectable() && !unitCard.isEmpty()) {
 //
 //                // Close card if it is expanded in multi-select mode
-//                if(mUnitCard.isExpanded()){
+//                if(unitCard.isExpanded()){
 //                    toggleExpansion(this, mExpandedCards);
 //                }
 //
@@ -200,10 +201,10 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 //                // Raise/drop card
 //                if (mMultiSelector.isSelected(this.getAdapterPosition(), 0)) {
 //                    mSelectedCards.add(this);
-//                    mUnitCard.raise(this);
+//                    unitCard.raise();
 //                } else {
 //                    mSelectedCards.remove(this);
-//                    mUnitCard.drop(this);
+//                    unitCard.drop();
 //                }
 //
 //                // Finish action mode if all cards are de-selected
@@ -216,17 +217,17 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         @Override
         public boolean onLongClick(View view) {
             // NOTE: There is no action that needs multi-select at unit level at this point
-//            if (!mUnitCard.isEmpty()) {
+//            if (!unitCard.isEmpty()) {
 //                mActionMode = mCtx.startSupportActionMode(mMultiSelectMode);
 //                mMultiSelector.setSelected(this, true);
 //
 //                // Close card if it is expanded on entering multi-select mode
-//                if(mUnitCard.isExpanded()){
-//                    toggleExpansion(this, mExpandedCards);
+//                if(unitCard.isExpanded()){
+//                    toggleExpansion(this.getAdapterPosition(), mExpandedCards);
 //                }
 //
 //                mSelectedCards.add(this);
-//                mUnitCard.raise(this);
+//                unitCard.raise();
 //            }
             return true;
         }
@@ -263,15 +264,16 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     }
 
     private void setListeners(final UnitCard unitCard, final ViewHolder holder) {
-        holder.mUnitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(holder));
-        holder.mUnitExpandBtn.setOnClickListener(unitCard.getUnitExpandOnClick(holder, mExpandedCards));
-        holder.mTakeDeleteBtn.setOnClickListener(unitCard.getTakeDeleteOnClick(holder, this));
-        holder.mTakePlayPauseBtn.setOnClickListener(unitCard.getTakePlayPauseOnClick(holder));
-        holder.mTakeEditBtn.setOnClickListener(unitCard.getTakeEditOnClickListener(holder));
-        holder.mTakeRatingBtn.setOnClickListener(unitCard.getTakeRatingOnClick(holder));
-        holder.mTakeSelectBtn.setOnClickListener(unitCard.getTakeSelectOnClick(holder));
-        holder.mNextTakeBtn.setOnClickListener(unitCard.getTakeIncrementOnClick(holder));
-        holder.mPrevTakeBtn.setOnClickListener(unitCard.getTakeDecrementOnClick(holder));
+        int position = holder.getAdapterPosition();
+        holder.unitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick());
+        holder.unitExpandBtn.setOnClickListener(unitCard.getUnitExpandOnClick(position, mExpandedCards));
+        holder.takeDeleteBtn.setOnClickListener(unitCard.getTakeDeleteOnClick(position, this));
+        holder.takePlayPauseBtn.setOnClickListener(unitCard.getTakePlayPauseOnClick());
+        holder.takeEditBtn.setOnClickListener(unitCard.getTakeEditOnClickListener());
+        holder.takeRatingBtn.setOnClickListener(unitCard.getTakeRatingOnClick());
+        holder.takeSelectBtn.setOnClickListener(unitCard.getTakeSelectOnClick());
+        holder.nextTakeBtn.setOnClickListener(unitCard.getTakeIncrementOnClick());
+        holder.prevTakeBtn.setOnClickListener(unitCard.getTakeDecrementOnClick());
     }
 
     public void exitCleanUp() {
