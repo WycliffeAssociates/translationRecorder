@@ -7,18 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.provider.DocumentFile;
-
-import net.rdrei.android.dirchooser.DirectoryChooserActivity;
-import net.rdrei.android.dirchooser.DirectoryChooserConfig;
-
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
 
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
@@ -36,9 +24,10 @@ public class SelectSourceDirectory extends Activity {
     public void onCreate(Bundle savedInstanceBundle){
         super.onCreate(savedInstanceBundle);
         //if(Build.VERSION.SDK_INT >= 21) {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("*/*");
-            startActivityForResult(intent, SRC_LOC);
+
+        startActivityForResult(intent, SRC_LOC);
 //        } else {
 //            final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
 //
@@ -67,13 +56,16 @@ public class SelectSourceDirectory extends Activity {
                 getApplicationContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                 String uristring = uri.toString();
+                //check if it contains .tr first so as to not have an exception thrown on files without a "."
+                //best I can think of for filtering filetypes; Android doesn't allow new MIME types =(
+                if(uristring.contains(".tr") && uristring.substring(uristring.lastIndexOf("."), uristring.length()).equals(".tr")) {
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+                    pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, uristring).commit();
+                    pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
 
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, uristring).commit();
-                pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
-
-                intent.putExtra(SOURCE_LOCATION, uristring);
-                intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
+                    intent.putExtra(SOURCE_LOCATION, uristring);
+                    intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
+                }
             }
         }
 //         else if (requestCode == REQUEST_DIRECTORY){
