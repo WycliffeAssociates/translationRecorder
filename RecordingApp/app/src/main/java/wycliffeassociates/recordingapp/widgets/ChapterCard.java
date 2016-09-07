@@ -139,23 +139,17 @@ public class ChapterCard {
     }
 
     public void setIconsEnabled(boolean enabled) {
-        if (mViewHolder != null) {
-            mViewHolder.checkLevelBtn.setEnabled(enabled);
-            mViewHolder.compileBtn.setEnabled(enabled);
-            mViewHolder.recordBtn.setEnabled(enabled);
-            mViewHolder.expandBtn.setEnabled(enabled);
+        if (mViewHolder == null) {
+            return;
         }
+        mViewHolder.checkLevelBtn.setEnabled(enabled);
+        mViewHolder.compileBtn.setEnabled(enabled);
+        mViewHolder.recordBtn.setEnabled(enabled);
+        mViewHolder.expandBtn.setEnabled(enabled);
     }
 
     public void setIconsClickable(boolean clickable) {
         mIconsClickable = clickable;
-    }
-
-    public void setIconsClickable() {
-        mViewHolder.checkLevelBtn.setClickable(mIconsClickable);
-        mViewHolder.compileBtn.setClickable(mIconsClickable);
-        mViewHolder.recordBtn.setClickable(mIconsClickable);
-        mViewHolder.expandBtn.setClickable(mIconsClickable);
     }
 
 
@@ -328,6 +322,9 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!areIconsClickable()) {
+                    return;
+                }
                 pauseAudio();
                 CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1, mCheckingLevel);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
@@ -340,6 +337,9 @@ public class ChapterCard {
             @Override
             public void onClick(View view) {
                 if(canCompile()) {
+                    if (!areIconsClickable()) {
+                        return;
+                    }
                     pauseAudio();
                     //pass in chapter index, not chapter number
                     CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter-1, isCompiled());
@@ -353,6 +353,9 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!areIconsClickable()) {
+                    return;
+                }
                 pauseAudio();
                 destroyAudioPlayer();
                 int chapter = mViewHolder.getAdapterPosition() + 1;
@@ -366,6 +369,9 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!areIconsClickable()) {
+                    return;
+                }
                 if (mIsExpanded) {
                     pauseAudio();
                     collapse();

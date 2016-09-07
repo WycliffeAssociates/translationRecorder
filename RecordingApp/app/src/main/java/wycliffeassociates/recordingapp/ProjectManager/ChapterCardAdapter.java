@@ -67,6 +67,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            mActionMode = actionMode;
             mCtx.getMenuInflater().inflate(R.menu.chapter_menu, menu);
             setIconsClickable(false);
             return true;
@@ -106,6 +107,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 notifyItemChanged(i);
             }
             mSelectedCards.clear();
+            mActionMode = null;
             setIconsClickable(true);
         }
     };
@@ -163,7 +165,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
         public void  bindViewHolder(ViewHolder holder, int pos, ChapterCard cc) {
             chapterCard = cc;
-            cc.setViewHolder(holder);
+            chapterCard.setViewHolder(holder);
 
             // Title
             title.setText(chapterCard.getTitle());
@@ -207,7 +209,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             }
 
             // Clickable
-            chapterCard.setIconsClickable();
+            chapterCard.setIconsClickable(!isInActionMode());
 
             setListeners(this, chapterCard);
         }
@@ -265,7 +267,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 return false;
             }
 
-            mActionMode = mCtx.startSupportActionMode(mMultiSelectMode);
+            mCtx.startSupportActionMode(mMultiSelectMode);
             mMultiSelector.setSelected(this, true);
 
             // Close card if it is expanded on entering multi-select mode
