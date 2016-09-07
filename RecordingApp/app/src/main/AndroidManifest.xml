@@ -44,13 +44,8 @@
             android:screenOrientation="landscape"
             />
 
-        <activity android:name=".FilesPage.AudioFiles"
-            />
-
         <activity android:name=".SettingsPage.Settings"
             android:theme="@style/TR"
-            />
-        <activity android:name=".SettingsPage.connectivity.LanguageNamesRequest"
             />
 
         <activity android:name=".ProjectManager.ActivityProjectManager"
@@ -76,7 +71,6 @@
 
         <!-- ?? -->
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
-        <activity android:name=".FilesPage.ExportFiles" />
         <activity android:name=".FilesPage.Export.FolderExport$StorageAccess" />
         <activity android:name=".FilesPage.Export.AppExport$ShareZipToApps"/>
 

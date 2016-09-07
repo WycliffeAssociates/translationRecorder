@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
 

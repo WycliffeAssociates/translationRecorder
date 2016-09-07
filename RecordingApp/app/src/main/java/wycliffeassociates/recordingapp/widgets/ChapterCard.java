@@ -14,10 +14,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.CompileDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;

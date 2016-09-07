@@ -1,18 +1,11 @@
 package wycliffeassociates.recordingapp.project;
 
 import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.widget.ArrayAdapter;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

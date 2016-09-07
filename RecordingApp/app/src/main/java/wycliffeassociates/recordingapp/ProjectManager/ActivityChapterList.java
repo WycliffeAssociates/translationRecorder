@@ -13,17 +13,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
-import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
-import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
 
@@ -33,12 +26,12 @@ import wycliffeassociates.recordingapp.widgets.ChapterCard;
 public class ActivityChapterList extends AppCompatActivity implements
         CheckingDialog.DialogListener, CompileDialog.DialogListener, UpdateProgressCallback, DatabaseResyncTaskFragment.DatabaseResyncCallback {
 
-    public static String PROJECT_KEY = "project_key";
     public static final String STATE_COMPILING = "compiling";
-    private final String STATE_RESYNC = "db_resync";
     private static final String TAG_COMPILE_CHAPTER_TASK_FRAGMENT = "tag_compile_chapter";
+    private static final String STATE_PROGRESS = "progress";
+    public static String PROJECT_KEY = "project_key";
+    private final String STATE_RESYNC = "db_resync";
     private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
-
     private Chunks mChunks;
     private ProgressDialog mPd;
     private volatile boolean mIsCompiling = false;
@@ -49,12 +42,11 @@ public class ActivityChapterList extends AppCompatActivity implements
     private RecyclerView mChapterList;
     private CompileChapterTaskFragment mCompileChapterTaskFragment;
     private volatile int mProgress = 0;
-    private static final String STATE_PROGRESS = "progress";
     private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
     private boolean mDbResyncing;
     private ProgressDialog mDatabaseProgressDialog;
 
-    public static Intent getActivityVerseListIntent(Context ctx, Project p){
+    public static Intent getActivityVerseListIntent(Context ctx, Project p) {
         Intent intent = new Intent(ctx, ActivityUnitList.class);
         intent.putExtra(PROJECT_KEY, p);
         return intent;
@@ -68,8 +60,8 @@ public class ActivityChapterList extends AppCompatActivity implements
 
         FragmentManager fm = getFragmentManager();
         mCompileChapterTaskFragment = (CompileChapterTaskFragment) fm.findFragmentByTag(TAG_COMPILE_CHAPTER_TASK_FRAGMENT);
-        if(savedInstanceState != null){
-            if(savedInstanceState.getBoolean(STATE_COMPILING)) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getBoolean(STATE_COMPILING)) {
                 mProgress = savedInstanceState.getInt(STATE_PROGRESS);
                 mIsCompiling = true;
                 compileProgress(mProgress);
@@ -78,16 +70,16 @@ public class ActivityChapterList extends AppCompatActivity implements
         }
 
         //check if fragment was retained from a screen rotation
-        if(mCompileChapterTaskFragment == null){
+        if (mCompileChapterTaskFragment == null) {
             mCompileChapterTaskFragment = new CompileChapterTaskFragment();
             fm.beginTransaction().add(mCompileChapterTaskFragment, TAG_COMPILE_CHAPTER_TASK_FRAGMENT).commit();
             fm.executePendingTransactions();
         }
-        if(mDatabaseResyncTaskFragment == null){
+        if (mDatabaseResyncTaskFragment == null) {
             mDatabaseResyncTaskFragment = new DatabaseResyncTaskFragment();
             fm.beginTransaction().add(mDatabaseResyncTaskFragment, TAG_DATABASE_RESYNC_FRAGMENT).commit();
             fm.executePendingTransactions();
-        } else if(mDbResyncing){
+        } else if (mDbResyncing) {
             dbProgress();
         }
 
@@ -134,13 +126,13 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        if(!mDbResyncing) {
+        if (!mDbResyncing) {
             dbProgress();
             mDatabaseResyncTaskFragment.resyncDatabase();
         }
     }
 
-    public void dbProgress(){
+    public void dbProgress() {
         mDbResyncing = true;
         mDatabaseProgressDialog = new ProgressDialog(this);
         mDatabaseProgressDialog.setTitle("Resyncing Database");
@@ -150,22 +142,22 @@ public class ActivityChapterList extends AppCompatActivity implements
         mDatabaseProgressDialog.show();
     }
 
-    public void onDatabaseResynced(){
+    public void onDatabaseResynced() {
         mDatabaseProgressDialog.dismiss();
         mDbResyncing = false;
         refreshChapterCards();
     }
 
-    public void refreshChapterCards(){
+    public void refreshChapterCards() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int numChapters = mChunks.getNumChapters();
         int[] numStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
-        for(int i = 0; i < mChapterCardList.size(); i++){
-            mChapterCardList.get(i).refreshChapterStarted(mProject, i+1);
+        for (int i = 0; i < mChapterCardList.size(); i++) {
+            mChapterCardList.get(i).refreshChapterStarted(mProject, i + 1);
             mChapterCardList.get(i).setCanCompile(numStarted[i] == mChunks.getNumChunks(mProject, i + 1));
-            mChapterCardList.get(i).refreshChapterCompiled(mProject, i+1);
-            if(mChapterCardList.get(i).isCompiled()) {
-                mChapterCardList.get(i).setCheckingLevel(db.getChapterCheckingLevel(mProject, i+1));
+            mChapterCardList.get(i).refreshChapterCompiled(mProject, i + 1);
+            if (mChapterCardList.get(i).isCompiled()) {
+                mChapterCardList.get(i).setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
             }
         }
         mAdapter.notifyDataSetChanged();
@@ -178,23 +170,23 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
-        if (mPd != null && mPd.isShowing()){
+        if (mPd != null && mPd.isShowing()) {
             mPd.dismiss();
             mPd = null;
         }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle saveInstanceState){
+    public void onSaveInstanceState(Bundle saveInstanceState) {
         saveInstanceState.putBoolean(STATE_COMPILING, mIsCompiling);
         saveInstanceState.putInt(STATE_PROGRESS, mProgress);
         saveInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
         super.onSaveInstanceState(saveInstanceState);
     }
 
-    public void compileProgress(int progress){
+    public void compileProgress(int progress) {
         mPd = new ProgressDialog(this);
         mPd.setTitle("Compiling Chapter");
         mPd.setMessage("Please Wait...");
@@ -206,25 +198,25 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     @Override
-    public void setIsCompiling(){
+    public void setIsCompiling() {
         mIsCompiling = true;
         compileProgress(0);
     }
 
-    public void setCompilingProgress(int progress){
+    public void setCompilingProgress(int progress) {
         mProgress = progress;
         mPd.setProgress(progress);
     }
 
-    public void onCompileCompleted(final int[] chaptersModified){
+    public void onCompileCompleted(final int[] chaptersModified) {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mPd.dismiss();
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(ActivityChapterList.this);
-                for(int i : chaptersModified){
+                for (int i : chaptersModified) {
                     mAdapter.notifyItemChanged(i);
-                    db.setCheckingLevel(mProject, i+1, 0);
+                    db.setCheckingLevel(mProject, i + 1, 0);
                 }
                 mIsCompiling = false;
             }
@@ -235,9 +227,9 @@ public class ActivityChapterList extends AppCompatActivity implements
     public void onPositiveClick(CheckingDialog dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int[] chapterIndicies = dialog.getChapterIndicies();
-        for(int i = 0; i < chapterIndicies.length; i++) {
+        for (int i = 0; i < chapterIndicies.length; i++) {
             int position = chapterIndicies[i];
-            db.setCheckingLevel(dialog.getProject(), position+1, dialog.getCheckingLevel());
+            db.setCheckingLevel(dialog.getProject(), position + 1, dialog.getCheckingLevel());
             mAdapter.notifyItemChanged(position);
         }
         db.close();
@@ -246,7 +238,7 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     public void onPositiveClick(CompileDialog dialog) {
         List<ChapterCard> toCompile = new ArrayList<>();
-        for(int i : dialog.getChapterInicies()){
+        for (int i : dialog.getChapterInicies()) {
             toCompile.add(mChapterCardList.get(i));
             mChapterCardList.get(i).destroyAudioPlayer();
         }
@@ -275,9 +267,9 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-            for (int i = 0; i < mChunks.getNumChapters(); i++) {
-                mChapterCardList.add(new ChapterCard(this, mProject, i+1));
-            }
+        for (int i = 0; i < mChunks.getNumChapters(); i++) {
+            mChapterCardList.add(new ChapterCard(this, mProject, i + 1));
+        }
     }
 
 }

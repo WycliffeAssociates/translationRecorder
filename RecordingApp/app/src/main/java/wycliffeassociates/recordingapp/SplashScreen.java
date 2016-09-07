@@ -2,23 +2,21 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.sqlite.SQLiteConstraintException;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.widget.ProgressBar;
-
-import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
-import wycliffeassociates.recordingapp.SettingsPage.Settings;
-import wycliffeassociates.recordingapp.project.Book;
-import wycliffeassociates.recordingapp.project.Language;
-import wycliffeassociates.recordingapp.project.ParseJSON;
 
 import com.door43.login.ProfileActivity;
 import com.door43.login.TermsOfUseActivity;
 import com.door43.login.core.Profile;
 
 import org.json.JSONException;
+
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.project.Book;
+import wycliffeassociates.recordingapp.project.Language;
+import wycliffeassociates.recordingapp.project.ParseJSON;
 
 /**
  * Created by sarabiaj on 5/5/2016.

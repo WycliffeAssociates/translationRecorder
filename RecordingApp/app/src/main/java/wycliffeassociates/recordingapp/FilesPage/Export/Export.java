@@ -11,19 +11,10 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import net.lingala.zip4j.util.Zip4jConstants;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
-import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 12/10/2015.
@@ -43,10 +34,6 @@ public abstract class Export {
         void setCurrentFile(String currentFile);
     }
 
-//    ArrayList<String> mExportList;
-//    String mZipPath = null;
-//    int mNumFilesToExport = 0;
-//    String mCurrentDir;
     File mProjectToExport;
     Fragment mCtx;
     Handler mHandler;
@@ -55,17 +42,6 @@ public abstract class Export {
     Project mProject;
     File mZipFile;
     public static final int PROGRESS_REFRESH_RATE = 200; //200 ms refresh for progress dialog (arbitrary value)
-//    /**
-//     * Initializes the basic shared data all export operations use
-//     * @param fileItemList List of audio items contained on the Files page, used to determine checked items
-//     * @param adapter
-//     * @param currentDir Directory containing the files
-//     */
-//    public Export(ArrayList<FileItem> fileItemList, AudioFilesAdapter adapter, String currentDir){
-//        populateExportList(fileItemList, adapter, currentDir);
-//        mNumFilesToExport = mExportList.size();
-//        mCurrentDir = currentDir;
-//    }
 
     public Export(File directoryToExport, Project project){
         mProjectToExport = directoryToExport;
@@ -83,18 +59,6 @@ public abstract class Export {
      */
     public abstract void export();
 
-//    public static boolean shouldZip(List<String> exportList){
-//        if(exportList.size() > 1){
-//            return true;
-//        } else if(exportList.size() > 0){
-//            File file = new File(exportList.get(0));
-//            if(file.isDirectory()){
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
     public void cleanUp(){
         mZipFile.delete();
     }
@@ -108,15 +72,6 @@ public abstract class Export {
      */
     //TODO: Zip file appears to just use the name of the first file, what should this change to?
     protected void zipFiles(Export export){
-        //files should only be zipped if more than one are selected
-//        if (shouldZip(mExportList)) {
-//            String toExport[] = new String[mExportList.size()];
-//            String thisPath = mExportList.get(0);
-//            for (int i = 0; i < mExportList.size(); i++) {
-//                toExport[i] = mExportList.get(i);
-//            }
-            // This could cause problems if the directory list contains matches
-            //mZipPath = thisPath.replaceAll("(\\.)([A-Za-z0-9]{3}$|[A-Za-z0-9]{4}$)", ".zip");
             Project project = export.getProject();
             String zipName = project.getTargetLanguage() + "_" + project.getSource() + "_" + project.getSlug();
             if(project.isOBS()){
@@ -127,33 +82,6 @@ public abstract class Export {
             zip(mProjectToExport, mZipFile, export);
         //}
     }
-
-//    /**
-//     * Generates an arraylist of files (filepath strings) to export, returns if successful
-//     * @param fileItemList list of File objects referring to files to be exported
-//     * @param adapter AudioFilesAdapter containing information about whether the item was selected
-//     * @param currentDir String of the path of the current directory
-//     * @return Whether or not there are files to export
-//     */
-//    protected boolean populateExportList(ArrayList<FileItem> fileItemList,
-//                                    AudioFilesAdapter adapter, String currentDir){
-//        mExportList = new ArrayList<>();
-//        if ((fileItemList.size() == 0)) {
-//            System.out.println("No items to export");
-//            return false;
-//        } else {
-//            for (int i = 0; i < adapter.getCheckBoxState().length; i++) {
-//                if (adapter.getCheckBoxState()[i]) {
-//                    mExportList.add(currentDir + "/" + fileItemList.get(i).getName());
-//                }
-//            }
-//        }
-//        if(mNumFilesToExport > 0){
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
 
     /**
      * Zips files into a single folder

@@ -1,13 +1,9 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
 import android.app.Activity;
-
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,13 +16,8 @@ import com.filippudak.ProgressPieView.ProgressPieView;
 
 import java.util.List;
 
-import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
-import wycliffeassociates.recordingapp.ProjectManager.ActivityChapterList;
-import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.ProjectManager.ProjectInfoDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
  *

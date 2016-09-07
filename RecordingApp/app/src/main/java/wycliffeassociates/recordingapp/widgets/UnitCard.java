@@ -21,7 +21,6 @@ import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
-import wycliffeassociates.recordingapp.ProjectManager.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.RatingDialog;

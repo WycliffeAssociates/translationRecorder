@@ -1,6 +1,5 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
-import android.provider.Settings;
 import android.widget.Toast;
 
 import com.amazonaws.ClientConfiguration;
@@ -13,14 +12,9 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.S3ClientOptions;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
-import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;

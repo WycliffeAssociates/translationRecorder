@@ -1,6 +1,5 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**

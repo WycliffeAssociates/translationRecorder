@@ -5,12 +5,10 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -25,14 +23,11 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.ExportTaskFragment;
-import wycliffeassociates.recordingapp.FilesPage.FragmentDeleteDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -347,13 +342,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    public void showDeleteConfirmDialog(View v) {
-        FragmentManager fm = getFragmentManager();
-        FragmentDeleteDialog d = new FragmentDeleteDialog();
-        d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        d.show(fm, "Delete Confirm Dialog");
     }
 
     public void exportProgress(int progress){

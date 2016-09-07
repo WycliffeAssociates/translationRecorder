@@ -7,15 +7,26 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.app.NavUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.*;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.BookEntry;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ChapterEntry;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_BOOKS;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_CHAPTERS;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_LANGUAGE;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_PROJECTS;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_TAKES;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_TEMP;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_UNITS;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.LanguageEntry;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.TakeEntry;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.TempEntry;
+import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.UnitEntry;
 
 /**
  * Created by sarabiaj on 5/10/2016.

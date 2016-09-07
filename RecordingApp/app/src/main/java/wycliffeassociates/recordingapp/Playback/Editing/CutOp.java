@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**

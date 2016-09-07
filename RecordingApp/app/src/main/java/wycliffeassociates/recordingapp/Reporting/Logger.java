@@ -1,26 +1,26 @@
 package wycliffeassociates.recordingapp.Reporting;
 
 
-        import android.util.Log;
+import android.util.Log;
 
-        import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 
-        import java.io.BufferedReader;
-        import java.io.File;
-        import java.io.FileInputStream;
-        import java.io.FileOutputStream;
-        import java.io.IOException;
-        import java.io.InputStreamReader;
-        import java.nio.channels.FileChannel;
-        import java.text.DateFormat;
-        import java.text.SimpleDateFormat;
-        import java.util.ArrayList;
-        import java.util.Calendar;
-        import java.util.Date;
-        import java.util.List;
-        import java.util.Locale;
-        import java.util.regex.Matcher;
-        import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Logs messages using the android Log class and also records logs to a file if configured.

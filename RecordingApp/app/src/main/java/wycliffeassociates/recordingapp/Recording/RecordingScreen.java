@@ -17,18 +17,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
+import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
+import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.project.Chunks;
-import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
-import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 
 public class RecordingScreen extends Activity implements InsertTaskFragment.Insert{
 

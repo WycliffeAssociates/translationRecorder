@@ -1,25 +1,18 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
-import android.support.v4.os.EnvironmentCompat;
-import android.support.v4.provider.DocumentFile;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 
 import com.wycliffeassociates.io.ArchiveOfHolding;
 import com.wycliffeassociates.io.ArchiveOfHoldingEntry;
@@ -32,19 +25,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
-import wycliffeassociates.recordingapp.project.adapters.SourceTextAdapter;
 import wycliffeassociates.recordingapp.widgets.AudioPlayer;
 
 /**

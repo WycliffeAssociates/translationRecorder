@@ -9,8 +9,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
-import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.project.Book;
 import wycliffeassociates.recordingapp.project.Language;
 import wycliffeassociates.recordingapp.project.ParseJSON;

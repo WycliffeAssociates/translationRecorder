@@ -9,7 +9,6 @@ import android.preference.PreferenceManager;
 
 import java.io.File;
 
-import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.Utils;
 

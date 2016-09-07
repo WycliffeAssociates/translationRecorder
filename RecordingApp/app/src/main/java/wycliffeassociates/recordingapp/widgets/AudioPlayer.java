@@ -1,15 +1,10 @@
 package wycliffeassociates.recordingapp.widgets;
 
 import android.media.MediaPlayer;
-import android.media.TimedText;
 import android.os.Handler;
-import android.provider.MediaStore;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;

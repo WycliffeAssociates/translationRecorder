@@ -1,7 +1,5 @@
 package wycliffeassociates.recordingapp.ProjectManager;
 
-import android.animation.StateListAnimator;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;

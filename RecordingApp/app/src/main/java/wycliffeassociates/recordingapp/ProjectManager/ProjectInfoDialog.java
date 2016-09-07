@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import wycliffeassociates.recordingapp.ConstantsDatabaseHelper;
 import wycliffeassociates.recordingapp.FilesPage.Export.AppExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.FolderExport;

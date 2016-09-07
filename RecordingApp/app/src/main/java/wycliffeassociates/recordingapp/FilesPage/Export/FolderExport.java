@@ -6,29 +6,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
-import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 12/10/2015.
  */
 public class FolderExport extends Export{
-
-//    public FolderExport(ArrayList<FileItem> fileItemList,
-//                        AudioFilesAdapter adapter, String currentDir){
-//        super(fileItemList, adapter, currentDir);
-//    }
 
     public FolderExport(File projectToExport, Project project){
         super(projectToExport, project);
@@ -38,17 +28,12 @@ public class FolderExport extends Export{
      * Exports to a folder or SD card by starting a wrapper activity around the Storage Access Framework
      */
     public void export(){
-        //if(Export.shouldZip(mExportList)){
-            zipFiles(this);
-//        } else {
-//            handleUserInput();
-//        }
+        zipFiles(this);
     }
 
     @Override
     protected void handleUserInput() {
         Intent i = new Intent(mCtx.getActivity(), StorageAccess.class);
-//        System.out.println("size of export list is " + mExportList.size());
         try {
             i.putExtra("export_project", mProjectToExport.getCanonicalPath());
             i.putExtra("zip_path", mZipFile.getCanonicalPath());
@@ -61,29 +46,15 @@ public class FolderExport extends Export{
     public static class StorageAccess extends Activity{
 
         private Uri mCurrentUri;
-        private File mExportProject;
         private File mZipPath;
-        private int mTotalFiles = 0;
-        private int mFileNum = 0;
-        private ArrayList<String> mExportList;
-        private int mNumFilesToExport;
         private final int SAVE_FILE = 43;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             Intent intent = getIntent();
-            mExportProject = new File(intent.getStringExtra("export_project"));
             mZipPath = new File(intent.getStringExtra("zip_path"));
-
-            //mThisPath = mExportList.get(0);
-            //export a zip
-            //if (Export.shouldZip(mExportList)) {
-                createFile("application/zip", mZipPath.getName());
-                //export a single wav
-//            } else {
-//                createFile("audio/*", getNameFromPath(mExportList.get(0)));
-//            }
+            createFile("application/zip", mZipPath.getName());
         }
 
         /**
@@ -163,21 +134,5 @@ public class FolderExport extends Export{
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
             startActivityForResult(intent, SAVE_FILE);
         }
-
-//        /**
-//         * Iterates the file number that is being looked a
-//         * @return Returns true if iteration worked, false if the end has been reached
-//         */
-//        public boolean iteratePath(){
-//            if(mFileNum + 1 < mNumFilesToExport) {
-//                mFileNum++;
-//                return true;
-//            }
-//            if(mFileNum + 1 == mNumFilesToExport){
-//                mFileNum++;
-//                return false;
-//            }
-//            return false;
-//        }
     }
 }

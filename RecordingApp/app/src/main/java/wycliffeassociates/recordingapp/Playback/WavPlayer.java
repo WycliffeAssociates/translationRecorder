@@ -3,15 +3,12 @@ package wycliffeassociates.recordingapp.Playback;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.util.Pair;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
-import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.AudioVisualization.CanvasView;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 

@@ -1,8 +1,6 @@
 package wycliffeassociates.recordingapp.FilesPage;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Environment;
 
 import java.io.File;
@@ -10,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**

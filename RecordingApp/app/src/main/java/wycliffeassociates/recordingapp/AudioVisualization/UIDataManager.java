@@ -1,12 +1,9 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -15,12 +12,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Semaphore;
+
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.MarkerView;
 import wycliffeassociates.recordingapp.Playback.WavPlayer;
