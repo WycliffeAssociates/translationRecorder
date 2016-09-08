@@ -121,7 +121,12 @@ public class SourceAudio extends LinearLayout {
         InputStream is = mCtx.getContentResolver().openInputStream(uri);
         LanguageLevel ll = new LanguageLevel();
         ArchiveOfHolding aoh = new ArchiveOfHolding(is, ll);
-        String importantSection = mFileName.substring(mFileName.lastIndexOf("_b"), mFileName.length());
+        //The archive of holding entry requires the path to look for the file, so that part of the name can be ignored
+        //chapter and verse information is all that is necessary to be identifiable at this point.
+        String importantSection = FileNameExtractor.getChapterAndVerseSection(mFileName);
+        if(importantSection == null) {
+            return false;
+        }
         ArchiveOfHoldingEntry entry = aoh.getEntry(importantSection, sourceLanguage,
                 mProject.getSource(), mProject.getSlug(), FileNameExtractor.chapterIntToString(mProject, mChapter));
         if(entry == null){

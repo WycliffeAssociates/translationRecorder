@@ -288,4 +288,17 @@ public class FileNameExtractor {
         FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
         return fne.getNameWithoutTake();
     }
+
+    //Extracts the identifiable section of a filename for source audio
+    public static String getChapterAndVerseSection(String name){
+        String CHAPTER = "c([\\d]{2,3})";
+        String VERSE = "v([\\d]{2,3})(-([\\d]{2,3}))?";
+        Pattern chapterAndVerseSection = Pattern.compile("(" +CHAPTER+ "_" +VERSE + ")");
+        Matcher matcher = chapterAndVerseSection.matcher(name);
+        if(matcher.find()){
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
 }
