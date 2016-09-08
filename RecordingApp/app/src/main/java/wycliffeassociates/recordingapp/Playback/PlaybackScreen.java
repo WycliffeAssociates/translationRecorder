@@ -346,7 +346,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                         to.delete();
                         toTemp.renameTo(to);
                         ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
-                        db.addTake(new FileNameExtractor(to), to.getName(), 0);
+                        db.addTake(new FileNameExtractor(to), to.getName(), to.lastModified(), 0);
                         db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));

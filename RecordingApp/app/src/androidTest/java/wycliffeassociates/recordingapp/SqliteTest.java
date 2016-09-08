@@ -81,7 +81,7 @@ public class SqliteTest {
         FileNameExtractor fne = new FileNameExtractor("en_ulb_b41_mat_c01_v01_t01.wav");
         FileNameExtractor fne2 = new FileNameExtractor("en_ulb_b41_mat_c01_v01_t02.wav");
 
-        mDb.addTake(fne, "en_ulb_b41_mat_c01_v01_t01.wav", 0);
+        mDb.addTake(fne, "en_ulb_b41_mat_c01_v01_t01.wav", 465123564, 0);
 
         assertEquals(true, mDb.takeExists(fne));
         assertEquals(false, mDb.takeExists(fne2));
