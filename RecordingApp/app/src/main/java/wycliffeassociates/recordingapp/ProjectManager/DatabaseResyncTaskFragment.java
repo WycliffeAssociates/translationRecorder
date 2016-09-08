@@ -71,6 +71,7 @@ public class DatabaseResyncTaskFragment extends Fragment {
                 if(fne.matched()) {
                     ContentValues cv = new ContentValues();
                     cv.put(ProjectContract.TempEntry.TEMP_TAKE_NAME, f.getName());
+                    cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, f.lastModified());
                     list.add(cv);
                 }
             }

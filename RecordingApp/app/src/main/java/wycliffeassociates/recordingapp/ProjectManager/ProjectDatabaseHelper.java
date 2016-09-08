@@ -452,7 +452,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(FileNameExtractor fne, String takeFilename, int rating) {
+    public void addTake(FileNameExtractor fne, String takeFilename, long timestamp, int rating) {
         String book = fne.getBook();
         String language = fne.getLang();
         String version = fne.getSource();
@@ -479,6 +479,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(TakeEntry.TAKE_NOTES, "");
         cv.put(TakeEntry.TAKE_NUMBER, fne.getTake());
         cv.put(TakeEntry.TAKE_FILENAME, takeFilename);
+        cv.put(TakeEntry.TAKE_TIMESTAMP, timestamp);
         long result = db.insert(TakeEntry.TABLE_TAKE, null, cv);
     }
 
@@ -745,11 +746,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 TempEntry.TEMP_TAKE_NAME, TempEntry.TABLE_TEMP, TakeEntry.TABLE_TAKE, TempEntry.TEMP_TAKE_NAME, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_FILENAME);
         Cursor c = db.rawQuery(getMissingTakes, null);
         if(c.getCount() > 0){
-            int index = c.getColumnIndex(TempEntry.TEMP_TAKE_NAME);
+            int nameIndex = c.getColumnIndex(TempEntry.TEMP_TAKE_NAME);
+            int timestampIndex = c.getColumnIndex(TakeEntry.TAKE_TIMESTAMP);
             c.moveToFirst();
             do {
-                FileNameExtractor fne = new FileNameExtractor(c.getString(index));
-                addTake(fne, c.getString(index), 0);
+                FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
+                addTake(fne, c.getString(nameIndex), c.getLong(timestampIndex), 0);
             } while (c.moveToNext());
         }
         c.close();

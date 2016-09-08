@@ -94,6 +94,7 @@ public final class ProjectContract {
         public static final String TAKE_NOTES = "notes";
         public static final String TAKE_NUMBER = "number";
         public static final String TAKE_FILENAME = "filename";
+        public static final String TAKE_TIMESTAMP = "timestamp";
         public static final String TAKE_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
@@ -103,6 +104,7 @@ public final class ProjectContract {
                 + TAKE_NOTES + TEXTCOMMA
                 + TAKE_NUMBER + INTCOMMA
                 + TAKE_FILENAME + TEXTCOMMA
+                + TAKE_TIMESTAMP + INTCOMMA
                 + "CONSTRAINT " + TAKE_UNIQUE_CONSTRAINT + " UNIQUE(" + TAKE_UNIT_FK + "," +  TAKE_NUMBER + ")"
                 + ");";
     }
