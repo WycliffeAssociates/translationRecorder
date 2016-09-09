@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -481,6 +482,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(TakeEntry.TAKE_FILENAME, takeFilename);
         cv.put(TakeEntry.TAKE_TIMESTAMP, timestamp);
         long result = db.insert(TakeEntry.TABLE_TAKE, null, cv);
+        if(result > 0){
+            autoSelectTake(unitId);
+        }
     }
 
     public List<Project> getAllProjects(){
@@ -548,27 +552,18 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return rating;
     }
 
-    public int getChosenTake(String languageCode, String slug, String version, int chapter, int startVerse){
-        String unitId = String.valueOf(getUnitId(languageCode, slug, version, chapter, startVerse));
+    private int getSelectedTakeId(int unitId){
         SQLiteDatabase db = getReadableDatabase();
         final String getTake = String.format("SELECT %s FROM %s WHERE %s=?",
                 UnitEntry.UNIT_CHOSEN_TAKE_FK, UnitEntry.TABLE_UNIT, UnitEntry._ID);
         //int take = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId});
-        Cursor cursor = db.rawQuery(getTake, new String[]{unitId});
+        Cursor cursor = db.rawQuery(getTake, new String[]{String.valueOf(unitId)});
         int takeIdCol = cursor.getColumnIndex(UnitEntry.UNIT_CHOSEN_TAKE_FK);
         if(cursor.moveToFirst()) {
             if (!cursor.isNull(takeIdCol)) {
                 int takeId = cursor.getInt(takeIdCol);
                 cursor.close();
-                final String getTakeNumber = String.format("SELECT %s FROM %s WHERE %s=?", TakeEntry.TAKE_NUMBER, TakeEntry.TABLE_TAKE, TakeEntry._ID);
-                cursor = db.rawQuery(getTakeNumber, new String[]{String.valueOf(takeId)});
-                if(cursor.moveToFirst()) {
-                    int takeNumCol = cursor.getColumnIndex(TakeEntry.TAKE_NUMBER);
-                    int takeNum = cursor.getInt(takeNumCol);
-                    cursor.close();
-                    //db.close();
-                    return takeNum;
-                }
+                return takeId;
             }
         }
         cursor.close();
@@ -576,29 +571,65 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return -1;
     }
 
-    public int getChosenTake(FileNameExtractor fne){
-        return getChosenTake(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
+    public int getSelectedTakeId(String languageCode, String slug, String version, int chapter, int startVerse){
+        int unitId = getUnitId(languageCode, slug, version, chapter, startVerse);
+        return getSelectedTakeId(unitId);
+    }
+
+    public int getSelectedTakeNumber(String languageCode, String slug, String version, int chapter, int startVerse){
+        SQLiteDatabase db = getReadableDatabase();
+        int takeId = getSelectedTakeId(languageCode, slug, version, chapter, startVerse);
+        if(takeId != -1){
+            final String getTakeNumber = String.format("SELECT %s FROM %s WHERE %s=?", TakeEntry.TAKE_NUMBER, TakeEntry.TABLE_TAKE, TakeEntry._ID);
+            Cursor cursor = db.rawQuery(getTakeNumber, new String[]{String.valueOf(takeId)});
+            if(cursor.moveToFirst()) {
+                int takeNumCol = cursor.getColumnIndex(TakeEntry.TAKE_NUMBER);
+                int takeNum = cursor.getInt(takeNumCol);
+                cursor.close();
+                //db.close();
+                return takeNum;
+            }
+        }
+        return -1;
+    }
+
+    public int getSelectedTakeNumber(FileNameExtractor fne){
+        return getSelectedTakeNumber(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
+    }
+
+    public void setSelectedTake(File take){
+        FileNameExtractor fne = new FileNameExtractor(take);
+        setSelectedTake(fne);
     }
 
     public void setSelectedTake(FileNameExtractor fne){
-        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
-        String takeId = String.valueOf(getTakeId(fne));
+        int unitId = getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
+        int takeId = getTakeId(fne);
+        setSelectedTake(unitId, takeId);
+    }
+
+    public void setSelectedTake(int unitId, int takeId){
+        String unitIdString = String.valueOf(unitId);
+        String takeIdString = String.valueOf(takeId);
         SQLiteDatabase db = getReadableDatabase();
         final String replaceTakeWhere = String.format("%s=?", UnitEntry._ID);
         ContentValues replaceWith = new ContentValues();
-        replaceWith.put(UnitEntry.UNIT_CHOSEN_TAKE_FK, takeId);
-        db.update(UnitEntry.TABLE_UNIT, replaceWith, replaceTakeWhere, new String[]{unitId});
+        replaceWith.put(UnitEntry.UNIT_CHOSEN_TAKE_FK, takeIdString);
+        db.update(UnitEntry.TABLE_UNIT, replaceWith, replaceTakeWhere, new String[]{unitIdString});
         //db.close();
     }
 
     public void setTakeRating(FileNameExtractor fne, int rating){
-        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
+        int unitId = getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
         SQLiteDatabase db = getReadableDatabase();
         final String replaceTakeWhere = String.format("%s=? AND %s=?",
                 TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(TakeEntry.TAKE_RATING, rating);
-        db.update(TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{unitId, String.valueOf(fne.getTake())});
+        int result = db.update(TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{String.valueOf(unitId), String.valueOf(fne.getTake())});
+        if(result > 0){
+            autoSelectTake(unitId);
+        }
         //db.close();
     }
 
@@ -645,12 +676,19 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void deleteTake(FileNameExtractor fne){
-        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
+        int unitId = getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse());
+        int takeId = getTakeId(fne);
         SQLiteDatabase db = getWritableDatabase();
-        final String deleteTake = String.format("DELETE FROM %s WHERE %s=? AND %s=?",
-                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
-        db.execSQL(deleteTake, new String[]{unitId, String.valueOf(fne.getTake())});
-        //db.close();
+        final String deleteWhere = String.format("%s=? AND %s=?",
+                TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+//        final String deleteTake = String.format("DELETE FROM %s WHERE %s=? AND %s=?",
+//                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
+        //db.execSQL(deleteTake, new String[]{String.valueOf(unitId), String.valueOf(fne.getTake())});
+        int takeSelected = getSelectedTakeId(unitId);
+        int result = db.delete(TakeEntry.TABLE_TAKE, deleteWhere, new String[]{String.valueOf(unitId), String.valueOf(fne.getTake())});
+        if(result > 0 && takeSelected == takeId){
+            autoSelectTake(unitId);
+        }
     }
 
     /**
@@ -734,20 +772,31 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return takesToCompile;
     }
 
-    public void resyncDbWithFs(List<ContentValues> takes) {
+    public void resyncDbWithFs(List<File> takes) {
         SQLiteDatabase db = getWritableDatabase();
+        //create a temporary table to store take names from the filesystem
         db.execSQL(DELETE_TEMP);
         db.execSQL(TempEntry.CREATE_TEMP_TABLE);
         db.beginTransaction();
-        for(ContentValues value : takes){
-            db.insert(TempEntry.TABLE_TEMP, null, value);
+        //add all the take names to the temp table
+        for(File f : takes){
+            ContentValues cv = new ContentValues();
+            FileNameExtractor fne = new FileNameExtractor(f);
+            if(fne.matched()) {
+                cv.put(TempEntry.TEMP_TAKE_NAME, f.getName());
+                cv.put(TempEntry.TEMP_TIMESTAMP, f.lastModified());
+                db.insert(TempEntry.TABLE_TEMP, null, cv);
+            }
         }
-        final String getMissingTakes = String.format("SELECT t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
-                TempEntry.TEMP_TAKE_NAME, TempEntry.TABLE_TEMP, TakeEntry.TABLE_TAKE, TempEntry.TEMP_TAKE_NAME, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_FILENAME);
+        //compare the names of all takes from the filesystem with the takes already in the database
+        //names that do not have a match (are null in the left join) in the database need to be added
+        final String getMissingTakes = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+                TempEntry.TEMP_TAKE_NAME, TempEntry.TEMP_TIMESTAMP, TempEntry.TABLE_TEMP, TakeEntry.TABLE_TAKE, TempEntry.TEMP_TAKE_NAME, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_FILENAME);
         Cursor c = db.rawQuery(getMissingTakes, null);
+        //loop through all of the missing takes and add them to the db
         if(c.getCount() > 0){
             int nameIndex = c.getColumnIndex(TempEntry.TEMP_TAKE_NAME);
-            int timestampIndex = c.getColumnIndex(TakeEntry.TAKE_TIMESTAMP);
+            int timestampIndex = c.getColumnIndex(TempEntry.TEMP_TIMESTAMP);
             c.moveToFirst();
             do {
                 FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
@@ -755,9 +804,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             } while (c.moveToNext());
         }
         c.close();
+        //find all the takes in the db that do not have a match in the filesystem
         final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
                 TakeEntry.TAKE_FILENAME, TakeEntry._ID, TakeEntry.TABLE_TAKE, TempEntry.TABLE_TEMP, TempEntry.TEMP_TAKE_NAME, TakeEntry.TAKE_FILENAME, TakeEntry.TAKE_FILENAME);
         c = db.rawQuery(deleteDanglingReferences, null);
+        //for each of these takes that do not have a corresponding match, remove them from the database
         if(c.getCount() > 0) {
             int idIndex = c.getColumnIndex(TakeEntry._ID);
             final String deleteTake = String.format("%s=?", TakeEntry._ID);
@@ -773,5 +824,17 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.setTransactionSuccessful();
         db.endTransaction();
         db.execSQL(DELETE_TEMP);
+    }
+
+    public void autoSelectTake(int unitId){
+        SQLiteDatabase db = getReadableDatabase();
+        final String autoSelect = String.format("SELECT %s FROM %s WHERE %s=? ORDER BY %s DESC, %s DESC LIMIT 1",
+                TakeEntry._ID, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_RATING, TakeEntry.TAKE_TIMESTAMP);
+        Cursor c = db.rawQuery(autoSelect, new String[]{String.valueOf(unitId)});
+        if(c.getCount() > 0){
+            c.moveToFirst();
+            int takeId = c.getInt(0);
+            setSelectedTake(unitId, takeId);
+        }
     }
 }

@@ -142,10 +142,12 @@ public final class ProjectContract {
     public static abstract class TempEntry implements BaseColumns {
         public static final String TABLE_TEMP = "stuff";
         public static final String TEMP_TAKE_NAME = "filename";
+        public static final String TEMP_TIMESTAMP = "timestamp";
 
         public static final String CREATE_TEMP_TABLE = "CREATE TABLE " + TABLE_TEMP + " ("
                 + _ID + " INTEGER PRIMARY KEY,"
-                + TEMP_TAKE_NAME + " TEXT"
+                + TEMP_TAKE_NAME + TEXTCOMMA
+                + TEMP_TIMESTAMP + INTEGER
                 + " );";
     }
 

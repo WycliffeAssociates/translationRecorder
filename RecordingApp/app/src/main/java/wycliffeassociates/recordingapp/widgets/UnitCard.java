@@ -193,7 +193,7 @@ public class UnitCard {
         if(mViewHolder != null){
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
             FileNameExtractor fne = new FileNameExtractor(take);
-            int chosen = db.getChosenTake(fne);
+            int chosen = db.getSelectedTakeNumber(fne);
             mViewHolder.takeSelectBtn.setActivated(chosen == fne.getTake());
         }
     }

@@ -2,7 +2,6 @@ package wycliffeassociates.recordingapp.ProjectManager;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.ContentValues;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -11,8 +10,6 @@ import android.os.Looper;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-
-import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 
 /**
  * Created by sarabiaj on 9/1/2016.
@@ -45,10 +42,10 @@ public class DatabaseResyncTaskFragment extends Fragment {
         mProgressUpdateCallback = null;
     }
 
-    public List<ContentValues> getAllTakes(){
+    public List<File> getAllTakes(){
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         File[] dirs = root.listFiles();
-        List<ContentValues> files = new LinkedList<>();
+        List<File> files = new LinkedList<>();
         //files shouldn't be at this level, and the app currently could not handle adding them in this way.
         //skip the visualization folder
         for(File f : dirs){
@@ -59,21 +56,13 @@ public class DatabaseResyncTaskFragment extends Fragment {
         return files;
     }
 
-    public List<ContentValues> getFilesInDirectory(File[] files){
-        FileNameExtractor fne;
-        List<ContentValues> list = new LinkedList<>();
+    public List<File> getFilesInDirectory(File[] files){
+        List<File> list = new LinkedList<>();
         for(File f : files){
             if(f.isDirectory()) {
                 list.addAll(getFilesInDirectory(f.listFiles()));
             } else {
-                //check if the file being added to the database is a valid tR filename
-                fne = new FileNameExtractor(f.getName());
-                if(fne.matched()) {
-                    ContentValues cv = new ContentValues();
-                    cv.put(ProjectContract.TempEntry.TEMP_TAKE_NAME, f.getName());
-                    cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, f.lastModified());
-                    list.add(cv);
-                }
+                list.add(f);
             }
         }
         return list;
