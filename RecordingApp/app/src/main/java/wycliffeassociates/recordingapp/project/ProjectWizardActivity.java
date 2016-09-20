@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
@@ -30,6 +31,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     protected ScrollableListFragment mFragment;
     protected String mSearchText;
     protected FragmentManager mFragmentManager;
+    private SearchView searchViewAction;
 
     interface ProjectContract{
         String PROJECT_KEY = mProjectKey;
@@ -82,7 +84,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
 //        }
         SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
         final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
-        final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+        searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -119,8 +121,20 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         }
     }
 
+    private void closeKeyboardAndSearch(){
+        InputMethodManager inputManager = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        if (searchViewAction!=null) {
+            mSearchText = "";
+            searchViewAction.onActionViewCollapsed();
+        }
+    }
+
     @Override
     public void onItemClick(Object result) {
+        closeKeyboardAndSearch();
+
         if (mCurrentFragment == TARGET_LANGUAGE && result instanceof Language) {
             ((Project)mProject).setTargetLanguage(((Language)result).getCode());
             mCurrentFragment++;
@@ -166,6 +180,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        closeKeyboardAndSearch();
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (mCurrentFragment > TARGET_LANGUAGE) {
