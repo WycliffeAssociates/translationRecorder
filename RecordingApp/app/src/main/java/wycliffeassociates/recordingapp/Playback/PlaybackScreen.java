@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -51,27 +52,20 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private WaveformView mMainCanvas;
     private MinimapView minimap;
     private View mSrcAudioPlayback;
-    private MarkerView mStartMarker;
-    private MarkerView mEndMarker;
-    private TextView mLangView;
-    private ImageButton mSwitchToMinimap;
-    private ImageButton mSwitchToPlayback;
-    private TextView mSourceView;
-    private TextView mBookView;
-    private TextView mChapterView;
-    private TextView mUnitView;
-    private TextView mChunkView;
+    private MarkerView mStartMarker, mEndMarker;
+    private TextView mLangView, mSourceView, mBookView, mChapterView, mUnitView, mChunkView;
+    private ImageButton mSwitchToMinimap, mSwitchToPlayback;
+    private ImageButton mVerseMarkerMode, mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn,
+            mSkipBackBtn, mSkipForwardBtn, mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn,
+            mClearBtn, mSaveBtn;
     private FourStepImageView mRateBtn;
-
 
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
     private Project mProject;
-    private int mChapter;
-    private int mUnit;
-    private int mRating;
+    private int mChapter, mUnit, mRating;
 
-    public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit){
+    public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackScreen.class);
         intent.putExtra(KEY_PROJECT, project);
         intent.putExtra(KEY_WAV_FILE, file);
@@ -88,8 +82,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         initialize(getIntent());
     }
 
-    private void initialize(Intent intent){
-        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
+    private void initialize(Intent intent) {
+//        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
         isSaved = true;
         parseIntent(intent);
         findViews();
@@ -100,34 +94,49 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         initializeController();
     }
 
-    private void parseIntent(Intent intent){
+    private void parseIntent(Intent intent) {
         mWavFile = intent.getParcelableExtra(KEY_WAV_FILE);
         mProject = intent.getParcelableExtra(KEY_PROJECT);
         mUnit = intent.getIntExtra(KEY_UNIT, 1);
         mChapter = intent.getIntExtra(KEY_CHAPTER, 1);
     }
 
-    private void findViews(){
-        mMainCanvas = ((WaveformView) findViewById(R.id.main_canvas));
-        minimap = ((MinimapView) findViewById(R.id.minimap));
+    private void findViews() {
+        mMainCanvas = (WaveformView) findViewById(R.id.main_canvas);
+        minimap = (MinimapView) findViewById(R.id.minimap);
         mSrcAudioPlayback = (View) findViewById(R.id.srcAudioPlayer);
-        mStartMarker = ((MarkerView) findViewById(R.id.startmarker));
-        mEndMarker = ((MarkerView) findViewById(R.id.endmarker));
+        mStartMarker = (MarkerView) findViewById(R.id.startmarker);
+        mEndMarker = (MarkerView) findViewById(R.id.endmarker);
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
-        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
         mLangView = (TextView) findViewById(R.id.file_language);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mBookView = (TextView) findViewById(R.id.file_book);
         mChapterView = (TextView) findViewById(R.id.file_chapter);
         mChunkView = (TextView) findViewById(R.id.file_unit);
         mUnitView = (TextView) findViewById(R.id.file_unit_label);
+        // NOTE: Look at Android Studio's warning. Why is the same view converted and captured as
+        //    two different things? (Refering to this and mSrcAudioPlayback)
         mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
+        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
+        mVerseMarkerMode = (ImageButton) findViewById(R.id.btnMarkerMode);
+        mRerecordBtn = (ImageButton) findViewById(R.id.btnRerecord);
+        mInsertBtn = (ImageButton) findViewById(R.id.btnInsertRecord);
+        mPlayBtn = (ImageButton) findViewById(R.id.btnPlay);
+        mPauseBtn = (ImageButton) findViewById(R.id.btnPause);
+        mSkipBackBtn = (ImageButton) findViewById(R.id.btnSkipBack);
+        mSkipForwardBtn = (ImageButton) findViewById(R.id.btnSkipForward);
+        mDropStartMarkBtn = (ImageButton) findViewById(R.id.btnStartMark);
+        mDropEndMarkBtn = (ImageButton) findViewById(R.id.btnEndMark);
+        mUndoBtn = (ImageButton) findViewById(R.id.btnUndo);
+        mCutBtn = (ImageButton) findViewById(R.id.btnCut);
+        mClearBtn = (ImageButton) findViewById(R.id.btnClear);
+        mSaveBtn = (ImageButton) findViewById(R.id.btnSave);
     }
 
-    private void initializeViews(){
+    private void initializeViews() {
         mLangView.setText(mProject.getTargetLanguage().toUpperCase());
-        if(!mProject.isOBS()) {
+        if (!mProject.isOBS()) {
             mSourceView.setText(mProject.getSource().toUpperCase());
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             mBookView.setText(db.getBookName(mProject.getSlug()));
@@ -138,7 +147,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mChapterView.setText(String.format("%d", mChapter));
         mChunkView.setText(String.format("%d", mUnit));
 
-        if(mProject.getMode().compareTo("chunk") == 0){
+        if (mProject.getMode().compareTo("chunk") == 0) {
             mUnitView.setText("Chunk");
         } else {
             mUnitView.setText("Verse");
@@ -160,7 +169,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         db.close();
     }
 
-    private void initializeController(){
+    private void initializeController() {
         final Activity ctx = this;
         ViewTreeObserver vto = mMainCanvas.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -176,13 +185,13 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         mSrcPlayer.pauseSource();
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         mManager.release();
         mSrcPlayer.cleanup();
@@ -229,7 +238,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mManager.updateUI();
     }
 
-    private void placeStartMarker(){
+    private void placeStartMarker() {
         mMainCanvas.placeStartMarker(mManager.getLocation());
         int toShow[] = {R.id.btnEndMark, R.id.btnClear};
         int toHide[] = {R.id.btnStartMark};
@@ -237,7 +246,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mManager.updateUI();
     }
 
-    private void placeEndMarker(){
+    private void placeEndMarker() {
         mMainCanvas.placeEndMarker(mManager.getLocation());
         int toShow[] = {R.id.btnCut};
         int toHide[] = {R.id.btnEndMark};
@@ -258,17 +267,16 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mManager.undoCut();
         int toShow[] = {};
         int toHide[];
-        if(!mManager.hasCut()) {
+        if (!mManager.hasCut()) {
             toHide = new int[1];
             toHide[0] = R.id.btnUndo;
-        }
-        else {
+        } else {
             toHide = new int[0];
         }
         mManager.swapViews(toShow, toHide);
     }
 
-    private void clearMarkers(){
+    private void clearMarkers() {
         SectionMarkers.clearMarkers(mManager);
         int toShow[] = {R.id.btnStartMark};
         int toHide[] = {R.id.btnClear, R.id.btnEndMark, R.id.btnCut};
@@ -281,7 +289,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         dialog.show(getFragmentManager(), "single_unit_rating");
     }
 
-    private void rerecord(){
+    private void rerecord() {
         Intent intent = RecordingScreen.getRerecordIntent(this, mProject, mWavFile, mChapter, mUnit);
         save(intent);
     }
@@ -302,8 +310,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private void save(Intent intent) {
         //no changes were made, so just exit
-        if(isSaved){
-            if(intent == null) {
+        if (isSaved) {
+            if (intent == null) {
                 this.finish();
                 return;
             } else {
@@ -315,7 +323,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
         File dir = new File(Project.getProjectDirectory(mProject), FileNameExtractor.chapterIntToString(mProject, mChapter));
         File from = mWavFile.getFile();
-        int takeInt = FileNameExtractor.getLargestTake(dir, from)+1;
+        int takeInt = FileNameExtractor.getLargestTake(dir, from) + 1;
         String take = String.format("%02d", takeInt);
         FileNameExtractor fne = new FileNameExtractor(from);
 
@@ -325,6 +333,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     /**
      * Names the currently recorded .wav file.
+     *
      * @return the absolute path of the file created
      */
     public void writeCutToFile(final File to, final WavFile from, final Intent intent) {
@@ -338,7 +347,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         Thread saveThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if(mManager.hasCut()){
+                if (mManager.hasCut()) {
                     try {
                         File dir = Project.getProjectDirectory(mProject);
                         File toTemp = new File(dir, "temp.wav");
@@ -358,7 +367,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                 }
                 isSaved = true;
                 pd.dismiss();
-                if(intent == null) {
+                if (intent == null) {
                     finish();
                 } else {
                     intent.putExtra("old_name", to.getAbsolutePath());
@@ -370,27 +379,28 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         saveThread.start();
     }
 
-    public void insert(){
+    public void insert() {
         Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mManager.getAdjustedLocation());
         save(insertIntent);
     }
 
     private void setButtonHandlers() {
-        findViewById(R.id.btnPlay).setOnClickListener(btnClick);
-        findViewById(R.id.btnSave).setOnClickListener(btnClick);
-        findViewById(R.id.btnPause).setOnClickListener(btnClick);
-        findViewById(R.id.btnSkipBack).setOnClickListener(btnClick);
-        findViewById(R.id.btnSkipForward).setOnClickListener(btnClick);
-        findViewById(R.id.btnStartMark).setOnClickListener(btnClick);
-        findViewById(R.id.btnEndMark).setOnClickListener(btnClick);
-        findViewById(R.id.btnCut).setOnClickListener(btnClick);
-        findViewById(R.id.btnClear).setOnClickListener(btnClick);
+        mPlayBtn.setOnClickListener(btnClick);
+        mSaveBtn.setOnClickListener(btnClick);
+        mPauseBtn.setOnClickListener(btnClick);
+        mSkipBackBtn.setOnClickListener(btnClick);
+        mSkipForwardBtn.setOnClickListener(btnClick);
+        mDropStartMarkBtn.setOnClickListener(btnClick);
+        mDropEndMarkBtn.setOnClickListener(btnClick);
+        mCutBtn.setOnClickListener(btnClick);
+        mClearBtn.setOnClickListener(btnClick);
         mRateBtn.setOnClickListener(btnClick);
-        findViewById(R.id.btnUndo).setOnClickListener(btnClick);
-        findViewById(R.id.btnRerecord).setOnClickListener(btnClick);
-        findViewById(R.id.btnInsertRecord).setOnClickListener(btnClick);
+        mUndoBtn.setOnClickListener(btnClick);
+        mRerecordBtn.setOnClickListener(btnClick);
+        mInsertBtn.setOnClickListener(btnClick);
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
+        mVerseMarkerMode.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -451,6 +461,10 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                 }
                 case R.id.btnUndo: {
                     undo();
+                    break;
+                }
+                case R.id.btnMarkerMode: {
+                    System.out.println("VERSE MARKER MODE");
                     break;
                 }
                 case R.id.btnRerecord: {

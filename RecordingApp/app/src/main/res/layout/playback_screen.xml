@@ -91,6 +91,16 @@
             android:layout_weight="1"
             android:gravity="center_vertical|right">
 
+            <ImageButton
+                android:id="@+id/btnMarkerMode"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="24dp"
+                android:background="#00000000"
+                android:src="@drawable/bookmark_o"
+                android:scaleType="fitCenter"
+                />
+
             <wycliffeassociates.recordingapp.widgets.FourStepImageView
                 xmlns:app="http://schemas.android.com/apk/res/wycliffeassociates.recordingapp"
                 android:id="@+id/btnRate"
