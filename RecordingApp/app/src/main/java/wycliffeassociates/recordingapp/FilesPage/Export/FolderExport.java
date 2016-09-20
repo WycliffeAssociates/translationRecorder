@@ -128,7 +128,7 @@ public class FolderExport extends Export{
          * @param fileName The name of the file selected.
          */
         private void createFile(String mimeType, String fileName) {
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT );
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType(mimeType);
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
