@@ -31,12 +31,8 @@ public class WavFileWriter extends Service {
     }
 
     @Override
-    public void onCreate() {
-
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         final WavFile audioFile = intent.getParcelableExtra(KEY_WAV_FILE);
         String name = audioFile.getFile().getName();
         nameWithoutExtension = name.substring(0, name.lastIndexOf("."));

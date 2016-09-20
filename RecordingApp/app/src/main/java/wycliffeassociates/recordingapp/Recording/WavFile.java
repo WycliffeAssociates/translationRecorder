@@ -30,7 +30,6 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  */
 public class WavFile implements Parcelable {
 
-    //public interface WavConstants {
     public static final int SAMPLERATE = 44100;
     public static final int CHANNEL_TYPE = AudioFormat.CHANNEL_IN_MONO;
     public static final int NUM_CHANNELS = 1;
@@ -40,7 +39,6 @@ public class WavFile implements Parcelable {
     public static final int SIZE_OF_SHORT = 2;
     public static final int AMPLITUDE_RANGE = 32767;
     public static final int BPP = 16;
-    //}
 
     File mFile;
     Metadata mMetadata;
