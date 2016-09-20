@@ -14,6 +14,7 @@ import android.view.MenuItem;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.adapters.ModeCategoryAdapter;
 import wycliffeassociates.recordingapp.project.adapters.ProjectCategoryAdapter;
 import wycliffeassociates.recordingapp.project.adapters.TargetBookAdapter;
@@ -23,25 +24,26 @@ import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
 /**
  * Created by sarabiaj on 5/27/2016.
  */
-public class ProjectWizardActivity extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener{
+public class ProjectWizardActivity extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener {
 
     protected static final String mProjectKey = "project_key";
     protected Project mProject;
     protected ScrollableListFragment mFragment;
     protected String mSearchText;
     protected FragmentManager mFragmentManager;
+    private SearchView mSearchViewAction;
 
-    interface ProjectContract{
+    interface ProjectContract {
         String PROJECT_KEY = mProjectKey;
     }
 
     public static final int BASE_PROJECT = 1;
     public static final int TARGET_LANGUAGE = BASE_PROJECT;
-    public static final int PROJECT = BASE_PROJECT+1;
-    public static final int BOOK = BASE_PROJECT+2;
-    public static final int SOURCE_TEXT = BASE_PROJECT+3;
-    public static final int MODE = BASE_PROJECT+4;
-    public static final int SOURCE_LANGUAGE = BASE_PROJECT+5;
+    public static final int PROJECT = BASE_PROJECT + 1;
+    public static final int BOOK = BASE_PROJECT + 2;
+    public static final int SOURCE_TEXT = BASE_PROJECT + 3;
+    public static final int MODE = BASE_PROJECT + 4;
+    public static final int SOURCE_LANGUAGE = BASE_PROJECT + 5;
     private int mCurrentFragment = BASE_PROJECT;
     private int mLastFragment;
 
@@ -73,17 +75,13 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu){
+    public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        //if(mFragment instanceof LanguageListFragment) {
-            menu.findItem(R.id.action_update).setVisible(false);
-//        } else {
-//            menu.findItem(R.id.action_update).setVisible(false);
-//        }
-        SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
+        menu.findItem(R.id.action_update).setVisible(false);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
-        final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
-        searchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+        mSearchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 return true;
@@ -96,10 +94,10 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 return true;
             }
         });
-        searchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
-        if(mSearchText != null){
-            searchViewAction.setQuery(mSearchText, true);
+        if (mSearchText != null) {
+            mSearchViewAction.setQuery(mSearchText, true);
         }
         return true;
     }
@@ -107,57 +105,66 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == SOURCE_AUDIO_REQUEST && resultCode == RESULT_OK){
+        if (requestCode == SOURCE_AUDIO_REQUEST && resultCode == RESULT_OK) {
             mProject = data.getParcelableExtra(Project.PROJECT_EXTRA);
             Intent intent = new Intent();
             intent.putExtra(Project.PROJECT_EXTRA, mProject);
             setResult(RESULT_OK, intent);
             finish();
-        } else if (resultCode == RESULT_CANCELED){
+        } else if (resultCode == RESULT_CANCELED) {
             mCurrentFragment = mLastFragment;
             this.displayFragment();
         }
     }
 
+    private void clearSearchState() {
+        if (mSearchViewAction != null) {
+            mSearchText = "";
+            mSearchViewAction.onActionViewCollapsed();
+        }
+    }
+
     @Override
     public void onItemClick(Object result) {
+        clearSearchState();
+        Utils.closeKeyboard(this);
         if (mCurrentFragment == TARGET_LANGUAGE && result instanceof Language) {
-            ((Project)mProject).setTargetLanguage(((Language)result).getCode());
+            ((Project) mProject).setTargetLanguage(((Language) result).getCode());
             mCurrentFragment++;
             this.displayFragment();
-        } else if (mCurrentFragment == PROJECT && result instanceof String){
+        } else if (mCurrentFragment == PROJECT && result instanceof String) {
             String project = "";
-            if (((String)result).compareTo("Bible: OT") == 0) {
+            if (((String) result).compareTo("Bible: OT") == 0) {
                 project = "ot";
-            } else if (((String)result).compareTo("Bible: NT") == 0){
+            } else if (((String) result).compareTo("Bible: NT") == 0) {
                 project = "nt";
             } else {
                 project = "obs";
             }
-            ((Project)mProject).setProject(project);
+            ((Project) mProject).setProject(project);
             mLastFragment = mCurrentFragment;
             mCurrentFragment = project.compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
             this.displayFragment();
-        } else if (mCurrentFragment == BOOK && result instanceof Book){
-            Book book = (Book)result;
+        } else if (mCurrentFragment == BOOK && result instanceof Book) {
+            Book book = (Book) result;
             mProject.setBookNumber(book.getOrder());
             mProject.setSlug(book.getSlug());
             mCurrentFragment++;
             this.displayFragment();
-        } else if (mCurrentFragment == SOURCE_TEXT && result instanceof String){
+        } else if (mCurrentFragment == SOURCE_TEXT && result instanceof String) {
             String source = "";
-            if(((String)result).compareTo("Unlocked Literal Bible") == 0){
+            if (((String) result).compareTo("Unlocked Literal Bible") == 0) {
                 source = "ulb";
-            } else if (((String)result).compareTo("Unlocked Dynamic Bible") == 0){
+            } else if (((String) result).compareTo("Unlocked Dynamic Bible") == 0) {
                 source = "udb";
             } else {
                 source = "reg";
             }
-            ((Project)mProject).setSource((String)source);
+            ((Project) mProject).setSource((String) source);
             mCurrentFragment++;
             this.displayFragment();
-        } else if (mCurrentFragment == MODE && result instanceof String){
-            ((Project)mProject).setMode(((String) result).toLowerCase());
+        } else if (mCurrentFragment == MODE && result instanceof String) {
+            ((Project) mProject).setMode(((String) result).toLowerCase());
             mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
@@ -166,6 +173,8 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        clearSearchState();
+        Utils.closeKeyboard(this);
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (mCurrentFragment > TARGET_LANGUAGE) {
