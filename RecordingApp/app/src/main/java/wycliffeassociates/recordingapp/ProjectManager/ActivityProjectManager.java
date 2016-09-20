@@ -138,11 +138,13 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     public void onDatabaseResynced(){
-        mDatabaseProgressDialog.dismiss();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        mNumProjects = db.getNumProjects();
-        mDbResyncing = false;
-        initializeViews();
+        if(mDatabaseProgressDialog != null) {
+            mDatabaseProgressDialog.dismiss();
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+            mNumProjects = db.getNumProjects();
+            mDbResyncing = false;
+            initializeViews();
+        }
     }
 
     @Override
@@ -229,16 +231,22 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     private void removeProjectFromPreferences(Project project){
         Map<String, ?> vals = pref.getAll();
-        if(((String)vals.get(Settings.KEY_PREF_LANG)).compareTo(project.getTargetLanguage()) == 0) {
-            if(((String)vals.get(Settings.KEY_PREF_SOURCE)).compareTo(project.getSource()) == 0
-                    || ((String)vals.get(Settings.KEY_PREF_PROJECT)).compareTo(project.getProject()) == 0) {
-                if (((String)vals.get(Settings.KEY_PREF_BOOK)).compareTo(project.getSlug()) == 0) {
-                    pref.edit().putString(Settings.KEY_PREF_LANG, "").commit();
-                    pref.edit().putString(Settings.KEY_PREF_BOOK, "").commit();
-                    pref.edit().putString(Settings.KEY_PREF_SOURCE, "").commit();
-                    pref.edit().putString(Settings.KEY_PREF_PROJECT, "").commit();
-                }
-            }
+        String prefLang = (String)vals.get(Settings.KEY_PREF_LANG);
+        String prefSource = (String)vals.get(Settings.KEY_PREF_SOURCE);
+        String prefProject = (String)vals.get(Settings.KEY_PREF_PROJECT);
+        String prefBook = (String)vals.get(Settings.KEY_PREF_BOOK);
+
+        if (prefLang != null && prefLang.equals(project.getTargetLanguage())) {
+            pref.edit().putString(Settings.KEY_PREF_LANG, "").commit();
+        }
+        if (prefSource != null && prefSource.equals(project.getSource())) {
+            pref.edit().putString(Settings.KEY_PREF_SOURCE, "").commit();
+        }
+        if (prefProject != null && prefProject.equals(project.getProject())){
+            pref.edit().putString(Settings.KEY_PREF_PROJECT, "").commit();
+        }
+        if (prefBook != null && prefBook.equals(project.getSlug())) {
+            pref.edit().putString(Settings.KEY_PREF_BOOK, "").commit();
         }
     }
 
