@@ -5,9 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -17,8 +15,6 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
@@ -440,15 +436,15 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private void enterVerseMarkerMode() {
         isInMarkerMode = true;
-        Utils.hideButton(getViewsToHideInMarkerMode());
-        Utils.showButton(getViewsToHideInNormalMode());
+        Utils.hideView(getViewsToHideInMarkerMode());
+        Utils.showView(getViewsToHideInNormalMode());
         mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
     }
 
     private void exitVerseMarkerMode() {
         isInMarkerMode = false;
-        Utils.showButton(getViewsToHideInMarkerMode());
-        Utils.hideButton(getViewsToHideInNormalMode());
+        Utils.showView(getViewsToHideInMarkerMode());
+        Utils.hideView(getViewsToHideInNormalMode());
         mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
     }
     

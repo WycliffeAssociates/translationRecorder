@@ -38,31 +38,31 @@ public class Utils {
         return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
     }
 
-    public static void showButton(View view) {
+    public static void showView(View view) {
         if (view == null) {
-            Logger.i("Utils.hideButton()", "A null view is trying to be shown");
+            Logger.i("Utils.showView()", "A null view is trying to be shown");
             return;
         }
         view.setVisibility(View.VISIBLE);
     }
 
-    public static void showButton(View[] views) {
+    public static void showView(View[] views) {
         for (View v : views) {
-            showButton(v);
+            showView(v);
         }
     }
 
-    public static void hideButton(View view) {
+    public static void hideView(View view) {
         if (view == null) {
-            Logger.i("Utils.hideButton()", "A null view is trying to be hid");
+            Logger.i("Utils.hideView()", "A null view is trying to be hid");
             return;
         }
         view.setVisibility(View.GONE);
     }
 
-    public static void hideButton(View[] views) {
+    public static void hideView(View[] views) {
         for (View v : views) {
-            hideButton(v);
+            hideView(v);
         }
     }
 }
