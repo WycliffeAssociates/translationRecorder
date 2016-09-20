@@ -1,5 +1,9 @@
 package wycliffeassociates.recordingapp;
 
+import android.app.Activity;
+import android.content.Context;
+import android.view.inputmethod.InputMethodManager;
+
 import java.io.File;
 
 /**
@@ -7,6 +11,13 @@ import java.io.File;
  */
 public class Utils {
     private Utils() {
+    }
+
+    public static void closeKeyboard(Activity ctx) {
+        InputMethodManager inputManager = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (ctx.getCurrentFocus() != null) {
+            inputManager.hideSoftInputFromWindow(ctx.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     //http://stackoverflow.com/questions/13410949/how-to-delete-folder-from-internal-storage-in-android
