@@ -7,14 +7,18 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.Image;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
@@ -30,6 +34,7 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 /**
@@ -48,16 +53,18 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private volatile boolean isSaved = true;
     private boolean isPlaying = false;
+    private boolean isInMarkerMode = false;
 
     private WaveformView mMainCanvas;
+    private RelativeLayout mToolbar;
     private MinimapView minimap;
     private View mSrcAudioPlayback;
     private MarkerView mStartMarker, mEndMarker;
-    private TextView mLangView, mSourceView, mBookView, mChapterView, mUnitView, mChunkView;
+    private TextView mLangView, mSourceView, mBookView, mChapterView, mChapterLabel, mUnitLabel, mUnitView;
     private ImageButton mSwitchToMinimap, mSwitchToPlayback;
     private ImageButton mVerseMarkerMode, mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn,
             mSkipBackBtn, mSkipForwardBtn, mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn,
-            mClearBtn, mSaveBtn;
+            mClearBtn, mSaveBtn, mExitMarkerModeBtn;
     private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
@@ -103,6 +110,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private void findViews() {
         mMainCanvas = (WaveformView) findViewById(R.id.main_canvas);
+        mToolbar = (RelativeLayout) findViewById(R.id.toolbar);
         minimap = (MinimapView) findViewById(R.id.minimap);
         mSrcAudioPlayback = (View) findViewById(R.id.srcAudioPlayer);
         mStartMarker = (MarkerView) findViewById(R.id.startmarker);
@@ -113,8 +121,9 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mSourceView = (TextView) findViewById(R.id.file_project);
         mBookView = (TextView) findViewById(R.id.file_book);
         mChapterView = (TextView) findViewById(R.id.file_chapter);
-        mChunkView = (TextView) findViewById(R.id.file_unit);
-        mUnitView = (TextView) findViewById(R.id.file_unit_label);
+        mChapterLabel = (TextView) findViewById(R.id.file_chapter_label);
+        mUnitView = (TextView) findViewById(R.id.file_unit);
+        mUnitLabel = (TextView) findViewById(R.id.file_unit_label);
         // NOTE: Look at Android Studio's warning. Why is the same view converted and captured as
         //    two different things? (Refering to this and mSrcAudioPlayback)
         mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
@@ -132,6 +141,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mCutBtn = (ImageButton) findViewById(R.id.btnCut);
         mClearBtn = (ImageButton) findViewById(R.id.btnClear);
         mSaveBtn = (ImageButton) findViewById(R.id.btnSave);
+        mExitMarkerModeBtn = (ImageButton) findViewById(R.id.btnExitMarkerMode);
     }
 
     private void initializeViews() {
@@ -145,12 +155,13 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
             mBookView.setText("Open Bible Stories");
         }
         mChapterView.setText(String.format("%d", mChapter));
-        mChunkView.setText(String.format("%d", mUnit));
+        mUnitView.setText(String.format("%d", mUnit));
 
         if (mProject.getMode().compareTo("chunk") == 0) {
-            mUnitView.setText("Chunk");
+            mUnitLabel.setText("Chunk");
         } else {
-            mUnitView.setText("Verse");
+            mUnitLabel.setText("Verse");
+            mVerseMarkerMode.setVisibility(View.GONE);
         }
         // By default, select the minimap view over the source playback
         mSwitchToMinimap.setSelected(true);
@@ -212,6 +223,22 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         dialog.dismiss();
     }
 
+    @Override
+    public void onBackPressed() {
+        Logger.i(this.toString(), "Back was pressed.");
+        if (!isSaved && mManager.hasCut()) {
+            Logger.i(this.toString(), "Asking if user wants to save before going back");
+            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
+            exit.show();
+        } else {
+//            clearMarkers();
+            mManager.release();
+            super.onBackPressed();
+        }
+    }
+
+
+
     private void playRecording() {
         isPlaying = true;
         mManager.play();
@@ -222,10 +249,11 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void pausePlayback() {
+        // NOTE: Shouldn't we set isPlaying = false here?
+        mManager.pause(true);
         int toShow[] = {R.id.btnPlay};
         int toHide[] = {R.id.btnPause};
         mManager.swapViews(toShow, toHide);
-        mManager.pause(true);
     }
 
     private void skipForward() {
@@ -292,20 +320,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private void rerecord() {
         Intent intent = RecordingScreen.getRerecordIntent(this, mProject, mWavFile, mChapter, mUnit);
         save(intent);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Logger.i(this.toString(), "Back was pressed.");
-        if (!isSaved && mManager.hasCut()) {
-            Logger.i(this.toString(), "Asking if user wants to save before going back");
-            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
-            exit.show();
-        } else {
-//            clearMarkers();
-            mManager.release();
-            super.onBackPressed();
-        }
     }
 
     private void save(Intent intent) {
@@ -401,6 +415,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
         mVerseMarkerMode.setOnClickListener(btnClick);
+        mExitMarkerModeBtn.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -408,12 +423,37 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void enableButtons() {
+        // NOTE: Why do we need to enable these buttons?
         enableButton(R.id.btnPlay, true);
         enableButton(R.id.btnSave, true);
     }
 
-    private View.OnClickListener btnClick = new View.OnClickListener() {
+    private View[] getViewsToHideInMarkerMode() {
+        return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
+                mUnitView, mUnitLabel, mVerseMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
+                mDropStartMarkBtn, mSaveBtn};
+    }
 
+    private View[] getViewsToHideInNormalMode() {
+        return new View[]{mExitMarkerModeBtn};
+    }
+
+    private void enterVerseMarkerMode() {
+        isInMarkerMode = true;
+        Utils.hideButton(getViewsToHideInMarkerMode());
+        Utils.showButton(getViewsToHideInNormalMode());
+        mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
+    }
+
+    private void exitVerseMarkerMode() {
+        isInMarkerMode = false;
+        Utils.showButton(getViewsToHideInMarkerMode());
+        Utils.hideButton(getViewsToHideInNormalMode());
+        mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
+    }
+    
+
+    private View.OnClickListener btnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -464,7 +504,11 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     break;
                 }
                 case R.id.btnMarkerMode: {
-                    System.out.println("VERSE MARKER MODE");
+                    enterVerseMarkerMode();
+                    break;
+                }
+                case R.id.btnExitMarkerMode: {
+                    exitVerseMarkerMode();
                     break;
                 }
                 case R.id.btnRerecord: {

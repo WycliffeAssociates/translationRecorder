@@ -17,6 +17,16 @@
         android:elevation="4dp"
         >
 
+        <ImageButton
+            android:id="@+id/btnExitMarkerMode"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/close_white"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="gone"
+            />
+
         <TextView
             android:id="@+id/file_language"
             android:layout_width="wrap_content"
@@ -47,7 +57,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/chapter_label"
+            android:id="@+id/file_chapter_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/default_padding_l"
