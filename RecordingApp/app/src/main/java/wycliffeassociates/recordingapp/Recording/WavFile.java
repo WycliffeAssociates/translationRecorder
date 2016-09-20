@@ -140,7 +140,7 @@ public class WavFile implements Parcelable {
             try {
                 raf.close();
             } catch (IOException e) {
-                Logger.e(this.toString(), "IOException thrown in WavFile trying to close random access file", e);
+                Logger.e(this.toString(), "IOException while closing stream", e);
                 e.printStackTrace();
             }
         }
@@ -229,7 +229,7 @@ public class WavFile implements Parcelable {
                     bos.close();
                     fos.close();
                 } catch (IOException e) {
-                    Logger.e(this.toString(), "IOexception trying to close WavFile in initialize header", e);
+                    Logger.e(this.toString(), "IOException while closing streams", e);
                     e.printStackTrace();
                 }
             }
@@ -279,7 +279,7 @@ public class WavFile implements Parcelable {
                 bos.close();
                 fos.close();
             } catch (IOException e) {
-                Logger.e(this.toString(), "Could not close streams in pcmToWav", e);
+                Logger.e(this.toString(), "IOException while closing streams", e);
                 e.printStackTrace();
             }
         }
@@ -429,7 +429,7 @@ public class WavFile implements Parcelable {
             try {
                 fileAccessor.close();
             } catch (IOException e) {
-                Logger.e(this.toString(), "IOException closing stream overwriting header", e);
+                Logger.e(this.toString(), "IOException while closing streams", e);
                 e.printStackTrace();
             }
         }
@@ -460,7 +460,7 @@ public class WavFile implements Parcelable {
                 try {
                     raf.close();
                 } catch (IOException e) {
-                    Logger.e(this.toString(), "IOException closing stream", e);
+                    Logger.e(this.toString(), "IOException while closing stream", e);
                     e.printStackTrace();
                 }
             }
@@ -498,7 +498,7 @@ public class WavFile implements Parcelable {
                 try {
                     raf.close();
                 } catch (IOException e) {
-                    Logger.e(this.toString(), "IOException trying to close stream", e);
+                    Logger.e(this.toString(), "IOException while closing stream", e);
                     e.printStackTrace();
                 }
             }
@@ -658,7 +658,7 @@ public class WavFile implements Parcelable {
                         bis.close();
                         fis.close();
                     } catch (IOException e) {
-                        Logger.e("WavFile Compile Chapter", "IOException closing input streams after chapter compilation", e);
+                        Logger.e("WavFile Compile Chapter", "IOException while closing input streams", e);
                         e.printStackTrace();
                     }
                 }
@@ -676,7 +676,7 @@ public class WavFile implements Parcelable {
                 os.close();
                 chapterWav.overwriteHeaderData();
             } catch (IOException e) {
-                Logger.e("WavFile Compile Chapter", "IOException closing output streams after chapter compilation", e);
+                Logger.e("WavFile Compile Chapter", "IOException while closing output streams", e);
                 e.printStackTrace();
             }
         }
@@ -747,7 +747,7 @@ public class WavFile implements Parcelable {
                 fisBase.close();
                 fisInsert.close();
             } catch (IOException e) {
-                Logger.e("Insert", "IOException during stream close on insert", e);
+                Logger.e("Insert", "IOException while closing streams", e);
                 e.printStackTrace();
             }
         }
