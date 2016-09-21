@@ -49,18 +49,18 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private volatile boolean isSaved = true;
     private boolean isPlaying = false;
-    private boolean isInMarkerMode = false;
+    private boolean isInVMarkerMode = false;
 
     private WaveformView mMainCanvas;
     private RelativeLayout mToolbar;
     private MinimapView minimap;
     private View mSrcAudioPlayback;
     private MarkerView mStartMarker, mEndMarker;
-    private TextView mLangView, mSourceView, mBookView, mChapterView, mChapterLabel, mUnitLabel, mUnitView;
-    private ImageButton mSwitchToMinimap, mSwitchToPlayback;
-    private ImageButton mVerseMarkerMode, mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn,
-            mSkipBackBtn, mSkipForwardBtn, mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn,
-            mClearBtn, mSaveBtn, mExitMarkerModeBtn;
+    private TextView mLangView, mSourceView, mBookView, mChapterView, mChapterLabel, mUnitView,
+            mUnitLabel;
+    private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVMarkerMode, mExitVMarkerMode,
+            mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
+            mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn;
     private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
@@ -123,8 +123,9 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         // NOTE: Look at Android Studio's warning. Why is the same view converted and captured as
         //    two different things? (Refering to this and mSrcAudioPlayback)
         mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
+        mEnterVMarkerMode = (ImageButton) findViewById(R.id.btnEnterVMarkerMode);
+        mExitVMarkerMode = (ImageButton) findViewById(R.id.btnExitVMarkerMode);
         mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
-        mVerseMarkerMode = (ImageButton) findViewById(R.id.btnMarkerMode);
         mRerecordBtn = (ImageButton) findViewById(R.id.btnRerecord);
         mInsertBtn = (ImageButton) findViewById(R.id.btnInsertRecord);
         mPlayBtn = (ImageButton) findViewById(R.id.btnPlay);
@@ -137,7 +138,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mCutBtn = (ImageButton) findViewById(R.id.btnCut);
         mClearBtn = (ImageButton) findViewById(R.id.btnClear);
         mSaveBtn = (ImageButton) findViewById(R.id.btnSave);
-        mExitMarkerModeBtn = (ImageButton) findViewById(R.id.btnExitMarkerMode);
     }
 
     private void initializeViews() {
@@ -157,7 +157,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
             mUnitLabel.setText("Chunk");
         } else {
             mUnitLabel.setText("Verse");
-            mVerseMarkerMode.setVisibility(View.GONE);
+            mEnterVMarkerMode.setVisibility(View.GONE);
         }
         // By default, select the minimap view over the source playback
         mSwitchToMinimap.setSelected(true);
@@ -232,7 +232,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
             super.onBackPressed();
         }
     }
-
 
 
     private void playRecording() {
@@ -395,6 +394,9 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void setButtonHandlers() {
+        // NOTE: Why are we assigning the same OnClickListener and then putting it through the
+        // switch case later while we already know what's being clicked right here? Should we break
+        // up the OnClickListener to specific ones?
         mPlayBtn.setOnClickListener(btnClick);
         mSaveBtn.setOnClickListener(btnClick);
         mPauseBtn.setOnClickListener(btnClick);
@@ -410,8 +412,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mInsertBtn.setOnClickListener(btnClick);
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
-        mVerseMarkerMode.setOnClickListener(btnClick);
-        mExitMarkerModeBtn.setOnClickListener(btnClick);
+        mEnterVMarkerMode.setOnClickListener(btnClick);
+        mExitVMarkerMode.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -426,28 +428,28 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private View[] getViewsToHideInMarkerMode() {
         return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
-                mUnitView, mUnitLabel, mVerseMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
+                mUnitView, mUnitLabel, mEnterVMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
                 mDropStartMarkBtn, mSaveBtn};
     }
 
     private View[] getViewsToHideInNormalMode() {
-        return new View[]{mExitMarkerModeBtn};
+        return new View[]{mExitVMarkerMode};
     }
 
     private void enterVerseMarkerMode() {
-        isInMarkerMode = true;
+        isInVMarkerMode = true;
         Utils.hideView(getViewsToHideInMarkerMode());
         Utils.showView(getViewsToHideInNormalMode());
         mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
     }
 
     private void exitVerseMarkerMode() {
-        isInMarkerMode = false;
+        isInVMarkerMode = false;
         Utils.showView(getViewsToHideInMarkerMode());
         Utils.hideView(getViewsToHideInNormalMode());
         mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
     }
-    
+
 
     private View.OnClickListener btnClick = new View.OnClickListener() {
         @Override

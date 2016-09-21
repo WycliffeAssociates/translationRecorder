@@ -18,7 +18,7 @@
         >
 
         <ImageButton
-            android:id="@+id/btnExitMarkerMode"
+            android:id="@+id/btnExitVMarkerMode"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:scaleType="fitCenter"
@@ -102,7 +102,7 @@
             android:gravity="center_vertical|right">
 
             <ImageButton
-                android:id="@+id/btnMarkerMode"
+                android:id="@+id/btnEnterVMarkerMode"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginStart="24dp"
