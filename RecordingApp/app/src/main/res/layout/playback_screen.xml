@@ -467,6 +467,17 @@
             android:visibility="gone"
             />
 
+        <ImageButton
+            android:id="@+id/btn_v_marker_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_done"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="gone"
+            />
+
     </RelativeLayout>
 
 </LinearLayout>

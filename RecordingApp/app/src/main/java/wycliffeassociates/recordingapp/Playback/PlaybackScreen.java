@@ -62,13 +62,13 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVMarkerMode, mExitVMarkerMode,
             mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
             mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn,
-            mDropVMarkerBtn;
+            mDropVMarkerBtn, mCompleteVMarkerBtn;
     private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
     private Project mProject;
-    private int mChapter, mUnit, mRating;
+    private int mChapter, mUnit, mRating, mVerses;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackScreen.class);
@@ -142,7 +142,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mClearBtn = (ImageButton) findViewById(R.id.btnClear);
         mSaveBtn = (ImageButton) findViewById(R.id.btnSave);
         mDropVMarkerBtn = (ImageButton) findViewById(R.id.btnDropVMarker);
-
+        mCompleteVMarkerBtn = (ImageButton) findViewById(R.id.btn_v_marker_done);
     }
 
     private void initializeViews() {
@@ -160,6 +160,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
         if (mProject.getMode().compareTo("chunk") == 0) {
             mUnitLabel.setText("Chunk");
+            mVerses = getVerseCount();
+            setVMarkerCount(mVerses);
         } else {
             mUnitLabel.setText("Verse");
             mEnterVMarkerMode.setVisibility(View.GONE);
@@ -420,6 +422,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mEnterVMarkerMode.setOnClickListener(btnClick);
         mExitVMarkerMode.setOnClickListener(btnClick);
         mDropVMarkerBtn.setOnClickListener(btnClick);
+        mCompleteVMarkerBtn.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -432,6 +435,22 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         enableButton(R.id.btnSave, true);
     }
 
+    private boolean allVersesMarked() {
+        return mVerses <= 0;
+    }
+
+    private int getVerseCount() {
+        // NOTE: Replace with real code to get the number of verses in a chunk
+        int verses = 3;
+        // -1 because the first verse marker should be dropped at the beginning automatically
+        return verses - 1;
+    }
+
+    private void setVMarkerCount(int count) {
+        // - 1 because the first verse marker should be automatically dropped at the beginning
+        mVMarkerCount.setText(String.valueOf(count));
+    }
+
     private View[] getViewsToHideInMarkerMode() {
         return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
                 mUnitView, mUnitLabel, mEnterVMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
@@ -439,17 +458,19 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private View[] getViewsToHideInNormalMode() {
-        return new View[]{mExitVMarkerMode, mVMarkerCount, mVMarkerLabel, mDropVMarkerBtn};
+        return new View[]{mExitVMarkerMode, mVMarkerCount, mVMarkerLabel, mDropVMarkerBtn,
+                mCompleteVMarkerBtn};
     }
 
-    private void enterVerseMarkerMode() {
+    private void enterVMarkerMode() {
         isInVMarkerMode = true;
-        Utils.hideView(getViewsToHideInMarkerMode());
         Utils.showView(getViewsToHideInNormalMode());
+        Utils.hideView(getViewsToHideInMarkerMode());
+        Utils.hideView(allVersesMarked() ? mDropVMarkerBtn : mCompleteVMarkerBtn);
         mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
     }
 
-    private void exitVerseMarkerMode() {
+    private void exitVMarkerMode() {
         isInVMarkerMode = false;
         Utils.showView(getViewsToHideInMarkerMode());
         Utils.hideView(getViewsToHideInNormalMode());
@@ -457,7 +478,13 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void dropVMarker() {
+        // NOTE: Put real code here
         System.out.println("Drop verse marker here");
+    }
+
+    private void saveVMarkerPosition() {
+        // NOTE: Put real code here
+        System.out.println("Save verse marker position here");
     }
 
 
@@ -512,15 +539,26 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     break;
                 }
                 case R.id.btnEnterVMarkerMode: {
-                    enterVerseMarkerMode();
+                    enterVMarkerMode();
                     break;
                 }
                 case R.id.btnExitVMarkerMode: {
-                    exitVerseMarkerMode();
+                    exitVMarkerMode();
                     break;
                 }
                 case R.id.btnDropVMarker: {
                     dropVMarker();
+                    mVerses -= 1;
+                    setVMarkerCount(mVerses);
+                    if (allVersesMarked()) {
+                        Utils.showView(mCompleteVMarkerBtn);
+                        Utils.hideView(mDropVMarkerBtn);
+                    }
+                    break;
+                }
+                case R.id.btn_v_marker_done: {
+                    saveVMarkerPosition();
+                    exitVMarkerMode();
                     break;
                 }
                 case R.id.btnRerecord: {
