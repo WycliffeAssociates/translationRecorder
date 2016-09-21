@@ -500,11 +500,11 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     undo();
                     break;
                 }
-                case R.id.btnMarkerMode: {
+                case R.id.btnEnterVMarkerMode: {
                     enterVerseMarkerMode();
                     break;
                 }
-                case R.id.btnExitMarkerMode: {
+                case R.id.btnExitVMarkerMode: {
                     exitVerseMarkerMode();
                     break;
                 }
