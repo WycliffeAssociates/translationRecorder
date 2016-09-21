@@ -57,8 +57,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private MinimapView minimap;
     private View mSrcAudioPlayback;
     private MarkerView mStartMarker, mEndMarker;
-    private TextView mLangView, mSourceView, mBookView, mChapterView, mChapterLabel, mUnitView,
-            mUnitLabel;
+    private TextView mVMarkerCount, mVMarkerLabel, mLangView, mSourceView, mBookView,
+            mChapterView, mChapterLabel, mUnitView, mUnitLabel;
     private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVMarkerMode, mExitVMarkerMode,
             mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
             mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn,
@@ -114,6 +114,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mEndMarker = (MarkerView) findViewById(R.id.endmarker);
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
+        mVMarkerCount = (TextView) findViewById(R.id.v_marker_count);
+        mVMarkerLabel = (TextView) findViewById(R.id.v_marker_label);
         mLangView = (TextView) findViewById(R.id.file_language);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mBookView = (TextView) findViewById(R.id.file_book);
@@ -437,7 +439,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private View[] getViewsToHideInNormalMode() {
-        return new View[]{mExitVMarkerMode, mDropVMarkerBtn};
+        return new View[]{mExitVMarkerMode, mVMarkerCount, mVMarkerLabel, mDropVMarkerBtn};
     }
 
     private void enterVerseMarkerMode() {

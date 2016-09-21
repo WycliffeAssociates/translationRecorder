@@ -21,9 +21,33 @@
             android:id="@+id/btnExitVMarkerMode"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginEnd="@dimen/default_padding_m"
             android:scaleType="fitCenter"
             android:src="@drawable/close_white"
             android:background="?attr/selectableItemBackground"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/v_marker_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="18sp"
+            android:textColor="@color/primary_text_default_material_dark"
+            android:textStyle="bold"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/v_marker_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_padding_s"
+            android:text="left"
+            android:textSize="18sp"
+            android:textColor="@color/primary_text_default_material_dark"
+            android:textStyle="bold"
             android:visibility="gone"
             />
 
