@@ -29,6 +29,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     protected static final String mProjectKey = "project_key";
     protected static final String mCurrentFragmentKey = "current_fragment_key";
     protected static final String mLastFragmentKey = "last_fragment_key";
+    protected static final String mSearchTextKey = "search_text_key";
     protected Project mProject;
     protected ScrollableListFragment mFragment;
     protected String mSearchText;
@@ -75,6 +76,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         outState.putParcelable(mProjectKey, mProject);
         outState.putInt(mCurrentFragmentKey, mCurrentFragment);
         outState.putInt(mLastFragmentKey, mLastFragment);
+        outState.putString(mSearchTextKey, mSearchText);
     }
 
     @Override
@@ -83,6 +85,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         mProject = savedInstanceState.getParcelable(mProjectKey);
         mCurrentFragment = savedInstanceState.getInt(mCurrentFragmentKey);
         mLastFragment = savedInstanceState.getInt(mLastFragmentKey);
+        mSearchText = savedInstanceState.getString(mSearchTextKey);
         displayFragment();
     }
 

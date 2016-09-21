@@ -71,12 +71,12 @@
 
     </LinearLayout>
 
+    <!-- default to invisible for the back press to "close" the fragment !-->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        >
-
-    </FrameLayout>
+        android:visibility="invisible"
+        />
 
 </RelativeLayout>

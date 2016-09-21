@@ -25,6 +25,8 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     private static final String mSetLanguageKey = "set_language_key";
     private static final String mSetLocationKey = "set_location_key";
     private static final String mProjectKey = "project_key";
+    private static final String mUserSearchingLanguageKey = "searching_language_key";
+    private static final String mSearchTextKey = "search_text_key";
     private Project mProject;
     private Button btnSourceLanguage;
     private Button btnSourceLocation;
@@ -72,11 +74,18 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(mProjectKey, mProject);
         outState.putBoolean(mSetLanguageKey, mSetLanguage);
         outState.putBoolean(mSetLocationKey, mSetLocation);
+        outState.putString(mSearchTextKey, mSearchText);
+        outState.putBoolean(mUserSearchingLanguageKey, (mFragment != null)? true : false);
     }
 
     @Override
@@ -91,13 +100,23 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
         if (mSetLanguage) {
             btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
         }
-        continueIfBothSet();
+        if(savedInstanceState.getBoolean(mUserSearchingLanguageKey)){
+            mSearchText = savedInstanceState.getString(mSearchTextKey);
+            setSourceLanguage();
+        } else {
+            continueIfBothSet();
+        }
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        //if the source language fragment is showing, then close that, otherwise proceed with back press
+        if (findViewById(R.id.fragment_container).getVisibility() == View.VISIBLE) {
+            findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);
+        } else {
+            super.onBackPressed();
+            finish();
+        }
     }
 
     @Override
@@ -127,7 +146,9 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
             @Override
             public boolean onQueryTextChange(String s) {
                 mSearchText = s;
-                mFragment.onSearchQuery(s);
+                if(mFragment != null) {
+                    mFragment.onSearchQuery(s);
+                }
                 return true;
             }
         });
@@ -143,8 +164,12 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                this.finish();
-                return true;
+                if (findViewById(R.id.fragment_container).getVisibility() == View.VISIBLE) {
+                    findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);
+                } else {
+                    finish();
+                    return true;
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }
