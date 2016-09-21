@@ -432,6 +432,17 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true" />
 
+        <ImageButton
+            android:id="@+id/btnDropVMarker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/bookmark_add"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="gone"
+            />
+
     </RelativeLayout>
 
 </LinearLayout>

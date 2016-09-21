@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -60,7 +61,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
             mUnitLabel;
     private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVMarkerMode, mExitVMarkerMode,
             mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
-            mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn;
+            mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn,
+            mDropVMarkerBtn;
     private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
@@ -137,6 +139,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mCutBtn = (ImageButton) findViewById(R.id.btnCut);
         mClearBtn = (ImageButton) findViewById(R.id.btnClear);
         mSaveBtn = (ImageButton) findViewById(R.id.btnSave);
+        mDropVMarkerBtn = (ImageButton) findViewById(R.id.btnDropVMarker);
+
     }
 
     private void initializeViews() {
@@ -413,6 +417,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mSwitchToPlayback.setOnClickListener(btnClick);
         mEnterVMarkerMode.setOnClickListener(btnClick);
         mExitVMarkerMode.setOnClickListener(btnClick);
+        mDropVMarkerBtn.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -428,11 +433,11 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private View[] getViewsToHideInMarkerMode() {
         return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
                 mUnitView, mUnitLabel, mEnterVMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
-                mDropStartMarkBtn, mSaveBtn};
+                mDropStartMarkBtn, mSaveBtn, mDropStartMarkBtn};
     }
 
     private View[] getViewsToHideInNormalMode() {
-        return new View[]{mExitVMarkerMode};
+        return new View[]{mExitVMarkerMode, mDropVMarkerBtn};
     }
 
     private void enterVerseMarkerMode() {
@@ -447,6 +452,10 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         Utils.showView(getViewsToHideInMarkerMode());
         Utils.hideView(getViewsToHideInNormalMode());
         mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
+    }
+
+    private void dropVMarker() {
+        System.out.println("Drop verse marker here");
     }
 
 
@@ -506,6 +515,10 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                 }
                 case R.id.btnExitVMarkerMode: {
                     exitVerseMarkerMode();
+                    break;
+                }
+                case R.id.btnDropVMarker: {
+                    dropVMarker();
                     break;
                 }
                 case R.id.btnRerecord: {
