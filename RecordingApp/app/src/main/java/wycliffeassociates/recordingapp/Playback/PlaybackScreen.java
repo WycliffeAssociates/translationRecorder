@@ -86,7 +86,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void initialize(Intent intent) {
-//        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
         isSaved = true;
         parseIntent(intent);
         findViews();
