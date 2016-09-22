@@ -28,6 +28,10 @@ public class ProjectInfoDialog extends DialogFragment {
         void delegateExport(Export exp);
     }
 
+    public interface SourceAudioDelegator {
+        void delegateSourceAudio(Project project);
+    }
+
     Project mProject;
     ExportDelegator mExportDelegator;
     Export mExp;
@@ -88,6 +92,7 @@ public class ProjectInfoDialog extends DialogFragment {
         unitType.setText(mProject.getMode());
 
         ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
+        ImageButton sourceButton = (ImageButton) view.findViewById(R.id.export_as_source_btn);
         ImageButton sdcard_button = (ImageButton) view.findViewById(R.id.sdcard_button);
         ImageButton folderButton = (ImageButton) view.findViewById(R.id.folder_button);
         ImageButton publishButton = (ImageButton) view.findViewById(R.id.publish_button);
@@ -126,6 +131,14 @@ public class ProjectInfoDialog extends DialogFragment {
                 mExportDelegator.delegateExport(mExp);
             }
         });
+
+        sourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((SourceAudioDelegator)mExportDelegator).delegateSourceAudio(mProject);
+            }
+        });
+
 
         builder.setView(view);
         return builder.create();

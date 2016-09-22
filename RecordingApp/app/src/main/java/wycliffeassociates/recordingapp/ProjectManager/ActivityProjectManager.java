@@ -7,7 +7,9 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,13 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -31,13 +40,15 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.SplashScreen;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 
 /**
  * Created by sarabiaj on 6/23/2016.
  */
 public class ActivityProjectManager extends AppCompatActivity implements ProjectInfoDialog.InfoDialogCallback,
-                                ProjectInfoDialog.ExportDelegator, Export.ProgressUpdateCallback, DatabaseResyncTaskFragment.DatabaseResyncCallback{
+                                ProjectInfoDialog.ExportDelegator, Export.ProgressUpdateCallback, DatabaseResyncTaskFragment.DatabaseResyncCallback,
+                                ProjectInfoDialog.SourceAudioDelegator, SourceAudioTaskFragment.SourceAudioExportCallback{
 
 
 
@@ -56,17 +67,23 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private volatile boolean mExporting = false;
     private ExportTaskFragment mExportTaskFragment;
     private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
+    private SourceAudioTaskFragment mSourceCompileTaskFragment;
+
+    private final String TAG_SOURCE_AUDIO_FRAGMENT = "source_audio_task_fragment";
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
     private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
-
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
     private final String STATE_RESYNC = "db_resync";
     private final String STATE_PROGRESS = "upload_progress";
 
+    private final String STATE_SOURCE_COMPILING = "source_compiling";
     public static final int PROJECT_WIZARD_REQUEST = RESULT_FIRST_USER;
     private volatile int mDbProgress = 0;
     private boolean mDbResyncing = false;
+    private boolean mSourceCompiling = false;
+    private ProgressDialog mSourceCompileProgressDialog;
+    private File mSourceAudioFile;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,6 +104,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
             mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
             mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
+            mSourceCompiling = savedInstanceState.getBoolean(STATE_SOURCE_COMPILING, false);
         }
     }
 
@@ -102,6 +120,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         FragmentManager fm = getFragmentManager();
         mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
         mDatabaseResyncTaskFragment = (DatabaseResyncTaskFragment) fm.findFragmentByTag(TAG_DATABASE_RESYNC_FRAGMENT);
+        mSourceCompileTaskFragment = (SourceAudioTaskFragment) fm.findFragmentByTag(TAG_SOURCE_AUDIO_FRAGMENT);
         if(mExportTaskFragment == null){
             mExportTaskFragment = new ExportTaskFragment();
             fm.beginTransaction().add(mExportTaskFragment, TAG_EXPORT_TASK_FRAGMENT).commit();
@@ -120,12 +139,28 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         } else if(mDbResyncing){
             dbProgress();
         }
+        if(mSourceCompileTaskFragment == null){
+            mSourceCompileTaskFragment = new SourceAudioTaskFragment();
+            fm.beginTransaction().add(mSourceCompileTaskFragment, TAG_SOURCE_AUDIO_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        } else if (mSourceCompiling) {
+            sourceCompileProgress();
+        }
         if(!mDbResyncing) {
             dbProgress();
             mDatabaseResyncTaskFragment.resyncDatabase();
         }
     }
-    
+
+    private void sourceCompileProgress() {
+        mSourceCompiling = true;
+        mSourceCompileProgressDialog = new ProgressDialog(this);
+        mSourceCompileProgressDialog.setTitle("Compiling Source Audio");
+        mSourceCompileProgressDialog.setMessage("Please Wait...");
+        mSourceCompileProgressDialog.setIndeterminate(true);
+        mSourceCompileProgressDialog.setCancelable(false);
+        mSourceCompileProgressDialog.show();
+    }
 
     public void dbProgress(){
         mDbResyncing = true;
@@ -156,6 +191,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
         savedInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
+        savedInstanceState.putBoolean(STATE_SOURCE_COMPILING, mSourceCompiling);
     }
 
     @Override
@@ -309,6 +345,32 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     onResume();
                 }
             }
+            case 42:{
+                if(resultCode == RESULT_OK){
+                    Uri uri = data.getData();
+                    try {
+                        ParcelFileDescriptor destFilename = getContentResolver().openFileDescriptor(uri, "w");
+                        InputStream sourceStream = new FileInputStream(mSourceAudioFile);
+                        OutputStream outStream = new FileOutputStream(destFilename.getFileDescriptor());
+
+                        byte[] buffer = new byte[1024];
+                        int length;
+
+                        while((length = sourceStream.read(buffer)) > 0)
+                        {
+                            outStream.write(buffer, 0, length);
+                        }
+
+                        outStream.flush();
+                        sourceStream.close();
+                        outStream.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
             default:
         }
     }
@@ -415,6 +477,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         super.onPause();
         dismissExportProgressDialog();
         dismissDatabaseResyncProgressDialog();
+        dismissSourceCompileProgressDialog();
     }
 
     private void dismissExportProgressDialog(){
@@ -431,9 +494,33 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
     }
 
+    private void dismissSourceCompileProgressDialog(){
+        if(mSourceCompileProgressDialog != null && mSourceCompileProgressDialog.isShowing()){
+            mSourceCompileProgressDialog.dismiss();
+            mSourceCompileProgressDialog = null;
+        }
+    }
+
     @Override
     public void delegateExport(Export exp) {
         exp.setFragmentContext(mExportTaskFragment);
         mExportTaskFragment.delegateExport(exp);
+        sourceCompileProgress();
+    }
+
+    @Override
+    public void delegateSourceAudio(Project project) {
+        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + Utils.capitalizeFirstLetter(project.getSlug()) + ".tr");
+        mSourceCompileTaskFragment.createSourceAudio(project, project.getProjectDirectory(project), getFilesDir());
+    }
+
+    @Override
+    public void onSourceAudioExported() {
+        dismissSourceCompileProgressDialog();
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
+        startActivityForResult(intent, 42);
     }
 }
