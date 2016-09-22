@@ -68,7 +68,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
     private Project mProject;
-    private int mChapter, mUnit, mRating, mVerses;
+    private int mChapter, mUnit, mRating, mVersesLeft;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackScreen.class);
@@ -160,8 +160,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
         if (mProject.getMode().compareTo("chunk") == 0) {
             mUnitLabel.setText("Chunk");
-            mVerses = getVerseCount();
-            setVMarkerCount(mVerses);
+            mVersesLeft = getVersesLeft();
+            setVMarkerCount(mVersesLeft);
         } else {
             mUnitLabel.setText("Verse");
             mEnterVMarkerMode.setVisibility(View.GONE);
@@ -436,10 +436,10 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private boolean allVersesMarked() {
-        return mVerses <= 0;
+        return mVersesLeft <= 0;
     }
 
-    private int getVerseCount() {
+    private int getVersesLeft() {
         // NOTE: Replace with real code to get the number of verses in a chunk
         int verses = 3;
         // -1 because the first verse marker should be dropped at the beginning automatically
@@ -478,8 +478,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void dropVMarker() {
-        // NOTE: Put real code here
-        System.out.println("Drop verse marker here");
+        mMainCanvas.dropVerseMarker(mManager.getLocation());
+        mManager.updateUI();
     }
 
     private void saveVMarkerPosition() {
@@ -548,8 +548,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                 }
                 case R.id.btnDropVMarker: {
                     dropVMarker();
-                    mVerses -= 1;
-                    setVMarkerCount(mVerses);
+                    mVersesLeft -= 1;
+                    setVMarkerCount(mVersesLeft);
                     if (allVersesMarked()) {
                         Utils.showView(mCompleteVMarkerBtn);
                         Utils.hideView(mDropVMarkerBtn);
