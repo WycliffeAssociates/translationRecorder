@@ -79,6 +79,34 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/take_count_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/unitActions"
+                    android:layout_marginEnd="@dimen/default_padding_m"
+                    android:gravity="center"
+                    >
+
+                    <ImageView
+                        android:id="@+id/take_count_icon"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/close_black"
+                        />
+
+                    <TextView
+                        android:id="@+id/take_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textColor="@color/primary_text_default_material_light"
+                        />
+
+                </LinearLayout>
+
             </RelativeLayout>
 
             <LinearLayout

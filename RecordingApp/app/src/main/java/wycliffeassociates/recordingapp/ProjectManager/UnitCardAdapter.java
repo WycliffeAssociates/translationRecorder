@@ -6,8 +6,6 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -17,7 +15,6 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 
@@ -97,8 +94,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
         public RelativeLayout cardHeader, cardFooter;
         public SeekBar seekBar;
-        public TextView unitTitle, currentTake, elapsed, duration, currentTakeTimeStamp;
-        public LinearLayout cardBody, cardContainer, unitActions;
+        public TextView unitTitle, currentTake, elapsed, duration, currentTakeTimeStamp, takeCount;
+        public LinearLayout takeCountContainer, cardBody, cardContainer, unitActions;
         public ImageView unitRecordBtn, unitExpandBtn, prevTakeBtn, nextTakeBtn;
         public ImageButton takeDeleteBtn, takePlayPauseBtn, takeEditBtn, takeSelectBtn;
         public FourStepImageView takeRatingBtn;
@@ -117,6 +114,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
             // Views
             unitTitle = (TextView) view.findViewById(R.id.unitTitle);
+            takeCountContainer = (LinearLayout) view.findViewById(R.id.take_count_container);
+            takeCount = (TextView) view.findViewById(R.id.take_count);
             currentTake = (TextView) view.findViewById(R.id.currentTakeView);
             currentTakeTimeStamp = (TextView) view.findViewById(R.id.currentTakeTimeStamp);
             seekBar = (SeekBar) view.findViewById(R.id.seekBar);
@@ -148,12 +147,14 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         }
 
         // Called on onBindViewHolder, when the view is visible on the screen
-        public void  bindViewHolder(ViewHolder holder, int position, UnitCard uc) {
+        public void bindViewHolder(ViewHolder holder, int position, UnitCard uc) {
             // Capture the UnitCard object
             unitCard = uc;
             unitCard.setViewHolder(holder);
             // Set card views based on the UnitCard object
             unitTitle.setText(unitCard.getTitle());
+            unitCard.refreshTakeCount();
+            takeCount.setText(String.valueOf(unitCard.getTakeCount()));
             // Expand card if it's already expanded before
             if (unitCard.isExpanded()) {
                 unitCard.expand();
@@ -168,7 +169,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                 mSelectedCards.remove(this);
                 unitCard.drop();
             }
-
             // Hide expand icon if it's empty
             if (unitCard.isEmpty()) {
                 unitExpandBtn.setVisibility(View.INVISIBLE);
@@ -235,7 +235,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                               .inflate(R.layout.unit_card, parent, false);
+                .inflate(R.layout.unit_card, parent, false);
         return new ViewHolder(v);
     }
 

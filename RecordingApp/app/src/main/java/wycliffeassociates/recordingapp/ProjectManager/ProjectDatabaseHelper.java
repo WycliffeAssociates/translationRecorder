@@ -192,7 +192,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getProjectId(String languageCode, String slug, String version) throws IllegalArgumentException {
-        Logger.w(this.toString(), "Trying to get project Id for " + languageCode + " " + slug + " " + version);
+//        Logger.w(this.toString(), "Trying to get project Id for " + languageCode + " " + slug + " " + version);
         String languageId = String.valueOf(getLanguageId(languageCode));
         String bookId = String.valueOf(getBookId(slug));
         SQLiteDatabase db = getReadableDatabase();
@@ -214,7 +214,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getChapterId(String languageCode, String slug, String version, int chapter){
-        Logger.w(this.toString(), "trying to get chapter id for chapter " + chapter);
+//        Logger.w(this.toString(), "trying to get chapter id for chapter " + chapter);
         String projectId = String.valueOf(getProjectId(languageCode, slug, version));
         SQLiteDatabase db = getReadableDatabase();
         final String chapterIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
@@ -235,7 +235,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getUnitId(String languageCode, String slug, String version, int chapter, int startVerse) throws IllegalArgumentException{
-        Logger.w(this.toString(), "Trying to get unit Id for start verse " + startVerse);
+//        Logger.w(this.toString(), "Trying to get unit Id for start verse " + startVerse);
         String projectId = String.valueOf(getProjectId(languageCode, slug, version));
         String chapterId = String.valueOf(getChapterId(languageCode, slug, version, chapter));
         SQLiteDatabase db = getReadableDatabase();
@@ -267,6 +267,20 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         //db.close();
         return id;
+    }
+
+    public int getTakeCount(int unitId) throws IllegalArgumentException {
+        int count = -1;
+        String stringifiedId = String.valueOf(unitId);
+        SQLiteDatabase db = getReadableDatabase();
+        final String  query = String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
+                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK);
+        try {
+            count = (int) DatabaseUtils.longForQuery(db, query, new String[]{stringifiedId});
+        } catch (SQLiteDoneException e) {
+            throw new IllegalArgumentException("Take count cannot be retrieved for unitId: " + stringifiedId);
+        }
+        return count;
     }
 
     public String getLanguageName(String code) throws IllegalArgumentException{
