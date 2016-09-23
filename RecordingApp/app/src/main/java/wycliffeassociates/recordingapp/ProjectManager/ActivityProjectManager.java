@@ -153,13 +153,13 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private void sourceCompileProgress() {
-        mSourceCompiling = true;
-        mSourceCompileProgressDialog = new ProgressDialog(this);
-        mSourceCompileProgressDialog.setTitle("Compiling Source Audio");
-        mSourceCompileProgressDialog.setMessage("Please Wait...");
-        mSourceCompileProgressDialog.setIndeterminate(true);
-        mSourceCompileProgressDialog.setCancelable(false);
-        mSourceCompileProgressDialog.show();
+//        mSourceCompiling = true;
+//        mSourceCompileProgressDialog = new ProgressDialog(this);
+//        mSourceCompileProgressDialog.setTitle("Compiling Source Audio");
+//        mSourceCompileProgressDialog.setMessage("Please Wait...");
+//        mSourceCompileProgressDialog.setIndeterminate(true);
+//        mSourceCompileProgressDialog.setCancelable(false);
+//        mSourceCompileProgressDialog.show();
     }
 
     public void dbProgress(){
@@ -505,18 +505,18 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     public void delegateExport(Export exp) {
         exp.setFragmentContext(mExportTaskFragment);
         mExportTaskFragment.delegateExport(exp);
-        sourceCompileProgress();
     }
 
     @Override
     public void delegateSourceAudio(Project project) {
         mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + Utils.capitalizeFirstLetter(project.getSlug()) + ".tr");
         mSourceCompileTaskFragment.createSourceAudio(project, project.getProjectDirectory(project), getFilesDir());
+        //sourceCompileProgress();
     }
 
     @Override
     public void onSourceAudioExported() {
-        dismissSourceCompileProgressDialog();
+        //dismissSourceCompileProgressDialog();
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");

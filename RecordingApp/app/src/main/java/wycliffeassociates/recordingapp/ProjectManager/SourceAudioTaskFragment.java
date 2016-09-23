@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.ProjectManager;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,6 +22,9 @@ import wycliffeassociates.recordingapp.Utils;
  */
 public class SourceAudioTaskFragment extends Fragment {
 
+    private ProgressDialog mPd;
+    private volatile boolean mInProgress = false;
+
     public interface SourceAudioExportCallback{
         void onSourceAudioExported();
     }
@@ -32,6 +36,9 @@ public class SourceAudioTaskFragment extends Fragment {
     public void onAttach(Activity activity){
         super.onAttach(activity);
         mProgressUpdateCallback = (SourceAudioExportCallback) activity;
+        if(mInProgress){
+            displayDialog();
+        }
     }
 
     @Override
@@ -44,14 +51,34 @@ public class SourceAudioTaskFragment extends Fragment {
     @Override
     public void onDetach(){
         super.onDetach();
+        mPd.dismiss();
         mProgressUpdateCallback = null;
     }
 
     private void onSourceAudioCompiled(){
+        mInProgress = false;
+        mPd.dismiss();
         mProgressUpdateCallback.onSourceAudioExported();
+    }
+    
+    private void displayDialog(){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mPd = new ProgressDialog(getActivity());
+                mPd.setTitle("Compiling Source Audio");
+                mPd.setMessage("Please Wait...");
+                mPd.setIndeterminate(true);
+                mPd.setCancelable(false);
+                mPd.show();
+            }
+        });
+
     }
 
     public void createSourceAudio(final Project project, final File bookFolder, final File output){
+        mInProgress = true;
+        displayDialog();
         Thread create = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -65,8 +92,9 @@ public class SourceAudioTaskFragment extends Fragment {
                             onSourceAudioCompiled();
                         }
                     });
+
                 } finally {
-                   // Utils.deleteRecursive(input);
+                   Utils.deleteRecursive(input);
                 }
             }
         });
