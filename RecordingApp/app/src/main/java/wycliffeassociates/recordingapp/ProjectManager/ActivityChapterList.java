@@ -153,11 +153,14 @@ public class ActivityChapterList extends AppCompatActivity implements
         int numChapters = mChunks.getNumChapters();
         int[] numStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
         for (int i = 0; i < mChapterCardList.size(); i++) {
-            mChapterCardList.get(i).refreshChapterStarted(mProject, i + 1);
-            mChapterCardList.get(i).setCanCompile(numStarted[i] == mChunks.getNumChunks(mProject, i + 1));
-            mChapterCardList.get(i).refreshChapterCompiled(mProject, i + 1);
-            if (mChapterCardList.get(i).isCompiled()) {
-                mChapterCardList.get(i).setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
+            ChapterCard cc = mChapterCardList.get(i);
+            cc.refreshChapterStarted(mProject, i + 1);
+            cc.setNumOfUnitStarted(numStarted[i]);
+            cc.refreshProgress();
+            cc.setCanCompile(numStarted[i] == mChunks.getNumChunks(mProject, i + 1));
+            cc.refreshChapterCompiled(mProject, i + 1);
+            if (cc.isCompiled()) {
+                cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
             }
         }
         mAdapter.notifyDataSetChanged();

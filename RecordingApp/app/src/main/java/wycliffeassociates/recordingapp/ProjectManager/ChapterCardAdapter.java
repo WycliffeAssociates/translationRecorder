@@ -25,8 +25,10 @@ import com.filippudak.ProgressPieView.ProgressPieView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
@@ -167,7 +169,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             title.setText(chapterCard.getTitle());
 
             // Progress Pie
-            chapterCard.refreshProgress(mProject, pos+1);
+            chapterCard.refreshProgress();
             progressPie.setProgress(chapterCard.getProgress());
 
             // Checking Level

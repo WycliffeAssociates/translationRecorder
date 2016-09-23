@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.View;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
@@ -22,6 +24,7 @@ import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
  * Created by leongv on 8/15/2016.
@@ -48,6 +51,8 @@ public class ChapterCard {
     private String mTitle = "";
     private int mCheckingLevel = 0;
     private int mProgress = 0;
+    private int mTotalUnits;
+    private int mUnitStarted;
 
     // State
     private boolean mIsEmpty = true;
@@ -65,6 +70,23 @@ public class ChapterCard {
         mChapter = chapter;
         refreshChapterStarted(proj, chapter);
         refreshChapterCompiled(proj, chapter);
+
+        // Get total number of units in a chapter
+        try {
+            // NOTE: Is this the best way to get the total number of units?
+            Chunks chunks = new Chunks(mCtx, mProject.getSlug());
+            mTotalUnits = chunks.getChunks(mProject, mChapter).size();
+        } catch (Exception e) {
+            System.out.println("Error in chapter card constructor");
+        }
+
+        // Retrieve saved progress from DB
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        if (db.chapterExists(mProject, mChapter)) {
+            int chapterId = db.getChapterId(mProject, mChapter);
+            setProgress(db.getChapterProgress(chapterId));
+        }
+        db.close();
     }
 
     public void refreshChapterStarted(Project project, int chapter){
@@ -103,9 +125,12 @@ public class ChapterCard {
         }
     }
 
-    public void refreshProgress(Project project, int chapter) {
-        // TODO: Set actual progress here
-        setProgress((int) Math.round(Math.random() * 100));
+    public void refreshProgress() {
+        int progress = calculateProgress();
+        if (progress != mProgress) {
+            setProgress(progress);
+            saveProgressToDB(progress);
+        }
     }
 
 
@@ -150,6 +175,10 @@ public class ChapterCard {
 
     public void setIconsClickable(boolean clickable) {
         mIconsClickable = clickable;
+    }
+
+    public void setNumOfUnitStarted(int count) {
+        mUnitStarted = count;
     }
 
 
@@ -217,6 +246,19 @@ public class ChapterCard {
             ap.loadFile(mChapterWav);
         }
         ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.playPauseBtn, mViewHolder.seekBar);
+    }
+
+    private int calculateProgress() {
+        return Math.round(((float) mUnitStarted / mTotalUnits) * 100);
+    }
+
+    private void saveProgressToDB(int progress) {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        if (db.chapterExists(mProject, mChapter)) {
+            int chapterId = db.getChapterId(mProject, mChapter);
+            db.setChapterProgress(chapterId, progress);
+        }
+        db.close();
     }
 
 

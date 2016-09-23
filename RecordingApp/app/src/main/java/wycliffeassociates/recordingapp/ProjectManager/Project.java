@@ -11,6 +11,7 @@ import java.io.File;
 
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.Utils;
+import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
  * Created by sarabiaj on 5/10/2016.

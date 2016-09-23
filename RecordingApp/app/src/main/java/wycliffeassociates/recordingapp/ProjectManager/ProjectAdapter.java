@@ -14,10 +14,12 @@ import android.widget.TextView;
 
 import com.filippudak.ProgressPieView.ProgressPieView;
 
+import java.io.IOException;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
  *
@@ -48,6 +50,7 @@ public class ProjectAdapter extends ArrayAdapter {
 
     public View getView(final int position, View convertView, final ViewGroup parent) {
         ViewHolder holder;
+
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.project_list_item, null);
             holder = new ViewHolder();
@@ -82,8 +85,18 @@ public class ProjectAdapter extends ArrayAdapter {
         String language = dB.getLanguageName(project.getTargetLanguage());
         languageView.setText(language);
 
-        // TODO: Set actual progress here
-        progressPie.setProgress((int) Math.round(Math.random() * 100.0));
+        // Calculate project's progress
+        if (dB.projectExists(project)) {
+            try {
+                Chunks chunks = new Chunks(ctx.getBaseContext(), project.getSlug());
+                int chapterCount = chunks.getNumChapters();
+                int projectId = dB.getProjectId(project);
+                int progress = Math.round((float)dB.getProjectProgressSum(projectId) / chapterCount);
+                progressPie.setProgress(progress);
+            } catch (IOException e) {
+                System.out.println("Uh oh");
+            }
+        }
 
         recordView.setOnClickListener(new View.OnClickListener() {
             @Override

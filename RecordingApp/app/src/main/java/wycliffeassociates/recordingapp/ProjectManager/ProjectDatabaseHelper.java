@@ -643,6 +643,36 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
+    public void setChapterProgress(int chapterId, int progress) {
+        final String whereClause = String.format("%s=?", ChapterEntry._ID);
+        String chapterIdString = String.valueOf(chapterId);
+        SQLiteDatabase db = getReadableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ChapterEntry.CHAPTER_PROGRESS, progress);
+        db.update(ChapterEntry.TABLE_CHAPTER, contentValues, whereClause, new String[]{chapterIdString});
+        db.close();
+    }
+
+    public int getChapterProgress(int chapterId) {
+        String chapterIdString = String.valueOf(chapterId);
+        SQLiteDatabase db = getReadableDatabase();
+        final String query = String.format("SELECT %s FROM %s WHERE %s=?",
+                ChapterEntry.CHAPTER_PROGRESS, ChapterEntry.TABLE_CHAPTER, ChapterEntry._ID);
+        float progress = DatabaseUtils.longForQuery(db, query, new String[]{chapterIdString});
+        db.close();
+        return Math.round(progress);
+    }
+
+    public int getProjectProgressSum(int projectId) {
+        String projectIdString = String.valueOf(projectId);
+        SQLiteDatabase db = getReadableDatabase();
+        final String query = String.format("SELECT SUM(%s) FROM %s WHERE %s=?",
+                ChapterEntry.CHAPTER_PROGRESS, ChapterEntry.TABLE_CHAPTER, ChapterEntry.CHAPTER_PROJECT_FK);
+        int progress = (int) DatabaseUtils.longForQuery(db, query, new String[]{projectIdString});
+        db.close();
+        return progress;
+    }
+
     public void removeSelectedTake(FileNameExtractor fne){
         String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getSource(), fne.getChapter(), fne.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
