@@ -88,6 +88,7 @@ public class ProjectAdapter extends ArrayAdapter {
         // Calculate project's progress
         if (dB.projectExists(project)) {
             try {
+                // TODO: This is a bottle neck. Please optimize the progress calculation.
                 Chunks chunks = new Chunks(ctx.getBaseContext(), project.getSlug());
                 int chapterCount = chunks.getNumChapters();
                 int projectId = dB.getProjectId(project);

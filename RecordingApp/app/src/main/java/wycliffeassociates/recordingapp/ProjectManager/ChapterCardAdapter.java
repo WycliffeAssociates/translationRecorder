@@ -169,7 +169,6 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             title.setText(chapterCard.getTitle());
 
             // Progress Pie
-            chapterCard.refreshProgress();
             progressPie.setProgress(chapterCard.getProgress());
 
             // Checking Level

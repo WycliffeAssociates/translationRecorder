@@ -148,21 +148,22 @@ public class ActivityChapterList extends AppCompatActivity implements
         refreshChapterCards();
     }
 
-    public void refreshChapterCards() {
+    private void refreshChapterCards() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int numChapters = mChunks.getNumChapters();
-        int[] numStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
+        int[] unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
         for (int i = 0; i < mChapterCardList.size(); i++) {
             ChapterCard cc = mChapterCardList.get(i);
-            cc.refreshChapterStarted(mProject, i + 1);
-            cc.setNumOfUnitStarted(numStarted[i]);
+            cc.setNumOfUnitStarted(unitsStarted[i]);
             cc.refreshProgress();
-            cc.setCanCompile(numStarted[i] == mChunks.getNumChunks(mProject, i + 1));
-            cc.refreshChapterCompiled(mProject, i + 1);
+            cc.refreshIsEmpty();
+            cc.refreshCanCompile();
+            cc.refreshChapterCompiled(i + 1);
             if (cc.isCompiled()) {
                 cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
             }
         }
+        db.close();
         mAdapter.notifyDataSetChanged();
     }
 
@@ -271,7 +272,8 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     private void prepareChapterCardData() {
         for (int i = 0; i < mChunks.getNumChapters(); i++) {
-            mChapterCardList.add(new ChapterCard(this, mProject, i + 1));
+            int unitCount = mChunks.getNumChunks(mProject, i + 1);
+            mChapterCardList.add(new ChapterCard(this, mProject, i + 1, unitCount));
         }
     }
 

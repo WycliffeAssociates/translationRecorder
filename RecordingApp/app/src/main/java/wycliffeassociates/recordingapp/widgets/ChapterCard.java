@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.ChapterCardAdapter;
@@ -24,7 +23,6 @@ import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
-import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
  * Created by leongv on 8/15/2016.
@@ -40,7 +38,6 @@ public class ChapterCard {
     public int MAX_CHECKING_LEVEL = 3;
     public int MIN_PROGRESS = 0;
     public int MAX_PROGRESS = 100;
-    private final int mChapter;
 
     // Attributes
     private Activity mCtx;
@@ -48,11 +45,12 @@ public class ChapterCard {
     private ChapterCardAdapter.ViewHolder mViewHolder;
     private SoftReference<AudioPlayer> mAudioPlayer;
     private File mChapterWav;
-    private String mTitle = "";
+    private String mTitle;
+    private final int mChapter;
     private int mCheckingLevel = 0;
     private int mProgress = 0;
-    private int mTotalUnits;
-    private int mUnitStarted;
+    private int mUnitCount;
+    private int mUnitStarted = 0;
 
     // State
     private boolean mIsEmpty = true;
@@ -63,50 +61,40 @@ public class ChapterCard {
 
 
     // Constructor
-    public ChapterCard(Activity ctx, Project proj, int chapter) {
+    public ChapterCard(Activity ctx, Project proj, int chapter, int unitCount) {
         mCtx = ctx;
         mProject = proj;
         mTitle = "Chapter " + chapter;
         mChapter = chapter;
-        refreshChapterStarted(proj, chapter);
-        refreshChapterCompiled(proj, chapter);
-
-        // Get total number of units in a chapter
-        try {
-            // NOTE: Is this the best way to get the total number of units?
-            Chunks chunks = new Chunks(mCtx, mProject.getSlug());
-            mTotalUnits = chunks.getChunks(mProject, mChapter).size();
-        } catch (Exception e) {
-            System.out.println("Error in chapter card constructor");
-        }
-
-        // Retrieve saved progress from DB
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        if (db.chapterExists(mProject, mChapter)) {
-            int chapterId = db.getChapterId(mProject, mChapter);
-            setProgress(db.getChapterProgress(chapterId));
-        }
-        db.close();
+        mUnitCount = unitCount;
     }
 
-    public void refreshChapterStarted(Project project, int chapter){
-        File dir = Project.getProjectDirectory(project);
-        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
-        File[] files = dir.listFiles();
-        if(files != null) {
-            for (File f : files) {
-                if (f.getName().equals(chapterString)) {
-                    mIsEmpty = false;
-                    return;
-                }
-            }
-        }
-        mIsEmpty = true;
+//    public void refreshChapterStarted(Project project, int chapter){
+//        File dir = Project.getProjectDirectory(project);
+//        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+//        File[] files = dir.listFiles();
+//        if(files != null) {
+//            for (File f : files) {
+//                if (f.getName().equals(chapterString)) {
+//                    mIsEmpty = false;
+//                    return;
+//                }
+//            }
+//        }
+//        mIsEmpty = true;
+//    }
+
+    public void refreshIsEmpty() {
+        mIsEmpty = mProgress == 0;
     }
 
-    public void refreshChapterCompiled(Project project, int chapter){
-        File dir = Project.getProjectDirectory(project);
-        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+    public void refreshChapterCompiled(int chapter){
+        if (!mCanCompile) {
+            return;
+        }
+
+        File dir = Project.getProjectDirectory(mProject);
+        String chapterString = FileNameExtractor.chapterIntToString(mProject, chapter);
         File chapterDir = new File(dir, chapterString);
         if(chapterDir.exists()) {
             mChapterWav = new File(chapterDir, "chapter.wav");
@@ -249,7 +237,7 @@ public class ChapterCard {
     }
 
     private int calculateProgress() {
-        return Math.round(((float) mUnitStarted / mTotalUnits) * 100);
+        return Math.round(((float) mUnitStarted / mUnitCount) * 100);
     }
 
     private void saveProgressToDB(int progress) {
@@ -328,8 +316,12 @@ public class ChapterCard {
         }
     }
 
-    public void setCanCompile(boolean canCompile){
-        mCanCompile = canCompile;
+//    public void setCanCompile(boolean canCompile){
+//        mCanCompile = canCompile;
+//    }
+
+    public void refreshCanCompile() {
+        mCanCompile = mProgress == 100;
     }
 
     public void compile() {
