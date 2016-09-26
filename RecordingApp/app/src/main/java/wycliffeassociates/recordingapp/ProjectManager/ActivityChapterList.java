@@ -24,7 +24,10 @@ import wycliffeassociates.recordingapp.widgets.ChapterCard;
  * Created by sarabiaj on 6/28/2016.
  */
 public class ActivityChapterList extends AppCompatActivity implements
-        CheckingDialog.DialogListener, CompileDialog.DialogListener, UpdateProgressCallback, DatabaseResyncTaskFragment.DatabaseResyncCallback {
+        CheckingDialog.DialogListener,
+        CompileDialog.DialogListener,
+        UpdateProgressCallback,
+        DatabaseResyncTaskFragment.DatabaseResyncCallback {
 
     public static final String STATE_COMPILING = "compiling";
     private static final String TAG_COMPILE_CHAPTER_TASK_FRAGMENT = "tag_compile_chapter";
@@ -32,25 +35,29 @@ public class ActivityChapterList extends AppCompatActivity implements
     public static String PROJECT_KEY = "project_key";
     private final String STATE_RESYNC = "db_resync";
     private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
-    private Chunks mChunks;
-    private ProgressDialog mPd;
-    private volatile boolean mIsCompiling = false;
+
     private Project mProject;
+    private Chunks mChunks;
     private List<ChapterCard> mChapterCardList;
     private ChapterCardAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
     private RecyclerView mChapterList;
+
     private CompileChapterTaskFragment mCompileChapterTaskFragment;
-    private volatile int mProgress = 0;
     private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
+    private ProgressDialog mPd, mDatabaseProgressDialog;
+
+    private volatile boolean mIsCompiling = false;
+    private volatile int mProgress = 0;
     private boolean mDbResyncing;
-    private ProgressDialog mDatabaseProgressDialog;
+
 
     public static Intent getActivityVerseListIntent(Context ctx, Project p) {
         Intent intent = new Intent(ctx, ActivityUnitList.class);
         intent.putExtra(PROJECT_KEY, p);
         return intent;
     }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,7 +129,6 @@ public class ActivityChapterList extends AppCompatActivity implements
         prepareChapterCardData();
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -131,6 +137,47 @@ public class ActivityChapterList extends AppCompatActivity implements
             mDatabaseResyncTaskFragment.resyncDatabase();
         }
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAdapter.exitCleanUp();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mPd != null && mPd.isShowing()) {
+            mPd.dismiss();
+            mPd = null;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saveInstanceState) {
+        saveInstanceState.putBoolean(STATE_COMPILING, mIsCompiling);
+        saveInstanceState.putInt(STATE_PROGRESS, mProgress);
+        saveInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
+        super.onSaveInstanceState(saveInstanceState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void setIsCompiling() {
+        mIsCompiling = true;
+        compileProgress(0);
+    }
+
 
     public void dbProgress() {
         mDbResyncing = true;
@@ -167,29 +214,6 @@ public class ActivityChapterList extends AppCompatActivity implements
         mAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mAdapter.exitCleanUp();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mPd != null && mPd.isShowing()) {
-            mPd.dismiss();
-            mPd = null;
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle saveInstanceState) {
-        saveInstanceState.putBoolean(STATE_COMPILING, mIsCompiling);
-        saveInstanceState.putInt(STATE_PROGRESS, mProgress);
-        saveInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
-        super.onSaveInstanceState(saveInstanceState);
-    }
-
     public void compileProgress(int progress) {
         mPd = new ProgressDialog(this);
         mPd.setTitle("Compiling Chapter");
@@ -199,12 +223,6 @@ public class ActivityChapterList extends AppCompatActivity implements
         mPd.setCancelable(false);
         mPd.setMax(100);
         mPd.show();
-    }
-
-    @Override
-    public void setIsCompiling() {
-        mIsCompiling = true;
-        compileProgress(0);
     }
 
     public void setCompilingProgress(int progress) {
@@ -226,6 +244,14 @@ public class ActivityChapterList extends AppCompatActivity implements
             }
         });
     }
+
+    private void prepareChapterCardData() {
+        for (int i = 0; i < mChunks.getNumChapters(); i++) {
+            int unitCount = mChunks.getNumChunks(mProject, i + 1);
+            mChapterCardList.add(new ChapterCard(this, mProject, i + 1, unitCount));
+        }
+    }
+
 
     @Override
     public void onPositiveClick(CheckingDialog dialog) {
@@ -258,23 +284,4 @@ public class ActivityChapterList extends AppCompatActivity implements
     public void onNegativeClick(CompileDialog dialog) {
         dialog.dismiss();
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void prepareChapterCardData() {
-        for (int i = 0; i < mChunks.getNumChapters(); i++) {
-            int unitCount = mChunks.getNumChunks(mProject, i + 1);
-            mChapterCardList.add(new ChapterCard(this, mProject, i + 1, unitCount));
-        }
-    }
-
 }
