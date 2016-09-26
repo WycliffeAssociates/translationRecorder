@@ -100,6 +100,7 @@ public class ChapterCard {
         if(mIsCompiled){
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
             mCheckingLevel = db.getChapterCheckingLevel(project, chapter);
+            db.close();
         }
     }
 

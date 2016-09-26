@@ -226,10 +226,12 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     public void onPositiveClick(CheckingDialog dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        int level = dialog.getCheckingLevel();
         int[] chapterIndicies = dialog.getChapterIndicies();
         for (int i = 0; i < chapterIndicies.length; i++) {
             int position = chapterIndicies[i];
-            db.setCheckingLevel(dialog.getProject(), position + 1, dialog.getCheckingLevel());
+            mChapterCardList.get(position).setCheckingLevel(level);
+            db.setCheckingLevel(dialog.getProject(), position + 1, level);
             mAdapter.notifyItemChanged(position);
         }
         db.close();
