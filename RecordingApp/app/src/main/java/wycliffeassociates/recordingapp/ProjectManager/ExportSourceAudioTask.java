@@ -6,7 +6,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.Utils;
@@ -18,11 +17,12 @@ import wycliffeassociates.recordingapp.utilities.Task;
 public class ExportSourceAudioTask extends Task {
 
     Project mProject;
-    OutputStream mOutput;
+    File mOutput;
     File mBookFolder;
     File mStagingRoot;
+    ActivityProjectManager mActivity;
 
-    public ExportSourceAudioTask(Project project, File bookFolder, File stagingRoot, OutputStream output){
+    public ExportSourceAudioTask(Project project, File bookFolder, File stagingRoot, File output){
         mProject = project;
         mOutput = output;
         mStagingRoot = stagingRoot;
@@ -32,15 +32,17 @@ public class ExportSourceAudioTask extends Task {
     @Override
     public void run() {
         File input = stageFilesForArchive(mProject, mBookFolder, mStagingRoot);
+        onTaskProgressUpdateDelegator(25);
         createSourceAudio(mProject, input, mOutput);
         onTaskProgressUpdateDelegator(75);
         onTaskCompleteDelegator();
+        onComplete();
     }
 
-    public void createSourceAudio(final Project project, final File input, OutputStream output){
+    public void createSourceAudio(final Project project, final File input, final File output){
         try {
             final ArchiveOfHolding aoh = new ArchiveOfHolding();
-            aoh.createArchiveOfHolding(input, output, true);
+            aoh.createArchiveOfHolding(input, mStagingRoot, output.getName(), true);
         } finally {
             Utils.deleteRecursive(input);
         }
@@ -69,5 +71,13 @@ public class ExportSourceAudioTask extends Task {
             }
         }
         return root;
+    }
+
+    public void setActivity(ActivityProjectManager apm){
+        mActivity = apm;
+    }
+
+    private void onComplete(){
+        mActivity.onSourceAudioExported();
     }
 }

@@ -42,6 +42,7 @@ import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.SplashScreen;
 import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
+import wycliffeassociates.recordingapp.utilities.TaskFragment;
 
 /**
  * Created by sarabiaj on 6/23/2016.
@@ -68,10 +69,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private ExportTaskFragment mExportTaskFragment;
     private DatabaseResyncTaskFragment mDatabaseResyncTaskFragment;
     private SourceAudioTaskFragment mSourceCompileTaskFragment;
+    private TaskFragment mTaskFragment;
 
     private final String TAG_SOURCE_AUDIO_FRAGMENT = "source_audio_task_fragment";
     private final String TAG_EXPORT_TASK_FRAGMENT = "export_task_fragment";
     private final String TAG_DATABASE_RESYNC_FRAGMENT = "database_resync_task_fragment";
+    private final String TAG_TASK_FRAGMENT = "task_fragment";
     private final String STATE_EXPORTING = "was_exporting";
     private final String STATE_ZIPPING = "was_zipping";
     private final String STATE_RESYNC = "db_resync";
@@ -139,12 +142,17 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         } else if(mDbResyncing){
             dbProgress();
         }
-        if(mSourceCompileTaskFragment == null){
-            mSourceCompileTaskFragment = new SourceAudioTaskFragment();
-            fm.beginTransaction().add(mSourceCompileTaskFragment, TAG_SOURCE_AUDIO_FRAGMENT).commit();
+//        if(mSourceCompileTaskFragment == null){
+//            mSourceCompileTaskFragment = new SourceAudioTaskFragment();
+//            fm.beginTransaction().add(mSourceCompileTaskFragment, TAG_SOURCE_AUDIO_FRAGMENT).commit();
+//            fm.executePendingTransactions();
+//        } else if (mSourceCompiling) {
+//            sourceCompileProgress();
+//        }
+        if(mTaskFragment == null){
+            mTaskFragment = new TaskFragment();
+            fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
             fm.executePendingTransactions();
-        } else if (mSourceCompiling) {
-            sourceCompileProgress();
         }
         if(!mDbResyncing) {
             dbProgress();
@@ -510,7 +518,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     @Override
     public void delegateSourceAudio(Project project) {
         mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + Utils.capitalizeFirstLetter(project.getSlug()) + ".tr");
-        mSourceCompileTaskFragment.createSourceAudio(project, project.getProjectDirectory(project), getFilesDir());
+        ExportSourceAudioTask task = new ExportSourceAudioTask(project, project.getProjectDirectory(project), getFilesDir(), mSourceAudioFile);
+        task.setActivity(this);
+        mTaskFragment.executeRunnable(task, "Exporting Source Audio in Task Fragment", "Please wait...");
+        //mSourceAudioTaskFragment.createSourceAudio(project, project.getProjectDirectory(project), getFilesDir());
         //sourceCompileProgress();
     }
 
