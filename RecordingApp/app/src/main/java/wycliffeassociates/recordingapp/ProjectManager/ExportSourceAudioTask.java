@@ -4,6 +4,7 @@ import com.wycliffeassociates.io.ArchiveOfHolding;
 
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -17,12 +18,12 @@ import wycliffeassociates.recordingapp.utilities.Task;
 public class ExportSourceAudioTask extends Task {
 
     Project mProject;
-    File mOutput;
+    BufferedOutputStream mOutput;
     File mBookFolder;
     File mStagingRoot;
     ActivityProjectManager mActivity;
 
-    public ExportSourceAudioTask(Project project, File bookFolder, File stagingRoot, File output){
+    public ExportSourceAudioTask(Project project, File bookFolder, File stagingRoot, BufferedOutputStream output){
         mProject = project;
         mOutput = output;
         mStagingRoot = stagingRoot;
@@ -39,11 +40,19 @@ public class ExportSourceAudioTask extends Task {
         onComplete();
     }
 
-    public void createSourceAudio(final Project project, final File input, final File output){
+    public void createSourceAudio(final Project project, final File input, final BufferedOutputStream output){
         try {
             final ArchiveOfHolding aoh = new ArchiveOfHolding();
-            aoh.createArchiveOfHolding(input, mStagingRoot, output.getName(), true);
+            aoh.createArchiveOfHolding(input, output);
+        } catch (IOException e) {
+
         } finally {
+            try {
+                output.flush();
+                output.close();
+            } catch (IOException e){
+
+            }
             Utils.deleteRecursive(input);
         }
     }

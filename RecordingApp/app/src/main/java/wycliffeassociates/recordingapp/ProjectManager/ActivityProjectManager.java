@@ -24,13 +24,11 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -87,6 +85,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private boolean mSourceCompiling = false;
     private ProgressDialog mSourceCompileProgressDialog;
     private File mSourceAudioFile;
+    private Project mProjectToExport;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -356,22 +355,14 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             case 42:{
                 if(resultCode == RESULT_OK){
                     Uri uri = data.getData();
+                    FileOutputStream fos = null;
+                    BufferedOutputStream bos = null;
                     try {
                         ParcelFileDescriptor destFilename = getContentResolver().openFileDescriptor(uri, "w");
-                        InputStream sourceStream = new FileInputStream(mSourceAudioFile);
-                        OutputStream outStream = new FileOutputStream(destFilename.getFileDescriptor());
-
-                        byte[] buffer = new byte[1024];
-                        int length;
-
-                        while((length = sourceStream.read(buffer)) > 0)
-                        {
-                            outStream.write(buffer, 0, length);
-                        }
-
-                        outStream.flush();
-                        sourceStream.close();
-                        outStream.close();
+                        fos = new FileOutputStream(destFilename.getFileDescriptor());
+                        bos = new BufferedOutputStream(fos);
+                        ExportSourceAudioTask task = new ExportSourceAudioTask(mProjectToExport, mProjectToExport.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
+                        mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...");
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -517,21 +508,30 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     @Override
     public void delegateSourceAudio(Project project) {
+        mProjectToExport = project;
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
         mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + Utils.capitalizeFirstLetter(project.getSlug()) + ".tr");
-        ExportSourceAudioTask task = new ExportSourceAudioTask(project, project.getProjectDirectory(project), getFilesDir(), mSourceAudioFile);
-        task.setActivity(this);
-        mTaskFragment.executeRunnable(task, "Exporting Source Audio in Task Fragment", "Please wait...");
-        //mSourceAudioTaskFragment.createSourceAudio(project, project.getProjectDirectory(project), getFilesDir());
-        //sourceCompileProgress();
+        intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
+        startActivityForResult(intent, 42);
+
+//        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + Utils.capitalizeFirstLetter(project.getSlug()) + ".tr");
+//        ExportSourceAudioTask task = new ExportSourceAudioTask(project, project.getProjectDirectory(project), getFilesDir(), mSourceAudioFile);
+//        task.setActivity(this);
+//        mTaskFragment.executeRunnable(task, "Exporting Source Audio in Task Fragment", "Please wait...");
+//
+//        //mSourceAudioTaskFragment.createSourceAudio(project, project.getProjectDirectory(project), getFilesDir());
+//        //sourceCompileProgress();
     }
 
     @Override
     public void onSourceAudioExported() {
         //dismissSourceCompileProgressDialog();
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
-        startActivityForResult(intent, 42);
+//        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//        intent.setType("*/*");
+//        intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
+//        startActivityForResult(intent, 42);
     }
 }
