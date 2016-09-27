@@ -10,7 +10,7 @@ public class ExportTask extends Task implements Export.ProgressUpdateCallback {
 
     Export mExport;
 
-    public ExportTask(int taskTag, Export export){
+    public ExportTask(int taskTag, Export export) {
         super(taskTag);
         mExport = export;
     }

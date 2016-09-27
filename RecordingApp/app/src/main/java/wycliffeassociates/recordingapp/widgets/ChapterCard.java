@@ -14,14 +14,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.adapters.ChapterCardAdapter;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.CompileDialog;
-import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 
 /**
  * Created by leongv on 8/15/2016.
@@ -67,11 +67,11 @@ public class ChapterCard {
         refreshChapterCompiled(proj, chapter);
     }
 
-    public void refreshChapterStarted(Project project, int chapter){
+    public void refreshChapterStarted(Project project, int chapter) {
         File dir = Project.getProjectDirectory(project);
         String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
         File[] files = dir.listFiles();
-        if(files != null) {
+        if (files != null) {
             for (File f : files) {
                 if (f.getName().equals(chapterString)) {
                     mIsEmpty = false;
@@ -82,13 +82,13 @@ public class ChapterCard {
         mIsEmpty = true;
     }
 
-    public void refreshChapterCompiled(Project project, int chapter){
+    public void refreshChapterCompiled(Project project, int chapter) {
         File dir = Project.getProjectDirectory(project);
         String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
         File chapterDir = new File(dir, chapterString);
-        if(chapterDir.exists()) {
+        if (chapterDir.exists()) {
             mChapterWav = new File(chapterDir, "chapter.wav");
-            if(mChapterWav.exists()){
+            if (mChapterWav.exists()) {
                 mIsCompiled = true;
                 return;
             }
@@ -96,8 +96,8 @@ public class ChapterCard {
         mIsCompiled = false;
     }
 
-    public void refreshCheckingLevel(Project project, int chapter){
-        if(mIsCompiled){
+    public void refreshCheckingLevel(Project project, int chapter) {
+        if (mIsCompiled) {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
             mCheckingLevel = db.getChapterCheckingLevel(project, chapter);
         }
@@ -186,7 +186,9 @@ public class ChapterCard {
         return mIsExpanded;
     }
 
-    public boolean areIconsClickable() { return mIconsClickable; }
+    public boolean areIconsClickable() {
+        return mIconsClickable;
+    }
 
 
     // Private Methods
@@ -254,7 +256,7 @@ public class ChapterCard {
             mViewHolder.cardView.setCardElevation(2f);
             mViewHolder.cardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
             mViewHolder.title.setTextColor(
-                    mCtx.getResources().getColor((isEmpty())? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
+                    mCtx.getResources().getColor((isEmpty()) ? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
             );
             // Compile button activated status gets reset by multiSelector. This is a way to correct it.
             mViewHolder.compileBtn.setActivated(canCompile());
@@ -286,7 +288,7 @@ public class ChapterCard {
         }
     }
 
-    public void setCanCompile(boolean canCompile){
+    public void setCanCompile(boolean canCompile) {
         mCanCompile = canCompile;
     }
 
@@ -300,9 +302,9 @@ public class ChapterCard {
                 FileNameExtractor fneRight = new FileNameExtractor(rhs);
                 int startLeft = fneLeft.getStartVerse();
                 int startRight = fneRight.getStartVerse();
-                if(startLeft < startRight){
+                if (startLeft < startRight) {
                     return -1;
-                } else if(startLeft == startRight) {
+                } else if (startLeft == startRight) {
                     return 0;
                 } else {
                     return 1;
@@ -311,7 +313,7 @@ public class ChapterCard {
         });
         List<WavFile> wavFiles = new ArrayList<>();
         File base = FileNameExtractor.getDirectoryFromProject(mProject, mChapter);
-        for(String s : files){
+        for (String s : files) {
             File f = new File(base, s);
             wavFiles.add(new WavFile(f));
         }
@@ -328,7 +330,7 @@ public class ChapterCard {
                     return;
                 }
                 pauseAudio();
-                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter-1, mCheckingLevel);
+                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter - 1, mCheckingLevel);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
@@ -338,13 +340,13 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(canCompile()) {
+                if (canCompile()) {
                     if (!areIconsClickable()) {
                         return;
                     }
                     pauseAudio();
                     //pass in chapter index, not chapter number
-                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter-1, isCompiled());
+                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter - 1, isCompiled());
                     dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
                 }
             }
@@ -390,27 +392,27 @@ public class ChapterCard {
             public void onClick(View view) {
                 pauseAudio();
                 AlertDialog dialog = new AlertDialog.Builder(mCtx)
-                    .setTitle("Delete Chapter Recording?")
-                    .setIcon(R.drawable.ic_delete_black_36dp)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            destroyAudioPlayer();
-                            mChapterWav.delete();
-                            mIsCompiled = false;
-                            collapse();
-                            ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-                            db.setCheckingLevel(mProject, mChapter, 0);
-                            adapter.notifyItemChanged(mViewHolder.getAdapterPosition());
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .create();
+                        .setTitle("Delete Chapter Recording?")
+                        .setIcon(R.drawable.ic_delete_black_36dp)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                destroyAudioPlayer();
+                                mChapterWav.delete();
+                                mIsCompiled = false;
+                                collapse();
+                                ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+                                db.setCheckingLevel(mProject, mChapter, 0);
+                                adapter.notifyItemChanged(mViewHolder.getAdapterPosition());
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create();
                 dialog.show();
             }
         };
@@ -420,7 +422,7 @@ public class ChapterCard {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mViewHolder.playPauseBtn.isActivated()) {
+                if (mViewHolder.playPauseBtn.isActivated()) {
                     pauseAudio();
                 } else {
                     playAudio();

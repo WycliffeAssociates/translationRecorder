@@ -34,7 +34,7 @@ import wycliffeassociates.recordingapp.widgets.UnitCard;
  * Created by sarabiaj on 6/30/2016.
  */
 public class ActivityUnitList extends AppCompatActivity implements CheckingDialog.DialogListener,
-        RatingDialog.DialogListener, TaskFragment.OnTaskComplete{
+        RatingDialog.DialogListener, TaskFragment.OnTaskComplete {
 
     public static String PROJECT_KEY = "project_key";
     public static String CHAPTER_KEY = "chapter_key";
@@ -43,7 +43,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private final String STATE_RESYNC = "db_resync";
     private static final int DATABASE_RESYNC_TASK = Task.FIRST_TASK;
 
-    public static Intent getActivityUnitListIntent(Context ctx, Project p, int chapter){
+    public static Intent getActivityUnitListIntent(Context ctx, Project p, int chapter) {
         Intent intent = new Intent(ctx, ActivityUnitList.class);
         intent.putExtra(PROJECT_KEY, p);
         intent.putExtra(CHAPTER_KEY, chapter);
@@ -75,7 +75,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             fm.executePendingTransactions();
         }
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC);
         }
 
@@ -115,18 +115,18 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         if (!mDbResyncing) {
             mDbResyncing = true;
             DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext());
-            mTaskFragment.executeRunnable(task, "Resyncinc Database", "Please wait...");
+            mTaskFragment.executeRunnable(task, "Resyncinc Database", "Please wait...", true);
         }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle saveInstanceState){
+    public void onSaveInstanceState(Bundle saveInstanceState) {
         saveInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
         super.onSaveInstanceState(saveInstanceState);
     }
 
-    public void refreshUnitCards(){
-        for(int i = 0; i < mUnitCardList.size(); i++){
+    public void refreshUnitCards() {
+        for (int i = 0; i < mUnitCardList.size(); i++) {
             mUnitCardList.get(i).refreshUnitStarted(mProject, mChapterNum, mUnitCardList.get(i).getStartVerse());
         }
         mAdapter.notifyDataSetChanged();
@@ -187,8 +187,8 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     @Override
     public void onTaskComplete(int taskTag, int resultCode) {
-        if(resultCode == TaskFragment.STATUS_OK){
-            if(taskTag == DATABASE_RESYNC_TASK){
+        if (resultCode == TaskFragment.STATUS_OK) {
+            if (taskTag == DATABASE_RESYNC_TASK) {
                 mDbResyncing = false;
                 refreshUnitCards();
             }

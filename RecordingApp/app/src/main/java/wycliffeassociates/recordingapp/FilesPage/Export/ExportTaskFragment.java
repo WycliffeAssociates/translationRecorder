@@ -14,19 +14,19 @@ public class ExportTaskFragment extends Fragment implements Export.ProgressUpdat
     private Export mExp;
 
     @Override
-    public void onAttach(Activity activity){
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mProgressUpdateCallback = (Export.ProgressUpdateCallback)activity;
+        mProgressUpdateCallback = (Export.ProgressUpdateCallback) activity;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
     }
 
     @Override
-    public void onDetach(){
+    public void onDetach() {
         super.onDetach();
         mProgressUpdateCallback = null;
     }
@@ -47,7 +47,7 @@ public class ExportTaskFragment extends Fragment implements Export.ProgressUpdat
     }
 
     @Override
-    public void setUploadProgress(int progress){
+    public void setUploadProgress(int progress) {
         mProgressUpdateCallback.setUploadProgress(progress);
     }
 
@@ -57,12 +57,12 @@ public class ExportTaskFragment extends Fragment implements Export.ProgressUpdat
     }
 
     @Override
-    public void setZipping(boolean zipping){
+    public void setZipping(boolean zipping) {
         mProgressUpdateCallback.setZipping(zipping);
     }
 
     @Override
-    public void setExporting(boolean exporting){
+    public void setExporting(boolean exporting) {
         mProgressUpdateCallback.setExporting(exporting);
     }
 

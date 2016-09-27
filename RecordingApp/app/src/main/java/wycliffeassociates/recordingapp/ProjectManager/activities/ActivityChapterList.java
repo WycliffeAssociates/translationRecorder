@@ -122,7 +122,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         if (!mDbResyncing) {
             mDbResyncing = true;
             DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext());
-            mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...");
+            mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
 
@@ -185,7 +185,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         }
         mChaptersCompiled = dialog.getChapterInicies();
         CompileChapterTask task = new CompileChapterTask(COMPILE_CHAPTER_TASK, toCompile);
-        mTaskFragment.executeRunnable(task, "Compiling Chapter", "Please wait...");
+        mTaskFragment.executeRunnable(task, "Compiling Chapter", "Please wait...", false);
     }
 
     @Override
@@ -217,11 +217,11 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     @Override
     public void onTaskComplete(int taskTag, int resultCode) {
-        if(resultCode == TaskFragment.STATUS_OK){
-            if(taskTag == DATABASE_RESYNC_TASK){
+        if (resultCode == TaskFragment.STATUS_OK) {
+            if (taskTag == DATABASE_RESYNC_TASK) {
                 mDbResyncing = false;
                 refreshChapterCards();
-            } else if (taskTag == COMPILE_CHAPTER_TASK){
+            } else if (taskTag == COMPILE_CHAPTER_TASK) {
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(ActivityChapterList.this);
                 for (int i : mChaptersCompiled) {
                     mAdapter.notifyItemChanged(i);

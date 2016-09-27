@@ -139,7 +139,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if (!mDbResyncing) {
             mDbResyncing = true;
             DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext());
-            mTaskFragment.executeRunnable(task, "Resyncinc Database", "Please wait...");
+            mTaskFragment.executeRunnable(task, "Resyncinc Database", "Please wait...", true);
         }
     }
 
@@ -315,7 +315,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         fos = getContentResolver().openOutputStream(uri, "w");
                         bos = new BufferedOutputStream(fos);
                         ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, mProjectToExport.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
-                        mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...");
+                        mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...", false);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
