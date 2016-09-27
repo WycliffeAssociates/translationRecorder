@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.adapters;
 
 import android.content.Intent;
 import android.os.Build;
@@ -26,6 +26,10 @@ import com.filippudak.ProgressPieView.ProgressPieView;
 import java.util.ArrayList;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.ProjectManager.activities.ActivityUnitList;
+import wycliffeassociates.recordingapp.ProjectManager.dialogs.CheckingDialog;
+import wycliffeassociates.recordingapp.ProjectManager.dialogs.CompileDialog;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.widgets.ChapterCard;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
@@ -250,7 +254,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 chapterCard.pauseAudio();
                 chapterCard.destroyAudioPlayer();
 
-                Intent intent = ActivityUnitList.getActivityVerseListIntent(mCtx, mProject, getAdapterPosition()+1);
+                Intent intent = ActivityUnitList.getActivityUnitListIntent(mCtx, mProject, getAdapterPosition()+1);
                 mCtx.startActivity(intent);
             }
         }

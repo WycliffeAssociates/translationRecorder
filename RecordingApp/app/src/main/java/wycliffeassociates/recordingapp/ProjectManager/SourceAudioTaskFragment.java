@@ -85,7 +85,7 @@ public class SourceAudioTaskFragment extends Fragment {
                 File input = stageFilesForArchive(project, bookFolder);
                 try {
                     final ArchiveOfHolding aoh = new ArchiveOfHolding();
-                    aoh.createArchiveOfHolding(input, output, true);
+                    //aoh.createArchiveOfHolding(input, output, true);
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {

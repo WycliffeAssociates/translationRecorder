@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,22 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.BookEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ChapterEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_BOOKS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_CHAPTERS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_LANGUAGE;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_PROJECTS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_TAKES;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_TEMP;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_UNITS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.LanguageEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.TakeEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.TempEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.UnitEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.BookEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.ChapterEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_BOOKS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_CHAPTERS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_LANGUAGE;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_PROJECTS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_TAKES;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_TEMP;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_UNITS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.LanguageEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.ProjectEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.TakeEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.TempEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.UnitEntry;
 
 /**
  * Created by sarabiaj on 5/10/2016.

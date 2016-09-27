@@ -11,6 +11,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+
 /**
  * Created by sarabiaj on 9/1/2016.
  */

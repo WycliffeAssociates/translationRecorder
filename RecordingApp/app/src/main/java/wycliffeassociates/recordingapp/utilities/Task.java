@@ -5,53 +5,55 @@ package wycliffeassociates.recordingapp.utilities;
  */
 public abstract class Task implements RunnableTask {
 
+    public static int FIRST_TASK = 1;
+
     public OnTaskProgressListener mCallback;
-    int mId = 0;
+    Long mId;
+    int mTag;
 
-    public Task(){}
-
-    public void setOnTaskProgressListener(OnTaskProgressListener progressListener){
-        mCallback = progressListener;
-        mId = 0;
+    public Task(int taskTag) {
+        mTag = taskTag;
     }
 
-    public void setOnTaskProgressListener(OnTaskProgressListener progressListener, int id){
+    public void setOnTaskProgressListener(OnTaskProgressListener progressListener) {
+        mCallback = progressListener;
+        mId = new Long(0);
+    }
+
+    public void setOnTaskProgressListener(OnTaskProgressListener progressListener, Long id) {
         mCallback = progressListener;
         mId = id;
     }
 
     @Override
-    public void onTaskPreExecuteDelegator() {
-        if(mCallback != null) {
-            mCallback.onTaskPreExecute(mId);
-        }
-    }
-
-    @Override
     public void onTaskProgressUpdateDelegator(int progress) {
-        if(mCallback != null) {
+        if (mCallback != null) {
             mCallback.onTaskProgressUpdate(mId, progress);
         }
     }
 
     @Override
     public void onTaskCompleteDelegator() {
-        if(mCallback != null) {
+        if (mCallback != null) {
             mCallback.onTaskComplete(mId);
         }
     }
 
     @Override
     public void onTaskCancelledDelegator() {
-        if(mCallback != null) {
+        if (mCallback != null) {
             mCallback.onTaskCancelled(mId);
         }
     }
 
     @Override
-    public void onTaskPostExecuteDelegator() {
-        if(mCallback != null) {
-            mCallback.onTaskPostExecute(mId);
+    public void onTaskErrorDelegator() {
+        if (mCallback != null) {
+            mCallback.onTaskError(mId);
         }
+    }
+
+    public int getTag() {
+        return mTag;
     }
 }

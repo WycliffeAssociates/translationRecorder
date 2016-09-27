@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -13,6 +13,8 @@ import wycliffeassociates.recordingapp.FilesPage.Export.AppExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.FolderExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.S3Export;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -37,13 +39,13 @@ public class ProjectInfoDialog extends DialogFragment {
     Export mExp;
 
     @Override
-    public void onAttach(Activity activity){
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mExportDelegator = (ExportDelegator)activity;
+        mExportDelegator = (ExportDelegator) activity;
     }
 
     @Override
-    public void onDetach(){
+    public void onDetach() {
         super.onDetach();
         mExportDelegator = null;
     }
@@ -69,7 +71,7 @@ public class ProjectInfoDialog extends DialogFragment {
         String bookCode = mProject.getSlug();
         String book = db.getBookName(bookCode);
         String translation = mProject.getSource();
-        if(mProject.isOBS()){
+        if (mProject.isOBS()) {
             bookCode = "obs";
             book = "Open Bible Stories";
             translationType.setVisibility(View.GONE);
@@ -81,9 +83,9 @@ public class ProjectInfoDialog extends DialogFragment {
         projectTitle.setText(book + " (" + bookCode + ")");
         languageTitle.setText(language + " (" + languageCode + ")");
         translator.setText(translators);
-        if(translation.compareTo("ulb") == 0) {
+        if (translation.compareTo("ulb") == 0) {
             translationType.setText("Unlocked Literal Bible (" + translation + ")");
-        } else if(translation.compareTo("udb") == 0) {
+        } else if (translation.compareTo("udb") == 0) {
             translationType.setText("Unlocked Dynamic Bible (" + translation + ")");
         } else {
             translationType.setText("Regular (" + translation.toUpperCase() + ")");
@@ -102,7 +104,7 @@ public class ProjectInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                ((InfoDialogCallback)getActivity()).onDelete(mProject);
+                ((InfoDialogCallback) getActivity()).onDelete(mProject);
             }
         });
 
@@ -135,7 +137,7 @@ public class ProjectInfoDialog extends DialogFragment {
         sourceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((SourceAudioDelegator)mExportDelegator).delegateSourceAudio(mProject);
+                ((SourceAudioDelegator) mExportDelegator).delegateSourceAudio(mProject);
             }
         });
 
