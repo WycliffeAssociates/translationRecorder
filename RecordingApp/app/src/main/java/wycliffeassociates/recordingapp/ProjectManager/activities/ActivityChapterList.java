@@ -54,6 +54,7 @@ public class ActivityChapterList extends AppCompatActivity implements
     private static final int COMPILE_CHAPTER_TASK = Task.FIRST_TASK + 1;
     private int[] mChaptersCompiled;
 
+    public static Intent getActivityUnitListIntent(Context ctx, Project p) {
         Intent intent = new Intent(ctx, ActivityUnitList.class);
         intent.putExtra(PROJECT_KEY, p);
         return intent;

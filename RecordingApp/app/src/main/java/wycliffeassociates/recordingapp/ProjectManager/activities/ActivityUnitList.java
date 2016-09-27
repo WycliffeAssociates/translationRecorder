@@ -43,6 +43,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private final String STATE_RESYNC = "db_resync";
     private static final int DATABASE_RESYNC_TASK = Task.FIRST_TASK;
 
+    public static Intent getActivityUnitListIntent(Context ctx, Project p, int chapter){
         Intent intent = new Intent(ctx, ActivityUnitList.class);
         intent.putExtra(PROJECT_KEY, p);
         intent.putExtra(CHAPTER_KEY, chapter);
