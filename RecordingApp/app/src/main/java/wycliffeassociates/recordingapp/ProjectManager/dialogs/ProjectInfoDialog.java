@@ -37,6 +37,7 @@ public class ProjectInfoDialog extends DialogFragment {
     Project mProject;
     ExportDelegator mExportDelegator;
     Export mExp;
+    public static final String PROJECT_FRAGMENT_TAG = "project_tag";
 
     @Override
     public void onAttach(Activity activity) {

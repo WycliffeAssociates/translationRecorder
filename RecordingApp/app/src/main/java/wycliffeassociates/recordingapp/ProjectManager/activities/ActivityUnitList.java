@@ -69,6 +69,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         FragmentManager fm = getFragmentManager();
+        mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (mTaskFragment == null) {
             mTaskFragment = new TaskFragment();
             fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
@@ -115,7 +116,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         if (!mDbResyncing) {
             mDbResyncing = true;
             DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext());
-            mTaskFragment.executeRunnable(task, "Resyncinc Database", "Please wait...", true);
+            mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
 

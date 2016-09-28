@@ -66,6 +66,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         setContentView(R.layout.activity_chapter_list);
 
         FragmentManager fm = getFragmentManager();
+        mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (mTaskFragment == null) {
             mTaskFragment = new TaskFragment();
             fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();

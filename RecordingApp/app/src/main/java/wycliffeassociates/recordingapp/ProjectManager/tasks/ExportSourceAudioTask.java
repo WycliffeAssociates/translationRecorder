@@ -47,6 +47,8 @@ public class ExportSourceAudioTask extends Task {
             final ArchiveOfHolding aoh = new ArchiveOfHolding(new ArchiveOfHolding.OnProgressListener() {
                 @Override
                 public void onProgressUpdate(int i) {
+                    //Consider the staging of files to be half the work; so progress from the aoh
+                    // needs to be divided in half and added to the half that is already done
                     onTaskProgressUpdateDelegator((int) (i * .5) + 50);
                 }
             });
@@ -75,7 +77,7 @@ public class ExportSourceAudioTask extends Task {
     }
 
     private File stageFilesForArchive(Project project, File input, File stagingRoot) {
-        File root = new File(stagingRoot, project.getTargetLanguage() + Utils.capitalizeFirstLetter(project.getSlug()));
+        File root = new File(stagingRoot, project.getTargetLanguage() + "_" + project.getSource() + "_" + project.getSlug());
         File lang = new File(root, project.getTargetLanguage());
         File version = new File(lang, project.getSource());
         File book = new File(version, project.getSlug());
@@ -89,6 +91,7 @@ public class ExportSourceAudioTask extends Task {
                         try {
                             FileUtils.copyFileToDirectory(f, chapter);
                             mStagingProgress += f.length();
+                            //this step accounts for half of the work, so it is multiplied by 50 instead of 100
                             int progressPercentage = (int) ((mStagingProgress / (double) mTotalStagingSize) * 50);
                             onTaskProgressUpdateDelegator(progressPercentage);
                         } catch (IOException e) {

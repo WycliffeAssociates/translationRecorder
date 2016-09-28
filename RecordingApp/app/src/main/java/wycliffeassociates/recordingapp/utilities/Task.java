@@ -3,6 +3,11 @@ package wycliffeassociates.recordingapp.utilities;
 /**
  * Created by sarabiaj on 9/23/2016.
  */
+
+/**
+ * Base class for Tasks to run on the TaskFragment
+ * Task allows for creation of Runnables that can communicate to the TaskFragment over the RunnableTask interface
+ */
 public abstract class Task implements RunnableTask {
 
     public static int FIRST_TASK = 1;

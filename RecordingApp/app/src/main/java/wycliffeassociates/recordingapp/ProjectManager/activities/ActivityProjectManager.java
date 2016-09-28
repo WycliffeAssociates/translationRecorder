@@ -1,6 +1,5 @@
 package wycliffeassociates.recordingapp.ProjectManager.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -42,7 +41,6 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.SplashScreen;
-import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 import wycliffeassociates.recordingapp.utilities.Task;
@@ -62,7 +60,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     SharedPreferences pref;
     ListAdapter mAdapter;
     private int mNumProjects = 0;
-    Activity mCtx;
     private ProgressDialog mPd;
     private volatile int mProgress = 0;
     private volatile boolean mZipping = false;
@@ -99,7 +96,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-        mCtx = this;
 
         if (savedInstanceState != null) {
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
@@ -120,6 +116,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         //check if fragment was retained from a screen rotation
         FragmentManager fm = getFragmentManager();
         mExportTaskFragment = (ExportTaskFragment) fm.findFragmentByTag(TAG_EXPORT_TASK_FRAGMENT);
+        mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+        //TODO: refactor export to fit the new taskfragment
         if (mExportTaskFragment == null) {
             mExportTaskFragment = new ExportTaskFragment();
             fm.beginTransaction().add(mExportTaskFragment, TAG_EXPORT_TASK_FRAGMENT).commit();
@@ -136,10 +134,11 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
             fm.executePendingTransactions();
         }
+        //still need to track whether a db resync was issued so as to not issue them in the middle of another
         if (!mDbResyncing) {
             mDbResyncing = true;
             DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext());
-            mTaskFragment.executeRunnable(task, "Resyncinc Database", "Please wait...", true);
+            mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
 
@@ -314,6 +313,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     try {
                         fos = getContentResolver().openOutputStream(uri, "w");
                         bos = new BufferedOutputStream(fos);
+                        //sending output streams to the task to run in a thread means they cannot be closed in a finally block here
                         ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, mProjectToExport.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
                         mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...", false);
                     } catch (FileNotFoundException e) {
@@ -351,7 +351,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == dialog.BUTTON_POSITIVE) {
-                            Project.deleteProject(mCtx, project);
+                            Project.deleteProject(ActivityProjectManager.this, project);
                             populateProjectList();
                             hideProjectsIfEmpty(mAdapter.getCount());
                             removeProjectFromPreferences(project);
@@ -450,15 +450,15 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + Utils.capitalizeFirstLetter(project.getSlug()) + ".tr");
+        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + "_" + project.getSource() + "_" + project.getSlug() + ".tr");
         intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
         startActivityForResult(intent, SAVE_SOURCE_AUDIO_REQUEST);
     }
 
     @Override
     public void onTaskComplete(int taskTag, int resultCode) {
-        if(resultCode == TaskFragment.STATUS_OK){
-            if(taskTag == DATABASE_RESYNC_TASK) {
+        if (resultCode == TaskFragment.STATUS_OK) {
+            if (taskTag == DATABASE_RESYNC_TASK) {
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
                 mNumProjects = db.getNumProjects();
                 mDbResyncing = false;
