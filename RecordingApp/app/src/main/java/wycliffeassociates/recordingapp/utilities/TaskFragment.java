@@ -29,7 +29,7 @@ public class TaskFragment extends Fragment implements OnTaskProgressListener {
     }
 
     public static int STATUS_OK = 1;
-    private static int STATUS_CANCELLED = 0;
+    private static int STATUS_CANCEL = 0;
     public static int STATUS_ERROR = -1;
 
     volatile AtomicLong mIdGenerator = new AtomicLong(0);
@@ -171,8 +171,8 @@ public class TaskFragment extends Fragment implements OnTaskProgressListener {
     }
 
     @Override
-    public void onTaskCancelled(Long id) {
-        endTask(id, STATUS_CANCELLED);
+    public void onTaskCancel(Long id) {
+        endTask(id, STATUS_CANCEL);
     }
 
     @Override

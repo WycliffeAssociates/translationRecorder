@@ -8,7 +8,7 @@ public interface RunnableTask extends Runnable {
 
     void onTaskCompleteDelegator();
 
-    void onTaskCancelledDelegator();
+    void onTaskCancelDelegator();
 
     void onTaskErrorDelegator();
 }

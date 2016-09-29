@@ -180,11 +180,11 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     public void onPositiveClick(CompileDialog dialog) {
         List<ChapterCard> toCompile = new ArrayList<>();
-        for (int i : dialog.getChapterInicies()) {
+        for (int i : dialog.getChapterIndicies()) {
             toCompile.add(mChapterCardList.get(i));
             mChapterCardList.get(i).destroyAudioPlayer();
         }
-        mChaptersCompiled = dialog.getChapterInicies();
+        mChaptersCompiled = dialog.getChapterIndicies();
         CompileChapterTask task = new CompileChapterTask(COMPILE_CHAPTER_TASK, toCompile);
         mTaskFragment.executeRunnable(task, "Compiling Chapter", "Please wait...", false);
     }
@@ -225,8 +225,8 @@ public class ActivityChapterList extends AppCompatActivity implements
             } else if (taskTag == COMPILE_CHAPTER_TASK) {
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(ActivityChapterList.this);
                 for (int i : mChaptersCompiled) {
-                    mAdapter.notifyItemChanged(i);
                     db.setCheckingLevel(mProject, i + 1, 0);
+                    mAdapter.notifyItemChanged(i);
                 }
             }
         }

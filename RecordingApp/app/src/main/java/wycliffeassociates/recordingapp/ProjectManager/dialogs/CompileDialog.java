@@ -91,7 +91,7 @@ public class CompileDialog extends DialogFragment {
         }
     }
 
-    public int[] getChapterInicies(){
+    public int[] getChapterIndicies(){
         return mChapterIndices;
     }
 

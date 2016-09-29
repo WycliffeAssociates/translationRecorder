@@ -8,7 +8,7 @@ public interface OnTaskProgressListener {
 
     void onTaskComplete(Long id);
 
-    void onTaskCancelled(Long id);
+    void onTaskCancel(Long id);
 
     void onTaskError(Long id);
 }

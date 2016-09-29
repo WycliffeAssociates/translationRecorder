@@ -45,9 +45,9 @@ public abstract class Task implements RunnableTask {
     }
 
     @Override
-    public void onTaskCancelledDelegator() {
+    public void onTaskCancelDelegator() {
         if (mCallback != null) {
-            mCallback.onTaskCancelled(mId);
+            mCallback.onTaskCancel(mId);
         }
     }
 

@@ -84,9 +84,9 @@ public class ProjectInfoDialog extends DialogFragment {
         projectTitle.setText(book + " (" + bookCode + ")");
         languageTitle.setText(language + " (" + languageCode + ")");
         translator.setText(translators);
-        if (translation.compareTo("ulb") == 0) {
+        if (translation.equals("ulb")) {
             translationType.setText("Unlocked Literal Bible (" + translation + ")");
-        } else if (translation.compareTo("udb") == 0) {
+        } else if (translation.equals("udb")) {
             translationType.setText("Unlocked Dynamic Bible (" + translation + ")");
         } else {
             translationType.setText("Regular (" + translation.toUpperCase() + ")");
