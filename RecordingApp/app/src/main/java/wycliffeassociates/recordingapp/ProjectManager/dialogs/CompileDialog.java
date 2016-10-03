@@ -62,12 +62,20 @@ public class CompileDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if(!mAlreadyCompiled){
-            mListener.onPositiveClick(CompileDialog.this);
+        // NOTE: This is commented out because we don't want the compile to execute without the user
+        //    clicking "OK" on the dialog. If Joe agrees, he can delete this.
+        // if(!mAlreadyCompiled){
+        //     mListener.onPositiveClick(CompileDialog.this);
+        // }
+        String message;
+        if (mAlreadyCompiled) {
+            message = "Re-compiling a chapter will over-write the current audio and reset the checking level.";
+        } else {
+            message = "Compile all units into one chapter audio?";
         }
         return new AlertDialog.Builder(getActivity())
             .setTitle("Warning")
-            .setMessage("Re-compiling a chapter will over-write the current audio and reset the checking level.")
+            .setMessage(message)
             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     mListener.onPositiveClick(CompileDialog.this);

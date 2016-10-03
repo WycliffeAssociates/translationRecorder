@@ -175,7 +175,6 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             progressPie.setProgress(chapterCard.getProgress());
 
             // Checking Level
-            chapterCard.refreshCheckingLevel(mProject, pos+1);
             checkLevelBtn.setStep(chapterCard.getCheckingLevel());
 
             // Compile
