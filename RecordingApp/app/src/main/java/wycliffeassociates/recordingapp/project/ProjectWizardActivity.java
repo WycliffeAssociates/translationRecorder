@@ -204,7 +204,8 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 break;
             case PROJECT:
                 mFragment = new ScrollableListFragment
-                        .Builder(new ProjectCategoryAdapter(new String[]{"Bible: OT", "Bible: NT", "Open Bible Stories"}, this))
+                        //.Builder(new ProjectCategoryAdapter(new String[]{"Bible: OT", "Bible: NT", "Open Bible Stories"}, this))
+                        .Builder(new ProjectCategoryAdapter(new String[]{"Bible: OT", "Bible: NT"}, this))
                         .setSearchHint("Choose a Project")
                         .build();
                 break;

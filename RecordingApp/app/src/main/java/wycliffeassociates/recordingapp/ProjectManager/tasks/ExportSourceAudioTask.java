@@ -37,6 +37,7 @@ public class ExportSourceAudioTask extends Task {
     public void run() {
         mTotalStagingSize = getTotalProgressSize(mBookFolder);
         File input = stageFilesForArchive(mProject, mBookFolder, mStagingRoot);
+        //just a guess of progress, giving credit for work done that doesn't have a progress updater
         onTaskProgressUpdateDelegator(10);
         createSourceAudio(mProject, input, mOutput);
         onTaskCompleteDelegator();
