@@ -50,7 +50,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_exit_record);
 
-        btnSave = (ImageButton) findViewById(R.id.btnSave);
+        btnSave = (ImageButton) findViewById(R.id.btn_save);
         btnDelete = (ImageButton) findViewById(R.id.btnDelete);
 
         btnSave.setOnClickListener(this);
@@ -61,7 +61,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnSave:
+            case R.id.btn_save:
                 dismiss();
                 break;
             case R.id.btnDelete: {

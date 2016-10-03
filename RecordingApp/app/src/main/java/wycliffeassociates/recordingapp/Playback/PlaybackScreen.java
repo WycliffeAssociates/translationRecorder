@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -50,19 +49,19 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private volatile boolean isSaved = true;
     private boolean isPlaying = false;
-    private boolean isInVMarkerMode = false;
+    private boolean isInVerseMarkerMode = false;
 
     private WaveformView mMainCanvas;
     private RelativeLayout mToolbar;
     private MinimapView minimap;
     private View mSrcAudioPlayback;
     private MarkerView mStartMarker, mEndMarker;
-    private TextView mVMarkerCount, mVMarkerLabel, mLangView, mSourceView, mBookView,
+    private TextView mVerseMarkerCount, mVerseMarkerLabel, mLangView, mSourceView, mBookView,
             mChapterView, mChapterLabel, mUnitView, mUnitLabel;
-    private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVMarkerMode, mExitVMarkerMode,
+    private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVerseMarkerMode, mExitVerseMarkerMode,
             mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
             mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn,
-            mDropVMarkerBtn, mCompleteVMarkerBtn;
+            mDropVerseMarkerBtn, mCompleteVerseMarkerBtn;
     private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
@@ -114,8 +113,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mEndMarker = (MarkerView) findViewById(R.id.endmarker);
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
-        mVMarkerCount = (TextView) findViewById(R.id.v_marker_count);
-        mVMarkerLabel = (TextView) findViewById(R.id.v_marker_label);
+        mVerseMarkerCount = (TextView) findViewById(R.id.v_marker_count);
+        mVerseMarkerLabel = (TextView) findViewById(R.id.v_marker_label);
         mLangView = (TextView) findViewById(R.id.file_language);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mBookView = (TextView) findViewById(R.id.file_book);
@@ -126,23 +125,23 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         // NOTE: Look at Android Studio's warning. Why is the same view converted and captured as
         //    two different things? (Refering to this and mSrcAudioPlayback)
         mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
-        mEnterVMarkerMode = (ImageButton) findViewById(R.id.btnEnterVMarkerMode);
-        mExitVMarkerMode = (ImageButton) findViewById(R.id.btnExitVMarkerMode);
-        mRateBtn = (FourStepImageView) findViewById(R.id.btnRate);
-        mRerecordBtn = (ImageButton) findViewById(R.id.btnRerecord);
-        mInsertBtn = (ImageButton) findViewById(R.id.btnInsertRecord);
-        mPlayBtn = (ImageButton) findViewById(R.id.btnPlay);
-        mPauseBtn = (ImageButton) findViewById(R.id.btnPause);
-        mSkipBackBtn = (ImageButton) findViewById(R.id.btnSkipBack);
-        mSkipForwardBtn = (ImageButton) findViewById(R.id.btnSkipForward);
-        mDropStartMarkBtn = (ImageButton) findViewById(R.id.btnStartMark);
-        mDropEndMarkBtn = (ImageButton) findViewById(R.id.btnEndMark);
-        mUndoBtn = (ImageButton) findViewById(R.id.btnUndo);
-        mCutBtn = (ImageButton) findViewById(R.id.btnCut);
-        mClearBtn = (ImageButton) findViewById(R.id.btnClear);
-        mSaveBtn = (ImageButton) findViewById(R.id.btnSave);
-        mDropVMarkerBtn = (ImageButton) findViewById(R.id.btnDropVMarker);
-        mCompleteVMarkerBtn = (ImageButton) findViewById(R.id.btn_v_marker_done);
+        mEnterVerseMarkerMode = (ImageButton) findViewById(R.id.btn_enter_v_marker_mode);
+        mExitVerseMarkerMode = (ImageButton) findViewById(R.id.btn_exit_v_marker_mode);
+        mRateBtn = (FourStepImageView) findViewById(R.id.btn_rate);
+        mRerecordBtn = (ImageButton) findViewById(R.id.btn_rerecord);
+        mInsertBtn = (ImageButton) findViewById(R.id.btn_insert_record);
+        mPlayBtn = (ImageButton) findViewById(R.id.btn_play);
+        mPauseBtn = (ImageButton) findViewById(R.id.btn_pause);
+        mSkipBackBtn = (ImageButton) findViewById(R.id.btn_skip_back);
+        mSkipForwardBtn = (ImageButton) findViewById(R.id.btn_skip_forward);
+        mDropStartMarkBtn = (ImageButton) findViewById(R.id.btn_start_mark);
+        mDropEndMarkBtn = (ImageButton) findViewById(R.id.btn_end_mark);
+        mUndoBtn = (ImageButton) findViewById(R.id.btn_undo);
+        mCutBtn = (ImageButton) findViewById(R.id.btn_cut);
+        mClearBtn = (ImageButton) findViewById(R.id.btn_clear);
+        mSaveBtn = (ImageButton) findViewById(R.id.btn_save);
+        mDropVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_drop_verse_marker);
+        mCompleteVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_verser_marker_done);
     }
 
     private void initializeViews() {
@@ -161,10 +160,10 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         if (mProject.getMode().compareTo("chunk") == 0) {
             mUnitLabel.setText("Chunk");
             mVersesLeft = getVersesLeft();
-            setVMarkerCount(mVersesLeft);
+            setVerseMarkerCount(mVersesLeft);
         } else {
             mUnitLabel.setText("Verse");
-            mEnterVMarkerMode.setVisibility(View.GONE);
+            mEnterVerseMarkerMode.setVisibility(View.GONE);
         }
         // By default, select the minimap view over the source playback
         mSwitchToMinimap.setSelected(true);
@@ -244,8 +243,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private void playRecording() {
         isPlaying = true;
         mManager.play();
-        int toShow[] = {R.id.btnPause};
-        int toHide[] = {R.id.btnPlay};
+        int toShow[] = {R.id.btn_pause};
+        int toHide[] = {R.id.btn_play};
         mManager.swapViews(toShow, toHide);
         mManager.updateUI();
     }
@@ -253,8 +252,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private void pausePlayback() {
         // NOTE: Shouldn't we set isPlaying = false here?
         mManager.pause(true);
-        int toShow[] = {R.id.btnPlay};
-        int toHide[] = {R.id.btnPause};
+        int toShow[] = {R.id.btn_play};
+        int toHide[] = {R.id.btn_pause};
         mManager.swapViews(toShow, toHide);
     }
 
@@ -270,24 +269,24 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private void placeStartMarker() {
         mMainCanvas.placeStartMarker(mManager.getLocation());
-        int toShow[] = {R.id.btnEndMark, R.id.btnClear};
-        int toHide[] = {R.id.btnStartMark};
+        int toShow[] = {R.id.btn_end_mark, R.id.btn_clear};
+        int toHide[] = {R.id.btn_start_mark};
         mManager.swapViews(toShow, toHide);
         mManager.updateUI();
     }
 
     private void placeEndMarker() {
         mMainCanvas.placeEndMarker(mManager.getLocation());
-        int toShow[] = {R.id.btnCut};
-        int toHide[] = {R.id.btnEndMark};
+        int toShow[] = {R.id.btn_cut};
+        int toHide[] = {R.id.btn_end_mark};
         mManager.swapViews(toShow, toHide);
         mManager.updateUI();
     }
 
     private void cut() {
         isSaved = false;
-        int toShow[] = {R.id.btnStartMark, R.id.btnUndo};
-        int toHide[] = {R.id.btnCut, R.id.btnClear};
+        int toShow[] = {R.id.btn_start_mark, R.id.btn_undo};
+        int toHide[] = {R.id.btn_cut, R.id.btn_clear};
         mManager.swapViews(toShow, toHide);
         mManager.cutAndUpdate();
     }
@@ -299,7 +298,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         int toHide[];
         if (!mManager.hasCut()) {
             toHide = new int[1];
-            toHide[0] = R.id.btnUndo;
+            toHide[0] = R.id.btn_undo;
         } else {
             toHide = new int[0];
         }
@@ -308,8 +307,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private void clearMarkers() {
         SectionMarkers.clearMarkers(mManager);
-        int toShow[] = {R.id.btnStartMark};
-        int toHide[] = {R.id.btnClear, R.id.btnEndMark, R.id.btnCut};
+        int toShow[] = {R.id.btn_start_mark};
+        int toHide[] = {R.id.btn_clear, R.id.btn_end_mark, R.id.btn_cut};
         mManager.swapViews(toShow, toHide);
         mManager.updateUI();
     }
@@ -419,10 +418,10 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mInsertBtn.setOnClickListener(btnClick);
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
-        mEnterVMarkerMode.setOnClickListener(btnClick);
-        mExitVMarkerMode.setOnClickListener(btnClick);
-        mDropVMarkerBtn.setOnClickListener(btnClick);
-        mCompleteVMarkerBtn.setOnClickListener(btnClick);
+        mEnterVerseMarkerMode.setOnClickListener(btnClick);
+        mExitVerseMarkerMode.setOnClickListener(btnClick);
+        mDropVerseMarkerBtn.setOnClickListener(btnClick);
+        mCompleteVerseMarkerBtn.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -431,8 +430,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
 
     private void enableButtons() {
         // NOTE: Why do we need to enable these buttons?
-        enableButton(R.id.btnPlay, true);
-        enableButton(R.id.btnSave, true);
+        enableButton(R.id.btn_play, true);
+        enableButton(R.id.btn_save, true);
     }
 
     private boolean allVersesMarked() {
@@ -446,43 +445,43 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         return verses - 1;
     }
 
-    private void setVMarkerCount(int count) {
+    private void setVerseMarkerCount(int count) {
         // - 1 because the first verse marker should be automatically dropped at the beginning
-        mVMarkerCount.setText(String.valueOf(count));
+        mVerseMarkerCount.setText(String.valueOf(count));
     }
 
     private View[] getViewsToHideInMarkerMode() {
         return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
-                mUnitView, mUnitLabel, mEnterVMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
+                mUnitView, mUnitLabel, mEnterVerseMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
                 mDropStartMarkBtn, mSaveBtn, mDropStartMarkBtn};
     }
 
     private View[] getViewsToHideInNormalMode() {
-        return new View[]{mExitVMarkerMode, mVMarkerCount, mVMarkerLabel, mDropVMarkerBtn,
-                mCompleteVMarkerBtn};
+        return new View[]{mExitVerseMarkerMode, mVerseMarkerCount, mVerseMarkerLabel, mDropVerseMarkerBtn,
+                mCompleteVerseMarkerBtn};
     }
 
-    private void enterVMarkerMode() {
-        isInVMarkerMode = true;
+    private void enterVerseMarkerMode() {
+        isInVerseMarkerMode = true;
         Utils.showView(getViewsToHideInNormalMode());
         Utils.hideView(getViewsToHideInMarkerMode());
-        Utils.hideView(allVersesMarked() ? mDropVMarkerBtn : mCompleteVMarkerBtn);
+        Utils.hideView(allVersesMarked() ? mDropVerseMarkerBtn : mCompleteVerseMarkerBtn);
         mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
     }
 
-    private void exitVMarkerMode() {
-        isInVMarkerMode = false;
+    private void exitVerseMarkerMode() {
+        isInVerseMarkerMode = false;
         Utils.showView(getViewsToHideInMarkerMode());
         Utils.hideView(getViewsToHideInNormalMode());
         mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
     }
 
-    private void dropVMarker() {
+    private void dropVerseMarker() {
         mMainCanvas.dropVerseMarker(mManager.getLocation());
         mManager.updateUI();
     }
 
-    private void saveVMarkerPosition() {
+    private void saveVerseMarkerPosition() {
         // NOTE: Put real code here
         System.out.println("Save verse marker position here");
     }
@@ -492,80 +491,80 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.btnPlay: {
+                case R.id.btn_play: {
                     playRecording();
                     break;
                 }
-                case R.id.btnSave: {
+                case R.id.btn_save: {
                     save(null);
                     break;
                 }
-                case R.id.btnPause: {
+                case R.id.btn_pause: {
                     pausePlayback();
                     break;
                 }
-                case R.id.btnSkipForward: {
+                case R.id.btn_skip_forward: {
                     skipForward();
                     break;
                 }
-                case R.id.btnSkipBack: {
+                case R.id.btn_skip_back: {
                     skipBack();
                     break;
                 }
-                case R.id.btnStartMark: {
+                case R.id.btn_start_mark: {
                     placeStartMarker();
                     break;
                 }
-                case R.id.btnEndMark: {
+                case R.id.btn_end_mark: {
                     placeEndMarker();
                     break;
                 }
-                case R.id.btnCut: {
+                case R.id.btn_cut: {
                     cut();
                     break;
                 }
-                case R.id.btnClear: {
+                case R.id.btn_clear: {
                     clearMarkers();
                     break;
                 }
-                case R.id.btnRate: {
+                case R.id.btn_rate: {
                     // NOTE: Probably don't need to pass in the view once we implement it the right
                     // way
                     openRating((FourStepImageView) v);
                     break;
                 }
-                case R.id.btnUndo: {
+                case R.id.btn_undo: {
                     undo();
                     break;
                 }
-                case R.id.btnEnterVMarkerMode: {
-                    enterVMarkerMode();
+                case R.id.btn_enter_v_marker_mode: {
+                    enterVerseMarkerMode();
                     break;
                 }
-                case R.id.btnExitVMarkerMode: {
-                    exitVMarkerMode();
+                case R.id.btn_exit_v_marker_mode: {
+                    exitVerseMarkerMode();
                     break;
                 }
-                case R.id.btnDropVMarker: {
-                    dropVMarker();
+                case R.id.btn_drop_verse_marker: {
+                    dropVerseMarker();
                     mVersesLeft -= 1;
-                    setVMarkerCount(mVersesLeft);
+                    setVerseMarkerCount(mVersesLeft);
                     if (allVersesMarked()) {
-                        Utils.showView(mCompleteVMarkerBtn);
-                        Utils.hideView(mDropVMarkerBtn);
+                        Utils.showView(mCompleteVerseMarkerBtn);
+                        Utils.hideView(mDropVerseMarkerBtn);
                     }
                     break;
                 }
-                case R.id.btn_v_marker_done: {
-                    saveVMarkerPosition();
-                    exitVMarkerMode();
+                case R.id.btn_verser_marker_done: {
+                    saveVerseMarkerPosition();
+                    exitVerseMarkerMode();
                     break;
                 }
-                case R.id.btnRerecord: {
+                case R.id.btn_rerecord: {
                     rerecord();
                     break;
                 }
-                case R.id.btnInsertRecord: {
+                case R.id.btn_insert_record: {
                     insert();
                     break;
                 }

@@ -89,8 +89,8 @@ public class MinimapView extends CanvasView {
                 mManager.stopSectionAt(playbackSectionEnd);
                 //WavPlayer.selectionStart(playbackSectionStart);
                 // TODO: Figure out a way to call PlaybackScreen.placeStartMarker and PlaybackScreen.placeEndMarker instead of re-writing the code here
-                int toShow[] = {R.id.btnClear, R.id.btnCut};
-                int toHide[] = {R.id.btnEndMark, R.id.btnStartMark};
+                int toShow[] = {R.id.btn_clear, R.id.btn_cut};
+                int toHide[] = {R.id.btn_end_mark, R.id.btn_start_mark};
                 mManager.swapViews(toShow, toHide);
                 mManager.updateUI();
             }
