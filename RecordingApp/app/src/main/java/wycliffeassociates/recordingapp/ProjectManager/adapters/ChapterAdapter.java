@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.adapters;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,6 +15,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.ProjectManager.activities.ActivityUnitList;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.project.Chunks;
@@ -106,7 +108,7 @@ public class ChapterAdapter extends ArrayAdapter {
         holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent verseListIntent = ActivityUnitList.getActivityVerseListIntent(v.getContext(), mProject, (position+1));
+                Intent verseListIntent = ActivityUnitList.getActivityUnitListIntent(v.getContext(), mProject, (position+1));
                 v.getContext().startActivity(verseListIntent);
             }
         });

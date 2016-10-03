@@ -21,9 +21,9 @@ import java.io.File;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
-import wycliffeassociates.recordingapp.ProjectManager.ActivityProjectManager;
+import wycliffeassociates.recordingapp.ProjectManager.activities.ActivityProjectManager;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.BugReportDialog;
 import wycliffeassociates.recordingapp.Reporting.GithubReporter;

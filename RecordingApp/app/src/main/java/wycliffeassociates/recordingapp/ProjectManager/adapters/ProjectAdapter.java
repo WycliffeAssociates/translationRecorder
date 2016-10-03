@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.adapters;
 
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -16,6 +16,10 @@ import com.filippudak.ProgressPieView.ProgressPieView;
 
 import java.util.List;
 
+import wycliffeassociates.recordingapp.ProjectManager.activities.ActivityChapterList;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.dialogs.ProjectInfoDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 

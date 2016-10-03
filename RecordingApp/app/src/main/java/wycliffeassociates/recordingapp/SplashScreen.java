@@ -12,7 +12,7 @@ import com.door43.login.core.Profile;
 
 import org.json.JSONException;
 
-import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.project.Book;
 import wycliffeassociates.recordingapp.project.Language;

@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 
 /**
  * Created by leongv on 8/17/2016.
@@ -97,7 +99,7 @@ public class CompileDialog extends DialogFragment {
         }
     }
 
-    public int[] getChapterInicies(){
+    public int[] getChapterIndicies(){
         return mChapterIndices;
     }
 
