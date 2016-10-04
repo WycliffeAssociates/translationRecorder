@@ -20,7 +20,7 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
-import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.WavFileLoader;

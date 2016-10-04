@@ -29,6 +29,7 @@ import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.project.Chunks;
+import wycliffeassociates.recordingapp.wav.WavFile;
 
 public class RecordingScreen extends Activity implements InsertTaskFragment.Insert{
 

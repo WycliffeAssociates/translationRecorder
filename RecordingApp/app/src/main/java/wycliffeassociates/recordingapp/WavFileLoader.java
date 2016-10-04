@@ -8,7 +8,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 public class WavFileLoader {

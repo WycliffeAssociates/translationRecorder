@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.wav.WavFile;
 
 /**
  * Created by sarabiaj on 3/10/2016.

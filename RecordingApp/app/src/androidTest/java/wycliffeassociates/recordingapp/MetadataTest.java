@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 
 import static org.junit.Assert.assertEquals;

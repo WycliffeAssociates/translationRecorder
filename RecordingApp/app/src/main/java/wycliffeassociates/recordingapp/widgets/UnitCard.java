@@ -25,7 +25,7 @@ import wycliffeassociates.recordingapp.ProjectManager.RatingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.Utils;
 

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.wav.WavFile;
 
 
 public class WavFileWriter extends Service {

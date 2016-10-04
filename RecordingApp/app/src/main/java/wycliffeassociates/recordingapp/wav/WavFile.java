@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.Recording;
+package wycliffeassociates.recordingapp.wav;
 
 import android.media.AudioFormat;
 import android.os.Parcel;
@@ -23,6 +23,7 @@ import java.util.List;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
@@ -163,76 +164,63 @@ public class WavFile implements Parcelable {
     }
 
     public void initializeWavFile() {
-        if (mFile.exists() && mFile.length() > 0) {
-            rawPcmToWav();
-        } else {
-            FileOutputStream fos = null;
-            BufferedOutputStream bos = null;
-            try {
-                mFile.getParentFile().mkdirs();
-                fos = new FileOutputStream(mFile, false);
-                bos = new BufferedOutputStream(fos);
-                mTotalDataLength = HEADER_SIZE - 8;
-                mTotalAudioLength = 0;
-                byte[] header = new byte[44];
+        try (FileOutputStream fos = new FileOutputStream(mFile, false)) {
+            mFile.getParentFile().mkdirs();
 
-                header[0] = 'R';
-                header[1] = 'I';
-                header[2] = 'F';
-                header[3] = 'F';
-                header[4] = (byte) (mTotalDataLength & 0xff);
-                header[5] = (byte) ((mTotalDataLength >> 8) & 0xff);
-                header[6] = (byte) ((mTotalDataLength >> 16) & 0xff);
-                header[7] = (byte) ((mTotalDataLength >> 24) & 0xff);
-                header[8] = 'W';
-                header[9] = 'A';
-                header[10] = 'V';
-                header[11] = 'E';
-                header[12] = 'f'; // fmt  chunk
-                header[13] = 'm';
-                header[14] = 't';
-                header[15] = ' ';
-                header[16] = 16;
-                header[17] = 0;
-                header[18] = 0;
-                header[19] = 0;
-                header[20] = 1;
-                header[21] = 0;
-                header[22] = 0;
-                header[23] = 0;
-                header[24] = 0;
-                header[25] = 0;
-                header[26] = 0;
-                header[27] = 0;
-                header[28] = 0;
-                header[29] = 0;
-                header[30] = 0;
-                header[31] = 0;
-                header[32] = 0;
-                header[33] = 0;
-                header[34] = 0;
-                header[35] = 0;
-                header[36] = 'd';
-                header[37] = 'a';
-                header[38] = 't';
-                header[39] = 'a';
-                header[40] = 0;
-                header[41] = 0;
-                header[42] = 0;
-                header[43] = 0;
+            mTotalDataLength = HEADER_SIZE - 8;
+            mTotalAudioLength = 0;
+            byte[] header = new byte[44];
+            long longSampleRate = SAMPLERATE;
+            long byteRate = (BPP * SAMPLERATE * NUM_CHANNELS) / 8;
 
-                bos.write(header);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    bos.close();
-                    fos.close();
-                } catch (IOException e) {
-                    Logger.e(this.toString(), "IOException while closing streams", e);
-                    e.printStackTrace();
-                }
-            }
+            header[0] = 'R';
+            header[1] = 'I';
+            header[2] = 'F';
+            header[3] = 'F';
+            header[4] = (byte) (mTotalDataLength & 0xff);
+            header[5] = (byte) ((mTotalDataLength >> 8) & 0xff);
+            header[6] = (byte) ((mTotalDataLength >> 16) & 0xff);
+            header[7] = (byte) ((mTotalDataLength >> 24) & 0xff);
+            header[8] = 'W';
+            header[9] = 'A';
+            header[10] = 'V';
+            header[11] = 'E';
+            header[12] = 'f'; // fmt  chunk
+            header[13] = 'm';
+            header[14] = 't';
+            header[15] = ' ';
+            header[16] = 16; // 4 bytes: size of fmt chunk
+            header[17] = 0;
+            header[18] = 0;
+            header[19] = 0;
+            header[20] = 1; // format = 1
+            header[21] = 0;
+            header[22] = (byte) NUM_CHANNELS; // number of channels
+            header[23] = 0;
+            header[24] = (byte) (longSampleRate & 0xff);
+            header[25] = (byte) ((longSampleRate >> 8) & 0xff);
+            header[26] = (byte) ((longSampleRate >> 16) & 0xff);
+            header[27] = (byte) ((longSampleRate >> 24) & 0xff);
+            header[28] = (byte) (byteRate & 0xff);
+            header[29] = (byte) ((byteRate >> 8) & 0xff);
+            header[30] = (byte) ((byteRate >> 16) & 0xff);
+            header[31] = (byte) ((byteRate >> 24) & 0xff);
+            header[32] = (byte) ((NUM_CHANNELS * BPP) / 8); // block align
+            header[33] = 0;
+            header[34] = BPP; // bits per sample
+            header[35] = 0;
+            header[36] = 'd';
+            header[37] = 'a';
+            header[38] = 't';
+            header[39] = 'a';
+            header[40] = 0;
+            header[41] = 0;
+            header[42] = 0;
+            header[43] = 0;
+
+            fos.write(header);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -314,7 +302,7 @@ public class WavFile implements Parcelable {
         return data.length;
     }
 
-    public int writeMetadata() throws IOException, JSONException {
+    public int writeMetadata() throws IOException {
         return writeMetadata(getMetadata());
     }
 
@@ -529,97 +517,7 @@ public class WavFile implements Parcelable {
         return value;
     }
 
-    private class Metadata {
 
-        String mProject = "";
-        String mLanguage = "";
-        String mSource = "";
-        String mSlug = "";
-        String mBookNumber = "";
-        String mMode = "";
-        String mChapter = "";
-        String mStartVerse = "";
-        String mEndVerse = "";
-
-        public Metadata(Project p, String chapter, String startVerse, String endVerse) {
-            mProject = p.getProject();
-            mLanguage = p.getTargetLanguage();
-            mSource = p.getSource();
-            mSlug = p.getSlug();
-            mBookNumber = p.getBookNumber();
-            mMode = p.getMode();
-            mChapter = chapter;
-            mStartVerse = startVerse;
-            mEndVerse = endVerse;
-        }
-
-        /**
-         * Loads the user profile from json
-         *
-         * @param json
-         * @return
-         * @throws Exception
-         */
-        public Metadata(JSONObject json) throws JSONException {
-            if (json != null) {
-                mProject = "";
-                if (json.has("project")) {
-                    mProject = json.getString("project");
-                }
-                mLanguage = "";
-                if (json.has("language")) {
-                    mLanguage = json.getString("language");
-                }
-                mSource = "";
-                if (json.has("source")) {
-                    mSource = json.getString("source");
-                }
-                mSlug = "";
-                if (json.has("slug")) {
-                    mSlug = json.getString("slug");
-                }
-                mBookNumber = "";
-                if (json.has("book_number")) {
-                    mBookNumber = json.getString("book_number");
-                }
-                mMode = "";
-                if (json.has("mode")) {
-                    mMode = json.getString("mode");
-                }
-                mChapter = "";
-                if (json.has("chapter")) {
-                    mChapter = json.getString("chapter");
-                }
-                mStartVerse = "";
-                if (json.has("startv")) {
-                    mStartVerse = json.getString("startv");
-                }
-                mEndVerse = "";
-                if (json.has("endv")) {
-                    mEndVerse = json.getString("endv");
-                }
-            }
-        }
-
-        /**
-         * Returns the profile represented as a json object
-         *
-         * @return
-         */
-        public JSONObject toJSON() throws JSONException {
-            JSONObject json = new JSONObject();
-            json.put("project", mProject);
-            json.put("language", mLanguage);
-            json.put("source", mSource);
-            json.put("slug", mSlug);
-            json.put("book_number", mBookNumber);
-            json.put("mode", mMode);
-            json.put("chapter", mChapter);
-            json.put("startv", mStartVerse);
-            json.put("endv", mEndVerse);
-            return json;
-        }
-    }
 
     public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile) {
         File root = FileNameExtractor.getDirectoryFromProject(project, chapter);
