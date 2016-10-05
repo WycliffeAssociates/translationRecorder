@@ -53,9 +53,7 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
     public void close() throws IOException {
         mOutputStream.flush();
         mOutputStream.close();
-        mFile.writeMetadata();
-        mFile.writeVerseMarkers();
-        mFile.setAudioDataLength(mAudioDataLength);
+        mFile.finishWrite(mAudioDataLength);
         updateHeader();
     }
 

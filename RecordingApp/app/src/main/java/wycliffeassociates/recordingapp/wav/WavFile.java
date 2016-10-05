@@ -42,7 +42,7 @@ public class WavFile implements Parcelable {
     public static final int BPP = 16;
 
     File mFile;
-    Metadata mMetadata;
+    WavMetadata mMetadata;
     private int mTotalAudioLength = 0;
     private int mTotalDataLength = 0;
     private int mMetadataLength = 0;
@@ -54,33 +54,24 @@ public class WavFile implements Parcelable {
         return wavFile;
     }
 
-    //Files without a valid wav header will be blown away and replaced with an empty wav file
-    //not sure if this is good, but should the assumption be that the alternative is a file containing
-    //raw PCM data?
+    /**
+     * Loads an existing wav file and parses metadata it may have
+     * @param file an existing wav file to load
+     */
     public WavFile(File file) {
         mFile = file;
-        try {
-            boolean properForm = parseHeader();
-            if (mFile.length() > 0) {
-                if (properForm) {
-                    byte[] metadataBytes = parseInfo();
-                    mMetadata = new Metadata(readTrackInfo(metadataBytes));
-                } else {
-                    rawPcmToWav();
-                }
-            } else {
-                initializeWavFile();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mMetadata = new WavMetadata(file);
     }
 
-    public WavFile(File file, Project project, String chapter, String startVerse, String endVerse) throws JSONException, IOException {
-        this(file);
-        setMetadata(project, chapter, startVerse, endVerse);
+    /**
+     * Creates a new Wav file and initializes the header
+     * @param file the path to use for creating the wav file
+     * @param metadata metadata to attach to the wav file
+     */
+    public WavFile(File file, WavMetadata metadata) {
+        mFile = file;
+        initializeWavFile();
+        mMetadata = metadata;
     }
 
     public WavFile(Parcel in) {
@@ -300,10 +291,6 @@ public class WavFile implements Parcelable {
         mTotalDataLength = mTotalAudioLength + mMetadataLength + HEADER_SIZE - 8;
         overwriteHeaderData();
         return data.length;
-    }
-
-    public int writeMetadata() throws IOException {
-        return writeMetadata(getMetadata());
     }
 
     public static byte[] convertToMetadata(String metadata) {
@@ -663,12 +650,7 @@ public class WavFile implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mFile.getAbsolutePath());
-        String metadataString = "{}";
-        try {
-            metadataString = mMetadata.toJSON().toString();
-        } catch (JSONException e) {
-            metadataString = "{}";
-        }
+        String metadataString = mMetadata.toJSON().toString();
         dest.writeString(metadataString);
     }
 
