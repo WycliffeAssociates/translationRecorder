@@ -9,11 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
@@ -219,23 +220,20 @@ public class WavMetadata {
             }
             if(json.has("markers")) {
                 JSONObject markers = json.getJSONObject("markers");
-                mCuePoints = parseMarkers(markers);
             }
         }
     }
 
-    private List<WavCue> parseMarkers(JSONObject markers){
+    private void parseMarkers(JSONObject markers){
         try {
-            mCuePoints = new ArrayList<>();
+            mCuePoints = new HashMap<>();
             while(markers.keys().hasNext()){
                 String s = markers.keys().next();
                 long position = markers.getLong(s);
                 WavCue cue = new WavCue(s, position);
-                mCuePoints.add(cue);
+                mCuePoints.put(Integer.parseInt(s), cue);
             }
-            return mCuePoints;
         } catch (JSONException e){
-            return null;
         }
     }
 
@@ -285,6 +283,31 @@ public class WavMetadata {
         mTotalDataLength = mTotalAudioLength + mMetadataLength + HEADER_SIZE - 8;
         overwriteHeaderData();
         return data.length;
+    }
+
+    public byte[] getCueChunk(){
+        ByteBuffer bb = ByteBuffer.allocate(55);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.put(new String("cue ").getBytes(StandardCharsets.US_ASCII));
+        int numCues = mCuePoints.size();
+        //cue data size: 4 byte numCues field, 24 bytes per cue
+        bb.putInt(4 + 24*numCues);
+        bb.putInt(mCuePoints.size());
+        for(Integer id : mCuePoints.keySet()){
+            //Cue id
+            bb.putInt(id);
+            //Play order position- ignore, no playlists
+            bb.putInt(0);
+            //Data chunk label
+            bb.put(new String("data").getBytes(StandardCharsets.US_ASCII));
+            //chunk start- ignore, using standard data chunk
+            bb.putInt(0);
+            //block start- ignore since data is uncompressed
+            bb.putInt(0);
+            //cue position
+            bb.putInt((int)mCuePoints.get(id).getLocation());
+        }
+        return bb.array();
     }
 
     public static byte[] getMetadata(String metadata) {
