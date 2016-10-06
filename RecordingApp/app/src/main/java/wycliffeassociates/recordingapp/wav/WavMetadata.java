@@ -9,12 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
@@ -44,9 +41,9 @@ public class WavMetadata {
     HashMap<Integer, WavCue> mCuePoints;
 
     public WavMetadata(Project p, String chapter, String startVerse, String endVerse) {
-        mProject = p.getProject();
+        mProject = p.getAnthology();
         mLanguage = p.getTargetLanguage();
-        mSource = p.getSource();
+        mSource = p.getVersion();
         mSlug = p.getSlug();
         mBookNumber = p.getBookNumber();
         mMode = p.getMode();

@@ -160,7 +160,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             } else {
                 source = "reg";
             }
-            ((Project) mProject).setSource((String) source);
+            ((Project) mProject).setVersion((String) source);
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == MODE && result instanceof String) {
@@ -210,7 +210,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 break;
             case BOOK:
                 mFragment = new ScrollableListFragment
-                        .Builder(new TargetBookAdapter(ParseJSON.getBooks(this, mProject.getProject()), this))
+                        .Builder(new TargetBookAdapter(ParseJSON.getBooks(this, mProject.getAnthology()), this))
                         .setSearchHint("Choose a Book")
                         .build();
                 break;

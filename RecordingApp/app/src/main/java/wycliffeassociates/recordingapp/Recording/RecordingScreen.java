@@ -208,7 +208,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             mToolBar.setBackgroundColor(getResources().getColor(R.color.secondary));
         }
 
-        mSourceView.setText(mProject.getSource().toUpperCase());
+        mSourceView.setText(mProject.getVersion().toUpperCase());
     }
 
     private void initializePickers() throws IOException{

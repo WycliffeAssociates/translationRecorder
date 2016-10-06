@@ -232,18 +232,18 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private void removeProjectFromPreferences(Project project){
         Map<String, ?> vals = pref.getAll();
         String prefLang = (String)vals.get(Settings.KEY_PREF_LANG);
-        String prefSource = (String)vals.get(Settings.KEY_PREF_SOURCE);
-        String prefProject = (String)vals.get(Settings.KEY_PREF_PROJECT);
+        String prefSource = (String)vals.get(Settings.KEY_PREF_VERSION);
+        String prefProject = (String)vals.get(Settings.KEY_PREF_ANTHOLOGY);
         String prefBook = (String)vals.get(Settings.KEY_PREF_BOOK);
 
         if (prefLang != null && prefLang.equals(project.getTargetLanguage())) {
             pref.edit().putString(Settings.KEY_PREF_LANG, "").commit();
         }
-        if (prefSource != null && prefSource.equals(project.getSource())) {
-            pref.edit().putString(Settings.KEY_PREF_SOURCE, "").commit();
+        if (prefSource != null && prefSource.equals(project.getVersion())) {
+            pref.edit().putString(Settings.KEY_PREF_VERSION, "").commit();
         }
-        if (prefProject != null && prefProject.equals(project.getProject())){
-            pref.edit().putString(Settings.KEY_PREF_PROJECT, "").commit();
+        if (prefProject != null && prefProject.equals(project.getAnthology())){
+            pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, "").commit();
         }
         if (prefBook != null && prefBook.equals(project.getSlug())) {
             pref.edit().putString(Settings.KEY_PREF_BOOK, "").commit();
@@ -276,8 +276,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
         pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
         pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
-        pref.edit().putString(Settings.KEY_PREF_SOURCE, project.getSource()).commit();
-        pref.edit().putString(Settings.KEY_PREF_PROJECT, project.getProject()).commit();
+        pref.edit().putString(Settings.KEY_PREF_VERSION, project.getVersion()).commit();
+        pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
         pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
 

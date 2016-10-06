@@ -19,7 +19,7 @@ public class RecordingVersePickerTest {
 //        String defaultPreferencesName = context.getPackageName() + "_preferences";
 //        SharedPreferences prefs = context.getSharedPreferences(defaultPreferencesName, Context.MODE_PRIVATE);
 //        SharedPreferences.Editor editor = prefs.edit();
-//        editor.putString(Settings.KEY_PREF_SOURCE, "ulb");
+//        editor.putString(Settings.KEY_PREF_VERSION, "ulb");
 //        editor.putString(Settings.KEY_PREF_LANG, "en");
 //        editor.putString(Settings.KEY_PREF_BOOK, "gen");
 //        editor.putString(Settings.KEY_PREF_CHAPTER, "01");

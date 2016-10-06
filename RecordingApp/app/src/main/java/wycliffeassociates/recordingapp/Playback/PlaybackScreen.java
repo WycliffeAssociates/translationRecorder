@@ -136,7 +136,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private void initializeViews() {
         mLangView.setText(mProject.getTargetLanguage().toUpperCase());
         if (!mProject.isOBS()) {
-            mSourceView.setText(mProject.getSource().toUpperCase());
+            mSourceView.setText(mProject.getVersion().toUpperCase());
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             mBookView.setText(db.getBookName(mProject.getSlug()));
         } else {

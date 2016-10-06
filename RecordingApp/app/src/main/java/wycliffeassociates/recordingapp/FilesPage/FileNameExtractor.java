@@ -68,7 +68,7 @@ public class FileNameExtractor {
     }
 
     private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse){
-        this(project.getTargetLanguage(), project.getSource(), project.getBookNumber(), project.getSlug(), project.getProject(), chapterIntToString(project, chapter), unitIntToString(startVerse),
+        this(project.getTargetLanguage(), project.getVersion(), project.getBookNumber(), project.getSlug(), project.getAnthology(), chapterIntToString(project, chapter), unitIntToString(startVerse),
                 unitIntToString(endVerse), "00");
     }
 
@@ -89,10 +89,10 @@ public class FileNameExtractor {
 
     public FileNameExtractor(SharedPreferences pref){
         this(pref.getString(Settings.KEY_PREF_LANG, ""),
-                pref.getString(Settings.KEY_PREF_SOURCE, ""),
+                pref.getString(Settings.KEY_PREF_VERSION, ""),
                 pref.getString(Settings.KEY_PREF_BOOK_NUM, ""),
                 pref.getString(Settings.KEY_PREF_BOOK, ""),
-                pref.getString(Settings.KEY_PREF_PROJECT, ""),
+                pref.getString(Settings.KEY_PREF_ANTHOLOGY, ""),
                 pref.getString(Settings.KEY_PREF_CHAPTER, ""),
                 pref.getString(Settings.KEY_PREF_START_VERSE, ""),
                 pref.getString(Settings.KEY_PREF_END_VERSE, ""),
@@ -193,7 +193,7 @@ public class FileNameExtractor {
 
     public static File getDirectoryFromProject(Project project, int chapter){
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        return new File(root, project.getTargetLanguage() + "/" + project.getSource() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
+        return new File(root, project.getTargetLanguage() + "/" + project.getVersion() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
     }
 
     public static File getFileFromFileName(SharedPreferences pref, File file){

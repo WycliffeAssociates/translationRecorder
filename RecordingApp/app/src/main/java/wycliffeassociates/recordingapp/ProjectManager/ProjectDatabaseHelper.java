@@ -96,7 +96,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean projectExists(Project project){
-        return projectExists(project.getTargetLanguage(), project.getSlug(), project.getSource());
+        return projectExists(project.getTargetLanguage(), project.getSlug(), project.getVersion());
     }
 
     public boolean projectExists(String languageCode, String slug, String version){
@@ -111,7 +111,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean chapterExists(Project project, int chapter){
-        return chapterExists(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter);
+        return chapterExists(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter);
     }
 
     public boolean chapterExists(String languageCode, String slug, String version, int chapter){
@@ -125,7 +125,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean unitExists(Project project, int chapter, int startVerse){
-        return unitExists(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter, startVerse);
+        return unitExists(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter, startVerse);
     }
 
     public boolean unitExists(String languageCode, String slug, String version, int chapter, int startVerse){
@@ -188,7 +188,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getProjectId(Project project) throws IllegalArgumentException {
-        return getProjectId(project.getTargetLanguage(), project.getSlug(), project.getSource());
+        return getProjectId(project.getTargetLanguage(), project.getSlug(), project.getVersion());
     }
 
     public int getProjectId(String languageCode, String slug, String version) throws IllegalArgumentException {
@@ -210,7 +210,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getChapterId(Project project, int chapter) throws IllegalArgumentException{
-        return getChapterId(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter);
+        return getChapterId(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter);
     }
 
     public int getChapterId(String languageCode, String slug, String version, int chapter){
@@ -231,7 +231,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getUnitId(Project project, int chapter, int startVerse) throws IllegalArgumentException{
-        return getUnitId(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter, startVerse);
+        return getUnitId(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter, startVerse);
     }
 
     public int getUnitId(String languageCode, String slug, String version, int chapter, int startVerse) throws IllegalArgumentException{
@@ -402,7 +402,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             cv.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, sourceLanguageId);
         }
         cv.put(ProjectEntry.PROJECT_BOOK_FK, bookId);
-        cv.put(ProjectEntry.PROJECT_VERSION, p.getSource());
+        cv.put(ProjectEntry.PROJECT_VERSION, p.getVersion());
         cv.put(ProjectEntry.PROJECT_MODE, p.getMode());
         cv.put(ProjectEntry.PROJECT_CONTRIBUTORS, p.getContributors());
         cv.put(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
@@ -436,7 +436,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addChapter(Project project, int chapter) throws IllegalArgumentException{
-        addChapter(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter);
+        addChapter(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter);
     }
 
     public void addChapter(String languageCode, String slug, String version, int chapter) throws IllegalArgumentException {
@@ -451,7 +451,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addUnit(Project project, int chapter, int startVerse) throws IllegalArgumentException{
-        addUnit(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter, startVerse);
+        addUnit(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter, startVerse);
     }
 
     public void addUnit(String languageCode, String slug, String version, int chapter, int startVerse) throws IllegalArgumentException {
@@ -509,7 +509,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do {
                 Project project = new Project();
-                project.setSource(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_VERSION)));
+                project.setVersion(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_VERSION)));
                 String targetLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK)));
                 project.setTargetLanguage(targetLanguageCode);
                 int sourceLanguageIndex = cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK);
