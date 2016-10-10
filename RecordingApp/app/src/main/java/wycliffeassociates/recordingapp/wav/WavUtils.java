@@ -25,4 +25,8 @@ public class WavUtils {
         String read = new String(word, StandardCharsets.US_ASCII);
         return label.equals(read);
     }
+
+    static void seek(ByteBuffer byteBuffer, int seek){
+        byteBuffer.position(byteBuffer.position() + seek);
+    }
 }

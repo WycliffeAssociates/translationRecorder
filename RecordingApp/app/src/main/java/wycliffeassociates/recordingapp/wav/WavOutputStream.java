@@ -23,27 +23,31 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
     OutputStream mOutputStream;
     long mAudioDataLength;
 
-    public WavOutputStream(WavFile file) throws FileNotFoundException {
-        mFile = file;
+    public WavOutputStream(WavFile target) throws FileNotFoundException{
+        this(target, false);
+    }
+
+    public WavOutputStream(WavFile target, boolean append) throws FileNotFoundException {
+        mFile = target;
         if(mFile.getFile().length() == 0){
             mFile.initializeWavFile();
         }
-        mAudioDataLength = file.getTotalAudioLength();
+        mAudioDataLength = target.getTotalAudioLength();
         //Truncate the metadata for writing
-        try (FileChannel fc = new FileOutputStream(file.getFile(), true).getChannel().truncate(mAudioDataLength + HEADER_SIZE)) {
+        try (FileChannel fc = new FileOutputStream(target.getFile(), append).getChannel().truncate(mAudioDataLength + HEADER_SIZE)) {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mOutputStream = new FileOutputStream(file.getFile(), true);
+        mOutputStream = new FileOutputStream(target.getFile(), append);
     }
 
-    public WavOutputStream(WavFile file, boolean buffered) throws FileNotFoundException {
-        mFile = file;
-        FileOutputStream fos = new FileOutputStream(file.getFile(), true);
-        if (buffered) {
-            mOutputStream = new BufferedOutputStream(fos);
-        }
-    }
+//    public WavOutputStream(WavFile file, boolean buffered) throws FileNotFoundException {
+//        mFile = file;
+//        FileOutputStream fos = new FileOutputStream(file.getFile(), true);
+//        if (buffered) {
+//            mOutputStream = new BufferedOutputStream(fos);
+//        }
+//    }
 
     @Override
     public void write(int oneByte) throws IOException {
@@ -68,13 +72,13 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
         long totalDataSize = mFile.getFile().length() - 36;
         ByteBuffer bb = ByteBuffer.allocate(4);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        bb.putLong(totalDataSize);
+        bb.putInt((int)totalDataSize);
         RandomAccessFile raf = new RandomAccessFile(mFile.getFile(), "rw");
         raf.seek(4);
         raf.write(bb.array());
         bb.clear();
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        bb.putLong(mAudioDataLength);
+        bb.putInt((int)mAudioDataLength);
         raf.seek(40);
         raf.write(bb.array());
         raf.close();

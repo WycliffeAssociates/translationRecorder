@@ -22,6 +22,7 @@ import static wycliffeassociates.recordingapp.wav.WavUtils.AUDIO_LENGTH_LOCATION
 import static wycliffeassociates.recordingapp.wav.WavUtils.HEADER_SIZE;
 import static wycliffeassociates.recordingapp.wav.WavUtils.labelsMatch;
 import static wycliffeassociates.recordingapp.wav.WavUtils.littleEndianToDecimal;
+import static wycliffeassociates.recordingapp.wav.WavUtils.seek;
 
 
 /**
@@ -99,7 +100,7 @@ public class WavMetadata {
 
     private void parseList(byte[] listChunk) {
         ByteBuffer chunk = ByteBuffer.wrap(listChunk);
-        while (chunk.position() != chunk.capacity()) {
+        while (chunk.position() < chunk.capacity()) {
             //read the subchunk name
             byte[] chunkName = new byte[4];
             chunk.get(chunkName);
@@ -140,7 +141,7 @@ public class WavMetadata {
                 mCuePoints.put(cueId, cue);
             }
             //skip the rest of the cue chunk to move to the next cue
-            chunk.position(chunk.position() + 16);
+            seek(chunk, 16);
         }
     }
 
@@ -152,16 +153,16 @@ public class WavMetadata {
         byte[] word = new byte[4];
         ByteBuffer chunk = ByteBuffer.wrap(labelChunk);
 
-        while (chunk.position() != chunk.capacity()) {
+        while (chunk.position() < chunk.capacity()) {
             chunk.get(word);
             if (labelsMatch("ltxt", word)) {
                 int size = chunk.getInt();
-                //move 24 bytes to skip ltxt subchunk
-                chunk.position(chunk.position() + 24);
+                //move to skip ltxt subchunk
+                seek(chunk, size);
+                //read next chunk label
                 chunk.get(word);
-
                 if (labelsMatch("labl", word)) {
-                    int size = chunk.getInt();
+                    size = chunk.getInt();
                     Integer id = chunk.getInt();
                     byte[] labelBytes = new byte[size];
                     String label = new String(labelBytes, StandardCharsets.US_ASCII);
@@ -173,7 +174,9 @@ public class WavMetadata {
                     parseLabels(Arrays.copyOfRange(labelChunk, 12 + (int) size, labelChunk.length));
                 }
                 else {
-
+                    //else skip over this subchunk
+                    size = chunk.getInt();
+                    seek(chunk, size);
                 }
             }
         }
