@@ -14,7 +14,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
@@ -65,9 +64,11 @@ public class WavMetadata {
                 if(!labelsMatch("RIFF", word)){
                     throw new RuntimeException("Attempting to load a non-Wav file.");
                 }
+                //read the length of the audio data
                 raf.seek(AUDIO_LENGTH_LOCATION);
                 raf.read(word);
                 long audioLength = littleEndianToDecimal(word);
+                //seek to the end of the header + audio data to parse metadata
                 raf.seek(audioLength + HEADER_SIZE);
                 boolean endOfFile = (raf.getFilePointer() >= file.length())? true : false;
                 byte[] chunkName;
@@ -79,18 +80,13 @@ public class WavMetadata {
                     //Get chunk size
                     raf.read(word);
                     long chunkSize = littleEndianToDecimal(word);
+                    byte[] chunk = new byte[(int)chunkSize];
+                    raf.read(chunk);
                     if(labelsMatch("LIST", chunkName)){
-                        byte[] listChunk = new byte[(int)chunkSize];
-                        raf.read(listChunk);
-                        parseList(listChunk);
+                        parseList(chunk);
                     } else if (labelsMatch("cue ", chunkName)){
-                        byte[] cueChunk = new byte[(int)chunkSize];
-                        raf.read(cueChunk);
-                        parseCue(cueChunk);
-                    } else {
-                        //For unrecognized chunks, skip to the next chunk
-                        raf.seek(raf.getFilePointer() + chunkSize);
-                    }
+                        parseCue(chunk);
+                    } //unrecognized chunks will just be skipped
                     endOfFile = (raf.getFilePointer() >= file.length())? true : false;
                 }
             } catch (FileNotFoundException e) {
@@ -102,22 +98,31 @@ public class WavMetadata {
     }
 
     private void parseList(byte[] listChunk) {
-        byte[] chunkName = Arrays.copyOfRange(listChunk, 0, 4);
-        if(labelsMatch("adtl", chunkName)){
-            parseLabels(listChunk);
-        } else if (labelsMatch("IART", chunkName)){
-            parseTrMetadata(listChunk);
+        ByteBuffer chunk = ByteBuffer.wrap(listChunk);
+        while (chunk.position() != chunk.capacity()) {
+            //read the subchunk name
+            byte[] chunkName = new byte[4];
+            chunk.get(chunkName);
+            //read the size of the subchunk
+            int chunkSize = chunk.getInt();
+            //grab the subchunk
+            byte[] subChunk = new byte[chunkSize];
+            chunk.get(subChunk);
+            if (labelsMatch("adtl", chunkName)) {
+                parseLabels(subChunk);
+            } else if (labelsMatch("IART", chunkName)) {
+                parseTrMetadata(subChunk);
+            } //else ignore and move to the next subchunk
         }
-        //
+
     }
 
     private void parseCue(byte[] cueChunk){
-        byte[] word;
-        word = Arrays.copyOfRange(cueChunk, 4, 8);
-        long numCues = littleEndianToDecimal(word);
-        int pos = 8;
-        byte[] id;
-        byte[] cueLoc;
+        if(cueChunk.length == 0){
+            return;
+        }
+        ByteBuffer chunk = ByteBuffer.wrap(cueChunk);
+        int numCues = chunk.getInt();
 
         //each cue subchunk should be 24 bytes, plus 4 for the number of cues field
         if(cueChunk.length != (24*numCues) + 4){
@@ -126,47 +131,52 @@ public class WavMetadata {
 
         //For each cue, extract the cue Id and the cue location
         for(int i = 0; i < numCues; i++){
-            id = Arrays.copyOfRange(cueChunk, pos, pos+4);
-            cueLoc = Arrays.copyOfRange(cueChunk, pos+20, pos+24);
-            Integer cueId = new Integer((int)littleEndianToDecimal(id));
-            long cueLocLong = littleEndianToDecimal(cueLoc);
+            int cueId = chunk.getInt();
+            int cueLoc = chunk.getInt();
             if(mCuePoints.containsKey(cueId)) {
-                mCuePoints.get(cueId).setLocation(cueLocLong);
+                mCuePoints.get(cueId).setLocation(cueLoc);
             } else {
-                WavCue cue = new WavCue(cueLocLong);
+                WavCue cue = new WavCue(cueLoc);
                 mCuePoints.put(cueId, cue);
             }
-            //increment one cue chunk
-            pos += 24;
+            //skip the rest of the cue chunk to move to the next cue
+            chunk.position(chunk.position() + 16);
         }
     }
 
 
-    private void parseLabels(byte[] labelChunk){
-        if(labelChunk.length == 0) {
+    private void parseLabels(byte[] labelChunk) {
+        if (labelChunk.length == 0) {
             return;
         }
-        byte[] word;
-        word = Arrays.copyOfRange(labelChunk, 0, 4);
-        if(labelsMatch("ltxt", word)){
-            long size = littleEndianToDecimal(Arrays.copyOfRange(labelChunk, 4, 8));
-            //just skip this chunk, parse the rest
-            parseLabels(Arrays.copyOfRange(labelChunk, (int)(8 + size), labelChunk.length));
-        } else if (labelsMatch("labl", word)) {
-            word = Arrays.copyOfRange(labelChunk, 4, 8);
-            long size = littleEndianToDecimal(word);
-            word = Arrays.copyOfRange(labelChunk, 8, 12);
-            Integer id = (int)littleEndianToDecimal(word);
-            byte[] labelBytes = new byte[(int)size];
-            String label = new String(labelBytes, StandardCharsets.US_ASCII);
-            if(mCuePoints.containsKey(id)){
-                mCuePoints.get(id).setLabel(label);
-            } else {
-                mCuePoints.put(id, new WavCue(label));
+        byte[] word = new byte[4];
+        ByteBuffer chunk = ByteBuffer.wrap(labelChunk);
+
+        while (chunk.position() != chunk.capacity()) {
+            chunk.get(word);
+            if (labelsMatch("ltxt", word)) {
+                int size = chunk.getInt();
+                //move 24 bytes to skip ltxt subchunk
+                chunk.position(chunk.position() + 24);
+                chunk.get(word);
+
+                if (labelsMatch("labl", word)) {
+                    int size = chunk.getInt();
+                    Integer id = chunk.getInt();
+                    byte[] labelBytes = new byte[size];
+                    String label = new String(labelBytes, StandardCharsets.US_ASCII);
+                    if (mCuePoints.containsKey(id)) {
+                        mCuePoints.get(id).setLabel(label);
+                    } else {
+                        mCuePoints.put(id, new WavCue(label));
+                    }
+                    parseLabels(Arrays.copyOfRange(labelChunk, 12 + (int) size, labelChunk.length));
+                }
+                else {
+
+                }
             }
-            parseLabels(Arrays.copyOfRange(labelChunk, 12+(int)size, labelChunk.length));
         }
-        //
     }
 
     private void parseTrMetadata(byte[] trChunk){

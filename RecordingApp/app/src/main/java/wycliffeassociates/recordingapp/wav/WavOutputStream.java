@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import static wycliffeassociates.recordingapp.wav.WavUtils.*;
 
 /**
  * Created by sarabiaj on 10/4/2016.
@@ -26,8 +28,13 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
         if(mFile.getFile().length() == 0){
             mFile.initializeWavFile();
         }
-        mOutputStream = new FileOutputStream(file.getFile(), true);
         mAudioDataLength = file.getTotalAudioLength();
+        //Truncate the metadata for writing
+        try (FileChannel fc = new FileOutputStream(file.getFile(), true).getChannel().truncate(mAudioDataLength + HEADER_SIZE)) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mOutputStream = new FileOutputStream(file.getFile(), true);
     }
 
     public WavOutputStream(WavFile file, boolean buffered) throws FileNotFoundException {
