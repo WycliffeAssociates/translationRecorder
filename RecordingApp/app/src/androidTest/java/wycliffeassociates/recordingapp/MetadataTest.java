@@ -1,10 +1,10 @@
 package wycliffeassociates.recordingapp;
 
+import android.os.Bundle;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,7 +16,8 @@ import java.io.IOException;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.wav.WavFile;
-import wycliffeassociates.recordingapp.Recording.WavFileWriter;
+import wycliffeassociates.recordingapp.wav.WavMetadata;
+import wycliffeassociates.recordingapp.wav.WavOutputStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,26 +37,61 @@ public class MetadataTest {
     public void testMetadata() {
         try {
             File testFile = File.createTempFile("test", "wav");
+            File testFile2 = File.createTempFile("test2", "wav");
+            if(testFile.exists() && testFile.length() != 0){
+                testFile.delete();
+            }
+            Project project = new Project("en", "", "01", "gen", "ulb", "chunk", "ot", "", "");
+            Project project2 = new Project("cmn", "", "543", "eph", "reg", "verse", "nt", "", "");
+            WavMetadata meta = new WavMetadata(project, "01", "01", "02");
+            WavFile wav = new WavFile(testFile, meta);
+            assertEquals(wav.getFile().length(), 44);
+            try (WavOutputStream wos = new WavOutputStream(wav)) {
+                for (int i = 0; i < 1000; i++) {
+                    wos.write(0);
+                }
+            }
+            wav.addVerseMarker(1, 0);
+            wav.addVerseMarker(2, 500);
+            assertEquals(1000, wav.getTotalAudioLength());
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("file", wav);
+            System.out.println("pause");
+            wav = null;
+            meta = null;
+            meta = new WavMetadata(project2, "35", "34", "45");
+            wav = new WavFile(testFile2, meta);
+            wav.addVerseMarker(1, 0);
+            testBundle(bundle);
+            System.out.println(wav + " " + meta);
+
+
+
+
 //            byte[] headerBuffer = new byte[44];
 //            FileOutputStream fos = new FileOutputStream(testFile);
 //            fos.write(headerBuffer);
 //            fos.close();
-            Project project = new Project("en", "", "01", "gen", "ulb", "chunk", "ot", "", "");
-            wavFile = new WavFile(testFile);
-            wavFile.setMetadata(project, "1", "1", "1");
-            String metadata = wavFile.getMetadata();
-            System.out.println(metadata);
-            int size = wavFile.writeMetadata();
-            WavFileWriter.overwriteHeaderData(testFile, 44, size);
-            wavFile = new WavFile(testFile);
-            String parsedMetadata = wavFile.getMetadata();
-            assertEquals(parsedMetadata, metadata);
-            assertEquals(wavFile.getTotalMetadataLength() % 4, 0);
-        } catch (JSONException e){
-            Assert.fail("Test failed : " + e.getMessage());
+//            wavFile = new WavFile(testFile);
+//            wavFile.setMetadata(project, "1", "1", "1");
+//            String metadata = wavFile.getMetadata();
+//            System.out.println(metadata);
+//            int size = wavFile.writeMetadata();
+//            WavFileWriter.overwriteHeaderData(testFile, 44, size);
+//            wavFile = new WavFile(testFile);
+//            String parsedMetadata = wavFile.getMetadata();
+//            assertEquals(parsedMetadata, metadata);
+//            assertEquals(wavFile.getTotalMetadataLength() % 4, 0);
+//        } catch (JSONException e){
+//            Assert.fail("Test failed : " + e.getMessage());
         } catch (IOException e) {
             Assert.fail("Test failed : " + e.getMessage());
         }
+    }
+
+    public void testBundle(Bundle bundle){
+        WavFile parceled = (WavFile) bundle.get("file");
+        System.out.println(parceled);
     }
 
     @Test

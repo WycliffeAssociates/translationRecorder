@@ -1,12 +1,13 @@
 package wycliffeassociates.recordingapp.wav;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -28,7 +29,7 @@ import static wycliffeassociates.recordingapp.wav.WavUtils.seek;
 /**
  * Created by sarabiaj on 10/4/2016.
  */
-public class WavMetadata {
+public class WavMetadata implements Parcelable{
 
     String mProject = "";
     String mLanguage = "";
@@ -39,7 +40,7 @@ public class WavMetadata {
     String mChapter = "";
     String mStartVerse = "";
     String mEndVerse = "";
-    HashMap<Integer, WavCue> mCuePoints;
+    HashMap<Integer, WavCue> mCuePoints = new HashMap<>();
 
     public WavMetadata(Project p, String chapter, String startVerse, String endVerse) {
         mProject = p.getAnthology();
@@ -98,6 +99,11 @@ public class WavMetadata {
         }
     }
 
+    /**
+     * Parses a list chunk. A label of "adtl" signifies a label chunk, and "IART" is where TR stores
+     * its metadata. Other labels should be ignored in TR.
+     * @param listChunk
+     */
     private void parseList(byte[] listChunk) {
         ByteBuffer chunk = ByteBuffer.wrap(listChunk);
         while (chunk.position() < chunk.capacity()) {
@@ -115,14 +121,31 @@ public class WavMetadata {
                 parseTrMetadata(subChunk);
             } //else ignore and move to the next subchunk
         }
-
     }
 
+    /**
+     * Parses a cue chunk, which adhere to the following format:
+     * "cue " (0x6375 6520)
+     * size of cue chunk (4B LE)
+     * number of cues (4B LE)
+     * For each cue:
+     *      cue ID (4B LE)
+     *      location (index in PCM array considering 44100 indicies per second [so don't consider block size])
+     *      "data" (0x6461 7461)
+     *      0000 0000
+     *      0000 0000
+     *      location (again, same as above)
+     *
+     * NOTE This method assumes that the first 8 bytes have already been removed and parsed.
+     * @param cueChunk
+     */
     private void parseCue(byte[] cueChunk){
         if(cueChunk.length == 0){
             return;
         }
         ByteBuffer chunk = ByteBuffer.wrap(cueChunk);
+
+        //get number of cues
         int numCues = chunk.getInt();
 
         //each cue subchunk should be 24 bytes, plus 4 for the number of cues field
@@ -134,9 +157,11 @@ public class WavMetadata {
         for(int i = 0; i < numCues; i++){
             int cueId = chunk.getInt();
             int cueLoc = chunk.getInt();
+
+            //If the label has already been parsed, append this data to the existing object
             if(mCuePoints.containsKey(cueId)) {
                 mCuePoints.get(cueId).setLocation(cueLoc);
-            } else {
+            } else { //else create a new cue and wait for a label later
                 WavCue cue = new WavCue(cueLoc);
                 mCuePoints.put(cueId, cue);
             }
@@ -183,7 +208,14 @@ public class WavMetadata {
     }
 
     private void parseTrMetadata(byte[] trChunk){
-
+        String metadata = new String(trChunk, StandardCharsets.US_ASCII);
+        try {
+            JSONObject json = new JSONObject(metadata);
+            parseMetadataFromJson(json);
+        } catch (JSONException e) {
+            Logger.e(this.toString(), "Tried to parse TR metadata and threw JSONException.", e);
+            return;
+        }
     }
 
     /**
@@ -193,7 +225,7 @@ public class WavMetadata {
      * @return
      * @throws Exception
      */
-    public WavMetadata(JSONObject json) throws JSONException {
+    public void parseMetadataFromJson(JSONObject json) throws JSONException {
         if (json != null) {
             mProject = "";
             if (json.has("project")) {
@@ -233,6 +265,7 @@ public class WavMetadata {
             }
             if(json.has("markers")) {
                 JSONObject markers = json.getJSONObject("markers");
+                parseMarkers(markers);
             }
         }
     }
@@ -267,42 +300,26 @@ public class WavMetadata {
             json.put("chapter", mChapter);
             json.put("startv", mStartVerse);
             json.put("endv", mEndVerse);
+            json.put("markers", getMarkerJsonObject());
             return json;
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private int writeMetadata() throws IOException {
-        byte[] data = convertToMetadata(metadata);
-        BufferedOutputStream bof = null;
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(mFile, true);
-            //truncates existing metadata- new metadata may not be as long
-            out.getChannel().truncate(HEADER_SIZE + mTotalAudioLength);
-            bof = new BufferedOutputStream(out);
-            bof.write(data);
-        } finally {
-            try {
-                bof.close();
-                out.close();
-            } catch (IOException e) {
-                Logger.e(this.toString(), "IOException while closing streams", e);
-                e.printStackTrace();
-            }
+    private JSONObject getMarkerJsonObject() throws JSONException{
+        JSONObject json = new JSONObject();
+        for (WavCue cue : mCuePoints.values()) {
+            json.put(cue.getLabel(), cue.getLocation());
         }
-        mMetadataLength = data.length;
-        mTotalDataLength = mTotalAudioLength + mMetadataLength + HEADER_SIZE - 8;
-        overwriteHeaderData();
-        return data.length;
+        return json;
     }
 
-    public byte[] getCueChunk(){
-        ByteBuffer bb = ByteBuffer.allocate(55);
+    public byte[] createCueChunk(){
+        int numCues = mCuePoints.size();
+        ByteBuffer bb = ByteBuffer.allocate(12 + numCues*24);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.put(new String("cue ").getBytes(StandardCharsets.US_ASCII));
-        int numCues = mCuePoints.size();
         //cue data size: 4 byte numCues field, 24 bytes per cue
         bb.putInt(4 + 24*numCues);
         bb.putInt(mCuePoints.size());
@@ -323,7 +340,43 @@ public class WavMetadata {
         return bb.array();
     }
 
-    public static byte[] getMetadata(String metadata) {
+    public byte[] createLabelChunk(){
+        int numCues = mCuePoints.size();
+        int size = (numCues * 48) + 4;
+        ByteBuffer bb = ByteBuffer.allocate(size + 8);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.put(new String("LIST").getBytes(StandardCharsets.US_ASCII));
+        bb.putInt(size);
+        bb.put(new String("adtl").getBytes(StandardCharsets.US_ASCII));
+        for(Integer i : mCuePoints.keySet()) {
+            bb.put(new String("LIST").getBytes(StandardCharsets.US_ASCII));
+            bb.putInt(20);
+            bb.putInt(i);
+            bb.putInt(0);
+            bb.put(new String("rvn ").getBytes(StandardCharsets.US_ASCII));
+            bb.putInt(0);
+            bb.putInt(0);
+            bb.put(new String("labl").getBytes(StandardCharsets.US_ASCII));
+            byte[] label = wordAlignedLabel(i);
+            bb.putInt(4 + label.length);
+            bb.putInt(i);
+            bb.put(label);
+        }
+        return bb.array();
+    }
+
+    private byte[] wordAlignedLabel(int index){
+        String label = mCuePoints.get(index).getLabel();
+        int alignedLength = label.length();
+        if(alignedLength % 4 != 0){
+            alignedLength += 4 - (alignedLength % 4);
+        }
+        byte[] alignedLabel = Arrays.copyOf(label.getBytes(), alignedLength);
+        return alignedLabel;
+    }
+
+    public byte[] createTrMetadataChunk() {
+        String metadata = this.toJSON().toString();
         //word align
         int padding = metadata.length() % 4;
         if (padding != 0) {
@@ -362,5 +415,43 @@ public class WavMetadata {
             infoTag[i] = '\0';
         }
         return infoTag;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        String metadataString = this.toJSON().toString();
+        dest.writeString(metadataString);
+    }
+
+    public static final Parcelable.Creator<WavMetadata> CREATOR = new Parcelable.Creator<WavMetadata>() {
+        public WavMetadata createFromParcel(Parcel in) {
+            return new WavMetadata(in);
+        }
+
+        public WavMetadata[] newArray(int size) {
+            return new WavMetadata[size];
+        }
+    };
+
+    public WavMetadata(Parcel in){
+        try {
+            parseMetadataFromJson(new JSONObject(in.readString()));
+        } catch (JSONException e) {
+            Logger.e(this.toString(), "Unable to parse parceled metadata");
+            e.printStackTrace();
+        }
+    }
+
+    public void addCue(WavCue cue) {
+        mCuePoints.put(Integer.parseInt(cue.getLabel()), cue);
+    }
+
+    public void removeCue(int verse){
+        mCuePoints.remove(verse);
     }
 }

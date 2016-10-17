@@ -5,7 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.AudioInfo;
@@ -25,6 +23,8 @@ import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+
+import static wycliffeassociates.recordingapp.wav.WavUtils.AUDIO_LENGTH_LOCATION;
 
 /**
  * Created by sarabiaj on 6/2/2016.
@@ -61,6 +61,7 @@ public class WavFile implements Parcelable {
     public WavFile(File file) {
         mFile = file;
         mMetadata = new WavMetadata(file);
+        parseHeader();
     }
 
     /**
@@ -74,69 +75,67 @@ public class WavFile implements Parcelable {
         mMetadata = metadata;
     }
 
+    void finishWrite(int totalAudioLength) throws IOException {
+        mTotalAudioLength = totalAudioLength;
+        writeMetadata(totalAudioLength);
+    }
+
     public WavFile(Parcel in) {
         mFile = new File(in.readString());
-        try {
-            mMetadata = new Metadata(new JSONObject(in.readString()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mTotalAudioLength = 0;
-        mTotalDataLength = 0;
-        mMetadataLength = 0;
-        if (mFile.length() > 0) {
-            parseChunkSizes();
-        }
+        mMetadata = in.readParcelable(WavMetadata.class.getClassLoader());
+        mTotalAudioLength = in.readInt();
+        mTotalDataLength = in.readInt();
+        mMetadataLength = in.readInt();
     }
-
-    public WavFile(File file, String jsonMetadata) {
-        mFile = file;
-        mMetadataLength = 0;
-        mTotalAudioLength = (int) file.length() - HEADER_SIZE;
-        mTotalDataLength = (int) file.length() - 8;
-        try {
-            mMetadata = new Metadata(new JSONObject(jsonMetadata));
-            writeMetadata();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void parseChunkSizes() {
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(mFile, "r");
-            byte[] size = new byte[4];
-            raf.seek(4);
-            raf.read(size);
-            mTotalDataLength = littleEndianToDecimal(size);
-            raf.seek(40);
-            raf.read(size);
-            mTotalAudioLength = littleEndianToDecimal(size);
-            //check if this is okay
-            raf.seek(44 + mTotalAudioLength);
-            raf.read(size);
-            String tag = new String(size, StandardCharsets.US_ASCII);
-            if (tag.compareTo("LIST") == 0) {
-                raf.seek(44 + mTotalAudioLength + 16);
-                raf.read(size);
-                mMetadataLength = littleEndianToDecimal(size);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                raf.close();
-            } catch (IOException e) {
-                Logger.e(this.toString(), "IOException while closing stream", e);
-                e.printStackTrace();
-            }
-        }
-    }
+//
+//    public WavFile(File file, String jsonMetadata) {
+//        mFile = file;
+//        mMetadataLength = 0;
+//        mTotalAudioLength = (int) file.length() - HEADER_SIZE;
+//        mTotalDataLength = (int) file.length() - 8;
+//        try {
+//            mMetadata = new Metadata(new JSONObject(jsonMetadata));
+//            writeMetadata();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    public void parseChunkSizes() {
+//        RandomAccessFile raf = null;
+//        try {
+//            raf = new RandomAccessFile(mFile, "r");
+//            byte[] size = new byte[4];
+//            raf.seek(4);
+//            raf.read(size);
+//            mTotalDataLength = littleEndianToDecimal(size);
+//            raf.seek(40);
+//            raf.read(size);
+//            mTotalAudioLength = littleEndianToDecimal(size);
+//            //check if this is okay
+//            raf.seek(44 + mTotalAudioLength);
+//            raf.read(size);
+//            String tag = new String(size, StandardCharsets.US_ASCII);
+//            if (tag.compareTo("LIST") == 0) {
+//                raf.seek(44 + mTotalAudioLength + 16);
+//                raf.read(size);
+//                mMetadataLength = littleEndianToDecimal(size);
+//            }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                raf.close();
+//            } catch (IOException e) {
+//                Logger.e(this.toString(), "IOException while closing stream", e);
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     public File getFile() {
         return mFile;
@@ -265,74 +264,95 @@ public class WavFile implements Parcelable {
     }
 
     public void setMetadata(Project project, String chapter, String startVerse, String endVerse) {
-        mMetadata = new Metadata(project, chapter, startVerse, endVerse);
+        mMetadata = new WavMetadata(project, chapter, startVerse, endVerse);
     }
 
-    private int writeMetadata(String metadata) throws IOException {
-        byte[] data = convertToMetadata(metadata);
-        BufferedOutputStream bof = null;
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(mFile, true);
+    private void writeMetadata(int totalAudioLength) throws IOException {
+        mTotalAudioLength = totalAudioLength;
+        byte[] cueChunk = mMetadata.createCueChunk();
+        byte[] labelChunk = mMetadata.createLabelChunk();
+        byte[] trMetadata = mMetadata.createTrMetadataChunk();
+        try (
+            FileOutputStream out = new FileOutputStream(mFile, true);
+            BufferedOutputStream bof = new BufferedOutputStream(out);
+        ){
             //truncates existing metadata- new metadata may not be as long
             out.getChannel().truncate(HEADER_SIZE + mTotalAudioLength);
-            bof = new BufferedOutputStream(out);
-            bof.write(data);
-        } finally {
-            try {
-                bof.close();
-                out.close();
-            } catch (IOException e) {
-                Logger.e(this.toString(), "IOException while closing streams", e);
-                e.printStackTrace();
-            }
+            bof.write(cueChunk);
+            bof.write(labelChunk);
+            bof.write(trMetadata);
         }
-        mMetadataLength = data.length;
+        mMetadataLength = cueChunk.length + labelChunk.length + trMetadata.length;
         mTotalDataLength = mTotalAudioLength + mMetadataLength + HEADER_SIZE - 8;
         overwriteHeaderData();
-        return data.length;
+        return;
     }
 
-    public static byte[] convertToMetadata(String metadata) {
-        //word align
-        int padding = metadata.length() % 4;
-        if (padding != 0) {
-            padding = 4 - padding;
-        }
-        byte[] infoTag = new byte[metadata.length() + padding + 20];
+//    private int writeMetadata(String metadata) throws IOException {
+//        byte[] data = convertToMetadata(metadata);
+//        BufferedOutputStream bof = null;
+//        FileOutputStream out = null;
+//        try {
+//            out = new FileOutputStream(mFile, true);
+//            //truncates existing metadata- new metadata may not be as long
+//            out.getChannel().truncate(HEADER_SIZE + mTotalAudioLength);
+//            bof = new BufferedOutputStream(out);
+//            bof.write(data);
+//        } finally {
+//            try {
+//                bof.close();
+//                out.close();
+//            } catch (IOException e) {
+//                Logger.e(this.toString(), "IOException while closing streams", e);
+//                e.printStackTrace();
+//            }
+//        }
+//        mMetadataLength = data.length;
+//        mTotalDataLength = mTotalAudioLength + mMetadataLength + HEADER_SIZE - 8;
+//        overwriteHeaderData();
+//        return data.length;
+//    }
 
-        int metadataSize = metadata.length() + padding;
-        int chunkSize = 12 + metadataSize;
-
-        infoTag[0] = 'L';
-        infoTag[1] = 'I';
-        infoTag[2] = 'S';
-        infoTag[3] = 'T';
-        infoTag[4] = (byte) (chunkSize & 0xff);
-        infoTag[5] = (byte) ((chunkSize >> 8) & 0xff);
-        infoTag[6] = (byte) ((chunkSize >> 16) & 0xff);
-        infoTag[7] = (byte) ((chunkSize >> 24) & 0xff);
-        infoTag[8] = 'I';
-        infoTag[9] = 'N';
-        infoTag[10] = 'F';
-        infoTag[11] = 'O';
-        infoTag[12] = 'I'; // fmt  chunk
-        infoTag[13] = 'A';
-        infoTag[14] = 'R';
-        infoTag[15] = 'T';
-        infoTag[16] = (byte) (metadataSize & 0xff);
-        infoTag[17] = (byte) ((metadataSize >> 8) & 0xff);
-        infoTag[18] = (byte) ((metadataSize >> 16) & 0xff);
-        infoTag[19] = (byte) ((metadataSize >> 24) & 0xff);
-
-        for (int i = 20; i < metadata.length() + 20; i++) {
-            infoTag[i] = (metadata.getBytes(StandardCharsets.US_ASCII))[i - 20];
-        }
-        for (int i = metadata.length() + 20; i < infoTag.length; i++) {
-            infoTag[i] = '\0';
-        }
-        return infoTag;
-    }
+//    public static byte[] convertToMetadata(String metadata) {
+//        //word align
+//        int padding = metadata.length() % 4;
+//        if (padding != 0) {
+//            padding = 4 - padding;
+//        }
+//        byte[] infoTag = new byte[metadata.length() + padding + 20];
+//
+//        int metadataSize = metadata.length() + padding;
+//        int chunkSize = 12 + metadataSize;
+//
+//        infoTag[0] = 'L';
+//        infoTag[1] = 'I';
+//        infoTag[2] = 'S';
+//        infoTag[3] = 'T';
+//        infoTag[4] = (byte) (chunkSize & 0xff);
+//        infoTag[5] = (byte) ((chunkSize >> 8) & 0xff);
+//        infoTag[6] = (byte) ((chunkSize >> 16) & 0xff);
+//        infoTag[7] = (byte) ((chunkSize >> 24) & 0xff);
+//        infoTag[8] = 'I';
+//        infoTag[9] = 'N';
+//        infoTag[10] = 'F';
+//        infoTag[11] = 'O';
+//        infoTag[12] = 'I'; // fmt  chunk
+//        infoTag[13] = 'A';
+//        infoTag[14] = 'R';
+//        infoTag[15] = 'T';
+//        infoTag[16] = (byte) (metadataSize & 0xff);
+//        infoTag[17] = (byte) ((metadataSize >> 8) & 0xff);
+//        infoTag[18] = (byte) ((metadataSize >> 16) & 0xff);
+//        infoTag[19] = (byte) ((metadataSize >> 24) & 0xff);
+//
+//        for (int i = 20; i < metadata.length() + 20; i++) {
+//            infoTag[i] = (metadata.getBytes(StandardCharsets.US_ASCII))[i - 20];
+//        }
+//        for (int i = metadata.length() + 20; i < infoTag.length; i++) {
+//            infoTag[i] = '\0';
+//        }
+//        return infoTag;
+//    }
 
     public void overwriteHeaderData() {
         RandomAccessFile fileAccessor = null;
@@ -410,101 +430,104 @@ public class WavFile implements Parcelable {
         }
     }
 
-    private boolean parseHeader() throws IOException {
-        if (mFile != null && mFile.length() >= 44) {
-            byte[] word = new byte[4];
-            RandomAccessFile raf = null;
-            try {
-                raf = new RandomAccessFile(mFile, "r");
-                raf.read(word);
-                String riff = new String(word, StandardCharsets.US_ASCII);
-                if (riff.compareTo("RIFF") == 0) {
-                    //raf.seek(4);
-                    raf.read(word);
-                    mTotalDataLength = littleEndianToDecimal(word);
-                    raf.read(word);
-                    String wave = new String(word, StandardCharsets.US_ASCII);
-                    if (wave.compareTo("WAVE") == 0) {
-                        raf.seek(40);
-                        raf.read(word);
-                        mTotalAudioLength = littleEndianToDecimal(word);
-                        return true;
-                    }
-                }
-            } finally {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    Logger.e(this.toString(), "IOException while closing stream", e);
-                    e.printStackTrace();
-                }
+    private boolean parseHeader() {
+        if (mFile != null && mFile.length() >= HEADER_SIZE) {
+            byte[] header = new byte[HEADER_SIZE];
+            try (RandomAccessFile raf = new RandomAccessFile(mFile, "r")) {
+                raf.read(header);
+                ByteBuffer bb = ByteBuffer.wrap(header);
+                bb.order(ByteOrder.LITTLE_ENDIAN);
+                //Skip over "RIFF"
+                bb.getInt();
+                mTotalDataLength = bb.getInt();
+                //Seek to the audio length field
+                bb.position(AUDIO_LENGTH_LOCATION);
+                mTotalAudioLength = bb.getInt();
+            } catch (FileNotFoundException e){
+                Logger.e(this.toString(), "File not found", e);
+                e.printStackTrace();
+            } catch (IOException e) {
+                Logger.e(this.toString(), "IOException while parsing header", e);
+                e.printStackTrace();
             }
         }
         return false;
     }
 
-    private byte[] parseInfo() throws IOException {
-        if (mFile != null && mFile.length() > 44) {
-            byte[] size = new byte[4];
-            RandomAccessFile raf = null;
-            try {
-                raf = new RandomAccessFile(mFile, "r");
-                raf.seek(4);
-                raf.read(size);
-                int fileSize = littleEndianToDecimal(size);
-                raf.seek(40);
-                raf.read(size);
-                int audioSize = littleEndianToDecimal(size);
-                //check if this is okay
-                raf.seek(44 + audioSize);
-                raf.read(size);
-                String tag = new String(size, StandardCharsets.US_ASCII);
-                if (tag.compareTo("LIST") == 0) {
-                    raf.seek(44 + audioSize + 16);
-                    raf.read(size);
-                    mMetadataLength = littleEndianToDecimal(size);
-                    byte[] metadata = new byte[mMetadataLength];
-                    raf.read(metadata);
-                    return metadata;
-                } else {
-                    Logger.e(this.toString(), "tag was: " + tag);
-                }
-            } finally {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    Logger.e(this.toString(), "IOException while closing stream", e);
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            Logger.e(this.toString(), "parse info failed! File not null is..." + (mFile != null) + " file length is..." + mFile.length());
-        }
-        return null;
-    }
+//    private byte[] parseInfo() throws IOException {
+//        if (mFile != null && mFile.length() > 44) {
+//            byte[] size = new byte[4];
+//            RandomAccessFile raf = null;
+//            try {
+//                raf = new RandomAccessFile(mFile, "r");
+//                raf.seek(4);
+//                raf.read(size);
+//                int fileSize = littleEndianToDecimal(size);
+//                raf.seek(40);
+//                raf.read(size);
+//                int audioSize = littleEndianToDecimal(size);
+//                //check if this is okay
+//                raf.seek(44 + audioSize);
+//                raf.read(size);
+//                String tag = new String(size, StandardCharsets.US_ASCII);
+//                if (tag.compareTo("LIST") == 0) {
+//                    raf.seek(44 + audioSize + 16);
+//                    raf.read(size);
+//                    mMetadataLength = littleEndianToDecimal(size);
+//                    byte[] metadata = new byte[mMetadataLength];
+//                    raf.read(metadata);
+//                    return metadata;
+//                } else {
+//                    Logger.e(this.toString(), "tag was: " + tag);
+//                }
+//            } finally {
+//                try {
+//                    raf.close();
+//                } catch (IOException e) {
+//                    Logger.e(this.toString(), "IOException while closing stream", e);
+//                    e.printStackTrace();
+//                }
+//            }
+//        } else {
+//            Logger.e(this.toString(), "parse info failed! File not null is..." + (mFile != null) + " file length is..." + mFile.length());
+//        }
+//        return null;
+//    }
 
-    public String getMetadata() throws JSONException {
+    public String getMetadataString() throws JSONException {
         if (mMetadata == null) {
             return "";
         }
         return mMetadata.toJSON().toString();
     }
 
-    public static JSONObject readTrackInfo(byte[] data) throws JSONException {
-        String decoded = new String(data, StandardCharsets.US_ASCII);
-        Logger.e("WavFile", decoded);
-        JSONObject json = new JSONObject(decoded);
-        return json;
+    public void addVerseMarker(int verseNumber, int position){
+        WavCue cue = new WavCue(String.valueOf(verseNumber), position);
+        mMetadata.addCue(cue);
+        try {
+            finishWrite(mTotalAudioLength);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    int littleEndianToDecimal(byte[] header) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(header);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        int value = byteBuffer.getInt();
-        return value;
+    public WavMetadata getMetadata(){
+        return mMetadata;
     }
 
-
+//    public static JSONObject readTrackInfo(byte[] data) throws JSONException {
+//        String decoded = new String(data, StandardCharsets.US_ASCII);
+//        Logger.e("WavFile", decoded);
+//        JSONObject json = new JSONObject(decoded);
+//        return json;
+//    }
+//
+//    int littleEndianToDecimal(byte[] header) {
+//        ByteBuffer byteBuffer = ByteBuffer.wrap(header);
+//        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+//        int value = byteBuffer.getInt();
+//        return value;
+//    }
 
     public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile) {
         File root = FileNameExtractor.getDirectoryFromProject(project, chapter);
@@ -650,8 +673,10 @@ public class WavFile implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mFile.getAbsolutePath());
-        String metadataString = mMetadata.toJSON().toString();
-        dest.writeString(metadataString);
+        dest.writeParcelable(mMetadata, 0);
+        dest.writeInt(mTotalAudioLength);
+        dest.writeInt(mTotalDataLength);
+        dest.writeInt(mMetadataLength);
     }
 
     public static final Parcelable.Creator<WavFile> CREATOR = new Parcelable.Creator<WavFile>() {

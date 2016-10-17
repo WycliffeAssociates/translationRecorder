@@ -1,8 +1,5 @@
 package wycliffeassociates.recordingapp.wav;
 
-import org.json.JSONException;
-
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,7 +9,8 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
-import static wycliffeassociates.recordingapp.wav.WavUtils.*;
+
+import static wycliffeassociates.recordingapp.wav.WavUtils.HEADER_SIZE;
 
 /**
  * Created by sarabiaj on 10/4/2016.
@@ -21,7 +19,7 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
 
     WavFile mFile;
     OutputStream mOutputStream;
-    long mAudioDataLength;
+    int mAudioDataLength;
 
     public WavOutputStream(WavFile target) throws FileNotFoundException{
         this(target, false);
@@ -78,7 +76,7 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
         raf.write(bb.array());
         bb.clear();
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        bb.putInt((int)mAudioDataLength);
+        bb.putInt(mAudioDataLength);
         raf.seek(40);
         raf.write(bb.array());
         raf.close();
