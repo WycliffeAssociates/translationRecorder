@@ -51,8 +51,8 @@ public class MetadataTest {
                     wos.write(0);
                 }
             }
-            wav.addVerseMarker(1, 0);
-            wav.addVerseMarker(2, 500);
+            wav.addMarker(1, 0);
+            wav.addMarker(2, 500);
             assertEquals(1000, wav.getTotalAudioLength());
             Bundle bundle = new Bundle();
             bundle.putParcelable("file", wav);
@@ -61,7 +61,7 @@ public class MetadataTest {
             meta = null;
             meta = new WavMetadata(project2, "35", "34", "45");
             wav = new WavFile(testFile2, meta);
-            wav.addVerseMarker(1, 0);
+            wav.addMarker(1, 0);
             testBundle(bundle);
             System.out.println(wav + " " + meta);
 
