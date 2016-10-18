@@ -30,6 +30,7 @@ import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.project.Chunks;
 import wycliffeassociates.recordingapp.wav.WavFile;
+import wycliffeassociates.recordingapp.wav.WavMetadata;
 
 public class RecordingScreen extends Activity implements InsertTaskFragment.Insert{
 
@@ -372,12 +373,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             manager.startTimer();
             isSaved = false;
             RecordingQueues.clearQueues();
-            try {
-                File file = FileNameExtractor.createFile(mProject, mChapter, Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse));
-                mNewRecording = WavFile.createNewWavFile(file, mProject, String.valueOf(mChapter), mStartVerse, mEndVerse);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            File file = FileNameExtractor.createFile(mProject, mChapter, Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse));
+            mNewRecording = new WavFile(file, new WavMetadata(mProject, String.valueOf(mChapter), mStartVerse, mEndVerse));
             startService(new Intent(this, WavRecorder.class));
             startService(WavFileWriter.getIntent(this, mNewRecording));
             manager.listenForRecording(false);
@@ -399,6 +396,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             isRecording = false;
             isPausedRecording = false;
             addTakeToDb();
+            mNewRecording.parseHeader();
             if(mInsertMode){
                 finalizeInsert(mLoadedWav, mNewRecording, mInsertLocation);
             } else {
@@ -468,8 +466,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void finalizeInsert(WavFile base, WavFile insertClip, int insertLoc){
         //need to reparse the sizes after recording; updates to the object aren't reflected due to parceling to the writing service
-        mNewRecording.parseChunkSizes();
-        mLoadedWav.parseChunkSizes();
+        mNewRecording.parseHeader();
+        mLoadedWav.parseHeader();
         mInserting = true;
         displayProgressDialog();
         writeInsert(base, insertClip, insertLoc);

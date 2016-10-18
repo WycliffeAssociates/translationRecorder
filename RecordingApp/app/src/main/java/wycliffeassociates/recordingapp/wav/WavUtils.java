@@ -14,10 +14,10 @@ public class WavUtils {
 
     private WavUtils(){}
 
-    public static long littleEndianToDecimal(byte[] header) {
+    public static int littleEndianToDecimal(byte[] header) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(header);
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        long value = byteBuffer.getLong();
+        int value = byteBuffer.getInt();
         return value;
     }
 

@@ -21,7 +21,6 @@ import java.util.List;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 import static wycliffeassociates.recordingapp.wav.WavUtils.AUDIO_LENGTH_LOCATION;
@@ -46,13 +45,6 @@ public class WavFile implements Parcelable {
     private int mTotalAudioLength = 0;
     private int mTotalDataLength = 0;
     private int mMetadataLength = 0;
-
-    public static WavFile createNewWavFile(File file, Project project, String chapter, String startVerse, String endVerse) throws IOException {
-        WavFile wavFile = new WavFile(file);
-        wavFile.setMetadata(project, chapter, startVerse, endVerse);
-        wavFile.overwriteHeaderData();
-        return wavFile;
-    }
 
     /**
      * Loads an existing wav file and parses metadata it may have
@@ -154,8 +146,8 @@ public class WavFile implements Parcelable {
     }
 
     public void initializeWavFile() {
+        mFile.getParentFile().mkdirs();
         try (FileOutputStream fos = new FileOutputStream(mFile, false)) {
-            mFile.getParentFile().mkdirs();
 
             mTotalDataLength = HEADER_SIZE - 8;
             mTotalAudioLength = 0;
@@ -430,7 +422,7 @@ public class WavFile implements Parcelable {
         }
     }
 
-    private boolean parseHeader() {
+    public void parseHeader() {
         if (mFile != null && mFile.length() >= HEADER_SIZE) {
             byte[] header = new byte[HEADER_SIZE];
             try (RandomAccessFile raf = new RandomAccessFile(mFile, "r")) {
@@ -451,7 +443,6 @@ public class WavFile implements Parcelable {
                 e.printStackTrace();
             }
         }
-        return false;
     }
 
 //    private byte[] parseInfo() throws IOException {
@@ -501,11 +492,22 @@ public class WavFile implements Parcelable {
         return mMetadata.toJSON().toString();
     }
 
-    public void addVerseMarker(int verseNumber, int position){
-        WavCue cue = new WavCue(String.valueOf(verseNumber), position);
+    /**
+     * Adds a marker to the wav file at the given position
+     * Does not write to the file until commit is called.
+     * @param label string for the label of the marker
+     * @param position block index of the PCM array ex 44100 for 1 second
+     * @return a reference to this to allow chaining with commit
+     */
+    public WavFile addMarker(int label, int position){
+        WavCue cue = new WavCue(String.valueOf(label), position);
         mMetadata.addCue(cue);
+        return this;
+    }
+
+    public void commit(){
         try {
-            finishWrite(mTotalAudioLength);
+            writeMetadata(mTotalAudioLength);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -637,10 +639,6 @@ public class WavFile implements Parcelable {
                 bos.write(bisBase.read());
                 oldWritten++;
             }
-
-            //No metadata yet
-            WavFileWriter.overwriteHeaderData(result, oldAudioLength + newAudioLength, 0);
-            Logger.e("WavFile", "overwrote header");
             if (result.length() != AudioInfo.HEADER_SIZE + oldAudioLength + newAudioLength) {
                 Logger.e("WavFile", "ERROR: resulting filesize not right. length is " + result.length() + " should be " + (AudioInfo.HEADER_SIZE + oldAudioLength + newAudioLength));
                 Logger.e("WavFile", "new audio written was " + newWritten + " newAudioLength is " + newAudioLength + " old audio written was " + oldWritten + " oldAudioLength is " + oldAudioLength);

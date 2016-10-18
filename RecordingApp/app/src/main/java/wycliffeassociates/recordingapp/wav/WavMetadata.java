@@ -15,6 +15,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
@@ -69,7 +70,12 @@ public class WavMetadata implements Parcelable{
                 //read the length of the audio data
                 raf.seek(AUDIO_LENGTH_LOCATION);
                 raf.read(word);
-                long audioLength = littleEndianToDecimal(word);
+                int audioLength = littleEndianToDecimal(word);
+                //audio length field incorrect
+                //TODO: #664
+                if(audioLength <= 0 || audioLength > file.length() - HEADER_SIZE){
+                    throw new RuntimeException("Audio data field reported to be " + audioLength + " while the file length is " + file.length());
+                }
                 //seek to the end of the header + audio data to parse metadata
                 raf.seek(audioLength + HEADER_SIZE);
                 boolean endOfFile = (raf.getFilePointer() >= file.length())? true : false;
@@ -81,8 +87,16 @@ public class WavMetadata implements Parcelable{
                     chunkName = Arrays.copyOf(word, word.length);
                     //Get chunk size
                     raf.read(word);
-                    long chunkSize = littleEndianToDecimal(word);
-                    byte[] chunk = new byte[(int)chunkSize];
+                    int chunkSize = littleEndianToDecimal(word);
+                    byte[] chunk;
+                    if(chunkSize <= file.length() - raf.getFilePointer()) {
+                         chunk = new byte[chunkSize];
+                    } else {
+                        //TODO: #664
+                        throw new RuntimeException("Chunk size larger than remaining file length; " +
+                                "attempting to allocate " + chunkSize + " with remaining file size of " +
+                                (file.length() - raf.getFilePointer()));
+                    }
                     raf.read(chunk);
                     if(labelsMatch("LIST", chunkName)){
                         parseList(chunk);
@@ -106,18 +120,23 @@ public class WavMetadata implements Parcelable{
      */
     private void parseList(byte[] listChunk) {
         ByteBuffer chunk = ByteBuffer.wrap(listChunk);
+        chunk.order(ByteOrder.LITTLE_ENDIAN);
         while (chunk.position() < chunk.capacity()) {
             //read the subchunk name
             byte[] chunkName = new byte[4];
             chunk.get(chunkName);
-            //read the size of the subchunk
-            int chunkSize = chunk.getInt();
-            //grab the subchunk
-            byte[] subChunk = new byte[chunkSize];
-            chunk.get(subChunk);
             if (labelsMatch("adtl", chunkName)) {
+                //read the size of the subchunk
+                byte[] subChunk = new byte[chunk.remaining()];
+                //grab the subchunk
+                chunk.get(subChunk);
                 parseLabels(subChunk);
             } else if (labelsMatch("IART", chunkName)) {
+                //read the size of the subchunk
+                int chunkSize = chunk.getInt();
+                //grab the subchunk
+                byte[] subChunk = new byte[chunkSize];
+                chunk.get(subChunk);
                 parseTrMetadata(subChunk);
             } //else ignore and move to the next subchunk
         }
@@ -144,6 +163,7 @@ public class WavMetadata implements Parcelable{
             return;
         }
         ByteBuffer chunk = ByteBuffer.wrap(cueChunk);
+        chunk.order(ByteOrder.LITTLE_ENDIAN);
 
         //get number of cues
         int numCues = chunk.getInt();
@@ -177,6 +197,7 @@ public class WavMetadata implements Parcelable{
         }
         byte[] word = new byte[4];
         ByteBuffer chunk = ByteBuffer.wrap(labelChunk);
+        chunk.order(ByteOrder.LITTLE_ENDIAN);
 
         while (chunk.position() < chunk.capacity()) {
             chunk.get(word);
@@ -273,8 +294,9 @@ public class WavMetadata implements Parcelable{
     private void parseMarkers(JSONObject markers){
         try {
             mCuePoints = new HashMap<>();
-            while(markers.keys().hasNext()){
-                String s = markers.keys().next();
+            Iterator<String> keys = markers.keys();
+            while(keys.hasNext()){
+                String s = keys.next();
                 long position = markers.getLong(s);
                 WavCue cue = new WavCue(s, position);
                 mCuePoints.put(Integer.parseInt(s), cue);
@@ -327,7 +349,7 @@ public class WavMetadata implements Parcelable{
             //Cue id
             bb.putInt(id);
             //Play order position- ignore, no playlists
-            bb.putInt(0);
+            bb.putInt((int)mCuePoints.get(id).getLocation());
             //Data chunk label
             bb.put(new String("data").getBytes(StandardCharsets.US_ASCII));
             //chunk start- ignore, using standard data chunk
@@ -349,7 +371,7 @@ public class WavMetadata implements Parcelable{
         bb.putInt(size);
         bb.put(new String("adtl").getBytes(StandardCharsets.US_ASCII));
         for(Integer i : mCuePoints.keySet()) {
-            bb.put(new String("LIST").getBytes(StandardCharsets.US_ASCII));
+            bb.put(new String("ltxt").getBytes(StandardCharsets.US_ASCII));
             bb.putInt(20);
             bb.putInt(i);
             bb.putInt(0);

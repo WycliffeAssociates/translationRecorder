@@ -350,7 +350,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     try {
                         File dir = Project.getProjectDirectory(mProject);
                         File toTemp = new File(dir, "temp.wav");
-                        mManager.writeCut(toTemp, to, from, pd);
+                        mManager.writeCut(toTemp, from, pd);
                         to.delete();
                         toTemp.renameTo(to);
                         ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
