@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.wav;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,24 +20,43 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
 
     WavFile mFile;
     OutputStream mOutputStream;
+    BufferedOutputStream mBos;
     int mAudioDataLength;
+    boolean mBuffered = false;
 
-    public WavOutputStream(WavFile target) throws FileNotFoundException{
-        this(target, false);
+    public static final int BUFFERED = 1;
+
+    public WavOutputStream(WavFile target) throws FileNotFoundException {
+        this(target, false, 0);
+    }
+
+    public WavOutputStream(WavFile target, int flag) throws FileNotFoundException {
+        this(target, false, flag);
     }
 
     public WavOutputStream(WavFile target, boolean append) throws FileNotFoundException {
+        this(target, append, 0);
+    }
+
+    public WavOutputStream(WavFile target, boolean append, int flag) throws FileNotFoundException {
         mFile = target;
-        if(mFile.getFile().length() == 0){
+        if (mFile.getFile().length() == 0) {
             mFile.initializeWavFile();
         }
         mAudioDataLength = target.getTotalAudioLength();
         //Truncate the metadata for writing
-        try (FileChannel fc = new FileOutputStream(target.getFile(), append).getChannel().truncate(mAudioDataLength + HEADER_SIZE)) {
+        //if appending, then truncate metadata following the audio length, otherwise truncate after the header
+        int whereToTruncate = (append) ? mAudioDataLength : 0;
+        try (FileChannel fc = new FileOutputStream(target.getFile(), true).getChannel().truncate(whereToTruncate + HEADER_SIZE)) {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mOutputStream = new FileOutputStream(target.getFile(), append);
+        //always need to use append to continue writing after the header rather than overwriting it
+        mOutputStream = new FileOutputStream(target.getFile(), true);
+        if (flag == BUFFERED) {
+            mBos = new BufferedOutputStream(mOutputStream);
+            mBuffered = true;
+        }
     }
 
 //    public WavOutputStream(WavFile file, boolean buffered) throws FileNotFoundException {
@@ -49,17 +69,35 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
 
     @Override
     public void write(int oneByte) throws IOException {
-        mOutputStream.write(oneByte);
+        if (mBuffered) {
+            mBos.write(oneByte);
+        } else {
+            mOutputStream.write(oneByte);
+        }
         mAudioDataLength++;
-
+    }
+    
+    @Override
+    public void flush() throws IOException {
+        if (mBuffered) {
+            mBos.flush();
+        }
+        mOutputStream.flush();
     }
 
     public void write(byte[] bytes) throws IOException {
-        mOutputStream.write(bytes);
+        if (mBuffered) {
+            mBos.write(bytes);
+        } else {
+            mOutputStream.write(bytes);
+        }
         mAudioDataLength += bytes.length;
     }
 
     public void close() throws IOException {
+        if (mBuffered) {
+            mBos.flush();
+        }
         mOutputStream.flush();
         mOutputStream.close();
         mFile.finishWrite(mAudioDataLength);
@@ -70,7 +108,7 @@ public class WavOutputStream extends OutputStream implements Closeable, AutoClos
         long totalDataSize = mFile.getFile().length() - 36;
         ByteBuffer bb = ByteBuffer.allocate(4);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        bb.putInt((int)totalDataSize);
+        bb.putInt((int) totalDataSize);
         RandomAccessFile raf = new RandomAccessFile(mFile.getFile(), "rw");
         raf.seek(4);
         raf.write(bb.array());

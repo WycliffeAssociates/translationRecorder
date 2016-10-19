@@ -1,10 +1,13 @@
 package wycliffeassociates.recordingapp;
 
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,123 +29,112 @@ import static org.junit.Assert.assertEquals;
 public class MetadataTest {
 
     WavFile wavFile;
+    File testFile;
+    Project project;
+    String chapter = "01";
+    String startVerse = "01";
+    String endVerse = "02";
+
+    File testFile2;
+    Project project2;
+    String chapter2 = "014";
+    String startVerse2 = "01";
+    String endVerse2 = "01";
+
     @Rule
     public ActivityTestRule<MainMenu> mActivityRule = new ActivityTestRule<>(
             MainMenu.class);
 
     @Before
-    public void setUp() {}
+    public void setUp() {
+        try {
+            testFile = File.createTempFile("test", "wav");
+            testFile2 = File.createTempFile("test2", "wav");
+
+            deleteFileIfExists(testFile);
+            deleteFileIfExists(testFile2);
+
+            project = new Project("en", "", "01", "gen", "ulb", "chunk", "ot", "", "");
+            project2 = new Project("cmn", "", "543", "eph", "reg", "verse", "nt", "", "");
+        } catch (IOException e) {
+            Assert.fail("Test failed : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteFileIfExists(File file){
+        if(file.exists() && file.length() != 0){
+            file.delete();
+        }
+    }
 
     @Test
     public void testMetadata() {
         try {
-            File testFile = File.createTempFile("test", "wav");
-            File testFile2 = File.createTempFile("test2", "wav");
-            if(testFile.exists() && testFile.length() != 0){
-                testFile.delete();
-            }
-            Project project = new Project("en", "", "01", "gen", "ulb", "chunk", "ot", "", "");
-            Project project2 = new Project("cmn", "", "543", "eph", "reg", "verse", "nt", "", "");
-            WavMetadata meta = new WavMetadata(project, "01", "01", "02");
+            WavMetadata meta = new WavMetadata(project, chapter, startVerse, endVerse);
+            JSONObject preWav = meta.toJSON();
             WavFile wav = new WavFile(testFile, meta);
             assertEquals(wav.getFile().length(), 44);
             try (WavOutputStream wos = new WavOutputStream(wav)) {
                 for (int i = 0; i < 1000; i++) {
-                    wos.write(0);
+                    wos.write(i);
                 }
             }
-            wav.addMarker(1, 0);
-            wav.addMarker(2, 500);
+            JSONObject postWav = wav.getMetadata().toJSON();
+            //Test: may need to modify the comparejson method
+            compareJson(preWav, postWav);
+            wav.addMarker("1", 0);
+            wav.addMarker("2", 500);
+
+            //Test
             assertEquals(1000, wav.getTotalAudioLength());
+
+            //Try passing in via a bundle
             Bundle bundle = new Bundle();
-            bundle.putParcelable("file", wav);
-            System.out.println("pause");
+            Parcel parcel = Parcel.obtain();
+            parcel.writeParcelable(wav, 0);
+            parcel.setDataPosition(0);
             wav = null;
             meta = null;
-            meta = new WavMetadata(project2, "35", "34", "45");
+            meta = new WavMetadata(project2, chapter2, startVerse2, endVerse2);
             wav = new WavFile(testFile2, meta);
-            wav.addMarker(1, 0);
-            testBundle(bundle);
-            System.out.println(wav + " " + meta);
+            wav.addMarker("1", 0);
 
-
-
-
-//            byte[] headerBuffer = new byte[44];
-//            FileOutputStream fos = new FileOutputStream(testFile);
-//            fos.write(headerBuffer);
-//            fos.close();
-//            wavFile = new WavFile(testFile);
-//            wavFile.setMetadata(project, "1", "1", "1");
-//            String metadata = wavFile.getMetadata();
-//            System.out.println(metadata);
-//            int size = wavFile.writeMetadata();
-//            WavFileWriter.overwriteHeaderData(testFile, 44, size);
-//            wavFile = new WavFile(testFile);
-//            String parsedMetadata = wavFile.getMetadata();
-//            assertEquals(parsedMetadata, metadata);
-//            assertEquals(wavFile.getTotalMetadataLength() % 4, 0);
-//        } catch (JSONException e){
-//            Assert.fail("Test failed : " + e.getMessage());
+            //Test
+            testParcel(parcel, project, chapter, startVerse, endVerse);
         } catch (IOException e) {
-            Assert.fail("Test failed : " + e.getMessage());
         }
     }
 
-    public void testBundle(Bundle bundle){
-        WavFile parceled = (WavFile) bundle.get("file");
-        System.out.println(parceled);
+    public void compareJson(JSONObject one, JSONObject two){
+        try {
+            assertEquals(one.getString("anthology"), two.getString("anthology"));
+            assertEquals(one.getString("language"), two.getString("language"));
+            assertEquals(one.getString("version"), two.getString("version"));
+            assertEquals(one.getString("slug"), two.getString("slug"));
+            assertEquals(one.getString("book_number"), two.getString("book_number"));
+            assertEquals(one.getString("mode"), two.getString("mode"));
+            assertEquals(one.getString("chapter"), two.getString("chapter"));
+            assertEquals(one.getString("startv"), two.getString("startv"));
+            assertEquals(one.getString("endv"), two.getString("endv"));
+            assertEquals(one.has("markers"), two.has("markers"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    @Test
-    public void testWavFile(){
-//        try{
-////            File testFile = File.createTempFile("test1", "wav");
-////            byte[] headerBuffer = new byte[]{1,2,3,4};
-////            FileOutputStream fos = new FileOutputStream(testFile);
-////            fos.write(headerBuffer);
-////            fos.close();
-////            System.out.println(testFile.length());
-////            wavFile = new WavFile(testFile);
-////            System.out.println(testFile.length());
-////            RandomAccessFile raf = new RandomAccessFile(testFile, "r");
-////            raf.seek(44);
-////            byte[] compare = new byte[headerBuffer.length];
-////            raf.read(compare);
-////            for(int i = 0; i < headerBuffer.length; i++) {
-////                assertEquals(headerBuffer[i], compare[i]);
-////            }
-////            assertEquals(wavFile.getTotalAudioLength(), 4);
-////            assertEquals(wavFile.getTotalDataLength(), testFile.length() - 8);
-////            assertEquals(wavFile.getTotalMetadataLength(), 0);
-////            assertEquals(wavFile.getMetadata(), "");
-////
-////            Project p1 = new Project("aaa", "aaa","aaa","aaa","aaa","aaa","aaa","aaa","aaa");
-////            //wavFile.setMetadata(p1);
-////            wavFile.writeMetadata();
-////            String metadataString =  "{\"project\":\"aaa\",\"language\":\"aaa\",\"source\":\"aaa\",\"slug\":\"aaa\",\"book_number\":\"aaa\",\"mode\":\"aaa\",\"startv\":\"\",\"endv\":\"\"}";
-////            assertEquals(wavFile.getMetadata(), metadataString);
-////            assertEquals(wavFile.getTotalAudioLength(), 4);
-////            assertEquals(wavFile.getTotalDataLength(), testFile.length() - 8);
-////            assertEquals(wavFile.getTotalMetadataLength(), metadataString.length() + 20 + getWordAlignmentPadding(metadataString.length()));
-////            assertEquals(wavFile.getTotalMetadataLength() % 4, 0);
-////
-////            Project p2 = new Project("", "","","","","","","","");
-////            wavFile.setMetadata(p2);
-////            wavFile.writeMetadata();
-////            metadataString = "{\"project\":\"\",\"language\":\"\",\"source\":\"\",\"slug\":\"\",\"book_number\":\"\",\"mode\":\"\",\"startv\":\"\",\"endv\":\"\"}";
-////            assertEquals(wavFile.getMetadata(), metadataString);
-////            //assertEquals(wavFile.getTotalMetadataLength(), (new String("{\"project\":\"\",\"language\":\"en\",\"source\":\"\",\"slug\":\"\",\"book_number\":\"\",\"mode\":\"\",\"startv\":\"\",\"endv\":\"\"}")).length());
-////            assertEquals(wavFile.getTotalAudioLength(), 4);
-////            assertEquals(wavFile.getTotalDataLength(), testFile.length() - 8);
-////            assertEquals(wavFile.getTotalMetadataLength(), metadataString.length() + 20 + getWordAlignmentPadding(metadataString.length()));
-////            assertEquals(wavFile.getTotalMetadataLength() % 4, 0);
-//
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        } catch (JSONException e){
-//            e.printStackTrace();
-//        }
+    public void testParcel(Parcel parcel, Project project, String chapter, String startVerse, String endVerse){
+        WavFile parceled = WavFile.CREATOR.createFromParcel(parcel);
+        WavMetadata metadata = parceled.getMetadata();
+        assertEquals(project.getAnthology(), metadata.getAnthology());
+        assertEquals(project.getMode(), metadata.getMode());
+        assertEquals(project.getSlug(), metadata.getSlug());
+        assertEquals(project.getTargetLanguage(), metadata.getLanguage());
+        assertEquals(project.getBookNumber(), metadata.getBookNumber());
+        assertEquals(project.getVersion(), metadata.getVersion());
+        assertEquals(chapter, metadata.getChapter());
+        assertEquals(startVerse, metadata.getStartVerse());
+        assertEquals(endVerse, metadata.getEndVerse());
     }
 
     public int getWordAlignmentPadding(int length){

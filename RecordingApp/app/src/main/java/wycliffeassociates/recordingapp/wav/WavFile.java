@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.AudioInfo;
@@ -499,8 +501,8 @@ public class WavFile implements Parcelable {
      * @param position block index of the PCM array ex 44100 for 1 second
      * @return a reference to this to allow chaining with commit
      */
-    public WavFile addMarker(int label, int position){
-        WavCue cue = new WavCue(String.valueOf(label), position);
+    public WavFile addMarker(String label, int position){
+        WavCue cue = new WavCue(label, position);
         mMetadata.addCue(cue);
         return this;
     }
@@ -594,73 +596,75 @@ public class WavFile implements Parcelable {
     }
 
     public static WavFile insertWavFile(WavFile base, WavFile insert, int insertIndex) throws IOException, JSONException {
-        File result = null;
-        FileInputStream fisBase = null;
-        BufferedInputStream bisBase = null;
-        FileInputStream fisInsert = null;
-        BufferedInputStream bisInsert = null;
-        FileOutputStream fos = null;
-        BufferedOutputStream bos = null;
+        File result = new File(base.getFile().getParentFile(),"temp.wav");
+        WavFile resultWav = new WavFile(result, base.getMetadata());
 
-        try {
-            result = new File(base.getFile().getAbsolutePath() + "temp.wav");
+        long start = System.currentTimeMillis();
 
-            fisBase = new FileInputStream(base.getFile());
-            bisBase = new BufferedInputStream(fisBase);
+        try (
+            FileInputStream fisBase = new FileInputStream(base.getFile());
+            FileInputStream fisInsert = new FileInputStream(insert.getFile());
 
-            fisInsert = new FileInputStream(insert.getFile());
-            bisInsert = new BufferedInputStream(fisInsert);
-
-            fos = new FileOutputStream(result);
-            bos = new BufferedOutputStream(fos);
-
+            WavOutputStream wos = new WavOutputStream(resultWav, 1);
+        ) {
+            MappedByteBuffer baseBuffer = fisBase.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, base.getTotalAudioLength() + HEADER_SIZE);
+            MappedByteBuffer insertBuffer = fisInsert.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, insert.getTotalAudioLength() + HEADER_SIZE);
             int oldAudioLength = base.getTotalAudioLength();
             int newAudioLength = insert.getTotalAudioLength();
 
             int newWritten = 0;
             int oldWritten = 0;
 
-            for (int i = 0; i < AudioInfo.HEADER_SIZE; i++) {
-                bos.write(bisBase.read());
+            int increment = 1024 * 4;
+            byte[] bytes = new byte[increment];
+            //Logger.e("WavFile", "wrote header");
+            for (int i = 0; i < insertIndex; i+=increment) {
+                if(insertIndex - i <= increment){
+                    increment = insertIndex-i;
+                    bytes = new byte[increment];
+                }
+                baseBuffer.get(bytes);
+                wos.write(bytes);
+                oldWritten+=increment;
             }
-            Logger.e("WavFile", "wrote header");
-            for (int i = 0; i < insertIndex; i++) {
-                bos.write(bisBase.read());
-                oldWritten++;
+            wos.flush();
+            //Logger.e("WavFile", "wrote before insert");
+            increment = 1024 * 4;
+            bytes = new byte[increment];
+            for (int i = 0; i < newAudioLength; i+=increment) {
+                if(newAudioLength-i <= increment){
+                    increment = newAudioLength-i;
+                    bytes = new byte[increment];
+                }
+                insertBuffer.get(bytes);
+                wos.write(bytes);
+                newWritten+=increment;
             }
-            Logger.e("WavFile", "wrote before insert");
-            fisInsert.skip(AudioInfo.HEADER_SIZE);
-            for (int i = 0; i < newAudioLength; i++) {
-                bos.write(bisInsert.read());
-                newWritten++;
+            wos.flush();
+            //Logger.e("WavFile", "wrote insert");
+            increment = 1024 * 4;
+            bytes = new byte[increment];
+            for (int i = insertIndex; i < oldAudioLength; i+=increment) {
+                if(oldAudioLength - i <= increment){
+                    increment = oldAudioLength-i;
+                    bytes = new byte[increment];
+                }
+                baseBuffer.get(bytes);
+                wos.write(bytes);
+                oldWritten+=increment;
             }
-            Logger.e("WavFile", "wrote insert");
-            for (int i = insertIndex; i < oldAudioLength; i++) {
-                bos.write(bisBase.read());
-                oldWritten++;
-            }
+            wos.flush();
             if (result.length() != AudioInfo.HEADER_SIZE + oldAudioLength + newAudioLength) {
                 Logger.e("WavFile", "ERROR: resulting filesize not right. length is " + result.length() + " should be " + (AudioInfo.HEADER_SIZE + oldAudioLength + newAudioLength));
                 Logger.e("WavFile", "new audio written was " + newWritten + " newAudioLength is " + newAudioLength + " old audio written was " + oldWritten + " oldAudioLength is " + oldAudioLength);
             }
-        } finally {
-            try {
-                bos.close();
-                fos.close();
-                bisInsert.close();
-                fisInsert.close();
-                bisBase.close();
-                fisBase.close();
-                fisInsert.close();
-            } catch (IOException e) {
-                Logger.e("Insert", "IOException while closing streams", e);
-                e.printStackTrace();
-            }
+            baseBuffer = null;
+            insertBuffer = null;
+            Runtime.getRuntime().gc();
         }
+        System.out.println("Insert took: " + (System.currentTimeMillis() - start) + "ms");
 
-        WavFile resultWavFile = new WavFile(result, insert.getMetadata());
-
-        return resultWavFile;
+        return resultWav;
     }
 
     @Override

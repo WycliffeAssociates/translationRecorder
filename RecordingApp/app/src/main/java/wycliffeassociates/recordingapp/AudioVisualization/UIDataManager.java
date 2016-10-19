@@ -185,21 +185,19 @@ public class UIDataManager {
         Logger.w(this.toString(), "Rewriting file to disk due to cuts");
         pd.setProgress(0);
         WavMetadata metadata = wavFile.getMetadata();
-        int metadataLength = wavFile.getTotalMetadataLength();
         int audioLength = wavFile.getTotalAudioLength();
         WavFile toWav = new WavFile(to, metadata);
 
-        try (WavOutputStream wos = new WavOutputStream(toWav)) {
-
-            System.out.println("Done writing the header");
-            int percent = (int)Math.round((buffer.capacity()) /100.0);
+        try (WavOutputStream wos = new WavOutputStream(toWav, WavOutputStream.BUFFERED)) {
+            int percent = (int)Math.round((buffer.capacity()-mCutOp.getSizeCut()) /100.0);
             int count = percent;
             //may need to be -1?
-            for(int i = 0; i < audioLength-1; i++){
+            for(int i = 0; i < audioLength; i++){
                 int skip = mCutOp.skipLoc(i, false);
                 if(skip != -1){
                     i = skip;
                 }
+                //ensure no mis-alignment or out of bounds as a result of the skip
                 if(i >= audioLength){
                     if(i%2 != 0 && i-1 < audioLength){
                         i--;
