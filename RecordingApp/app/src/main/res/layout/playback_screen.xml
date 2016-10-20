@@ -18,7 +18,7 @@
         >
 
         <ImageButton
-            android:id="@+id/btn_exit_v_marker_mode"
+            android:id="@+id/btn_exit_verse_marker_mode"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginEnd="@dimen/default_padding_m"
@@ -29,7 +29,7 @@
             />
 
         <TextView
-            android:id="@+id/v_marker_count"
+            android:id="@+id/verse_marker_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
@@ -40,7 +40,7 @@
             />
 
         <TextView
-            android:id="@+id/v_marker_label"
+            android:id="@+id/verse_marker_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/default_padding_s"
@@ -126,7 +126,7 @@
             android:gravity="center_vertical|right">
 
             <ImageButton
-                android:id="@+id/btn_enter_v_marker_mode"
+                android:id="@+id/btn_enter_verse_marker_mode"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginStart="24dp"
@@ -468,7 +468,7 @@
             />
 
         <ImageButton
-            android:id="@+id/btn_verser_marker_done"
+            android:id="@+id/btn_verse_marker_done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

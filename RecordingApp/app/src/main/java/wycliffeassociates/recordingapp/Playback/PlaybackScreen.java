@@ -113,8 +113,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mEndMarker = (MarkerView) findViewById(R.id.endmarker);
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
-        mVerseMarkerCount = (TextView) findViewById(R.id.v_marker_count);
-        mVerseMarkerLabel = (TextView) findViewById(R.id.v_marker_label);
+        mVerseMarkerCount = (TextView) findViewById(R.id.verse_marker_count);
+        mVerseMarkerLabel = (TextView) findViewById(R.id.verse_marker_label);
         mLangView = (TextView) findViewById(R.id.file_language);
         mSourceView = (TextView) findViewById(R.id.file_project);
         mBookView = (TextView) findViewById(R.id.file_book);
@@ -125,8 +125,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         // NOTE: Look at Android Studio's warning. Why is the same view converted and captured as
         //    two different things? (Refering to this and mSrcAudioPlayback)
         mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
-        mEnterVerseMarkerMode = (ImageButton) findViewById(R.id.btn_enter_v_marker_mode);
-        mExitVerseMarkerMode = (ImageButton) findViewById(R.id.btn_exit_v_marker_mode);
+        mEnterVerseMarkerMode = (ImageButton) findViewById(R.id.btn_enter_verse_marker_mode);
+        mExitVerseMarkerMode = (ImageButton) findViewById(R.id.btn_exit_verse_marker_mode);
         mRateBtn = (FourStepImageView) findViewById(R.id.btn_rate);
         mRerecordBtn = (ImageButton) findViewById(R.id.btn_rerecord);
         mInsertBtn = (ImageButton) findViewById(R.id.btn_insert_record);
@@ -141,7 +141,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mClearBtn = (ImageButton) findViewById(R.id.btn_clear);
         mSaveBtn = (ImageButton) findViewById(R.id.btn_save);
         mDropVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_drop_verse_marker);
-        mCompleteVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_verser_marker_done);
+        mCompleteVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_verse_marker_done);
     }
 
     private void initializeViews() {
@@ -537,11 +537,11 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     undo();
                     break;
                 }
-                case R.id.btn_enter_v_marker_mode: {
+                case R.id.btn_enter_verse_marker_mode: {
                     enterVerseMarkerMode();
                     break;
                 }
-                case R.id.btn_exit_v_marker_mode: {
+                case R.id.btn_exit_verse_marker_mode: {
                     exitVerseMarkerMode();
                     break;
                 }
@@ -555,7 +555,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     }
                     break;
                 }
-                case R.id.btn_verser_marker_done: {
+                case R.id.btn_verse_marker_done: {
                     saveVerseMarkerPosition();
                     exitVerseMarkerMode();
                     break;
