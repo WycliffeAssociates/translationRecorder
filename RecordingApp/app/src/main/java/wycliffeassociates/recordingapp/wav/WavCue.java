@@ -5,14 +5,14 @@ package wycliffeassociates.recordingapp.wav;
  */
 public class WavCue {
     String mLabel = null;
-    Long mLocation = null;
+    Integer mLocation = null;
 
-    public WavCue(String label, long location) {
+    public WavCue(String label, int location) {
         mLabel = label;
         mLocation = location;
     }
 
-    public WavCue(long loc) {
+    public WavCue(int loc) {
         mLocation = loc;
     }
 
@@ -20,19 +20,19 @@ public class WavCue {
         mLabel = label;
     }
 
-    public long getLoctionInMilliseconds() {
-        return (long) (mLocation / 44.1);
+    public int getLoctionInMilliseconds() {
+        return (int) (mLocation / 44.1);
     }
 
     public String getLabel() {
         return mLabel;
     }
 
-    public long getLocation() {
+    public int getLocation() {
         return mLocation;
     }
 
-    public void setLocation(long loc) {
+    public void setLocation(int loc) {
         mLocation = loc;
     }
 

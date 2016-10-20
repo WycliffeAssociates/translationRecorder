@@ -537,61 +537,44 @@ public class WavFile implements Parcelable {
         File root = FileNameExtractor.getDirectoryFromProject(project, chapter);
         File chap = new File(root, "chapter.wav");
         chap.delete();
-        WavFile chapterWav = new WavFile(chap);
-        FileOutputStream os = null;
-        BufferedOutputStream bos = null;
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        try {
-            os = new FileOutputStream(chap, true);
-            bos = new BufferedOutputStream(os);
-            System.out.println(chap.length());
-            for (WavFile wav : toCompile) {
-                try {
+        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        String startVerse = toCompile.get(0).getMetadata().getStartVerse();
+        String endVerse = toCompile.get(toCompile.size()-1).getMetadata().getEndVerse();
+        WavFile chapterWav = new WavFile(chap, new WavMetadata(project, chapterString, startVerse, endVerse));
+        for (WavFile wav : toCompile) {
+            try (WavOutputStream wos = new WavOutputStream(chapterWav, true, WavOutputStream.BUFFERED)){
+                List<WavCue> cues = wav.getMetadata().getCuePoints();
+                for(WavCue cue : cues){
+                    chapterWav.addMarker(cue.getLabel(), chapterWav.getTotalAudioLength() / 2 + cue.getLocation());
+                }
+                chapterWav.addMarker("Verse + " + wav.getMetadata().getStartVerse(), chapterWav.getTotalAudioLength()/2);
+                try (FileInputStream fis = new FileInputStream(wav.getFile());
+                    BufferedInputStream bis = new BufferedInputStream(fis)){
                     byte[] buffer = new byte[5096];
                     long sizeRemaining = wav.getTotalAudioLength();
-                    fis = new FileInputStream(wav.getFile());
-                    bis = new BufferedInputStream(fis);
-                    bis.skip(44);
+                    bis.skip(WavFile.HEADER_SIZE);
                     int len;
                     while (sizeRemaining > 0) {
                         if (buffer.length < sizeRemaining) {
                             buffer = new byte[(int) sizeRemaining];
                         }
                         len = bis.read(buffer);
-                        bos.write(buffer);
+                        wos.write(buffer);
                         if (len == -1) {
                             break;
                         }
                         sizeRemaining -= len;
                     }
-                } finally {
-                    try {
-                        bis.close();
-                        fis.close();
-                    } catch (IOException e) {
-                        Logger.e("WavFile Compile Chapter", "IOException while closing input streams", e);
-                        e.printStackTrace();
-                    }
                 }
-            }
-        } catch (FileNotFoundException e) {
-            Logger.e("WavFile Compiler Chapter", "FileNotFound Exception", e);
-            e.printStackTrace();
-        } catch (IOException e) {
-            Logger.e("WavFile Compiler Chapter", "IOException", e);
-            e.printStackTrace();
-        } finally {
-            try {
-                bos.flush();
-                bos.close();
-                os.close();
-                chapterWav.overwriteHeaderData();
+            } catch (FileNotFoundException e) {
+                Logger.e("WavFile Compiler Chapter", "FileNotFound Exception", e);
+                e.printStackTrace();
             } catch (IOException e) {
-                Logger.e("WavFile Compile Chapter", "IOException while closing output streams", e);
+                Logger.e("WavFile Compiler Chapter", "IOException", e);
                 e.printStackTrace();
             }
         }
+
         return chapterWav;
     }
 

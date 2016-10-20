@@ -33,9 +33,6 @@ public class WavFileWriter extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         final WavFile audioFile = intent.getParcelableExtra(KEY_WAV_FILE);
-        audioFile.addMarker("Verse 1", 44100);
-        audioFile.addMarker("Verse 2", 88200);
-        audioFile.addMarker("Verse 3", 132300);
         String name = audioFile.getFile().getName();
         nameWithoutExtension = name.substring(0, name.lastIndexOf("."));
         Thread writingThread = new Thread(new Runnable() {

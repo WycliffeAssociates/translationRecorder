@@ -13,9 +13,11 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -80,6 +82,14 @@ public class WavMetadata implements Parcelable {
         } else {
             return "";
         }
+    }
+
+    public List<WavCue> getCuePoints(){
+        List<WavCue> cues = new ArrayList<>();
+        for(WavCue cue : mCuePoints.values()){
+            cues.add(cue);
+        }
+        return cues;
     }
 
     private void parseMetadata(File file) {
@@ -310,7 +320,7 @@ public class WavMetadata implements Parcelable {
             Iterator<String> keys = markers.keys();
             while (keys.hasNext()) {
                 String s = keys.next();
-                long position = markers.getLong(s);
+                int position = markers.getInt(s);
                 WavCue cue = new WavCue(s, position);
                 addCue(cue);
             }
