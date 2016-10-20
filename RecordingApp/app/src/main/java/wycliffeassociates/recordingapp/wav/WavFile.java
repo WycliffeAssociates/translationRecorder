@@ -547,7 +547,7 @@ public class WavFile implements Parcelable {
                 for(WavCue cue : cues){
                     chapterWav.addMarker(cue.getLabel(), chapterWav.getTotalAudioLength() / 2 + cue.getLocation());
                 }
-                chapterWav.addMarker("Verse + " + wav.getMetadata().getStartVerse(), chapterWav.getTotalAudioLength()/2);
+                chapterWav.addMarker("Verse " + wav.getMetadata().getStartVerse(), chapterWav.getTotalAudioLength()/2);
                 try (FileInputStream fis = new FileInputStream(wav.getFile());
                     BufferedInputStream bis = new BufferedInputStream(fis)){
                     byte[] buffer = new byte[5096];
