@@ -23,9 +23,9 @@ public class Project implements Parcelable{
     String mTargetLanguage;
     String mSourceLanguage;
     String mSlug;
-    String mSource;
+    String mVersion;
     String mMode;
-    String mProject;
+    String mAnthology;
     String mContributors;
     String mBookNumber;
     String mSourceAudioPath;
@@ -33,26 +33,26 @@ public class Project implements Parcelable{
     public Project(){
     }
 
-    public Project(String tLang, String sLang, String bookNum, String slug, String src, String mode, String project, String contributors, String sourceAudioPath){
+    public Project(String tLang, String sLang, String bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath){
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
         mSlug = slug;
         mBookNumber = bookNum;
-        mSource = src;
+        mVersion = version;
         mMode = mode;
-        mProject = project;
+        mAnthology = project;
         mContributors = contributors;
         mSourceAudioPath = sourceAudioPath;
     }
 
-    public Project(String tLang, String sLang, int bookNum, String slug, String src, String mode, String project, String contributors, String sourceAudioPath){
+    public Project(String tLang, String sLang, int bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath){
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
         mSlug = slug;
         mBookNumber = String.valueOf(bookNum);
-        mSource = src;
+        mVersion = version;
         mMode = mode;
-        mProject = project;
+        mAnthology = project;
         mContributors = contributors;
         mSourceAudioPath = sourceAudioPath;
     }
@@ -63,12 +63,12 @@ public class Project implements Parcelable{
         String sLang = pref.getString(Settings.KEY_PREF_LANG_SRC, "");
         String bookNum = pref.getString(Settings.KEY_PREF_BOOK_NUM, "");
         String slug = pref.getString(Settings.KEY_PREF_BOOK, "");
-        String src = pref.getString(Settings.KEY_PREF_SOURCE, "");
+        String version = pref.getString(Settings.KEY_PREF_VERSION, "");
         String mode = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "");
-        String project = pref.getString(Settings.KEY_PREF_PROJECT, "");
+        String project = pref.getString(Settings.KEY_PREF_ANTHOLOGY, "");
         String contributors = pref.getString(Settings.KEY_PROFILE, "");
         String sourceAudioPath = pref.getString(Settings.KEY_PREF_SRC_LOC, "");
-        return new Project(tLang, sLang, bookNum, slug, src, mode, project, contributors, sourceAudioPath);
+        return new Project(tLang, sLang, bookNum, slug, version, mode, project, contributors, sourceAudioPath);
     }
 
     public static void loadProjectIntoPreferences(Context ctx, Project project){
@@ -77,15 +77,15 @@ public class Project implements Parcelable{
         pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
         pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
         pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
-        pref.edit().putString(Settings.KEY_PREF_SOURCE, project.getSource()).commit();
+        pref.edit().putString(Settings.KEY_PREF_VERSION, project.getVersion()).commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
-        pref.edit().putString(Settings.KEY_PREF_PROJECT, project.getProject()).commit();
+        pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
         pref.edit().putString(Settings.KEY_PROFILE, project.getContributors()).commit();
         pref.edit().putString(Settings.KEY_PREF_SRC_LOC, project.getSourceAudioPath()).commit();
     }
 
     public static File getProjectDirectory(Project project){
-        File projectDir = new File(getLanguageDirectory(project), project.getSource() +
+        File projectDir = new File(getLanguageDirectory(project), project.getVersion() +
                                     "/" + project.getSlug());
         return projectDir;
     }
@@ -97,7 +97,7 @@ public class Project implements Parcelable{
     }
 
     public boolean isOBS(){
-        if(getProject().compareTo("obs") == 0){
+        if(getAnthology().compareTo("obs") == 0){
             return true;
         } else {
             return false;
@@ -116,8 +116,8 @@ public class Project implements Parcelable{
         return (mSlug == null)? "" : mSlug;
     }
 
-    public String getSource(){
-        return (mSource == null)? "" : mSource;
+    public String getVersion(){
+        return (mVersion == null)? "" : mVersion;
     }
 
     public String getMode(){
@@ -132,8 +132,8 @@ public class Project implements Parcelable{
         return (mBookNumber == null)? "" : mBookNumber;
     }
 
-    public String getProject(){
-        return (mProject == null)? "" : mProject;
+    public String getAnthology(){
+        return (mAnthology == null)? "" : mAnthology;
     }
 
     public String getSourceAudioPath(){
@@ -148,8 +148,8 @@ public class Project implements Parcelable{
         mSourceLanguage = source;
     }
 
-    public void setSource(String source){
-        mSource = source;
+    public void setVersion(String version){
+        mVersion = version;
     }
 
     public void setSlug(String slug){
@@ -161,7 +161,7 @@ public class Project implements Parcelable{
     }
 
     public void setProject(String project){
-        mProject = project;
+        mAnthology = project;
     }
 
     public void setContributors(String contributors){
@@ -188,7 +188,7 @@ public class Project implements Parcelable{
         if(project.isOBS()){
             sourceDir = new File(langDir, "obs");
         } else {
-            sourceDir = new File(langDir, project.getSource());
+            sourceDir = new File(langDir, project.getVersion());
         }
         if(sourceDir.exists() && sourceDir.listFiles().length == 0){
             sourceDir.delete();
@@ -210,9 +210,9 @@ public class Project implements Parcelable{
         dest.writeString(mTargetLanguage);
         dest.writeString(mSourceLanguage);
         dest.writeString(mSlug);
-        dest.writeString(mSource);
+        dest.writeString(mVersion);
         dest.writeString(mMode);
-        dest.writeString(mProject);
+        dest.writeString(mAnthology);
         dest.writeString(mContributors);
         dest.writeString(mBookNumber);
         dest.writeString(mSourceAudioPath);
@@ -231,9 +231,9 @@ public class Project implements Parcelable{
         mTargetLanguage = in.readString();
         mSourceLanguage = in.readString();
         mSlug = in.readString();
-        mSource = in.readString();
+        mVersion = in.readString();
         mMode = in.readString();
-        mProject = in.readString();
+        mAnthology = in.readString();
         mContributors = in.readString();
         mBookNumber = in.readString();
         mSourceAudioPath = in.readString();

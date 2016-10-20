@@ -148,8 +148,8 @@ public class MainMenu extends Activity{
         pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
         pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
         pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
-        pref.edit().putString(Settings.KEY_PREF_SOURCE, project.getSource()).commit();
-        pref.edit().putString(Settings.KEY_PREF_PROJECT, project.getProject()).commit();
+        pref.edit().putString(Settings.KEY_PREF_VERSION, project.getVersion()).commit();
+        pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
         pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
 

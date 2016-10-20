@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.wav.WavFile;
 
 /**
  * Created by sarabiaj on 3/10/2016.
@@ -50,12 +51,14 @@ public class InsertTaskFragment extends Fragment {
                     File vis = new File(AudioInfo.pathToVisFile + "/" + FileNameExtractor.getNameWithoutExtention(insertClip.getFile())+".vis");
                     vis.delete();
                     result.getFile().renameTo(insertClip.getFile());
+                    mCtx.insertCallback(new WavFile(insertClip.getFile()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e){
                     e.printStackTrace();
+                } catch (SecurityException e) {
+                    e.printStackTrace();
                 }
-                mCtx.insertCallback(insertClip);
             }
         });
         write.start();

@@ -78,9 +78,9 @@ public class ExportSourceAudioTask extends Task {
     }
 
     private File stageFilesForArchive(Project project, File input, File stagingRoot) {
-        File root = new File(stagingRoot, project.getTargetLanguage() + "_" + project.getSource() + "_" + project.getSlug());
+        File root = new File(stagingRoot, project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getSlug());
         File lang = new File(root, project.getTargetLanguage());
-        File version = new File(lang, project.getSource());
+        File version = new File(lang, project.getVersion());
         File book = new File(version, project.getSlug());
         book.mkdirs();
         for (File c : input.listFiles()) {

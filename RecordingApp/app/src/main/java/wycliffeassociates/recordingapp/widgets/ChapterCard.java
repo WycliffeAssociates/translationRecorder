@@ -20,8 +20,8 @@ import wycliffeassociates.recordingapp.ProjectManager.dialogs.CheckingDialog;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.CompileDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.wav.WavFile;
 
 /**
  * Created by leongv on 8/15/2016.

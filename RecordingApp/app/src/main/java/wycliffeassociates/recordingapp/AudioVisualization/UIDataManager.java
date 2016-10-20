@@ -5,11 +5,7 @@ import android.app.ProgressDialog;
 import android.view.View;
 import android.widget.TextView;
 
-import org.json.JSONException;
-
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 
@@ -20,10 +16,11 @@ import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
-import wycliffeassociates.recordingapp.Recording.WavFile;
-import wycliffeassociates.recordingapp.Recording.WavFileWriter;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.WavFileLoader;
+import wycliffeassociates.recordingapp.wav.WavFile;
+import wycliffeassociates.recordingapp.wav.WavMetadata;
+import wycliffeassociates.recordingapp.wav.WavOutputStream;
 
 /**
  * Created by sarabiaj on 9/10/2015.
@@ -184,32 +181,23 @@ public class UIDataManager {
         updateUI();
     }
 
-    public void writeCut(File to, final File original, final WavFile wavFile, ProgressDialog pd) throws IOException {
+    public void writeCut(File to, final WavFile wavFile, ProgressDialog pd) throws IOException {
         Logger.w(this.toString(), "Rewriting file to disk due to cuts");
         pd.setProgress(0);
+        WavMetadata metadata = wavFile.getMetadata();
+        int audioLength = wavFile.getTotalAudioLength();
+        WavFile toWav = new WavFile(to, metadata);
 
-        try {
-            byte[] metadata = WavFile.convertToMetadata(wavFile.getMetadata());
-            int metadataLength = wavFile.getTotalMetadataLength();
-            int audioLength = wavFile.getTotalAudioLength();
-
-            FileOutputStream fos = new FileOutputStream(to);
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            System.out.println("About to output the header");
-            for(int i = 0; i < AudioInfo.HEADER_SIZE; i++){
-                bos.write(mappedAudioFile.get(i));
-            }
-            System.out.println("Done writing the header");
-            int percent = (int)Math.round((buffer.capacity()) /100.0);
+        try (WavOutputStream wos = new WavOutputStream(toWav, WavOutputStream.BUFFERED)) {
+            int percent = (int)Math.round((buffer.capacity()-mCutOp.getSizeCut()) /100.0);
             int count = percent;
-            long sizeAfterCut = 0;
             //may need to be -1?
-            for(int i = 0; i < audioLength-1; i++){
+            for(int i = 0; i < audioLength; i++){
                 int skip = mCutOp.skipLoc(i, false);
                 if(skip != -1){
                     i = skip;
                 }
-                sizeAfterCut++;
+                //ensure no mis-alignment or out of bounds as a result of the skip
                 if(i >= audioLength){
                     if(i%2 != 0 && i-1 < audioLength){
                         i--;
@@ -217,26 +205,14 @@ public class UIDataManager {
                         break;
                     }
                 }
-                bos.write(buffer.get(i));
+                wos.write(buffer.get(i));
                 if(count <= 0) {
                     pd.incrementProgressBy(1);
                     count = percent;
                 }
                 count--;
             }
-            for(int i = 0; i < metadata.length; i++){
-                bos.write(metadata[i]);
-            }
-
-            bos.flush();
-            bos.close();
-            fos.flush();
-            fos.close();
-
-            WavFileWriter.overwriteHeaderData(to.getAbsolutePath(), to.length()-metadataLength-AudioInfo.HEADER_SIZE, metadataLength);
             mCutOp.clear();
-        } catch (JSONException e){
-            e.printStackTrace();
         }
         return;
     }

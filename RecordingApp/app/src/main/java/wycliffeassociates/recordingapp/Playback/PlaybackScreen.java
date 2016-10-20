@@ -27,7 +27,7 @@ import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
@@ -136,7 +136,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private void initializeViews() {
         mLangView.setText(mProject.getTargetLanguage().toUpperCase());
         if (!mProject.isOBS()) {
-            mSourceView.setText(mProject.getSource().toUpperCase());
+            mSourceView.setText(mProject.getVersion().toUpperCase());
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             mBookView.setText(db.getBookName(mProject.getSlug()));
         } else {
@@ -350,7 +350,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     try {
                         File dir = Project.getProjectDirectory(mProject);
                         File toTemp = new File(dir, "temp.wav");
-                        mManager.writeCut(toTemp, to, from, pd);
+                        mManager.writeCut(toTemp, from, pd);
                         to.delete();
                         toTemp.renameTo(to);
                         ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
@@ -369,7 +369,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                 if (intent == null) {
                     finish();
                 } else {
-                    intent.putExtra("old_name", to.getAbsolutePath());
+                    WavFile result = new WavFile(to);
+                    intent.putExtra(RecordingScreen.KEY_WAV_FILE, result);
                     startActivity(intent);
                     finish();
                 }

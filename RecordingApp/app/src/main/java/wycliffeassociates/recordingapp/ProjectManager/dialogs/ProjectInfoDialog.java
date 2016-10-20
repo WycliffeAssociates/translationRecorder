@@ -71,8 +71,8 @@ public class ProjectInfoDialog extends DialogFragment {
         String language = db.getLanguageName(languageCode);
         String bookCode = mProject.getSlug();
         String book = db.getBookName(bookCode);
-        String translation = mProject.getSource();
-        if (mProject.isOBS()) {
+        String translation = mProject.getVersion();
+        if(mProject.isOBS()){
             bookCode = "obs";
             book = "Open Bible Stories";
             translationType.setVisibility(View.GONE);

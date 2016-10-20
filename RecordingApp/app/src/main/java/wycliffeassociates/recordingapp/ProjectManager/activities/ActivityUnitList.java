@@ -108,6 +108,8 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         // Set its animator
         mUnitList.setItemAnimator(new DefaultItemAnimator());
         prepareUnitCardData();
+
+        db.close();
     }
 
     @Override
