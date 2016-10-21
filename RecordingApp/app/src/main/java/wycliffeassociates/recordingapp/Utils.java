@@ -3,8 +3,11 @@ package wycliffeassociates.recordingapp;
 import android.app.Activity;
 import android.content.Context;
 import android.view.inputmethod.InputMethodManager;
+import android.view.View;
 
 import java.io.File;
+
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 7/1/2016.
@@ -33,5 +36,33 @@ public class Utils {
     // http://stackoverflow.com/questions/5725892/how-to-capitalize-the-first-letter-of-word-in-a-string-using-java
     public static String capitalizeFirstLetter(String string) {
         return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+    }
+
+    public static void showView(View view) {
+        if (view == null) {
+            Logger.i("Utils.showView()", "A null view is trying to be shown");
+            return;
+        }
+        view.setVisibility(View.VISIBLE);
+    }
+
+    public static void showView(View[] views) {
+        for (View v : views) {
+            showView(v);
+        }
+    }
+
+    public static void hideView(View view) {
+        if (view == null) {
+            Logger.i("Utils.hideView()", "A null view is trying to be hid");
+            return;
+        }
+        view.setVisibility(View.GONE);
+    }
+
+    public static void hideView(View[] views) {
+        for (View v : views) {
+            hideView(v);
+        }
     }
 }

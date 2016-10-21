@@ -68,7 +68,7 @@ public class UIDataManager {
             start.setManager(this);
             end.setManager(this);
         }
-        timerView = (TextView)ctx.findViewById(R.id.timerView);
+        timerView = (TextView)ctx.findViewById(R.id.timer_view);
         this.ctx = ctx;
 
         Logger.w(this.toString(), "passing cut to WavPlayer and Canvases");
@@ -137,8 +137,8 @@ public class UIDataManager {
 
     public void enablePlay(){
         if(playbackOrRecording == PLAYBACK_MODE) {
-            ctx.findViewById(R.id.btnPause).setVisibility(View.INVISIBLE);
-            ctx.findViewById(R.id.btnPlay).setVisibility(View.VISIBLE);
+            ctx.findViewById(R.id.btn_pause).setVisibility(View.INVISIBLE);
+            ctx.findViewById(R.id.btn_play).setVisibility(View.VISIBLE);
         }
     }
 
@@ -250,7 +250,7 @@ public class UIDataManager {
         wavVis = new WavVisualizer(this, buffer, preprocessedBuffer, mainWave.getWidth(), mainWave.getHeight(), minimap.getWidth(), mCutOp);
         minimap.init(wavVis.getMinimap(minimap.getHeight(), minimap.getWidth()));
 //        wavVis = new WavVisualizer(buffer, preprocessedBuffer, mainWave.getMeasuredWidth(), mainWave.getMeasuredHeight());
-        durationView = (TextView)ctx.findViewById(R.id.durationView);
+        durationView = (TextView)ctx.findViewById(R.id.duration_view);
         setDurationView();
     }
 
