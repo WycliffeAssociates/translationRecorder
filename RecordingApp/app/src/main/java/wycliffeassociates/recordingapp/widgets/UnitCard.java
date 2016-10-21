@@ -268,7 +268,8 @@ public class UnitCard {
 
     public void refreshTakeCount() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        if (db.unitExists(mProject, mChapter, mFirstVerse)) {
+        //Need to check both chapter and unit first
+        if (db.chapterExists(mProject, mChapter) && db.unitExists(mProject, mChapter, mFirstVerse)) {
             int unitId = db.getUnitId(mProject, mChapter, mFirstVerse);
             mTakeCount = db.getTakeCount(unitId);
             db.close();
