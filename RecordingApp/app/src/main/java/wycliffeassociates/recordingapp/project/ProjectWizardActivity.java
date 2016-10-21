@@ -27,6 +27,9 @@ import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
 public class ProjectWizardActivity extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener {
 
     protected static final String mProjectKey = "project_key";
+    protected static final String mCurrentFragmentKey = "current_fragment_key";
+    protected static final String mLastFragmentKey = "last_fragment_key";
+    protected static final String mSearchTextKey = "search_text_key";
     protected Project mProject;
     protected ScrollableListFragment mFragment;
     protected String mSearchText;
@@ -68,7 +71,27 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(mProjectKey, mProject);
+        outState.putInt(mCurrentFragmentKey, mCurrentFragment);
+        outState.putInt(mLastFragmentKey, mLastFragment);
+        outState.putString(mSearchTextKey, mSearchText);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mProject = savedInstanceState.getParcelable(mProjectKey);
+        mCurrentFragment = savedInstanceState.getInt(mCurrentFragmentKey);
+        mLastFragment = savedInstanceState.getInt(mLastFragmentKey);
+        mSearchText = savedInstanceState.getString(mSearchTextKey);
+        displayFragment();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.language_menu, menu);
         return true;

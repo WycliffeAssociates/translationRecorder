@@ -22,7 +22,12 @@ import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
 /**
  * Created by sarabiaj on 5/25/2016.
  */
-public class SourceAudioActivity extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener{
+public class SourceAudioActivity extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener {
+    private static final String mSetLanguageKey = "set_language_key";
+    private static final String mSetLocationKey = "set_location_key";
+    private static final String mProjectKey = "project_key";
+    private static final String mUserSearchingLanguageKey = "searching_language_key";
+    private static final String mSearchTextKey = "search_text_key";
     private Project mProject;
     private Button btnSourceLanguage;
     private Button btnSourceLocation;
@@ -70,9 +75,49 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(mProjectKey, mProject);
+        outState.putBoolean(mSetLanguageKey, mSetLanguage);
+        outState.putBoolean(mSetLocationKey, mSetLocation);
+        outState.putString(mSearchTextKey, mSearchText);
+        outState.putBoolean(mUserSearchingLanguageKey, (mFragment != null)? true : false);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mProject = savedInstanceState.getParcelable(mProjectKey);
+        mSetLanguage = savedInstanceState.getBoolean(mSetLanguageKey);
+        mSetLocation = savedInstanceState.getBoolean(mSetLocationKey);
+        if (mSetLocation) {
+            btnSourceLocation.setText("Source Location: " + mProject.getSourceAudioPath());
+        }
+        if (mSetLanguage) {
+            btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
+        }
+        if(savedInstanceState.getBoolean(mUserSearchingLanguageKey)){
+            mSearchText = savedInstanceState.getString(mSearchTextKey);
+            setSourceLanguage();
+        } else {
+            continueIfBothSet();
+        }
+    }
+
+    @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        //if the source language fragment is showing, then close that, otherwise proceed with back press
+        if (findViewById(R.id.fragment_container).getVisibility() == View.VISIBLE) {
+            findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);
+        } else {
+            super.onBackPressed();
+            finish();
+        }
     }
 
     @Override
@@ -83,14 +128,14 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu){
+    public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         //if(mFragment instanceof LanguageListFragment) {
         menu.findItem(R.id.action_update).setVisible(false);
 //        } else {
 //            menu.findItem(R.id.action_update).setVisible(false);
 //        }
-        SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -102,13 +147,15 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
             @Override
             public boolean onQueryTextChange(String s) {
                 mSearchText = s;
-                mFragment.onSearchQuery(s);
+                if(mFragment != null) {
+                    mFragment.onSearchQuery(s);
+                }
                 return true;
             }
         });
         searchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
-        if(mSearchText != null){
+        if (mSearchText != null) {
             searchViewAction.setQuery(mSearchText, true);
         }
         return true;
@@ -118,23 +165,31 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                this.finish();
-                return true;
+                if (findViewById(R.id.fragment_container).getVisibility() == View.VISIBLE) {
+                    findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);
+                } else {
+                    finish();
+                    return true;
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public void setSourceLanguage(){
+    public void setSourceLanguage() {
+        if (mFragment != null) {
+            mFragmentManager.beginTransaction().remove((Fragment) mFragment).commit();
+        }
         mFragment = new ScrollableListFragment.Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(this), this)).setSearchHint("Choose Source Language:").build();
-        mFragmentManager.beginTransaction().add(R.id.fragment_container, (Fragment)mFragment).commit();
+        mFragmentManager.beginTransaction().add(R.id.fragment_container, (Fragment) mFragment).commit();
+        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
     }
 
-    public void setSourceLocation(){
+    public void setSourceLocation() {
         startActivityForResult(new Intent(this, SelectSourceDirectory.class), REQUEST_SOURCE_LOCATION);
     }
 
-    public void proceed(){
+    public void proceed() {
         Intent intent = new Intent();
         intent.putExtra(Project.PROJECT_EXTRA, mProject);
         setResult(RESULT_OK, intent);
@@ -162,8 +217,8 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
         }
     };
 
-    public void continueIfBothSet(){
-        if(mSetLocation && mSetLanguage){
+    public void continueIfBothSet() {
+        if (mSetLocation && mSetLanguage) {
             btnContinue.setText("Continue");
         }
     }
@@ -171,8 +226,8 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_SOURCE_LOCATION){
-            if(data.hasExtra(SelectSourceDirectory.SOURCE_LOCATION)){
+        if (requestCode == REQUEST_SOURCE_LOCATION) {
+            if (data.hasExtra(SelectSourceDirectory.SOURCE_LOCATION)) {
                 mProject.setSourceAudioPath(data.getStringExtra(SelectSourceDirectory.SOURCE_LOCATION));
                 btnSourceLocation.setText("Source Location: " + mProject.getSourceAudioPath());
                 mSetLocation = true;
@@ -184,10 +239,10 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     @Override
     public void onItemClick(Object result) {
         Utils.closeKeyboard(this);
-        mProject.setSourceLanguage(((Language)result).getCode());
+        mProject.setSourceLanguage(((Language) result).getCode());
         btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
         mSetLanguage = true;
-        mFragmentManager.beginTransaction().remove((Fragment)mFragment).commit();
+        mFragmentManager.beginTransaction().remove((Fragment) mFragment).commit();
         findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);
         continueIfBothSet();
     }
