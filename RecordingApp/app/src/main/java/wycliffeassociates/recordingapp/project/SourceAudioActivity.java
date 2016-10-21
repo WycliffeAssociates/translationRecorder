@@ -16,6 +16,7 @@ import android.widget.Button;
 
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
 
 /**
@@ -182,6 +183,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
 
     @Override
     public void onItemClick(Object result) {
+        Utils.closeKeyboard(this);
         mProject.setSourceLanguage(((Language)result).getCode());
         btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
         mSetLanguage = true;

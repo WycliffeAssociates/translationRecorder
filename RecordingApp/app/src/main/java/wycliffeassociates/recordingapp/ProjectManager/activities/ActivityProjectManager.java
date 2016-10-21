@@ -25,7 +25,6 @@ import android.widget.ListView;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
@@ -317,8 +316,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, mProjectToExport.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
                         mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...", false);
                     } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
