@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.wav.WavFile;
 
 /**
@@ -48,7 +49,7 @@ public class InsertTaskFragment extends Fragment {
                     int insertLoc = timeToIndex(insertTime);
                     WavFile result = WavFile.insertWavFile(base, insertClip, insertLoc);
                     insertClip.getFile().delete();
-                    File vis = new File(AudioInfo.pathToVisFile + "/" + FileNameExtractor.getNameWithoutExtention(insertClip.getFile())+".vis");
+                    File vis = new File(Utils.VISUALIZATION_DIR, FileNameExtractor.getNameWithoutExtention(insertClip.getFile())+".vis");
                     vis.delete();
                     result.getFile().renameTo(insertClip.getFile());
                     mCtx.insertCallback(new WavFile(insertClip.getFile()));

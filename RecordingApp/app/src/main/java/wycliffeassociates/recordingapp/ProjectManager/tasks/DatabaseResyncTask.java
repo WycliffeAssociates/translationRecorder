@@ -28,9 +28,11 @@ public class DatabaseResyncTask extends Task {
         List<File> files = new LinkedList<>();
         //files shouldn't be at this level, and the app currently could not handle adding them in this way.
         //skip the visualization folder
-        for(File f : dirs){
-            if(f.isDirectory() && !f.getName().equals("Visualization")){
-                files.addAll(getFilesInDirectory(f.listFiles()));
+        if(dirs != null && dirs.length > 0) {
+            for (File f : dirs) {
+                if (f.isDirectory() && !f.getName().equals("Visualization")) {
+                    files.addAll(getFilesInDirectory(f.listFiles()));
+                }
             }
         }
         return files;

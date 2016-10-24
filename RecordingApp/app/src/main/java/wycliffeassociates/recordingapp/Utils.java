@@ -2,8 +2,8 @@ package wycliffeassociates.recordingapp;
 
 import android.app.Activity;
 import android.content.Context;
-import android.view.inputmethod.InputMethodManager;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
 
@@ -15,6 +15,8 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 public class Utils {
     private Utils() {
     }
+
+    public static File VISUALIZATION_DIR;
 
     public static void closeKeyboard(Activity ctx) {
         InputMethodManager inputManager = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);

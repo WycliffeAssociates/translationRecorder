@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.wav.WavOutputStream;
 
@@ -40,7 +41,7 @@ public class WavFileWriter extends Service {
             public void run() {
                 boolean stopped = false;
 
-                try (WavOutputStream rawAudio = new WavOutputStream(audioFile, true)){
+                try (WavOutputStream rawAudio = new WavOutputStream(audioFile, true)) {
                     //WARNING DO NOT USE BUFFERED OUTPUT HERE, WILL CAUSE END LINE TO BE OFF IN PLAYBACK
                     while (!stopped) {
                         RecordingMessage message = RecordingQueues.writingQueue.take();
@@ -87,11 +88,11 @@ public class WavFileWriter extends Service {
                 boolean stoppedRecording = false;
                 ArrayList<Byte> byteArrayList = new ArrayList<>();
                 try {
-                    File dir = new File(AudioInfo.fileDir + "/Visualization");
+                    File dir = Utils.VISUALIZATION_DIR;
                     if (!dir.exists()) {
                         dir.mkdirs();
                     }
-                    File file = new File(AudioInfo.pathToVisFile + nameWithoutExtension + ".vis");
+                    File file = new File(dir, nameWithoutExtension + ".vis");
                     if (!file.exists()) {
                         file.getParentFile().mkdirs();
                         file.createNewFile();

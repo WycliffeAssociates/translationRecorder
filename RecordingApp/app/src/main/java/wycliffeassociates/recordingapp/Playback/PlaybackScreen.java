@@ -16,7 +16,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 
-import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
@@ -24,13 +23,13 @@ import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.Utils;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 /**
@@ -374,7 +373,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                         db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));
-                        File toVis = new File(AudioInfo.pathToVisFile, oldName + ".vis");
+                        File toVis = new File(Utils.VISUALIZATION_DIR, oldName + ".vis");
                         toVis.delete();
                     } catch (IOException e) {
                         e.printStackTrace();
