@@ -93,12 +93,8 @@ public class SplashScreen extends Activity {
         try {
             Book[] books = parse.pullBooks();
             Language[] languages = parse.pullLangNames();
-            for (Book book : books) {
-                db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
-            }
-            for (Language language : languages) {
-                db.addLanguage(language.getCode(), language.getName());
-            }
+            db.addBooks(books);
+            db.addLanguages(languages);
             System.out.println("Proof: en is " + db.getLanguageName("en"));
         } catch (JSONException e) {
             e.printStackTrace();

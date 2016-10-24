@@ -15,6 +15,8 @@ import java.util.List;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.project.Book;
+import wycliffeassociates.recordingapp.project.Language;
 
 import static wycliffeassociates.recordingapp.database.ProjectContract.BookEntry;
 import static wycliffeassociates.recordingapp.database.ProjectContract.ChapterEntry;
@@ -880,6 +882,32 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             c.moveToFirst();
             int takeId = c.getInt(0);
             setSelectedTake(unitId, takeId);
+        }
+    }
+
+    public void addLanguages(Language[] languages) {
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        try {
+            for (Language l : languages) {
+                addLanguage(l.getCode(), l.getName());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void addBooks(Book[] books){
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for(Book b : books){
+                addBook(b.getSlug(), b.getName(), b.getAnthology(), b.getOrder());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 }
