@@ -433,7 +433,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mPd = null;
         }
     }
-    
+
     @Override
     public void delegateExport(Export exp) {
         exp.setFragmentContext(mExportTaskFragment);
