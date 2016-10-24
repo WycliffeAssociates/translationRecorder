@@ -16,7 +16,7 @@ import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 /**
  * Created by sarabiaj on 5/10/2016.
  */
-public class Project implements Parcelable{
+public class Project implements Parcelable {
 
     public static final String PROJECT_EXTRA = "project_extra";
 
@@ -30,10 +30,10 @@ public class Project implements Parcelable{
     String mBookNumber;
     String mSourceAudioPath;
 
-    public Project(){
+    public Project() {
     }
 
-    public Project(String tLang, String sLang, String bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath){
+    public Project(String tLang, String sLang, String bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath) {
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
         mSlug = slug;
@@ -45,7 +45,7 @@ public class Project implements Parcelable{
         mSourceAudioPath = sourceAudioPath;
     }
 
-    public Project(String tLang, String sLang, int bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath){
+    public Project(String tLang, String sLang, int bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath) {
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
         mSlug = slug;
@@ -57,7 +57,7 @@ public class Project implements Parcelable{
         mSourceAudioPath = sourceAudioPath;
     }
 
-    public static Project getProjectFromPreferences(Context ctx){
+    public static Project getProjectFromPreferences(Context ctx) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
         String tLang = pref.getString(Settings.KEY_PREF_LANG, "");
         String sLang = pref.getString(Settings.KEY_PREF_LANG_SRC, "");
@@ -71,7 +71,7 @@ public class Project implements Parcelable{
         return new Project(tLang, sLang, bookNum, slug, version, mode, project, contributors, sourceAudioPath);
     }
 
-    public static void loadProjectIntoPreferences(Context ctx, Project project){
+    public static void loadProjectIntoPreferences(Context ctx, Project project) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
         pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
         pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
@@ -84,115 +84,115 @@ public class Project implements Parcelable{
         pref.edit().putString(Settings.KEY_PREF_SRC_LOC, project.getSourceAudioPath()).commit();
     }
 
-    public static File getProjectDirectory(Project project){
+    public static File getProjectDirectory(Project project) {
         File projectDir = new File(getLanguageDirectory(project), project.getVersion() +
-                                    "/" + project.getSlug());
+                "/" + project.getSlug());
         return projectDir;
     }
 
-    public static File getLanguageDirectory(Project project){
+    public static File getLanguageDirectory(Project project) {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         File projectDir = new File(root, project.getTargetLanguage());
         return projectDir;
     }
 
-    public boolean isOBS(){
-        if(getAnthology().compareTo("obs") == 0){
+    public boolean isOBS() {
+        if (getAnthology().compareTo("obs") == 0) {
             return true;
         } else {
             return false;
         }
     }
 
-    public String getTargetLanguage(){
-        return (mTargetLanguage == null)? "" : mTargetLanguage;
+    public String getTargetLanguage() {
+        return (mTargetLanguage == null) ? "" : mTargetLanguage;
     }
 
-    public String getSourceLanguage(){
-        return (mSourceLanguage == null)? "" : mSourceLanguage;
+    public String getSourceLanguage() {
+        return (mSourceLanguage == null) ? "" : mSourceLanguage;
     }
 
-    public String getSlug(){
-        return (mSlug == null)? "" : mSlug;
+    public String getSlug() {
+        return (mSlug == null) ? "" : mSlug;
     }
 
-    public String getVersion(){
-        return (mVersion == null)? "" : mVersion;
+    public String getVersion() {
+        return (mVersion == null) ? "" : mVersion;
     }
 
-    public String getMode(){
-        return (mMode == null)? "" : mMode;
+    public String getMode() {
+        return (mMode == null) ? "" : mMode;
     }
 
-    public String getContributors(){
-        return (mContributors == null)? "" : mContributors;
+    public String getContributors() {
+        return (mContributors == null) ? "" : mContributors;
     }
 
-    public String getBookNumber(){
-        return (mBookNumber == null)? "" : mBookNumber;
+    public String getBookNumber() {
+        return (mBookNumber == null) ? "" : mBookNumber;
     }
 
-    public String getAnthology(){
-        return (mAnthology == null)? "" : mAnthology;
+    public String getAnthology() {
+        return (mAnthology == null) ? "" : mAnthology;
     }
 
-    public String getSourceAudioPath(){
-        return (mSourceAudioPath == null)? "" : mSourceAudioPath;
+    public String getSourceAudioPath() {
+        return (mSourceAudioPath == null) ? "" : mSourceAudioPath;
     }
 
-    public void setTargetLanguage(String target){
+    public void setTargetLanguage(String target) {
         mTargetLanguage = target;
     }
 
-    public void setSourceLanguage(String source){
+    public void setSourceLanguage(String source) {
         mSourceLanguage = source;
     }
 
-    public void setVersion(String version){
+    public void setVersion(String version) {
         mVersion = version;
     }
 
-    public void setSlug(String slug){
+    public void setSlug(String slug) {
         mSlug = slug;
     }
 
-    public void setMode(String mode){
+    public void setMode(String mode) {
         mMode = mode;
     }
 
-    public void setProject(String project){
+    public void setProject(String project) {
         mAnthology = project;
     }
 
-    public void setContributors(String contributors){
+    public void setContributors(String contributors) {
         mContributors = contributors;
     }
 
-    public void setBookNumber(String bookNumber){
+    public void setBookNumber(String bookNumber) {
         mBookNumber = bookNumber;
     }
 
-    public void setBookNumber(int bookNumber){
+    public void setBookNumber(int bookNumber) {
         mBookNumber = String.valueOf(bookNumber);
     }
 
-    public void setSourceAudioPath(String sourceAudioPath){
+    public void setSourceAudioPath(String sourceAudioPath) {
         mSourceAudioPath = sourceAudioPath;
     }
 
-    public static void deleteProject(Context ctx, Project project){
+    public static void deleteProject(Context ctx, Project project) {
         File dir = getProjectDirectory(project);
         Utils.deleteRecursive(dir);
         File langDir = getLanguageDirectory(project);
         File sourceDir;
-        if(project.isOBS()){
+        if (project.isOBS()) {
             sourceDir = new File(langDir, "obs");
         } else {
             sourceDir = new File(langDir, project.getVersion());
         }
-        if(sourceDir.exists() && sourceDir.listFiles().length == 0){
+        if (sourceDir.exists() && sourceDir.listFiles().length == 0) {
             sourceDir.delete();
-            if(langDir.listFiles().length == 0){
+            if (langDir.listFiles().length == 0) {
                 langDir.delete();
             }
         }
@@ -219,15 +219,16 @@ public class Project implements Parcelable{
     }
 
     public static final Parcelable.Creator<Project> CREATOR = new Parcelable.Creator<Project>() {
-        public Project createFromParcel(Parcel in){
+        public Project createFromParcel(Parcel in) {
             return new Project(in);
         }
-        public Project[] newArray(int size){
+
+        public Project[] newArray(int size) {
             return new Project[size];
         }
     };
 
-    public Project(Parcel in){
+    public Project(Parcel in) {
         mTargetLanguage = in.readString();
         mSourceLanguage = in.readString();
         mSlug = in.readString();

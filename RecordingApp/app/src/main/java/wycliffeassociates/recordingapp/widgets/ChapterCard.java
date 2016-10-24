@@ -37,7 +37,6 @@ public class ChapterCard {
     public int MAX_CHECKING_LEVEL = 3;
     public int MIN_PROGRESS = 0;
     public int MAX_PROGRESS = 100;
-    private final int mChapter;
 
     // Attributes
     private Activity mCtx;
@@ -45,9 +44,12 @@ public class ChapterCard {
     private ChapterCardAdapter.ViewHolder mViewHolder;
     private SoftReference<AudioPlayer> mAudioPlayer;
     private File mChapterWav;
-    private String mTitle = "";
+    private String mTitle;
+    private final int mChapter;
     private int mCheckingLevel = 0;
     private int mProgress = 0;
+    private int mUnitCount;
+    private int mUnitStarted = 0;
 
     // State
     private boolean mIsEmpty = true;
@@ -58,33 +60,39 @@ public class ChapterCard {
 
 
     // Constructor
-    public ChapterCard(Activity ctx, Project proj, int chapter) {
+    public ChapterCard(Activity ctx, Project proj, int chapter, int unitCount) {
         mCtx = ctx;
         mProject = proj;
         mTitle = "Chapter " + chapter;
         mChapter = chapter;
-        refreshChapterStarted(proj, chapter);
-        refreshChapterCompiled(proj, chapter);
+        mUnitCount = unitCount;
     }
 
-    public void refreshChapterStarted(Project project, int chapter) {
-        File dir = Project.getProjectDirectory(project);
-        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                if (f.getName().equals(chapterString)) {
-                    mIsEmpty = false;
-                    return;
-                }
-            }
+//    public void refreshChapterStarted(Project project, int chapter){
+//        File dir = Project.getProjectDirectory(project);
+//        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+//        File[] files = dir.listFiles();
+//        if(files != null) {
+//            for (File f : files) {
+//                if (f.getName().equals(chapterString)) {
+//                    mIsEmpty = false;
+//                    return;
+//                }
+//            }
+//        }
+//        mIsEmpty = true;
+//    }
+
+    public void refreshIsEmpty() {
+        mIsEmpty = mProgress == 0;
+    }
+
+    public void refreshChapterCompiled(int chapter) {
+        if (!mCanCompile) {
+            return;
         }
-        mIsEmpty = true;
-    }
-
-    public void refreshChapterCompiled(Project project, int chapter) {
-        File dir = Project.getProjectDirectory(project);
-        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        File dir = Project.getProjectDirectory(mProject);
+        String chapterString = FileNameExtractor.chapterIntToString(mProject, chapter);
         File chapterDir = new File(dir, chapterString);
         if (chapterDir.exists()) {
             mChapterWav = new File(chapterDir, "chapter.wav");
@@ -104,9 +112,12 @@ public class ChapterCard {
         }
     }
 
-    public void refreshProgress(Project project, int chapter) {
-        // TODO: Set actual progress here
-        setProgress((int) Math.round(Math.random() * 100));
+    public void refreshProgress() {
+        int progress = calculateProgress();
+        if (progress != mProgress) {
+            setProgress(progress);
+            saveProgressToDB(progress);
+        }
     }
 
 
@@ -151,6 +162,10 @@ public class ChapterCard {
 
     public void setIconsClickable(boolean clickable) {
         mIconsClickable = clickable;
+    }
+
+    public void setNumOfUnitStarted(int count) {
+        mUnitStarted = count;
     }
 
 
@@ -222,6 +237,19 @@ public class ChapterCard {
         ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.playPauseBtn, mViewHolder.seekBar);
     }
 
+    private int calculateProgress() {
+        return Math.round(((float) mUnitStarted / mUnitCount) * 100);
+    }
+
+    private void saveProgressToDB(int progress) {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        if (db.chapterExists(mProject, mChapter)) {
+            int chapterId = db.getChapterId(mProject, mChapter);
+            db.setChapterProgress(chapterId, progress);
+        }
+        db.close();
+    }
+
 
     // Public API
     public void expand() {
@@ -289,8 +317,12 @@ public class ChapterCard {
         }
     }
 
-    public void setCanCompile(boolean canCompile) {
-        mCanCompile = canCompile;
+//    public void setCanCompile(boolean canCompile){
+//        mCanCompile = canCompile;
+//    }
+
+    public void refreshCanCompile() {
+        mCanCompile = mProgress == 100;
     }
 
     public void compile() {

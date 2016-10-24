@@ -225,10 +225,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     private void removeProjectFromPreferences(Project project) {
         Map<String, ?> vals = pref.getAll();
-        String prefLang = (String)vals.get(Settings.KEY_PREF_LANG);
-        String prefSource = (String)vals.get(Settings.KEY_PREF_VERSION);
-        String prefProject = (String)vals.get(Settings.KEY_PREF_ANTHOLOGY);
-        String prefBook = (String)vals.get(Settings.KEY_PREF_BOOK);
+        String prefLang = (String) vals.get(Settings.KEY_PREF_LANG);
+        String prefSource = (String) vals.get(Settings.KEY_PREF_VERSION);
+        String prefProject = (String) vals.get(Settings.KEY_PREF_ANTHOLOGY);
+        String prefBook = (String) vals.get(Settings.KEY_PREF_BOOK);
 
         if (prefLang != null && prefLang.equals(project.getTargetLanguage())) {
             pref.edit().putString(Settings.KEY_PREF_LANG, "").commit();
@@ -236,7 +236,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if (prefSource != null && prefSource.equals(project.getVersion())) {
             pref.edit().putString(Settings.KEY_PREF_VERSION, "").commit();
         }
-        if (prefProject != null && prefProject.equals(project.getAnthology())){
+        if (prefProject != null && prefProject.equals(project.getAnthology())) {
             pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, "").commit();
         }
         if (prefBook != null && prefBook.equals(project.getSlug())) {
@@ -248,7 +248,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
         mAdapter = new ProjectAdapter(this, projects);
-
         mProjectList.setAdapter(mAdapter);
     }
 
@@ -434,7 +433,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mPd = null;
         }
     }
-
+    
     @Override
     public void delegateExport(Export exp) {
         exp.setFragmentContext(mExportTaskFragment);

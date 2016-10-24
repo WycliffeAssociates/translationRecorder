@@ -34,6 +34,7 @@ import wycliffeassociates.recordingapp.widgets.ChapterCard;
  */
 public class ActivityChapterList extends AppCompatActivity implements
         CheckingDialog.DialogListener, CompileDialog.DialogListener, TaskFragment.OnTaskComplete {
+
     public static final String STATE_COMPILING = "compiling";
     private static final String STATE_PROGRESS = "progress";
     public static String PROJECT_KEY = "project_key";
@@ -59,6 +60,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         intent.putExtra(PROJECT_KEY, p);
         return intent;
     }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,7 +118,6 @@ public class ActivityChapterList extends AppCompatActivity implements
         prepareChapterCardData();
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -130,15 +131,19 @@ public class ActivityChapterList extends AppCompatActivity implements
     public void refreshChapterCards() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int numChapters = mChunks.getNumChapters();
-        int[] numStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
+        int[] unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
         for (int i = 0; i < mChapterCardList.size(); i++) {
-            mChapterCardList.get(i).refreshChapterStarted(mProject, i + 1);
-            mChapterCardList.get(i).setCanCompile(numStarted[i] == mChunks.getNumChunks(mProject, i + 1));
-            mChapterCardList.get(i).refreshChapterCompiled(mProject, i + 1);
-            if (mChapterCardList.get(i).isCompiled()) {
-                mChapterCardList.get(i).setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
+            ChapterCard cc = mChapterCardList.get(i);
+            cc.setNumOfUnitStarted(unitsStarted[i]);
+            cc.refreshProgress();
+            cc.refreshIsEmpty();
+            cc.refreshCanCompile();
+            cc.refreshChapterCompiled(i + 1);
+            if (cc.isCompiled()) {
+                cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
             }
         }
+        db.close();
         mAdapter.notifyDataSetChanged();
     }
 
@@ -214,7 +219,8 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     private void prepareChapterCardData() {
         for (int i = 0; i < mChunks.getNumChapters(); i++) {
-            mChapterCardList.add(new ChapterCard(this, mProject, i + 1));
+            int unitCount = mChunks.getNumChunks(mProject, i + 1);
+            mChapterCardList.add(new ChapterCard(this, mProject, i + 1, unitCount));
         }
     }
 
