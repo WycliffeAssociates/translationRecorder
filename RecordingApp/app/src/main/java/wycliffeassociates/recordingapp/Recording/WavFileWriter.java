@@ -87,19 +87,21 @@ public class WavFileWriter extends Service {
                 boolean stopped = false;
                 boolean stoppedRecording = false;
                 ArrayList<Byte> byteArrayList = new ArrayList<>();
-                try {
-                    File dir = Utils.VISUALIZATION_DIR;
-                    if (!dir.exists()) {
-                        dir.mkdirs();
-                    }
-                    File file = new File(dir, nameWithoutExtension + ".vis");
-                    if (!file.exists()) {
-                        file.getParentFile().mkdirs();
+                File dir = Utils.VISUALIZATION_DIR;
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                File file = new File(dir, nameWithoutExtension + ".vis");
+                if (!file.exists()) {
+                    file.getParentFile().mkdirs();
+                    try {
                         file.createNewFile();
-                        Logger.w(this.toString(), "created a new vis file");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    //WARNING DO NOT USE BUFFERED OUTPUT HERE, WILL CAUSE END LINE TO BE OFF IN PLAYBACK
-                    FileOutputStream compressedFile = new FileOutputStream(file);
+                    Logger.w(this.toString(), "created a new vis file");
+                }
+                try (FileOutputStream compressedFile = new FileOutputStream(file)) {
                     while (!stopped) {
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
                         if (message.isStopped()) {

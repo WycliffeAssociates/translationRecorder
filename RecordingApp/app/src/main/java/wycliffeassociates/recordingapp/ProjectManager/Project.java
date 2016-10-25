@@ -7,6 +7,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
@@ -66,9 +69,18 @@ public class Project implements Parcelable {
         String version = pref.getString(Settings.KEY_PREF_VERSION, "");
         String mode = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "");
         String project = pref.getString(Settings.KEY_PREF_ANTHOLOGY, "");
-        String contributors = pref.getString(Settings.KEY_PROFILE, "");
+        String contributors = getContributorsFromJson(pref.getString(Settings.KEY_PROFILE, ""));
         String sourceAudioPath = pref.getString(Settings.KEY_PREF_SRC_LOC, "");
         return new Project(tLang, sLang, bookNum, slug, version, mode, project, contributors, sourceAudioPath);
+    }
+
+    private static String getContributorsFromJson(String jsonString){
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            return json.getString("full_name");
+        } catch (JSONException e) {
+            return "";
+        }
     }
 
     public static void loadProjectIntoPreferences(Context ctx, Project project) {
