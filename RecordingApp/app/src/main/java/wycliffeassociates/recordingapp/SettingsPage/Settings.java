@@ -69,12 +69,27 @@ public class Settings extends AppCompatActivity implements ScrollableListFragmen
     }
 
     public void onBackPressed(View v) {
+        backPressed();
+    }
+
+    private void backPressed(){
         if(displayingList){
             FragmentManager fm = getFragmentManager();
             fm.beginTransaction().remove(fm.findFragmentById(R.id.fragment_scroll_list)).commit();
             displayingList = false;
         } else {
             finish();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                backPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
