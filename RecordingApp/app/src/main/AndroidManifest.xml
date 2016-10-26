@@ -48,11 +48,11 @@
             android:theme="@style/TR"
             />
 
-        <activity android:name=".ProjectManager.ActivityProjectManager"
+        <activity android:name=".ProjectManager.activities.ActivityProjectManager"
             />
-        <activity android:name=".ProjectManager.ActivityChapterList"
+        <activity android:name=".ProjectManager.activities.ActivityChapterList"
             />
-        <activity android:name=".ProjectManager.ActivityUnitList"
+        <activity android:name=".ProjectManager.activities.ActivityUnitList"
             />
 
         <activity android:name=".project.SelectSourceDirectory">

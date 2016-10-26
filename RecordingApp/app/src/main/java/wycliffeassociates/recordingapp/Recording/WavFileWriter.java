@@ -5,17 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
-import org.json.JSONException;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.Utils;
+import wycliffeassociates.recordingapp.wav.WavFile;
+import wycliffeassociates.recordingapp.wav.WavOutputStream;
 
 
 public class WavFileWriter extends Service {
@@ -40,10 +40,9 @@ public class WavFileWriter extends Service {
             @Override
             public void run() {
                 boolean stopped = false;
-                FileOutputStream rawAudio = null;
-                try {
+
+                try (WavOutputStream rawAudio = new WavOutputStream(audioFile, true)) {
                     //WARNING DO NOT USE BUFFERED OUTPUT HERE, WILL CAUSE END LINE TO BE OFF IN PLAYBACK
-                    rawAudio = new FileOutputStream(audioFile.getFile(), true);
                     while (!stopped) {
                         RecordingMessage message = RecordingQueues.writingQueue.take();
                         if (message.isStopped()) {
@@ -58,10 +57,6 @@ public class WavFileWriter extends Service {
                         }
                     }
                     Logger.w(this.toString(), "raw audio thread exited loop");
-                    audioFile.overwriteHeaderData();
-                    audioFile.writeMetadata();
-                    rawAudio.close();
-                    Logger.w(this.toString(), "raw audio thread closed file");
                     RecordingQueues.writingQueue.clear();
                     Logger.e(this.toString(), "raw audio queue finishing, sending done message");
                 } catch (FileNotFoundException e) {
@@ -73,20 +68,11 @@ public class WavFileWriter extends Service {
                 } catch (IOException e) {
                     Logger.e(this.toString(), "IO Exception in writing queue", e);
                     e.printStackTrace();
-                } catch (JSONException e) {
-                    Logger.e(this.toString(), "JSON Exception in writing queue", e);
-                    e.printStackTrace();
                 } finally {
                     try {
                         RecordingQueues.doneWriting.put(new Boolean(true));
-                        if (rawAudio != null) {
-                            rawAudio.close();
-                        }
                     } catch (InterruptedException e) {
                         Logger.e(this.toString(), "InterruptedException in finally of writing queue", e);
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        Logger.e(this.toString(), "IOException while closing the file", e);
                         e.printStackTrace();
                     }
                 }
@@ -101,19 +87,21 @@ public class WavFileWriter extends Service {
                 boolean stopped = false;
                 boolean stoppedRecording = false;
                 ArrayList<Byte> byteArrayList = new ArrayList<>();
-                try {
-                    File dir = new File(AudioInfo.fileDir + "/Visualization");
-                    if (!dir.exists()) {
-                        dir.mkdirs();
-                    }
-                    File file = new File(AudioInfo.pathToVisFile + nameWithoutExtension + ".vis");
-                    if (!file.exists()) {
-                        file.getParentFile().mkdirs();
+                File dir = Utils.VISUALIZATION_DIR;
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                File file = new File(dir, nameWithoutExtension + ".vis");
+                if (!file.exists()) {
+                    file.getParentFile().mkdirs();
+                    try {
                         file.createNewFile();
-                        Logger.w(this.toString(), "created a new vis file");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    //WARNING DO NOT USE BUFFERED OUTPUT HERE, WILL CAUSE END LINE TO BE OFF IN PLAYBACK
-                    FileOutputStream compressedFile = new FileOutputStream(file);
+                    Logger.w(this.toString(), "created a new vis file");
+                }
+                try (FileOutputStream compressedFile = new FileOutputStream(file)) {
                     while (!stopped) {
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
                         if (message.isStopped()) {
@@ -229,74 +217,5 @@ public class WavFileWriter extends Service {
         minAndMax[2] = data[maxIdx];
         minAndMax[3] = data[maxIdx + 1];
 
-    }
-
-    public static void overwriteHeaderData(String filepath, long totalAudioLength, int metadataLength) {
-        overwriteHeaderData(new File(filepath), totalAudioLength, metadataLength);
-    }
-
-    public static void overwriteHeaderData(File filepath, long totalAudioLen, int metadataLength) {
-        //long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
-        long totalDataLen = totalAudioLen + metadataLength - 8; //this subtracts out the data subchunk header
-        try {
-            RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
-            //seek to header[4] to overwrite data length
-            long longSampleRate = AudioInfo.SAMPLERATE;
-            long byteRate = (AudioInfo.BPP * AudioInfo.SAMPLERATE * AudioInfo.NUM_CHANNELS) / 8;
-            byte[] header = new byte[44];
-
-            header[0] = 'R';
-            header[1] = 'I';
-            header[2] = 'F';
-            header[3] = 'F';
-            header[4] = (byte) (totalDataLen & 0xff);
-            header[5] = (byte) ((totalDataLen >> 8) & 0xff);
-            header[6] = (byte) ((totalDataLen >> 16) & 0xff);
-            header[7] = (byte) ((totalDataLen >> 24) & 0xff);
-            header[8] = 'W';
-            header[9] = 'A';
-            header[10] = 'V';
-            header[11] = 'E';
-            header[12] = 'f'; // fmt  chunk
-            header[13] = 'm';
-            header[14] = 't';
-            header[15] = ' ';
-            header[16] = 16; // 4 bytes: size of fmt chunk
-            header[17] = 0;
-            header[18] = 0;
-            header[19] = 0;
-            header[20] = 1; // format = 1
-            header[21] = 0;
-            header[22] = (byte) AudioInfo.NUM_CHANNELS; // number of channels
-            header[23] = 0;
-            header[24] = (byte) (longSampleRate & 0xff);
-            header[25] = (byte) ((longSampleRate >> 8) & 0xff);
-            header[26] = (byte) ((longSampleRate >> 16) & 0xff);
-            header[27] = (byte) ((longSampleRate >> 24) & 0xff);
-            header[28] = (byte) (byteRate & 0xff);
-            header[29] = (byte) ((byteRate >> 8) & 0xff);
-            header[30] = (byte) ((byteRate >> 16) & 0xff);
-            header[31] = (byte) ((byteRate >> 24) & 0xff);
-            header[32] = (byte) ((AudioInfo.NUM_CHANNELS * AudioInfo.BPP) / 8); // block align
-            header[33] = 0;
-            header[34] = AudioInfo.BPP; // bits per sample
-            header[35] = 0;
-            header[36] = 'd';
-            header[37] = 'a';
-            header[38] = 't';
-            header[39] = 'a';
-            header[40] = (byte) (totalAudioLen & 0xff);
-            header[41] = (byte) ((totalAudioLen >> 8) & 0xff);
-            header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
-            header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
-            fileAccessor.write(header);
-            fileAccessor.close();
-        } catch (FileNotFoundException e) {
-            Logger.e("WavFileWriter", "File Not Found Exception in writing header", e);
-            e.printStackTrace();
-        } catch (IOException e) {
-            Logger.e("WavFileWriter", "IO Exception in writing header", e);
-            e.printStackTrace();
-        }
     }
 }

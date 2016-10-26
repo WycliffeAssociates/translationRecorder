@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -13,6 +13,8 @@ import wycliffeassociates.recordingapp.FilesPage.Export.AppExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.Export;
 import wycliffeassociates.recordingapp.FilesPage.Export.FolderExport;
 import wycliffeassociates.recordingapp.FilesPage.Export.S3Export;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.R;
 
 /**
@@ -28,18 +30,23 @@ public class ProjectInfoDialog extends DialogFragment {
         void delegateExport(Export exp);
     }
 
+    public interface SourceAudioDelegator {
+        void delegateSourceAudio(Project project);
+    }
+
     Project mProject;
     ExportDelegator mExportDelegator;
     Export mExp;
+    public static final String PROJECT_FRAGMENT_TAG = "project_tag";
 
     @Override
-    public void onAttach(Activity activity){
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mExportDelegator = (ExportDelegator)activity;
+        mExportDelegator = (ExportDelegator) activity;
     }
 
     @Override
-    public void onDetach(){
+    public void onDetach() {
         super.onDetach();
         mExportDelegator = null;
     }
@@ -64,7 +71,7 @@ public class ProjectInfoDialog extends DialogFragment {
         String language = db.getLanguageName(languageCode);
         String bookCode = mProject.getSlug();
         String book = db.getBookName(bookCode);
-        String translation = mProject.getSource();
+        String translation = mProject.getVersion();
         if(mProject.isOBS()){
             bookCode = "obs";
             book = "Open Bible Stories";
@@ -77,9 +84,9 @@ public class ProjectInfoDialog extends DialogFragment {
         projectTitle.setText(book + " (" + bookCode + ")");
         languageTitle.setText(language + " (" + languageCode + ")");
         translator.setText(translators);
-        if(translation.compareTo("ulb") == 0) {
+        if (translation.equals("ulb")) {
             translationType.setText("Unlocked Literal Bible (" + translation + ")");
-        } else if(translation.compareTo("udb") == 0) {
+        } else if (translation.equals("udb")) {
             translationType.setText("Unlocked Dynamic Bible (" + translation + ")");
         } else {
             translationType.setText("Regular (" + translation.toUpperCase() + ")");
@@ -88,6 +95,7 @@ public class ProjectInfoDialog extends DialogFragment {
         unitType.setText(mProject.getMode());
 
         ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
+        ImageButton sourceButton = (ImageButton) view.findViewById(R.id.export_as_source_btn);
         ImageButton sdcard_button = (ImageButton) view.findViewById(R.id.sdcard_button);
         ImageButton folderButton = (ImageButton) view.findViewById(R.id.folder_button);
         ImageButton publishButton = (ImageButton) view.findViewById(R.id.publish_button);
@@ -97,7 +105,7 @@ public class ProjectInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                ((InfoDialogCallback)getActivity()).onDelete(mProject);
+                ((InfoDialogCallback) getActivity()).onDelete(mProject);
             }
         });
 
@@ -126,6 +134,14 @@ public class ProjectInfoDialog extends DialogFragment {
                 mExportDelegator.delegateExport(mExp);
             }
         });
+
+        sourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((SourceAudioDelegator) mExportDelegator).delegateSourceAudio(mProject);
+            }
+        });
+
 
         builder.setView(view);
         return builder.create();

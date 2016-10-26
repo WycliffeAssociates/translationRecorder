@@ -16,7 +16,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 
-import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
 import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
 import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
@@ -24,13 +23,13 @@ import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
-import wycliffeassociates.recordingapp.ProjectManager.RatingDialog;
+import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.Recording.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.Utils;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 /**
@@ -147,7 +146,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     private void initializeViews() {
         mLangView.setText(mProject.getTargetLanguage().toUpperCase());
         if (!mProject.isOBS()) {
-            mSourceView.setText(mProject.getSource().toUpperCase());
+            mSourceView.setText(mProject.getVersion().toUpperCase());
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             mBookView.setText(db.getBookName(mProject.getSlug()));
         } else {
@@ -366,7 +365,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     try {
                         File dir = Project.getProjectDirectory(mProject);
                         File toTemp = new File(dir, "temp.wav");
-                        mManager.writeCut(toTemp, to, from, pd);
+                        mManager.writeCut(toTemp, from, pd);
                         to.delete();
                         toTemp.renameTo(to);
                         ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
@@ -374,7 +373,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                         db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));
-                        File toVis = new File(AudioInfo.pathToVisFile, oldName + ".vis");
+                        File toVis = new File(Utils.VISUALIZATION_DIR, oldName + ".vis");
                         toVis.delete();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -385,7 +384,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                 if (intent == null) {
                     finish();
                 } else {
-                    intent.putExtra("old_name", to.getAbsolutePath());
+                    WavFile result = new WavFile(to);
+                    intent.putExtra(RecordingScreen.KEY_WAV_FILE, result);
                     startActivity(intent);
                     finish();
                 }

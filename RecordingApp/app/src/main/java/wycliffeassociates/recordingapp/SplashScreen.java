@@ -12,7 +12,7 @@ import com.door43.login.core.Profile;
 
 import org.json.JSONException;
 
-import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.project.Book;
 import wycliffeassociates.recordingapp.project.Language;
@@ -93,12 +93,8 @@ public class SplashScreen extends Activity {
         try {
             Book[] books = parse.pullBooks();
             Language[] languages = parse.pullLangNames();
-            for (Book book : books) {
-                db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
-            }
-            for (Language language : languages) {
-                db.addLanguage(language.getCode(), language.getName());
-            }
+            db.addBooks(books);
+            db.addLanguages(languages);
             System.out.println("Proof: en is " + db.getLanguageName("en"));
         } catch (JSONException e) {
             e.printStackTrace();

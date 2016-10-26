@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;

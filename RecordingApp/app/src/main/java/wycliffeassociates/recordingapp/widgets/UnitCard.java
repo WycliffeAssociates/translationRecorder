@@ -20,12 +20,12 @@ import java.util.List;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.ProjectManager.ProjectDatabaseHelper;
-import wycliffeassociates.recordingapp.ProjectManager.RatingDialog;
-import wycliffeassociates.recordingapp.ProjectManager.UnitCardAdapter;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
+import wycliffeassociates.recordingapp.ProjectManager.adapters.UnitCardAdapter;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
-import wycliffeassociates.recordingapp.Recording.WavFile;
+import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.Utils;
 
@@ -268,7 +268,8 @@ public class UnitCard {
 
     public void refreshTakeCount() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        if (db.unitExists(mProject, mChapter, mFirstVerse)) {
+        //Need to check both chapter and unit first
+        if (db.chapterExists(mProject, mChapter) && db.unitExists(mProject, mChapter, mFirstVerse)) {
             int unitId = db.getUnitId(mProject, mChapter, mFirstVerse);
             mTakeCount = db.getTakeCount(unitId);
             db.close();

@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,22 +13,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.project.Book;
+import wycliffeassociates.recordingapp.project.Language;
 
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.BookEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ChapterEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_BOOKS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_CHAPTERS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_LANGUAGE;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_PROJECTS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_TAKES;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_TEMP;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.DELETE_UNITS;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.LanguageEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.ProjectEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.TakeEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.TempEntry;
-import static wycliffeassociates.recordingapp.ProjectManager.ProjectContract.UnitEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.BookEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.ChapterEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_BOOKS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_CHAPTERS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_LANGUAGE;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_PROJECTS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_TAKES;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_TEMP;
+import static wycliffeassociates.recordingapp.database.ProjectContract.DELETE_UNITS;
+import static wycliffeassociates.recordingapp.database.ProjectContract.LanguageEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.ProjectEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.TakeEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.TempEntry;
+import static wycliffeassociates.recordingapp.database.ProjectContract.UnitEntry;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -96,7 +99,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean projectExists(Project project){
-        return projectExists(project.getTargetLanguage(), project.getSlug(), project.getSource());
+        return projectExists(project.getTargetLanguage(), project.getSlug(), project.getVersion());
     }
 
     public boolean projectExists(String languageCode, String slug, String version){
@@ -111,7 +114,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean chapterExists(Project project, int chapter){
-        return chapterExists(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter);
+        return chapterExists(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter);
     }
 
     public boolean chapterExists(String languageCode, String slug, String version, int chapter){
@@ -125,7 +128,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean unitExists(Project project, int chapter, int startVerse){
-        return unitExists(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter, startVerse);
+        return unitExists(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter, startVerse);
     }
 
     public boolean unitExists(String languageCode, String slug, String version, int chapter, int startVerse){
@@ -188,7 +191,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getProjectId(Project project) throws IllegalArgumentException {
-        return getProjectId(project.getTargetLanguage(), project.getSlug(), project.getSource());
+        return getProjectId(project.getTargetLanguage(), project.getSlug(), project.getVersion());
     }
 
     public int getProjectId(String languageCode, String slug, String version) throws IllegalArgumentException {
@@ -210,7 +213,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getChapterId(Project project, int chapter) throws IllegalArgumentException{
-        return getChapterId(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter);
+        return getChapterId(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter);
     }
 
     public int getChapterId(String languageCode, String slug, String version, int chapter){
@@ -231,7 +234,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getUnitId(Project project, int chapter, int startVerse) throws IllegalArgumentException{
-        return getUnitId(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter, startVerse);
+        return getUnitId(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter, startVerse);
     }
 
     public int getUnitId(String languageCode, String slug, String version, int chapter, int startVerse) throws IllegalArgumentException{
@@ -402,7 +405,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             cv.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, sourceLanguageId);
         }
         cv.put(ProjectEntry.PROJECT_BOOK_FK, bookId);
-        cv.put(ProjectEntry.PROJECT_VERSION, p.getSource());
+        cv.put(ProjectEntry.PROJECT_VERSION, p.getVersion());
         cv.put(ProjectEntry.PROJECT_MODE, p.getMode());
         cv.put(ProjectEntry.PROJECT_CONTRIBUTORS, p.getContributors());
         cv.put(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
@@ -436,7 +439,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addChapter(Project project, int chapter) throws IllegalArgumentException{
-        addChapter(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter);
+        addChapter(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter);
     }
 
     public void addChapter(String languageCode, String slug, String version, int chapter) throws IllegalArgumentException {
@@ -451,7 +454,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addUnit(Project project, int chapter, int startVerse) throws IllegalArgumentException{
-        addUnit(project.getTargetLanguage(), project.getSlug(), project.getSource(), chapter, startVerse);
+        addUnit(project.getTargetLanguage(), project.getSlug(), project.getVersion(), chapter, startVerse);
     }
 
     public void addUnit(String languageCode, String slug, String version, int chapter, int startVerse) throws IllegalArgumentException {
@@ -509,7 +512,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do {
                 Project project = new Project();
-                project.setSource(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_VERSION)));
+                project.setVersion(cursor.getString(cursor.getColumnIndex(ProjectEntry.PROJECT_VERSION)));
                 String targetLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectEntry.PROJECT_TARGET_LANGUAGE_FK)));
                 project.setTargetLanguage(targetLanguageCode);
                 int sourceLanguageIndex = cursor.getColumnIndex(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK);
@@ -655,6 +658,36 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         replaceWith.put(ChapterEntry.CHAPTER_CHECKING_LEVEL, checkingLevel);
         db.update(ChapterEntry.TABLE_CHAPTER, replaceWith, replaceChapterWhere, new String[]{chapterId});
         //db.close();
+    }
+
+    public void setChapterProgress(int chapterId, int progress) {
+        final String whereClause = String.format("%s=?", ChapterEntry._ID);
+        String chapterIdString = String.valueOf(chapterId);
+        SQLiteDatabase db = getReadableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ChapterEntry.CHAPTER_PROGRESS, progress);
+        db.update(ChapterEntry.TABLE_CHAPTER, contentValues, whereClause, new String[]{chapterIdString});
+        db.close();
+    }
+
+    public int getChapterProgress(int chapterId) {
+        String chapterIdString = String.valueOf(chapterId);
+        SQLiteDatabase db = getReadableDatabase();
+        final String query = String.format("SELECT %s FROM %s WHERE %s=?",
+                ChapterEntry.CHAPTER_PROGRESS, ChapterEntry.TABLE_CHAPTER, ChapterEntry._ID);
+        float progress = DatabaseUtils.longForQuery(db, query, new String[]{chapterIdString});
+        db.close();
+        return Math.round(progress);
+    }
+
+    public int getProjectProgressSum(int projectId) {
+        String projectIdString = String.valueOf(projectId);
+        SQLiteDatabase db = getReadableDatabase();
+        final String query = String.format("SELECT SUM(%s) FROM %s WHERE %s=?",
+                ChapterEntry.CHAPTER_PROGRESS, ChapterEntry.TABLE_CHAPTER, ChapterEntry.CHAPTER_PROJECT_FK);
+        int progress = (int) DatabaseUtils.longForQuery(db, query, new String[]{projectIdString});
+        db.close();
+        return progress;
     }
 
     public void removeSelectedTake(FileNameExtractor fne){
@@ -849,6 +882,32 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             c.moveToFirst();
             int takeId = c.getInt(0);
             setSelectedTake(unitId, takeId);
+        }
+    }
+
+    public void addLanguages(Language[] languages) {
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        try {
+            for (Language l : languages) {
+                addLanguage(l.getCode(), l.getName());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void addBooks(Book[] books){
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for(Book b : books){
+                addBook(b.getSlug(), b.getName(), b.getAnthology(), b.getOrder());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 }

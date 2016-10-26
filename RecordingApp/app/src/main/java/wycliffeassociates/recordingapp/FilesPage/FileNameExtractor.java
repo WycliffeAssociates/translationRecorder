@@ -14,10 +14,10 @@ import wycliffeassociates.recordingapp.SettingsPage.Settings;
  * Created by sarabiaj on 3/15/2016.
  */
 public class FileNameExtractor {
-    private String mLang ="";
-    private String mSource ="";
+    private String mLang = "";
+    private String mSource = "";
     private String mBook = "";
-    private String mProject ="";
+    private String mProject = "";
     private int mChap;
     private int mChunk;
     private int mStartVerse;
@@ -26,55 +26,55 @@ public class FileNameExtractor {
     private int mBookNum;
     private boolean mMatched = false;
 
-    public FileNameExtractor(String file){
+    public FileNameExtractor(String file) {
         extractData(file);
     }
 
-    public FileNameExtractor(File file){
+    public FileNameExtractor(File file) {
         extractData(file.getName());
     }
 
     public FileNameExtractor(String lang, String source, String bookNum, String book, String project, String chapter,
-                             String startV, String endV, String take){
+                             String startV, String endV, String take) {
         mLang = lang;
         mSource = source;
         try {
             mBookNum = Integer.parseInt(bookNum);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             mBookNum = -1;
         }
         mBook = book;
         mProject = project;
-        try{
+        try {
             mChap = Integer.parseInt(chapter);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             mChap = -1;
         }
         try {
             mStartVerse = Integer.parseInt(startV);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             mStartVerse = -1;
         }
         try {
             mEndVerse = Integer.parseInt(endV);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             mEndVerse = -1;
         }
-        try{
-            mTake = (take != null)? Integer.parseInt(take) : -1;
-        } catch(NumberFormatException e){
+        try {
+            mTake = (take != null) ? Integer.parseInt(take) : -1;
+        } catch (NumberFormatException e) {
             mTake = -1;
         }
     }
 
-    private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse){
-        this(project.getTargetLanguage(), project.getSource(), project.getBookNumber(), project.getSlug(), project.getProject(), chapterIntToString(project, chapter), unitIntToString(startVerse),
+    private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse) {
+        this(project.getTargetLanguage(), project.getVersion(), project.getBookNumber(), project.getSlug(), project.getAnthology(), chapterIntToString(project, chapter), unitIntToString(startVerse),
                 unitIntToString(endVerse), "00");
     }
 
-    public static String chapterIntToString(Project project, int chapter){
+    public static String chapterIntToString(Project project, int chapter) {
         String result;
-        if(project.getSlug().compareTo("psa") == 0){
+        if (project.getSlug().compareTo("psa") == 0) {
             result = String.format("%03d", chapter);
         } else {
             result = String.format("%02d", chapter);
@@ -82,24 +82,24 @@ public class FileNameExtractor {
         return result;
     }
 
-    public static String unitIntToString(int unit){
+    public static String unitIntToString(int unit) {
         return String.format("%02d", unit);
     }
 
 
-    public FileNameExtractor(SharedPreferences pref){
+    public FileNameExtractor(SharedPreferences pref) {
         this(pref.getString(Settings.KEY_PREF_LANG, ""),
-                pref.getString(Settings.KEY_PREF_SOURCE, ""),
+                pref.getString(Settings.KEY_PREF_VERSION, ""),
                 pref.getString(Settings.KEY_PREF_BOOK_NUM, ""),
                 pref.getString(Settings.KEY_PREF_BOOK, ""),
-                pref.getString(Settings.KEY_PREF_PROJECT, ""),
+                pref.getString(Settings.KEY_PREF_ANTHOLOGY, ""),
                 pref.getString(Settings.KEY_PREF_CHAPTER, ""),
                 pref.getString(Settings.KEY_PREF_START_VERSE, ""),
                 pref.getString(Settings.KEY_PREF_END_VERSE, ""),
                 pref.getString(Settings.KEY_PREF_TAKE, ""));
     }
 
-    private void extractData(String file){
+    private void extractData(String file) {
         //includes the wav extention, could replace this with .*?
         //String FILENAME_PATTERN = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_([a-zA-Z]{3})_([1-3]*[a-zA-Z]+)_([0-9]{2})-([0-9]{2})(_([0-9]{2}))?.*";
 
@@ -116,35 +116,35 @@ public class FileNameExtractor {
         boolean found = m.find();
         //System.out.println("file is " + file + "\npattern is " + p.pattern());
         //m.group starts with the pattern, so the first group is at 1
-        if(found){
+        if (found) {
             mLang = m.group(1);
             mProject = m.group(2);
             mSource = m.group(3);
-            mBookNum = (m.group(4) != null)? Integer.parseInt(m.group(4)) : -1;
+            mBookNum = (m.group(4) != null) ? Integer.parseInt(m.group(4)) : -1;
             mBook = m.group(5);
             mChap = Integer.parseInt(m.group(6));
             mStartVerse = Integer.parseInt(m.group(7));
-            mEndVerse = (m.group(9) != null)? Integer.parseInt(m.group(9)) : -1;
-            mTake = (m.group(11) != null)? Integer.parseInt(m.group(11)) : 0;
+            mEndVerse = (m.group(9) != null) ? Integer.parseInt(m.group(9)) : -1;
+            mTake = (m.group(11) != null) ? Integer.parseInt(m.group(11)) : 0;
             mMatched = true;
         } else {
             mMatched = false;
         }
     }
 
-    public String getProject(){
+    public String getProject() {
         return mProject;
     }
 
-    public String getLang(){
+    public String getLang() {
         return mLang;
     }
 
-    public String getSource(){
+    public String getSource() {
         return mSource;
     }
 
-    public String getBook(){
+    public String getBook() {
         return mBook;
     }
 
@@ -152,69 +152,69 @@ public class FileNameExtractor {
         return mBookNum;
     }
 
-    public int getChapter(){
+    public int getChapter() {
         return mChap;
     }
 
-    public int getStartVerse(){
+    public int getStartVerse() {
         return mStartVerse;
     }
 
-    public int getEndVerse(){
+    public int getEndVerse() {
         return mEndVerse;
     }
 
-    public int getChunk(){
+    public int getChunk() {
         return mChunk;
     }
 
-    public int getTake(){
+    public int getTake() {
         return mTake;
     }
 
-    public String getMode(){
-        if(mEndVerse == -1){
+    public String getMode() {
+        if (mEndVerse == -1) {
             return "verse";
         } else {
             return "chunk";
         }
     }
 
-    public boolean matched(){
+    public boolean matched() {
         return mMatched;
     }
 
-    public static File getDirectoryFromFile(SharedPreferences pref, File file){
+    public static File getDirectoryFromFile(SharedPreferences pref, File file) {
         FileNameExtractor fne = new FileNameExtractor(file);
         String root = pref.getString("root_directory", "");
         File out = new File(new File(root), fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter()));
         return out;
     }
 
-    public static File getDirectoryFromProject(Project project, int chapter){
+    public static File getDirectoryFromProject(Project project, int chapter) {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        return new File(root, project.getTargetLanguage() + "/" + project.getSource() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
+        return new File(root, project.getTargetLanguage() + "/" + project.getVersion() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
     }
 
-    public static File getFileFromFileName(SharedPreferences pref, File file){
+    public static File getFileFromFileName(SharedPreferences pref, File file) {
         File dir = getDirectoryFromFile(pref, file);
-        if(file.getName().contains(".wav")) {
+        if (file.getName().contains(".wav")) {
             return new File(dir, file.getName());
         } else {
             return new File(dir, file.getName() + ".wav");
         }
     }
 
-    public String getNameWithoutTake(){
-        if(mProject != null && mProject.compareTo("obs") == 0){
+    public String getNameWithoutTake() {
+        if (mProject != null && mProject.compareTo("obs") == 0) {
             return mLang + "_obs_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse);
         } else {
             String name;
-            String end = (mEndVerse != -1 && mStartVerse != mEndVerse)? String.format("-%02d", mEndVerse) : "";
-            if(mBook.compareTo("psa") == 0 && mChap != 119){
+            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
+            if (mBook.compareTo("psa") == 0 && mChap != 119) {
                 name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
-            } else if(mBook.compareTo("psa") == 0){
-                end = (mEndVerse != -1)? String.format("-%03d", mEndVerse) : "";
+            } else if (mBook.compareTo("psa") == 0) {
+                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
                 name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%03d", mStartVerse) + end;
             } else {
                 name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
@@ -223,54 +223,54 @@ public class FileNameExtractor {
         }
     }
 
-    public static String getNameWithoutTake(String name){
+    public static String getNameWithoutTake(String name) {
         FileNameExtractor fne = new FileNameExtractor(name);
         return fne.getNameWithoutTake();
     }
 
-    public static String getNameWithoutTake(SharedPreferences pref){
+    public static String getNameWithoutTake(SharedPreferences pref) {
         FileNameExtractor fne = new FileNameExtractor(pref);
         return fne.getNameWithoutTake();
     }
 
-    public static String getNameWithoutExtention(File file){
+    public static String getNameWithoutExtention(File file) {
         String name = file.getName();
-        if(name.contains(".wav")){
+        if (name.contains(".wav")) {
             name = name.replace(".wav", "");
         }
         return name;
     }
 
-    public static File getFileFromFileName(SharedPreferences pref, String file){
+    public static File getFileFromFileName(SharedPreferences pref, String file) {
         return getFileFromFileName(pref, new File(file));
     }
 
-    public static int getLargestTake(File directory, File filename){
+    public static int getLargestTake(File directory, File filename) {
         File[] files = directory.listFiles();
-        if(files == null){
+        if (files == null) {
             return 0;
         }
         FileNameExtractor inputFNE = new FileNameExtractor(filename);
         int maxTake = inputFNE.getTake();
-        for(File f : files){
+        for (File f : files) {
             FileNameExtractor fne = new FileNameExtractor(f);
-            if((inputFNE.getNameWithoutTake()).compareTo((fne.getNameWithoutTake())) == 0){
-                maxTake = (maxTake < fne.getTake())? fne.getTake() : maxTake;
+            if ((inputFNE.getNameWithoutTake()).compareTo((fne.getNameWithoutTake())) == 0) {
+                maxTake = (maxTake < fne.getTake()) ? fne.getTake() : maxTake;
             }
         }
         return maxTake;
     }
 
-    private static int getLargestTake(File directory, String nameWithoutTake){
+    private static int getLargestTake(File directory, String nameWithoutTake) {
         File[] files = directory.listFiles();
-        if(files == null){
+        if (files == null) {
             return 0;
         }
         int maxTake = 0;
-        for(File f : files){
+        for (File f : files) {
             FileNameExtractor fne = new FileNameExtractor(f);
-            if(nameWithoutTake.compareTo((fne.getNameWithoutTake())) == 0){
-                maxTake = (maxTake < fne.getTake())? fne.getTake() : maxTake;
+            if (nameWithoutTake.compareTo((fne.getNameWithoutTake())) == 0) {
+                maxTake = (maxTake < fne.getTake()) ? fne.getTake() : maxTake;
             }
         }
         return maxTake;
@@ -280,7 +280,7 @@ public class FileNameExtractor {
         FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
         File dir = fne.getDirectoryFromProject(project, chapter);
         String nameWithoutTake = fne.getNameWithoutTake();
-        int take = fne.getLargestTake(dir, nameWithoutTake)+1;
+        int take = fne.getLargestTake(dir, nameWithoutTake) + 1;
         return new File(dir, nameWithoutTake + "_t" + String.format("%02d", take) + ".wav");
     }
 
@@ -290,12 +290,12 @@ public class FileNameExtractor {
     }
 
     //Extracts the identifiable section of a filename for source audio
-    public static String getChapterAndVerseSection(String name){
+    public static String getChapterAndVerseSection(String name) {
         String CHAPTER = "c([\\d]{2,3})";
         String VERSE = "v([\\d]{2,3})(-([\\d]{2,3}))?";
-        Pattern chapterAndVerseSection = Pattern.compile("(" +CHAPTER+ "_" +VERSE + ")");
+        Pattern chapterAndVerseSection = Pattern.compile("(" + CHAPTER + "_" + VERSE + ")");
         Matcher matcher = chapterAndVerseSection.matcher(name);
-        if(matcher.find()){
+        if (matcher.find()) {
             return matcher.group(1);
         } else {
             return null;

@@ -26,8 +26,8 @@ import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
  *
  */
 public class Settings extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener, SettingsFragment.LanguageSelector {
-    public static final String KEY_PREF_PROJECT = "pref_project";
-    public static final String KEY_PREF_SOURCE = "pref_source";
+    public static final String KEY_PREF_ANTHOLOGY = "pref_anthology";
+    public static final String KEY_PREF_VERSION = "pref_version";
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
     public static final String KEY_PREF_BOOK = "pref_book";
@@ -69,12 +69,27 @@ public class Settings extends AppCompatActivity implements ScrollableListFragmen
     }
 
     public void onBackPressed(View v) {
+        backPressed();
+    }
+
+    private void backPressed(){
         if(displayingList){
             FragmentManager fm = getFragmentManager();
             fm.beginTransaction().remove(fm.findFragmentById(R.id.fragment_scroll_list)).commit();
             displayingList = false;
         } else {
             finish();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                backPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

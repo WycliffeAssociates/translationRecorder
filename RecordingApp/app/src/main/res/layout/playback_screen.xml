@@ -133,7 +133,7 @@
                 android:background="#00000000"
                 android:src="@drawable/bookmark_o"
                 android:scaleType="fitCenter"
-                />
+                android:visibility="visible" />
 
             <wycliffeassociates.recordingapp.widgets.FourStepImageView
                 xmlns:app="http://schemas.android.com/apk/res/wycliffeassociates.recordingapp"

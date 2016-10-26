@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.ProjectManager;
+package wycliffeassociates.recordingapp.ProjectManager.adapters;
 
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +21,7 @@ import com.bignerdranch.android.multiselector.SwappingHolder;
 import java.util.ArrayList;
 import java.util.List;
 
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 import wycliffeassociates.recordingapp.widgets.UnitCard;
