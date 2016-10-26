@@ -355,6 +355,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == dialog.BUTTON_POSITIVE) {
+                            Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguage()
+                                    + " book " + project.getSlug() + " version "
+                                    + project.getVersion() + " mode " + project.getMode());
                             Project.deleteProject(ActivityProjectManager.this, project);
                             populateProjectList();
                             hideProjectsIfEmpty(mAdapter.getCount());
