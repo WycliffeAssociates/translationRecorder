@@ -38,6 +38,7 @@ import wycliffeassociates.recordingapp.ProjectManager.tasks.DatabaseResyncTask;
 import wycliffeassociates.recordingapp.ProjectManager.tasks.ExportSourceAudioTask;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.SplashScreen;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
@@ -197,8 +198,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     public void initializeRecentProject() {
         Project project = null;
-        if (pref.getString(Settings.KEY_PREF_LANG, "").compareTo("") != 0) {
+        if (!pref.getString(Settings.KEY_PREF_LANG, "").equals("")
+                && !pref.getString(Settings.KEY_PREF_BOOK, "").equals("")) {
             project = Project.getProjectFromPreferences(this);
+            Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguage()
+                    + " book " + project.getSlug() + " version "
+                    + project.getVersion() + " mode " + project.getMode());
         } else {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             List<Project> projects = db.getAllProjects();
@@ -247,6 +252,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private void populateProjectList() {
         final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
+        for (Project p : projects) {
+            Logger.w(this.toString(), "Project: language " + p.getTargetLanguage() + " book " + p.getSlug() + " version " + p.getVersion() + " mode " + p.getMode());
+        }
         mAdapter = new ProjectAdapter(this, projects);
         mProjectList.setAdapter(mAdapter);
     }

@@ -17,12 +17,13 @@ import com.filippudak.ProgressPieView.ProgressPieView;
 import java.io.IOException;
 import java.util.List;
 
-import wycliffeassociates.recordingapp.ProjectManager.activities.ActivityChapterList;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
-import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.ProjectManager.activities.ActivityChapterList;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.ProjectInfoDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
+import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.project.Chunks;
 
 /**
@@ -99,7 +100,7 @@ public class ProjectAdapter extends ArrayAdapter {
                 int progress = Math.round((float)dB.getProjectProgressSum(projectId) / chapterCount);
                 progressPie.setProgress(progress);
             } catch (IOException e) {
-                System.out.println("Uh oh");
+                Logger.e("ProjectAdapter init project card", "IOException", e);
             }
         }
 
