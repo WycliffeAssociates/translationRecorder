@@ -27,7 +27,7 @@ import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
  */
 public class Settings extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener, SettingsFragment.LanguageSelector {
     public static final String KEY_PREF_ANTHOLOGY = "pref_anthology";
-    public static final String KEY_PREF_VERSION = "pref_source";
+    public static final String KEY_PREF_VERSION = "pref_version";
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
     public static final String KEY_PREF_BOOK = "pref_book";
