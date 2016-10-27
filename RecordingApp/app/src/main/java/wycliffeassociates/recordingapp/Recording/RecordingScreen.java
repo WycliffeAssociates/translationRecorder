@@ -22,7 +22,7 @@ import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
-import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
+import wycliffeassociates.recordingapp.Playback.PlaybackActivity;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
@@ -400,7 +400,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             if (mInsertMode) {
                 finalizeInsert(mLoadedWav, mNewRecording, mInsertLocation);
             } else {
-                Intent intent = PlaybackScreen.getPlaybackIntent(this, mNewRecording, mProject, mChapter, mUnit);
+                Intent intent = PlaybackActivity.getPlaybackIntent(this, mNewRecording, mProject, mChapter, mUnit);
                 startActivity(intent);
                 this.finish();
             }
@@ -482,7 +482,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     public void insertCallback(WavFile result) {
         mInserting = false;
         mProgressDialog.dismiss();
-        Intent intent = PlaybackScreen.getPlaybackIntent(this, result, mProject, mChapter, mUnit);
+        Intent intent = PlaybackActivity.getPlaybackIntent(this, result, mProject, mChapter, mUnit);
         startActivity(intent);
         this.finish();
     }

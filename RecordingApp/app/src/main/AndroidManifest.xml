@@ -44,6 +44,10 @@
             android:screenOrientation="landscape"
             />
 
+        <activity android:name=".Playback.PlaybackActivity"
+            android:screenOrientation="landscape"
+            />
+
         <activity android:name=".SettingsPage.Settings"
             android:theme="@style/TR"
             />

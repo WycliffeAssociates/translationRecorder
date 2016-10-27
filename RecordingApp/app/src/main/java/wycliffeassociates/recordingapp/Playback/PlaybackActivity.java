@@ -1,7 +1,6 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,13 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
 
-import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
-import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
-import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
-import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
-import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
@@ -31,44 +24,45 @@ import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
-/**
- * Created by sarabiaj on 11/10/2015.
- */
-public class PlaybackScreen extends Activity implements RatingDialog.DialogListener {
 
-    //Constants for WAV format
+
+/**
+ * Created by sarabiaj on 10/27/2016.
+ */
+
+public class PlaybackActivity extends Activity implements RatingDialog.DialogListener {
+
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
     private static final String KEY_WAV_FILE = "wavfile";
     private static final String KEY_CHAPTER = "key_chapter";
     private static final String KEY_UNIT = "key_unit";
 
-    private UIDataManager mManager;
-
     private volatile boolean isSaved = true;
     private boolean isPlaying = false;
     private boolean isInVerseMarkerMode = false;
 
-    private WaveformView mMainCanvas;
     private RelativeLayout mToolbar;
-    private MinimapView minimap;
     private View mSrcAudioPlayback;
-    private MarkerView mStartMarker, mEndMarker;
+
     private TextView mVerseMarkerCount, mVerseMarkerLabel, mLangView, mSourceView, mBookView,
             mChapterView, mChapterLabel, mUnitView, mUnitLabel;
+
     private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVerseMarkerMode, mExitVerseMarkerMode,
             mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
             mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn,
             mDropVerseMarkerBtn, mCompleteVerseMarkerBtn;
+
     private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
     private Project mProject;
     private int mChapter, mUnit, mRating, mVersesLeft;
+    private AudioController mAudioController;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
-        Intent intent = new Intent(ctx, PlaybackScreen.class);
+        Intent intent = new Intent(ctx, PlaybackActivity.class);
         intent.putExtra(KEY_PROJECT, project);
         intent.putExtra(KEY_WAV_FILE, file);
         intent.putExtra(KEY_CHAPTER, chapter);
@@ -80,7 +74,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.playback_screen);
+        setContentView(R.layout.activity_playback_screen);
         initialize(getIntent());
     }
 
@@ -92,7 +86,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         setButtonHandlers();
         enableButtons();
         mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
-        //initializeController();
+        mAudioController = new AudioController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn, mWavFile);
     }
 
     private void parseIntent(Intent intent) {
@@ -103,12 +97,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void findViews() {
-        mMainCanvas = (WaveformView) findViewById(R.id.main_canvas);
         mToolbar = (RelativeLayout) findViewById(R.id.toolbar);
-        minimap = (MinimapView) findViewById(R.id.minimap);
         mSrcAudioPlayback = (View) findViewById(R.id.srcAudioPlayer);
-        mStartMarker = (MarkerView) findViewById(R.id.startmarker);
-        mEndMarker = (MarkerView) findViewById(R.id.endmarker);
         mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
         mVerseMarkerCount = (TextView) findViewById(R.id.verse_marker_count);
@@ -166,12 +156,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         // By default, select the minimap view over the source playback
         mSwitchToMinimap.setSelected(true);
 
-        mMainCanvas.enableGestures();
-        mMainCanvas.setDb(0);
-
-        mStartMarker.setOrientation(MarkerView.LEFT);
-        mEndMarker.setOrientation(MarkerView.RIGHT);
-
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
         mRating = db.getTakeRating(fne);
@@ -179,21 +163,6 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
         mRateBtn.invalidate();
         db.close();
     }
-
-//    private void initializeController() {
-//        final Activity ctx = this;
-//        ViewTreeObserver vto = mMainCanvas.getViewTreeObserver();
-//        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                Logger.i(this.toString(), "Initializing UIDataManager in VTO callback");
-//                mManager = new UIDataManager(mMainCanvas, minimap, mStartMarker, mEndMarker, ctx, UIDataManager.PLAYBACK_MODE);
-//                mManager.loadWavFile(mWavFile);
-//                mManager.updateUI();
-//                mMainCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//            }
-//        });
-//    }
 
     @Override
     public void onPause() {
@@ -204,9 +173,9 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mManager.release();
         mSrcPlayer.cleanup();
-        SectionMarkers.clearMarkers(mManager);
+//        mManager.release();
+//        SectionMarkers.clearMarkers(mManager);
     }
 
     @Override
@@ -226,88 +195,88 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     @Override
     public void onBackPressed() {
         Logger.i(this.toString(), "Back was pressed.");
-        if (!isSaved && mManager.hasCut()) {
-            Logger.i(this.toString(), "Asking if user wants to save before going back");
-            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
-            exit.show();
-        } else {
-//            clearMarkers();
-            mManager.release();
-            super.onBackPressed();
-        }
+//        if (!isSaved && mManager.hasCut()) {
+//            Logger.i(this.toString(), "Asking if user wants to save before going back");
+//            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
+//            exit.show();
+//        } else {
+////            clearMarkers();
+//            mManager.release();
+//            super.onBackPressed();
+//        }
     }
 
     private void playRecording() {
-        isPlaying = true;
-        mManager.play();
-        int toShow[] = {R.id.btn_pause};
-        int toHide[] = {R.id.btn_play};
-        mManager.swapViews(toShow, toHide);
-        mManager.updateUI();
+//        isPlaying = true;
+//        mManager.play();
+//        int toShow[] = {R.id.btn_pause};
+//        int toHide[] = {R.id.btn_play};
+//        mManager.swapViews(toShow, toHide);
+//        mManager.updateUI();
     }
 
     private void pausePlayback() {
-        // NOTE: Shouldn't we set isPlaying = false here?
-        mManager.pause(true);
-        int toShow[] = {R.id.btn_play};
-        int toHide[] = {R.id.btn_pause};
-        mManager.swapViews(toShow, toHide);
+//        // NOTE: Shouldn't we set isPlaying = false here?
+//        mManager.pause(true);
+//        int toShow[] = {R.id.btn_play};
+//        int toHide[] = {R.id.btn_pause};
+//        mManager.swapViews(toShow, toHide);
     }
 
     private void skipForward() {
-        mManager.seekToEnd();
-        mManager.updateUI();
+//        mManager.seekToEnd();
+//        mManager.updateUI();
     }
 
     private void skipBack() {
-        mManager.seekToStart();
-        mManager.updateUI();
+//        mManager.seekToStart();
+//        mManager.updateUI();
     }
 
     private void placeStartMarker() {
-        mMainCanvas.placeStartMarker(mManager.getLocation());
-        int toShow[] = {R.id.btn_end_mark, R.id.btn_clear};
-        int toHide[] = {R.id.btn_start_mark};
-        mManager.swapViews(toShow, toHide);
-        mManager.updateUI();
+//        mMainCanvas.placeStartMarker(mManager.getLocation());
+//        int toShow[] = {R.id.btn_end_mark, R.id.btn_clear};
+//        int toHide[] = {R.id.btn_start_mark};
+//        mManager.swapViews(toShow, toHide);
+//        mManager.updateUI();
     }
 
     private void placeEndMarker() {
-        mMainCanvas.placeEndMarker(mManager.getLocation());
-        int toShow[] = {R.id.btn_cut};
-        int toHide[] = {R.id.btn_end_mark};
-        mManager.swapViews(toShow, toHide);
-        mManager.updateUI();
+//        mMainCanvas.placeEndMarker(mManager.getLocation());
+//        int toShow[] = {R.id.btn_cut};
+//        int toHide[] = {R.id.btn_end_mark};
+//        mManager.swapViews(toShow, toHide);
+//        mManager.updateUI();
     }
 
     private void cut() {
-        isSaved = false;
-        int toShow[] = {R.id.btn_start_mark, R.id.btn_undo};
-        int toHide[] = {R.id.btn_cut, R.id.btn_clear};
-        mManager.swapViews(toShow, toHide);
-        mManager.cutAndUpdate();
+//        isSaved = false;
+//        int toShow[] = {R.id.btn_start_mark, R.id.btn_undo};
+//        int toHide[] = {R.id.btn_cut, R.id.btn_clear};
+//        mManager.swapViews(toShow, toHide);
+//        mManager.cutAndUpdate();
     }
 
     private void undo() {
-        // TODO: Check mManager.hasCut() before hiding the undo button when cut is allowed more than one time.
-        mManager.undoCut();
-        int toShow[] = {};
-        int toHide[];
-        if (!mManager.hasCut()) {
-            toHide = new int[1];
-            toHide[0] = R.id.btn_undo;
-        } else {
-            toHide = new int[0];
-        }
-        mManager.swapViews(toShow, toHide);
+//        // TODO: Check mManager.hasCut() before hiding the undo button when cut is allowed more than one time.
+//        mManager.undoCut();
+//        int toShow[] = {};
+//        int toHide[];
+//        if (!mManager.hasCut()) {
+//            toHide = new int[1];
+//            toHide[0] = R.id.btn_undo;
+//        } else {
+//            toHide = new int[0];
+//        }
+//        mManager.swapViews(toShow, toHide);
     }
 
     private void clearMarkers() {
-        SectionMarkers.clearMarkers(mManager);
-        int toShow[] = {R.id.btn_start_mark};
-        int toHide[] = {R.id.btn_clear, R.id.btn_end_mark, R.id.btn_cut};
-        mManager.swapViews(toShow, toHide);
-        mManager.updateUI();
+//        SectionMarkers.clearMarkers(mManager);
+//        int toShow[] = {R.id.btn_start_mark};
+//        int toHide[] = {R.id.btn_clear, R.id.btn_end_mark, R.id.btn_cut};
+//        mManager.swapViews(toShow, toHide);
+//        mManager.updateUI();
     }
 
     private void openRating(FourStepImageView v) {
@@ -350,51 +319,51 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
      */
     public void writeCutToFile(final File to, final WavFile from, final Intent intent) {
 
-        final ProgressDialog pd = new ProgressDialog(this);
-        pd.setTitle("Saving");
-        pd.setMessage("Writing changes to file, please wait...");
-        pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        pd.setProgressNumberFormat(null);
-        pd.show();
-        Thread saveThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (mManager.hasCut()) {
-                    try {
-                        File dir = Project.getProjectDirectory(mProject);
-                        File toTemp = new File(dir, "temp.wav");
-                        mManager.writeCut(toTemp, from, pd);
-                        to.delete();
-                        toTemp.renameTo(to);
-                        ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
-                        db.addTake(new FileNameExtractor(to), to.getName(), to.lastModified(), 0);
-                        db.close();
-                        String oldName = from.getFile().getName();
-                        oldName = oldName.substring(0, oldName.lastIndexOf("."));
-                        File toVis = new File(Utils.VISUALIZATION_DIR, oldName + ".vis");
-                        toVis.delete();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                isSaved = true;
-                pd.dismiss();
-                if (intent == null) {
-                    finish();
-                } else {
-                    WavFile result = new WavFile(to);
-                    intent.putExtra(RecordingScreen.KEY_WAV_FILE, result);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        });
-        saveThread.start();
+//        final ProgressDialog pd = new ProgressDialog(this);
+//        pd.setTitle("Saving");
+//        pd.setMessage("Writing changes to file, please wait...");
+//        pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//        pd.setProgressNumberFormat(null);
+//        pd.show();
+//        Thread saveThread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (mManager.hasCut()) {
+//                    try {
+//                        File dir = Project.getProjectDirectory(mProject);
+//                        File toTemp = new File(dir, "temp.wav");
+//                        mManager.writeCut(toTemp, from, pd);
+//                        to.delete();
+//                        toTemp.renameTo(to);
+//                        ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
+//                        db.addTake(new FileNameExtractor(to), to.getName(), to.lastModified(), 0);
+//                        db.close();
+//                        String oldName = from.getFile().getName();
+//                        oldName = oldName.substring(0, oldName.lastIndexOf("."));
+//                        File toVis = new File(Utils.VISUALIZATION_DIR, oldName + ".vis");
+//                        toVis.delete();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                isSaved = true;
+//                pd.dismiss();
+//                if (intent == null) {
+//                    finish();
+//                } else {
+//                    WavFile result = new WavFile(to);
+//                    intent.putExtra(RecordingScreen.KEY_WAV_FILE, result);
+//                    startActivity(intent);
+//                    finish();
+//                }
+//            }
+//        });
+//        saveThread.start();
     }
 
     public void insert() {
-        Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mManager.getAdjustedLocation());
-        save(insertIntent);
+//        Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mManager.getAdjustedLocation());
+//        save(insertIntent);
     }
 
     private void setButtonHandlers() {
@@ -475,8 +444,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
     }
 
     private void dropVerseMarker() {
-        mMainCanvas.dropVerseMarker(mManager.getLocation());
-        mManager.updateUI();
+        //mMainCanvas.dropVerseMarker(mManager.getLocation());
+        //mManager.updateUI();
     }
 
     private void saveVerseMarkerPosition() {
@@ -569,7 +538,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     // TODO: Refactor? Maybe use radio button to select one and exclude the other?
                     v.setSelected(true);
                     v.setBackgroundColor(Color.parseColor("#00000000"));
-                    minimap.setVisibility(View.VISIBLE);
+                    //minimap.setVisibility(View.VISIBLE);
                     mSrcAudioPlayback.setVisibility(View.INVISIBLE);
                     mSwitchToPlayback.setSelected(false);
                     mSwitchToPlayback.setBackgroundColor(getResources().getColor(R.color.mostly_black));
@@ -580,7 +549,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                     v.setSelected(true);
                     v.setBackgroundColor(Color.parseColor("#00000000"));
                     mSrcAudioPlayback.setVisibility(View.VISIBLE);
-                    minimap.setVisibility(View.INVISIBLE);
+                    //minimap.setVisibility(View.INVISIBLE);
                     mSwitchToMinimap.setSelected(false);
                     mSwitchToMinimap.setBackgroundColor(getResources().getColor(R.color.mostly_black));
                     break;
