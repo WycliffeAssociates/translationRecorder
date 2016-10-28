@@ -12,7 +12,7 @@ import java.nio.MappedByteBuffer;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.MarkerView;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Playback.player.BufferPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;
@@ -47,7 +47,7 @@ public class UIDataManager {
     private TextView durationView;
     private boolean playbackOrRecording;
     private CutOp mCutOp;
-    private WavPlayer mPlayer;
+    private BufferPlayer mPlayer;
 
     public UIDataManager(WaveformView mainWave, MinimapView minimap, MarkerView start, MarkerView end, Activity ctx, boolean playbackOrRecording) {
         this(mainWave, minimap, null, start, end, ctx, playbackOrRecording);
@@ -71,7 +71,7 @@ public class UIDataManager {
         timerView = (TextView)ctx.findViewById(R.id.timer_view);
         this.ctx = ctx;
 
-        Logger.w(this.toString(), "passing cut to WavPlayer and Canvases");
+        Logger.w(this.toString(), "passing cut to BufferPlayer and Canvases");
         mCutOp = new CutOp();
         mainWave.setCut(mCutOp);
         minimap.setCut(mCutOp);
@@ -243,7 +243,7 @@ public class UIDataManager {
             Logger.w(UIDataManager.class.toString(), "Visualization buffer is null.");
         }
         Logger.w(UIDataManager.class.toString(), "MainWave height: " + mainWave.getHeight() + " width: " + mainWave.getWidth());
-        mPlayer = new WavPlayer(getMappedAudioFile(), mCutOp);
+        //mPlayer = new BufferPlayer(getMappedAudioFile(), mCutOp);
         Logger.w(UIDataManager.class.toString(), "Loaded file duration in ms is: " + mPlayer.getDuration());
         minimap.setAudioLength(mPlayer.getDuration());
         Logger.w(this.toString(), "Setting up visualizer");
@@ -400,16 +400,16 @@ public class UIDataManager {
         return mPlayer.getAdjustedLocation();
     }
 
-    public int getSelectionEnd(){
-        return mPlayer.getSelectionEnd();
-    }
+//    public int getSelectionEnd(){
+//        return mPlayer.getSelectionEnd();
+//    }
 
     public void release(){
         mPlayer.release();
     }
 
     public void pause(boolean fromButtonPress){
-        mPlayer.pause(fromButtonPress);
+        mPlayer.pause();
     }
 
     public void play(){

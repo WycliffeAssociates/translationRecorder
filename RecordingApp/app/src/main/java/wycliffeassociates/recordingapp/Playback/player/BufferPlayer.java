@@ -1,37 +1,22 @@
-package wycliffeassociates.recordingapp.Playback;
+package wycliffeassociates.recordingapp.Playback.player;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
-
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 
 /**
  * Plays .Wav audio files
  */
-public class WavPlayer {
+public class BufferPlayer {
 
     private final BufferProvider mBufferProvider;
-    private volatile MappedByteBuffer audioData = null;
     private AudioTrack player = null;
     private Thread mPlaybackThread;
-    private volatile boolean mOnlyPlayingSection = false;
-    private volatile int endPlaybackPosition = 0;
-    private volatile int startPlaybackPosition = 0;
     private int minBufferSize = 0;
-    private volatile boolean keepPlaying = false;
-    private volatile int playbackStart = 0;
-    private volatile boolean forceBreakOut = false;
-    private CutOp mCutOp;
-    private volatile boolean sPressedSeek = true;
-    private volatile boolean sPressedPause = false;
-    private volatile boolean releaseAtEnd = false;
     private OnCompleteListener mOnCompleteListener;
+    short[] mAudioShorts;
 
 
     interface OnCompleteListener{
@@ -39,85 +24,54 @@ public class WavPlayer {
     }
 
     interface BufferProvider {
-        void requestBuffer(byte[] bytes);
+        int requestBuffer(short[] shorts);
     }
 
-    public WavPlayer(BufferProvider bp) {
+    public BufferPlayer(BufferProvider bp) {
         mBufferProvider = bp;
-        releaseAtEnd = false;
+        init();
     }
 
-    public void setOnCompleteListener(OnCompleteListener onCompleteListener){
+    public BufferPlayer(BufferProvider bp, OnCompleteListener onCompleteListener) {
+        mBufferProvider = bp;
         mOnCompleteListener = onCompleteListener;
+        init();
     }
 
-    public void setOnlyPlayingSection(Boolean onlyPlayingSection){
-        mOnlyPlayingSection = onlyPlayingSection;
-    }
-
-    public void resetState(){
-        mOnlyPlayingSection = false;
-        endPlaybackPosition = 0;
-        startPlaybackPosition = 0;
-        minBufferSize = 0;
-        keepPlaying = false;
-        playbackStart = 0;
-        forceBreakOut = false;
-        releaseAtEnd = false;
+    public BufferPlayer setOnCompleteListener(OnCompleteListener onCompleteListener){
+        mOnCompleteListener = onCompleteListener;
+        init();
+        return this;
     }
 
     public void play(){
-        releaseAtEnd = false;
-        forceBreakOut = false;
         if(isPlaying()){
             return;
         }
-        keepPlaying = true;
         player.flush();
         player.play();
-        if(!mOnlyPlayingSection && !sPressedSeek && !sPressedPause){
-            playbackStart = 0;
-        }
-        sPressedPause = false;
-        sPressedSeek = false;
         mPlaybackThread = new Thread(){
 
             public void run(){
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
-                int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
-                Thread thisThread = Thread.currentThread();
                 //position in the buffer keeps track of where we are for playback
-                audioData.position(position);
-                int limit = audioData.capacity();
-                short[] shorts = new short[minBufferSize/2];
-                byte[] bytes = new byte[minBufferSize];
-                while(audioData != null && audioData.position() < limit && keepPlaying && thisThread == mPlaybackThread){
+                int shortsWritten = 1;
+                while(!mPlaybackThread.isInterrupted() && shortsWritten > 0){
+                    shortsWritten = mBufferProvider.requestBuffer(mAudioShorts);
+                    System.out.println(player.getNotificationMarkerPosition());
+                    player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsWritten);
+                    System.out.println(player.getNotificationMarkerPosition() + " shorts written was " + shortsWritten);
+                    player.write(mAudioShorts, 0, shortsWritten);
+                }
 
-                    mBufferProvider.requestBuffer(bytes);
-                    //copy the bytes from the audio file into a short buffer, need to flip byte order
-                    //as wav files are little endian
-                    ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-                    bytesBuffer.asShortBuffer().get(shorts);
-                    //write the buffer to the audiotrack; the write is blocking
-                    player.write(shorts, 0, shorts.length);
-                }
-                //location doesn't usually end up going to the end before audio playback stops.
-                //continue to loop until the end is reached.
-//                while(audioData != null && (getLocation() <= (getDuration())) && !forceBreakOut && thisThread == mPlaybackThread){
-//                    Thread.yield();
-//                }
-                if(releaseAtEnd){
-                    audioData = null;
-                    player = null;
-                }
             }
         };
         mPlaybackThread.start();
     }
 
-    public void load(){
-        resetState();
-        minBufferSize = AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
+    public void init(){
+        //some arbitrarily larger buffer
+        minBufferSize = 10 * AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
         System.out.println("buffer size for playback is " + minBufferSize);
@@ -125,14 +79,22 @@ public class WavPlayer {
         player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 minBufferSize, AudioTrack.MODE_STREAM);
-    }
 
-    //Pause calls flush so as to eliminate data that may have been written right after the pause
-    public void pause(boolean fromButtonPress){
-        if(player != null){
-            playbackStart = (int)(getLocation() * 88.2);
-            sPressedPause = true;
-            pause();
+        mAudioShorts = new short[minBufferSize];
+        if(mOnCompleteListener != null) {
+            player.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
+                @Override
+                public void onMarkerReached(AudioTrack track) {
+                    if (mOnCompleteListener != null) {
+                        mOnCompleteListener.onComplete();
+                        player.stop();
+                    }
+                }
+
+                @Override
+                public void onPeriodicNotification(AudioTrack track) {
+                }
+            });
         }
     }
 
@@ -140,8 +102,6 @@ public class WavPlayer {
         if(player != null){
             player.pause();
             player.flush();
-            forceBreakOut = true;
-            keepPlaying = false;
         }
     }
 
@@ -152,62 +112,14 @@ public class WavPlayer {
             return false;
     }
 
-    public void seekToStart(){
-        if(player != null ) {
-            if(mOnlyPlayingSection){
-                seekTo(startPlaybackPosition);
-            }
-            else {
-                seekTo(0);
-            }
-        }
-    }
-
-    public void seekToEnd(){
-        if(player != null ) {
-            if(mOnlyPlayingSection){
-                seekTo(endPlaybackPosition);
-            }
-            else {
-                seekTo(mCutOp.timeAdjusted(getDuration() - mCutOp.getSizeCut()));
-            }
-        }
-    }
-
-    public void seekTo(int x){
-        boolean wasPlaying = isPlaying();
-        sPressedSeek = true;
-        stop();
-
-        int seconds = x/1000;
-        int ms = (x-(seconds*1000));
-        int tens = ms/10;
-        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
-        idx*=2;
-
-        playbackStart = idx;
-        //make sure the playback start is within the bounds of the file's capacity
-        if(audioData != null) {
-            playbackStart = Math.max(Math.min(audioData.capacity(), playbackStart), 0);
-        } else {
-            playbackStart = 0;
-        }
-        if(wasPlaying){
-            play();
-        }
-        //Logger.w(this.toString(), "Seeking to " + x + "ms which is location " + playbackStart);
-    }
-
     public void stop(){
         if(isPlaying() || isPaused()){
-            keepPlaying = false;
             player.pause();
             player.stop();
-            if(mPlaybackThread != null){
-                forceBreakOut = true;
-                mPlaybackThread = null;
-            }
             player.flush();
+            if(mPlaybackThread != null){
+                mPlaybackThread.interrupt();
+            }
         }
     }
 
@@ -215,14 +127,6 @@ public class WavPlayer {
         stop();
         if(player != null) {
             player.release();
-        }
-        if(mPlaybackThread!= null){
-            keepPlaying = false;
-            forceBreakOut = true;
-        } else {
-            releaseAtEnd = true;
-            audioData = null;
-            player = null;
         }
     }
 
@@ -241,46 +145,90 @@ public class WavPlayer {
     }
 
     public int getLocation(){
-        if(player != null) {
-            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
-                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
-//            if(mMovedBackwards){
-//                loc = mCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
-//            } else {
-            //Ignore cuts prior to playback start: assume they're already accounted for
-            loc = mCutOp.timeAdjusted(loc, (int) Math.round(playbackStart / 88.2));
-           // }
-            return loc;
-        }
-        else {
-            forceBreakOut = true;
-            return 0;
-        }
-    }
-
-    public int getAdjustedLocation(){
-        if(player != null) {
-            int loc = mCutOp.reverseTimeAdjusted(getLocation());
-            return loc;
-        }
-        else {
-            return 0;
-        }
+        return player.getPlaybackHeadPosition();
     }
 
     public int getDuration(){
-        if(player != null && audioData != null){
-            int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
-            return duration;
-        }
-        else {
-            return 0;
-        }
+        return 0;
     }
 
     public int getAdjustedDuration(){
-        return getDuration() - mCutOp.getSizeCut();
+        return 0;
     }
+
+    public int getAdjustedLocation(){
+        return 0;
+    }
+
+    public void startSectionAt(int i){
+
+    }
+
+    public void seekTo(int i){
+
+    }
+
+    public void seekToEnd(){
+    }
+
+    public void seekToStart(){
+    }
+
+    public boolean checkIfShouldStop(){
+        return true;
+    }
+
+    public void setOnlyPlayingSection(boolean b){
+
+    }
+
+    public void stopSectionAt(int i){
+
+    }
+
+
+//
+//    public int getLocation(){
+//        if(player != null) {
+//            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
+//                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
+////            if(mMovedBackwards){
+////                loc = mCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
+////            } else {
+//            //Ignore cuts prior to playback start: assume they're already accounted for
+//            loc = mCutOp.timeAdjusted(loc, (int) Math.round(playbackStart / 88.2));
+//           // }
+//            return loc;
+//        }
+//        else {
+//            forceBreakOut = true;
+//            return 0;
+//        }
+//    }
+//
+//    public int getAdjustedLocation(){
+//        if(player != null) {
+//            int loc = mCutOp.reverseTimeAdjusted(getLocation());
+//            return loc;
+//        }
+//        else {
+//            return 0;
+//        }
+//    }
+//
+//    public int getDuration(){
+//        if(player != null && audioData != null){
+//            int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
+//            return duration;
+//        }
+//        else {
+//            return 0;
+//        }
+//    }
+//
+//    public int getAdjustedDuration(){
+//        return getDuration() - mCutOp.getSizeCut();
+//    }
 
 
 //    public void setOnlyPlayingSection(Boolean onlyPlayingSection){

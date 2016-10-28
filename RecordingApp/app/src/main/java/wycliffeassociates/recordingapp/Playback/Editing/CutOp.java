@@ -158,7 +158,7 @@ public class CutOp {
      * mFlattenedStack is a representation of the cut stack WITHOUT any nested cuts, and based on
      * the way it is computed, we can assume this list is sorted.
      *
-     * @param timeMs location that was computed from WavPlayer before considering cuts
+     * @param timeMs location that was computed from BufferPlayer before considering cuts
      * @return inflated time accounting for cuts
      */
     public synchronized int timeAdjusted(int timeMs){

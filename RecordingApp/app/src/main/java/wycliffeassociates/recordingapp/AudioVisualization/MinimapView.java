@@ -87,7 +87,7 @@ public class MinimapView extends CanvasView {
                 mManager.startSectionAt(playbackSectionStart);
                 mManager.seekTo(playbackSectionStart);
                 mManager.stopSectionAt(playbackSectionEnd);
-                //WavPlayer.selectionStart(playbackSectionStart);
+                //BufferPlayer.selectionStart(playbackSectionStart);
                 // TODO: Figure out a way to call PlaybackScreen.placeStartMarker and PlaybackScreen.placeEndMarker instead of re-writing the code here
                 int toShow[] = {R.id.btn_clear, R.id.btn_cut};
                 int toHide[] = {R.id.btn_end_mark, R.id.btn_start_mark};
@@ -112,8 +112,8 @@ public class MinimapView extends CanvasView {
         if(SectionMarkers.shouldDrawMarkers() ){
             int start = SectionMarkers.getMinimapMarkerStart();
             int end = SectionMarkers.getMinimapMarkerEnd();
-//            int start = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerStart() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
-//            int end = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerEnd() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
+//            int start = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerStart() / (double) getWidth()) * BufferPlayer.getDuration())) / (double) (BufferPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
+//            int end = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerEnd() / (double) getWidth()) * BufferPlayer.getDuration())) / (double) (BufferPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
             drawPlaybackSection(canvas, start, end);
             //System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
 

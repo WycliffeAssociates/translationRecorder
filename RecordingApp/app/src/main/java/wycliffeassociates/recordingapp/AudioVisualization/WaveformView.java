@@ -81,7 +81,7 @@ public class WaveformView extends CanvasView {
          */
         @Override
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
-            //Should only perform a scroll if the WavPlayer exists, since scrolling performs a seek
+            //Should only perform a scroll if the BufferPlayer exists, since scrolling performs a seek
             if (mManager != null && mGestures) {
                 //moves playback by the distance (distX is multiplied so as to scroll at a more
                 //reasonable speed. 3 seems to work well, but is mostly arbitrary.
@@ -136,13 +136,13 @@ public class WaveformView extends CanvasView {
 
     /**
      * Updates the start position in the marker object. If this means both markers are now set,
-     * WavPlayer needs to set start and stop locations
+     * BufferPlayer needs to set start and stop locations
      *
      * @param startTimeMs time in milliseconds of where to place a start marker
      */
     public void placeStartMarker(int startTimeMs) {
         SectionMarkers.setStartTime(startTimeMs, mManager.getAdjustedDuration(), mManager);
-        //if both markers are set, then set the start and end markers in WavPlayer
+        //if both markers are set, then set the start and end markers in BufferPlayer
         if (SectionMarkers.bothSet()) {
             setWavPlayerSelectionMarkers();
         }
@@ -153,7 +153,7 @@ public class WaveformView extends CanvasView {
 
     /**
      * Updates the end position in the marker object. If this means both markers are now set,
-     * WavPlayer needs to set start and end locations
+     * BufferPlayer needs to set start and end locations
      *
      * @param endTimeMS time in milliseconds of where to place an end marker
      */
@@ -177,7 +177,7 @@ public class WaveformView extends CanvasView {
     }
 
     /**
-     * Sets the start and end markers in the WavPlayer
+     * Sets the start and end markers in the BufferPlayer
      */
     public void setWavPlayerSelectionMarkers() {
         mManager.startSectionAt(SectionMarkers.getStartLocationMs());
@@ -292,7 +292,7 @@ public class WaveformView extends CanvasView {
     /**
      * Sets the time in playback to draw this frame
      * This is set so that both the waveform and the markers make use of the same time,
-     * rather than each querying WavPlayer when they get to draw their component.
+     * rather than each querying BufferPlayer when they get to draw their component.
      *
      * @param timeMs Current time during playback, in milliseconds
      */

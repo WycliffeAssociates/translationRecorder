@@ -102,14 +102,14 @@ public class AudioFileAccessor {
     }
 
     //deprecated
-    public int indicesInAPixelMinimap() {
-        //get the number of milliseconds in a pixel, map it to an absolute index, then convert to relative
-        double fileInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double) AudioInfo.SCREEN_WIDTH) * 2;
-        int incUncmp = (int) Math.round(((AudioInfo.SAMPLERATE * mManager.getAdjustedDuration()) / (double) 1000) / (double) AudioInfo.SCREEN_WIDTH) * 2;
-        int incCmp = (int) Math.round((incUncmp / (double) 44)) * 4;
-        int increment = (mUseCmp) ? incCmp : incUncmp;
-        return increment;
-    }
+//    public int indicesInAPixelMinimap() {
+//        //get the number of milliseconds in a pixel, map it to an absolute index, then convert to relative
+//        double fileInc = Math.round((AudioInfo.SAMPLERATE * AudioInfo.COMPRESSED_SECONDS_ON_SCREEN) / (double) AudioInfo.SCREEN_WIDTH) * 2;
+//        //int incUncmp = (int) Math.round(((AudioInfo.SAMPLERATE * mManager.getAdjustedDuration()) / (double) 1000) / (double) AudioInfo.SCREEN_WIDTH) * 2;
+//        int incCmp = (int) Math.round((incUncmp / (double) 44)) * 4;
+//        int increment = (mUseCmp) ? incCmp : incUncmp;
+//        return increment;
+//    }
 
     public int absoluteIndexFromAbsoluteTime(int timeMs) {
         int seconds = timeMs / 1000;
