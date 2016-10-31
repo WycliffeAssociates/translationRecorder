@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Plays .Wav audio files
@@ -15,16 +16,21 @@ public class BufferPlayer {
     private AudioTrack player = null;
     private Thread mPlaybackThread;
     private int minBufferSize = 0;
-    private OnCompleteListener mOnCompleteListener;
+    volatile int mTotalWritten = 0;
+    volatile int mTotalAttempted = 0;
+    volatile int mSessionLength;
+    private BufferPlayer.OnCompleteListener mOnCompleteListener;
     short[] mAudioShorts;
 
 
     interface OnCompleteListener{
         void onComplete();
+        void onPaused(int samplesPlayed);
     }
 
     interface BufferProvider {
         int requestBuffer(short[] shorts);
+        void resumeAt(int pausedHeadPosition);
     }
 
     public BufferPlayer(BufferProvider bp) {
@@ -32,36 +38,58 @@ public class BufferPlayer {
         init();
     }
 
-    public BufferPlayer(BufferProvider bp, OnCompleteListener onCompleteListener) {
+    public BufferPlayer(BufferProvider bp, BufferPlayer.OnCompleteListener onCompleteListener) {
         mBufferProvider = bp;
         mOnCompleteListener = onCompleteListener;
         init();
     }
 
-    public BufferPlayer setOnCompleteListener(OnCompleteListener onCompleteListener){
+    public BufferPlayer setOnCompleteListener(BufferPlayer.OnCompleteListener onCompleteListener){
         mOnCompleteListener = onCompleteListener;
         init();
         return this;
     }
 
-    public void play(){
+    public synchronized void play(final int durationToPlay){
         if(isPlaying()){
             return;
         }
-        player.flush();
+        player.setNotificationMarkerPosition(durationToPlay);
+        mSessionLength = durationToPlay;
         player.play();
         mPlaybackThread = new Thread(){
 
             public void run(){
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
                 //position in the buffer keeps track of where we are for playback
-                int shortsWritten = 1;
-                while(!mPlaybackThread.isInterrupted() && shortsWritten > 0){
+                int shortsWritten = 0;
+                int returnVal;
+                //while(!mPlaybackThread.isInterrupted() && isPlaying()){
+                while(player.getPlaybackHeadPosition() < durationToPlay && isPlaying()) {
                     shortsWritten = mBufferProvider.requestBuffer(mAudioShorts);
-                    System.out.println(player.getNotificationMarkerPosition());
-                    player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsWritten);
-                    System.out.println(player.getNotificationMarkerPosition() + " shorts written was " + shortsWritten);
-                    player.write(mAudioShorts, 0, shortsWritten);
+                    //System.out.println("current position is " + player.getPlaybackHeadPosition() + " duration is " + durationToPlay);
+                    //player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsWritten);
+                    //System.out.println("totalwritten is " + totalWritten + " marker position is " + player.getNotificationMarkerPosition());
+                    //System.out.println(player.getNotificationMarkerPosition() + " shorts written was " + shortsWritten);
+                    returnVal = player.write(mAudioShorts, 0, shortsWritten);
+                    switch (returnVal) {
+                        case AudioTrack.ERROR_INVALID_OPERATION: {
+                            Logger.e(this.toString(), "ERROR INVALID OPERATION");
+                            break;
+                        }
+                        case AudioTrack.ERROR_BAD_VALUE: {
+                            Logger.e(this.toString(), "ERROR BAD VALUE");
+                            break;
+                        }
+                        case AudioTrack.ERROR: {
+                            Logger.e(this.toString(), "ERROR");
+                            break;
+                        }
+                        default: {
+                            mTotalWritten += returnVal;
+                            mTotalAttempted += shortsWritten;
+                        }
+                    }
                 }
 
             }
@@ -69,12 +97,18 @@ public class BufferPlayer {
         mPlaybackThread.start();
     }
 
+    public void writeBufferToPlayer(){
+        int shortsWritten = mBufferProvider.requestBuffer(mAudioShorts);
+        int shortsActuallyWritten = player.write(mAudioShorts, 0, shortsWritten);
+        player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsActuallyWritten/2);
+    }
+
     public void init(){
         //some arbitrarily larger buffer
         minBufferSize = 10 * AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-        System.out.println("buffer size for playback is " + minBufferSize);
+       // System.out.println("buffer size for playback is " + minBufferSize);
 
         player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
@@ -85,10 +119,17 @@ public class BufferPlayer {
             player.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
                 public void onMarkerReached(AudioTrack track) {
-                    if (mOnCompleteListener != null) {
-                        mOnCompleteListener.onComplete();
-                        player.stop();
-                    }
+//                    if (player.getPlaybackHeadPosition() == player.getNotificationMarkerPosition()) {
+//                        finish();
+//                    } else {
+//                        int shortsWritten = mBufferProvider.requestBuffer(mAudioShorts);
+//                        int shortsActuallyWritten = player.write(mAudioShorts, 0, shortsWritten);
+//                        player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsActuallyWritten/2);
+//                        if(shortsWritten == 0) {
+//                            finish();
+//                        }
+//                    }
+                    finish();
                 }
 
                 @Override
@@ -98,11 +139,22 @@ public class BufferPlayer {
         }
     }
 
-    public void pause(){
-        if(player != null){
-            player.pause();
-            player.flush();
-        }
+    private synchronized void finish(){
+        System.out.println(this.toString() + "Marker reached. Head is " + player.getPlaybackHeadPosition() + " and the marker is " + player.getNotificationMarkerPosition());
+        player.stop();
+        mPlaybackThread.interrupt();
+        mOnCompleteListener.onComplete();
+  //      completed = true;
+    //    totalWritten = 0;
+    }
+
+    //Simply pausing the audiotrack does not seem to allow the player to resume.
+    public synchronized void pause(){
+        player.pause();
+        int location = player.getPlaybackHeadPosition();
+        System.out.println("paused at " + location);
+        mBufferProvider.resumeAt(location);
+        player.flush();
     }
 
     public boolean exists(){
@@ -112,7 +164,7 @@ public class BufferPlayer {
             return false;
     }
 
-    public void stop(){
+    public synchronized void stop(){
         if(isPlaying() || isPaused()){
             player.pause();
             player.stop();
@@ -123,7 +175,7 @@ public class BufferPlayer {
         }
     }
 
-    public void release(){
+    public synchronized void release(){
         stop();
         if(player != null) {
             player.release();

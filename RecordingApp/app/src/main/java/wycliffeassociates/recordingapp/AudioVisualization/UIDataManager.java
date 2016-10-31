@@ -413,7 +413,7 @@ public class UIDataManager {
     }
 
     public void play(){
-        mPlayer.play();
+        mPlayer.play(0);
     }
 
     public void seekToEnd(){

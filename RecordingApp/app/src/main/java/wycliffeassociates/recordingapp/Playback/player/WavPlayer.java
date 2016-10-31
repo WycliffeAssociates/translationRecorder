@@ -8,13 +8,18 @@ import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
  * Created by sarabiaj on 10/28/2016.
  */
 
+/**
+ * Controls interaction between BufferPlayer and AudioBufferProvider. The BufferPlayer simply plays audio
+ * that is passed to it, and the BufferProvider manages processing audio to get the proper buffer to play
+ * based on performing operations on the audio buffer (such as cut).
+ */
 public class WavPlayer {
 
     ShortBuffer mAudioBuffer;
     CutOp mOperationStack;
     BufferPlayer mPlayer;
     AudioBufferProvider mBufferProvider;
-    OnCompleteListener mOnCompleteListener;
+    WavPlayer.OnCompleteListener mOnCompleteListener;
 
     public interface OnCompleteListener{
         void onComplete();
@@ -28,22 +33,27 @@ public class WavPlayer {
             @Override
             public void onComplete() {
                 if(mOnCompleteListener != null){
-                    mAudioBuffer.reset();
+                    mBufferProvider.reset();
                     mOnCompleteListener.onComplete();
                 }
+            }
+
+            @Override
+            public void onPaused(int samplesPlayedFromStart){
+                mBufferProvider.setPosition(mBufferProvider.getStartPosition() + samplesPlayedFromStart);
             }
         });
     }
 
     public void play(){
-        mPlayer.play();
+        mPlayer.play(mBufferProvider.getSizeOfNextSession());
     }
 
     public void pause(){
         mPlayer.pause();
     }
 
-    public void setOnCompleteListener(OnCompleteListener onCompleteListener){
+    public void setOnCompleteListener(WavPlayer.OnCompleteListener onCompleteListener){
         mOnCompleteListener = onCompleteListener;
     }
 

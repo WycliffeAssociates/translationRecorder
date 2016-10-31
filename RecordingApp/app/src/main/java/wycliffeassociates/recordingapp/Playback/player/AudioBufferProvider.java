@@ -21,6 +21,29 @@ public class AudioBufferProvider implements BufferPlayer.BufferProvider {
         //Android's AudioTrack Spec
         mCutOp = cutOp;
         mAudio = audio;
+        mAudio.position(0);
+        mAudio.mark();
+    }
+
+    void reset(){
+        mAudio.reset();
+    }
+
+    void reset(int position){
+        mAudio.position(position);
+        mAudio.reset();
+    }
+
+    public void resumeAt(int pausedHeadPosition){
+        int samplesPlayed = pausedHeadPosition;
+        mAudio.position(mStartPosition);
+        short[] skip = new short[samplesPlayed];
+        get(skip);
+        mStartPosition = mAudio.position();
+    }
+
+    public int getSizeOfNextSession(){
+        return mAudio.limit() - mAudio.position();
     }
 
     @Override
@@ -30,7 +53,7 @@ public class AudioBufferProvider implements BufferPlayer.BufferProvider {
     }
 
     private int get(short[] shorts){
-        System.out.println("Requesting " + shorts.length + " shorts at position " + mAudio.position());
+        //System.out.println("Requesting " + shorts.length + " shorts at position " + mAudio.position());
         int shortsWritten = 0;
         if(mCutOp.cutExistsInRange(mAudio.position(), shorts.length)){
             shortsWritten = getWithSkips(shorts);

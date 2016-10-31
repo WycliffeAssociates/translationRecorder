@@ -31,8 +31,6 @@ public class AudioController {
         WavFileLoader loader = new WavFileLoader(wav);
         mAudio = loader.getMappedAudioFile();
         ShortBuffer mAudioShort = mAudio.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        mAudioShort.position(0);
-        mAudioShort.mark();
         mPlayer = new WavPlayer(mAudioShort, mCutOp);
         mPause = pause; mPlay = play; mSeekBackward = seekBackward; mSeekForward = seekForward;
 
@@ -78,14 +76,14 @@ public class AudioController {
 
     public void play(){
         swapViews(new View[]{mPause}, new View[]{mPlay});
+        mPlayer.play();
         Thread playbackThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                mPlayer.play();
                 while(mPlayer.isPlaying()){
                     //getLocation();
                     //draw();
-                    System.out.println(mPlayer.getLocation());
+       //             System.out.println(mPlayer.getLocation());
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -100,7 +98,7 @@ public class AudioController {
     public void pause(){
         swapViews(new View[]{mPlay}, new View[]{mPause});
         mPlayer.pause();
-        playing = false;
+        //playing = false;
     }
 
 //    public void seekForward(){
