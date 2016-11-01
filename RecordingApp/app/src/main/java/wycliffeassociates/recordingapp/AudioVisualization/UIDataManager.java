@@ -112,7 +112,7 @@ public class UIDataManager {
             wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
-        int location = mPlayer.getLocation();
+        int location = 0;//mPlayer.getLocation();
         minimap.setMiniMarkerLoc((float) ((mCutOp.reverseTimeAdjusted(location) / ((double) mPlayer.getDuration() - mCutOp.getSizeCut())) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         mainWave.setTimeToDraw(location);
@@ -126,10 +126,10 @@ public class UIDataManager {
             }
         });
         if(mStartMarker != null ){
-            int xStart = timeToScreenSpace(mPlayer.getLocation(),
+            int xStart = timeToScreenSpace(0,
                     SectionMarkers.getStartLocationMs(), wavVis.millisecondsPerPixel());
             mStartMarker.setX(xStart - mStartMarker.getWidth() + (AudioInfo.SCREEN_WIDTH/8.f));
-            int xEnd = timeToScreenSpace(mPlayer.getLocation(),
+            int xEnd = timeToScreenSpace(0,
                     SectionMarkers.getEndLocationMs(), wavVis.millisecondsPerPixel());
             mEndMarker.setX(xEnd + (AudioInfo.SCREEN_WIDTH/8.f));
         }
@@ -393,7 +393,7 @@ public class UIDataManager {
     }
 
     public int getLocation(){
-        return mPlayer.getLocation();
+        return 0;
     }
 
     public int getAdjustedLocation(){

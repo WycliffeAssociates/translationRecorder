@@ -37,11 +37,6 @@ public class WavPlayer {
                     mOnCompleteListener.onComplete();
                 }
             }
-
-            @Override
-            public void onPaused(int samplesPlayedFromStart){
-                mBufferProvider.setPosition(mBufferProvider.getStartPosition() + samplesPlayedFromStart);
-            }
         });
     }
 
@@ -58,7 +53,7 @@ public class WavPlayer {
     }
 
     public int getLocation(){
-        return (int)((mBufferProvider.getStartPosition() + mPlayer.getLocation()) / 44.1);
+        return (int)((mBufferProvider.getStartPosition() + mPlayer.getPlaybackHeadPosition()) / 44.1);
     }
 
     public int getDuration(){

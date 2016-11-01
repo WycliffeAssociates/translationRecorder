@@ -59,7 +59,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private WavFile mWavFile;
     private Project mProject;
     private int mChapter, mUnit, mRating, mVersesLeft;
-    private AudioController mAudioController;
+    private AudioVisualController mAudioController;
+    private TextView mPlaybackElapsed, mPlaybackDuration;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackActivity.class);
@@ -86,7 +87,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         setButtonHandlers();
         enableButtons();
         mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
-        mAudioController = new AudioController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn, mWavFile);
+        mAudioController = new AudioVisualController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn, mPlaybackElapsed, mPlaybackDuration, mWavFile);
     }
 
     private void parseIntent(Intent intent) {
@@ -130,6 +131,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mSaveBtn = (ImageButton) findViewById(R.id.btn_save);
         mDropVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_drop_verse_marker);
         mCompleteVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_verse_marker_done);
+        mPlaybackElapsed = (TextView) findViewById(R.id.playback_elapsed);
+        mPlaybackDuration = (TextView) findViewById(R.id.playback_duration);
     }
 
     private void initializeViews() {

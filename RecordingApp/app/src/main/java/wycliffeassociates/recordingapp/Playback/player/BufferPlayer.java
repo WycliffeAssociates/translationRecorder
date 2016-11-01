@@ -16,21 +16,18 @@ public class BufferPlayer {
     private AudioTrack player = null;
     private Thread mPlaybackThread;
     private int minBufferSize = 0;
-    volatile int mTotalWritten = 0;
-    volatile int mTotalAttempted = 0;
-    volatile int mSessionLength;
+    private int mSessionLength;
     private BufferPlayer.OnCompleteListener mOnCompleteListener;
-    short[] mAudioShorts;
+    private short[] mAudioShorts;
 
 
     interface OnCompleteListener{
         void onComplete();
-        void onPaused(int samplesPlayed);
     }
 
     interface BufferProvider {
         int requestBuffer(short[] shorts);
-        void resumeAt(int pausedHeadPosition);
+        void pausedAfterPlayingXSamples(int pausedHeadPosition);
     }
 
     public BufferPlayer(BufferProvider bp) {
@@ -58,21 +55,15 @@ public class BufferPlayer {
         mSessionLength = durationToPlay;
         player.play();
         mPlaybackThread = new Thread(){
-
             public void run(){
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
                 //position in the buffer keeps track of where we are for playback
-                int shortsWritten = 0;
-                int returnVal;
-                //while(!mPlaybackThread.isInterrupted() && isPlaying()){
-                while(player.getPlaybackHeadPosition() < durationToPlay && isPlaying()) {
-                    shortsWritten = mBufferProvider.requestBuffer(mAudioShorts);
-                    //System.out.println("current position is " + player.getPlaybackHeadPosition() + " duration is " + durationToPlay);
-                    //player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsWritten);
-                    //System.out.println("totalwritten is " + totalWritten + " marker position is " + player.getNotificationMarkerPosition());
-                    //System.out.println(player.getNotificationMarkerPosition() + " shorts written was " + shortsWritten);
-                    returnVal = player.write(mAudioShorts, 0, minBufferSize);
-                    switch (returnVal) {
+                int shortsRetrieved = 1;
+                int shortsWritten;
+                while(!mPlaybackThread.isInterrupted() && isPlaying() && shortsRetrieved > 0){
+                    shortsRetrieved = mBufferProvider.requestBuffer(mAudioShorts);
+                    shortsWritten = player.write(mAudioShorts, 0, minBufferSize);
+                    switch (shortsWritten) {
                         case AudioTrack.ERROR_INVALID_OPERATION: {
                             Logger.e(this.toString(), "ERROR INVALID OPERATION");
                             break;
@@ -85,30 +76,17 @@ public class BufferPlayer {
                             Logger.e(this.toString(), "ERROR");
                             break;
                         }
-                        default: {
-                            mTotalWritten += returnVal;
-                            mTotalAttempted += shortsWritten;
-                        }
                     }
                 }
-
             }
         };
         mPlaybackThread.start();
-    }
-
-    public void writeBufferToPlayer(){
-        int shortsWritten = mBufferProvider.requestBuffer(mAudioShorts);
-        int shortsActuallyWritten = player.write(mAudioShorts, 0, shortsWritten);
-        player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsActuallyWritten/2);
     }
 
     public void init(){
         //some arbitrarily larger buffer
         minBufferSize = 10 * AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-
-       // System.out.println("buffer size for playback is " + minBufferSize);
 
         player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
@@ -119,16 +97,6 @@ public class BufferPlayer {
             player.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
                 public void onMarkerReached(AudioTrack track) {
-//                    if (player.getPlaybackHeadPosition() == player.getNotificationMarkerPosition()) {
-//                        finish();
-//                    } else {
-//                        int shortsWritten = mBufferProvider.requestBuffer(mAudioShorts);
-//                        int shortsActuallyWritten = player.write(mAudioShorts, 0, shortsWritten);
-//                        player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsActuallyWritten/2);
-//                        if(shortsWritten == 0) {
-//                            finish();
-//                        }
-//                    }
                     finish();
                 }
 
@@ -140,12 +108,9 @@ public class BufferPlayer {
     }
 
     private synchronized void finish(){
-        System.out.println(this.toString() + "Marker reached. Head is " + player.getPlaybackHeadPosition() + " and the marker is " + player.getNotificationMarkerPosition());
         player.stop();
         mPlaybackThread.interrupt();
         mOnCompleteListener.onComplete();
-  //      completed = true;
-    //    totalWritten = 0;
     }
 
     //Simply pausing the audiotrack does not seem to allow the player to resume.
@@ -153,7 +118,7 @@ public class BufferPlayer {
         player.pause();
         int location = player.getPlaybackHeadPosition();
         System.out.println("paused at " + location);
-        mBufferProvider.resumeAt(location);
+        mBufferProvider.pausedAfterPlayingXSamples(location);
         player.flush();
     }
 
@@ -196,48 +161,33 @@ public class BufferPlayer {
             return false;
     }
 
-    public int getLocation(){
+    public int getPlaybackHeadPosition(){
         return player.getPlaybackHeadPosition();
     }
-
     public int getDuration(){
         return 0;
     }
-
     public int getAdjustedDuration(){
         return 0;
     }
-
     public int getAdjustedLocation(){
         return 0;
     }
-
     public void startSectionAt(int i){
-
     }
-
     public void seekTo(int i){
-
     }
-
     public void seekToEnd(){
     }
-
     public void seekToStart(){
     }
-
     public boolean checkIfShouldStop(){
         return true;
     }
-
     public void setOnlyPlayingSection(boolean b){
-
     }
-
     public void stopSectionAt(int i){
-
     }
-
 
 //
 //    public int getLocation(){

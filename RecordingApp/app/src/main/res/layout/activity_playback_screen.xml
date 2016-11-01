@@ -280,7 +280,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/timer_view"
+                    android:id="@+id/playback_elapsed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="00:00:00"
@@ -290,7 +290,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/duration_view"
+                    android:id="@+id/playback_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="/ 00:00:00"

@@ -35,7 +35,7 @@ public class AudioBufferProvider implements BufferPlayer.BufferProvider {
         mAudio.reset();
     }
 
-    public void resumeAt(int pausedHeadPosition){
+    public void pausedAfterPlayingXSamples(int pausedHeadPosition){
         int samplesPlayed = pausedHeadPosition;
         mAudio.position(mStartPosition);
         short[] skip = new short[samplesPlayed];
