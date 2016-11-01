@@ -9,12 +9,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
+import wycliffeassociates.recordingapp.Playback.Editing.SectionMarkers;
 import wycliffeassociates.recordingapp.Playback.VerseMarker;
 
 /**

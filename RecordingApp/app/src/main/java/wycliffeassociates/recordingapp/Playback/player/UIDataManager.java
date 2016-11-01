@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.AudioVisualization;
+package wycliffeassociates.recordingapp.Playback.player;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -10,9 +10,14 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
+import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
+import wycliffeassociates.recordingapp.AudioVisualization.RecordingTimer;
+import wycliffeassociates.recordingapp.Playback.Editing.SectionMarkers;
+import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
+import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
+import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.MarkerView;
-import wycliffeassociates.recordingapp.Playback.player.BufferPlayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingMessage;
 import wycliffeassociates.recordingapp.Recording.RecordingQueues;

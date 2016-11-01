@@ -4,6 +4,7 @@ import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
+import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**

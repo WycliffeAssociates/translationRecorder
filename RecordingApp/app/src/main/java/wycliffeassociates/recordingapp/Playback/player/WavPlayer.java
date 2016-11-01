@@ -1,8 +1,10 @@
 package wycliffeassociates.recordingapp.Playback.player;
 
 import java.nio.ShortBuffer;
+import java.util.List;
 
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
+import wycliffeassociates.recordingapp.wav.WavCue;
 
 /**
  * Created by sarabiaj on 10/28/2016.
@@ -15,20 +17,23 @@ import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
  */
 public class WavPlayer {
 
+    private final List<WavCue> mCueList;
     ShortBuffer mAudioBuffer;
     CutOp mOperationStack;
     BufferPlayer mPlayer;
     AudioBufferProvider mBufferProvider;
     WavPlayer.OnCompleteListener mOnCompleteListener;
+    private int EPSILON = 200;
 
     public interface OnCompleteListener{
         void onComplete();
     }
 
-    public WavPlayer(ShortBuffer audioBuffer, CutOp operations){
+    public WavPlayer(ShortBuffer audioBuffer, CutOp operations, List<WavCue> cueList){
         mOperationStack = operations;
         mAudioBuffer = audioBuffer;
         mBufferProvider = new AudioBufferProvider(mAudioBuffer, mOperationStack);
+        mCueList = cueList;
         mPlayer = new BufferPlayer(mBufferProvider, new BufferPlayer.OnCompleteListener() {
             @Override
             public void onComplete() {
@@ -38,6 +43,55 @@ public class WavPlayer {
                 }
             }
         });
+    }
+
+    public synchronized void seekNext(){
+        int seekLocation = getDuration();
+        int currentLocation = getLocation();
+        if(mCueList != null) {
+            int location;
+            for(int i = 0; i < mCueList.size(); i++){
+                location = mCueList.get(i).getLoctionInMilliseconds();
+                if(currentLocation < location){
+                    seekLocation = location;
+                    break;
+                }
+            }
+        }
+        seekTo(seekLocation);
+    }
+
+    public synchronized void seekPrevious(){
+        int seekLocation = 0;
+        int currentLocation = getLocation();
+        if(mCueList != null){
+            int location;
+            for(int i = mCueList.size()-1; i >= 0; i--){
+                location = mCueList.get(i).getLoctionInMilliseconds();
+                //if playing, you won't be able to keep pressing back, it will clamp to the last marker
+                if(!isPlaying() && currentLocation > location) {
+                    seekLocation = location;
+                    break;
+                } else if (currentLocation - EPSILON > location) { //epsilon here is to prevent that clamping
+                    seekLocation = location;
+                    break;
+                }
+            }
+        }
+        seekTo(seekLocation);
+    }
+
+    private synchronized void seekTo(int location){
+        if(location > getDuration() || location < 0){
+            return;
+        }
+        boolean wasPlaying = mPlayer.isPlaying();
+        pause();
+        int index = mOperationStack.timeToUncmpLoc(location) / 2;
+        mBufferProvider.setPosition(index);
+        if(wasPlaying){
+            play();
+        }
     }
 
     public void play(){
@@ -62,5 +116,21 @@ public class WavPlayer {
 
     public boolean isPlaying(){
         return mPlayer.isPlaying();
+    }
+
+    public void setLoopStart(int ms){
+        int index = mOperationStack.timeToUncmpLoc(ms)/2;
+        mBufferProvider.mark(index);
+    }
+
+    public void setLoopEnd(int ms){
+        int index = mOperationStack.timeToUncmpLoc(ms)/2;
+        mBufferProvider.setLimit(index);
+        mBufferProvider.reset();
+    }
+
+    public void clearLoopPoints(){
+        mBufferProvider.clearMark();
+        mBufferProvider.clearLimit();
     }
 }

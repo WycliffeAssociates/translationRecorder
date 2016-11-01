@@ -5,6 +5,7 @@ import java.nio.MappedByteBuffer;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
+import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 
 public class WavVisualizer {
 

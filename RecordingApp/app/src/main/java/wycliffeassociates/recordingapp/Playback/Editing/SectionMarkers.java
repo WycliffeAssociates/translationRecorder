@@ -1,5 +1,6 @@
-package wycliffeassociates.recordingapp.AudioVisualization;
+package wycliffeassociates.recordingapp.Playback.Editing;
 
+import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**

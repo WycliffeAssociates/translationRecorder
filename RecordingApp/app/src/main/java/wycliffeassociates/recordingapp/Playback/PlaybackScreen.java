@@ -16,8 +16,8 @@ import java.io.File;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
-import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
-import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
+import wycliffeassociates.recordingapp.Playback.Editing.SectionMarkers;
+import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;

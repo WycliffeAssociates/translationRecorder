@@ -10,7 +10,7 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 /**
  * Plays .Wav audio files
  */
-public class BufferPlayer {
+class BufferPlayer {
 
     private final BufferProvider mBufferProvider;
     private AudioTrack player = null;
@@ -30,36 +30,39 @@ public class BufferPlayer {
         void pausedAfterPlayingXSamples(int pausedHeadPosition);
     }
 
-    public BufferPlayer(BufferProvider bp) {
+    BufferPlayer(BufferProvider bp) {
         mBufferProvider = bp;
         init();
     }
 
-    public BufferPlayer(BufferProvider bp, BufferPlayer.OnCompleteListener onCompleteListener) {
+    BufferPlayer(BufferProvider bp, BufferPlayer.OnCompleteListener onCompleteListener) {
         mBufferProvider = bp;
         mOnCompleteListener = onCompleteListener;
         init();
     }
 
-    public BufferPlayer setOnCompleteListener(BufferPlayer.OnCompleteListener onCompleteListener){
+    BufferPlayer setOnCompleteListener(BufferPlayer.OnCompleteListener onCompleteListener){
         mOnCompleteListener = onCompleteListener;
         init();
         return this;
     }
 
-    public synchronized void play(final int durationToPlay){
+    synchronized void play(final int durationToPlay){
         if(isPlaying()){
             return;
         }
-        player.setNotificationMarkerPosition(durationToPlay);
+        System.out.println("duration to play " + durationToPlay);
         mSessionLength = durationToPlay;
+        player.setPlaybackHeadPosition(0);
+        player.flush();
+        player.setNotificationMarkerPosition(durationToPlay);
         player.play();
         mPlaybackThread = new Thread(){
             public void run(){
                 //the starting position needs to beginning of the 16bit PCM data, not in the middle
                 //position in the buffer keeps track of where we are for playback
                 int shortsRetrieved = 1;
-                int shortsWritten;
+                int shortsWritten = 0;
                 while(!mPlaybackThread.isInterrupted() && isPlaying() && shortsRetrieved > 0){
                     shortsRetrieved = mBufferProvider.requestBuffer(mAudioShorts);
                     shortsWritten = player.write(mAudioShorts, 0, minBufferSize);
@@ -78,12 +81,13 @@ public class BufferPlayer {
                         }
                     }
                 }
+                System.out.println("shorts written " + shortsWritten);
             }
         };
         mPlaybackThread.start();
     }
 
-    public void init(){
+    void init(){
         //some arbitrarily larger buffer
         minBufferSize = 10 * AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -108,28 +112,29 @@ public class BufferPlayer {
     }
 
     private synchronized void finish(){
+        System.out.println("marker reached");
         player.stop();
         mPlaybackThread.interrupt();
         mOnCompleteListener.onComplete();
     }
 
     //Simply pausing the audiotrack does not seem to allow the player to resume.
-    public synchronized void pause(){
+    synchronized void pause(){
         player.pause();
         int location = player.getPlaybackHeadPosition();
         System.out.println("paused at " + location);
         mBufferProvider.pausedAfterPlayingXSamples(location);
-        player.flush();
+        player.stop();
     }
 
-    public boolean exists(){
+    boolean exists(){
         if(player != null){
             return true;
         } else
             return false;
     }
 
-    public synchronized void stop(){
+    synchronized void stop(){
         if(isPlaying() || isPaused()){
             player.pause();
             player.stop();
@@ -140,57 +145,57 @@ public class BufferPlayer {
         }
     }
 
-    public synchronized void release(){
+    synchronized void release(){
         stop();
         if(player != null) {
             player.release();
         }
     }
 
-    public boolean isPlaying(){
+    boolean isPlaying(){
         if(player != null)
             return player.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
         else
             return false;
     }
 
-    public boolean isPaused(){
+    boolean isPaused(){
         if(player != null)
             return player.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
         else
             return false;
     }
 
-    public int getPlaybackHeadPosition(){
+    int getPlaybackHeadPosition(){
         return player.getPlaybackHeadPosition();
     }
-    public int getDuration(){
+    int getDuration(){
         return 0;
     }
-    public int getAdjustedDuration(){
+    int getAdjustedDuration(){
         return 0;
     }
-    public int getAdjustedLocation(){
+    int getAdjustedLocation(){
         return 0;
     }
-    public void startSectionAt(int i){
+    void startSectionAt(int i){
     }
-    public void seekTo(int i){
+    void seekTo(int i){
     }
-    public void seekToEnd(){
+    void seekToEnd(){
     }
-    public void seekToStart(){
+    void seekToStart(){
     }
-    public boolean checkIfShouldStop(){
+    boolean checkIfShouldStop(){
         return true;
     }
-    public void setOnlyPlayingSection(boolean b){
+    void setOnlyPlayingSection(boolean b){
     }
-    public void stopSectionAt(int i){
+    void stopSectionAt(int i){
     }
 
 //
-//    public int getLocation(){
+//    int getLocation(){
 //        if(player != null) {
 //            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
 //                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
@@ -208,7 +213,7 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public int getAdjustedLocation(){
+//    int getAdjustedLocation(){
 //        if(player != null) {
 //            int loc = mCutOp.reverseTimeAdjusted(getLocation());
 //            return loc;
@@ -218,7 +223,7 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public int getDuration(){
+//    int getDuration(){
 //        if(player != null && audioData != null){
 //            int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
 //            return duration;
@@ -228,16 +233,16 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public int getAdjustedDuration(){
+//    int getAdjustedDuration(){
 //        return getDuration() - mCutOp.getSizeCut();
 //    }
 
 
-//    public void setOnlyPlayingSection(Boolean onlyPlayingSection){
+//    void setOnlyPlayingSection(Boolean onlyPlayingSection){
 //        mOnlyPlayingSection = onlyPlayingSection;
 //    }
 //
-//    public void resetState(){
+//    void resetState(){
 //        mOnlyPlayingSection = false;
 //        endPlaybackPosition = 0;
 //        startPlaybackPosition = 0;
@@ -248,7 +253,7 @@ public class BufferPlayer {
 //        releaseAtEnd = false;
 //    }
 //
-//    public void onPlay(){
+//    void onPlay(){
 //        releaseAtEnd = false;
 //        forceBreakOut = false;
 //        if(isPlaying()){
@@ -264,7 +269,7 @@ public class BufferPlayer {
 //        sPressedSeek = false;
 //        mPlaybackThread = new Thread(){
 //
-//            public void run(){
+//            void run(){
 //                //the starting position needs to beginning of the 16bit PCM data, not in the middle
 //                int position = (playbackStart % 2 == 0)? playbackStart : playbackStart+1;
 //                Thread thisThread = Thread.currentThread();
@@ -365,7 +370,7 @@ public class BufferPlayer {
 //     * Initializes the audio track to onPlay this file
 //     * @param file
 //     */
-//    public void loadFile(MappedByteBuffer file){
+//    void loadFile(MappedByteBuffer file){
 //        resetState();
 //        audioData = file;
 //        minBufferSize = AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
@@ -380,7 +385,7 @@ public class BufferPlayer {
 //    }
 //
 //    //Pause calls flush so as to eliminate data that may have been written right after the onPause
-//    public void onPause(boolean fromButtonPress){
+//    void onPause(boolean fromButtonPress){
 //        if(player != null){
 //            playbackStart = (int)(getLocation() * 88.2);
 //            sPressedPause = true;
@@ -388,7 +393,7 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public void onPause(){
+//    void onPause(){
 //        if(player != null){
 //            player.onPause();
 //            player.flush();
@@ -397,14 +402,14 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public boolean exists(){
+//    boolean exists(){
 //        if(player != null){
 //            return true;
 //        } else
 //            return false;
 //    }
 //
-//    public void seekToStart(){
+//    void seekToStart(){
 //        if(player != null ) {
 //            if(mOnlyPlayingSection){
 //                seekTo(startPlaybackPosition);
@@ -415,7 +420,7 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public void seekToEnd(){
+//    void seekToEnd(){
 //        if(player != null ) {
 //            if(mOnlyPlayingSection){
 //                seekTo(endPlaybackPosition);
@@ -426,7 +431,7 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public void seekTo(int x){
+//    void seekTo(int x){
 //        boolean wasPlaying = isPlaying();
 //        sPressedSeek = true;
 //        stop();
@@ -450,7 +455,7 @@ public class BufferPlayer {
 //        //Logger.w(this.toString(), "Seeking to " + x + "ms which is location " + playbackStart);
 //    }
 //
-//    public void stop(){
+//    void stop(){
 //        if(isPlaying() || isPaused()){
 //            keepPlaying = false;
 //            player.onPause();
@@ -463,16 +468,16 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public void stopSectionAt(int end){
+//    void stopSectionAt(int end){
 //        endPlaybackPosition = end;
 //        mOnlyPlayingSection = true;
 //    }
 //
-//    public void startSectionAt(int startMS){
+//    void startSectionAt(int startMS){
 //        startPlaybackPosition = startMS;
 //    }
 //
-//    public boolean checkIfShouldStop(){
+//    boolean checkIfShouldStop(){
 //        if((getDuration()) <= getLocation()) {
 //            onPause();
 //            if(mOnCompleteListener != null){
@@ -492,7 +497,7 @@ public class BufferPlayer {
 //        return false;
 //    }
 //
-//    public void release(){
+//    void release(){
 //        stop();
 //        if(player != null) {
 //            player.release();
@@ -507,21 +512,21 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public boolean isPlaying(){
+//    boolean isPlaying(){
 //        if(player != null)
 //            return player.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
 //        else
 //            return false;
 //    }
 //
-//    public boolean isPaused(){
+//    boolean isPaused(){
 //        if(player != null)
 //            return player.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
 //        else
 //            return false;
 //    }
 //
-//    public int getLocation(){
+//    int getLocation(){
 //        if(player != null) {
 //            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
 //                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
@@ -539,7 +544,7 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public int getAdjustedLocation(){
+//    int getAdjustedLocation(){
 //        if(player != null) {
 //            int loc = mCutOp.reverseTimeAdjusted(getLocation());
 //            return loc;
@@ -549,7 +554,7 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public int getDuration(){
+//    int getDuration(){
 //        if(player != null && audioData != null){
 //            int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
 //            return duration;
@@ -559,11 +564,11 @@ public class BufferPlayer {
 //        }
 //    }
 //
-//    public int getAdjustedDuration(){
+//    int getAdjustedDuration(){
 //        return getDuration() - mCutOp.getSizeCut();
 //    }
 //
-//    public int getSelectionEnd(){
+//    int getSelectionEnd(){
 //        return endPlaybackPosition;
 //    }
 }

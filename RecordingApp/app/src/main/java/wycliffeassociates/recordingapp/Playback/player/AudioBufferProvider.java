@@ -9,30 +9,42 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  * Created by sarabiaj on 10/27/2016.
  */
 
-public class AudioBufferProvider implements BufferPlayer.BufferProvider {
+class AudioBufferProvider implements BufferPlayer.BufferProvider {
 
     ShortBuffer mAudio;
     CutOp mCutOp;
     private int SAMPLERATE = 44100;
     private int mLocationAtLastRequest;
     private int mStartPosition = 0;
+    private int mMark = 0;
 
-    public AudioBufferProvider(ShortBuffer audio, CutOp cutOp){
+    AudioBufferProvider(ShortBuffer audio, CutOp cutOp){
         //audio is written in little endian, 16 bit PCM. Read as shorts therefore to comply with
         //Android's AudioTrack Spec
         mCutOp = cutOp;
         mAudio = audio;
         mAudio.position(0);
-        mAudio.mark();
     }
 
-    void reset(){
-        mAudio.reset();
+    synchronized void reset(){
+        mAudio.position(mMark);
+        mStartPosition = mMark;
     }
 
-    void reset(int position){
-        mAudio.position(position);
-        mAudio.reset();
+    //Keep a variable for mark rather than use the Buffer api- a call to position
+    synchronized void mark(int position){
+        mMark = position;
+    }
+
+    /**
+     * Clears the mark by setting it to zero and resuming the position
+     */
+    synchronized void clearMark(){
+       mMark = 0;
+    }
+
+    synchronized void clearLimit(){
+        mAudio.limit(mAudio.capacity());
     }
 
     public void pausedAfterPlayingXSamples(int pausedHeadPosition){
@@ -47,7 +59,7 @@ public class AudioBufferProvider implements BufferPlayer.BufferProvider {
         mStartPosition = mAudio.position();
     }
 
-    public int getSizeOfNextSession(){
+    int getSizeOfNextSession(){
         int size = mAudio.limit() - mAudio.position();
         return size;
     }
@@ -122,24 +134,25 @@ public class AudioBufferProvider implements BufferPlayer.BufferProvider {
         }
     }
 
-    public int getPosition(){
+    int getPosition(){
         return mLocationAtLastRequest;
     }
 
-    public void setPosition(int position){
+    synchronized void setPosition(int position){
         mAudio.position(position);
         mStartPosition = position;
     }
 
-    public int getStartPosition(){
+    int getStartPosition(){
         return mStartPosition;
     }
 
-    public int getDuration(){
+    int getDuration(){
         return mAudio.capacity();
     }
 
-    public void setLimit(int limit){
+    synchronized void setLimit(int limit){
         mAudio.limit(limit);
+        reset();
     }
 }

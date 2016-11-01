@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import wycliffeassociates.recordingapp.AudioVisualization.MinimapView;
-import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
+import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 import wycliffeassociates.recordingapp.AudioVisualization.VolumeBar;
 import wycliffeassociates.recordingapp.AudioVisualization.WaveformView;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
