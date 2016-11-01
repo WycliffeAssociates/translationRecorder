@@ -71,7 +71,7 @@ public class BufferPlayer {
                     //player.setNotificationMarkerPosition(player.getNotificationMarkerPosition() + shortsWritten);
                     //System.out.println("totalwritten is " + totalWritten + " marker position is " + player.getNotificationMarkerPosition());
                     //System.out.println(player.getNotificationMarkerPosition() + " shorts written was " + shortsWritten);
-                    returnVal = player.write(mAudioShorts, 0, shortsWritten);
+                    returnVal = player.write(mAudioShorts, 0, minBufferSize);
                     switch (returnVal) {
                         case AudioTrack.ERROR_INVALID_OPERATION: {
                             Logger.e(this.toString(), "ERROR INVALID OPERATION");
@@ -298,7 +298,7 @@ public class BufferPlayer {
 //        releaseAtEnd = false;
 //    }
 //
-//    public void play(){
+//    public void onPlay(){
 //        releaseAtEnd = false;
 //        forceBreakOut = false;
 //        if(isPlaying()){
@@ -306,7 +306,7 @@ public class BufferPlayer {
 //        }
 //        keepPlaying = true;
 //        player.flush();
-//        player.play();
+//        player.onPlay();
 //        if(!mOnlyPlayingSection && !sPressedSeek && !sPressedPause){
 //            playbackStart = 0;
 //        }
@@ -410,9 +410,9 @@ public class BufferPlayer {
 //    }
 //
 //    /**
-//     * Sets the audio data to play back; this expects a mapped buffer of PCM data
+//     * Sets the audio data to onPlay back; this expects a mapped buffer of PCM data
 //     * Header of .wav files should not be included in this mapped buffer
-//     * Initializes the audio track to play this file
+//     * Initializes the audio track to onPlay this file
 //     * @param file
 //     */
 //    public void loadFile(MappedByteBuffer file){
@@ -429,18 +429,18 @@ public class BufferPlayer {
 //                minBufferSize, AudioTrack.MODE_STREAM);
 //    }
 //
-//    //Pause calls flush so as to eliminate data that may have been written right after the pause
-//    public void pause(boolean fromButtonPress){
+//    //Pause calls flush so as to eliminate data that may have been written right after the onPause
+//    public void onPause(boolean fromButtonPress){
 //        if(player != null){
 //            playbackStart = (int)(getLocation() * 88.2);
 //            sPressedPause = true;
-//            pause();
+//            onPause();
 //        }
 //    }
 //
-//    public void pause(){
+//    public void onPause(){
 //        if(player != null){
-//            player.pause();
+//            player.onPause();
 //            player.flush();
 //            forceBreakOut = true;
 //            keepPlaying = false;
@@ -495,7 +495,7 @@ public class BufferPlayer {
 //            playbackStart = 0;
 //        }
 //        if(wasPlaying){
-//            play();
+//            onPlay();
 //        }
 //        //Logger.w(this.toString(), "Seeking to " + x + "ms which is location " + playbackStart);
 //    }
@@ -503,7 +503,7 @@ public class BufferPlayer {
 //    public void stop(){
 //        if(isPlaying() || isPaused()){
 //            keepPlaying = false;
-//            player.pause();
+//            player.onPause();
 //            player.stop();
 //            if(mPlaybackThread != null){
 //                forceBreakOut = true;
@@ -524,14 +524,14 @@ public class BufferPlayer {
 //
 //    public boolean checkIfShouldStop(){
 //        if((getDuration()) <= getLocation()) {
-//            pause();
+//            onPause();
 //            if(mOnCompleteListener != null){
 //                mOnCompleteListener.onComplete();
 //            }
 //            return true;
 //        }
 //        if(mOnlyPlayingSection && (getLocation() >= endPlaybackPosition)){
-//            pause();
+//            onPause();
 //            seekTo(startPlaybackPosition);
 //            stop();
 //            if(mOnCompleteListener != null){

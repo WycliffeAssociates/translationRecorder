@@ -208,7 +208,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private void playRecording() {
 //        isPlaying = true;
-//        mManager.play();
+//        mManager.onPlay();
 //        int toShow[] = {R.id.btn_pause};
 //        int toHide[] = {R.id.btn_play};
 //        mManager.swapViews(toShow, toHide);
@@ -217,7 +217,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private void pausePlayback() {
 //        // NOTE: Shouldn't we set isPlaying = false here?
-//        mManager.pause(true);
+//        mManager.onPause(true);
 //        int toShow[] = {R.id.btn_play};
 //        int toHide[] = {R.id.btn_pause};
 //        mManager.swapViews(toShow, toHide);

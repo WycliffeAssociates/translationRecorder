@@ -333,7 +333,7 @@ public class WaveformView extends CanvasView {
             drawSectionMarkers(canvas);
         }
         mManager.checkIfShouldStop();
-        //Determines whether the play or pause button should be rendered
+        //Determines whether the onPlay or onPause button should be rendered
         //This is done now that there is not a thread dedicated to drawing
         if (!mManager.isPlaying()) {
             mManager.enablePlay();

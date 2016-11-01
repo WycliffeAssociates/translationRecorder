@@ -10,7 +10,7 @@ import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 
 /**
  * Controls interaction between BufferPlayer and AudioBufferProvider. The BufferPlayer simply plays audio
- * that is passed to it, and the BufferProvider manages processing audio to get the proper buffer to play
+ * that is passed to it, and the BufferProvider manages processing audio to get the proper buffer to onPlay
  * based on performing operations on the audio buffer (such as cut).
  */
 public class WavPlayer {

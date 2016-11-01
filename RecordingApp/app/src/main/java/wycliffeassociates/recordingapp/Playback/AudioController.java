@@ -46,14 +46,14 @@ public class AudioController {
         mPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                play();
+                onPlay();
             }
         });
 
         mPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pause();
+                onPause();
             }
         });
 
@@ -74,7 +74,7 @@ public class AudioController {
         swapViews(new View[]{mPlay}, new View[]{mPause});
     }
 
-    public void play(){
+    public void onPlay(){
         swapViews(new View[]{mPause}, new View[]{mPlay});
         mPlayer.play();
         Thread playbackThread = new Thread(new Runnable() {
@@ -95,7 +95,7 @@ public class AudioController {
         playbackThread.start();
     }
 
-    public void pause(){
+    public void onPause(){
         swapViews(new View[]{mPlay}, new View[]{mPause});
         mPlayer.pause();
         //playing = false;

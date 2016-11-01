@@ -25,7 +25,7 @@ public class RecordingQueues {
             RecordingQueues.compressionQueue.put(new RecordingMessage(null, true, false));
             RecordingQueues.UIQueue.put(new RecordingMessage(null, true, false));
         } catch (InterruptedException e) {
-            Logger.e("RecordingQueues", "InterruptedException in pause queues", e);
+            Logger.e("RecordingQueues", "InterruptedException in onPause queues", e);
             e.printStackTrace();
         }
     }

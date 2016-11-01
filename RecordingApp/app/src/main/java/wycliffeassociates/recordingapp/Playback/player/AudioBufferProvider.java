@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.Playback.player;
 import java.nio.ShortBuffer;
 
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 
 /**
  * Created by sarabiaj on 10/27/2016.
@@ -39,11 +40,16 @@ public class AudioBufferProvider implements BufferPlayer.BufferProvider {
         mAudio.position(mStartPosition);
         short[] skip = new short[samplesPlayed];
         get(skip);
+        if(mAudio.position() == mAudio.limit()){
+            reset();
+            Logger.e(this.toString(), "Paused right at the limit");
+        }
         mStartPosition = mAudio.position();
     }
 
     public int getSizeOfNextSession(){
-        return mAudio.limit() - mAudio.position();
+        int size = mAudio.limit() - mAudio.position();
+        return size;
     }
 
     @Override
@@ -59,6 +65,11 @@ public class AudioBufferProvider implements BufferPlayer.BufferProvider {
             shortsWritten = getWithSkips(shorts);
         } else {
             shortsWritten = getWithoutSkips(shorts);
+        }
+        if(shortsWritten < shorts.length){
+            for(int i = shortsWritten; i < shorts.length; i++){
+                shorts[i] = 0;
+            }
         }
         return shortsWritten;
     }
