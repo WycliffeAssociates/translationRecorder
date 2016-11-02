@@ -30,14 +30,15 @@ public class AudioVisualController {
     MappedByteBuffer mAudio;
     CutOp mCutOp = new CutOp();
     View mPlayBtn, mPauseBtn, mSeekForwardBtn, mSeekBackwardBtn, mDropStartMarkerBtn,
-            mDropEndMarkerBtn, mClearBtn, mCutBtn;
+            mDropEndMarkerBtn, mClearBtn, mCutBtn, mUndoBtn;
     Handler mHandler;
     PlaybackTimer mTimer;
     private List<WavCue> mCues;
 
     public AudioVisualController(final View playBtn, final View pauseBtn, final View seekForwardBtn, final View seekBackwardBtn,
                                  final TextView elapsedBtn, final TextView durationBtn,
-                                 final View dropStartMarkerBtn, final View dropEndMarkerBtn, final View clearBtn, final View cutBtn, WavFile wav) {
+                                 final View dropStartMarkerBtn, final View dropEndMarkerBtn, final View clearBtn,
+                                 final View cutBtn, final View undoBtn, WavFile wav) {
 
         wav.addMarker("Test 1", 44100);
         wav.addMarker("Test 2", 88200);
@@ -54,6 +55,7 @@ public class AudioVisualController {
         mDropEndMarkerBtn = dropEndMarkerBtn;
         mClearBtn = clearBtn;
         mCutBtn = cutBtn;
+        mUndoBtn = undoBtn;
 
         mTimer = new PlaybackTimer(elapsedBtn, durationBtn);
         mHandler = new Handler(Looper.getMainLooper());
@@ -96,7 +98,7 @@ public class AudioVisualController {
         mDropStartMarkerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPlayer.setLoopStart(mPlayer.getLocation());
+                mPlayer.setLoopStart(mPlayer.getLocationInFrames());
                 swapViews(new View[]{mDropEndMarkerBtn}, new View[]{mDropStartMarkerBtn});
             }
         });
@@ -104,7 +106,7 @@ public class AudioVisualController {
         mDropEndMarkerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPlayer.setLoopEnd(mPlayer.getLocation());
+                mPlayer.setLoopEnd(mPlayer.getLocationInFrames());
                 swapViews(new View[]{mClearBtn, mCutBtn}, new View[]{mDropEndMarkerBtn});
             }
         });
@@ -114,6 +116,22 @@ public class AudioVisualController {
             public void onClick(View v) {
                 mPlayer.clearLoopPoints();
                 swapViews(new View[]{mDropStartMarkerBtn}, new View[]{mClearBtn, mCutBtn});
+            }
+        });
+
+        mCutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCutOp.cut(mPlayer.getLoopStart(), mPlayer.getLoopEnd());
+                mPlayer.clearLoopPoints();
+                swapViews(new View[]{mUndoBtn}, new View[]{mCutBtn});
+            }
+        });
+
+        mUndoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCutOp.undo();
             }
         });
 
@@ -153,13 +171,13 @@ public class AudioVisualController {
         Thread playbackThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int location = mPlayer.getLocation();
+                int location = mPlayer.getLocationMs();
                 while (mPlayer.isPlaying()) {
-                    location = mPlayer.getLocation();
+                    location = mPlayer.getLocationMs();
                     updateElapsedTime(location);
-                    //getLocation();
+                    //getLocationMs();
                     //draw();
-                    //             System.out.println(mPlayer.getLocation());
+                    //             System.out.println(mPlayer.getLocationMs());
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -183,12 +201,12 @@ public class AudioVisualController {
 
     public void seekNext(){
         mPlayer.seekNext();
-        updateElapsedTime(mPlayer.getLocation());
+        updateElapsedTime(mPlayer.getLocationMs());
     }
 
     public void seekPrevious(){
         mPlayer.seekPrevious();
-        updateElapsedTime(mPlayer.getLocation());
+        updateElapsedTime(mPlayer.getLocationMs());
     }
 
     public void swapViews(final View[] toShow, final View[] toHide) {

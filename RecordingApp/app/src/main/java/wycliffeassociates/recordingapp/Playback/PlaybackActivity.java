@@ -89,7 +89,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
         mAudioController = new AudioVisualController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn,
                 mPlaybackElapsed, mPlaybackDuration, mDropStartMarkBtn, mDropEndMarkBtn, mClearBtn,
-                mCutBtn, mWavFile);
+                mCutBtn, mUndoBtn, mWavFile);
     }
 
     private void parseIntent(Intent intent) {
@@ -239,7 +239,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void placeStartMarker() {
-//        mMainCanvas.placeStartMarker(mManager.getLocation());
+//        mMainCanvas.placeStartMarker(mManager.getLocationMs());
 //        int toShow[] = {R.id.btn_end_mark, R.id.btn_clear};
 //        int toHide[] = {R.id.btn_start_mark};
 //        mManager.swapViews(toShow, toHide);
@@ -247,7 +247,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void placeEndMarker() {
-//        mMainCanvas.placeEndMarker(mManager.getLocation());
+//        mMainCanvas.placeEndMarker(mManager.getLocationMs());
 //        int toShow[] = {R.id.btn_cut};
 //        int toHide[] = {R.id.btn_end_mark};
 //        mManager.swapViews(toShow, toHide);
@@ -449,7 +449,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void dropVerseMarker() {
-        //mMainCanvas.dropVerseMarker(mManager.getLocation());
+        //mMainCanvas.dropVerseMarker(mManager.getLocationMs());
         //mManager.updateUI();
     }
 

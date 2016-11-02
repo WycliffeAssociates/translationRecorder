@@ -245,7 +245,7 @@ public class CutOp {
 
 
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
-        idx *= 2;
+        //idx *= 2;
         return idx;
     }
 
@@ -257,7 +257,7 @@ public class CutOp {
 
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         idx /= 25;
-        idx *= 2;
+        //idx *= 2;
         return idx;
     }
 

@@ -117,7 +117,7 @@ public class UIDataManager {
             wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile());
         }
         //Marker is set to the percentage of playback times the width of the minimap
-        int location = 0;//mPlayer.getLocation();
+        int location = 0;//mPlayer.getLocationMs();
         minimap.setMiniMarkerLoc((float) ((mCutOp.reverseTimeAdjusted(location) / ((double) mPlayer.getDuration() - mCutOp.getSizeCut())) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         mainWave.setTimeToDraw(location);

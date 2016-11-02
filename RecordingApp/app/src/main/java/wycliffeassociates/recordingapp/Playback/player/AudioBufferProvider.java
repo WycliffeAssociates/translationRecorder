@@ -47,7 +47,7 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
         mAudio.limit(mAudio.capacity());
     }
 
-    public void pausedAfterPlayingXSamples(int pausedHeadPosition){
+    public void onPauseAfterPlayingXSamples(int pausedHeadPosition){
         int samplesPlayed = pausedHeadPosition;
         mAudio.position(mStartPosition);
         short[] skip = new short[samplesPlayed];
@@ -65,7 +65,7 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
     }
 
     @Override
-    public int requestBuffer(short[] shorts) {
+    public int onBufferRequested(short[] shorts) {
         mLocationAtLastRequest = mAudio.position();
         return get(shorts);
     }
@@ -118,12 +118,12 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
             }
             skip = mCutOp.skip((int)(mAudio.position()/44.1));
             if(skip != -1){
-                //Logger.i(this.toString(), "Location is " + getLocation() + "position is " + mAudio.position());
+                //Logger.i(this.toString(), "Location is " + getLocationMs() + "position is " + mAudio.position());
                 int start = (int) (skip * (SAMPLERATE / 1000.0));
                 //make sure the playback start is within the bounds of the file's capacity
                 start = Math.max(Math.min(mAudio.capacity(), start), 0);
                 mAudio.position(start);
-                //Logger.i(this.toString(), "Location is now " + getLocation() + "position is " + mAudio.position());
+                //Logger.i(this.toString(), "Location is now " + getLocationMs() + "position is " + mAudio.position());
             }
             shorts[i] = mAudio.get();
         }

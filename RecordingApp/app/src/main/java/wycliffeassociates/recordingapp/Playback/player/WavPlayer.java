@@ -46,12 +46,12 @@ public class WavPlayer {
     }
 
     public synchronized void seekNext(){
-        int seekLocation = getDuration();
-        int currentLocation = getLocation();
+        int seekLocation = getDurationInFrames();
+        int currentLocation = getLocationInFrames();
         if(mCueList != null) {
             int location;
             for(int i = 0; i < mCueList.size(); i++){
-                location = mCueList.get(i).getLoctionInMilliseconds();
+                location = mCueList.get(i).getLocation();
                 if(currentLocation < location){
                     seekLocation = location;
                     break;
@@ -81,14 +81,13 @@ public class WavPlayer {
         seekTo(Math.max(seekLocation, mBufferProvider.getMark()));
     }
 
-    private synchronized void seekTo(int location){
-        if(location > getDurationInFrames() || location < 0){
+    private synchronized void seekTo(int absoluteFrame){
+        if(absoluteFrame > getDurationInFrames() || absoluteFrame < 0){
             return;
         }
         boolean wasPlaying = mPlayer.isPlaying();
         pause();
-        int index = mOperationStack.relativeLocToAbsolute(location, false);
-        mBufferProvider.setPosition(index);
+        mBufferProvider.setPosition(absoluteFrame);
         if(wasPlaying){
             play();
         }
@@ -106,8 +105,14 @@ public class WavPlayer {
         mOnCompleteListener = onCompleteListener;
     }
 
-    public int getLocation(){
-        return (int)((mBufferProvider.getStartPosition() + mPlayer.getPlaybackHeadPosition()) / 44.1);
+    public int getLocationMs(){
+        return (int)(getLocationInFrames() / 44.1);
+    }
+
+    public int getLocationInFrames(){
+        int relativeLocationOfHead = mOperationStack.absoluteLocToRelative(mBufferProvider.getStartPosition(), false) + mPlayer.getPlaybackHeadPosition();
+        int absoluteLocationOfHead = mOperationStack.relativeLocToAbsolute(relativeLocationOfHead, false);
+        return absoluteLocationOfHead;
     }
 
     public int getDuration(){
@@ -123,15 +128,20 @@ public class WavPlayer {
     }
 
     public void setLoopStart(int frame){
-        int index = mOperationStack.relativeLocToAbsolute(frame, false) / 2;
-        mBufferProvider.mark(index);
+        mBufferProvider.mark(frame);
+    }
+
+    public int getLoopStart(){
+        return (int)(mBufferProvider.getMark() / 44.1);
     }
 
     public void setLoopEnd(int frame){
-        System.out.println("loop end at " + ms + "ms");
-        int index = mOperationStack.timeToUncmpLoc(ms)/2;
-        mBufferProvider.setLimit(index);
+        mBufferProvider.setLimit(frame);
         mBufferProvider.reset();
+    }
+
+    public int getLoopEnd(){
+        return (int)(mBufferProvider.getLimit() / 44.1);
     }
 
     public void clearLoopPoints(){

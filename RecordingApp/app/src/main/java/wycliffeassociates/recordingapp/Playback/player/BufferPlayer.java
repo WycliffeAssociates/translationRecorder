@@ -26,8 +26,8 @@ class BufferPlayer {
     }
 
     interface BufferProvider {
-        int requestBuffer(short[] shorts);
-        void pausedAfterPlayingXSamples(int pausedHeadPosition);
+        int onBufferRequested(short[] shorts);
+        void onPauseAfterPlayingXSamples(int pausedHeadPosition);
     }
 
     BufferPlayer(BufferProvider bp) {
@@ -64,7 +64,7 @@ class BufferPlayer {
                 int shortsRetrieved = 1;
                 int shortsWritten = 0;
                 while(!mPlaybackThread.isInterrupted() && isPlaying() && shortsRetrieved > 0){
-                    shortsRetrieved = mBufferProvider.requestBuffer(mAudioShorts);
+                    shortsRetrieved = mBufferProvider.onBufferRequested(mAudioShorts);
                     shortsWritten = player.write(mAudioShorts, 0, minBufferSize);
                     switch (shortsWritten) {
                         case AudioTrack.ERROR_INVALID_OPERATION: {
@@ -123,7 +123,7 @@ class BufferPlayer {
         player.pause();
         int location = player.getPlaybackHeadPosition();
         System.out.println("paused at " + location);
-        mBufferProvider.pausedAfterPlayingXSamples(location);
+        mBufferProvider.onPauseAfterPlayingXSamples(location);
         player.setPlaybackHeadPosition(0);
         player.flush();
     }
@@ -196,7 +196,7 @@ class BufferPlayer {
     }
 
 //
-//    int getLocation(){
+//    int getLocationMs(){
 //        if(player != null) {
 //            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
 //                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
@@ -216,7 +216,7 @@ class BufferPlayer {
 //
 //    int getAdjustedLocation(){
 //        if(player != null) {
-//            int loc = mCutOp.reverseTimeAdjusted(getLocation());
+//            int loc = mCutOp.reverseTimeAdjusted(getLocationMs());
 //            return loc;
 //        }
 //        else {
@@ -296,7 +296,7 @@ class BufferPlayer {
 //                }
 //                //location doesn't usually end up going to the end before audio playback stops.
 //                //continue to loop until the end is reached.
-////                while(audioData != null && (getLocation() <= (getDuration())) && !forceBreakOut && thisThread == mPlaybackThread){
+////                while(audioData != null && (getLocationMs() <= (getDuration())) && !forceBreakOut && thisThread == mPlaybackThread){
 ////                    Thread.yield();
 ////                }
 //                if(releaseAtEnd){
@@ -348,13 +348,13 @@ class BufferPlayer {
 //            }
 //            skip = mCutOp.skip((int)(audioData.position()/88.2));
 //            if(skip != -1 && i % 2 == 0){
-//                Logger.i(this.toString(), "Location is " + getLocation() + "position is " + audioData.position());
+//                Logger.i(this.toString(), "Location is " + getLocationMs() + "position is " + audioData.position());
 //                int start = (int) (skip * (AudioInfo.SAMPLERATE / 500.0));
 //                //make sure the playback start is within the bounds of the file's capacity
 //                start = Math.max(Math.min(audioData.capacity(), start), 0);
 //                int position = (start % 2 == 0) ? start : start + 1;
 //                audioData.position(position);
-//                Logger.i(this.toString(), "Location is now " + getLocation() + "position is " + audioData.position());
+//                Logger.i(this.toString(), "Location is now " + getLocationMs() + "position is " + audioData.position());
 //            }
 //            bytes[i] = audioData.get();
 //        }
@@ -388,7 +388,7 @@ class BufferPlayer {
 //    //Pause calls flush so as to eliminate data that may have been written right after the onPause
 //    void onPause(boolean fromButtonPress){
 //        if(player != null){
-//            playbackStart = (int)(getLocation() * 88.2);
+//            playbackStart = (int)(getLocationMs() * 88.2);
 //            sPressedPause = true;
 //            onPause();
 //        }
@@ -479,14 +479,14 @@ class BufferPlayer {
 //    }
 //
 //    boolean checkIfShouldStop(){
-//        if((getDuration()) <= getLocation()) {
+//        if((getDuration()) <= getLocationMs()) {
 //            onPause();
 //            if(mOnCompleteListener != null){
 //                mOnCompleteListener.onComplete();
 //            }
 //            return true;
 //        }
-//        if(mOnlyPlayingSection && (getLocation() >= endPlaybackPosition)){
+//        if(mOnlyPlayingSection && (getLocationMs() >= endPlaybackPosition)){
 //            onPause();
 //            seekTo(startPlaybackPosition);
 //            stop();
@@ -527,7 +527,7 @@ class BufferPlayer {
 //            return false;
 //    }
 //
-//    int getLocation(){
+//    int getLocationMs(){
 //        if(player != null) {
 //            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
 //                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
@@ -547,7 +547,7 @@ class BufferPlayer {
 //
 //    int getAdjustedLocation(){
 //        if(player != null) {
-//            int loc = mCutOp.reverseTimeAdjusted(getLocation());
+//            int loc = mCutOp.reverseTimeAdjusted(getLocationMs());
 //            return loc;
 //        }
 //        else {
