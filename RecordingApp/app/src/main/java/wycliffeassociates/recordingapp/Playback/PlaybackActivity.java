@@ -88,7 +88,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         enableButtons();
         mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
         mAudioController = new AudioVisualController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn,
-                mPlaybackElapsed, mPlaybackDuration, mDropStartMarkBtn, mDropEndMarkBtn, mClearBtn, mWavFile);
+                mPlaybackElapsed, mPlaybackDuration, mDropStartMarkBtn, mDropEndMarkBtn, mClearBtn,
+                mCutBtn, mWavFile);
     }
 
     private void parseIntent(Intent intent) {

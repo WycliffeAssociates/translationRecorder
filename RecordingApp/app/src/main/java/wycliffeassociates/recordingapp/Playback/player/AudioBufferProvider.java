@@ -134,7 +134,7 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
         }
     }
 
-    int getPosition(){
+    int getLastRequestedPosition(){
         return mLocationAtLastRequest;
     }
 
@@ -154,5 +154,13 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
     synchronized void setLimit(int limit){
         mAudio.limit(limit);
         reset();
+    }
+
+    public int getLimit(){
+        return mAudio.limit();
+    }
+
+    public int getMark(){
+        return mMark;
     }
 }

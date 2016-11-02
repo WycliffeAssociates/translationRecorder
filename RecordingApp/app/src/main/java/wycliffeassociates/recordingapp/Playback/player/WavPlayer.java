@@ -58,16 +58,16 @@ public class WavPlayer {
                 }
             }
         }
-        seekTo(seekLocation);
+        seekTo(Math.min(seekLocation, mBufferProvider.getLimit()));
     }
 
     public synchronized void seekPrevious(){
         int seekLocation = 0;
-        int currentLocation = getLocation();
+        int currentLocation = getLocationInFrames();
         if(mCueList != null){
             int location;
             for(int i = mCueList.size()-1; i >= 0; i--){
-                location = mCueList.get(i).getLoctionInMilliseconds();
+                location = mCueList.get(i).getLocation();
                 //if playing, you won't be able to keep pressing back, it will clamp to the last marker
                 if(!isPlaying() && currentLocation > location) {
                     seekLocation = location;
@@ -78,16 +78,16 @@ public class WavPlayer {
                 }
             }
         }
-        seekTo(seekLocation);
+        seekTo(Math.max(seekLocation, mBufferProvider.getMark()));
     }
 
     private synchronized void seekTo(int location){
-        if(location > getDuration() || location < 0){
+        if(location > getDurationInFrames() || location < 0){
             return;
         }
         boolean wasPlaying = mPlayer.isPlaying();
         pause();
-        int index = mOperationStack.timeToUncmpLoc(location) / 2;
+        int index = mOperationStack.relativeLocToAbsolute(location, false);
         mBufferProvider.setPosition(index);
         if(wasPlaying){
             play();
@@ -114,16 +114,21 @@ public class WavPlayer {
         return (int)(mBufferProvider.getDuration() / 44.1);
     }
 
+    public int getDurationInFrames(){
+        return mBufferProvider.getDuration();
+    }
+
     public boolean isPlaying(){
         return mPlayer.isPlaying();
     }
 
-    public void setLoopStart(int ms){
-        int index = mOperationStack.timeToUncmpLoc(ms)/2;
+    public void setLoopStart(int frame){
+        int index = mOperationStack.relativeLocToAbsolute(frame, false) / 2;
         mBufferProvider.mark(index);
     }
 
-    public void setLoopEnd(int ms){
+    public void setLoopEnd(int frame){
+        System.out.println("loop end at " + ms + "ms");
         int index = mOperationStack.timeToUncmpLoc(ms)/2;
         mBufferProvider.setLimit(index);
         mBufferProvider.reset();

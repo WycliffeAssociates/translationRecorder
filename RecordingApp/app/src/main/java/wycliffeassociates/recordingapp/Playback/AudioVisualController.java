@@ -29,92 +29,95 @@ public class AudioVisualController {
     WavPlayer mPlayer;
     MappedByteBuffer mAudio;
     CutOp mCutOp = new CutOp();
-    View mPlay, mPause, mSeekForward, mSeekBackward, mDropStartMarker, mDropEndMarker, mClear;
+    View mPlayBtn, mPauseBtn, mSeekForwardBtn, mSeekBackwardBtn, mDropStartMarkerBtn,
+            mDropEndMarkerBtn, mClearBtn, mCutBtn;
     Handler mHandler;
     PlaybackTimer mTimer;
     private List<WavCue> mCues;
 
-    public AudioVisualController(final View play, final View pause, final View seekForward, final View seekBackward,
-                                 final TextView elapsed, final TextView duration,
-                                 final View dropStartMarker, final View dropEndMarker, final View clear, WavFile wav) {
+    public AudioVisualController(final View playBtn, final View pauseBtn, final View seekForwardBtn, final View seekBackwardBtn,
+                                 final TextView elapsedBtn, final TextView durationBtn,
+                                 final View dropStartMarkerBtn, final View dropEndMarkerBtn, final View clearBtn, final View cutBtn, WavFile wav) {
 
         wav.addMarker("Test 1", 44100);
         wav.addMarker("Test 2", 88200);
         wav.addMarker("Test 3", 132300);
 
         initPlayer(wav);
-        initTimer(elapsed, duration);
+        initTimer(elapsedBtn, durationBtn);
 
-        mPause = pause;
-        mPlay = play;
-        mSeekBackward = seekBackward;
-        mSeekForward = seekForward;
-        mDropStartMarker = dropStartMarker;
-        mDropEndMarker = dropEndMarker;
-        mClear = clear;
-        mTimer = new PlaybackTimer(elapsed, duration);
+        mPauseBtn = pauseBtn;
+        mPlayBtn = playBtn;
+        mSeekBackwardBtn = seekBackwardBtn;
+        mSeekForwardBtn = seekForwardBtn;
+        mDropStartMarkerBtn = dropStartMarkerBtn;
+        mDropEndMarkerBtn = dropEndMarkerBtn;
+        mClearBtn = clearBtn;
+        mCutBtn = cutBtn;
+
+        mTimer = new PlaybackTimer(elapsedBtn, durationBtn);
         mHandler = new Handler(Looper.getMainLooper());
 
         mPlayer.setOnCompleteListener(new WavPlayer.OnCompleteListener() {
             @Override
             public void onComplete() {
-                swapViews(new View[]{mPlay}, new View[]{mPause});
+                swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
             }
         });
 
-        mPlay.setOnClickListener(new View.OnClickListener() {
+        mPlayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onPlay();
             }
         });
 
-        mPause.setOnClickListener(new View.OnClickListener() {
+        mPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onPause();
             }
         });
 
-        mSeekForward.setOnClickListener(new View.OnClickListener() {
+        mSeekForwardBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 seekNext();
             }
         });
 
-        mSeekBackward.setOnClickListener(new View.OnClickListener() {
+        mSeekBackwardBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 seekPrevious();
             }
         });
 
-        mDropStartMarker.setOnClickListener(new View.OnClickListener() {
+        mDropStartMarkerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPlayer.setLoopStart(mPlayer.getLocation());
-                swapViews(new View[]{mDropEndMarker}, new View[]{mDropStartMarker});
+                swapViews(new View[]{mDropEndMarkerBtn}, new View[]{mDropStartMarkerBtn});
             }
         });
 
-        mDropEndMarker.setOnClickListener(new View.OnClickListener() {
+        mDropEndMarkerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPlayer.setLoopEnd(mPlayer.getLocation());
-                swapViews(new View[]{mClear}, new View[]{mDropEndMarker});
+                swapViews(new View[]{mClearBtn, mCutBtn}, new View[]{mDropEndMarkerBtn});
             }
         });
 
-        mClear.setOnClickListener(new View.OnClickListener() {
+        mClearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPlayer.clearLoopPoints();
-                swapViews(new View[]{mDropStartMarker}, new View[]{mClear});
+                swapViews(new View[]{mDropStartMarkerBtn}, new View[]{mClearBtn, mCutBtn});
             }
         });
 
-        swapViews(new View[]{mPlay}, new View[]{mPause});
+        swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
     }
 
     private void initPlayer(WavFile wav) {
@@ -145,7 +148,7 @@ public class AudioVisualController {
     }
 
     public void onPlay() {
-        swapViews(new View[]{mPause}, new View[]{mPlay});
+        swapViews(new View[]{mPauseBtn}, new View[]{mPlayBtn});
         mPlayer.play();
         Thread playbackThread = new Thread(new Runnable() {
             @Override
@@ -173,8 +176,8 @@ public class AudioVisualController {
     }
 
     public void onPause() {
-        swapViews(new View[]{mPlay}, new View[]{mPause});
         mPlayer.pause();
+        swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
         //playing = false;
     }
 

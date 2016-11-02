@@ -124,7 +124,8 @@ class BufferPlayer {
         int location = player.getPlaybackHeadPosition();
         System.out.println("paused at " + location);
         mBufferProvider.pausedAfterPlayingXSamples(location);
-        player.stop();
+        player.setPlaybackHeadPosition(0);
+        player.flush();
     }
 
     boolean exists(){
