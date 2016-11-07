@@ -1,9 +1,11 @@
 package wycliffeassociates.recordingapp.Playback;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -12,14 +14,20 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.Playback.fragments.FragmentFileBar;
+import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
+import wycliffeassociates.recordingapp.Playback.fragments.FragmentTabbedWidget;
+import wycliffeassociates.recordingapp.Playback.fragments.WaveformFragment;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
-import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
@@ -45,15 +53,10 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private RelativeLayout mToolbar;
     private View mSrcAudioPlayback;
 
-    private TextView mVerseMarkerCount, mVerseMarkerLabel, mLangView, mSourceView, mBookView,
-            mChapterView, mChapterLabel, mUnitView, mUnitLabel;
+    private TextView mVerseMarkerCount, mVerseMarkerLabel;
 
-    private ImageButton mSwitchToMinimap, mSwitchToPlayback, mEnterVerseMarkerMode, mExitVerseMarkerMode,
-            mRerecordBtn, mInsertBtn, mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
-            mDropStartMarkBtn, mDropEndMarkBtn, mUndoBtn, mCutBtn, mClearBtn, mSaveBtn,
-            mDropVerseMarkerBtn, mCompleteVerseMarkerBtn;
+    private ImageButton mSwitchToMinimap, mSwitchToPlayback;
 
-    private FourStepImageView mRateBtn;
 
     private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
@@ -61,6 +64,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private int mChapter, mUnit, mRating, mVersesLeft;
     private AudioVisualController mAudioController;
     private TextView mPlaybackElapsed, mPlaybackDuration;
+    private HashMap<Integer, Fragment> mFragmentContainerMapping;
+    private FragmentPlaybackTools mFragmentPlaybackTools;
+    private FragmentTabbedWidget mFragmentTabbedWidget;
+    private FragmentFileBar mFragmentFileBar;
+    private WaveformFragment mWaveformFragment;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackActivity.class);
@@ -82,14 +90,14 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private void initialize(Intent intent) {
         isSaved = true;
         parseIntent(intent);
+        initializeFragments();
         findViews();
         initializeViews();
         setButtonHandlers();
         enableButtons();
-        mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
-        mAudioController = new AudioVisualController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn,
-                mPlaybackElapsed, mPlaybackDuration, mDropStartMarkBtn, mDropEndMarkBtn, mClearBtn,
-                mCutBtn, mUndoBtn, mWavFile);
+//        mAudioController = new AudioVisualController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn,
+//                mPlaybackElapsed, mPlaybackDuration, mDropStartMarkBtn, mDropEndMarkBtn, mClearBtn,
+//                mCutBtn, mUndoBtn, mWavFile);
     }
 
     private void parseIntent(Intent intent) {
@@ -99,74 +107,51 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mChapter = intent.getIntExtra(KEY_CHAPTER, 1);
     }
 
+    private void initializeFragments() {
+        mFragmentContainerMapping = new HashMap<>();
+        mFragmentPlaybackTools = FragmentPlaybackTools.newInstance();
+        mFragmentContainerMapping.put(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools);
+
+        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
+        mFragmentContainerMapping.put(R.id.tabbed_widget_fragment_holder, mFragmentTabbedWidget);
+
+        mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguage(),
+                mProject.getVersion(), mProject.getSlug(), "Chapter", String.valueOf(mChapter),
+                mProject.getMode(), String.valueOf(mUnit));
+        mFragmentContainerMapping.put(R.id.file_bar_fragment_holder, mFragmentFileBar);
+        attachFragments();
+    }
+
+    private void attachFragments() {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        Set<Map.Entry<Integer, Fragment>> entrySet = mFragmentContainerMapping.entrySet();
+        for(Map.Entry<Integer, Fragment> pair : entrySet) {
+            ft.add(pair.getKey(), pair.getValue());
+        }
+        ft.commit();
+    }
+
     private void findViews() {
         mToolbar = (RelativeLayout) findViewById(R.id.toolbar);
-        mSrcAudioPlayback = (View) findViewById(R.id.srcAudioPlayer);
-        mSwitchToMinimap = (ImageButton) findViewById(R.id.switch_minimap);
-        mSwitchToPlayback = (ImageButton) findViewById(R.id.switch_source_playback);
+
         mVerseMarkerCount = (TextView) findViewById(R.id.verse_marker_count);
         mVerseMarkerLabel = (TextView) findViewById(R.id.verse_marker_label);
-        mLangView = (TextView) findViewById(R.id.file_language);
-        mSourceView = (TextView) findViewById(R.id.file_project);
-        mBookView = (TextView) findViewById(R.id.file_book);
-        mChapterView = (TextView) findViewById(R.id.file_chapter);
-        mChapterLabel = (TextView) findViewById(R.id.file_chapter_label);
-        mUnitView = (TextView) findViewById(R.id.file_unit);
-        mUnitLabel = (TextView) findViewById(R.id.file_unit_label);
-        // NOTE: Look at Android Studio's warning. Why is the same view converted and captured as
-        //    two different things? (Refering to this and mSrcAudioPlayback)
-        mSrcPlayer = (SourceAudio) findViewById(R.id.srcAudioPlayer);
-        mEnterVerseMarkerMode = (ImageButton) findViewById(R.id.btn_enter_verse_marker_mode);
-        mExitVerseMarkerMode = (ImageButton) findViewById(R.id.btn_exit_verse_marker_mode);
-        mRateBtn = (FourStepImageView) findViewById(R.id.btn_rate);
-        mRerecordBtn = (ImageButton) findViewById(R.id.btn_rerecord);
-        mInsertBtn = (ImageButton) findViewById(R.id.btn_insert_record);
-        mPlayBtn = (ImageButton) findViewById(R.id.btn_play);
-        mPauseBtn = (ImageButton) findViewById(R.id.btn_pause);
-        mSkipBackBtn = (ImageButton) findViewById(R.id.btn_skip_back);
-        mSkipForwardBtn = (ImageButton) findViewById(R.id.btn_skip_forward);
-        mDropStartMarkBtn = (ImageButton) findViewById(R.id.btn_start_mark);
-        mDropEndMarkBtn = (ImageButton) findViewById(R.id.btn_end_mark);
-        mUndoBtn = (ImageButton) findViewById(R.id.btn_undo);
-        mCutBtn = (ImageButton) findViewById(R.id.btn_cut);
-        mClearBtn = (ImageButton) findViewById(R.id.btn_clear);
-        mSaveBtn = (ImageButton) findViewById(R.id.btn_save);
-        mDropVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_drop_verse_marker);
-        mCompleteVerseMarkerBtn = (ImageButton) findViewById(R.id.btn_verse_marker_done);
-        mPlaybackElapsed = (TextView) findViewById(R.id.playback_elapsed);
-        mPlaybackDuration = (TextView) findViewById(R.id.playback_duration);
+
+
     }
 
     private void initializeViews() {
-        mLangView.setText(mProject.getTargetLanguage().toUpperCase());
-        if (!mProject.isOBS()) {
-            mSourceView.setText(mProject.getVersion().toUpperCase());
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-            mBookView.setText(db.getBookName(mProject.getSlug()));
-        } else {
-            mSourceView.setText("");
-            mBookView.setText("Open Bible Stories");
-        }
-        mChapterView.setText(String.format("%d", mChapter));
-        mUnitView.setText(String.format("%d", mUnit));
 
-        if (mProject.getMode().compareTo("chunk") == 0) {
-            mUnitLabel.setText("Chunk");
-            mVersesLeft = getVersesLeft();
-            setVerseMarkerCount(mVersesLeft);
-        } else {
-            mUnitLabel.setText("Verse");
-            mEnterVerseMarkerMode.setVisibility(View.GONE);
-        }
         // By default, select the minimap view over the source playback
         mSwitchToMinimap.setSelected(true);
 
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
-        mRating = db.getTakeRating(fne);
-        mRateBtn.setStep(mRating);
-        mRateBtn.invalidate();
-        db.close();
+//        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+//        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
+//        mRating = db.getTakeRating(fne);
+//        mRateBtn.setStep(mRating);
+//        mRateBtn.invalidate();
+//        db.close();
     }
 
     @Override
@@ -189,7 +174,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), mRating);
         db.close();
-        mRateBtn.setStep(mRating);
+        //mRateBtn.setStep(mRating);
     }
 
     @Override
@@ -372,28 +357,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void setButtonHandlers() {
-        // NOTE: Why are we assigning the same OnClickListener and then putting it through the
-        // switch case later while we already know what's being clicked right here? Should we break
-        // up the OnClickListener to specific ones?
-        mPlayBtn.setOnClickListener(btnClick);
-        mSaveBtn.setOnClickListener(btnClick);
-        mPauseBtn.setOnClickListener(btnClick);
-        mSkipBackBtn.setOnClickListener(btnClick);
-        mSkipForwardBtn.setOnClickListener(btnClick);
-        mDropStartMarkBtn.setOnClickListener(btnClick);
-        mDropEndMarkBtn.setOnClickListener(btnClick);
-        mCutBtn.setOnClickListener(btnClick);
-        mClearBtn.setOnClickListener(btnClick);
-        mRateBtn.setOnClickListener(btnClick);
-        mUndoBtn.setOnClickListener(btnClick);
-        mRerecordBtn.setOnClickListener(btnClick);
-        mInsertBtn.setOnClickListener(btnClick);
         mSwitchToMinimap.setOnClickListener(btnClick);
         mSwitchToPlayback.setOnClickListener(btnClick);
-        mEnterVerseMarkerMode.setOnClickListener(btnClick);
-        mExitVerseMarkerMode.setOnClickListener(btnClick);
-        mDropVerseMarkerBtn.setOnClickListener(btnClick);
-        mCompleteVerseMarkerBtn.setOnClickListener(btnClick);
     }
 
     private void enableButton(int id, boolean isEnable) {
@@ -422,30 +387,30 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mVerseMarkerCount.setText(String.valueOf(count));
     }
 
-    private View[] getViewsToHideInMarkerMode() {
-        return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
-                mUnitView, mUnitLabel, mEnterVerseMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
-                mDropStartMarkBtn, mSaveBtn, mDropStartMarkBtn};
+//    private View[] getViewsToHideInMarkerMode() {
+//        return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
+//                mUnitView, mUnitLabel, mEnterVerseMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
+//                mDropStartMarkBtn, mSaveBtn, mDropStartMarkBtn};
+//    }
+//
+//    private View[] getViewsToHideInNormalMode() {
+//        return new View[]{mExitVerseMarkerMode, mVerseMarkerCount, mVerseMarkerLabel, mDropVerseMarkerBtn,
+//                mCompleteVerseMarkerBtn};
     }
 
-    private View[] getViewsToHideInNormalMode() {
-        return new View[]{mExitVerseMarkerMode, mVerseMarkerCount, mVerseMarkerLabel, mDropVerseMarkerBtn,
-                mCompleteVerseMarkerBtn};
-    }
-
-    private void enterVerseMarkerMode() {
-        isInVerseMarkerMode = true;
-        Utils.showView(getViewsToHideInNormalMode());
-        Utils.hideView(getViewsToHideInMarkerMode());
-        Utils.hideView(allVersesMarked() ? mDropVerseMarkerBtn : mCompleteVerseMarkerBtn);
-        mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
-    }
-
-    private void exitVerseMarkerMode() {
-        isInVerseMarkerMode = false;
-        Utils.showView(getViewsToHideInMarkerMode());
-        Utils.hideView(getViewsToHideInNormalMode());
-        mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
+//    private void enterVerseMarkerMode() {
+//        isInVerseMarkerMode = true;
+//        Utils.showView(getViewsToHideInNormalMode());
+//        Utils.hideView(getViewsToHideInMarkerMode());
+//        Utils.hideView(allVersesMarked() ? mDropVerseMarkerBtn : mCompleteVerseMarkerBtn);
+//        mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
+//    }
+//
+//    private void exitVerseMarkerMode() {
+//        isInVerseMarkerMode = false;
+//        Utils.showView(getViewsToHideInMarkerMode());
+//        Utils.hideView(getViewsToHideInNormalMode());
+//        mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
     }
 
     private void dropVerseMarker() {

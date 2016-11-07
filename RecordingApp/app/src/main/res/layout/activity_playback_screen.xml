@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/playback_screen_container"
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:layout_width="match_parent" >
 
-    <fragment android:name="wycliffeassociates.recordingapp.Playback.fragments.FragmentFileBar"
-        android:id="@+id/file_bar"
+    <FrameLayout
+        android:id="@+id/file_bar_fragment_holder"
         android:layout_width="match_parent"
         android:layout_height="@dimen/abc_action_bar_default_height_material"
-        tools:layout="@layout/fragment_file_view"></fragment>
+        />
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -19,26 +18,24 @@
         android:layout_weight="1"
         android:background="@color/mostly_black" >
 
-        <fragment android:name="wycliffeassociates.recordingapp.Playback.fragments.WaveformFragment"
+        <FrameLayout
+            android:id="@+id/waveform_fragment_holder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/canvas_container"
-            tools:layout="@layout/fragment_waveform"></fragment>
+            />
 
     </RelativeLayout>
 
-    <fragment android:name="wycliffeassociates.recordingapp.Playback.fragments.FragmentTabbedWidget"
-        android:id="@+id/top_bar_container"
+    <FrameLayout
+        android:id="@+id/tabbed_widget_fragment_holder"
         android:layout_width="match_parent"
         android:layout_height="124dp"
-        tools:layout="@layout/fragment_tabbed_widget">
+        />
 
-    </fragment>
-
-    <fragment android:name="wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools"
-        android:id="@+id/toolbar"
+    <FrameLayout
+        android:id="@+id/playback_tools_fragment_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:layout="@layout/fragment_player_toolbar"></fragment>
+        />
 
 </LinearLayout>
