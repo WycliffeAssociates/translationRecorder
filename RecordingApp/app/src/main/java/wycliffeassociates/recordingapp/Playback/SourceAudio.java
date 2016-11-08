@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -137,7 +136,8 @@ public class SourceAudio extends LinearLayout {
         String extension = getExtensionIfValid(entry.getName());
         InputStream file = entry.getInputStream();
         BufferedInputStream bis = new BufferedInputStream(file);
-        mTemp = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/temp" + extension);
+        mTemp = new File(mCtx.getExternalCacheDir(), "temp" + extension);
+        mTemp.mkdirs();
         FileOutputStream fos = new FileOutputStream(mTemp);
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         byte[] buffer = new byte[1024];

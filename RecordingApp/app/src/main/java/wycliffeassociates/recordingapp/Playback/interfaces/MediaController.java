@@ -5,11 +5,11 @@ package wycliffeassociates.recordingapp.Playback.interfaces;
  */
 
 public interface MediaController {
-    void onPlay();
-    void onPause();
+    void onMediaPlay();
+    void onMediaPause();
     void onSeekForward();
     void onSeekBackward();
     int getDuration();
     int getLocation();
-    int setOnCompleteListner(Runnable onComplete);
+    void setOnCompleteListner(Runnable onComplete);
 }

@@ -7,11 +7,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.io.File;
 import java.util.HashMap;
@@ -23,7 +19,9 @@ import wycliffeassociates.recordingapp.Playback.fragments.FragmentFileBar;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentTabbedWidget;
 import wycliffeassociates.recordingapp.Playback.fragments.WaveformFragment;
+import wycliffeassociates.recordingapp.Playback.interfaces.AudioEditDelegator;
 import wycliffeassociates.recordingapp.Playback.interfaces.AudioStateCallback;
+import wycliffeassociates.recordingapp.Playback.interfaces.EditStateInformer;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
@@ -40,14 +38,7 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  * Created by sarabiaj on 10/27/2016.
  */
 
-public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController, AudioStateCallback {
-
-    @Override
-    public void onPlayerPaused() {
-        mFragmentPlaybackTools.onPlayerPaused();
-    }
-
-
+public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController, AudioStateCallback, AudioEditDelegator, EditStateInformer {
 
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
@@ -114,6 +105,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 mProject.getVersion(), mProject.getSlug(), "Chapter", String.valueOf(mChapter),
                 mProject.getMode(), String.valueOf(mUnit));
         mFragmentContainerMapping.put(R.id.file_bar_fragment_holder, mFragmentFileBar);
+
+        mWaveformFragment = WaveformFragment.newInstance();
+        mFragmentContainerMapping.put(R.id.waveform_fragment_holder, mWaveformFragment);
         attachFragments();
     }
 
@@ -127,19 +121,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         ft.commit();
     }
 
-//    private void findViews() {
-//        mToolbar = (RelativeLayout) findViewById(R.id.toolbar);
-//
-//        mVerseMarkerCount = (TextView) findViewById(R.id.verse_marker_count);
-//        mVerseMarkerLabel = (TextView) findViewById(R.id.verse_marker_label);
-//
-//
-//    }
-
     private void initializeViews() {
 
         // By default, select the minimap view over the source playback
-        mSwitchToMinimap.setSelected(true);
 
 //        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
 //        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
@@ -150,46 +134,109 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onPlay() {
-
+    public void onMediaPause(){
+        mAudioController.pause();
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        mSrcPlayer.pauseSource();
+    public void onMediaPlay() {
+        mAudioController.play();
+        Thread playbackThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int location = mAudioController.getLocation();
+                while (mAudioController.isPlaying()) {
+                    location = mAudioController.getLocation();
+                    mFragmentPlaybackTools.onLocationUpdated(location);
+                    //getLocationMs();
+                    //draw();
+                    //             System.out.println(mPlayer.getLocationMs());
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        playbackThread.start();
     }
 
     @Override
     public void onSeekForward() {
-
+        mAudioController.seekNext();
     }
 
     @Override
     public void onSeekBackward() {
-
+        mAudioController.seekPrevious();
     }
 
     @Override
     public int getDuration() {
-        return 0;
+        return mAudioController.getDuration();
     }
 
     @Override
     public int getLocation() {
-        return 0;
+        return mAudioController.getLocation();
     }
 
     @Override
-    public int setOnCompleteListner(Runnable onComplete) {
-        onComplete.run();
-        return 0;
+    public void setOnCompleteListner(Runnable onComplete) {
+        //mAudioController.setOnCompleteListener(onComplete);
+    }
+
+    @Override
+    public void onPlayerPaused() {
+        mFragmentPlaybackTools.onPlayerPaused();
+    }
+
+    @Override
+    public void onSave(){
+        save(null);
+    }
+
+    @Override
+    public void onCut() {
+        mAudioController.cut();
+        mFragmentPlaybackTools.onLocationUpdated(mAudioController.getLocation());
+        mFragmentPlaybackTools.onDurationUpdated(mAudioController.getDuration());
+    }
+
+    @Override
+    public void onDropStartMarker() {
+        mAudioController.dropStartMarker();
+    }
+
+    @Override
+    public void onDropEndMarker() {
+        mAudioController.dropEndMarker();
+    }
+
+    @Override
+    public void onClearMarkers() {
+        mAudioController.clearMarkers();
+    }
+
+    @Override
+    public void onDropVerseMarker() {
+
+    }
+
+    @Override
+    public void onUndo() {
+        mAudioController.undo();
+    }
+
+    @Override
+    public boolean hasEdits(){
+        return mAudioController.mCutOp.hasCut();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSrcPlayer.cleanup();
 //        mManager.release();
 //        SectionMarkers.clearMarkers(mManager);
     }
@@ -220,79 +267,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //            mManager.release();
 //            super.onBackPressed();
 //        }
-    }
-
-    private void playRecording() {
-//        isPlaying = true;
-//        mManager.onPlay();
-//        int toShow[] = {R.id.btn_pause};
-//        int toHide[] = {R.id.btn_play};
-//        mManager.swapViews(toShow, toHide);
-//        mManager.updateUI();
-    }
-
-    private void pausePlayback() {
-//        // NOTE: Shouldn't we set isPlaying = false here?
-//        mManager.onPause(true);
-//        int toShow[] = {R.id.btn_play};
-//        int toHide[] = {R.id.btn_pause};
-//        mManager.swapViews(toShow, toHide);
-    }
-
-    private void skipForward() {
-//        mManager.seekToEnd();
-//        mManager.updateUI();
-    }
-
-    private void skipBack() {
-//        mManager.seekToStart();
-//        mManager.updateUI();
-    }
-
-    private void placeStartMarker() {
-//        mMainCanvas.placeStartMarker(mManager.getLocationMs());
-//        int toShow[] = {R.id.btn_end_mark, R.id.btn_clear};
-//        int toHide[] = {R.id.btn_start_mark};
-//        mManager.swapViews(toShow, toHide);
-//        mManager.updateUI();
-    }
-
-    private void placeEndMarker() {
-//        mMainCanvas.placeEndMarker(mManager.getLocationMs());
-//        int toShow[] = {R.id.btn_cut};
-//        int toHide[] = {R.id.btn_end_mark};
-//        mManager.swapViews(toShow, toHide);
-//        mManager.updateUI();
-    }
-
-    private void cut() {
-//        isSaved = false;
-//        int toShow[] = {R.id.btn_start_mark, R.id.btn_undo};
-//        int toHide[] = {R.id.btn_cut, R.id.btn_clear};
-//        mManager.swapViews(toShow, toHide);
-//        mManager.cutAndUpdate();
-    }
-
-    private void undo() {
-//        // TODO: Check mManager.hasCut() before hiding the undo button when cut is allowed more than one time.
-//        mManager.undoCut();
-//        int toShow[] = {};
-//        int toHide[];
-//        if (!mManager.hasCut()) {
-//            toHide = new int[1];
-//            toHide[0] = R.id.btn_undo;
-//        } else {
-//            toHide = new int[0];
-//        }
-//        mManager.swapViews(toShow, toHide);
-    }
-
-    private void clearMarkers() {
-//        SectionMarkers.clearMarkers(mManager);
-//        int toShow[] = {R.id.btn_start_mark};
-//        int toHide[] = {R.id.btn_clear, R.id.btn_end_mark, R.id.btn_cut};
-//        mManager.swapViews(toShow, toHide);
-//        mManager.updateUI();
     }
 
     private void openRating(FourStepImageView v) {
@@ -344,14 +318,14 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //        Thread saveThread = new Thread(new Runnable() {
 //            @Override
 //            public void run() {
-//                if (mManager.hasCut()) {
+//                if (mAudioController.hasCut()) {
 //                    try {
 //                        File dir = Project.getProjectDirectory(mProject);
 //                        File toTemp = new File(dir, "temp.wav");
-//                        mManager.writeCut(toTemp, from, pd);
+//                        mAudioController.writeCut(toTemp, from, pd);
 //                        to.delete();
 //                        toTemp.renameTo(to);
-//                        ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackScreen.this);
+//                        ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackActivity.this);
 //                        db.addTake(new FileNameExtractor(to), to.getName(), to.lastModified(), 0);
 //                        db.close();
 //                        String oldName = from.getFile().getName();
@@ -395,7 +369,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private void setVerseMarkerCount(int count) {
         // - 1 because the first verse marker should be automatically dropped at the beginning
-        mVerseMarkerCount.setText(String.valueOf(count));
+        //mVerseMarkerCount.setText(String.valueOf(count));
     }
 
 //    private View[] getViewsToHideInMarkerMode() {
@@ -407,7 +381,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //    private View[] getViewsToHideInNormalMode() {
 //        return new View[]{mExitVerseMarkerMode, mVerseMarkerCount, mVerseMarkerLabel, mDropVerseMarkerBtn,
 //                mCompleteVerseMarkerBtn};
-    }
+//    }
 
 //    private void enterVerseMarkerMode() {
 //        isInVerseMarkerMode = true;
@@ -433,109 +407,4 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         // NOTE: Put real code here
         System.out.println("Save verse marker position here");
     }
-
-    private View.OnClickListener btnClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.btn_play: {
-                    playRecording();
-                    break;
-                }
-                case R.id.btn_save: {
-                    save(null);
-                    break;
-                }
-                case R.id.btn_pause: {
-                    pausePlayback();
-                    break;
-                }
-                case R.id.btn_skip_forward: {
-                    skipForward();
-                    break;
-                }
-                case R.id.btn_skip_back: {
-                    skipBack();
-                    break;
-                }
-                case R.id.btn_start_mark: {
-                    placeStartMarker();
-                    break;
-                }
-                case R.id.btn_end_mark: {
-                    placeEndMarker();
-                    break;
-                }
-                case R.id.btn_cut: {
-                    cut();
-                    break;
-                }
-                case R.id.btn_clear: {
-                    clearMarkers();
-                    break;
-                }
-                case R.id.btn_rate: {
-                    // NOTE: Probably don't need to pass in the view once we implement it the right
-                    // way
-                    openRating((FourStepImageView) v);
-                    break;
-                }
-                case R.id.btn_undo: {
-                    undo();
-                    break;
-                }
-                case R.id.btn_enter_verse_marker_mode: {
-                    enterVerseMarkerMode();
-                    break;
-                }
-                case R.id.btn_exit_verse_marker_mode: {
-                    exitVerseMarkerMode();
-                    break;
-                }
-                case R.id.btn_drop_verse_marker: {
-                    dropVerseMarker();
-                    mVersesLeft -= 1;
-                    setVerseMarkerCount(mVersesLeft);
-                    if (allVersesMarked()) {
-                        Utils.showView(mCompleteVerseMarkerBtn);
-                        Utils.hideView(mDropVerseMarkerBtn);
-                    }
-                    break;
-                }
-                case R.id.btn_verse_marker_done: {
-                    saveVerseMarkerPosition();
-                    exitVerseMarkerMode();
-                    break;
-                }
-                case R.id.btn_rerecord: {
-                    rerecord();
-                    break;
-                }
-                case R.id.btn_insert_record: {
-                    insert();
-                    break;
-                }
-                case R.id.switch_minimap: {
-                    // TODO: Refactor? Maybe use radio button to select one and exclude the other?
-                    v.setSelected(true);
-                    v.setBackgroundColor(Color.parseColor("#00000000"));
-                    //minimap.setVisibility(View.VISIBLE);
-                    mSrcAudioPlayback.setVisibility(View.INVISIBLE);
-                    mSwitchToPlayback.setSelected(false);
-                    mSwitchToPlayback.setBackgroundColor(getResources().getColor(R.color.mostly_black));
-                    break;
-                }
-                case R.id.switch_source_playback: {
-                    // TODO: Refactor? Maybe use radio button to select one and exclude the other?
-                    v.setSelected(true);
-                    v.setBackgroundColor(Color.parseColor("#00000000"));
-                    mSrcAudioPlayback.setVisibility(View.VISIBLE);
-                    //minimap.setVisibility(View.INVISIBLE);
-                    mSwitchToMinimap.setSelected(false);
-                    mSwitchToMinimap.setBackgroundColor(getResources().getColor(R.color.mostly_black));
-                    break;
-                }
-            }
-        }
-    };
 }

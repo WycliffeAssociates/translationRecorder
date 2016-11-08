@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import wycliffeassociates.recordingapp.Playback.interfaces.AudioEditDelegator;
+import wycliffeassociates.recordingapp.Playback.interfaces.EditStateInformer;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Utils;
@@ -21,6 +23,7 @@ import wycliffeassociates.recordingapp.widgets.PlaybackTimer;
 public class FragmentPlaybackTools extends Fragment{
 
     MediaController mMediaController;
+    AudioEditDelegator mAudioEditDelegator;
     ImageButton mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
             mDropStartMarkBtn, mDropEndMarkBtn,
             mUndoBtn, mCutBtn, mClearBtn,
@@ -54,6 +57,11 @@ public class FragmentPlaybackTools extends Fragment{
             });
         } catch (ClassCastException e){
             throw new ClassCastException(activity.toString() + " must implement MediaController");
+        }
+        try {
+            mAudioEditDelegator = (AudioEditDelegator) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement AudioEditDelegator");
         }
     }
 
@@ -104,6 +112,14 @@ public class FragmentPlaybackTools extends Fragment{
         mTimer.setDuration(mMediaController.getDuration());
     }
 
+    public void onLocationUpdated(int ms){
+        mTimer.setElapsed(ms);
+    }
+
+    public void onDurationUpdated(int ms){
+        mTimer.setDuration(ms);
+    }
+
     private void attachListeners(){
         attachMediaControllerListeners();
     }
@@ -112,16 +128,16 @@ public class FragmentPlaybackTools extends Fragment{
         mPlayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMediaController.onPlay();
                 Utils.swapViews(new View[]{mPauseBtn}, new View[]{mPlayBtn});
+                mMediaController.onMediaPlay();
             }
         });
 
         mPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMediaController.onPause();
                 Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
+                mMediaController.onMediaPause();
             }
         });
 
@@ -136,6 +152,64 @@ public class FragmentPlaybackTools extends Fragment{
             @Override
             public void onClick(View view) {
                 mMediaController.onSeekForward();
+            }
+        });
+
+        mDropStartMarkBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.swapViews(new View[]{mDropEndMarkBtn, mClearBtn}, new View[]{mDropStartMarkBtn});
+                mAudioEditDelegator.onDropStartMarker();
+            }
+        });
+
+        mDropEndMarkBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.swapViews(new View[]{mCutBtn}, new View[]{mDropEndMarkBtn});
+                mAudioEditDelegator.onDropEndMarker();
+            }
+        });
+
+        mDropVerseMarkerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAudioEditDelegator.onDropVerseMarker();
+            }
+        });
+
+        mCutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.swapViews(new View[]{mDropStartMarkBtn, mUndoBtn}, new View[]{mCutBtn, mClearBtn});
+                mAudioEditDelegator.onCut();
+            }
+        });
+
+        mUndoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View[] toHide = {};
+                if(((EditStateInformer)mAudioEditDelegator).hasEdits()){
+                    toHide = new View[]{mUndoBtn};
+                }
+                Utils.swapViews(new View[]{}, toHide);
+                mAudioEditDelegator.onUndo();
+            }
+        });
+
+        mClearBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.swapViews(new View[]{mDropStartMarkBtn}, new View[]{mClearBtn, mDropStartMarkBtn, mCutBtn});
+                mAudioEditDelegator.onClearMarkers();
+            }
+        });
+
+        mSaveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAudioEditDelegator.onSave();
             }
         });
     }

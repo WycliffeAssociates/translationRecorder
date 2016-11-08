@@ -2,8 +2,6 @@ package wycliffeassociates.recordingapp.Playback;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
-import android.widget.TextView;
 
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -19,7 +17,6 @@ import wycliffeassociates.recordingapp.Playback.player.WavPlayer;
 import wycliffeassociates.recordingapp.WavFileLoader;
 import wycliffeassociates.recordingapp.wav.WavCue;
 import wycliffeassociates.recordingapp.wav.WavFile;
-import wycliffeassociates.recordingapp.widgets.PlaybackTimer;
 
 /**
  * Created by sarabiaj on 10/27/2016.
@@ -112,24 +109,6 @@ public class AudioVisualController implements MediaControlReceiver {
 
     public void play() {
         mPlayer.play();
-//        Thread playbackThread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                int location = mPlayer.getLocationMs();
-//                while (mPlayer.isPlaying()) {
-//                    location = mPlayer.getLocationMs();
-//                    //getLocationMs();
-//                    //draw();
-//                    //             System.out.println(mPlayer.getLocationMs());
-//                    try {
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        });
-//        playbackThread.start();
     }
 
     public void pause() {
@@ -152,5 +131,32 @@ public class AudioVisualController implements MediaControlReceiver {
     @Override
     public int getDuration() {
         return mPlayer.getDuration();
+    }
+
+    public boolean isPlaying(){
+        return mPlayer.isPlaying();
+    }
+
+    public void cut(){
+        mCutOp.cut(mPlayer.getLoopStart(), mPlayer.getLoopEnd());
+        mPlayer.clearLoopPoints();
+    }
+
+    public void dropStartMarker(){
+        mPlayer.setLoopStart(mPlayer.getLocationInFrames());
+    }
+
+    public void dropEndMarker(){
+        mPlayer.setLoopEnd(mPlayer.getLocationInFrames());
+    }
+
+    public void clearMarkers(){
+        mPlayer.clearLoopPoints();
+    }
+
+    public void undo(){
+        if(mCutOp.hasCut()) {
+            mCutOp.undo();
+        }
     }
 }
