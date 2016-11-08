@@ -23,6 +23,8 @@ import wycliffeassociates.recordingapp.Playback.fragments.FragmentFileBar;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentTabbedWidget;
 import wycliffeassociates.recordingapp.Playback.fragments.WaveformFragment;
+import wycliffeassociates.recordingapp.Playback.interfaces.AudioStateCallback;
+import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
@@ -38,7 +40,14 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  * Created by sarabiaj on 10/27/2016.
  */
 
-public class PlaybackActivity extends Activity implements RatingDialog.DialogListener {
+public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController, AudioStateCallback {
+
+    @Override
+    public void onPlayerPaused() {
+        mFragmentPlaybackTools.onPlayerPaused();
+    }
+
+
 
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
@@ -50,20 +59,10 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private boolean isPlaying = false;
     private boolean isInVerseMarkerMode = false;
 
-    private RelativeLayout mToolbar;
-    private View mSrcAudioPlayback;
-
-    private TextView mVerseMarkerCount, mVerseMarkerLabel;
-
-    private ImageButton mSwitchToMinimap, mSwitchToPlayback;
-
-
-    private SourceAudio mSrcPlayer;
     private WavFile mWavFile;
     private Project mProject;
     private int mChapter, mUnit, mRating, mVersesLeft;
     private AudioVisualController mAudioController;
-    private TextView mPlaybackElapsed, mPlaybackDuration;
     private HashMap<Integer, Fragment> mFragmentContainerMapping;
     private FragmentPlaybackTools mFragmentPlaybackTools;
     private FragmentTabbedWidget mFragmentTabbedWidget;
@@ -91,13 +90,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         isSaved = true;
         parseIntent(intent);
         initializeFragments();
-        findViews();
         initializeViews();
-        setButtonHandlers();
-        enableButtons();
-//        mAudioController = new AudioVisualController(mPlayBtn, mPauseBtn, mSkipForwardBtn, mSkipBackBtn,
-//                mPlaybackElapsed, mPlaybackDuration, mDropStartMarkBtn, mDropEndMarkBtn, mClearBtn,
-//                mCutBtn, mUndoBtn, mWavFile);
+        mAudioController = new AudioVisualController(this, mWavFile);
     }
 
     private void parseIntent(Intent intent) {
@@ -109,6 +103,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private void initializeFragments() {
         mFragmentContainerMapping = new HashMap<>();
+
         mFragmentPlaybackTools = FragmentPlaybackTools.newInstance();
         mFragmentContainerMapping.put(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools);
 
@@ -132,14 +127,14 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         ft.commit();
     }
 
-    private void findViews() {
-        mToolbar = (RelativeLayout) findViewById(R.id.toolbar);
-
-        mVerseMarkerCount = (TextView) findViewById(R.id.verse_marker_count);
-        mVerseMarkerLabel = (TextView) findViewById(R.id.verse_marker_label);
-
-
-    }
+//    private void findViews() {
+//        mToolbar = (RelativeLayout) findViewById(R.id.toolbar);
+//
+//        mVerseMarkerCount = (TextView) findViewById(R.id.verse_marker_count);
+//        mVerseMarkerLabel = (TextView) findViewById(R.id.verse_marker_label);
+//
+//
+//    }
 
     private void initializeViews() {
 
@@ -155,9 +150,40 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
+    public void onPlay() {
+
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         mSrcPlayer.pauseSource();
+    }
+
+    @Override
+    public void onSeekForward() {
+
+    }
+
+    @Override
+    public void onSeekBackward() {
+
+    }
+
+    @Override
+    public int getDuration() {
+        return 0;
+    }
+
+    @Override
+    public int getLocation() {
+        return 0;
+    }
+
+    @Override
+    public int setOnCompleteListner(Runnable onComplete) {
+        onComplete.run();
+        return 0;
     }
 
     @Override
@@ -356,21 +382,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //        save(insertIntent);
     }
 
-    private void setButtonHandlers() {
-        mSwitchToMinimap.setOnClickListener(btnClick);
-        mSwitchToPlayback.setOnClickListener(btnClick);
-    }
-
-    private void enableButton(int id, boolean isEnable) {
-        findViewById(id).setEnabled(isEnable);
-    }
-
-    private void enableButtons() {
-        // NOTE: Why do we need to enable these buttons?
-        enableButton(R.id.btn_play, true);
-        enableButton(R.id.btn_save, true);
-    }
-
     private boolean allVersesMarked() {
         return mVersesLeft <= 0;
     }
@@ -411,7 +422,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //        Utils.showView(getViewsToHideInMarkerMode());
 //        Utils.hideView(getViewsToHideInNormalMode());
 //        mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
-    }
+//    }
 
     private void dropVerseMarker() {
         //mMainCanvas.dropVerseMarker(mManager.getLocationMs());

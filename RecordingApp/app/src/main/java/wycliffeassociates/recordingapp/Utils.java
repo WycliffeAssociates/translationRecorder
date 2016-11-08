@@ -18,6 +18,19 @@ public class Utils {
 
     public static File VISUALIZATION_DIR;
 
+    public static void swapViews(final View[] toShow, final View[] toHide) {
+        for (View v : toShow) {
+            if (v != null) {
+                v.setVisibility(View.VISIBLE);
+            }
+        }
+        for (View v : toHide) {
+            if (v != null) {
+                v.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
     public static void closeKeyboard(Activity ctx) {
         InputMethodManager inputManager = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (ctx.getCurrentFocus() != null) {
