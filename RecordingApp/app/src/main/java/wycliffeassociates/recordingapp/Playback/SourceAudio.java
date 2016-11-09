@@ -81,8 +81,8 @@ public class SourceAudio extends LinearLayout {
         mNoSourceMsg = (TextView) findViewById(R.id.noSourceMsg);
         if(!isInEditMode()) {
             mSrcPlayer = new AudioPlayer(mSrcTimeElapsed, mSrcTimeDuration, mBtnSrcPlay, mSeekBar);
+            mCtx = (Activity) getContext();
         }
-        mCtx = (Activity) getContext();
 
         mBtnSrcPlay.setOnClickListener(new OnClickListener() {
             @Override
