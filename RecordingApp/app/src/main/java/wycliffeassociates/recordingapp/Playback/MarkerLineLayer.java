@@ -2,6 +2,8 @@ package wycliffeassociates.recordingapp.Playback;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -12,6 +14,8 @@ import android.widget.FrameLayout;
 
 public class MarkerLineLayer extends View {
 
+    Paint mPaintBaseLine;
+
     public interface MarkerLineDrawDelegator {
         void onDraw(Canvas canvas);
     }
@@ -20,7 +24,14 @@ public class MarkerLineLayer extends View {
         MarkerLineLayer mll = new MarkerLineLayer(context);
         mll.setMarkerLineDrawDelegator(drawDelegator);
         mll.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mll.setPaint();
         return mll;
+    }
+
+    private void setPaint(){
+        mPaintBaseLine = new Paint(Color.BLACK);
+        mPaintBaseLine.setStyle(Paint.Style.STROKE);
+        mPaintBaseLine.setStrokeWidth(2f);
     }
 
     MarkerLineDrawDelegator mMarkerLineDrawDelegator;

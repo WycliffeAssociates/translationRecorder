@@ -16,7 +16,6 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/mostly_black"
         android:layout_weight="1"
         android:layout_alignBottom="@+id/file_bar_fragment_holder">
 
@@ -24,6 +23,7 @@
             android:id="@+id/waveform_fragment_holder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/mostly_black"
             />
 
     </FrameLayout>

@@ -17,19 +17,21 @@ public class DraggableImageView extends ImageView implements View.OnTouchListene
     int mId;
     float dX;
     float dY;
+    float position = 0;
     int lastAction;
-    OnPositionChangedListener mOnPositionChanged;
+    PositionChangeMediator mPositionChangeMediator;
 
-    public interface OnPositionChangedListener {
+    public interface PositionChangeMediator {
+        float onPositionRequested(int id, float x);
         void onPositionChanged(int id, float x);
     }
 
-    public static DraggableImageView newInstance(Activity context, int drawableId, int viewId){
+    private static DraggableImageView newInstance(Activity context, int drawableId, int viewId){
         ViewGroup.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         return newInstance(context, params, drawableId, viewId);
     }
 
-    public static DraggableImageView newInstance(Activity context, int drawableId, int gravity, int viewId){
+    private static DraggableImageView newInstance(Activity context, int drawableId, int gravity, int viewId){
         ViewGroup.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, gravity);
         return newInstance(context, params, drawableId, viewId);
     }
@@ -37,22 +39,22 @@ public class DraggableImageView extends ImageView implements View.OnTouchListene
     private static DraggableImageView newInstance(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId){
         DraggableImageView view = new DraggableImageView(context);
         view.setImageResource(drawableId);
-        view.setOnTouchListener(view);
         view.setLayoutParams(params);
         view.setMarkerId(viewId);
         return view;
     }
 
-    public void setOnPositionChangedListener(OnPositionChangedListener listener){
-        mOnPositionChanged = listener;
+    public void setPositionChangeMediator(PositionChangeMediator listener){
+        mPositionChangeMediator = listener;
     }
 
-    private void setMarkerId(int id){
+    protected void setMarkerId(int id){
         mId = id;
     }
 
     public DraggableImageView(Context context) {
         super(context);
+        setOnTouchListener(this);
     }
 
     @Override
@@ -64,9 +66,13 @@ public class DraggableImageView extends ImageView implements View.OnTouchListene
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                view.setX(event.getRawX() + dX);
-                if(mOnPositionChanged != null) {
-                    mOnPositionChanged.onPositionChanged(mId, event.getRawX() + dX);
+                position = event.getRawX() + dX;
+                if(mPositionChangeMediator != null) {
+                    position = mPositionChangeMediator.onPositionRequested(mId, position);
+                    view.setX(position);
+                    mPositionChangeMediator.onPositionChanged(mId, position);
+                } else {
+                    view.setX(position);
                 }
                 lastAction = MotionEvent.ACTION_MOVE;
                 break;
@@ -75,6 +81,10 @@ public class DraggableImageView extends ImageView implements View.OnTouchListene
                 return false;
         }
         return true;
+    }
+
+    public float getMarkerX(){
+        return this.getX();
     }
 
 }
