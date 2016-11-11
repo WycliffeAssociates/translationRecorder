@@ -100,7 +100,7 @@ public abstract class CanvasView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
-    // override onDraw
+    // override onDrawMarkers
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

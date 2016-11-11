@@ -17,7 +17,7 @@ public class MarkerLineLayer extends View {
     Paint mPaintBaseLine;
 
     public interface MarkerLineDrawDelegator {
-        void onDraw(Canvas canvas);
+        void onDrawMarkers(Canvas canvas);
     }
 
     public static MarkerLineLayer newInstance(Context context, MarkerLineDrawDelegator drawDelegator){
@@ -43,7 +43,7 @@ public class MarkerLineLayer extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mMarkerLineDrawDelegator.onDraw(canvas);
+        mMarkerLineDrawDelegator.onDrawMarkers(canvas);
     }
 
     private void setMarkerLineDrawDelegator(MarkerLineDrawDelegator drawDelegator){

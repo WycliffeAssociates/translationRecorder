@@ -305,7 +305,7 @@ public class WaveformView extends CanvasView {
     /**
      * Main draw method that is called when the view is invalidated.
      *
-     * @param canvas The canvas which can be drawn on. Provided by Android as onDraw is not
+     * @param canvas The canvas which can be drawn on. Provided by Android as onDrawMarkers is not
      *               called explicitly.
      */
     @Override

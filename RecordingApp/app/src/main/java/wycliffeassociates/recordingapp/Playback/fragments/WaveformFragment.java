@@ -3,7 +3,6 @@ package wycliffeassociates.recordingapp.Playback.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,6 +13,8 @@ import android.widget.FrameLayout;
 import java.util.Collection;
 import java.util.HashMap;
 
+import wycliffeassociates.recordingapp.AudioVisualization.WavRenderer;
+import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
 import wycliffeassociates.recordingapp.Playback.MarkerLineLayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.widgets.DragableViewFrame;
@@ -23,21 +24,25 @@ import wycliffeassociates.recordingapp.widgets.SectionMarker;
 import wycliffeassociates.recordingapp.widgets.SectionMarkerView;
 import wycliffeassociates.recordingapp.widgets.VerseMarker;
 import wycliffeassociates.recordingapp.widgets.VerseMarkerView;
+import wycliffeassociates.recordingapp.widgets.WaveformLayer;
 
 /**
  * Created by sarabiaj on 11/4/2016.
  */
 
-public class WaveformFragment extends Fragment implements DraggableImageView.PositionChangeMediator, MarkerLineLayer.MarkerLineDrawDelegator{
+public class WaveformFragment extends Fragment implements DraggableImageView.PositionChangeMediator,
+        MarkerLineLayer.MarkerLineDrawDelegator, WaveformLayer.WaveformDrawDelegator {
 
+    //------------Views-----------------//
     DragableViewFrame mDraggableViewFrame;
     MarkerLineLayer mMarkerLineLayer;
+    WaveformLayer mWaveformLayer;
     HashMap<Integer, DraggableMarker> mMarkers = new HashMap<>();
     final int START_MARKER_ID = -1;
     final int END_MARKER_ID = -2;
-
-    Paint mMarkerLinePaint;
     FrameLayout mFrame;
+
+    WavRenderer renderer;
 
     public static WaveformFragment newInstance(){
         WaveformFragment f = new WaveformFragment();
@@ -53,9 +58,11 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         findViews();
-
+        mWaveformLayer = WaveformLayer.newInstance(getActivity(), this);
         mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
+        mFrame.addView(mWaveformLayer);
         mFrame.addView(mMarkerLineLayer);
+        WavRenderer renderer = new WavVisualizer()
         addStartMarker();
         addEndMarker();
         addVerseMarker();
@@ -71,6 +78,8 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mDraggableViewFrame = (DragableViewFrame) view.findViewById(R.id.draggable_view_frame);
         mFrame = (FrameLayout) view.findViewById(R.id.waveform_frame);
     }
+
+    //-------------MARKERS----------------------//
 
     public void addStartMarker(){
         SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_startmarker_cyan, START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
@@ -113,10 +122,15 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDrawMarkers(Canvas canvas) {
         Collection<DraggableMarker> markers = mMarkers.values();
         for (DraggableMarker d : markers) {
             d.drawMarkerLine(canvas);
         }
+    }
+
+    @Override
+    public void onDrawWaveform(Canvas canvas){
+
     }
 }
