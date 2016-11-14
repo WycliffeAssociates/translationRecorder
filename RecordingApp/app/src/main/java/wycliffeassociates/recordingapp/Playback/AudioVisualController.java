@@ -159,4 +159,9 @@ public class AudioVisualController implements MediaControlReceiver {
             mCutOp.undo();
         }
     }
+
+    public void scrollAudio(float distY){
+        mPlayer.seekTo(Math.max(Math.min((int)((distY * 300) + mPlayer.getLocationInFrames()), mPlayer.getDurationInFrames()), 0));
+        mCallback.onLocationUpdated(getLocation());
+    }
 }

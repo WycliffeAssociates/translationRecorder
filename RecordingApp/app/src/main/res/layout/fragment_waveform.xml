@@ -17,7 +17,7 @@
                     <!--android:layout_height="wrap_content"/>-->
             <!--</FrameLayout>-->
 
-            <wycliffeassociates.recordingapp.widgets.DragableViewFrame
+            <wycliffeassociates.recordingapp.Playback.overlays.DraggableViewFrame
                 android:id="@+id/draggable_view_frame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

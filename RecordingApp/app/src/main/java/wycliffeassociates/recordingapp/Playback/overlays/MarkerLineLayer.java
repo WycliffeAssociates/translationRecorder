@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.Playback;
+package wycliffeassociates.recordingapp.Playback.overlays;
 
 import android.content.Context;
 import android.graphics.Canvas;

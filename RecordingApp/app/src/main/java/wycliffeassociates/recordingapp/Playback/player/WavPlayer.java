@@ -81,7 +81,7 @@ public class WavPlayer {
         seekTo(Math.max(seekLocation, mBufferProvider.getMark()));
     }
 
-    private synchronized void seekTo(int absoluteFrame){
+    public synchronized void seekTo(int absoluteFrame){
         if(absoluteFrame > getDurationInFrames() || absoluteFrame < 0){
             return;
         }

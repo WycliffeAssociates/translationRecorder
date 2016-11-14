@@ -6,4 +6,5 @@ package wycliffeassociates.recordingapp.Playback.interfaces;
 
 public interface AudioStateCallback {
     void onPlayerPaused();
+    void onLocationUpdated(int location);
 }

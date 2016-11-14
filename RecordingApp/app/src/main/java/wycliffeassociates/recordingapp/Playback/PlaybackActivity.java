@@ -27,6 +27,7 @@ import wycliffeassociates.recordingapp.Playback.interfaces.AudioEditDelegator;
 import wycliffeassociates.recordingapp.Playback.interfaces.AudioStateCallback;
 import wycliffeassociates.recordingapp.Playback.interfaces.EditStateInformer;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
+import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
@@ -43,7 +44,9 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  * Created by sarabiaj on 10/27/2016.
  */
 
-public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController, AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator {
+public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController,
+        AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator,
+        ViewCreatedCallback, WaveformFragment.OnScrollDelegator {
 
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
@@ -85,12 +88,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         initialize(getIntent());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getView().getWidth(), mCutOp);
-    }
-
     private void initialize(Intent intent) {
         isSaved = true;
         parseIntent(intent);
@@ -98,6 +95,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         initializeViews();
         wavFileLoader = new WavFileLoader(mWavFile);
         mCutOp = new CutOp();
+        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
         mAudioController = new AudioVisualController(this, mWavFile);
     }
 
@@ -164,11 +162,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 while (mAudioController.isPlaying()) {
                     location = mAudioController.getLocation();
                     mFragmentPlaybackTools.onLocationUpdated(location);
+                    mWaveformFragment.onLocationUpdated(location);
                     //getLocationMs();
                     //draw();
                     //             System.out.println(mPlayer.getLocationMs());
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(16);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -223,11 +222,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onDropStartMarker() {
         mAudioController.dropStartMarker();
+        mWaveformFragment.addStartMarker(getLocation());
     }
 
     @Override
     public void onDropEndMarker() {
         mAudioController.dropEndMarker();
+        mWaveformFragment.addEndMarker(getLocation());
     }
 
     @Override
@@ -274,6 +275,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onBackPressed() {
         Logger.i(this.toString(), "Back was pressed.");
+        super.onBackPressed();
 //        if (!isSaved && mManager.hasCut()) {
 //            Logger.i(this.toString(), "Asking if user wants to save before going back");
 //            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
@@ -426,7 +428,25 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onDrawWaveform(Canvas canvas, Paint paint) {
-        canvas.drawLines(wavVis.getDataToDraw(), paint);
+        canvas.drawLines(wavVis.getDataToDraw(mAudioController.getLocation()), paint);
+    }
 
+    @Override
+    public void onViewCreated(Object ref, int width, int height) {
+//        if(ref instanceof WaveformFragment){
+//            wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), width, height, width, mCutOp);
+//        } else {
+//            wavVis.
+//        }
+    }
+
+    @Override
+    public void delegateOnScroll(float distY) {
+        mAudioController.scrollAudio(distY);
+    }
+
+    @Override
+    public void onLocationUpdated(int location){
+        mWaveformFragment.onLocationUpdated(location);
     }
 }

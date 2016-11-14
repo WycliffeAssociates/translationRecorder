@@ -5,7 +5,6 @@ import java.nio.MappedByteBuffer;
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.AudioVisualization.Utils.U;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
-import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 
 public class WavVisualizer {
 
@@ -41,55 +40,55 @@ public class WavVisualizer {
         mCanSwitch = true;
     }
 
-//    public float[] getMinimap(int minimapHeight, int minimapWidth){
-//        //selects the proper buffer to use
-//        boolean useCompressed = mCanSwitch && mNumSecondsOnScreen > AudioInfo.COMPRESSED_SECONDS_ON_SCREEN;
-//        mAccessor.switchBuffers(useCompressed);
-//
-//        int pos = 0;
-//        int index = 0;
-//        double incrementTemp = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration(), minimapWidth);
-//        double leftover = incrementTemp - (int)Math.floor(incrementTemp);
-//        double count = 0;
-//        int increment = (int)Math.floor(incrementTemp);
-//        if(useCompressed){
-//            increment*=2;
-//        }
-//        boolean leapedInc = false;
-//        for(int i = 0; i < minimapWidth; i++){
-//            double max = Double.MIN_VALUE;
-//            double min = Double.MAX_VALUE;
-//            if(count > 1){
-//                count-=1;
-//                increment++;
-//                leapedInc = true;
-//            }
-//            for(int j = 0; j < increment; j+=2){
-//                if(pos+1 >= mAccessor.size()){
-//                    break;
-//                }
-//                byte low = mAccessor.get(pos);
-//                byte hi = mAccessor.get(pos + 1);
-//                short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-//                max = (max < (double) value) ? value : max;
-//                min = (min > (double) value) ? value : min;
-//                pos+=2;
-//            }
-//            if(leapedInc){
-//                increment--;
-//                leapedInc = false;
-//            }
-//            count += leftover;
-//            mMinimap[index] = index/4;
-//            mMinimap[index+1] = U.getValueForScreen(max, minimapHeight);
-//            mMinimap[index+2] =  index/4;
-//            mMinimap[index+3] = U.getValueForScreen(min, minimapHeight);
-//            index+=4;
-//        }
-//        //System.out.print("height is " + minimapHeight);
-//
-//        return mMinimap;
-//    }
+    public float[] getMinimap(int minimapHeight, int minimapWidth, int duration){
+        //selects the proper buffer to use
+        boolean useCompressed = mCanSwitch && mNumSecondsOnScreen > AudioInfo.COMPRESSED_SECONDS_ON_SCREEN;
+        mAccessor.switchBuffers(useCompressed);
+
+        int pos = 0;
+        int index = 0;
+        double incrementTemp = mAccessor.getIncrement(duration/(double)1000, useCompressed, duration, minimapWidth);
+        double leftover = incrementTemp - (int)Math.floor(incrementTemp);
+        double count = 0;
+        int increment = (int)Math.floor(incrementTemp);
+        if(useCompressed){
+            increment*=2;
+        }
+        boolean leapedInc = false;
+        for(int i = 0; i < minimapWidth; i++){
+            double max = Double.MIN_VALUE;
+            double min = Double.MAX_VALUE;
+            if(count > 1){
+                count-=1;
+                increment++;
+                leapedInc = true;
+            }
+            for(int j = 0; j < increment; j+=2){
+                if(pos+1 >= mAccessor.size()){
+                    break;
+                }
+                byte low = mAccessor.get(pos);
+                byte hi = mAccessor.get(pos + 1);
+                short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                max = (max < (double) value) ? value : max;
+                min = (min > (double) value) ? value : min;
+                pos+=2;
+            }
+            if(leapedInc){
+                increment--;
+                leapedInc = false;
+            }
+            count += leftover;
+            mMinimap[index] = index/4;
+            mMinimap[index+1] = U.getValueForScreen(max, minimapHeight);
+            mMinimap[index+2] =  index/4;
+            mMinimap[index+3] = U.getValueForScreen(min, minimapHeight);
+            index+=4;
+        }
+        //System.out.print("height is " + minimapHeight);
+
+        return mMinimap;
+    }
 
 
 

@@ -1,8 +1,10 @@
-package wycliffeassociates.recordingapp.widgets;
+package wycliffeassociates.recordingapp.Playback.overlays;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import wycliffeassociates.recordingapp.R;
@@ -11,10 +13,10 @@ import wycliffeassociates.recordingapp.R;
  * Created by sarabiaj on 11/11/2016.
  */
 
-public class WaveformLayer extends FrameLayout {
+public class WaveformLayer extends View {
 
     public interface WaveformDrawDelegator{
-        void onDrawWaveform(Canvas canvas);
+        void onDrawWaveform(Canvas canvas, Paint paint);
     }
 
     private Paint mPaint;
@@ -23,6 +25,7 @@ public class WaveformLayer extends FrameLayout {
     public static WaveformLayer newInstance(Context context, WaveformDrawDelegator drawDelegator){
         WaveformLayer wav = new WaveformLayer(context);
         wav.setWaveformDrawDelegator(drawDelegator);
+        wav.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return wav;
     }
 
@@ -41,6 +44,7 @@ public class WaveformLayer extends FrameLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        mDrawDelegator.onDrawWaveform(canvas, mPaint);
 
     }
 }
