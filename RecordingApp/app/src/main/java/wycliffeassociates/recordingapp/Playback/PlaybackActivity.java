@@ -6,6 +6,8 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -14,7 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentFileBar;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentTabbedWidget;
@@ -28,6 +32,7 @@ import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.WavFileLoader;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
@@ -38,7 +43,7 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  * Created by sarabiaj on 10/27/2016.
  */
 
-public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController, AudioStateCallback, AudioEditDelegator, EditStateInformer {
+public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController, AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator {
 
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
@@ -50,7 +55,10 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private boolean isPlaying = false;
     private boolean isInVerseMarkerMode = false;
 
+    private WavVisualizer wavVis;
     private WavFile mWavFile;
+    private WavFileLoader wavFileLoader;
+    private CutOp mCutOp;
     private Project mProject;
     private int mChapter, mUnit, mRating, mVersesLeft;
     private AudioVisualController mAudioController;
@@ -77,11 +85,19 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         initialize(getIntent());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getView().getWidth(), mCutOp);
+    }
+
     private void initialize(Intent intent) {
         isSaved = true;
         parseIntent(intent);
         initializeFragments();
         initializeViews();
+        wavFileLoader = new WavFileLoader(mWavFile);
+        mCutOp = new CutOp();
         mAudioController = new AudioVisualController(this, mWavFile);
     }
 
@@ -144,7 +160,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         Thread playbackThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int location = mAudioController.getLocation();
+                int location;
                 while (mAudioController.isPlaying()) {
                     location = mAudioController.getLocation();
                     mFragmentPlaybackTools.onLocationUpdated(location);
@@ -406,5 +422,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private void saveVerseMarkerPosition() {
         // NOTE: Put real code here
         System.out.println("Save verse marker position here");
+    }
+
+    @Override
+    public void onDrawWaveform(Canvas canvas, Paint paint) {
+        canvas.drawLines(wavVis.getDataToDraw(), paint);
+
     }
 }

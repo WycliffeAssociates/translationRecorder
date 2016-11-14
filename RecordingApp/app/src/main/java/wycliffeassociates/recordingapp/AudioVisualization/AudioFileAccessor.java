@@ -20,18 +20,16 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
 public class AudioFileAccessor {
     MappedByteBuffer mCompressed;
     MappedByteBuffer mUncompressed;
-    UIDataManager mManager;
     CutOp mCut;
     int mWidth;
     int mUncmpToCmp;
     boolean mUseCmp = false;
 
-    public AudioFileAccessor(MappedByteBuffer compressed, MappedByteBuffer uncompressed, CutOp cut, UIDataManager manager) {
+    public AudioFileAccessor(MappedByteBuffer compressed, MappedByteBuffer uncompressed, CutOp cut) {
         mCompressed = compressed;
         mUncompressed = uncompressed;
         mCut = cut;
         mWidth = AudioInfo.SCREEN_WIDTH;
-        mManager = manager;
         //increment to write the compressed file. ~44 indices uncompressed = 2 compressed
         mUseCmp = (compressed == null) ? false : true;
     }

@@ -41,8 +41,11 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     final int START_MARKER_ID = -1;
     final int END_MARKER_ID = -2;
     FrameLayout mFrame;
+    WaveformDrawDelegator mDrawDelegator;
 
-    WavRenderer renderer;
+    public interface WaveformDrawDelegator {
+        void onDrawWaveform(Canvas canvas);
+    }
 
     public static WaveformFragment newInstance(){
         WaveformFragment f = new WaveformFragment();
@@ -62,7 +65,6 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
         mFrame.addView(mWaveformLayer);
         mFrame.addView(mMarkerLineLayer);
-        WavRenderer renderer = new WavVisualizer()
         addStartMarker();
         addEndMarker();
         addVerseMarker();
@@ -71,6 +73,12 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mDrawDelegator = (WaveformDrawDelegator) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
     }
 
     private void findViews(){

@@ -21,9 +21,8 @@ public class WavVisualizer {
     int mScreenHeight;
     int mScreenWidth;
     AudioFileAccessor mAccessor;
-    UIDataManager mManager;
 
-    public WavVisualizer(UIDataManager manager, MappedByteBuffer buffer, MappedByteBuffer compressed, int screenWidth, int screenHeight, int minimapWidth, CutOp cut) {
+    public WavVisualizer(MappedByteBuffer buffer, MappedByteBuffer compressed, int screenWidth, int screenHeight, int minimapWidth, CutOp cut) {
         this.buffer = buffer;
         mScreenHeight = screenHeight;
         mScreenWidth = screenWidth;
@@ -31,8 +30,7 @@ public class WavVisualizer {
         mNumSecondsOnScreen = mDefaultSecondsOnScreen;
         mCanSwitch = (compressed == null)? false : true;
         mSamples = new float[screenWidth*8];
-        mManager = manager;
-        mAccessor = new AudioFileAccessor(compressed, buffer, cut, manager);
+        mAccessor = new AudioFileAccessor(compressed, buffer, cut);
         mMinimap = new float[minimapWidth * 4];
     }
 
@@ -43,55 +41,55 @@ public class WavVisualizer {
         mCanSwitch = true;
     }
 
-    public float[] getMinimap(int minimapHeight, int minimapWidth){
-        //selects the proper buffer to use
-        boolean useCompressed = mCanSwitch && mNumSecondsOnScreen > AudioInfo.COMPRESSED_SECONDS_ON_SCREEN;
-        mAccessor.switchBuffers(useCompressed);
-
-        int pos = 0;
-        int index = 0;
-        double incrementTemp = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration(), minimapWidth);
-        double leftover = incrementTemp - (int)Math.floor(incrementTemp);
-        double count = 0;
-        int increment = (int)Math.floor(incrementTemp);
-        if(useCompressed){
-            increment*=2;
-        }
-        boolean leapedInc = false;
-        for(int i = 0; i < minimapWidth; i++){
-            double max = Double.MIN_VALUE;
-            double min = Double.MAX_VALUE;
-            if(count > 1){
-                count-=1;
-                increment++;
-                leapedInc = true;
-            }
-            for(int j = 0; j < increment; j+=2){
-                if(pos+1 >= mAccessor.size()){
-                    break;
-                }
-                byte low = mAccessor.get(pos);
-                byte hi = mAccessor.get(pos + 1);
-                short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                max = (max < (double) value) ? value : max;
-                min = (min > (double) value) ? value : min;
-                pos+=2;
-            }
-            if(leapedInc){
-                increment--;
-                leapedInc = false;
-            }
-            count += leftover;
-            mMinimap[index] = index/4;
-            mMinimap[index+1] = U.getValueForScreen(max, minimapHeight);
-            mMinimap[index+2] =  index/4;
-            mMinimap[index+3] = U.getValueForScreen(min, minimapHeight);
-            index+=4;
-        }
-        //System.out.print("height is " + minimapHeight);
-
-        return mMinimap;
-    }
+//    public float[] getMinimap(int minimapHeight, int minimapWidth){
+//        //selects the proper buffer to use
+//        boolean useCompressed = mCanSwitch && mNumSecondsOnScreen > AudioInfo.COMPRESSED_SECONDS_ON_SCREEN;
+//        mAccessor.switchBuffers(useCompressed);
+//
+//        int pos = 0;
+//        int index = 0;
+//        double incrementTemp = mAccessor.getIncrement(mManager.getAdjustedDuration()/(double)1000, useCompressed, mManager.getAdjustedDuration(), minimapWidth);
+//        double leftover = incrementTemp - (int)Math.floor(incrementTemp);
+//        double count = 0;
+//        int increment = (int)Math.floor(incrementTemp);
+//        if(useCompressed){
+//            increment*=2;
+//        }
+//        boolean leapedInc = false;
+//        for(int i = 0; i < minimapWidth; i++){
+//            double max = Double.MIN_VALUE;
+//            double min = Double.MAX_VALUE;
+//            if(count > 1){
+//                count-=1;
+//                increment++;
+//                leapedInc = true;
+//            }
+//            for(int j = 0; j < increment; j+=2){
+//                if(pos+1 >= mAccessor.size()){
+//                    break;
+//                }
+//                byte low = mAccessor.get(pos);
+//                byte hi = mAccessor.get(pos + 1);
+//                short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+//                max = (max < (double) value) ? value : max;
+//                min = (min > (double) value) ? value : min;
+//                pos+=2;
+//            }
+//            if(leapedInc){
+//                increment--;
+//                leapedInc = false;
+//            }
+//            count += leftover;
+//            mMinimap[index] = index/4;
+//            mMinimap[index+1] = U.getValueForScreen(max, minimapHeight);
+//            mMinimap[index+2] =  index/4;
+//            mMinimap[index+3] = U.getValueForScreen(min, minimapHeight);
+//            index+=4;
+//        }
+//        //System.out.print("height is " + minimapHeight);
+//
+//        return mMinimap;
+//    }
 
 
 
@@ -147,24 +145,24 @@ public class WavVisualizer {
         return mSamples;
     }
 
-    private int backUpStartPos(int start, int delta, CutOp cut){
-        int loc = start;
-        for(int i = 0; i < delta; i++){
-            loc--;
-            int skip = cut.skipReverse(loc);
-            if(skip != Integer.MAX_VALUE){
-                loc = skip;
-            }
-        }
-        return loc;
-    }
-
-    private int mapLocationToTime(int idx){
-        double idxP = (mUseCompressedFile)? idx/(double)mCompressed.capacity()
-                : idx/(double)buffer.capacity();
-        int ms = (int)Math.round(idxP * mManager.getDuration());
-        return ms;
-    }
+//    private int backUpStartPos(int start, int delta, CutOp cut){
+//        int loc = start;
+//        for(int i = 0; i < delta; i++){
+//            loc--;
+//            int skip = cut.skipReverse(loc);
+//            if(skip != Integer.MAX_VALUE){
+//                loc = skip;
+//            }
+//        }
+//        return loc;
+//    }
+//
+//    private int mapLocationToTime(int idx){
+//        double idxP = (mUseCompressedFile)? idx/(double)mCompressed.capacity()
+//                : idx/(double)buffer.capacity();
+//        int ms = (int)Math.round(idxP * mManager.getDuration());
+//        return ms;
+//    }
 
 
     private int addHighAndLowToDrawingArray(AudioFileAccessor accessor, float[] samples, int beginIdx, int endIdx, int index){
