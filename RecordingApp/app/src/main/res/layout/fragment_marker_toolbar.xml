@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/yellow"
+    android:background="@color/tertiary"
     android:padding="16dp">
 
     <LinearLayout
@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_pause_white_48dp"
                 android:background="#00000000"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:layout_centerInParent="true" />
 
         </RelativeLayout>

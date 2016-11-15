@@ -22,11 +22,14 @@ import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentFileBar;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentTabbedWidget;
+import wycliffeassociates.recordingapp.Playback.fragments.MarkerCounterFragment;
+import wycliffeassociates.recordingapp.Playback.fragments.MarkerToolbarFragment;
 import wycliffeassociates.recordingapp.Playback.fragments.WaveformFragment;
 import wycliffeassociates.recordingapp.Playback.interfaces.AudioEditDelegator;
 import wycliffeassociates.recordingapp.Playback.interfaces.AudioStateCallback;
 import wycliffeassociates.recordingapp.Playback.interfaces.EditStateInformer;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
+import wycliffeassociates.recordingapp.Playback.interfaces.VerseMarkerModeToggler;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
@@ -46,7 +49,9 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController,
         AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator,
-        ViewCreatedCallback, WaveformFragment.OnScrollDelegator {
+        ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler {
+
+
 
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
@@ -70,6 +75,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private FragmentTabbedWidget mFragmentTabbedWidget;
     private FragmentFileBar mFragmentFileBar;
     private WaveformFragment mWaveformFragment;
+    private MarkerCounterFragment mMarkerCounterFragment;
+    private MarkerToolbarFragment mMarkerToolbarFragment;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackActivity.class);
@@ -91,6 +98,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private void initialize(Intent intent) {
         isSaved = true;
         parseIntent(intent);
+        getVersesLeft();
         initializeFragments();
         initializeViews();
         wavFileLoader = new WavFileLoader(mWavFile);
@@ -122,6 +130,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
         mWaveformFragment = WaveformFragment.newInstance();
         mFragmentContainerMapping.put(R.id.waveform_fragment_holder, mWaveformFragment);
+
+        mMarkerCounterFragment = MarkerCounterFragment.newInstance(mVersesLeft);
+        mMarkerToolbarFragment = MarkerToolbarFragment.newInstance();
         attachFragments();
     }
 
@@ -275,7 +286,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onBackPressed() {
         Logger.i(this.toString(), "Back was pressed.");
-        super.onBackPressed();
+        if(isInVerseMarkerMode) {
+            onDisableVerseMarkerMode();
+        } else {
+            super.onBackPressed();
+        }
 //        if (!isSaved && mManager.hasCut()) {
 //            Logger.i(this.toString(), "Asking if user wants to save before going back");
 //            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
@@ -448,5 +463,29 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onLocationUpdated(int location){
         mWaveformFragment.onLocationUpdated(location);
+    }
+
+    @Override
+    public void onEnableVerseMarkerMode() {
+        isInVerseMarkerMode = true;
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction()
+                .remove(mFragmentFileBar)
+                .add(R.id.file_bar_fragment_holder, mMarkerCounterFragment)
+                .remove(mFragmentPlaybackTools)
+                .add(R.id.playback_tools_fragment_holder, mMarkerToolbarFragment)
+                .commit();
+    }
+
+    @Override
+    public void onDisableVerseMarkerMode() {
+        isInVerseMarkerMode = false;
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction()
+                .remove(mMarkerCounterFragment)
+                .add(R.id.file_bar_fragment_holder, mFragmentFileBar)
+                .remove(mMarkerToolbarFragment)
+                .add(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools)
+                .commit();
     }
 }

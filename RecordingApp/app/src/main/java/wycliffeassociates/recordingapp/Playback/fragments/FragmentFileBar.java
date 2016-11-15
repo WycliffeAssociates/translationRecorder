@@ -1,14 +1,18 @@
 package wycliffeassociates.recordingapp.Playback.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import wycliffeassociates.recordingapp.Playback.interfaces.VerseMarkerModeToggler;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 /**
@@ -16,6 +20,8 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
  */
 
 public class FragmentFileBar extends Fragment {
+
+
 
     public static String KEY_LANGUAGE = "language";
     public static String KEY_VERSION = "version";
@@ -29,17 +35,20 @@ public class FragmentFileBar extends Fragment {
 
     TextView mLangView, mSourceView, mBookView, mChapterView, mChapterLabel, mUnitView, mUnitLabel;
     ImageView mRerecordBtn, mInsertBtn;
+    private ImageButton mEnterVerseMarkerMode;
+
+    private VerseMarkerModeToggler mModeToggleCallback;
 
     public static FragmentFileBar newInstance(String language, String version, String book, String chapterLabel,
                                               String chapterNumber, String unitLabel, String unitNumber){
         FragmentFileBar f = new FragmentFileBar();
         Bundle args = new Bundle();
-        args.putString(KEY_LANGUAGE, language);
-        args.putString(KEY_VERSION, version);
-        args.putString(KEY_BOOK, book);
+        args.putString(KEY_LANGUAGE, language.toUpperCase());
+        args.putString(KEY_VERSION, version.toUpperCase());
+        args.putString(KEY_BOOK, book.toUpperCase());
         args.putString(KEY_CHAPTER_LABEL, chapterLabel);
         args.putString(KEY_CHAPTER_NUMBER, chapterNumber);
-        args.putString(KEY_UNIT_LABEL, unitLabel);
+        args.putString(KEY_UNIT_LABEL, Utils.capitalizeFirstLetter(unitLabel));
         args.putString(KEY_UNIT_NUMBER, unitNumber);
         f.setArguments(args);
         return f;
@@ -55,6 +64,7 @@ public class FragmentFileBar extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         findViews();
         setText();
+        setClickListeners();
     }
 
     private void setText(){
@@ -81,7 +91,22 @@ public class FragmentFileBar extends Fragment {
         mInsertBtn = (ImageView) view.findViewById(R.id.btn_insert_record);
         mRateBtn = (FourStepImageView) view.findViewById(R.id.rateTakeBtn);
 
-//        mEnterVerseMarkerMode = (ImageButton) findViewById(R.id.btn_enter_verse_marker_mode);
+        mEnterVerseMarkerMode = (ImageButton) view.findViewById(R.id.btn_enter_verse_marker_mode);
 //        mExitVerseMarkerMode = (ImageButton) findViewById(R.id.btn_exit_verse_marker_mode);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mModeToggleCallback = (VerseMarkerModeToggler) activity;
+    }
+
+    private void setClickListeners(){
+        mEnterVerseMarkerMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mModeToggleCallback.onEnableVerseMarkerMode();
+            }
+        });
     }
 }
