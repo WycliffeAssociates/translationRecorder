@@ -441,8 +441,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void delegateOnScroll(float distY) {
-        mAudioController.scrollAudio(distY);
+    public void delegateOnScroll(float distX) {
+        mAudioController.scrollAudio(distX);
     }
 
     @Override

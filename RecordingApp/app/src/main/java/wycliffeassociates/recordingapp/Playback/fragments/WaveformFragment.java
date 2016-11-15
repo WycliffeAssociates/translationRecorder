@@ -77,12 +77,13 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
         mScrollGestureLayer = ScrollGestureLayer.newInstance(getActivity(), this);
         mFrame.addView(mWaveformLayer);
-        mFrame.addView(mMarkerLineLayer);
         mFrame.addView(mScrollGestureLayer);
+        mFrame.addView(mMarkerLineLayer);
         mPaint = new Paint();
         mPaint.setColor(getResources().getColor(R.color.bright_yellow));
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
+        addVerseMarker();
     }
 
     @Override
