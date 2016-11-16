@@ -171,7 +171,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             public void run() {
                 int location;
                 while (mAudioController.isPlaying()) {
-                    location = mAudioController.getLocation();
+                    location = mAudioController.getLocationInFrames();
                     mFragmentPlaybackTools.onLocationUpdated(location);
                     mWaveformFragment.onLocationUpdated(location);
                     //getLocationMs();
@@ -191,11 +191,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onSeekForward() {
         mAudioController.seekNext();
+        mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
     }
 
     @Override
     public void onSeekBackward() {
         mAudioController.seekPrevious();
+        mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
     }
 
     @Override
@@ -233,13 +235,15 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onDropStartMarker() {
         mAudioController.dropStartMarker();
-        mWaveformFragment.addStartMarker(getLocation());
+        mWaveformFragment.addStartMarker(mAudioController.getLocationInFrames());
+        mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
     }
 
     @Override
     public void onDropEndMarker() {
         mAudioController.dropEndMarker();
-        mWaveformFragment.addEndMarker(getLocation());
+        mWaveformFragment.addEndMarker(mAudioController.getLocationInFrames());
+        mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
     }
 
     @Override
@@ -395,7 +399,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private void getVersesLeft() {
         FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
-        mVersesLeft = fne.getEndVerse() - fne.getEndVerse();
+        mVersesLeft = fne.getEndVerse() - fne.getStartVerse();
     }
 
     private void setVerseMarkerCount(int count) {
@@ -460,7 +464,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onLocationUpdated(int location){
-        mWaveformFragment.onLocationUpdated(location);
+        mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
     }
 
     @Override
@@ -489,7 +493,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onMarkerPlaced() {
-        mAudioController.dropVerseMarker("Verse " + "1", mAudioController.getLocationInFrames());
-        mWaveformFragment.addVerseMarker(1);
+        int frame = mAudioController.getLocationInFrames();
+        mAudioController.dropVerseMarker("Verse " + "1", frame);
+        mWaveformFragment.addVerseMarker(mVersesLeft, frame);
+        mMarkerCounterFragment.decrementVersesRemaining();
+        mWaveformFragment.onLocationUpdated(frame);
+        mVersesLeft--;
     }
 }

@@ -89,7 +89,7 @@ public class DraggableImageView extends ImageView implements View.OnTouchListene
 
     public int mapLocationToScreenSpace(int location, int width){
         float mspp = 1000 * 10 / (float) width;
-        return (int)((location/44.1) * mspp);
+        return (int)((location/44.1) / mspp);
     }
 
 }

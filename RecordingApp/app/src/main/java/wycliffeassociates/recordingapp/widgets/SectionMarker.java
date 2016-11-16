@@ -9,8 +9,8 @@ import android.graphics.Paint;
 
 public class SectionMarker extends DraggableMarker {
 
-    public SectionMarker(SectionMarkerView view, int color){
-        super(view, configurePaint(color));
+    public SectionMarker(SectionMarkerView view, int color, int frame){
+        super(view, configurePaint(color), frame);
     }
 
     private static Paint configurePaint(int color){

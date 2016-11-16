@@ -83,6 +83,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mPaint.setColor(getResources().getColor(R.color.bright_yellow));
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
+        mDraggableViewFrame.bringToFront();
     }
 
     @Override
@@ -112,7 +113,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         div.setPositionChangeMediator(this);
         div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
         mDraggableViewFrame.addView(div);
-        mMarkers.put(START_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan)));
+        mMarkers.put(START_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
     }
 
     public void addEndMarker(int location){
@@ -120,14 +121,14 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         div.setPositionChangeMediator(this);
         div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
         mDraggableViewFrame.addView(div);
-        mMarkers.put(END_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan)));
+        mMarkers.put(END_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
     }
 
-    public void addVerseMarker(int verseNumber){
-        VerseMarkerView div = VerseMarkerView.newInstance(getActivity(), R.drawable.bookmark_add, verseNumber);
+    public void addVerseMarker(int verseNumber, int frame){
+        VerseMarkerView div = VerseMarkerView.newInstance(getActivity(), R.drawable.verse_marker_yellow, verseNumber);
         div.setPositionChangeMediator(this);
         mDraggableViewFrame.addView(div);
-        mMarkers.put(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow)));
+        mMarkers.put(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow), frame));
     }
 
     @Override
@@ -164,7 +165,11 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     }
 
     public void onLocationUpdated(int location){
+        for(DraggableMarker view : mMarkers.values()){
+            view.updateX(location, mDraggableViewFrame.getWidth());
+        }
         mWaveformLayer.postInvalidate();
         mDraggableViewFrame.postInvalidate();
+        mMarkerLineLayer.postInvalidate();
     }
 }

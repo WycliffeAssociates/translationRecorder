@@ -9,8 +9,8 @@ import android.graphics.Paint;
 
 public class VerseMarker extends DraggableMarker {
 
-    public VerseMarker(VerseMarkerView view, int color){
-        super(view, configurePaint(color));
+    public VerseMarker(VerseMarkerView view, int color, int frame){
+        super(view, configurePaint(color), frame);
     }
 
     private static Paint configurePaint(int color){
