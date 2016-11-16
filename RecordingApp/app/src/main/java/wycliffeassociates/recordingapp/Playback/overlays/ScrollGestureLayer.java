@@ -1,7 +1,7 @@
 package wycliffeassociates.recordingapp.Playback.overlays;
 
 import android.content.Context;
-import android.support.v4.view.GestureDetectorCompat;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,21 +11,59 @@ import android.widget.FrameLayout;
  * Created by sarabiaj on 11/14/2016.
  */
 
-public class ScrollGestureLayer extends View {
+public class ScrollGestureLayer extends View implements GestureDetector.OnGestureListener {
 
     private float dX;
     private float startX;
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return true;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        mListener.onScroll(distanceX);
+        return true;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
+    }
 
     public interface OnScrollListener {
         void onScroll(float distY);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return mScroll.onTouchEvent(event);
+        //return super.onTouchEvent(event);
+    }
+
     private OnScrollListener mListener;
-    public GestureDetectorCompat mScroll;
+    public GestureDetector mScroll;
 
     public ScrollGestureLayer(Context context) {
         super(context);
-        //mScroll = new GestureDetectorCompat(context, new ScrollGesture());
+        mScroll = new GestureDetector(context, this);
+
     }
 
     public static ScrollGestureLayer newInstance(Context context, OnScrollListener osl) {
@@ -39,25 +77,25 @@ public class ScrollGestureLayer extends View {
         mListener = osl;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        //return mScroll.onTouchEvent(event);
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                startX = event.getRawX();
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                dX = startX - event.getRawX();
-                //startX += dX;
-                mListener.onScroll(dX);
-                break;
-
-            default:
-                return false;
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        //return mScroll.onTouchEvent(event);
+//        switch (event.getActionMasked()) {
+//            case MotionEvent.ACTION_DOWN:
+//                startX = event.getRawX();
+//                break;
+//
+//            case MotionEvent.ACTION_MOVE:
+//                dX = startX - event.getRawX();
+//                //startX += dX;
+//                mListener.onScroll(dX);
+//                break;
+//
+//            default:
+//                return false;
+//        }
+//        return true;
+//    }
 
 //    private class ScrollGesture extends GestureDetector.SimpleOnGestureListener {
 //        /**
