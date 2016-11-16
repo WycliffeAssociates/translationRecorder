@@ -49,7 +49,7 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController,
         AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator,
-        ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler {
+        ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler, MarkerToolbarFragment.OnMarkerPlacedListener {
 
 
 
@@ -393,11 +393,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         return mVersesLeft <= 0;
     }
 
-    private int getVersesLeft() {
-        // NOTE: Replace with real code to get the number of verses in a chunk
-        int verses = 3;
-        // -1 because the first verse marker should be dropped at the beginning automatically
-        return verses - 1;
+    private void getVersesLeft() {
+        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
+        mVersesLeft = fne.getEndVerse() - fne.getEndVerse();
     }
 
     private void setVerseMarkerCount(int count) {
@@ -487,5 +485,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 .remove(mMarkerToolbarFragment)
                 .add(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools)
                 .commit();
+    }
+
+    @Override
+    public void onMarkerPlaced() {
+        mAudioController.dropVerseMarker("Verse " + "1", mAudioController.getLocationInFrames());
+        mWaveformFragment.addVerseMarker(1);
     }
 }

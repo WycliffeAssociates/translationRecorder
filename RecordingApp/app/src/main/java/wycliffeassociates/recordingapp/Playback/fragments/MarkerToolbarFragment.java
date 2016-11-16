@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
@@ -21,7 +22,13 @@ import wycliffeassociates.recordingapp.widgets.PlaybackTimer;
 
 public class MarkerToolbarFragment extends Fragment {
 
+    private ImageView mPlaceMarker;
 
+    public interface OnMarkerPlacedListener {
+        void onMarkerPlaced();
+    }
+
+    private OnMarkerPlacedListener mOnMarkerPlacedListener;
     private VerseMarkerModeToggler mModeToggleCallback;
     private MediaController mMediaController;
     private ImageButton mPlayBtn;
@@ -43,6 +50,7 @@ public class MarkerToolbarFragment extends Fragment {
         super.onAttach(activity);
         mModeToggleCallback = (VerseMarkerModeToggler) activity;
         mMediaController = (MediaController) activity;
+        mOnMarkerPlacedListener = (OnMarkerPlacedListener) activity;
     }
 
     @Override
@@ -67,6 +75,8 @@ public class MarkerToolbarFragment extends Fragment {
 
         mPlaybackElapsed = (TextView) view.findViewById(R.id.playback_elapsed);
         mPlaybackDuration = (TextView) view.findViewById(R.id.playback_duration);
+
+        mPlaceMarker = (ImageView) view.findViewById(R.id.btn_drop_verse_marker);
     }
 
     private void initViews(){
@@ -100,6 +110,12 @@ public class MarkerToolbarFragment extends Fragment {
             }
         });
 
+        mPlaceMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnMarkerPlacedListener.onMarkerPlaced();
+            }
+        });
     }
 
     private void initTimer(final TextView elapsed, final TextView duration) {

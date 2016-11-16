@@ -128,6 +128,10 @@ public class AudioVisualController implements MediaControlReceiver {
         return mPlayer.getLocationMs();
     }
 
+    public int getLocationInFrames(){
+        return mPlayer.getLocationInFrames();
+    }
+
     @Override
     public int getDuration() {
         return mPlayer.getDuration();
@@ -148,6 +152,10 @@ public class AudioVisualController implements MediaControlReceiver {
 
     public void dropEndMarker(){
         mPlayer.setLoopEnd(mPlayer.getLocationInFrames());
+    }
+
+    public void dropVerseMarker(String label, int location){
+        mCues.add(new WavCue(label, location));
     }
 
     public void clearMarkers(){

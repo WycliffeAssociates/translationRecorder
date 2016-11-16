@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.widgets;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -27,6 +28,11 @@ public class VerseMarkerView extends DraggableImageView {
         view.setLayoutParams(params);
         view.setMarkerId(viewId);
         return view;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
     }
 
     public VerseMarkerView(Context context) {

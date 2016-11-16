@@ -83,7 +83,6 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mPaint.setColor(getResources().getColor(R.color.bright_yellow));
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
-        addVerseMarker();
     }
 
     @Override
@@ -124,11 +123,11 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mMarkers.put(END_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan)));
     }
 
-    public void addVerseMarker(){
-        VerseMarkerView div = VerseMarkerView.newInstance(getActivity(), R.drawable.bookmark_add, 1);
+    public void addVerseMarker(int verseNumber){
+        VerseMarkerView div = VerseMarkerView.newInstance(getActivity(), R.drawable.bookmark_add, verseNumber);
         div.setPositionChangeMediator(this);
         mDraggableViewFrame.addView(div);
-        mMarkers.put(1, new VerseMarker(div, getResources().getColor(R.color.yellow)));
+        mMarkers.put(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow)));
     }
 
     @Override
