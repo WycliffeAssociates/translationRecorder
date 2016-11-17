@@ -37,10 +37,6 @@ public class AudioVisualController implements MediaControlReceiver {
 
         mCallback = callback;
 
-        wav.addMarker("Test 1", 44100);
-        wav.addMarker("Test 2", 88200);
-        wav.addMarker("Test 3", 132300);
-
         initPlayer(wav);
 
         mHandler = new Handler(Looper.getMainLooper());

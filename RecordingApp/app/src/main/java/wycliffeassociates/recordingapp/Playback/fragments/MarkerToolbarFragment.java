@@ -39,7 +39,6 @@ public class MarkerToolbarFragment extends Fragment {
     private TextView mPlaybackDuration;
     private PlaybackTimer mTimer;
 
-
     public static MarkerToolbarFragment newInstance(){
         MarkerToolbarFragment f = new MarkerToolbarFragment();
         return f;

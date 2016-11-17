@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import java.util.Collection;
 import java.util.HashMap;
 
+import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.Playback.overlays.MarkerLineLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.ScrollGestureLayer;
 import wycliffeassociates.recordingapp.R;
@@ -45,6 +46,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     FrameLayout mFrame;
     WaveformDrawDelegator mDrawDelegator;
     OnScrollDelegator mOnScrollDelegator;
+    ViewCreatedCallback mViewCreatedCallback;
 
     public interface WaveformDrawDelegator {
         void onDrawWaveform(Canvas canvas, Paint paint);
@@ -76,6 +78,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mWaveformLayer = WaveformLayer.newInstance(getActivity(), this);
         mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
         mScrollGestureLayer = ScrollGestureLayer.newInstance(getActivity(), this);
+        mViewCreatedCallback.onViewCreated(this);
         mFrame.addView(mWaveformLayer);
         mFrame.addView(mScrollGestureLayer);
         mFrame.addView(mMarkerLineLayer);
@@ -91,6 +94,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         super.onAttach(activity);
         mDrawDelegator = (WaveformDrawDelegator) activity;
         mOnScrollDelegator = (OnScrollDelegator) activity;
+        mViewCreatedCallback = (ViewCreatedCallback) activity;
     }
 
     @Override
@@ -98,6 +102,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         super.onDestroy();
         mDrawDelegator = null;
         mOnScrollDelegator = null;
+        mViewCreatedCallback = null;
     }
 
     private void findViews(){
@@ -146,6 +151,14 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
 
     @Override
     public void onPositionChanged(int id, float x) {
+        mMarkerLineLayer.postInvalidate();
+    }
+
+    @Override
+    public void onRemoveMarker(int id) {
+        mDraggableViewFrame.removeView(mMarkers.get(id).getView());
+        mMarkers.remove(id);
+        mDraggableViewFrame.postInvalidate();
         mMarkerLineLayer.postInvalidate();
     }
 

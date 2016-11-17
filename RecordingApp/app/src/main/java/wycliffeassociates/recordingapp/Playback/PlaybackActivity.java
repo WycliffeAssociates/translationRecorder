@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import java.io.File;
@@ -77,6 +78,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private WaveformFragment mWaveformFragment;
     private MarkerCounterFragment mMarkerCounterFragment;
     private MarkerToolbarFragment mMarkerToolbarFragment;
+    private boolean mWaveformInflated = false;
+    private boolean mMinimapInflated = false;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackActivity.class);
@@ -103,7 +106,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         initializeViews();
         wavFileLoader = new WavFileLoader(mWavFile);
         mCutOp = new CutOp();
-        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
+        //wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
         mAudioController = new AudioVisualController(this, mWavFile);
     }
 
@@ -407,32 +410,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         //mVerseMarkerCount.setText(String.valueOf(count));
     }
 
-//    private View[] getViewsToHideInMarkerMode() {
-//        return new View[]{mLangView, mSourceView, mBookView, mChapterView, mChapterLabel,
-//                mUnitView, mUnitLabel, mEnterVerseMarkerMode, mRateBtn, mRerecordBtn, mInsertBtn,
-//                mDropStartMarkBtn, mSaveBtn, mDropStartMarkBtn};
-//    }
-//
-//    private View[] getViewsToHideInNormalMode() {
-//        return new View[]{mExitVerseMarkerMode, mVerseMarkerCount, mVerseMarkerLabel, mDropVerseMarkerBtn,
-//                mCompleteVerseMarkerBtn};
-//    }
-
-//    private void enterVerseMarkerMode() {
-//        isInVerseMarkerMode = true;
-//        Utils.showView(getViewsToHideInNormalMode());
-//        Utils.hideView(getViewsToHideInMarkerMode());
-//        Utils.hideView(allVersesMarked() ? mDropVerseMarkerBtn : mCompleteVerseMarkerBtn);
-//        mToolbar.setBackgroundColor(getResources().getColor(R.color.tertiary));
-//    }
-//
-//    private void exitVerseMarkerMode() {
-//        isInVerseMarkerMode = false;
-//        Utils.showView(getViewsToHideInMarkerMode());
-//        Utils.hideView(getViewsToHideInNormalMode());
-//        mToolbar.setBackgroundColor(getResources().getColor(R.color.primary));
-//    }
-
     private void dropVerseMarker() {
         //mMainCanvas.dropVerseMarker(mManager.getLocationMs());
         //mManager.updateUI();
@@ -449,12 +426,32 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onViewCreated(Object ref, int width, int height) {
-//        if(ref instanceof WaveformFragment){
-//            wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), width, height, width, mCutOp);
-//        } else {
-//            wavVis.
-//        }
+    public void onViewCreated(Fragment ref) {
+        if(ref instanceof WaveformFragment){
+            mWaveformFragment.getView().getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mWaveformInflated = true;
+                    if(mWaveformInflated && mMinimapInflated) {
+                        initializeRenderer();
+                    }
+                }
+            });
+        } else if (ref instanceof FragmentTabbedWidget){
+            mWaveformFragment.getView().getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mMinimapInflated = true;
+                    if(mWaveformInflated && mMinimapInflated) {
+                        initializeRenderer();
+                    }
+                }
+            });
+        }
+    }
+
+    private void initializeRenderer(){
+        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mCutOp);
     }
 
     @Override

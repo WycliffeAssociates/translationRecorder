@@ -3,6 +3,7 @@ package wycliffeassociates.recordingapp.widgets;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -28,6 +29,11 @@ public class VerseMarkerView extends DraggableImageView {
         view.setLayoutParams(params);
         view.setMarkerId(viewId);
         return view;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+        mPositionChangeMediator.onRemoveMarker(this.mId);
     }
 
     @Override

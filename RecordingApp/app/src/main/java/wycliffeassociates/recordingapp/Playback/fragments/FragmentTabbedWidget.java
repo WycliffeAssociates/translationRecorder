@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.Playback.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
+import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 
@@ -26,6 +28,8 @@ public class FragmentTabbedWidget extends Fragment {
     private ImageButton mSwitchToPlayback;
     private SourceAudio mSrcPlayer;
 
+    ViewCreatedCallback mViewCreatedCallback;
+
     String mFilename = "";
     Project mProject;
     int mChapter = 0;
@@ -41,6 +45,12 @@ public class FragmentTabbedWidget extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mViewCreatedCallback = (ViewCreatedCallback) activity;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         return inflater.inflate(R.layout.fragment_tabbed_widget, container, false);
     }
@@ -50,11 +60,16 @@ public class FragmentTabbedWidget extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         parseArgs(getArguments());
         findViews();
+        mViewCreatedCallback.onViewCreated(this);
         if(!view.isInEditMode()){
             mSrcPlayer.initSrcAudio(mProject, mFilename, mChapter);
         }
         attachListeners();
         mSwitchToMinimap.setSelected(true);
+    }
+
+    public int getWidgetWidth(){
+        return getView().getWidth() - mSwitchToMinimap.getWidth();
     }
 
     void parseArgs(Bundle args){
@@ -108,5 +123,6 @@ public class FragmentTabbedWidget extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         mSrcPlayer.cleanup();
+        mViewCreatedCallback = null;
     }
 }

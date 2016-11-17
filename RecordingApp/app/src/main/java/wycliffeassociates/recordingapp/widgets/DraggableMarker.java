@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.widgets;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.view.View;
 
 /**
  * Created by sarabiaj on 11/10/2016.
@@ -31,5 +32,9 @@ public abstract class DraggableMarker {
 
     public void updateX(int playbackLocation, int containerWidth){
         mView.setX((containerWidth/8) + (mView.mapLocationToScreenSpace(mLocation, containerWidth) - mView.mapLocationToScreenSpace(playbackLocation, containerWidth)));
+    }
+
+    public View getView(){
+        return mView;
     }
 }
