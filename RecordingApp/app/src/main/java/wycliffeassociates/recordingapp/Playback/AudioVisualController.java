@@ -154,8 +154,10 @@ public class AudioVisualController implements MediaControlReceiver {
         mCues.add(new WavCue(label, location));
     }
 
-    public void clearMarkers(){
+    public void clearLoopPoints(){
+        System.out.println("cues " + mCues.size());
         mPlayer.clearLoopPoints();
+        System.out.println("cues " + mCues.size());
     }
 
     public void undo(){
@@ -164,9 +166,25 @@ public class AudioVisualController implements MediaControlReceiver {
         }
     }
 
+    public int getLoopStart(){
+        return mPlayer.getLoopStart();
+    }
+
+    public int getLoopEnd(){
+        return mPlayer.getLoopEnd();
+    }
+
     public void scrollAudio(float distX){
         int seekTo = Math.max(Math.min((int)((distX * 230) + mPlayer.getLocationInFrames()), mPlayer.getDurationInFrames()), 0);
         mPlayer.seekTo(seekTo);
         mCallback.onLocationUpdated(getLocation());
+    }
+
+    public void setStartMarker(int location) {
+        mPlayer.setLoopStart(Math.max(location, 0));
+    }
+
+    public void setEndMarker(int location) {
+        mPlayer.setLoopEnd(Math.min(location, mPlayer.getDurationInFrames()));
     }
 }

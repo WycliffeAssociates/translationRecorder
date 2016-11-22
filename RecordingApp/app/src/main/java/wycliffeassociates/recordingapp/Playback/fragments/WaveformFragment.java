@@ -16,6 +16,7 @@ import java.util.HashMap;
 
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.Playback.overlays.MarkerLineLayer;
+import wycliffeassociates.recordingapp.Playback.overlays.RectangularHighlightLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.ScrollGestureLayer;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Playback.overlays.DraggableViewFrame;
@@ -32,17 +33,21 @@ import wycliffeassociates.recordingapp.Playback.overlays.WaveformLayer;
  */
 
 public class WaveformFragment extends Fragment implements DraggableImageView.PositionChangeMediator,
-        MarkerLineLayer.MarkerLineDrawDelegator, WaveformLayer.WaveformDrawDelegator, ScrollGestureLayer.OnScrollListener {
+        MarkerLineLayer.MarkerLineDrawDelegator, WaveformLayer.WaveformDrawDelegator, ScrollGestureLayer.OnScrollListener,
+        RectangularHighlightLayer.HighlightDelegator
+
+{
 
     //------------Views-----------------//
     DraggableViewFrame mDraggableViewFrame;
     MarkerLineLayer mMarkerLineLayer;
     WaveformLayer mWaveformLayer;
+    RectangularHighlightLayer mHighlightLayer;
     ScrollGestureLayer mScrollGestureLayer;
     Paint mPaint;
     HashMap<Integer, DraggableMarker> mMarkers = new HashMap<>();
-    final int START_MARKER_ID = -1;
-    final int END_MARKER_ID = -2;
+    public static final int START_MARKER_ID = -1;
+    public static final int END_MARKER_ID = -2;
     FrameLayout mFrame;
     WaveformDrawDelegator mDrawDelegator;
     OnScrollDelegator mOnScrollDelegator;
@@ -54,6 +59,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
 
     public interface OnScrollDelegator {
         void delegateOnScroll(float distY);
+        void onCueScroll(int id, float distY);
     }
 
     @Override
@@ -77,11 +83,13 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         findViews();
         mWaveformLayer = WaveformLayer.newInstance(getActivity(), this);
         mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
+        mHighlightLayer = RectangularHighlightLayer.newInstance(getActivity(), this);
         mScrollGestureLayer = ScrollGestureLayer.newInstance(getActivity(), this);
         mViewCreatedCallback.onViewCreated(this);
         mFrame.addView(mWaveformLayer);
         mFrame.addView(mScrollGestureLayer);
         mFrame.addView(mMarkerLineLayer);
+        mFrame.addView(mHighlightLayer);
         mPaint = new Paint();
         mPaint.setColor(getResources().getColor(R.color.bright_yellow));
         mPaint.setStyle(Paint.Style.STROKE);
@@ -119,6 +127,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
         mDraggableViewFrame.addView(div);
         mMarkers.put(START_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
+        onLocationUpdated(location);
     }
 
     public void addEndMarker(int location){
@@ -127,6 +136,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
         mDraggableViewFrame.addView(div);
         mMarkers.put(END_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
+        onLocationUpdated(location);
     }
 
     public void addVerseMarker(int verseNumber, int frame){
@@ -140,17 +150,17 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     public float onPositionRequested(int id, float x){
         if(id < 0) {
             if(id == END_MARKER_ID){
-                return Math.max(mMarkers.get(START_MARKER_ID).getMarkerX(), x);
+                x = Math.max(mMarkers.get(END_MARKER_ID).getMarkerX(), x);
             } else {
-                return Math.min(mMarkers.get(END_MARKER_ID).getMarkerX() - mMarkers.get(END_MARKER_ID).getWidth(), x);
+                x = Math.min(mMarkers.get(START_MARKER_ID).getMarkerX() - mMarkers.get(START_MARKER_ID).getWidth(), x);
             }
-        } else {
-            return x;
         }
+        return x;
     }
 
     @Override
     public void onPositionChanged(int id, float x) {
+        mOnScrollDelegator.onCueScroll(id, x);
         mMarkerLineLayer.postInvalidate();
     }
 
@@ -160,6 +170,21 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mMarkers.remove(id);
         mDraggableViewFrame.postInvalidate();
         mMarkerLineLayer.postInvalidate();
+        mHighlightLayer.postInvalidate();
+    }
+
+    public void onRemoveSectionMarkers(){
+        if(mMarkers.containsKey(START_MARKER_ID)){
+            mDraggableViewFrame.removeView(mMarkers.get(START_MARKER_ID).getView());
+            mMarkers.remove(START_MARKER_ID);
+        }
+        if(mMarkers.containsKey(END_MARKER_ID)){
+            mDraggableViewFrame.removeView(mMarkers.get(END_MARKER_ID).getView());
+            mMarkers.remove(END_MARKER_ID);
+        }
+        mDraggableViewFrame.postInvalidate();
+        mMarkerLineLayer.postInvalidate();
+        mHighlightLayer.postInvalidate();
     }
 
     @Override
@@ -170,6 +195,13 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         }
         canvas.drawLine(mWaveformLayer.getWidth()/8, 0, mWaveformLayer.getWidth()/8, mWaveformLayer.getHeight(), mPaint);
         canvas.drawLine(0, mWaveformLayer.getHeight()/2, mWaveformLayer.getWidth(), mWaveformLayer.getHeight()/2, mPaint);
+    }
+
+    public void onDrawHighlight(Canvas canvas, Paint paint) {
+        if(mMarkers.containsKey(END_MARKER_ID) && mMarkers.containsKey(START_MARKER_ID)) {
+            canvas.drawRect(mMarkers.get(START_MARKER_ID).getMarkerX(), 0,
+                    mMarkers.get(END_MARKER_ID).getMarkerX(), mFrame.getHeight(), paint);
+        }
     }
 
     @Override
@@ -184,5 +216,6 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mWaveformLayer.postInvalidate();
         mDraggableViewFrame.postInvalidate();
         mMarkerLineLayer.postInvalidate();
+        mHighlightLayer.postInvalidate();
     }
 }

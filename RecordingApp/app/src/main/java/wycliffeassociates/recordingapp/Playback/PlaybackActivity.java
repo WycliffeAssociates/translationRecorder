@@ -41,7 +41,7 @@ import wycliffeassociates.recordingapp.WavFileLoader;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
-
+import wycliffeassociates.recordingapp.widgets.SectionMarker;
 
 
 /**
@@ -233,25 +233,30 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mAudioController.cut();
         mFragmentPlaybackTools.onLocationUpdated(mAudioController.getLocation());
         mFragmentPlaybackTools.onDurationUpdated(mAudioController.getDuration());
+        onClearMarkers();
     }
 
     @Override
     public void onDropStartMarker() {
         mAudioController.dropStartMarker();
-        mWaveformFragment.addStartMarker(mAudioController.getLocationInFrames());
-        mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
+        int location = mAudioController.getLoopStart();
+        mWaveformFragment.addStartMarker(location);
+        mWaveformFragment.onLocationUpdated(location);
     }
 
     @Override
     public void onDropEndMarker() {
         mAudioController.dropEndMarker();
-        mWaveformFragment.addEndMarker(mAudioController.getLocationInFrames());
-        mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
+        int location = mAudioController.getLoopEnd();
+        mWaveformFragment.addEndMarker(location);
+        mWaveformFragment.onLocationUpdated(location);
     }
 
     @Override
     public void onClearMarkers() {
-        mAudioController.clearMarkers();
+        mAudioController.clearLoopPoints();
+        mWaveformFragment.onRemoveSectionMarkers();
+        System.out.println("Should have called remove section markers");
     }
 
     @Override
@@ -273,7 +278,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void onDestroy() {
         super.onDestroy();
 //        mManager.release();
-//        SectionMarkers.clearMarkers(mManager);
+//        SectionMarkers.clearLoopPoints(mManager);
     }
 
     @Override
@@ -303,7 +308,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
 //            exit.show();
 //        } else {
-////            clearMarkers();
+////            clearLoopPoints();
 //            mManager.release();
 //            super.onBackPressed();
 //        }
@@ -496,5 +501,16 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mMarkerCounterFragment.decrementVersesRemaining();
         mWaveformFragment.onLocationUpdated(frame);
         mVersesLeft--;
+    }
+
+    @Override
+    public void onCueScroll(int id, float distY){
+        /*int position = mAudioController.getLocationInFrames() + ((int)(distY-240) * 230);
+        position = Math.min(position, 0);
+        if(id == mWaveformFragment.START_MARKER_ID) {
+            mAudioController.setStartMarker(position);
+        } else if (id == mWaveformFragment.END_MARKER_ID) {
+            mAudioController.setEndMarker(position);
+        }*/
     }
 }

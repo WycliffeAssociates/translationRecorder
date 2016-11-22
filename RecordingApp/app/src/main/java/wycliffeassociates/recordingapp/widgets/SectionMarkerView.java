@@ -53,4 +53,12 @@ public class SectionMarkerView extends DraggableImageView {
             return getX();
         }
     }
+
+    @Override
+    public void setX(float x) {
+        if(mOrientation == Orientation.LEFT_MARKER){
+            x -= this.getWidth();
+        }
+        super.setX(x);
+    }
 }

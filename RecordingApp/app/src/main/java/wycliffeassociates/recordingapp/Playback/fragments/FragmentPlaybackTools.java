@@ -201,7 +201,7 @@ public class FragmentPlaybackTools extends Fragment{
         mClearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utils.swapViews(new View[]{mDropStartMarkBtn}, new View[]{mClearBtn, mDropStartMarkBtn, mCutBtn});
+                Utils.swapViews(new View[]{mDropStartMarkBtn}, new View[]{mClearBtn, mCutBtn});
                 mAudioEditDelegator.onClearMarkers();
             }
         });

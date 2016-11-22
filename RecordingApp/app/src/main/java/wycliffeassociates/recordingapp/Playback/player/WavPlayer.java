@@ -132,7 +132,7 @@ public class WavPlayer {
     }
 
     public int getLoopStart(){
-        return (int)(mBufferProvider.getMark() / 44.1);
+        return mBufferProvider.getMark();
     }
 
     public void setLoopEnd(int frame){
@@ -141,7 +141,7 @@ public class WavPlayer {
     }
 
     public int getLoopEnd(){
-        return (int)(mBufferProvider.getLimit() / 44.1);
+        return mBufferProvider.getLimit();
     }
 
     public void clearLoopPoints(){

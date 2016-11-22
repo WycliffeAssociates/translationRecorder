@@ -231,7 +231,7 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
             ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
             exit.show();
         } else {
-//            clearMarkers();
+//            clearLoopPoints();
             mManager.release();
             super.onBackPressed();
         }

@@ -135,7 +135,7 @@ public class DraggableImageView extends ImageView implements GestureDetector.OnG
         return this.getX();
     }
 
-    public int mapLocationToScreenSpace(int location, int width){
+    public static int mapLocationToScreenSpace(int location, int width){
         float mspp = 1000 * 10 / (float) width;
         return (int)((location/44.1) / mspp);
     }
