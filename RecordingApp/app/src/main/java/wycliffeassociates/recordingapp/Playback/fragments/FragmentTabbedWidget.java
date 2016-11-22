@@ -2,15 +2,21 @@ package wycliffeassociates.recordingapp.Playback.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
+import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
+import wycliffeassociates.recordingapp.Playback.overlays.MinimapLayer;
+import wycliffeassociates.recordingapp.Playback.overlays.TimecodeLayer;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 
@@ -18,7 +24,7 @@ import wycliffeassociates.recordingapp.R;
  * Created by sarabiaj on 11/4/2016.
  */
 
-public class FragmentTabbedWidget extends Fragment {
+public class FragmentTabbedWidget extends Fragment implements MinimapLayer.MinimapDrawDelegator {
 
     private static final String KEY_PROJECT = "key_project";
     private static final String KEY_FILENAME = "key_filename";
@@ -29,10 +35,15 @@ public class FragmentTabbedWidget extends Fragment {
     private SourceAudio mSrcPlayer;
 
     ViewCreatedCallback mViewCreatedCallback;
+    MediaController mMediaController;
 
     String mFilename = "";
     Project mProject;
     int mChapter = 0;
+    private FrameLayout mMinimapFrame;
+    private TimecodeLayer mTimecodeLayer;
+    private MinimapLayer.MinimapDrawDelegator mMinimapDrawDelegator;
+    private MinimapLayer mMinimapLayer;
 
     public static FragmentTabbedWidget newInstance(Project project, String filename, int chapter){
         FragmentTabbedWidget f = new FragmentTabbedWidget();
@@ -48,6 +59,8 @@ public class FragmentTabbedWidget extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mViewCreatedCallback = (ViewCreatedCallback) activity;
+        mMediaController = (MediaController) activity;
+        mMinimapDrawDelegator = (MinimapLayer.MinimapDrawDelegator) activity;
     }
 
     @Override
@@ -66,6 +79,10 @@ public class FragmentTabbedWidget extends Fragment {
         }
         attachListeners();
         mSwitchToMinimap.setSelected(true);
+        mTimecodeLayer = TimecodeLayer.newInstance(getActivity());
+        mMinimapLayer = MinimapLayer.newInstance(getActivity(), this);
+        mMinimapFrame.addView(mMinimapLayer);
+        mMinimapFrame.addView(mTimecodeLayer);
     }
 
     public int getWidgetWidth(){
@@ -83,6 +100,7 @@ public class FragmentTabbedWidget extends Fragment {
         mSwitchToMinimap = (ImageButton) view.findViewById(R.id.switch_minimap);
         mSwitchToPlayback = (ImageButton) view.findViewById(R.id.switch_source_playback);
         mSrcPlayer = (SourceAudio) view.findViewById(R.id.srcAudioPlayer);
+        mMinimapFrame = (FrameLayout) view.findViewById(R.id.minimap);
     }
 
     void attachListeners(){
@@ -92,7 +110,7 @@ public class FragmentTabbedWidget extends Fragment {
                 // TODO: Refactor? Maybe use radio button to select one and exclude the other?
                 v.setSelected(true);
                 v.setBackgroundColor(Color.parseColor("#00000000"));
-                //minimap.setVisibility(View.VISIBLE);
+                mMinimapFrame.setVisibility(View.VISIBLE);
                 mSrcPlayer.setVisibility(View.INVISIBLE);
                 mSwitchToPlayback.setSelected(false);
                 mSwitchToPlayback.setBackgroundColor(getResources().getColor(R.color.mostly_black));
@@ -106,7 +124,7 @@ public class FragmentTabbedWidget extends Fragment {
                 v.setSelected(true);
                 v.setBackgroundColor(Color.parseColor("#00000000"));
                 mSrcPlayer.setVisibility(View.VISIBLE);
-                //minimap.setVisibility(View.INVISIBLE);
+                mMinimapFrame.setVisibility(View.INVISIBLE);
                 mSwitchToMinimap.setSelected(false);
                 mSwitchToMinimap.setBackgroundColor(getResources().getColor(R.color.mostly_black));
             }
@@ -124,5 +142,19 @@ public class FragmentTabbedWidget extends Fragment {
         super.onDestroy();
         mSrcPlayer.cleanup();
         mViewCreatedCallback = null;
+    }
+
+    public void initializeTimecode(int durationMs){
+        mTimecodeLayer.setAudioLength(durationMs);
+    }
+
+    @Override
+    public boolean onDelegateMinimapDraw(Canvas canvas, Paint paint) {
+        return mMinimapDrawDelegator.onDelegateMinimapDraw(canvas, paint);
+    }
+
+    public void onLocationChanged(){
+        mMinimapLayer.postInvalidate();
+        mTimecodeLayer.postInvalidate();
     }
 }

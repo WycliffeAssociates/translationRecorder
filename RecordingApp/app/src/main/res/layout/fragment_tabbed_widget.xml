@@ -13,7 +13,7 @@
         android:visibility="invisible"
         />
 
-    <View
+    <FrameLayout
         android:id="@+id/minimap"
         android:layout_height="match_parent"
         android:layout_width="match_parent"

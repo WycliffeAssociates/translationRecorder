@@ -32,6 +32,7 @@ import wycliffeassociates.recordingapp.Playback.interfaces.EditStateInformer;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.Playback.interfaces.VerseMarkerModeToggler;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
+import wycliffeassociates.recordingapp.Playback.overlays.MinimapLayer;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
@@ -50,7 +51,9 @@ import wycliffeassociates.recordingapp.widgets.SectionMarker;
 
 public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController,
         AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator,
-        ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler, MarkerToolbarFragment.OnMarkerPlacedListener {
+        ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler, MarkerToolbarFragment.OnMarkerPlacedListener,
+        MinimapLayer.MinimapDrawDelegator
+{
 
 
 
@@ -457,6 +460,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private void initializeRenderer(){
         wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mCutOp);
+        mFragmentTabbedWidget.initializeTimecode(mAudioController.getDuration());
     }
 
     @Override
@@ -467,6 +471,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onLocationUpdated(int location){
         mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
+        mFragmentTabbedWidget.onLocationChanged();
     }
 
     @Override
@@ -512,5 +517,15 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         } else if (id == mWaveformFragment.END_MARKER_ID) {
             mAudioController.setEndMarker(position);
         }*/
+    }
+
+    @Override
+    public boolean onDelegateMinimapDraw(Canvas canvas, Paint paint) {
+        if (wavVis != null) {
+            canvas.drawLines(wavVis.getMinimap(canvas.getHeight(), canvas.getWidth(), mAudioController.getDuration()), paint);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
