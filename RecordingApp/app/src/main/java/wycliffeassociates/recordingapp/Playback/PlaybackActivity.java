@@ -52,7 +52,8 @@ import wycliffeassociates.recordingapp.widgets.SectionMarker;
 public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController,
         AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator,
         ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler, MarkerToolbarFragment.OnMarkerPlacedListener,
-        MinimapLayer.MinimapDrawDelegator
+        MinimapLayer.MinimapDrawDelegator, FragmentTabbedWidget.DelegateMinimapMarkerDraw
+
 {
 
 
@@ -180,6 +181,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                     location = mAudioController.getLocationInFrames();
                     mFragmentPlaybackTools.onLocationUpdated(location);
                     mWaveformFragment.onLocationUpdated(location);
+                    mFragmentTabbedWidget.onLocationChanged();
                     //getLocationMs();
                     //draw();
                     //             System.out.println(mPlayer.getLocationMs());
@@ -204,6 +206,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void onSeekBackward() {
         mAudioController.seekPrevious();
         mWaveformFragment.onLocationUpdated(mAudioController.getLocationInFrames());
+    }
+
+    @Override
+    public void onSeekTo(float x) {
+        mAudioController.seekTo((int)(x * mAudioController.getDurationInFrames()));
+        onLocationUpdated(getLocation());
     }
 
     @Override
@@ -527,5 +535,15 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse) {
+        float x = (getLocation()/(float)getDuration()) * canvas.getWidth();
+        canvas.drawLine(x, 0, x, canvas.getHeight(), location);
+        float start = mAudioController.getLoopStart() / mAudioController.getDurationInFrames();
+        float end = mAudioController.getLoopEnd() / mAudioController.getDurationInFrames();
+        canvas.drawLine(start, 0, start, canvas.getHeight(), section);
+        canvas.drawLine(end, 0, end, canvas.getHeight(), section);
     }
 }

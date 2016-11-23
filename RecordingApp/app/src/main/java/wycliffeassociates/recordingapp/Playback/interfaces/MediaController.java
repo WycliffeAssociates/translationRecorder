@@ -12,4 +12,5 @@ public interface MediaController {
     int getDuration();
     int getLocation();
     void setOnCompleteListner(Runnable onComplete);
+    void onSeekTo(float time);
 }

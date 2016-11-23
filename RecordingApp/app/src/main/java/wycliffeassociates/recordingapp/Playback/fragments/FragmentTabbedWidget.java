@@ -15,7 +15,9 @@ import android.widget.ImageButton;
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
+import wycliffeassociates.recordingapp.Playback.overlays.MarkerLineLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.MinimapLayer;
+import wycliffeassociates.recordingapp.Playback.overlays.ScrollGestureLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.TimecodeLayer;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
@@ -24,7 +26,8 @@ import wycliffeassociates.recordingapp.R;
  * Created by sarabiaj on 11/4/2016.
  */
 
-public class FragmentTabbedWidget extends Fragment implements MinimapLayer.MinimapDrawDelegator {
+public class FragmentTabbedWidget extends Fragment implements MinimapLayer.MinimapDrawDelegator,
+        MarkerLineLayer.MarkerLineDrawDelegator, ScrollGestureLayer.OnTapListener, ScrollGestureLayer.OnScrollListener {
 
     private static final String KEY_PROJECT = "key_project";
     private static final String KEY_FILENAME = "key_filename";
@@ -33,6 +36,10 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     private ImageButton mSwitchToMinimap;
     private ImageButton mSwitchToPlayback;
     private SourceAudio mSrcPlayer;
+
+    private Paint mLocationPaint;
+    private Paint mSectionPaint;
+    private Paint mVersePaint;
 
     ViewCreatedCallback mViewCreatedCallback;
     MediaController mMediaController;
@@ -44,6 +51,13 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     private TimecodeLayer mTimecodeLayer;
     private MinimapLayer.MinimapDrawDelegator mMinimapDrawDelegator;
     private MinimapLayer mMinimapLayer;
+    private MarkerLineLayer mMarkerLineLayer;
+    private ScrollGestureLayer mGestureLayer;
+    private DelegateMinimapMarkerDraw mMinimapLineDrawDelegator;
+
+    public interface DelegateMinimapMarkerDraw {
+        void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse);
+    }
 
     public static FragmentTabbedWidget newInstance(Project project, String filename, int chapter){
         FragmentTabbedWidget f = new FragmentTabbedWidget();
@@ -61,6 +75,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
         mViewCreatedCallback = (ViewCreatedCallback) activity;
         mMediaController = (MediaController) activity;
         mMinimapDrawDelegator = (MinimapLayer.MinimapDrawDelegator) activity;
+        mMinimapLineDrawDelegator = (DelegateMinimapMarkerDraw) activity;
     }
 
     @Override
@@ -73,6 +88,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
         super.onViewCreated(view, savedInstanceState);
         parseArgs(getArguments());
         findViews();
+        initializePaints();
         mViewCreatedCallback.onViewCreated(this);
         if(!view.isInEditMode()){
             mSrcPlayer.initSrcAudio(mProject, mFilename, mChapter);
@@ -81,8 +97,29 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
         mSwitchToMinimap.setSelected(true);
         mTimecodeLayer = TimecodeLayer.newInstance(getActivity());
         mMinimapLayer = MinimapLayer.newInstance(getActivity(), this);
+        mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
+        mGestureLayer = ScrollGestureLayer.newInstance(getActivity(), this, this);
         mMinimapFrame.addView(mMinimapLayer);
         mMinimapFrame.addView(mTimecodeLayer);
+        mMinimapFrame.addView(mGestureLayer);
+        mMinimapFrame.addView(mMarkerLineLayer);
+    }
+
+    private void initializePaints(){
+        mLocationPaint = new Paint();
+        mLocationPaint.setStyle(Paint.Style.STROKE);
+        mLocationPaint.setStrokeWidth(1f);
+        mLocationPaint.setColor(getResources().getColor(R.color.bright_yellow));
+
+        mSectionPaint = new Paint();
+        mSectionPaint.setColor(getResources().getColor(R.color.dark_moderate_cyan));
+        mSectionPaint.setStyle(Paint.Style.STROKE);
+        mSectionPaint.setStrokeWidth(2f);
+
+        mVersePaint = new Paint();
+        mVersePaint.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
+        mVersePaint.setStyle(Paint.Style.STROKE);
+        mVersePaint.setStrokeWidth(2f);
     }
 
     public int getWidgetWidth(){
@@ -156,5 +193,21 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     public void onLocationChanged(){
         mMinimapLayer.postInvalidate();
         mTimecodeLayer.postInvalidate();
+        mMarkerLineLayer.postInvalidate();
+    }
+
+    @Override
+    public void onDrawMarkers(Canvas canvas) {
+        mMinimapLineDrawDelegator.onDelegateMinimapMarkerDraw(canvas, mLocationPaint, mSectionPaint, mVersePaint);
+    }
+
+    @Override
+    public void onScroll(float distY) {
+
+    }
+
+    @Override
+    public void onTap(float x) {
+        mMediaController.onSeekTo((x/(float)getWidgetWidth()));
     }
 }

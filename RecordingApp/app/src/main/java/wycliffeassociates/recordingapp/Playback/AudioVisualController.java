@@ -32,6 +32,7 @@ public class AudioVisualController implements MediaControlReceiver {
 
     Handler mHandler;
     private List<WavCue> mCues;
+    private int durationInFrames;
 
     public AudioVisualController(final AudioStateCallback callback, final WavFile wav) {
 
@@ -119,6 +120,10 @@ public class AudioVisualController implements MediaControlReceiver {
         mPlayer.seekPrevious();
     }
 
+    public void seekTo(int frame){
+        mPlayer.seekTo(frame);
+    }
+
     @Override
     public int getLocation() {
         return mPlayer.getLocationMs();
@@ -186,5 +191,9 @@ public class AudioVisualController implements MediaControlReceiver {
 
     public void setEndMarker(int location) {
         mPlayer.setLoopEnd(Math.min(location, mPlayer.getDurationInFrames()));
+    }
+
+    public int getDurationInFrames() {
+        return mPlayer.getDurationInFrames();
     }
 }

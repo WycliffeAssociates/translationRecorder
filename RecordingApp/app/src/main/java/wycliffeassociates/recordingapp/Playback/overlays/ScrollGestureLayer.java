@@ -13,9 +13,6 @@ import android.widget.FrameLayout;
 
 public class ScrollGestureLayer extends View implements GestureDetector.OnGestureListener {
 
-    private float dX;
-    private float startX;
-
     @Override
     public boolean onDown(MotionEvent e) {
         return true;
@@ -28,7 +25,12 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        return false;
+        if (mTap != null) {
+            mTap.onTap(e.getX());
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -51,6 +53,10 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
         void onScroll(float distY);
     }
 
+    public interface OnTapListener {
+        void onTap(float x);
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return mScroll.onTouchEvent(event);
@@ -58,12 +64,12 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
     }
 
     private OnScrollListener mListener;
+    private OnTapListener mTap;
     public GestureDetector mScroll;
 
     public ScrollGestureLayer(Context context) {
         super(context);
         mScroll = new GestureDetector(context, this);
-
     }
 
     public static ScrollGestureLayer newInstance(Context context, OnScrollListener osl) {
@@ -73,44 +79,17 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
         return view;
     }
 
+    public static ScrollGestureLayer newInstance(Context context, OnScrollListener osl, OnTapListener otl){
+        ScrollGestureLayer view = newInstance(context, osl);
+        view.setOnTapListener(otl);
+        return view;
+    }
+
     private void setOnScrollListener(OnScrollListener osl) {
         mListener = osl;
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        //return mScroll.onTouchEvent(event);
-//        switch (event.getActionMasked()) {
-//            case MotionEvent.ACTION_DOWN:
-//                startX = event.getRawX();
-//                break;
-//
-//            case MotionEvent.ACTION_MOVE:
-//                dX = startX - event.getRawX();
-//                //startX += dX;
-//                mListener.onScroll(dX);
-//                break;
-//
-//            default:
-//                return false;
-//        }
-//        return true;
-//    }
-
-//    private class ScrollGesture extends GestureDetector.SimpleOnGestureListener {
-//        /**
-//         * Detects if the user is scrolling the main waveform horizontally
-//         *
-//         * @param distX  refers to how far the user scrolled horizontally
-//         * @param distY  is ignored for this use as we are only allowing horizontal scrolling
-//         * @param event1 not accessed, contains information about the start of the gesture
-//         * @param event2 not used, contains information about the end of the gesture
-//         * @return must be true for gesture detection
-//         */
-//        @Override
-//        public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
-//            mListener.onScroll(distX);
-//            return true;
-//        }
-//    }
+    private void setOnTapListener(OnTapListener otl) {
+        mTap = otl;
+    }
 }
