@@ -35,7 +35,7 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        mListener.onScroll(distanceX);
+        mListener.onScroll(e1.getX(), e2.getX(), distanceX);
         return true;
     }
 
@@ -50,7 +50,7 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
     }
 
     public interface OnScrollListener {
-        void onScroll(float distY);
+        void onScroll(float rawX1, float rawX2, float distX);
     }
 
     public interface OnTapListener {

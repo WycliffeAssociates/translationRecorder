@@ -11,6 +11,12 @@ public interface MediaController {
     void onSeekBackward();
     int getDuration();
     int getLocation();
+    int getDurationInFrames();
+    int getLocationInFrames();
     void setOnCompleteListner(Runnable onComplete);
     void onSeekTo(float time);
+    void setStartMarkerAt(int frame);
+    void setEndMarkerAt(int frame);
+    int getStartMarkerFrame();
+    int getEndMarkerFrame();
 }

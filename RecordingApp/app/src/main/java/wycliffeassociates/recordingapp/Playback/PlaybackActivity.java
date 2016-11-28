@@ -42,7 +42,6 @@ import wycliffeassociates.recordingapp.WavFileLoader;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.wav.WavFile;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
-import wycliffeassociates.recordingapp.widgets.SectionMarker;
 
 
 /**
@@ -225,8 +224,28 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
+    public int getLocationInFrames() {
+        return mAudioController.getLocationInFrames();
+    }
+
+    @Override
+    public int getDurationInFrames() {
+        return mAudioController.getDurationInFrames();
+    }
+
+    @Override
     public void setOnCompleteListner(Runnable onComplete) {
         //mAudioController.setOnCompleteListener(onComplete);
+    }
+
+    @Override
+    public int getStartMarkerFrame() {
+        return mAudioController.getLoopStart();
+    }
+
+    @Override
+    public int getEndMarkerFrame() {
+        return mAudioController.getLoopEnd();
     }
 
     @Override
@@ -261,6 +280,22 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         int location = mAudioController.getLoopEnd();
         mWaveformFragment.addEndMarker(location);
         mWaveformFragment.onLocationUpdated(location);
+    }
+
+    @Override
+    public void setStartMarkerAt(int frame){
+        mAudioController.setStartMarker(frame);
+        mWaveformFragment.addStartMarker(mAudioController.getLoopStart());
+        mWaveformFragment.onLocationUpdated(mAudioController.getLocation());
+        mFragmentTabbedWidget.onLocationChanged();
+    }
+
+    @Override
+    public void setEndMarkerAt(int frame) {
+        mAudioController.setEndMarker(frame);
+        mWaveformFragment.addEndMarker(mAudioController.getLoopEnd());
+        mWaveformFragment.onLocationUpdated(mAudioController.getLocation());
+        mFragmentTabbedWidget.onLocationChanged();
     }
 
     @Override
@@ -541,8 +576,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse) {
         float x = (getLocation()/(float)getDuration()) * canvas.getWidth();
         canvas.drawLine(x, 0, x, canvas.getHeight(), location);
-        float start = mAudioController.getLoopStart() / mAudioController.getDurationInFrames();
-        float end = mAudioController.getLoopEnd() / mAudioController.getDurationInFrames();
+        float start = (mAudioController.getLoopStart() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
+        float end = (mAudioController.getLoopEnd() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
         canvas.drawLine(start, 0, start, canvas.getHeight(), section);
         canvas.drawLine(end, 0, end, canvas.getHeight(), section);
     }

@@ -17,6 +17,7 @@ import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.Playback.overlays.MarkerLineLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.MinimapLayer;
+import wycliffeassociates.recordingapp.Playback.overlays.RectangularHighlightLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.ScrollGestureLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.TimecodeLayer;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
@@ -27,7 +28,9 @@ import wycliffeassociates.recordingapp.R;
  */
 
 public class FragmentTabbedWidget extends Fragment implements MinimapLayer.MinimapDrawDelegator,
-        MarkerLineLayer.MarkerLineDrawDelegator, ScrollGestureLayer.OnTapListener, ScrollGestureLayer.OnScrollListener {
+        MarkerLineLayer.MarkerLineDrawDelegator, ScrollGestureLayer.OnTapListener, ScrollGestureLayer.OnScrollListener,
+        RectangularHighlightLayer.HighlightDelegator
+{
 
     private static final String KEY_PROJECT = "key_project";
     private static final String KEY_FILENAME = "key_filename";
@@ -47,6 +50,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     String mFilename = "";
     Project mProject;
     int mChapter = 0;
+
     private FrameLayout mMinimapFrame;
     private TimecodeLayer mTimecodeLayer;
     private MinimapLayer.MinimapDrawDelegator mMinimapDrawDelegator;
@@ -54,6 +58,9 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     private MarkerLineLayer mMarkerLineLayer;
     private ScrollGestureLayer mGestureLayer;
     private DelegateMinimapMarkerDraw mMinimapLineDrawDelegator;
+    private RectangularHighlightLayer mHighlightLayer;
+
+
 
     public interface DelegateMinimapMarkerDraw {
         void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse);
@@ -99,10 +106,12 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
         mMinimapLayer = MinimapLayer.newInstance(getActivity(), this);
         mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
         mGestureLayer = ScrollGestureLayer.newInstance(getActivity(), this, this);
+        mHighlightLayer = RectangularHighlightLayer.newInstance(getActivity(), this);
         mMinimapFrame.addView(mMinimapLayer);
         mMinimapFrame.addView(mTimecodeLayer);
         mMinimapFrame.addView(mGestureLayer);
         mMinimapFrame.addView(mMarkerLineLayer);
+        mMinimapFrame.addView(mHighlightLayer);
     }
 
     private void initializePaints(){
@@ -194,6 +203,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
         mMinimapLayer.postInvalidate();
         mTimecodeLayer.postInvalidate();
         mMarkerLineLayer.postInvalidate();
+        mHighlightLayer.postInvalidate();
     }
 
     @Override
@@ -202,8 +212,17 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     }
 
     @Override
-    public void onScroll(float distY) {
+    public void onDrawHighlight(Canvas canvas, Paint paint) {
+        float left = (mMediaController.getStartMarkerFrame() / (float)mMediaController.getDurationInFrames()) * canvas.getWidth();
+        float right = (mMediaController.getEndMarkerFrame() / (float)mMediaController.getDurationInFrames()) * canvas.getWidth();
+        canvas.drawRect(left, 0, right, canvas.getHeight(), paint);
+    }
 
+    @Override
+    public void onScroll(float rawX1, float rawX2, float distX) {
+        mMediaController.setStartMarkerAt((int)(rawX1/(float)getWidgetWidth() * mMediaController.getDurationInFrames()));
+        mMediaController.setEndMarkerAt((int)(rawX2/(float)getWidgetWidth() * mMediaController.getDurationInFrames()));
+        onLocationChanged();
     }
 
     @Override

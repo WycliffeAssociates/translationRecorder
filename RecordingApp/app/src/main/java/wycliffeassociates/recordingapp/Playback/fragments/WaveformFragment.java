@@ -63,8 +63,8 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     }
 
     @Override
-    public void onScroll(float distY) {
-        mOnScrollDelegator.delegateOnScroll(distY);
+    public void onScroll(float x1, float x2, float distX) {
+        mOnScrollDelegator.delegateOnScroll(distX);
     }
 
     public static WaveformFragment newInstance(){
