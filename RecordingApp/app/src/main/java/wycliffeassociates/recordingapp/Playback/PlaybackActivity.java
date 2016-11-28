@@ -51,8 +51,8 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 public class PlaybackActivity extends Activity implements RatingDialog.DialogListener, MediaController,
         AudioStateCallback, AudioEditDelegator, EditStateInformer, WaveformFragment.WaveformDrawDelegator,
         ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler, MarkerToolbarFragment.OnMarkerPlacedListener,
-        MinimapLayer.MinimapDrawDelegator, FragmentTabbedWidget.DelegateMinimapMarkerDraw
-
+        MinimapLayer.MinimapDrawDelegator, FragmentTabbedWidget.DelegateMinimapMarkerDraw, FragmentFileBar.RerecordCallback, FragmentFileBar.RatingCallback,
+        FragmentFileBar.InsertCallback
 {
 
 
@@ -333,7 +333,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), mRating);
         db.close();
-        //mRateBtn.setStep(mRating);
+        mFragmentFileBar.onRatingChanged(mRating);
     }
 
     @Override
@@ -360,12 +360,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //        }
     }
 
-    private void openRating(FourStepImageView v) {
+    public void onOpenRating(FourStepImageView v) {
         RatingDialog dialog = RatingDialog.newInstance(mWavFile.getFile().getName(), mRating);
         dialog.show(getFragmentManager(), "single_unit_rating");
     }
 
-    private void rerecord() {
+    public void onRerecord() {
         Intent intent = RecordingScreen.getRerecordIntent(this, mProject, mWavFile, mChapter, mUnit);
         save(intent);
     }
@@ -442,9 +442,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //        saveThread.start();
     }
 
-    public void insert() {
-//        Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mManager.getAdjustedLocation());
-//        save(insertIntent);
+    public void onInsert() {
+        Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mAudioController.getLocation());
+        save(insertIntent);
     }
 
     private boolean allVersesMarked() {

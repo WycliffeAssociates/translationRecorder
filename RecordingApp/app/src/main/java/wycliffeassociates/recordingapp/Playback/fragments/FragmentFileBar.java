@@ -21,7 +21,23 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 public class FragmentFileBar extends Fragment {
 
+    private InsertCallback mInsertCallback;
 
+    public void onRatingChanged(int mRating) {
+        mRateBtn.setStep(mRating);
+    }
+
+    public interface RerecordCallback {
+        void onRerecord();
+    }
+
+    public interface RatingCallback {
+        void onOpenRating(FourStepImageView view);
+    }
+
+    public interface InsertCallback {
+        void onInsert();
+    }
 
     public static String KEY_LANGUAGE = "language";
     public static String KEY_VERSION = "version";
@@ -37,7 +53,10 @@ public class FragmentFileBar extends Fragment {
     ImageView mRerecordBtn, mInsertBtn;
     private ImageButton mEnterVerseMarkerMode;
 
+
     private VerseMarkerModeToggler mModeToggleCallback;
+    private RatingCallback mRatingCallback;
+    private RerecordCallback mRerecordCallback;
 
     public static FragmentFileBar newInstance(String language, String version, String book, String chapterLabel,
                                               String chapterNumber, String unitLabel, String unitNumber){
@@ -89,7 +108,7 @@ public class FragmentFileBar extends Fragment {
         mUnitLabel = (TextView) view.findViewById(R.id.file_unit_label);
         mRerecordBtn = (ImageView) view.findViewById(R.id.btn_rerecord);
         mInsertBtn = (ImageView) view.findViewById(R.id.btn_insert_record);
-        mRateBtn = (FourStepImageView) view.findViewById(R.id.rateTakeBtn);
+        mRateBtn = (FourStepImageView) view.findViewById(R.id.btn_rate);
 
         mEnterVerseMarkerMode = (ImageButton) view.findViewById(R.id.btn_enter_verse_marker_mode);
 //        mExitVerseMarkerMode = (ImageButton) findViewById(R.id.btn_exit_verse_marker_mode);
@@ -99,6 +118,9 @@ public class FragmentFileBar extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mModeToggleCallback = (VerseMarkerModeToggler) activity;
+        mRerecordCallback = (RerecordCallback) activity;
+        mRatingCallback = (RatingCallback) activity;
+        mInsertCallback = (InsertCallback) activity;
     }
 
     private void setClickListeners(){
@@ -106,6 +128,27 @@ public class FragmentFileBar extends Fragment {
             @Override
             public void onClick(View v) {
                 mModeToggleCallback.onEnableVerseMarkerMode();
+            }
+        });
+
+        mRateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRatingCallback.onOpenRating(mRateBtn);
+            }
+        });
+
+        mRerecordBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRerecordCallback.onRerecord();
+            }
+        });
+
+        mInsertBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mInsertCallback.onInsert();
             }
         });
     }
