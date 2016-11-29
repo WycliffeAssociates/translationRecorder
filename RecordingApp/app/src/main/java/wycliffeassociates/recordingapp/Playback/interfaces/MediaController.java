@@ -19,4 +19,5 @@ public interface MediaController {
     void setEndMarkerAt(int frame);
     int getStartMarkerFrame();
     int getEndMarkerFrame();
+    boolean hasSetMarkers();
 }

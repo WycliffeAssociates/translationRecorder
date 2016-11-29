@@ -122,20 +122,28 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     //-------------MARKERS----------------------//
 
     public void addStartMarker(int location){
-        SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_startmarker_cyan, START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
-        div.setPositionChangeMediator(this);
-        div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
-        mDraggableViewFrame.addView(div);
-        mMarkers.put(START_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
+        if (!mMarkers.containsKey(START_MARKER_ID)) {
+            SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_startmarker_cyan, START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
+            div.setPositionChangeMediator(this);
+            div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
+            mDraggableViewFrame.addView(div);
+            mMarkers.put(START_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
+        } else {
+            mMarkers.get(START_MARKER_ID).updateX(location, mFrame.getWidth());
+        }
         onLocationUpdated(location);
     }
 
     public void addEndMarker(int location){
-        SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
-        div.setPositionChangeMediator(this);
-        div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
-        mDraggableViewFrame.addView(div);
-        mMarkers.put(END_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
+        if(!mMarkers.containsKey(END_MARKER_ID)) {
+            SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
+            div.setPositionChangeMediator(this);
+            div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
+            mDraggableViewFrame.addView(div);
+            mMarkers.put(END_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
+        } else {
+            mMarkers.get(END_MARKER_ID).updateX(location, mFrame.getWidth());
+        }
         onLocationUpdated(location);
     }
 

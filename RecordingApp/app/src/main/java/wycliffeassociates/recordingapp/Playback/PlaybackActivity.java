@@ -131,7 +131,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
         mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguage(),
                 mProject.getVersion(), mProject.getSlug(), "Chapter", String.valueOf(mChapter),
-                mProject.getMode(), String.valueOf(mUnit));
+                mProject.getMode(),
+                getUnitLabel());
         mFragmentContainerMapping.put(R.id.file_bar_fragment_holder, mFragmentFileBar);
 
         mWaveformFragment = WaveformFragment.newInstance();
@@ -140,6 +141,15 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mMarkerCounterFragment = MarkerCounterFragment.newInstance(mVersesLeft);
         mMarkerToolbarFragment = MarkerToolbarFragment.newInstance();
         attachFragments();
+    }
+
+    private String getUnitLabel(){
+        if(mProject.getMode().equals("chunk")){
+            FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
+            return String.format("%d-%d",fne.getStartVerse(), fne.getEndVerse());
+        } else {
+            return String.valueOf(mUnit);
+        }
     }
 
     private void attachFragments() {
@@ -285,7 +295,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void setStartMarkerAt(int frame){
         mAudioController.setStartMarker(frame);
-        mWaveformFragment.addStartMarker(mAudioController.getLoopStart());
+        mWaveformFragment.addStartMarker(frame);
         mWaveformFragment.onLocationUpdated(mAudioController.getLocation());
         mFragmentTabbedWidget.onLocationChanged();
     }
@@ -293,7 +303,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void setEndMarkerAt(int frame) {
         mAudioController.setEndMarker(frame);
-        mWaveformFragment.addEndMarker(mAudioController.getLoopEnd());
+        mWaveformFragment.addEndMarker(frame);
         mWaveformFragment.onLocationUpdated(mAudioController.getLocation());
         mFragmentTabbedWidget.onLocationChanged();
     }
@@ -303,6 +313,15 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mAudioController.clearLoopPoints();
         mWaveformFragment.onRemoveSectionMarkers();
         System.out.println("Should have called remove section markers");
+    }
+
+    @Override
+    public boolean hasSetMarkers() {
+        if(mAudioController.getLoopStart() != 0 && mAudioController.getLoopEnd() != mAudioController.getDurationInFrames()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -553,13 +572,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onCueScroll(int id, float distY){
-        /*int position = mAudioController.getLocationInFrames() + ((int)(distY-240) * 230);
+        int position = mAudioController.getLocationInFrames() + ((int)(distY-240) * 230);
         position = Math.min(position, 0);
         if(id == mWaveformFragment.START_MARKER_ID) {
             mAudioController.setStartMarker(position);
         } else if (id == mWaveformFragment.END_MARKER_ID) {
             mAudioController.setEndMarker(position);
-        }*/
+        }
     }
 
     @Override

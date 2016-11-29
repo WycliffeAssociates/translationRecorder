@@ -111,7 +111,6 @@ public class FragmentFileBar extends Fragment {
         mRateBtn = (FourStepImageView) view.findViewById(R.id.btn_rate);
 
         mEnterVerseMarkerMode = (ImageButton) view.findViewById(R.id.btn_enter_verse_marker_mode);
-//        mExitVerseMarkerMode = (ImageButton) findViewById(R.id.btn_exit_verse_marker_mode);
     }
 
     @Override

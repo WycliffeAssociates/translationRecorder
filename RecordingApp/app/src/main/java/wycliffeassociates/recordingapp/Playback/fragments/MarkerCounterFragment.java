@@ -74,5 +74,8 @@ public class MarkerCounterFragment extends Fragment {
     public void decrementVersesRemaining(){
         mVersesRemaining--;
         mVersesRemainingView.setText(String.valueOf(mVersesRemaining));
+        if(mVersesRemaining <= 0) {
+            mModeToggleCallback.onDisableVerseMarkerMode();
+        }
     }
 }

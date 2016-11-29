@@ -85,6 +85,8 @@ public class WavPlayer {
         if(absoluteFrame > getDurationInFrames() || absoluteFrame < 0){
             return;
         }
+        absoluteFrame = Math.max(absoluteFrame, mBufferProvider.getMark());
+        absoluteFrame = Math.min(absoluteFrame, mBufferProvider.getLimit());
         boolean wasPlaying = mPlayer.isPlaying();
         pause();
         mBufferProvider.setPosition(absoluteFrame);
@@ -94,6 +96,9 @@ public class WavPlayer {
     }
 
     public void play(){
+        if(getLocationInFrames() == getLoopEnd()) {
+            mBufferProvider.reset();
+        }
         mPlayer.play(mBufferProvider.getSizeOfNextSession());
     }
 
@@ -128,7 +133,15 @@ public class WavPlayer {
     }
 
     public void setLoopStart(int frame){
-        mBufferProvider.mark(frame);
+        if(frame > mBufferProvider.getLimit()) {
+            int oldLimit = mBufferProvider.getLimit();
+            clearLoopPoints();
+            mBufferProvider.mark(oldLimit);
+            mBufferProvider.setLimit(frame);
+            mBufferProvider.reset();
+        } else {
+            mBufferProvider.mark(frame);
+        }
     }
 
     public int getLoopStart(){
@@ -136,8 +149,15 @@ public class WavPlayer {
     }
 
     public void setLoopEnd(int frame){
-        mBufferProvider.setLimit(frame);
-        mBufferProvider.reset();
+        if(frame < mBufferProvider.getMark()) {
+            int oldMark = mBufferProvider.getMark();
+            clearLoopPoints();
+            mBufferProvider.mark(frame);
+            mBufferProvider.setLimit(oldMark);
+        } else {
+            mBufferProvider.setLimit(frame);
+            mBufferProvider.reset();
+        }
     }
 
     public int getLoopEnd(){

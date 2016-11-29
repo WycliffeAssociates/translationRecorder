@@ -213,9 +213,11 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
 
     @Override
     public void onDrawHighlight(Canvas canvas, Paint paint) {
-        float left = (mMediaController.getStartMarkerFrame() / (float)mMediaController.getDurationInFrames()) * canvas.getWidth();
-        float right = (mMediaController.getEndMarkerFrame() / (float)mMediaController.getDurationInFrames()) * canvas.getWidth();
-        canvas.drawRect(left, 0, right, canvas.getHeight(), paint);
+        if(mMediaController.hasSetMarkers()) {
+            float left = (mMediaController.getStartMarkerFrame() / (float) mMediaController.getDurationInFrames()) * canvas.getWidth();
+            float right = (mMediaController.getEndMarkerFrame() / (float) mMediaController.getDurationInFrames()) * canvas.getWidth();
+            canvas.drawRect(left, 0, right, canvas.getHeight(), paint);
+        }
     }
 
     @Override
