@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import java.util.Collection;
 import java.util.HashMap;
 
+import wycliffeassociates.recordingapp.Playback.interfaces.MarkerMediator;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.Playback.overlays.MarkerLineLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.RectangularHighlightLayer;
@@ -45,9 +46,8 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     RectangularHighlightLayer mHighlightLayer;
     ScrollGestureLayer mScrollGestureLayer;
     Paint mPaint;
-    HashMap<Integer, DraggableMarker> mMarkers = new HashMap<>();
-    public static final int START_MARKER_ID = -1;
-    public static final int END_MARKER_ID = -2;
+    MarkerMediator mMediator;
+
     FrameLayout mFrame;
     WaveformDrawDelegator mDrawDelegator;
     OnScrollDelegator mOnScrollDelegator;
