@@ -63,7 +63,7 @@ public class DraggableImageView extends ImageView implements GestureDetector.OnG
     public interface PositionChangeMediator {
         float onPositionRequested(int id, float x);
         void onPositionChanged(int id, float x);
-        void onRemoveMarker(int id);
+        //void onRemoveMarker(int id);
     }
 
     private static DraggableImageView newInstance(Activity context, int drawableId, int viewId){

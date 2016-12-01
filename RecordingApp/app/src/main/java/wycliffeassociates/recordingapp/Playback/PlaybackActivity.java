@@ -29,6 +29,7 @@ import wycliffeassociates.recordingapp.Playback.fragments.WaveformFragment;
 import wycliffeassociates.recordingapp.Playback.interfaces.AudioEditDelegator;
 import wycliffeassociates.recordingapp.Playback.interfaces.AudioStateCallback;
 import wycliffeassociates.recordingapp.Playback.interfaces.EditStateInformer;
+import wycliffeassociates.recordingapp.Playback.interfaces.MarkerMediator;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.Playback.interfaces.VerseMarkerModeToggler;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
@@ -81,6 +82,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private WaveformFragment mWaveformFragment;
     private MarkerCounterFragment mMarkerCounterFragment;
     private MarkerToolbarFragment mMarkerToolbarFragment;
+    private MarkerMediator mMarkerMediator;
     private boolean mWaveformInflated = false;
     private boolean mMinimapInflated = false;
 
@@ -105,12 +107,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         isSaved = true;
         parseIntent(intent);
         getVersesLeft();
+        mAudioController = new AudioVisualController(this, mWavFile);
+        mMarkerMediator = new MarkerHolder(mAudioController);
         initializeFragments();
         initializeViews();
         wavFileLoader = new WavFileLoader(mWavFile);
         mCutOp = new CutOp();
         //wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
-        mAudioController = new AudioVisualController(this, mWavFile);
     }
 
     private void parseIntent(Intent intent) {
@@ -135,7 +138,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 getUnitLabel());
         mFragmentContainerMapping.put(R.id.file_bar_fragment_holder, mFragmentFileBar);
 
-        mWaveformFragment = WaveformFragment.newInstance();
+        mWaveformFragment = WaveformFragment.newInstance(mMarkerMediator);
         mFragmentContainerMapping.put(R.id.waveform_fragment_holder, mWaveformFragment);
 
         mMarkerCounterFragment = MarkerCounterFragment.newInstance(mVersesLeft);
@@ -310,9 +313,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onClearMarkers() {
-        mAudioController.clearLoopPoints();
-        mWaveformFragment.onRemoveSectionMarkers();
-        System.out.println("Should have called remove section markers");
+        mMarkerMediator.onRemoveSectionMarkers();
     }
 
     @Override
@@ -571,14 +572,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onCueScroll(int id, float distY){
-        int position = mAudioController.getLocationInFrames() + ((int)(distY-240) * 230);
-        position = Math.min(position, 0);
-        if(id == mWaveformFragment.START_MARKER_ID) {
-            mAudioController.setStartMarker(position);
-        } else if (id == mWaveformFragment.END_MARKER_ID) {
-            mAudioController.setEndMarker(position);
-        }
+    public void onCueScroll(int id, float distX){
+        mMarkerMediator.onCueScroll(id, distX);
     }
 
     @Override

@@ -12,22 +12,24 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 import wycliffeassociates.recordingapp.Playback.interfaces.MarkerMediator;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
+import wycliffeassociates.recordingapp.Playback.overlays.DraggableViewFrame;
 import wycliffeassociates.recordingapp.Playback.overlays.MarkerLineLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.RectangularHighlightLayer;
 import wycliffeassociates.recordingapp.Playback.overlays.ScrollGestureLayer;
+import wycliffeassociates.recordingapp.Playback.overlays.WaveformLayer;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.Playback.overlays.DraggableViewFrame;
 import wycliffeassociates.recordingapp.widgets.DraggableImageView;
 import wycliffeassociates.recordingapp.widgets.DraggableMarker;
 import wycliffeassociates.recordingapp.widgets.SectionMarker;
 import wycliffeassociates.recordingapp.widgets.SectionMarkerView;
 import wycliffeassociates.recordingapp.widgets.VerseMarker;
 import wycliffeassociates.recordingapp.widgets.VerseMarkerView;
-import wycliffeassociates.recordingapp.Playback.overlays.WaveformLayer;
+
+import static wycliffeassociates.recordingapp.Playback.MarkerHolder.END_MARKER_ID;
+import static wycliffeassociates.recordingapp.Playback.MarkerHolder.START_MARKER_ID;
 
 /**
  * Created by sarabiaj on 11/4/2016.
@@ -67,9 +69,14 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mOnScrollDelegator.delegateOnScroll(distX);
     }
 
-    public static WaveformFragment newInstance(){
+    public static WaveformFragment newInstance(MarkerMediator mediator){
         WaveformFragment f = new WaveformFragment();
+        f.setMarkerMediator(mediator);
         return f;
+    }
+
+    private void setMarkerMediator(MarkerMediator mediator) {
+        mMediator = mediator;
     }
 
     @Override
@@ -95,6 +102,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(1f);
         mDraggableViewFrame.bringToFront();
+        mMediator.setDraggableViewFrame(mDraggableViewFrame);
     }
 
     @Override
@@ -122,45 +130,38 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     //-------------MARKERS----------------------//
 
     public void addStartMarker(int location){
-        if (!mMarkers.containsKey(START_MARKER_ID)) {
+//        if (!mMarkers.containsKey(START_MARKER_ID)) {
             SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_startmarker_cyan, START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
             div.setPositionChangeMediator(this);
             div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
-            mDraggableViewFrame.addView(div);
-            mMarkers.put(START_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
-        } else {
-            mMarkers.get(START_MARKER_ID).updateX(location, mFrame.getWidth());
-        }
+            //mDraggableViewFrame.addView(div);
+            mMediator.onAddStartSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
         onLocationUpdated(location);
     }
 
     public void addEndMarker(int location){
-        if(!mMarkers.containsKey(END_MARKER_ID)) {
-            SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
+                    SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
             div.setPositionChangeMediator(this);
             div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
-            mDraggableViewFrame.addView(div);
-            mMarkers.put(END_MARKER_ID, new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
-        } else {
-            mMarkers.get(END_MARKER_ID).updateX(location, mFrame.getWidth());
-        }
+            //mDraggableViewFrame.addView(div);
+           mMediator.onAddStartSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
         onLocationUpdated(location);
     }
 
     public void addVerseMarker(int verseNumber, int frame){
         VerseMarkerView div = VerseMarkerView.newInstance(getActivity(), R.drawable.verse_marker_yellow, verseNumber);
         div.setPositionChangeMediator(this);
-        mDraggableViewFrame.addView(div);
-        mMarkers.put(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow), frame));
+        //mDraggableViewFrame.addView(div);
+        mMediator.onAddVerseMarker(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow), frame));
     }
 
     @Override
     public float onPositionRequested(int id, float x){
         if(id < 0) {
             if(id == END_MARKER_ID){
-                x = Math.max(mMarkers.get(END_MARKER_ID).getMarkerX(), x);
+                x = Math.max(mMediator.getMarker(END_MARKER_ID).getMarkerX(), x);
             } else {
-                x = Math.min(mMarkers.get(START_MARKER_ID).getMarkerX() - mMarkers.get(START_MARKER_ID).getWidth(), x);
+                x = Math.max(mMediator.getMarker(START_MARKER_ID).getMarkerX() - mMediator.getMarker(START_MARKER_ID).getWidth(), x);
             }
         }
         return x;
@@ -173,31 +174,8 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     }
 
     @Override
-    public void onRemoveMarker(int id) {
-        mDraggableViewFrame.removeView(mMarkers.get(id).getView());
-        mMarkers.remove(id);
-        mDraggableViewFrame.postInvalidate();
-        mMarkerLineLayer.postInvalidate();
-        mHighlightLayer.postInvalidate();
-    }
-
-    public void onRemoveSectionMarkers(){
-        if(mMarkers.containsKey(START_MARKER_ID)){
-            mDraggableViewFrame.removeView(mMarkers.get(START_MARKER_ID).getView());
-            mMarkers.remove(START_MARKER_ID);
-        }
-        if(mMarkers.containsKey(END_MARKER_ID)){
-            mDraggableViewFrame.removeView(mMarkers.get(END_MARKER_ID).getView());
-            mMarkers.remove(END_MARKER_ID);
-        }
-        mDraggableViewFrame.postInvalidate();
-        mMarkerLineLayer.postInvalidate();
-        mHighlightLayer.postInvalidate();
-    }
-
-    @Override
     public void onDrawMarkers(Canvas canvas) {
-        Collection<DraggableMarker> markers = mMarkers.values();
+        Collection<DraggableMarker> markers = mMediator.getMarkers();
         for (DraggableMarker d : markers) {
             d.drawMarkerLine(canvas);
         }
@@ -206,9 +184,9 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     }
 
     public void onDrawHighlight(Canvas canvas, Paint paint) {
-        if(mMarkers.containsKey(END_MARKER_ID) && mMarkers.containsKey(START_MARKER_ID)) {
-            canvas.drawRect(mMarkers.get(START_MARKER_ID).getMarkerX(), 0,
-                    mMarkers.get(END_MARKER_ID).getMarkerX(), mFrame.getHeight(), paint);
+        if(mMediator.contains(END_MARKER_ID) && mMediator.contains(START_MARKER_ID)) {
+            canvas.drawRect(mMediator.getMarker(START_MARKER_ID).getMarkerX(), 0,
+                    mMediator.getMarker(END_MARKER_ID).getMarkerX(), mFrame.getHeight(), paint);
         }
     }
 
@@ -218,9 +196,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     }
 
     public void onLocationUpdated(int location){
-        for(DraggableMarker view : mMarkers.values()){
-            view.updateX(location, mDraggableViewFrame.getWidth());
-        }
+        mMediator.updateCurrentFrame(location);
         mWaveformLayer.postInvalidate();
         mDraggableViewFrame.postInvalidate();
         mMarkerLineLayer.postInvalidate();
