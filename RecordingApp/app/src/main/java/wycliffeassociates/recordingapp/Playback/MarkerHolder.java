@@ -152,7 +152,24 @@ public class MarkerHolder implements MarkerMediator {
         } else if (id == END_MARKER_ID) {
             mAudioController.setEndMarker(position);
         }
+        mMarkers.get(id).updateX(position, mDraggableViewFrame.getWidth());
+        mDraggableViewFrame.postInvalidate();
     }
 
+    @Override
+    public void updateStartMarkerFrame(int frame) {
+        updateMarkerFrame(START_MARKER_ID, frame);
+    }
 
+    @Override
+    public void updateEndMarkerFrame(int frame) {
+        updateMarkerFrame(END_MARKER_ID, frame);
+    }
+
+    private void updateMarkerFrame(int id, int frame) {
+        if(mMarkers.containsKey(id)) {
+            mMarkers.get(id).updateX(frame, mDraggableViewFrame.getWidth());
+        }
+        mDraggableViewFrame.postInvalidate();
+    }
 }

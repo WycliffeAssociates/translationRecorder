@@ -25,4 +25,6 @@ public interface MarkerMediator {
     void onCueScroll(int id, float distX);
     void setDraggableViewFrame(DraggableViewFrame mFrame);
     void onRemoveSectionMarkers();
+    void updateStartMarkerFrame(int frame);
+    void updateEndMarkerFrame(int frame);
 }

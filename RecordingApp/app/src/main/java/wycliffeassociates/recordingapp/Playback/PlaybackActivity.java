@@ -129,7 +129,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mFragmentPlaybackTools = FragmentPlaybackTools.newInstance();
         mFragmentContainerMapping.put(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools);
 
-        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
+        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
         mFragmentContainerMapping.put(R.id.tabbed_widget_fragment_holder, mFragmentTabbedWidget);
 
         mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguage(),
@@ -293,6 +293,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         int location = mAudioController.getLoopEnd();
         mWaveformFragment.addEndMarker(location);
         mWaveformFragment.onLocationUpdated(location);
+        mFragmentTabbedWidget.onLocationChanged();
     }
 
     @Override

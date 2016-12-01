@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import wycliffeassociates.recordingapp.Playback.SourceAudio;
+import wycliffeassociates.recordingapp.Playback.interfaces.MarkerMediator;
 import wycliffeassociates.recordingapp.Playback.interfaces.MediaController;
 import wycliffeassociates.recordingapp.Playback.interfaces.ViewCreatedCallback;
 import wycliffeassociates.recordingapp.Playback.overlays.MarkerLineLayer;
@@ -59,21 +60,26 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     private ScrollGestureLayer mGestureLayer;
     private DelegateMinimapMarkerDraw mMinimapLineDrawDelegator;
     private RectangularHighlightLayer mHighlightLayer;
-
+    private MarkerMediator mMarkerMediator;
 
 
     public interface DelegateMinimapMarkerDraw {
         void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse);
     }
 
-    public static FragmentTabbedWidget newInstance(Project project, String filename, int chapter){
+    public static FragmentTabbedWidget newInstance(MarkerMediator mediator, Project project, String filename, int chapter){
         FragmentTabbedWidget f = new FragmentTabbedWidget();
         Bundle args = new Bundle();
         args.putParcelable(KEY_PROJECT, project);
         args.putString(KEY_FILENAME, filename);
         args.putInt(KEY_CHAPTER, chapter);
         f.setArguments(args);
+        f.setMediator(mediator);
         return f;
+    }
+
+    private void setMediator(MarkerMediator mediator) {
+        mMarkerMediator = mediator;
     }
 
     @Override
@@ -224,6 +230,8 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     public void onScroll(float rawX1, float rawX2, float distX) {
         mMediaController.setStartMarkerAt((int)(rawX1/(float)getWidgetWidth() * mMediaController.getDurationInFrames()));
         mMediaController.setEndMarkerAt((int)(rawX2/(float)getWidgetWidth() * mMediaController.getDurationInFrames()));
+        mMarkerMediator.updateStartMarkerFrame(mMediaController.getStartMarkerFrame());
+        mMarkerMediator.updateEndMarkerFrame(mMediaController.getEndMarkerFrame());
         onLocationChanged();
     }
 

@@ -144,7 +144,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
             div.setPositionChangeMediator(this);
             div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
             //mDraggableViewFrame.addView(div);
-           mMediator.onAddStartSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
+           mMediator.onAddEndSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
         onLocationUpdated(location);
     }
 
