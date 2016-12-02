@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.Playback.interfaces;
 
 import java.util.Collection;
 
+import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.overlays.DraggableViewFrame;
 import wycliffeassociates.recordingapp.widgets.DraggableMarker;
 import wycliffeassociates.recordingapp.widgets.SectionMarker;
@@ -27,4 +28,5 @@ public interface MarkerMediator {
     void onRemoveSectionMarkers();
     void updateStartMarkerFrame(int frame);
     void updateEndMarkerFrame(int frame);
+    void setMarkerButtons(FragmentPlaybackTools playbackTools);
 }

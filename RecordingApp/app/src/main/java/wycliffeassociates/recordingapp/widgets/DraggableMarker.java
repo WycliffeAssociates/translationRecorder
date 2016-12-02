@@ -34,6 +34,14 @@ public abstract class DraggableMarker {
         mView.setX((containerWidth/8) + (mView.mapLocationToScreenSpace(mLocation, containerWidth) - mView.mapLocationToScreenSpace(playbackLocation, containerWidth)));
     }
 
+    public void updateFrame(int frame) {
+        mLocation = frame;
+    }
+
+    public int getFrame(){
+        return mLocation;
+    }
+
     public View getView(){
         return mView;
     }

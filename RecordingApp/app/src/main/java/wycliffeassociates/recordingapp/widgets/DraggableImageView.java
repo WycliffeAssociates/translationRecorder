@@ -42,8 +42,9 @@ public class DraggableImageView extends ImageView implements GestureDetector.OnG
         position = this.getX() - distanceX;
         if(mPositionChangeMediator != null) {
             this.setX(position);
+            float oldPos = position;
             position = mPositionChangeMediator.onPositionRequested(mId, position);
-            mPositionChangeMediator.onPositionChanged(mId, position);
+            mPositionChangeMediator.onPositionChanged(mId, distanceX - (oldPos - position));
         } else {
             this.setX(position);
         }

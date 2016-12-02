@@ -223,11 +223,17 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
             float left = (mMediaController.getStartMarkerFrame() / (float) mMediaController.getDurationInFrames()) * canvas.getWidth();
             float right = (mMediaController.getEndMarkerFrame() / (float) mMediaController.getDurationInFrames()) * canvas.getWidth();
             canvas.drawRect(left, 0, right, canvas.getHeight(), paint);
+
         }
     }
 
     @Override
     public void onScroll(float rawX1, float rawX2, float distX) {
+        if(rawX1 > rawX2) {
+            float temp = rawX2;
+            rawX2 = rawX1;
+            rawX1 = temp;
+        }
         mMediaController.setStartMarkerAt((int)(rawX1/(float)getWidgetWidth() * mMediaController.getDurationInFrames()));
         mMediaController.setEndMarkerAt((int)(rawX2/(float)getWidgetWidth() * mMediaController.getDurationInFrames()));
         mMarkerMediator.updateStartMarkerFrame(mMediaController.getStartMarkerFrame());

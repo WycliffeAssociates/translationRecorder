@@ -6,6 +6,7 @@ import android.widget.FrameLayout;
 import java.util.Collection;
 import java.util.HashMap;
 
+import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.interfaces.MarkerMediator;
 import wycliffeassociates.recordingapp.Playback.overlays.DraggableViewFrame;
 import wycliffeassociates.recordingapp.widgets.DraggableMarker;
@@ -18,16 +19,23 @@ import wycliffeassociates.recordingapp.widgets.VerseMarker;
 
 public class MarkerHolder implements MarkerMediator {
 
+
     FrameLayout mDraggableViewFrame;
     AudioVisualController mAudioController;
-
+    PlaybackActivity mActivity;
     HashMap<Integer, DraggableMarker> mMarkers = new HashMap<>();
     public static final int START_MARKER_ID = -1;
     public static final int END_MARKER_ID = -2;
+    FragmentPlaybackTools mMarkerButtons;
 
-
-    public MarkerHolder(AudioVisualController controller){
+    public MarkerHolder(AudioVisualController controller, PlaybackActivity activity, FragmentPlaybackTools playbackTools){
         mAudioController = controller;
+        mActivity = activity;
+        mMarkerButtons= playbackTools;
+    }
+
+    public void setMarkerButtons(FragmentPlaybackTools playbackTools){
+        mMarkerButtons = playbackTools;
     }
 
     public void setDraggableViewFrame(DraggableViewFrame dvf){
@@ -47,10 +55,12 @@ public class MarkerHolder implements MarkerMediator {
 
     public void onAddStartSectionMarker(SectionMarker marker) {
         addMarker(START_MARKER_ID, marker);
+        mMarkerButtons.viewOnSetStartMarker();
     }
 
     public void onAddEndSectionMarker(SectionMarker marker) {
         addMarker(END_MARKER_ID, marker);
+        mMarkerButtons.viewOnSetEndMarker();
     }
 
     @Override
@@ -132,7 +142,9 @@ public class MarkerHolder implements MarkerMediator {
 
     @Override
     public void updateCurrentFrame(int frame) {
-
+        for(DraggableMarker m : mMarkers.values()) {
+            m.updateX(frame, mDraggableViewFrame.getWidth());
+        }
     }
 
     public DraggableMarker getMarker(int id){
@@ -145,15 +157,16 @@ public class MarkerHolder implements MarkerMediator {
 
     @Override
     public void onCueScroll(int id, float distX) {
-        int position = mAudioController.getLocationInFrames() + ((int)(distX-240) * 230);
-        position = Math.min(position, 0);
+        int position = mMarkers.get(id).getFrame() + ((int)(-distX) * 230);
+        position = Math.min(Math.max(position, 0), mAudioController.getDurationInFrames());
         if(id == START_MARKER_ID) {
             mAudioController.setStartMarker(position);
         } else if (id == END_MARKER_ID) {
             mAudioController.setEndMarker(position);
         }
+        mMarkers.get(id).updateFrame(position);
         mMarkers.get(id).updateX(position, mDraggableViewFrame.getWidth());
-        mDraggableViewFrame.postInvalidate();
+        mActivity.onLocationUpdated(0);
     }
 
     @Override
@@ -168,8 +181,9 @@ public class MarkerHolder implements MarkerMediator {
 
     private void updateMarkerFrame(int id, int frame) {
         if(mMarkers.containsKey(id)) {
+            mMarkers.get(id).updateFrame(frame);
             mMarkers.get(id).updateX(frame, mDraggableViewFrame.getWidth());
         }
-        mDraggableViewFrame.postInvalidate();
+        mActivity.onLocationUpdated(0);
     }
 }
