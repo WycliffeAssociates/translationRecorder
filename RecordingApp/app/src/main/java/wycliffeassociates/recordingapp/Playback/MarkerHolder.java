@@ -73,6 +73,7 @@ public class MarkerHolder implements MarkerMediator {
         onRemoveStartSectionMarker();
         onRemoveEndSectionMarker();
         mAudioController.clearLoopPoints();
+        mActivity.onLocationUpdated(0);
     }
 
     @Override
@@ -91,6 +92,7 @@ public class MarkerHolder implements MarkerMediator {
             mDraggableViewFrame.removeView(marker);
             mMarkers.remove(id);
         }
+        mActivity.onLocationUpdated(0);
     }
 
     private void addMarker(int id, DraggableMarker marker){
@@ -103,6 +105,7 @@ public class MarkerHolder implements MarkerMediator {
         if(mDraggableViewFrame != null) {
             mDraggableViewFrame.addView(marker.getView());
         }
+        mActivity.onLocationUpdated(0);
     }
 
     public SectionMarker getSectionMarker(int sectionMarkerId) {

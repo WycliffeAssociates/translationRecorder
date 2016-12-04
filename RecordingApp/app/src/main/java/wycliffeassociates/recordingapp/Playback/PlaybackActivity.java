@@ -13,7 +13,9 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,7 +43,9 @@ import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.WavFileLoader;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.wav.WavCue;
 import wycliffeassociates.recordingapp.wav.WavFile;
+import wycliffeassociates.recordingapp.widgets.DraggableMarker;
 import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 
 
@@ -55,8 +59,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         MinimapLayer.MinimapDrawDelegator, FragmentTabbedWidget.DelegateMinimapMarkerDraw, FragmentFileBar.RerecordCallback, FragmentFileBar.RatingCallback,
         FragmentFileBar.InsertCallback
 {
-
-
 
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
@@ -115,6 +117,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mCutOp = new CutOp();
         mMarkerMediator.setMarkerButtons(mFragmentPlaybackTools);
         //wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
+    }
+
+    private void initializeMarkers() {
+        List<WavCue> cues = mWavFile.getMetadata().getCuePoints();
+        for (WavCue cue : cues) {
+            mWaveformFragment.addVerseMarker(Integer.valueOf(cue.getLabel()), cue.getLocation());
+        }
     }
 
     private void parseIntent(Intent intent) {
@@ -192,7 +201,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 int location;
                 while (mAudioController.isPlaying()) {
                     location = mAudioController.getLocationInFrames();
-                    mFragmentPlaybackTools.onLocationUpdated(location);
+                    mFragmentPlaybackTools.onLocationUpdated(mAudioController.getLocation());
                     mWaveformFragment.onLocationUpdated(location);
                     mFragmentTabbedWidget.onLocationChanged();
                     //getLocationMs();
@@ -392,7 +401,17 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         save(intent);
     }
 
+    private void writeMarkers(){
+        Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
+        int i = 1;
+        for(DraggableMarker m : markers) {
+            mWavFile.addMarker(String.valueOf(i), m.getFrame());
+        }
+        mWavFile.commit();
+    }
+
     private void save(Intent intent) {
+        writeMarkers();
         //no changes were made, so just exit
         if (isSaved) {
             if (intent == null) {
@@ -508,6 +527,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                     if(mWaveformInflated && mMinimapInflated) {
                         initializeRenderer();
                     }
+                    initializeMarkers();
                 }
             });
         } else if (ref instanceof FragmentTabbedWidget){
@@ -518,6 +538,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                     if(mWaveformInflated && mMinimapInflated) {
                         initializeRenderer();
                     }
+                    initializeMarkers();
                 }
             });
         }

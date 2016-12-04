@@ -133,7 +133,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
 //        if (!mMarkers.containsKey(START_MARKER_ID)) {
             SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_startmarker_cyan, START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
             div.setPositionChangeMediator(this);
-            div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
+            div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth())-div.getWidth());
             //mDraggableViewFrame.addView(div);
             mMediator.onAddStartSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
         onLocationUpdated(location);

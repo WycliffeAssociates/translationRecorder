@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.Playback.PlaybackActivity;
 import wycliffeassociates.recordingapp.Playback.PlaybackScreen;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
@@ -467,7 +468,7 @@ public class UnitCard {
                 if (takes.size() > 0) {
                     pauseAudio();
                     WavFile wavFile = new WavFile(takes.get(mTakeIndex));
-                    Intent intent = PlaybackScreen.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mFirstVerse);
+                    Intent intent = PlaybackActivity.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mFirstVerse);
                     v.getContext().startActivity(intent);
                 }
             }
