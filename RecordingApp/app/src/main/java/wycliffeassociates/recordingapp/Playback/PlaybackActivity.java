@@ -626,6 +626,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         canvas.drawLine(x, 0, x, canvas.getHeight(), location);
         float start = (mAudioController.getLoopStart() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
         float end = (mAudioController.getLoopEnd() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
+        Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
+        for( DraggableMarker m : markers) {
+            float markerPos = (m.getFrame() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
+            canvas.drawLine(markerPos, 0, markerPos, canvas.getHeight(), verse);
+        }
         canvas.drawLine(start, 0, start, canvas.getHeight(), section);
         canvas.drawLine(end, 0, end, canvas.getHeight(), section);
     }
