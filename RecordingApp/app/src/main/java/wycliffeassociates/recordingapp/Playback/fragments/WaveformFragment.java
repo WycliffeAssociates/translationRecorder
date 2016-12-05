@@ -28,8 +28,8 @@ import wycliffeassociates.recordingapp.widgets.SectionMarkerView;
 import wycliffeassociates.recordingapp.widgets.VerseMarker;
 import wycliffeassociates.recordingapp.widgets.VerseMarkerView;
 
-import static wycliffeassociates.recordingapp.Playback.MarkerHolder.END_MARKER_ID;
-import static wycliffeassociates.recordingapp.Playback.MarkerHolder.START_MARKER_ID;
+import static wycliffeassociates.recordingapp.Playback.markers.MarkerHolder.END_MARKER_ID;
+import static wycliffeassociates.recordingapp.Playback.markers.MarkerHolder.START_MARKER_ID;
 
 /**
  * Created by sarabiaj on 11/4/2016.

@@ -29,9 +29,12 @@ public class MarkerCounterFragment extends Fragment {
     public static MarkerCounterFragment newInstance(int versesRemaining){
         MarkerCounterFragment f = new MarkerCounterFragment();
         Bundle args = new Bundle();
-        args.putInt(KEY_MARKERS_REMAINING, versesRemaining);
-        f.setArguments(args);
+        f.setVersesRemaining(versesRemaining);
         return f;
+    }
+
+    private void setVersesRemaining(int versesRemaining){
+        mVersesRemaining = versesRemaining;
     }
 
     @Override
@@ -48,7 +51,6 @@ public class MarkerCounterFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mVersesRemaining = getArguments().getInt(KEY_MARKERS_REMAINING);
         findViews();
         initViews();
     }

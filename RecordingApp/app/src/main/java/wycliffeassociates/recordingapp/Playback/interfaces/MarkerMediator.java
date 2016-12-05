@@ -29,4 +29,5 @@ public interface MarkerMediator {
     void updateStartMarkerFrame(int frame);
     void updateEndMarkerFrame(int frame);
     void setMarkerButtons(FragmentPlaybackTools playbackTools);
+    boolean hasVersesRemaining();
 }

@@ -509,6 +509,12 @@ public class WavMetadata implements Parcelable {
     }
 
     public void addCue(WavCue cue) {
+        for(WavCue q : mCuePoints.values()) {
+            if(q.getLabel().equals(cue.getLabel())){
+                q.setLocation(cue.getLocation());
+                return;
+            }
+        }
         Set<Integer> keys = mCuePoints.keySet();
         int newKey = 0;
         for(Integer i : keys){

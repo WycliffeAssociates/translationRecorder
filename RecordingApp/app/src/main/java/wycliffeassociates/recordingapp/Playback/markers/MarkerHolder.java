@@ -1,4 +1,4 @@
-package wycliffeassociates.recordingapp.Playback;
+package wycliffeassociates.recordingapp.Playback.markers;
 
 import android.view.View;
 import android.widget.FrameLayout;
@@ -6,6 +6,8 @@ import android.widget.FrameLayout;
 import java.util.Collection;
 import java.util.HashMap;
 
+import wycliffeassociates.recordingapp.Playback.AudioVisualController;
+import wycliffeassociates.recordingapp.Playback.PlaybackActivity;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.interfaces.MarkerMediator;
 import wycliffeassociates.recordingapp.Playback.overlays.DraggableViewFrame;
@@ -23,31 +25,33 @@ public class MarkerHolder implements MarkerMediator {
     FrameLayout mDraggableViewFrame;
     AudioVisualController mAudioController;
     PlaybackActivity mActivity;
+    int mTotalVerses;
     HashMap<Integer, DraggableMarker> mMarkers = new HashMap<>();
     public static final int START_MARKER_ID = -1;
     public static final int END_MARKER_ID = -2;
     FragmentPlaybackTools mMarkerButtons;
 
-    public MarkerHolder(AudioVisualController controller, PlaybackActivity activity, FragmentPlaybackTools playbackTools){
+    public MarkerHolder(AudioVisualController controller, PlaybackActivity activity, FragmentPlaybackTools playbackTools, int totalVerses) {
         mAudioController = controller;
         mActivity = activity;
-        mMarkerButtons= playbackTools;
+        mMarkerButtons = playbackTools;
+        mTotalVerses = totalVerses;
     }
 
-    public void setMarkerButtons(FragmentPlaybackTools playbackTools){
+    public void setMarkerButtons(FragmentPlaybackTools playbackTools) {
         mMarkerButtons = playbackTools;
     }
 
-    public void setDraggableViewFrame(DraggableViewFrame dvf){
+    public void setDraggableViewFrame(DraggableViewFrame dvf) {
         mDraggableViewFrame = dvf;
     }
 
-    public void onAddVerseMarker(int verseNumber, VerseMarker marker){
+    public void onAddVerseMarker(int verseNumber, VerseMarker marker) {
         addMarker(verseNumber, marker);
     }
 
-    public VerseMarker getVerseMarker(int verseNumber){
-        if(verseNumber > 0) {
+    public VerseMarker getVerseMarker(int verseNumber) {
+        if (verseNumber > 0) {
             return (wycliffeassociates.recordingapp.widgets.VerseMarker) mMarkers.get(verseNumber);
         }
         return null;
@@ -86,8 +90,8 @@ public class MarkerHolder implements MarkerMediator {
         removeMarker(END_MARKER_ID);
     }
 
-    private void removeMarker(int id){
-        if(mMarkers.containsKey(id)){
+    private void removeMarker(int id) {
+        if (mMarkers.containsKey(id)) {
             View marker = mMarkers.get(id).getView();
             mDraggableViewFrame.removeView(marker);
             mMarkers.remove(id);
@@ -95,74 +99,74 @@ public class MarkerHolder implements MarkerMediator {
         mActivity.onLocationUpdated(0);
     }
 
-    private void addMarker(int id, DraggableMarker marker){
-        if(mMarkers.get(id) != null) {
-            if(mDraggableViewFrame != null) {
+    private void addMarker(int id, DraggableMarker marker) {
+        if (mMarkers.get(id) != null) {
+            if (mDraggableViewFrame != null) {
                 mDraggableViewFrame.removeView(mMarkers.get(id).getView());
             }
         }
         mMarkers.put(id, marker);
-        if(mDraggableViewFrame != null) {
+        if (mDraggableViewFrame != null) {
             mDraggableViewFrame.addView(marker.getView());
         }
         mActivity.onLocationUpdated(0);
     }
 
     public SectionMarker getSectionMarker(int sectionMarkerId) {
-        if(sectionMarkerId != START_MARKER_ID || sectionMarkerId != END_MARKER_ID){
+        if (sectionMarkerId != START_MARKER_ID || sectionMarkerId != END_MARKER_ID) {
             return null;
         } else {
             return (SectionMarker) mMarkers.get(sectionMarkerId);
         }
     }
 
-    public boolean sectionMarkersAreSet(){
+    public boolean sectionMarkersAreSet() {
         return (mMarkers.containsKey(START_MARKER_ID) && mMarkers.containsKey(END_MARKER_ID));
     }
 
-    public void updateVerseMarkerLocation(int verseNumber, int frame){
+    public void updateVerseMarkerLocation(int verseNumber, int frame) {
         updateMarkerLocation(verseNumber, frame);
     }
 
-    public void updateStartMarkerLocation(int frame){
+    public void updateStartMarkerLocation(int frame) {
         updateMarkerLocation(START_MARKER_ID, frame);
     }
 
-    public void updateEndMarkerLocation(int frame){
+    public void updateEndMarkerLocation(int frame) {
         updateMarkerLocation(END_MARKER_ID, frame);
     }
 
-    private void updateMarkerLocation(int id, int frame){
+    private void updateMarkerLocation(int id, int frame) {
         DraggableMarker marker = mMarkers.get(id);
-        if(marker != null) {
+        if (marker != null) {
             marker.updateX(frame, mDraggableViewFrame.getWidth());
         }
     }
 
-    public Collection<DraggableMarker> getMarkers(){
+    public Collection<DraggableMarker> getMarkers() {
         return mMarkers.values();
     }
 
     @Override
     public void updateCurrentFrame(int frame) {
-        for(DraggableMarker m : mMarkers.values()) {
+        for (DraggableMarker m : mMarkers.values()) {
             m.updateX(frame, mDraggableViewFrame.getWidth());
         }
     }
 
-    public DraggableMarker getMarker(int id){
+    public DraggableMarker getMarker(int id) {
         return mMarkers.get(id);
     }
 
-    public boolean contains(int id){
+    public boolean contains(int id) {
         return mMarkers.containsKey(id);
     }
 
     @Override
     public void onCueScroll(int id, float distX) {
-        int position = mMarkers.get(id).getFrame() + ((int)(-distX) * 230);
+        int position = mMarkers.get(id).getFrame() + ((int) (-distX) * 230);
         position = Math.min(Math.max(position, 0), mAudioController.getDurationInFrames());
-        if(id == START_MARKER_ID) {
+        if (id == START_MARKER_ID) {
             mAudioController.setStartMarker(position);
         } else if (id == END_MARKER_ID) {
             mAudioController.setEndMarker(position);
@@ -183,10 +187,22 @@ public class MarkerHolder implements MarkerMediator {
     }
 
     private void updateMarkerFrame(int id, int frame) {
-        if(mMarkers.containsKey(id)) {
+        if (mMarkers.containsKey(id)) {
             mMarkers.get(id).updateFrame(frame);
             mMarkers.get(id).updateX(frame, mDraggableViewFrame.getWidth());
         }
         mActivity.onLocationUpdated(0);
+    }
+
+    @Override
+    public boolean hasVersesRemaining() {
+        int markers = mMarkers.size();
+        if(mMarkers.containsKey(START_MARKER_ID)) {
+            markers--;
+        }
+        if(mMarkers.containsKey(END_MARKER_ID)){
+            markers--;
+        }
+        return mTotalVerses - markers + 1 > 0;
     }
 }
