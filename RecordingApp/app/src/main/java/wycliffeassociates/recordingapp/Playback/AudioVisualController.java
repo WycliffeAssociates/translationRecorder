@@ -33,6 +33,7 @@ public class AudioVisualController implements MediaControlReceiver {
     Handler mHandler;
     private List<WavCue> mCues;
     private int durationInFrames;
+    WavFileLoader mWavLoader;
 
     public AudioVisualController(final AudioStateCallback callback, final WavFile wav) {
 
@@ -84,13 +85,13 @@ public class AudioVisualController implements MediaControlReceiver {
     }
 
     private void initPlayer(WavFile wav) {
-        WavFileLoader loader = new WavFileLoader(wav);
+        mWavLoader = new WavFileLoader(wav);
 
         mCues = wav.getMetadata().getCuePoints();
         if (mCues != null) {
             sortCues(mCues);
         }
-        mAudio = loader.getMappedAudioFile();
+        mAudio = mWavLoader.getMappedAudioFile();
         ShortBuffer mAudioShort = mAudio.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
         mPlayer = new WavPlayer(mAudioShort, mCutOp, mCues);
     }
@@ -195,5 +196,9 @@ public class AudioVisualController implements MediaControlReceiver {
 
     public int getDurationInFrames() {
         return mPlayer.getDurationInFrames();
+    }
+
+    public WavFileLoader getWavLoader(){
+        return mWavLoader;
     }
 }

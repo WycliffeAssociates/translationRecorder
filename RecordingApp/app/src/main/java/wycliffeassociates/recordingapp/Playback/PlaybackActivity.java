@@ -116,7 +116,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mAudioController = new AudioVisualController(this, mWavFile);
         mMarkerMediator = new MarkerHolder(mAudioController, this, mFragmentPlaybackTools, mVersesLeft);
         initializeFragments();
-        wavFileLoader = new WavFileLoader(mWavFile);
+        wavFileLoader = mAudioController.getWavLoader();//new WavFileLoader(mWavFile);
         mCutOp = new CutOp();
         mMarkerMediator.setMarkerButtons(mFragmentPlaybackTools);
         //wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
