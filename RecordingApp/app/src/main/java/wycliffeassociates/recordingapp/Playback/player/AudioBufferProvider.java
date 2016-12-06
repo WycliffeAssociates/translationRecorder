@@ -116,10 +116,10 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
                 end = i;
                 break;
             }
-            skip = mCutOp.skip((int)(mAudio.position()/44.1));
+            skip = mCutOp.skip(mAudio.position());
             if(skip != -1){
                 //Logger.i(this.toString(), "Location is " + getLocationMs() + "position is " + mAudio.position());
-                int start = (int) (skip * (SAMPLERATE / 1000.0));
+                int start = skip;
                 //make sure the playback start is within the bounds of the file's capacity
                 start = Math.max(Math.min(mAudio.capacity(), start), 0);
                 mAudio.position(start);

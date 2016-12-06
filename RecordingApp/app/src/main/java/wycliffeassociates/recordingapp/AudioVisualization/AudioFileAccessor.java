@@ -74,9 +74,9 @@ public class AudioFileAccessor {
 
     public int size() {
         if (mUseCmp) {
-            return mCompressed.capacity() - mCut.getSizeCutCmp();
+            return mCompressed.capacity() - mCut.getSizeFrameCutCmp();
         }
-        return mUncompressed.capacity() - mCut.getSizeCutUncmp();
+        return mUncompressed.capacity() - mCut.getSizeFrameCutUncmp();
     }
 
     //can return an invalid index, negative indices useful for how many zeros to add
@@ -86,9 +86,9 @@ public class AudioFileAccessor {
         int time = currentTimeMs;
         for (int i = 1; i < timeToSubtractMs; i++) {
             time--;
-            int skip = mCut.skipReverse(time);
+            int skip = mCut.skipReverse(mCut.timeToUncmpLoc(time));
             if (skip != Integer.MAX_VALUE) {
-                time = skip;
+                time = (int)(skip / 44.1);
                 //System.out.println("here, skip back to " + time);
             }
         }
