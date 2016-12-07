@@ -148,6 +148,10 @@ public class AudioVisualController implements MediaControlReceiver {
         mPlayer.clearLoopPoints();
     }
 
+    public CutOp getCutOp(){
+        return mCutOp;
+    }
+
     public void dropStartMarker(){
         mPlayer.setLoopStart(mPlayer.getLocationInFrames());
     }

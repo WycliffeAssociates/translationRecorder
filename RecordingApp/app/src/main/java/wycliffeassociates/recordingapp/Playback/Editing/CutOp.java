@@ -175,7 +175,7 @@ public class CutOp {
         return frame;
     }
 
-    public synchronized int timeAdjusted(int frame, int playbackStart){
+    public synchronized int frameAdjusted(int frame, int playbackStart){
         if(mFlattenedFrameStack == null) {
             return frame;
         }

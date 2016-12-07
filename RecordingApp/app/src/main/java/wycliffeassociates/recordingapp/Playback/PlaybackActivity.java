@@ -554,7 +554,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void initializeRenderer(){
-        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mCutOp);
+        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
         mFragmentTabbedWidget.initializeTimecode(mAudioController.getDuration());
     }
 

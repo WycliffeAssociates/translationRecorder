@@ -453,7 +453,7 @@ public class UIDataManager {
     }
 
     public int timeAdjusted(int ms){
-        return mCutOp.timeAdjusted(ms, ms);
+        return 0;//mCutOp.timeAdjusted(ms, ms);
     }
 
     public int reverseTimeAdjusted(int ms){
