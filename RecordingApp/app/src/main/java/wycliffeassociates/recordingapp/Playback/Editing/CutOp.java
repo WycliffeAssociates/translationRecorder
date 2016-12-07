@@ -33,7 +33,7 @@ public class CutOp {
     public synchronized void cut(int startFrame, int endFrame){
         Pair<Integer, Integer> temp = new Pair<>(startFrame, endFrame);
         mUncompressedFrameStack.add(temp);
-        //mSizeTimeCut = totalDataRemoved(); //?
+        mSizeTimeCut = totalFramesRemoved(); //?
         Logger.w(this.toString(), "Generating location stacks");
         generateTimeStack();
         generateCutStackCmpLoc();
@@ -309,6 +309,9 @@ public class CutOp {
                     return true;
                     //if the cut is between the frame and the end of the range
                 } else if (frame < cut.first && (frame + range) >= cut.second) {
+                    return true;
+                    //if the frame begins before the first cut, and ends after
+                } else if (frame < cut.first && (frame + range) > cut.first) {
                     return true;
                 }
             }
