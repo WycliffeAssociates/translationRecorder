@@ -14,13 +14,13 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  * Created by sarabiaj on 12/22/2015.
  */
 public class CutOp {
-    private Vector<Pair<Integer, Integer>> mTimeStack;
-    private Vector<Pair<Integer, Integer>> mFlattenedFrameStack;
-    private Vector<Pair<Integer, Integer>> mUncompressedFrameStack;
-    private Vector<Pair<Integer, Integer>> mCompressedFrameStack;
+    private Vector<Pair<Integer, Integer>> mTimeStack = new Vector<>();
+    private Vector<Pair<Integer, Integer>> mFlattenedFrameStack = new Vector<>();
+    private Vector<Pair<Integer, Integer>> mUncompressedFrameStack = new Vector<>();
+    private Vector<Pair<Integer, Integer>> mCompressedFrameStack = new Vector<>();
     private int mSizeTimeCut = 0;
-    private int mSizeFrameCutCmp;
-    private int mSizeFrameCutUncmp;
+    private int mSizeFrameCutCmp = 0;
+    private int mSizeFrameCutUncmp = 0;
 
     public CutOp() {
         mTimeStack = new Vector<>();
