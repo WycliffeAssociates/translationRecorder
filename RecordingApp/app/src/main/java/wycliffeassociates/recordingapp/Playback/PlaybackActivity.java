@@ -13,6 +13,9 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import java.io.File;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -554,7 +557,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void initializeRenderer(){
-        wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
+        ShortBuffer uncompressed = wavFileLoader.getMappedFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+        ShortBuffer compressed = wavFileLoader.getMappedCacheFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+        wavVis = new WavVisualizer(uncompressed, compressed, mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
         mFragmentTabbedWidget.initializeTimecode(mAudioController.getDuration());
     }
 

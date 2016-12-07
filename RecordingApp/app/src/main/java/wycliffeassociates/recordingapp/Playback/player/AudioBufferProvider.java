@@ -148,7 +148,7 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
     }
 
     int getDuration(){
-        return mAudio.capacity();
+        return mAudio.capacity() - mCutOp.getSizeFrameCutUncmp();
     }
 
     synchronized void setLimit(int limit){

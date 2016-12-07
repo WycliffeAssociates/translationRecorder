@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
@@ -114,7 +115,7 @@ public class UIDataManager {
             return;
         }
         if(mWavLoader != null && mWavLoader.visFileLoaded()){
-            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile());
+            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer());
         }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = 0;//mPlayer.getLocationMs();

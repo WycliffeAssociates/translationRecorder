@@ -1,6 +1,6 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
-import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
@@ -18,14 +18,14 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  * Absolute - index or time with cut data still existing
  */
 public class AudioFileAccessor {
-    MappedByteBuffer mCompressed;
-    MappedByteBuffer mUncompressed;
+    ShortBuffer mCompressed;
+    ShortBuffer mUncompressed;
     CutOp mCut;
     int mWidth;
     int mUncmpToCmp;
     boolean mUseCmp = false;
 
-    public AudioFileAccessor(MappedByteBuffer compressed, MappedByteBuffer uncompressed, CutOp cut) {
+    public AudioFileAccessor(ShortBuffer compressed, ShortBuffer uncompressed, CutOp cut) {
         mCompressed = compressed;
         mUncompressed = uncompressed;
         mCut = cut;
@@ -42,14 +42,14 @@ public class AudioFileAccessor {
         }
     }
 
-    public void setCompressed(MappedByteBuffer compressed) {
+    public void setCompressed(ShortBuffer compressed) {
         mCompressed = compressed;
     }
 
     //FIXME: should not be returning 0 if out of bounds access, there's a bigger issue here
-    public byte get(int idx) {
+    public short get(int idx) {
         int loc = mCut.relativeLocToAbsolute(idx, mUseCmp);
-        byte val;
+        short val;
         if (mUseCmp) {
             if (loc < 0) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
@@ -120,7 +120,6 @@ public class AudioFileAccessor {
         if (mUseCmp) {
             idx /= 25;
         }
-        idx *= 2;
         return idx;
     }
 
@@ -138,14 +137,14 @@ public class AudioFileAccessor {
 
     //used for minimap
     public static double uncompressedIncrement(double adjustedDuration, double screenWidth) {
-        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration) / (double) 1000) / screenWidth) * 2;
+        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration) / (double) 1000) / screenWidth);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     //used for minimap
     public static double compressedIncrement(double adjustedDuration, double screenWidth) {
-        double increment = (uncompressedIncrement(adjustedDuration, screenWidth) / 50.f);
+        double increment = (uncompressedIncrement(adjustedDuration, screenWidth) / 25.f);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }

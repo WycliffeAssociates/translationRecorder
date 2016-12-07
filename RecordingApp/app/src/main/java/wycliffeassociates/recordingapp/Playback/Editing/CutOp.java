@@ -54,7 +54,7 @@ public class CutOp {
             return;
         }
         mUncompressedFrameStack.remove(mUncompressedFrameStack.size() - 1);
-        //mSizeTimeCut = totalDataRemoved();
+        mSizeTimeCut = totalFramesRemoved();
         generateTimeStack();
         generateCutStackCmpLoc();
     }
