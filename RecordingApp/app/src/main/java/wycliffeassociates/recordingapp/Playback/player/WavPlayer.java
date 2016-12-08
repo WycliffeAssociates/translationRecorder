@@ -46,8 +46,8 @@ public class WavPlayer {
     }
 
     public synchronized void seekNext(){
-        int seekLocation = getDurationInFrames();
-        int currentLocation = getLocationInFrames();
+        int seekLocation = getAbsoluteDurationInFrames();
+        int currentLocation = getAbsoluteLocationInFrames();
         if(mCueList != null) {
             int location;
             for(int i = 0; i < mCueList.size(); i++){
@@ -58,12 +58,12 @@ public class WavPlayer {
                 }
             }
         }
-        seekTo(Math.min(seekLocation, mBufferProvider.getLimit()));
+        seekToAbsolute(Math.min(seekLocation, mBufferProvider.getLimit()));
     }
 
     public synchronized void seekPrevious(){
         int seekLocation = 0;
-        int currentLocation = getLocationInFrames();
+        int currentLocation = getAbsoluteLocationInFrames();
         if(mCueList != null){
             int location;
             for(int i = mCueList.size()-1; i >= 0; i--){
@@ -78,11 +78,11 @@ public class WavPlayer {
                 }
             }
         }
-        seekTo(Math.max(seekLocation, mBufferProvider.getMark()));
+        seekToAbsolute(Math.max(seekLocation, mBufferProvider.getMark()));
     }
 
-    public synchronized void seekTo(int absoluteFrame){
-        if(absoluteFrame > getDurationInFrames() || absoluteFrame < 0){
+    public synchronized void seekToAbsolute(int absoluteFrame){
+        if(absoluteFrame > getAbsoluteDurationInFrames() || absoluteFrame < 0){
             return;
         }
         absoluteFrame = Math.max(absoluteFrame, mBufferProvider.getMark());
@@ -96,7 +96,7 @@ public class WavPlayer {
     }
 
     public void play(){
-        if(getLocationInFrames() == getLoopEnd()) {
+        if(getAbsoluteLocationInFrames() == getLoopEnd()) {
             mBufferProvider.reset();
         }
         mPlayer.play(mBufferProvider.getSizeOfNextSession());
@@ -110,21 +110,33 @@ public class WavPlayer {
         mOnCompleteListener = onCompleteListener;
     }
 
-    public int getLocationMs(){
-        return (int)(getLocationInFrames() / 44.1);
+    public int getAbsoluteLocationMs(){
+        return (int)(getAbsoluteLocationInFrames() / 44.1);
     }
 
-    public int getLocationInFrames(){
+    public int getAbsoluteLocationInFrames(){
         int relativeLocationOfHead = mOperationStack.absoluteLocToRelative(mBufferProvider.getStartPosition(), false) + mPlayer.getPlaybackHeadPosition();
         int absoluteLocationOfHead = mOperationStack.relativeLocToAbsolute(relativeLocationOfHead, false);
         return absoluteLocationOfHead;
     }
 
-    public int getDuration(){
+    public int getRelativeLocationInFrames(){
+        return mOperationStack.absoluteLocToRelative(getAbsoluteLocationInFrames(), false);
+    }
+
+    public int getRelativeLocationMs(){
+        return (int) (getRelativeLocationInFrames() / 44.1);
+    }
+
+    public int getRelativeDurationMs(){
+        return mBufferProvider.getDuration() - mOperationStack.getSizeFrameCutUncmp();
+    }
+
+    public int getAbsoluteDurationMs(){
         return (int)(mBufferProvider.getDuration() / 44.1);
     }
 
-    public int getDurationInFrames(){
+    public int getAbsoluteDurationInFrames(){
         return mBufferProvider.getDuration();
     }
 

@@ -60,7 +60,7 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
     }
 
     int getSizeOfNextSession(){
-        int size = mAudio.limit() - mAudio.position();
+        int size = mCutOp.absoluteLocToRelative(mAudio.limit(), false) - mCutOp.absoluteLocToRelative(mAudio.position(), false);
         return size;
     }
 
@@ -148,7 +148,7 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
     }
 
     int getDuration(){
-        return mAudio.capacity() - mCutOp.getSizeFrameCutUncmp();
+        return mAudio.capacity();
     }
 
     synchronized void setLimit(int limit){
