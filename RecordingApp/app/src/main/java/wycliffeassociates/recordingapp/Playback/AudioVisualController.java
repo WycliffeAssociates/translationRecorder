@@ -131,12 +131,12 @@ public class AudioVisualController implements MediaControlReceiver {
     }
 
     public int getLocationInFrames(){
-        return mPlayer.getAbsoluteLocationInFrames();
+        return mPlayer.getRelativeLocationInFrames();
     }
 
     @Override
     public int getDuration() {
-        return mPlayer.getAbsoluteDurationInFrames();
+        return mPlayer.getRelativeDurationMs();
     }
 
     public boolean isPlaying(){
@@ -211,6 +211,10 @@ public class AudioVisualController implements MediaControlReceiver {
 
     public int getDurationInFrames() {
         return mPlayer.getAbsoluteDurationInFrames();
+    }
+
+    public int getRelativeDurationInFrames(){
+        return mPlayer.getRelativeDurationInFrames();
     }
 
     public WavFileLoader getWavLoader(){

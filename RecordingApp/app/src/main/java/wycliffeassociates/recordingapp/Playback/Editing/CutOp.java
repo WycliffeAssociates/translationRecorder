@@ -62,7 +62,7 @@ public class CutOp {
     //change to use flattened stack
     public synchronized int skip(int frame){
         int max = -1;
-        for (Pair<Integer, Integer> cut : mUncompressedFrameStack) {
+        for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
             if (frame >= cut.first && frame < cut.second) {
                 max = Math.max(cut.second, max);
             }
@@ -80,7 +80,7 @@ public class CutOp {
 
     public synchronized int skipReverse(int frame){
         int min = Integer.MAX_VALUE;
-        for (Pair<Integer, Integer> cut : mUncompressedFrameStack) {
+        for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
             if (frame > cut.first && frame <= cut.second) {
                 min = Math.min(cut.first, min);
             }
@@ -145,6 +145,7 @@ public class CutOp {
             mFlattenedFrameStack.add(new Pair<Integer, Integer>(start, end));
             sum += end - start;
         }
+        mSizeFrameCutUncmp = sum;
         return sum;
     }
 
@@ -279,7 +280,7 @@ public class CutOp {
 
     public synchronized int skipFrame(int frame, boolean compressed){
         int max = -1;
-        Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mUncompressedFrameStack;
+        Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mFlattenedFrameStack;
         for (Pair<Integer, Integer> cut : stack) {
             if (frame >= cut.first && frame < cut.second) {
                 max = Math.max(cut.second, max);
@@ -289,7 +290,7 @@ public class CutOp {
     }
 
     public synchronized int relativeLocToAbsolute(int frame, boolean compressed){
-        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mUncompressedFrameStack;
+        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mFlattenedFrameStack;
         if(stack == null){
             return frame;
         }
@@ -303,7 +304,7 @@ public class CutOp {
 
     public synchronized boolean cutExistsInRange(int frame, int range){
         if(hasCut()) {
-            for (Pair<Integer, Integer> cut : mUncompressedFrameStack) {
+            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
                 //if the frame is in the middle of a cut
                 if (frame >= cut.first && frame <= cut.second) {
                     return true;
@@ -322,7 +323,7 @@ public class CutOp {
 
 
     public synchronized int absoluteLocToRelative(int frame, boolean compressed){
-        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mUncompressedFrameStack;
+        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mFlattenedFrameStack;
         int loc = frame;
         if(stack == null){
             return loc;

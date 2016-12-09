@@ -114,14 +114,18 @@ public class WavPlayer {
         return (int)(getAbsoluteLocationInFrames() / 44.1);
     }
 
+    public int getAbsoluteDurationMs(){
+        return (int)(mBufferProvider.getDuration() / 44.1);
+    }
+
     public int getAbsoluteLocationInFrames(){
         int relativeLocationOfHead = mOperationStack.absoluteLocToRelative(mBufferProvider.getStartPosition(), false) + mPlayer.getPlaybackHeadPosition();
         int absoluteLocationOfHead = mOperationStack.relativeLocToAbsolute(relativeLocationOfHead, false);
         return absoluteLocationOfHead;
     }
 
-    public int getRelativeLocationInFrames(){
-        return mOperationStack.absoluteLocToRelative(getAbsoluteLocationInFrames(), false);
+    public int getAbsoluteDurationInFrames(){
+        return mBufferProvider.getDuration();
     }
 
     public int getRelativeLocationMs(){
@@ -129,15 +133,15 @@ public class WavPlayer {
     }
 
     public int getRelativeDurationMs(){
+        return (int)((mBufferProvider.getDuration() - mOperationStack.getSizeFrameCutUncmp()) / 44.1);
+    }
+
+    public int getRelativeDurationInFrames() {
         return mBufferProvider.getDuration() - mOperationStack.getSizeFrameCutUncmp();
     }
 
-    public int getAbsoluteDurationMs(){
-        return (int)(mBufferProvider.getDuration() / 44.1);
-    }
-
-    public int getAbsoluteDurationInFrames(){
-        return mBufferProvider.getDuration();
+    public int getRelativeLocationInFrames(){
+        return mOperationStack.absoluteLocToRelative(getAbsoluteLocationInFrames(), false);
     }
 
     public boolean isPlaying(){

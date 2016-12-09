@@ -80,7 +80,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private WavVisualizer wavVis;
     private WavFile mWavFile;
     private WavFileLoader wavFileLoader;
-    private CutOp mCutOp;
     private Project mProject;
     private int mChapter, mUnit, mRating, mVersesLeft, startVerse, endVerse;
     private AudioVisualController mAudioController;
@@ -120,7 +119,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mMarkerMediator = new MarkerHolder(mAudioController, this, mFragmentPlaybackTools, mVersesLeft);
         initializeFragments();
         wavFileLoader = mAudioController.getWavLoader();//new WavFileLoader(mWavFile);
-        mCutOp = new CutOp();
         mMarkerMediator.setMarkerButtons(mFragmentPlaybackTools);
         //wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
     }
@@ -252,7 +250,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public int getDurationInFrames() {
-        return mAudioController.getDurationInFrames();
+        return mAudioController.getRelativeDurationInFrames();
     }
 
     @Override
@@ -343,6 +341,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onUndo() {
         mAudioController.undo();
+        onLocationUpdated(0);
     }
 
     @Override
@@ -627,13 +626,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse) {
-        float x = (getLocation()/(float)getDuration()) * canvas.getWidth();
+        float x = (getLocationInFrames()/(float)getDurationInFrames()) * canvas.getWidth();
         canvas.drawLine(x, 0, x, canvas.getHeight(), location);
-        float start = (mAudioController.getLoopStart() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
-        float end = (mAudioController.getLoopEnd() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
+        float start = ((getStartMarkerFrame()) / (float)getDurationInFrames()) * canvas.getWidth();
+        float end = ((getEndMarkerFrame()) / (float)getDurationInFrames()) * canvas.getWidth();
         Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
         for( DraggableMarker m : markers) {
-            float markerPos = (m.getFrame() / (float)mAudioController.getDurationInFrames()) * canvas.getWidth();
+            float markerPos = ((m.getFrame()) / (float)getDurationInFrames()) * canvas.getWidth();
             canvas.drawLine(markerPos, 0, markerPos, canvas.getHeight(), verse);
         }
         canvas.drawLine(start, 0, start, canvas.getHeight(), section);
