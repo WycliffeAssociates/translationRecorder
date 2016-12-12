@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.Playback;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -35,11 +36,11 @@ public class AudioVisualController implements MediaControlReceiver {
     private int durationInFrames;
     WavFileLoader mWavLoader;
 
-    public AudioVisualController(final AudioStateCallback callback, final WavFile wav) {
+    public AudioVisualController(final AudioStateCallback callback, final WavFile wav, Context ctx) {
 
         mCallback = callback;
 
-        initPlayer(wav);
+        initPlayer(wav, ctx);
 
         mHandler = new Handler(Looper.getMainLooper());
 
@@ -84,9 +85,14 @@ public class AudioVisualController implements MediaControlReceiver {
 //        });
     }
 
-    private void initPlayer(WavFile wav) {
-        mWavLoader = new WavFileLoader(wav);
-
+    private void initPlayer(WavFile wav, Context ctx) {
+        mWavLoader = new WavFileLoader(wav, ctx);
+        mWavLoader.setOnVisualizationFileCreatedListener(new WavFileLoader.OnVisualizationFileCreatedListener() {
+            @Override
+            public void onVisualizationCreated(MappedByteBuffer mappedVisualizationFile) {
+                mCallback.onVisualizationLoaded(mappedVisualizationFile);
+            }
+        });
         mCues = wav.getMetadata().getCuePoints();
         if (mCues != null) {
             sortCues(mCues);
@@ -122,21 +128,21 @@ public class AudioVisualController implements MediaControlReceiver {
     }
 
     public void seekTo(int frame){
-        mPlayer.seekTo(frame);
+        mPlayer.seekToAbsolute(frame);
     }
 
     @Override
     public int getLocation() {
-        return mPlayer.getLocationMs();
+        return mPlayer.getAbsoluteLocationMs();
     }
 
     public int getLocationInFrames(){
-        return mPlayer.getLocationInFrames();
+        return mPlayer.getRelativeLocationInFrames();
     }
 
     @Override
     public int getDuration() {
-        return mPlayer.getDuration();
+        return mPlayer.getRelativeDurationMs();
     }
 
     public boolean isPlaying(){
@@ -148,12 +154,16 @@ public class AudioVisualController implements MediaControlReceiver {
         mPlayer.clearLoopPoints();
     }
 
+    public CutOp getCutOp(){
+        return mCutOp;
+    }
+
     public void dropStartMarker(){
-        mPlayer.setLoopStart(mPlayer.getLocationInFrames());
+        mPlayer.setLoopStart(mPlayer.getAbsoluteLocationInFrames());
     }
 
     public void dropEndMarker(){
-        mPlayer.setLoopEnd(mPlayer.getLocationInFrames());
+        mPlayer.setLoopEnd(mPlayer.getAbsoluteLocationInFrames());
     }
 
     public void dropVerseMarker(String label, int location){
@@ -181,21 +191,36 @@ public class AudioVisualController implements MediaControlReceiver {
     }
 
     public void scrollAudio(float distX){
-        int seekTo = Math.max(Math.min((int)((distX * 230) + mPlayer.getLocationInFrames()), mPlayer.getDurationInFrames()), 0);
-        mPlayer.seekTo(seekTo);
+        int seekTo = Math.max(Math.min((int)((distX * 230) + mPlayer.getAbsoluteLocationInFrames()), mPlayer.getAbsoluteDurationInFrames()), 0);
+        if(distX > 0) {
+            int skip = mCutOp.skip(seekTo);
+            if (skip != -1) {
+                seekTo = skip + 1;
+            }
+        } else {
+            int skip = mCutOp.skipReverse(seekTo);
+            if (skip != Integer.MAX_VALUE) {
+                seekTo = skip - 1;
+            }
+        }
+        mPlayer.seekToAbsolute(seekTo);
         mCallback.onLocationUpdated(getLocation());
     }
 
-    public void setStartMarker(int location) {
-        mPlayer.setLoopStart(Math.max(location, 0));
+    public void setStartMarker(int relativeLocation) {
+        mPlayer.setLoopStart(Math.max(mCutOp.relativeLocToAbsolute(relativeLocation, false), 0));
     }
 
-    public void setEndMarker(int location) {
-        mPlayer.setLoopEnd(Math.min(location, mPlayer.getDurationInFrames()));
+    public void setEndMarker(int relativeLocation) {
+        mPlayer.setLoopEnd(Math.min(mCutOp.relativeLocToAbsolute(relativeLocation, false), mPlayer.getAbsoluteDurationInFrames()));
     }
 
     public int getDurationInFrames() {
-        return mPlayer.getDurationInFrames();
+        return mPlayer.getAbsoluteDurationInFrames();
+    }
+
+    public int getRelativeDurationInFrames(){
+        return mPlayer.getRelativeDurationInFrames();
     }
 
     public WavFileLoader getWavLoader(){

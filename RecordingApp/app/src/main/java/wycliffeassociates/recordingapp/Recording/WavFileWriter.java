@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.Recording;
 
+import android.app.Application;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -87,7 +88,7 @@ public class WavFileWriter extends Service {
                 boolean stopped = false;
                 boolean stoppedRecording = false;
                 ArrayList<Byte> byteArrayList = new ArrayList<>();
-                File dir = Utils.VISUALIZATION_DIR;
+                File dir = new File(getExternalCacheDir(), "Visualization");
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }

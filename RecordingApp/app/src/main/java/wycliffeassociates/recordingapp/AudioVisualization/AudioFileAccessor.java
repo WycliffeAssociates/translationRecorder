@@ -1,6 +1,6 @@
 package wycliffeassociates.recordingapp.AudioVisualization;
 
-import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
@@ -18,14 +18,14 @@ import wycliffeassociates.recordingapp.Reporting.Logger;
  * Absolute - index or time with cut data still existing
  */
 public class AudioFileAccessor {
-    MappedByteBuffer mCompressed;
-    MappedByteBuffer mUncompressed;
+    ShortBuffer mCompressed;
+    ShortBuffer mUncompressed;
     CutOp mCut;
     int mWidth;
     int mUncmpToCmp;
     boolean mUseCmp = false;
 
-    public AudioFileAccessor(MappedByteBuffer compressed, MappedByteBuffer uncompressed, CutOp cut) {
+    public AudioFileAccessor(ShortBuffer compressed, ShortBuffer uncompressed, CutOp cut) {
         mCompressed = compressed;
         mUncompressed = uncompressed;
         mCut = cut;
@@ -42,14 +42,14 @@ public class AudioFileAccessor {
         }
     }
 
-    public void setCompressed(MappedByteBuffer compressed) {
+    public void setCompressed(ShortBuffer compressed) {
         mCompressed = compressed;
     }
 
     //FIXME: should not be returning 0 if out of bounds access, there's a bigger issue here
-    public byte get(int idx) {
+    public short get(int idx) {
         int loc = mCut.relativeLocToAbsolute(idx, mUseCmp);
-        byte val;
+        short val;
         if (mUseCmp) {
             if (loc < 0) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
@@ -74,9 +74,9 @@ public class AudioFileAccessor {
 
     public int size() {
         if (mUseCmp) {
-            return mCompressed.capacity() - mCut.getSizeCutCmp();
+            return mCompressed.capacity() - mCut.getSizeFrameCutCmp();
         }
-        return mUncompressed.capacity() - mCut.getSizeCutUncmp();
+        return mUncompressed.capacity() - mCut.getSizeFrameCutUncmp();
     }
 
     //can return an invalid index, negative indices useful for how many zeros to add
@@ -86,9 +86,9 @@ public class AudioFileAccessor {
         int time = currentTimeMs;
         for (int i = 1; i < timeToSubtractMs; i++) {
             time--;
-            int skip = mCut.skipReverse(time);
+            int skip = mCut.skipReverse(mCut.timeToUncmpLoc(time));
             if (skip != Integer.MAX_VALUE) {
-                time = skip;
+                time = (int)(skip / 44.1);
                 //System.out.println("here, skip back to " + time);
             }
         }
@@ -120,7 +120,6 @@ public class AudioFileAccessor {
         if (mUseCmp) {
             idx /= 25;
         }
-        idx *= 2;
         return idx;
     }
 
@@ -138,14 +137,14 @@ public class AudioFileAccessor {
 
     //used for minimap
     public static double uncompressedIncrement(double adjustedDuration, double screenWidth) {
-        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration) / (double) 1000) / screenWidth) * 2;
+        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration) / (double) 1000) / screenWidth);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
 
     //used for minimap
     public static double compressedIncrement(double adjustedDuration, double screenWidth) {
-        double increment = (uncompressedIncrement(adjustedDuration, screenWidth) / 50.f);
+        double increment = (uncompressedIncrement(adjustedDuration, screenWidth) / 25.f);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }

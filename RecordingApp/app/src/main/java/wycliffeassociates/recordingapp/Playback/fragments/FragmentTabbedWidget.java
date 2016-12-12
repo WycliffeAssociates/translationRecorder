@@ -207,6 +207,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
 
     public void onLocationChanged(){
         mMinimapLayer.postInvalidate();
+        initializeTimecode(mMediaController.getDuration());
         mTimecodeLayer.postInvalidate();
         mMarkerLineLayer.postInvalidate();
         mHighlightLayer.postInvalidate();
@@ -223,7 +224,6 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
             float left = (mMediaController.getStartMarkerFrame() / (float) mMediaController.getDurationInFrames()) * canvas.getWidth();
             float right = (mMediaController.getEndMarkerFrame() / (float) mMediaController.getDurationInFrames()) * canvas.getWidth();
             canvas.drawRect(left, 0, right, canvas.getHeight(), paint);
-
         }
     }
 

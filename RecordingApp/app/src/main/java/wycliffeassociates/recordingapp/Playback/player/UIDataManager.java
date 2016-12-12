@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
 import wycliffeassociates.recordingapp.AudioInfo;
@@ -113,12 +114,12 @@ public class UIDataManager {
             //System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
-        if(mWavLoader != null && mWavLoader.visFileLoaded()){
-            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile());
-        }
+//        if(mWavLoader != null && mWavLoader.visFileLoaded()){
+//            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer());
+//        }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = 0;//mPlayer.getLocationMs();
-        minimap.setMiniMarkerLoc((float) ((mCutOp.reverseTimeAdjusted(location) / ((double) mPlayer.getDuration() - mCutOp.getSizeCut())) * minimap.getWidth()));
+        //minimap.setMiniMarkerLoc((float) ((mCutOp.reverseTimeAdjusted(location) / ((double) mPlayer.getDuration() - mCutOp.getSizeCut())) * minimap.getWidth()));
         drawWaveformDuringPlayback(location);
         mainWave.setTimeToDraw(location);
         int adjLoc = mPlayer.getAdjustedLocation();
@@ -180,7 +181,7 @@ public class UIDataManager {
         SectionMarkers.clearMarkers(this);
         Logger.w(this.toString(), "Reinitializing minimap");
        // minimap.init(wavVis.getMinimap(minimap.getHeight(), minimap.getWidth()));
-        minimap.setAudioLength(mPlayer.getDuration() - mCutOp.getSizeCut());
+        //minimap.setAudioLength(mPlayer.getDuration() - mCutOp.getSizeCut());
         Logger.w(this.toString(), "Updating UI after cut");
         setDurationView();
         updateUI();
@@ -193,32 +194,32 @@ public class UIDataManager {
         int audioLength = wavFile.getTotalAudioLength();
         WavFile toWav = new WavFile(to, metadata);
 
-        try (WavOutputStream wos = new WavOutputStream(toWav, WavOutputStream.BUFFERED)) {
-            int percent = (int)Math.round((buffer.capacity()-mCutOp.getSizeCut()) /100.0);
-            int count = percent;
-            //may need to be -1?
-            for(int i = 0; i < audioLength; i++){
-                int skip = mCutOp.skipLoc(i, false);
-                if(skip != -1){
-                    i = skip;
-                }
-                //ensure no mis-alignment or out of bounds as a result of the skip
-                if(i >= audioLength){
-                    if(i%2 != 0 && i-1 < audioLength){
-                        i--;
-                    } else {
-                        break;
-                    }
-                }
-                wos.write(buffer.get(i));
-                if(count <= 0) {
-                    pd.incrementProgressBy(1);
-                    count = percent;
-                }
-                count--;
-            }
-            mCutOp.clear();
-        }
+//        try (WavOutputStream wos = new WavOutputStream(toWav, WavOutputStream.BUFFERED)) {
+//            //int percent = (int)Math.round((buffer.capacity()-mCutOp.getSizeCut()) /100.0);
+//            int count = percent;
+//            //may need to be -1?
+//            for(int i = 0; i < audioLength; i++){
+//                int skip = mCutOp.skipLoc(i, false);
+//                if(skip != -1){
+//                    i = skip;
+//                }
+//                //ensure no mis-alignment or out of bounds as a result of the skip
+//                if(i >= audioLength){
+//                    if(i%2 != 0 && i-1 < audioLength){
+//                        i--;
+//                    } else {
+//                        break;
+//                    }
+//                }
+//                wos.write(buffer.get(i));
+//                if(count <= 0) {
+//                    pd.incrementProgressBy(1);
+//                    count = percent;
+//                }
+//                count--;
+//            }
+//            mCutOp.clear();
+//        }
         return;
     }
 
@@ -233,7 +234,7 @@ public class UIDataManager {
     }
 
     public void loadWavFile(WavFile wavFile){
-        mWavLoader = new WavFileLoader(wavFile);
+        mWavLoader = new WavFileLoader(wavFile, ctx);
         configure();
     }
 
@@ -272,7 +273,7 @@ public class UIDataManager {
     }
 
     public int timeToScreenSpace(int markerTimeMs, int timeAtPlaybackLineMs, double mspp){
-        return (int)Math.round((-mCutOp.reverseTimeAdjusted(markerTimeMs) + mCutOp.reverseTimeAdjusted(timeAtPlaybackLineMs)) / mspp);
+        return 0;//(int)Math.round((-mCutOp.reverseTimeAdjusted(markerTimeMs) + mCutOp.reverseTimeAdjusted(timeAtPlaybackLineMs)) / mspp);
 
     }
 
@@ -385,7 +386,7 @@ public class UIDataManager {
         mCutOp.undo();
         Logger.w(this.toString(), "Recomputing minimap");
         //minimap.init(wavVis.getMinimap(minimap.getHeight(), minimap.getWidth()));
-        minimap.setAudioLength(mPlayer.getDuration() - mCutOp.getSizeCut());
+        //minimap.setAudioLength(mPlayer.getDuration() - mCutOp.getSizeCut());
         updateUI();
     }
 
@@ -453,11 +454,11 @@ public class UIDataManager {
     }
 
     public int timeAdjusted(int ms){
-        return mCutOp.timeAdjusted(ms);
+        return 0;//mCutOp.timeAdjusted(ms, ms);
     }
 
     public int reverseTimeAdjusted(int ms){
-        return mCutOp.reverseTimeAdjusted(ms);
+        return 0;//mCutOp.reverseTimeAdjusted(ms);
     }
 
     public int skip(int ms){

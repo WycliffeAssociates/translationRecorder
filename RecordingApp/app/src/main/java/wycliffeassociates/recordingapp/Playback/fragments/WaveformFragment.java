@@ -5,6 +5,8 @@ import android.app.Fragment;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,6 +51,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     ScrollGestureLayer mScrollGestureLayer;
     Paint mPaint;
     MarkerMediator mMediator;
+    Handler mHandler;
 
     FrameLayout mFrame;
     WaveformDrawDelegator mDrawDelegator;
@@ -87,6 +90,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mHandler = new Handler(Looper.getMainLooper());
         findViews();
         mWaveformLayer = WaveformLayer.newInstance(getActivity(), this);
         mMarkerLineLayer = MarkerLineLayer.newInstance(getActivity(), this);
@@ -195,11 +199,16 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mDrawDelegator.onDrawWaveform(canvas, paint);
     }
 
-    public void onLocationUpdated(int location){
-        mMediator.updateCurrentFrame(location);
-        mWaveformLayer.postInvalidate();
-        mDraggableViewFrame.postInvalidate();
-        mMarkerLineLayer.postInvalidate();
-        mHighlightLayer.postInvalidate();
+    public void onLocationUpdated(final int location){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mMediator.updateCurrentFrame(location);
+                mWaveformLayer.postInvalidate();
+                mDraggableViewFrame.postInvalidate();
+                mMarkerLineLayer.postInvalidate();
+                mHighlightLayer.postInvalidate();
+            }
+        });
     }
 }

@@ -150,7 +150,7 @@ public class FragmentPlaybackTools extends Fragment{
 
     public void viewOnUndo(){
         View[] toHide = {};
-        if(((EditStateInformer)mAudioEditDelegator).hasEdits()){
+        if(!((EditStateInformer)mAudioEditDelegator).hasEdits()){
             toHide = new View[]{mUndoBtn};
         }
         Utils.swapViews(new View[]{}, toHide);
