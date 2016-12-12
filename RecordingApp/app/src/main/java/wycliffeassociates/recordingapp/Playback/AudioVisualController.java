@@ -1,5 +1,6 @@
 package wycliffeassociates.recordingapp.Playback;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -35,11 +36,11 @@ public class AudioVisualController implements MediaControlReceiver {
     private int durationInFrames;
     WavFileLoader mWavLoader;
 
-    public AudioVisualController(final AudioStateCallback callback, final WavFile wav) {
+    public AudioVisualController(final AudioStateCallback callback, final WavFile wav, Context ctx) {
 
         mCallback = callback;
 
-        initPlayer(wav);
+        initPlayer(wav, ctx);
 
         mHandler = new Handler(Looper.getMainLooper());
 
@@ -84,9 +85,14 @@ public class AudioVisualController implements MediaControlReceiver {
 //        });
     }
 
-    private void initPlayer(WavFile wav) {
-        mWavLoader = new WavFileLoader(wav);
-
+    private void initPlayer(WavFile wav, Context ctx) {
+        mWavLoader = new WavFileLoader(wav, ctx);
+        mWavLoader.setOnVisualizationFileCreatedListener(new WavFileLoader.OnVisualizationFileCreatedListener() {
+            @Override
+            public void onVisualizationCreated(MappedByteBuffer mappedVisualizationFile) {
+                mCallback.onVisualizationLoaded(mappedVisualizationFile);
+            }
+        });
         mCues = wav.getMetadata().getCuePoints();
         if (mCues != null) {
             sortCues(mCues);
@@ -201,12 +207,12 @@ public class AudioVisualController implements MediaControlReceiver {
         mCallback.onLocationUpdated(getLocation());
     }
 
-    public void setStartMarker(int location) {
-        mPlayer.setLoopStart(Math.max(location, 0));
+    public void setStartMarker(int relativeLocation) {
+        mPlayer.setLoopStart(Math.max(mCutOp.relativeLocToAbsolute(relativeLocation, false), 0));
     }
 
-    public void setEndMarker(int location) {
-        mPlayer.setLoopEnd(Math.min(location, mPlayer.getAbsoluteDurationInFrames()));
+    public void setEndMarker(int relativeLocation) {
+        mPlayer.setLoopEnd(Math.min(mCutOp.relativeLocToAbsolute(relativeLocation, false), mPlayer.getAbsoluteDurationInFrames()));
     }
 
     public int getDurationInFrames() {

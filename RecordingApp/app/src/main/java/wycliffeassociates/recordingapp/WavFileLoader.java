@@ -1,5 +1,7 @@
 package wycliffeassociates.recordingapp;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,11 +15,16 @@ import wycliffeassociates.recordingapp.wav.WavFile;
 
 public class WavFileLoader {
 
+    public interface OnVisualizationFileCreatedListener {
+        void onVisualizationCreated(MappedByteBuffer mappedVisualizationFile);
+    }
+
     private volatile boolean threadFinished = false;
     private MappedByteBuffer buffer;
     private MappedByteBuffer mappedAudioFile;
     private MappedByteBuffer preprocessedBuffer;
     private File audioVisFile;
+    private OnVisualizationFileCreatedListener onVisualizationFileCreatedListener;
 
     public MappedByteBuffer getMappedAudioFile() {
         return mappedAudioFile;
@@ -31,23 +38,29 @@ public class WavFileLoader {
         return preprocessedBuffer;
     }
 
+    public void setOnVisualizationFileCreatedListener(OnVisualizationFileCreatedListener listener) {
+        onVisualizationFileCreatedListener = listener;
+    }
+
     /**
      * Maps the visualization file to memory if the thread is finished, and returns true
      * returns false if the thread is not finished
      *
      * @return returns whether or not the thread generating the visualization file is finished
      */
-    public boolean visFileLoaded() {
+    public void mapNewVisFile() {
         if (threadFinished) {
             try {
                 RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");
                 FileChannel fcCached = rafCached.getChannel();
                 preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+                if(onVisualizationFileCreatedListener != null) {
+                    onVisualizationFileCreatedListener.onVisualizationCreated(preprocessedBuffer);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return threadFinished;
     }
 
     /**
@@ -58,7 +71,7 @@ public class WavFileLoader {
      *
      * @param wavFile file to be mapped
      */
-    public WavFileLoader(WavFile wavFile) {
+    public WavFileLoader(WavFile wavFile, Context ctx) {
         threadFinished = false;
         RandomAccessFile raf;
         try {
@@ -74,7 +87,8 @@ public class WavFileLoader {
                     AudioInfo.HEADER_SIZE + wavFile.getTotalAudioLength());
 
             //If the file was loaded, look for a .vis file with the same name
-            audioVisFile = new File(Utils.VISUALIZATION_DIR, filename.substring(0,
+            File visDir = new File(ctx.getExternalCacheDir(), "Visualization");
+            audioVisFile = new File(visDir, filename.substring(0,
                     filename.lastIndexOf('.')) + ".vis");
 
             //If the visualization file exists, map it to memory
@@ -151,6 +165,8 @@ public class WavFileLoader {
                 }
             }
             temp.close();
+            threadFinished = true;
+            mapNewVisFile();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -1,7 +1,13 @@
 package wycliffeassociates.recordingapp.Playback.Editing;
 
+import android.app.ProgressDialog;
 import android.util.Pair;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,6 +15,8 @@ import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.wav.WavFile;
+import wycliffeassociates.recordingapp.wav.WavOutputStream;
 
 /**
  * Created by sarabiaj on 12/22/2015.
@@ -346,4 +354,37 @@ public class CutOp {
     public synchronized int getSizeFrameCutUncmp(){
         return mSizeFrameCutUncmp;
     }
+
+    public void writeCut(WavFile to, final ShortBuffer buffer, ProgressDialog pd) throws IOException {
+        Logger.w(this.toString(), "Rewriting file to disk due to cuts");
+        pd.setProgress(0);
+        int audioLength = buffer.capacity();
+        try (WavOutputStream bos = new WavOutputStream(to, WavOutputStream.BUFFERED)){
+
+            int percent = (int)Math.round((audioLength) /100.0);
+            int count = percent;
+            for(int i = 0; i < audioLength; i++){
+                int skip = skipFrame(i, false);
+                if(skip != -1){
+                    i = skip;
+                    if(i >= audioLength){
+                        break;
+                    }
+                }
+                short sample = buffer.get(i);
+                byte hi = (byte)(((sample >> 8) & 0xFF));
+                byte lo = (byte)(sample & 0xFF);
+                bos.write(lo);
+                bos.write(hi);
+                if(count <= 0) {
+                    pd.incrementProgressBy(1);
+                    count = percent;
+                }
+                count--;
+            }
+            clear();
+        }
+        return;
+    }
+
 }

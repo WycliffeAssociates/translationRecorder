@@ -114,9 +114,9 @@ public class UIDataManager {
             //System.out.println("Update UI is returning early because either minimap, mainView, or Wavplayer.getDuration() is null/0");
             return;
         }
-        if(mWavLoader != null && mWavLoader.visFileLoaded()){
-            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer());
-        }
+//        if(mWavLoader != null && mWavLoader.visFileLoaded()){
+//            wavVis.enableCompressedFileNextDraw(mWavLoader.getMappedCacheFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer());
+//        }
         //Marker is set to the percentage of playback times the width of the minimap
         int location = 0;//mPlayer.getLocationMs();
         //minimap.setMiniMarkerLoc((float) ((mCutOp.reverseTimeAdjusted(location) / ((double) mPlayer.getDuration() - mCutOp.getSizeCut())) * minimap.getWidth()));
@@ -234,7 +234,7 @@ public class UIDataManager {
     }
 
     public void loadWavFile(WavFile wavFile){
-        mWavLoader = new WavFileLoader(wavFile);
+        mWavLoader = new WavFileLoader(wavFile, ctx);
         configure();
     }
 

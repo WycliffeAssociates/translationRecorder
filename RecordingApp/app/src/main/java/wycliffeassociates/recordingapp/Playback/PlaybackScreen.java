@@ -371,7 +371,8 @@ public class PlaybackScreen extends Activity implements RatingDialog.DialogListe
                         db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));
-                        File toVis = new File(Utils.VISUALIZATION_DIR, oldName + ".vis");
+                        File visDir = new File(getExternalCacheDir(), "Visualization");
+                        File toVis = new File(visDir, oldName + ".vis");
                         toVis.delete();
                     } catch (IOException e) {
                         e.printStackTrace();
