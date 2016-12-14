@@ -44,6 +44,7 @@ public class Settings extends AppCompatActivity implements ScrollableListFragmen
 
     public static final String KEY_PREF_GLOBAL_SOURCE_LOC = "pref_global_src_loc";
     public static final String KEY_PREF_GLOBAL_LANG_SRC = "pref_global_lang_src";
+    public static final String KEY_PREF_ADD_LANGUAGE = "pref_add_temp_language";
 
 
     private String mSearchText;
@@ -146,7 +147,7 @@ public class Settings extends AppCompatActivity implements ScrollableListFragmen
         mMenu.findItem(R.id.action_search).setVisible(true);
         Settings.displayingList = true;
         mFragment = new ScrollableListFragment
-                .Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(this), this))
+                .Builder(new TargetLanguageAdapter(Language.getLanguages(this), this))
                 .setSearchHint("Choose Source Language:")
                 .build();
         mFragmentManager.beginTransaction().add(R.id.fragment_scroll_list, mFragment).commit();

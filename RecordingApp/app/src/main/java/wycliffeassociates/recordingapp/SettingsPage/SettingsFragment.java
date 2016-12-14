@@ -1,5 +1,8 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,14 +38,25 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         // Register listener(s)
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        Preference button = (Preference)findPreference(Settings.KEY_PREF_GLOBAL_LANG_SRC);
-        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        Preference sourceLanguageButton = (Preference)findPreference(Settings.KEY_PREF_GLOBAL_LANG_SRC);
+        sourceLanguageButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 mParent.sourceLanguageSelected();
                 return true;
             }
         });
+
+        Preference addTemporaryLanguageButton = (Preference)findPreference(Settings.KEY_PREF_ADD_LANGUAGE);
+        addTemporaryLanguageButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AddTargetLanguageDialog add = new AddTargetLanguageDialog();
+                    add.show(getFragmentManager(), "add");
+                    return false;
+                }
+            }
+        );
 
     }
 

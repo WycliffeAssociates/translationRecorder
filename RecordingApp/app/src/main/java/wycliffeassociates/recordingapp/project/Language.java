@@ -1,5 +1,10 @@
 package wycliffeassociates.recordingapp.project;
 
+import android.content.Context;
+
+import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+
 public class Language implements Comparable {
 
     private String mLanguageCode;
@@ -21,5 +26,12 @@ public class Language implements Comparable {
     }
     public String getName(){
         return mLanguageName;
+    }
+
+    public static Language[] getLanguages(Context ctx) {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
+        Language[] languages =  db.getLanguages();
+        db.close();
+        return languages;
     }
 }

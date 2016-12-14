@@ -16,34 +16,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="Add a Temporary Language Code"
+            android:text="Please enter a language name for the following language code: "
             android:layout_marginBottom="@dimen/dialog_content_margin"
             android:textColor="@color/dark_primary_text"
             android:textSize="@dimen/abc_text_size_large_material"
-            android:id="@+id/title" />
+            />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="Language code already exists!"
+            android:id="@+id/language_code"
             android:layout_marginBottom="@dimen/dialog_content_margin"
-            android:textColor="@color/red"
-            android:textSize="@dimen/abc_text_size_medium_material"
-            android:id="@+id/error_code_exists"
-            android:visibility="gone"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Language code must contain exactly 6 characters!"
-            android:layout_marginBottom="@dimen/dialog_content_margin"
-            android:textColor="@color/red"
-            android:textSize="@dimen/abc_text_size_medium_material"
-            android:id="@+id/error_code_too_short"
-            android:visibility="gone"/>
-
+            android:textColor="@color/dark_primary_text"
+            android:textSize="@dimen/abc_text_size_large_material"
+            />
         <LinearLayout
             android:orientation="vertical"
             android:id="@+id/formLayout"
@@ -70,36 +57,6 @@
                     android:textColor="@color/dark_primary_text"
                     android:textSize="@dimen/body"/>
             </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
-                android:paddingBottom="@dimen/dialog_controls_margin"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
-                    android:text="Language Code: "
-                    android:paddingRight="10dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:text="qaa-x-tR"/>
-                <EditText
-                    android:id="@+id/language_code"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:inputType="textVisiblePassword"
-                    android:maxLength="6"
-                    android:digits="0123456789abcdefghijklmnopqrstuvwxyz"/>
-            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -110,17 +67,10 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/close_button"
-                android:text="@string/label_close"
-                android:layout_marginRight="@dimen/default_padding_m"
-                />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="Add"
                 android:id="@+id/ok_button"
                 android:layout_marginLeft="@dimen/default_padding_m"
-            />
+                />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
