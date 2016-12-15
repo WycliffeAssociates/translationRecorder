@@ -70,6 +70,8 @@
                 android:text="Add"
                 android:id="@+id/ok_button"
                 android:layout_marginLeft="@dimen/default_padding_m"
+                style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+                android:textColor="@color/secondary"
                 />
         </LinearLayout>
     </LinearLayout>

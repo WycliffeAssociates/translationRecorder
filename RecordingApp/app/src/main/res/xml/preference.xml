@@ -30,9 +30,13 @@
         <PreferenceScreen
             android:key="pref_add_temp_language"
             android:layout="@layout/custom_pref"
-            android:title="Add Temporary Language"
-            >
+            android:title="Add Temporary Language">
+        </PreferenceScreen>
 
+        <PreferenceScreen
+            android:key="pref_update_languages"
+            android:layout="@layout/custom_pref"
+            android:title="Update Languages From translationDatabase">
         </PreferenceScreen>
 
     </PreferenceCategory>

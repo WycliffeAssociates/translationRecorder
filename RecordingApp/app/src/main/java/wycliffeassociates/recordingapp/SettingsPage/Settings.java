@@ -19,13 +19,14 @@ import wycliffeassociates.recordingapp.project.Language;
 import wycliffeassociates.recordingapp.project.ParseJSON;
 import wycliffeassociates.recordingapp.project.ScrollableListFragment;
 import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
+import wycliffeassociates.recordingapp.utilities.TaskFragment;
 
 /**
  *
  * The settings page -- for all persistent options/information.
  *
  */
-public class Settings extends AppCompatActivity implements ScrollableListFragment.OnItemClickListener, SettingsFragment.LanguageSelector {
+public class Settings extends AppCompatActivity implements TaskFragment.OnTaskComplete, ScrollableListFragment.OnItemClickListener, SettingsFragment.LanguageSelector {
     public static final String KEY_PREF_ANTHOLOGY = "pref_anthology";
     public static final String KEY_PREF_VERSION = "pref_version";
     public static final String KEY_PREF_LANG = "pref_lang";
@@ -45,6 +46,7 @@ public class Settings extends AppCompatActivity implements ScrollableListFragmen
     public static final String KEY_PREF_GLOBAL_SOURCE_LOC = "pref_global_src_loc";
     public static final String KEY_PREF_GLOBAL_LANG_SRC = "pref_global_lang_src";
     public static final String KEY_PREF_ADD_LANGUAGE = "pref_add_temp_language";
+    public static final String KEY_PREF_UPDATE_LANGUAGES = "pref_update_languages";
 
 
     private String mSearchText;
@@ -151,5 +153,10 @@ public class Settings extends AppCompatActivity implements ScrollableListFragmen
                 .setSearchHint("Choose Source Language:")
                 .build();
         mFragmentManager.beginTransaction().add(R.id.fragment_scroll_list, mFragment).commit();
+    }
+
+    @Override
+    public void onTaskComplete(int taskTag, int resultCode) {
+
     }
 }

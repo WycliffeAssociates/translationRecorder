@@ -38,7 +38,6 @@ public class RequestLanguageNameDialog extends DialogFragment{
         mResponse = responseQueue;
     }
 
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

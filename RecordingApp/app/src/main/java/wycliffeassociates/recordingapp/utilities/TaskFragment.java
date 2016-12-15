@@ -50,7 +50,7 @@ public class TaskFragment extends Fragment implements OnTaskProgressListener {
         if (activity instanceof OnTaskComplete) {
             mActivity = (OnTaskComplete) activity;
         } else {
-            throw new IllegalArgumentException("Activity does not implement OnTaskProgressListener");
+            throw new IllegalArgumentException("Activity does not implement OnTaskComplete");
         }
         if (mHandler == null) {
             mHandler = new Handler(Looper.getMainLooper());
