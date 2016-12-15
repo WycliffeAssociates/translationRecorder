@@ -1,5 +1,8 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,15 +13,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import wycliffeassociates.recordingapp.ProjectManager.tasks.ResyncLanguageNamesTask;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.utilities.TaskFragment;
 
 /**
  * Created by leongv on 12/17/2015.
  */
-public class SettingsFragment extends PreferenceFragment  implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class SettingsFragment extends PreferenceFragment  implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     LanguageSelector mParent;
     SharedPreferences mSharedPreferences;
+    private TaskFragment mTaskFragment;
+    private String TAG_TASK_FRAGMENT = "tag_task_fragment";
 
     interface LanguageSelector{
         void sourceLanguageSelected();
@@ -35,8 +42,16 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         // Register listener(s)
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        Preference button = (Preference)findPreference(Settings.KEY_PREF_GLOBAL_LANG_SRC);
-        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        FragmentManager fm = getFragmentManager();
+        mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+        if (mTaskFragment == null) {
+            mTaskFragment = new TaskFragment();
+            fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        }
+
+        Preference sourceLanguageButton = (Preference)findPreference(Settings.KEY_PREF_GLOBAL_LANG_SRC);
+        sourceLanguageButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 mParent.sourceLanguageSelected();
@@ -44,6 +59,30 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
             }
         });
 
+        Preference addTemporaryLanguageButton = (Preference)findPreference(Settings.KEY_PREF_ADD_LANGUAGE);
+        addTemporaryLanguageButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AddTargetLanguageDialog add = new AddTargetLanguageDialog();
+                    add.show(getFragmentManager(), "add");
+                    return false;
+                }
+            }
+        );
+
+        Preference updateLanguagesButton = (Preference) findPreference(Settings.KEY_PREF_UPDATE_LANGUAGES);
+        updateLanguagesButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                mTaskFragment.executeRunnable(
+                        new ResyncLanguageNamesTask(1, getActivity()),
+                        "Updating Languages",
+                        "Please wait...",
+                        true
+                        );
+                return true;
+            }
+        });
     }
 
     @Override

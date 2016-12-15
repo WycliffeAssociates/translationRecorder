@@ -1,25 +1,30 @@
 package wycliffeassociates.recordingapp.ProjectManager.tasks;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
+import wycliffeassociates.recordingapp.ProjectManager.dialogs.RequestLanguageNameDialog;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.utilities.Task;
 
 /**
  * Created by sarabiaj on 9/27/2016.
  */
-public class DatabaseResyncTask extends Task {
-
+public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound {
     Context mCtx;
+    FragmentManager mFragmentManager;
 
-    public DatabaseResyncTask(int taskId, Context ctx){
+    public DatabaseResyncTask(int taskId, Context ctx, FragmentManager fm){
         super(taskId);
         mCtx = ctx;
+        mFragmentManager = fm;
     }
 
     public List<File> getAllTakes(){
@@ -53,8 +58,20 @@ public class DatabaseResyncTask extends Task {
     @Override
     public void run() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        db.resyncDbWithFs(getAllTakes());
+        db.resyncDbWithFs(getAllTakes(), this);
         db.close();
         onTaskCompleteDelegator();
+    }
+
+    public String requestLanguageName(String code) {
+        BlockingQueue<String> response = new ArrayBlockingQueue<>(1);
+        RequestLanguageNameDialog dialog = RequestLanguageNameDialog.newInstance(code, response);
+        dialog.show(mFragmentManager,"REQUEST_LANGUAGE");
+        try {
+            return response.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "???";
     }
 }

@@ -137,7 +137,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         //still need to track whether a db resync was issued so as to not issue them in the middle of another
         if (!mDbResyncing) {
             mDbResyncing = true;
-            DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext());
+            DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager());
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }

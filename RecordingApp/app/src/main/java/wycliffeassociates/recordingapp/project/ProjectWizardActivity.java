@@ -221,7 +221,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         switch (mCurrentFragment) {
             case TARGET_LANGUAGE:
                 mFragment = new ScrollableListFragment
-                        .Builder(new TargetLanguageAdapter(ParseJSON.getLanguages(this), this))
+                        .Builder(new TargetLanguageAdapter(Language.getLanguages(this), this))
                         .setSearchHint("Choose Target Language:")
                         .build();
                 break;

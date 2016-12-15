@@ -123,7 +123,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         super.onResume();
         if (!mDbResyncing) {
             mDbResyncing = true;
-            DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext());
+            DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager());
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }

@@ -223,9 +223,13 @@ public class ParseJSON {
     }
 
     public Language[] pullLangNames() throws JSONException {
-        ArrayList<Language> languageList = new ArrayList<>();
         String json = loadJSONFromAsset("langnames.json");
         JSONArray langArray = new JSONArray(json);
+        return pullLangNames(langArray);
+    }
+
+    public Language[] pullLangNames(JSONArray langArray) throws JSONException {
+        ArrayList<Language> languageList = new ArrayList<>();
         for(int i = 0; i < langArray.length(); i++){
             JSONObject langObj = langArray.getJSONObject(i);
             Language ln = new Language(langObj.getString("lc"),langObj.getString("ln"));

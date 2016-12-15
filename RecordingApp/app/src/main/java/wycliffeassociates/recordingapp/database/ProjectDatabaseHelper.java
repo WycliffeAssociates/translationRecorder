@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +39,13 @@ import static wycliffeassociates.recordingapp.database.ProjectContract.UnitEntry
  */
 public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
+    public interface OnLanguageNotFound {
+        String requestLanguageName(String languageCode);
+    }
+
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "translation_projects";
+    private Language[] languages;
 
 
     public ProjectDatabaseHelper(Context ctx){
@@ -370,7 +376,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return number;
     }
 
-    public void addLanguage(String code, String name){
+    public void  addLanguage(String code, String name){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(LanguageEntry.LANGUAGE_CODE, code);
@@ -819,7 +825,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return takesToCompile;
     }
 
-    public void resyncDbWithFs(List<File> takes) {
+    public void resyncDbWithFs(List<File> takes, OnLanguageNotFound callback) {
         SQLiteDatabase db = getWritableDatabase();
         //create a temporary table to store take names from the filesystem
         db.execSQL(DELETE_TEMP);
@@ -847,6 +853,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             c.moveToFirst();
             do {
                 FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
+                if(!languageExists(fne.getLang())) {
+                    if(callback != null) {
+                        String name = callback.requestLanguageName(fne.getLang());
+                        addLanguage(fne.getLang(), name);
+                    } else {
+                        addLanguage(fne.getLang(), "???"); //missingno
+                    }
+                }
                 addTake(fne, c.getString(nameIndex), c.getLong(timestampIndex), 0);
             } while (c.moveToNext());
         }
@@ -909,5 +923,24 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
+    }
+
+    public Language[] getLanguages() {
+        List<Language> languageList = new ArrayList<>();
+        String query = "SELECT * FROM " + LanguageEntry.TABLE_LANGUAGE;
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        Cursor cursor = db.rawQuery(query, null);
+        if(cursor.moveToFirst()){
+            do {
+                String languageCode = cursor.getString(cursor.getColumnIndex(LanguageEntry.LANGUAGE_CODE));
+                String languageName = cursor.getString(cursor.getColumnIndex(LanguageEntry.LANGUAGE_NAME));
+                languageList.add(new Language(languageCode, languageName));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+        db.endTransaction();
+        //db.close();
+        return languageList.toArray(new Language[languageList.size()]);
     }
 }
