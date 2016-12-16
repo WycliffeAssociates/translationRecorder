@@ -41,6 +41,11 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     private FragmentManager mFragmentManager;
     protected String mSearchText;
 
+    public static Intent getSourceAudioIntent(Context ctx, Project project){
+        Intent intent = new Intent(ctx, SourceAudioActivity.class);
+        intent.putExtra(Project.PROJECT_EXTRA, project);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

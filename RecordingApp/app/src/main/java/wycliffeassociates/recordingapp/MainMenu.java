@@ -152,6 +152,7 @@ public class MainMenu extends Activity {
         pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
         pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
         pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
+        pref.edit().putString(Settings.KEY_PREF_SRC_LOC, project.getSourceAudioPath()).commit();
 
         //FIXME: find the last place worked on?
         pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();

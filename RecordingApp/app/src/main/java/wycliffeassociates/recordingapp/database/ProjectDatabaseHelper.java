@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +37,16 @@ import static wycliffeassociates.recordingapp.database.ProjectContract.UnitEntry
  * Created by sarabiaj on 5/10/2016.
  */
 public class ProjectDatabaseHelper extends SQLiteOpenHelper {
+
+    public void updateSourceAudio(int projectId, Project projectContainingUpdatedSource) {
+        int sourceLanguageId = getLanguageId(projectContainingUpdatedSource.getSourceLanguage());
+        final String replaceTakeWhere = String.format("%s=?", ProjectEntry._ID);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues replaceWith = new ContentValues();
+        replaceWith.put(ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, String.valueOf(sourceLanguageId));
+        replaceWith.put(ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, projectContainingUpdatedSource.getSourceAudioPath());
+        db.update(ProjectEntry.TABLE_PROJECT, replaceWith, replaceTakeWhere, new String[]{String.valueOf(projectId)});
+    }
 
     public interface OnLanguageNotFound {
         String requestLanguageName(String languageCode);

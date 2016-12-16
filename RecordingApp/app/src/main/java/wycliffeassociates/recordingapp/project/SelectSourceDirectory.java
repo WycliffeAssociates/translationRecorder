@@ -67,7 +67,8 @@ public class SelectSourceDirectory extends Activity {
                     byte[] magicNumber = new byte[4];
                     is.read(magicNumber);
                     String header = new String(magicNumber, StandardCharsets.US_ASCII);
-                    if(header.equals("aoh!")){
+                    //aoc was an accident in a previous version
+                    if(header.equals("aoh!") || header.equals("aoc!")){
                         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
                         pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, uristring).commit();
                         pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();

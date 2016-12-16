@@ -28,6 +28,7 @@ import java.io.InputStream;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
 import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.Reporting.Logger;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 import wycliffeassociates.recordingapp.widgets.AudioPlayer;
 
@@ -136,8 +137,9 @@ public class SourceAudio extends LinearLayout {
         String extension = getExtensionIfValid(entry.getName());
         InputStream file = entry.getInputStream();
         BufferedInputStream bis = new BufferedInputStream(file);
-        mTemp = new File(mCtx.getExternalCacheDir(), "temp" + extension);
-        mTemp.mkdirs();
+        mTemp = new File(mCtx.getExternalCacheDir(), "temp." + extension);
+        mTemp.delete();
+        mTemp.createNewFile();
         FileOutputStream fos = new FileOutputStream(mTemp);
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         byte[] buffer = new byte[1024];
@@ -185,6 +187,8 @@ public class SourceAudio extends LinearLayout {
         try {
             loadAudioFile();
         } catch (IOException e) {
+            e.printStackTrace();
+            Logger.e(this.toString(), "ERROR, IOException with source audio loading", e);
             mTemp = null;
         }
         if(mTemp == null || !mTemp.exists()){
