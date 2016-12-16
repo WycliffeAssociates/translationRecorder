@@ -61,7 +61,7 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
         displayingList = false;
         mFragmentManager = getFragmentManager();
         setContentView(R.layout.settings);
-;        PreferenceManager.setDefaultValues(this, R.xml.preference, false);
+        PreferenceManager.setDefaultValues(this, R.xml.preference, false);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Settings");

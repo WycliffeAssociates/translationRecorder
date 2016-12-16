@@ -8,6 +8,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
 
 /**
@@ -21,7 +26,7 @@ public class SelectSourceDirectory extends Activity {
     public final static String SDK_LEVEL = "sdk_level";
 
     @Override
-    public void onCreate(Bundle savedInstanceBundle){
+    public void onCreate(Bundle savedInstanceBundle) {
         super.onCreate(savedInstanceBundle);
         //if(Build.VERSION.SDK_INT >= 21) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -49,22 +54,30 @@ public class SelectSourceDirectory extends Activity {
                                  Intent resultData) {
         Intent intent = new Intent();
         if (resultCode == Activity.RESULT_OK) {
-            if(requestCode == SRC_LOC) {
+            if (requestCode == SRC_LOC) {
                 Uri uri = resultData.getData();
 
 
                 getApplicationContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                 String uristring = uri.toString();
-                //check if it contains .tr first so as to not have an exception thrown on files without a "."
-                //best I can think of for filtering filetypes; Android doesn't allow new MIME types =(
-                if(uristring.contains(".tr") && uristring.substring(uristring.lastIndexOf("."), uristring.length()).equals(".tr")) {
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                    pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, uristring).commit();
-                    pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
+                //check magic number of file to see if it matches "aoh!" in ascii. If so, the file is likely a tR file.
+                //safer than just assuming based on the extension
+                try (InputStream is = this.getContentResolver().openInputStream(uri)) {
+                    byte[] magicNumber = new byte[4];
+                    is.read(magicNumber);
+                    String header = new String(magicNumber, StandardCharsets.US_ASCII);
+                    if(header.equals("aoh!")){
+                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+                        pref.edit().putString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, uristring).commit();
+                        pref.edit().putInt(Settings.KEY_SDK_LEVEL, Build.VERSION.SDK_INT).commit();
+                        intent.putExtra(SOURCE_LOCATION, uristring);
+                        intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
+                    }
+                } catch (FileNotFoundException e) {
 
-                    intent.putExtra(SOURCE_LOCATION, uristring);
-                    intent.putExtra(SDK_LEVEL, Build.VERSION.SDK_INT);
+                } catch (IOException e) {
+
                 }
             }
         }
