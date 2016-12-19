@@ -49,14 +49,15 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     WaveformLayer mWaveformLayer;
     RectangularHighlightLayer mHighlightLayer;
     ScrollGestureLayer mScrollGestureLayer;
-    Paint mPaint;
     MarkerMediator mMediator;
     Handler mHandler;
-
     FrameLayout mFrame;
+
     WaveformDrawDelegator mDrawDelegator;
     OnScrollDelegator mOnScrollDelegator;
     ViewCreatedCallback mViewCreatedCallback;
+    private Paint mPaintPlaback;
+    private Paint mPaintBaseLine;
 
     public interface WaveformDrawDelegator {
         void onDrawWaveform(Canvas canvas, Paint paint);
@@ -101,10 +102,14 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mFrame.addView(mScrollGestureLayer);
         mFrame.addView(mMarkerLineLayer);
         mFrame.addView(mHighlightLayer);
-        mPaint = new Paint();
-        mPaint.setColor(getResources().getColor(R.color.bright_yellow));
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(1f);
+        mPaintPlaback = new Paint();
+        mPaintPlaback.setColor(getResources().getColor(R.color.primary));
+        mPaintPlaback.setStyle(Paint.Style.STROKE);
+        mPaintPlaback.setStrokeWidth(2f);
+        mPaintBaseLine = new Paint();
+        mPaintBaseLine.setColor(getResources().getColor(R.color.secondary));
+        mPaintBaseLine.setStyle(Paint.Style.STROKE);
+        mPaintBaseLine.setStrokeWidth(2f);
         mDraggableViewFrame.bringToFront();
         mMediator.setDraggableViewFrame(mDraggableViewFrame);
     }
@@ -183,8 +188,8 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         for (DraggableMarker d : markers) {
             d.drawMarkerLine(canvas);
         }
-        canvas.drawLine(mWaveformLayer.getWidth()/8, 0, mWaveformLayer.getWidth()/8, mWaveformLayer.getHeight(), mPaint);
-        canvas.drawLine(0, mWaveformLayer.getHeight()/2, mWaveformLayer.getWidth(), mWaveformLayer.getHeight()/2, mPaint);
+        canvas.drawLine(mWaveformLayer.getWidth()/8, 0, mWaveformLayer.getWidth()/8, mWaveformLayer.getHeight(), mPaintPlaback);
+        canvas.drawLine(0, mWaveformLayer.getHeight()/2, mWaveformLayer.getWidth(), mWaveformLayer.getHeight()/2, mPaintBaseLine);
     }
 
     public void onDrawHighlight(Canvas canvas, Paint paint) {

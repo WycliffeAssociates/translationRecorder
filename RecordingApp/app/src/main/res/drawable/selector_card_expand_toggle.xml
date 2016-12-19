@@ -4,13 +4,13 @@
     <item
         android:state_activated="false"
         android:state_enabled="true"
-        android:drawable="@drawable/play_blue"
+        android:drawable="@drawable/ic_chevron_right_black_48dp"
         />
 
     <item
         android:state_activated="true"
         android:state_enabled="true"
-        android:drawable="@drawable/close_black"
+        android:drawable="@drawable/ic_chevron_down_black_48dp"
         />
 
     <item

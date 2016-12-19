@@ -123,8 +123,8 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     private void initializePaints(){
         mLocationPaint = new Paint();
         mLocationPaint.setStyle(Paint.Style.STROKE);
-        mLocationPaint.setStrokeWidth(1f);
-        mLocationPaint.setColor(getResources().getColor(R.color.bright_yellow));
+        mLocationPaint.setStrokeWidth(2f);
+        mLocationPaint.setColor(getResources().getColor(R.color.primary));
 
         mSectionPaint = new Paint();
         mSectionPaint.setColor(getResources().getColor(R.color.dark_moderate_cyan));
@@ -132,7 +132,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
         mSectionPaint.setStrokeWidth(2f);
 
         mVersePaint = new Paint();
-        mVersePaint.setColor(getResources().getColor(R.color.dark_moderate_lime_green));
+        mVersePaint.setColor(getResources().getColor(R.color.tertiary));
         mVersePaint.setStyle(Paint.Style.STROKE);
         mVersePaint.setStrokeWidth(2f);
     }
