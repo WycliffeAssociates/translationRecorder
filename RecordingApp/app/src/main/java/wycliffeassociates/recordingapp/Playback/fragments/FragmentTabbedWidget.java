@@ -2,6 +2,7 @@ package wycliffeassociates.recordingapp.Playback.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -61,7 +62,8 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     private DelegateMinimapMarkerDraw mMinimapLineDrawDelegator;
     private RectangularHighlightLayer mHighlightLayer;
     private MarkerMediator mMarkerMediator;
-
+    private Bitmap minimap;
+    private Paint mPaint;
 
     public interface DelegateMinimapMarkerDraw {
         void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse);
@@ -202,7 +204,23 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
 
     @Override
     public boolean onDelegateMinimapDraw(Canvas canvas, Paint paint) {
-        return mMinimapDrawDelegator.onDelegateMinimapDraw(canvas, paint);
+        if(minimap == null) {
+            Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+            minimap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), conf);
+            Canvas temp = new Canvas(minimap);
+            mPaint = new Paint();
+            boolean success =  mMinimapDrawDelegator.onDelegateMinimapDraw(temp, paint);
+            if(!success){
+                minimap = null;
+                return false;
+            }
+        }
+        canvas.drawBitmap(minimap, 0, 0, mPaint);
+        return true;
+    }
+
+    public void invalidateMinimap(){
+        minimap = null;
     }
 
     public void onLocationChanged(){

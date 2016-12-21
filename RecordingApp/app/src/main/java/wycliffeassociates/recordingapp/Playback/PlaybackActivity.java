@@ -31,7 +31,6 @@ import java.util.Set;
 import wycliffeassociates.recordingapp.AudioVisualization.WavVisualizer;
 import wycliffeassociates.recordingapp.FilesPage.ExitDialog;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
-import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentFileBar;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentPlaybackTools;
 import wycliffeassociates.recordingapp.Playback.fragments.FragmentTabbedWidget;
@@ -52,7 +51,6 @@ import wycliffeassociates.recordingapp.ProjectManager.dialogs.RatingDialog;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.Logger;
-import wycliffeassociates.recordingapp.Utils;
 import wycliffeassociates.recordingapp.WavFileLoader;
 import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
 import wycliffeassociates.recordingapp.wav.WavCue;
@@ -291,6 +289,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mFragmentPlaybackTools.onLocationUpdated(mAudioController.getLocation());
         mFragmentPlaybackTools.onDurationUpdated(mAudioController.getDuration());
         onClearMarkers();
+        mFragmentTabbedWidget.invalidateMinimap();
+        mFragmentTabbedWidget.onLocationChanged();
     }
 
     @Override
@@ -348,6 +348,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         if(!mAudioController.mCutOp.hasCut()) {
             isSaved = true;
         }
+        mFragmentTabbedWidget.invalidateMinimap();
         onLocationUpdated(0);
     }
 
