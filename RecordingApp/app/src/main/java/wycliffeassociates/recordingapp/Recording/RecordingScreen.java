@@ -189,6 +189,11 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     }
 
     private void initializeViews() {
+        //Logging to help track issue #669
+        if(mProject.getSlug().equals("")) {
+            Logger.e(this.toString(), "Project book is empty string " + mProject);
+        }
+
         String languageCode = mProject.getTargetLanguage();
         mLanguageView.setText(languageCode.toUpperCase());
         mLanguageView.postInvalidate();

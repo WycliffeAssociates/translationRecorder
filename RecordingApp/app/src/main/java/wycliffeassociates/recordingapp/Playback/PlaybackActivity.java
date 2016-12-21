@@ -96,6 +96,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private MarkerMediator mMarkerMediator;
     private boolean mWaveformInflated = false;
     private boolean mMinimapInflated = false;
+    private DrawThread mDrawLoop;
 
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackActivity.class);
@@ -124,6 +125,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         wavFileLoader = mAudioController.getWavLoader();//new WavFileLoader(mWavFile);
         mMarkerMediator.setMarkerButtons(mFragmentPlaybackTools);
         //wavVis = new WavVisualizer(wavFileLoader.getMappedFile(), wavFileLoader.getMappedCacheFile(), 1920, 490, 1920, mCutOp);
+    }
+
+    public void startDrawThread(){
+        mDrawLoop = new DrawThread();
+        Thread draw = new Thread(mDrawLoop);
+        draw.start();
     }
 
     private void initializeMarkers() {
@@ -168,6 +175,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         attachFragments();
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        mDrawLoop.finish();
+    }
+
     private String getUnitLabel(){
         if(mProject.getMode().equals("chunk")){
             FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
@@ -195,27 +208,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onMediaPlay() {
         mAudioController.play();
-        Thread playbackThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int location;
-                while (mAudioController.isPlaying()) {
-                    location = mAudioController.getLocationInFrames();
-                    mFragmentPlaybackTools.onLocationUpdated(mAudioController.getLocation());
-                    mWaveformFragment.onLocationUpdated(location);
-                    mFragmentTabbedWidget.onLocationChanged();
-                    //getLocationMs();
-                    //draw();
-                    //             System.out.println(mPlayer.getLocationMs());
-                    try {
-                        Thread.sleep(16);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        playbackThread.start();
     }
 
     @Override
@@ -549,6 +541,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                         initializeRenderer();
                         initializeMarkers();
                         mWaveformFragment.getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        startDrawThread();
                     }
                 }
             });
@@ -563,7 +556,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                         initializeRenderer();
                         initializeMarkers();
                         mFragmentTabbedWidget.getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
+                        startDrawThread();
                     }
                 }
             });
@@ -657,5 +650,34 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         }
         canvas.drawLine(start, 0, start, canvas.getHeight(), section);
         canvas.drawLine(end, 0, end, canvas.getHeight(), section);
+    }
+
+    private class DrawThread implements Runnable {
+
+        private boolean finished = false;
+
+        public DrawThread() {
+        }
+
+        public void finish() {
+            finished = true;
+        }
+
+        @Override
+        public void run() {
+            int location;
+            while (!finished) {
+                location = mAudioController.getLocationInFrames();
+                mFragmentPlaybackTools.onLocationUpdated(mAudioController.getLocation());
+                mWaveformFragment.onLocationUpdated(location);
+                mFragmentTabbedWidget.onLocationChanged();
+
+                try {
+                    Thread.sleep(45);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
