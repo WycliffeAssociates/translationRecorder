@@ -22,6 +22,7 @@ import wycliffeassociates.recordingapp.widgets.FourStepImageView;
 public class FragmentFileBar extends Fragment {
 
     private InsertCallback mInsertCallback;
+    private String mUnit = "";
 
     public void onRatingChanged(int mRating) {
         mRateBtn.setStep(mRating);
@@ -84,6 +85,9 @@ public class FragmentFileBar extends Fragment {
         findViews();
         setText();
         setClickListeners();
+        if(mUnit.toLowerCase().equals("verse")) {
+            mEnterVerseMarkerMode.setVisibility(View.GONE);
+        }
     }
 
     private void setText(){
@@ -95,6 +99,7 @@ public class FragmentFileBar extends Fragment {
         mChapterView.setText(args.getString(KEY_CHAPTER_NUMBER));
         mUnitLabel.setText(args.getString(KEY_UNIT_LABEL));
         mUnitView.setText(args.getString(KEY_UNIT_NUMBER));
+        mUnit = args.getString(KEY_UNIT_LABEL);
     }
 
     private void findViews(){
