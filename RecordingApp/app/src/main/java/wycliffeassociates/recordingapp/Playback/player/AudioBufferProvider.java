@@ -125,6 +125,12 @@ class AudioBufferProvider implements BufferPlayer.BufferProvider {
                 mAudio.position(start);
                 //Logger.i(this.toString(), "Location is now " + getLocationMs() + "position is " + mAudio.position());
             }
+            //check a second time incase there was a skip
+            if(!mAudio.hasRemaining()){
+                brokeEarly = true;
+                end = i;
+                break;
+            }
             shorts[i] = mAudio.get();
         }
         if(brokeEarly){
