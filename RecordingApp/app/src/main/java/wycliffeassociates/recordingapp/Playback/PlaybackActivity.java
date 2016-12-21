@@ -459,6 +459,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         pd.setMessage("Writing changes to file, please wait...");
         pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pd.setProgressNumberFormat(null);
+        pd.setCancelable(false);
         pd.show();
         Thread saveThread = new Thread(new Runnable() {
             @Override
