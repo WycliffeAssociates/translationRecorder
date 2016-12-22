@@ -24,6 +24,7 @@
         <!-- Splash screen -->
         <activity android:name=".SplashScreen"
             android:label="@string/app_name"
+            android:screenOrientation="locked"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
