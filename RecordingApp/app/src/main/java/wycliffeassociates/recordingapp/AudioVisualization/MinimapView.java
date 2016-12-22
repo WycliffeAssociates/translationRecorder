@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.GestureDetectorCompat;
@@ -13,7 +12,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import wycliffeassociates.recordingapp.Playback.Editing.CutOp;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
+import wycliffeassociates.recordingapp.Playback.Editing.SectionMarkers;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
@@ -70,31 +69,31 @@ public class MinimapView extends CanvasView {
         @Override
         public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
             if (mManager != null) {
-                startPosition = (int) event1.getX();
-                endPosition = (int) event2.getX();
-                int startPositionMinimap = startPosition;
-                int endPositionMinimap = endPosition;
-                int playbackSectionStart = (int) mCut.timeAdjusted((int)Math.round((startPositionMinimap / (double) getWidth()) * (mManager.getDuration() - mCut.getSizeCut())));
-                int playbackSectionEnd = (int) mCut.timeAdjusted((int)Math.round((endPositionMinimap / (double) getWidth()) * (mManager.getDuration() - mCut.getSizeCut())));
-                if (startPosition > endPosition) {
-                    int temp = playbackSectionEnd;
-                    playbackSectionEnd = playbackSectionStart;
-                    playbackSectionStart = temp;
-                    temp = endPositionMinimap;
-                    endPositionMinimap = startPositionMinimap;
-                    startPositionMinimap = temp;
-                }
-                SectionMarkers.setMinimapMarkers(startPositionMinimap, endPositionMinimap);
-                SectionMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
-                mManager.startSectionAt(playbackSectionStart);
-                mManager.seekTo(playbackSectionStart);
-                mManager.stopSectionAt(playbackSectionEnd);
-                //WavPlayer.selectionStart(playbackSectionStart);
-                // TODO: Figure out a way to call PlaybackScreen.placeStartMarker and PlaybackScreen.placeEndMarker instead of re-writing the code here
-                int toShow[] = {R.id.btnClear, R.id.btnCut};
-                int toHide[] = {R.id.btnEndMark, R.id.btnStartMark};
-                mManager.swapViews(toShow, toHide);
-                mManager.updateUI();
+//                startPosition = (int) event1.getX();
+//                endPosition = (int) event2.getX();
+//                int startPositionMinimap = startPosition;
+//                int endPositionMinimap = endPosition;
+//                int playbackSectionStart = (int) mCut.timeAdjusted((int)Math.round((startPositionMinimap / (double) getWidth()) * (mManager.getDuration() - mCut.getSizeCut())));
+//                int playbackSectionEnd = (int) mCut.timeAdjusted((int)Math.round((endPositionMinimap / (double) getWidth()) * (mManager.getDuration() - mCut.getSizeCut())));
+//                if (startPosition > endPosition) {
+//                    int temp = playbackSectionEnd;
+//                    playbackSectionEnd = playbackSectionStart;
+//                    playbackSectionStart = temp;
+//                    temp = endPositionMinimap;
+//                    endPositionMinimap = startPositionMinimap;
+//                    startPositionMinimap = temp;
+//                }
+//                SectionMarkers.setMinimapMarkers(startPositionMinimap, endPositionMinimap);
+//                SectionMarkers.setMainMarkers(playbackSectionStart, playbackSectionEnd);
+//                mManager.startSectionAt(playbackSectionStart);
+//                mManager.seekTo(playbackSectionStart);
+//                mManager.stopSectionAt(playbackSectionEnd);
+//                //BufferPlayer.selectionStart(playbackSectionStart);
+//                // TODO: Figure out a way to call PlaybackScreen.placeStartMarker and PlaybackScreen.placeEndMarker instead of re-writing the code here
+//                int toShow[] = {R.id.btn_clear, R.id.btn_cut};
+//                int toHide[] = {R.id.btn_end_mark, R.id.btn_start_mark};
+//                mManager.swapViews(toShow, toHide);
+//                mManager.updateUI();
             }
             return true;
         }
@@ -114,8 +113,8 @@ public class MinimapView extends CanvasView {
         if(SectionMarkers.shouldDrawMarkers() ){
             int start = SectionMarkers.getMinimapMarkerStart();
             int end = SectionMarkers.getMinimapMarkerEnd();
-//            int start = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerStart() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
-//            int end = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerEnd() / (double) getWidth()) * WavPlayer.getDuration())) / (double) (WavPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
+//            int start = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerStart() / (double) getWidth()) * BufferPlayer.getDuration())) / (double) (BufferPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
+//            int end = (int)(mCut.timeAdjusted((int)Math.round((SectionMarkers.getMinimapMarkerEnd() / (double) getWidth()) * BufferPlayer.getDuration())) / (double) (BufferPlayer.getDuration() - mCut.getSizeCut()) * getWidth());
             drawPlaybackSection(canvas, start, end);
             //System.out.println("should have drawn sMarkers on minimap at " + SectionMarkers.getMinimapMarkerStart());
 

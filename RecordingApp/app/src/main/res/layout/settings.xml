@@ -1,44 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/action_bar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/abc_action_bar_default_height_material"
-        android:background="@color/primary" >
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:padding="@dimen/abc_action_bar_icon_vertical_padding_material"
-            android:src="@drawable/ic_back"
-            android:background="#00000000"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:clickable="true"
-            android:onClick="onBackPressed"/>
-
-        <TextView
-            android:id="@+id/action_bar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Settings"
-            android:textColor="@color/text_light"
-            android:layout_toEndOf="@id/btnBack"
-            android:layout_centerVertical="true"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
-
-    </RelativeLayout>
+    <!--<android.support.v7.widget.Toolbar-->
+        <!--android:id="@+id/toolbar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="@dimen/abc_action_bar_default_height_material"-->
+        <!--android:theme="@style/TR.Toolbar"-->
+        <!--android:popupTheme="@style/TR.Popup"-->
+        <!--/>-->
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/action_bar">
+        >
 
         <fragment
             android:id="@+id/preference_fragment"
@@ -46,240 +24,14 @@
             android:layout_height="match_parent"
             class="wycliffeassociates.recordingapp.SettingsPage.SettingsFragment"/>
 
+        <fragment
+            android:id="@+id/fragment_scroll_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            class="wycliffeassociates.recordingapp.SettingsPage.SettingsFragment"/>
+
+
     </FrameLayout>
 
 
-
-    <!-- Unneeded code -->
-
-    <RelativeLayout android:visibility="invisible"
-        android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#c879549d"
-        android:focusableInTouchMode="true">
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:id="@+id/File_Name"
-                android:paddingTop="20dp">
-
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="File Name"
-                    android:id="@+id/displayFileName"
-                    android:textSize="50sp"
-                    android:gravity="center_horizontal" />
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/File_Name_Buttons">
-
-                    <wycliffeassociates.recordingapp.SettingsPage.MyAutoCompleteTextView
-                        android:inputType="textNoSuggestions"
-                        android:id="@+id/setLangCode"
-                        android:layout_width="300dp"
-                        android:layout_height="60dp"
-                        android:text="Reset"
-                        android:gravity="center"
-                        android:background="#ffffff"
-                        android:layout_weight="1"
-                        android:layout_gravity="center"
-                        android:completionThreshold="1"
-                        android:backgroundTint="#ffffff" />
-
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="5dp"
-                        android:layout_height="match_parent"
-                        android:id="@+id/space"></LinearLayout>
-
-                    <wycliffeassociates.recordingapp.SettingsPage.MyAutoCompleteTextView
-                        android:inputType="textNoSuggestions"
-                        android:id="@+id/setBookCode"
-                        android:layout_width="300dp"
-                        android:layout_height="60dp"
-                        android:text="Reset"
-                        android:gravity="center"
-                        android:background="#ffffff"
-                        android:layout_weight="1"
-                        android:completionThreshold="1"
-                        android:layout_gravity="center"
-                        android:backgroundTint="#ffffff" />
-
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="5dp"
-                        android:layout_height="match_parent"
-                        android:id="@+id/space2"></LinearLayout>
-
-                    <EditText
-                        android:id="@+id/setChapter"
-                        android:text="Reset"
-                        android:gravity="center"
-                        android:layout_width="300dp"
-                        android:layout_height="60dp"
-                        android:layout_weight="1"
-                        android:layout_gravity="center"
-                        android:inputType="number"
-                        android:backgroundTint="#ffffff"
-                        android:background="#ffffff" />
-
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="5dp"
-                        android:layout_height="match_parent"
-                        android:id="@+id/space3" />
-
-                    <EditText
-                        android:id="@+id/tReset"
-                        android:text="Reset"
-                        android:gravity="center"
-                        android:layout_width="300dp"
-                        android:layout_height="60dp"
-                        android:layout_weight="1"
-                        android:layout_gravity="center"
-                        android:inputType="number"
-                        android:backgroundTint="#ffffff"
-                        android:background="#ffffff" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="enter_value_here"
-                    android:id="@+id/defaultFileName"
-                    android:gravity="center_horizontal"
-                    android:textSize="35sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:background="#ffa87ad5"></LinearLayout>
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:id="@+id/Default_Folder"
-                android:weightSum="1"
-                android:paddingTop="20dp">
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/setSaveDirectory"
-                    android:src="@drawable/ic_purple_folder_56"
-                    android:background="#00000000"
-                    android:layout_gravity="center" />
-
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Default Folder"
-                    android:id="@+id/textView9"
-                    android:textSize="50sp"
-                    android:gravity="center_horizontal"
-                    android:layout_gravity="bottom" />
-
-                <TextView
-                    android:layout_width="550dp"
-                    android:layout_height="50dp"
-                    android:text="path/pathy-path/pathy-path-path"
-                    android:id="@+id/showSaveDirectory"
-                    android:gravity="center_horizontal"
-                    android:textSize="25sp"
-                    android:background="#ffffff"
-                    android:layout_gravity="center"
-                    android:backgroundTint="#ffffff" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:background="#ffa87ad5" />
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1.1"
-                android:id="@+id/FTP"
-                android:layout_gravity="right"
-                android:paddingTop="20dp"
-                android:paddingBottom="20dp">
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/setFtp"
-                    android:src="@drawable/ic_ftp_purple"
-                    android:background="#00000000"
-                    android:layout_gravity="center" />
-
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Set FTP"
-                    android:id="@+id/textView10"
-                    android:textSize="50sp"
-                    android:gravity="center_horizontal"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:background="#ffa87ad5" />
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1.2">
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnRestoreDefault"
-                    android:text="Restore Default Settings"
-                    android:background="#ffffff"
-                    android:textSize="15sp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:backgroundTint="#ffffff" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/serverSync"
-                    android:text="Sync with Server"
-                    android:background="#ffffff"
-                    android:textSize="15sp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1.2"
-                    android:backgroundTint="#ffffff" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </RelativeLayout>
-
-</RelativeLayout>
+</LinearLayout>

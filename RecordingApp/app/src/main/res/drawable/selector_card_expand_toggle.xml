@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:state_activated="false"
+        android:state_enabled="true"
+        android:drawable="@drawable/ic_chevron_right_black_48dp"
+        />
+
+    <item
+        android:state_activated="true"
+        android:state_enabled="true"
+        android:drawable="@drawable/ic_chevron_down_black_48dp"
+        />
+
+    <item
+        android:state_activated="false"
+        android:state_enabled="false"
+        android:drawable="@drawable/play_white_disabled"
+        />
+
+    <item
+        android:state_enabled="false"
+        android:drawable="@drawable/play_white_disabled"
+        />
+
+    <item android:drawable="@drawable/play_blue" />
+
+</selector>

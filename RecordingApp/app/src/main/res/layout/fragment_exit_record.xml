@@ -23,7 +23,7 @@
         android:layout_marginRight="16dp" />
 
     <ImageButton
-        android:id="@+id/btnSave"
+        android:id="@+id/btn_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_project_continue"

@@ -17,54 +17,79 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        tools:replace="android:theme">
-        <activity
-            android:name=".MainMenu"
-            android:label="@string/app_name" >
+        android:theme="@style/TR.NoActionBar"
+        tools:replace="android:theme"
+        >
+
+        <!-- Splash screen -->
+        <activity android:name=".SplashScreen"
+            android:label="@string/app_name"
+            android:screenOrientation="locked"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--<activity android:name=".MainMenu" />-->
-        <activity android:name=".Recording.RecordingScreen" android:screenOrientation="landscape" android:noHistory="true"/>
-        <activity android:name=".Playback.PlaybackScreen" android:screenOrientation="landscape"/>
-        <activity android:name=".FilesPage.AudioFiles" />
+
+        <!-- Main activity -->
+        <activity android:name=".MainMenu" />
+
+        <!-- Other activities -->
+        <activity android:name=".Recording.RecordingScreen"
+            android:screenOrientation="landscape"
+            android:noHistory="true"
+            />
+
+        <activity android:name=".Playback.PlaybackScreen"
+            android:screenOrientation="landscape"
+            />
+
+        <activity android:name=".Playback.PlaybackActivity"
+            android:screenOrientation="landscape"
+            />
+
         <activity android:name=".SettingsPage.Settings"
-            android:windowSoftInputMode="stateUnchanged"/>
+            android:theme="@style/TR"
+            />
 
-        <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
+        <activity android:name=".ProjectManager.activities.ActivityProjectManager"
+            />
+        <activity android:name=".ProjectManager.activities.ActivityChapterList"
+            />
+        <activity android:name=".ProjectManager.activities.ActivityUnitList"
+            />
 
-        <activity android:name=".SettingsPage.LanguageActivity">
-            <intent-filter>
-            <action android:name="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT" />
-            <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-
-        <activity android:name=".SettingsPage.BookActivity">
-            <intent-filter>
-                <action android:name="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".SettingsPage.SelectSourceDirectory">
+        <activity android:name=".project.SelectSourceDirectory">
             <intent-filter>
                 <action android:name="wycliffeassociates.recordingapp.SettingsPage.SELECT_SRC_INTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".FilesPage.ExportFiles" />
-        <service android:name=".Recording.WavRecorder" />
-        <service android:name=".Recording.WavFileWriter" />
+        <activity android:name=".project.SourceAudioActivity"
+            android:theme="@style/TR"
+            />
+        <activity android:name=".project.ProjectWizardActivity"
+            android:theme="@style/TR"
+            />
+
+        <!-- ?? -->
+        <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
         <activity android:name=".FilesPage.Export.FolderExport$StorageAccess" />
         <activity android:name=".FilesPage.Export.AppExport$ShareZipToApps"/>
-        <activity android:name=".FilesPage.FTPActivity" android:theme="@style/Theme.UserDialog"/>
-        <activity android:name=".SettingsPage.connectivity.LanguageNamesRequest" />
+
+
+        <activity android:name="com.door43.login.ProfileActivity" />
+        <activity android:name="com.door43.login.RegisterDoor43Activity" />
+        <activity android:name="com.door43.login.RegisterOfflineActivity" />
+        <activity android:name="com.door43.login.TermsOfUseActivity" />
+        <activity android:name="com.door43.login.LoginDoor43Activity" />
+        <activity android:name="com.door43.login.legal.LegalDocumentActivity" />
+
+
+        <service android:name=".Recording.WavRecorder" />
+        <service android:name=".Recording.WavFileWriter" />
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />

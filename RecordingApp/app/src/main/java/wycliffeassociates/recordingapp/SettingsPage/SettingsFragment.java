@@ -1,73 +1,88 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
-import android.app.Activity;
-import android.content.Context;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import java.security.Key;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import wycliffeassociates.recordingapp.ProjectManager.tasks.ResyncLanguageNamesTask;
 import wycliffeassociates.recordingapp.R;
+import wycliffeassociates.recordingapp.utilities.TaskFragment;
 
 /**
  * Created by leongv on 12/17/2015.
  */
-public class SettingsFragment extends PreferenceFragment  implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class SettingsFragment extends PreferenceFragment  implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    Context context;
+    LanguageSelector mParent;
+    SharedPreferences mSharedPreferences;
+    private TaskFragment mTaskFragment;
+    private String TAG_TASK_FRAGMENT = "tag_task_fragment";
 
-    public static final String KEY_PREF_LANG = "pref_lang";
-    public static final String KEY_PREF_BOOK = "pref_book";
-    public static final String KEY_PREF_CHAPTER = "pref_chapter";
-    public static final String KEY_PREF_CHUNK = "pref_chunk";
-    private static final String KEY_PREF_FILENAME = "pref_filename";
-    private static final String KEY_PREF_TAKE = "pref_take";
-    private static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
-    private static final String KEY_PREF_VERSE = "pref_verse";
-//    sharedPref;
+    interface LanguageSelector{
+        void sourceLanguageSelected();
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preference);
-
-        SharedPreferences sharedPref = getPreferenceScreen().getSharedPreferences();
-
-        context = getActivity();
-
+        mSharedPreferences = getPreferenceScreen().getSharedPreferences();
+        mParent = (LanguageSelector) getActivity();
         // Below is the code to clear the SharedPreferences. Use it wisely.
-        // sharedPref.edit().clear().commit();
+        // mSharedPreferences.edit().clear().commit();
 
         // Register listener(s)
-        sharedPref.registerOnSharedPreferenceChangeListener(this);
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        // Initial summary update to display the right values
-        for (String k : sharedPref.getAll().keySet()) {
-            System.out.println("UPDATING SUMMARY FOR: " + k);
-            updateSummaryText(sharedPref, k);
+        FragmentManager fm = getFragmentManager();
+        mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+        if (mTaskFragment == null) {
+            mTaskFragment = new TaskFragment();
+            fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
+            fm.executePendingTransactions();
         }
+
+        Preference sourceLanguageButton = (Preference)findPreference(Settings.KEY_PREF_GLOBAL_LANG_SRC);
+        sourceLanguageButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                mParent.sourceLanguageSelected();
+                return true;
+            }
+        });
+
+        Preference addTemporaryLanguageButton = (Preference)findPreference(Settings.KEY_PREF_ADD_LANGUAGE);
+        addTemporaryLanguageButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AddTargetLanguageDialog add = new AddTargetLanguageDialog();
+                    add.show(getFragmentManager(), "add");
+                    return false;
+                }
+            }
+        );
+
+        Preference updateLanguagesButton = (Preference) findPreference(Settings.KEY_PREF_UPDATE_LANGUAGES);
+        updateLanguagesButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                mTaskFragment.executeRunnable(
+                        new ResyncLanguageNamesTask(1, getActivity()),
+                        "Updating Languages",
+                        "Please wait...",
+                        true
+                        );
+                return true;
+            }
+        });
     }
 
     @Override
@@ -85,20 +100,8 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
     public void onResume() {
         super.onResume();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_LANG);
-        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_BOOK);
-        updateSummaryText(getPreferenceManager().getSharedPreferences(), KEY_PREF_FILENAME);
-        if(getPreferenceManager().getSharedPreferences().getString(KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0){
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setEnabled(false);
-            findPreference(KEY_PREF_CHUNK).setEnabled(true);
-        } else {
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setEnabled(true);
-            findPreference(KEY_PREF_CHUNK).setEnabled(false);
-
+        for (String k : mSharedPreferences.getAll().keySet()) {
+            updateSummaryText(mSharedPreferences, k);
         }
     }
 
@@ -108,51 +111,27 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
-        updateSummaryText(sharedPref, key);
-        if(key.compareTo(KEY_PREF_TAKE) == 0){
-            //sharedPref.edit().putString(KEY_PREF_TAKE, "1").commit();
-        }
-        if(getPreferenceManager().getSharedPreferences().getString(KEY_PREF_CHUNK_VERSE, "chunk").compareTo("chunk") == 0){
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setEnabled(false);
-            findPreference(KEY_PREF_CHUNK).setEnabled(true);
-        } else {
-            findPreference(KEY_PREF_CHUNK).setShouldDisableView(true);
-            findPreference(KEY_PREF_VERSE).setShouldDisableView(false);
-            findPreference(KEY_PREF_VERSE).setEnabled(true);
-            findPreference(KEY_PREF_CHUNK).setEnabled(false);
-        }
-        Settings.updateFilename(getActivity());
+    public void onSharedPreferenceChanged(SharedPreferences mSharedPreferences, String key) {
+        updateSummaryText(mSharedPreferences, key);
     }
 
-    private void updateSummariesSetViaActivities(SharedPreferences sharedPref){
-        //Doing this because the sharedPreferenceChanged method is not called from the language select activity
-        findPreference(Settings.KEY_PREF_LANG_SRC).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG_SRC, ""));
-        findPreference(Settings.KEY_PREF_LANG).setSummary(sharedPref.getString(Settings.KEY_PREF_LANG, ""));
-
-        //if book was changed, need to update these...
-        findPreference(Settings.KEY_PREF_CHAPTER).setSummary(sharedPref.getString(Settings.KEY_PREF_CHAPTER, "1"));
-        findPreference(Settings.KEY_PREF_CHUNK).setSummary(sharedPref.getString(Settings.KEY_PREF_CHUNK, "1"));
-        findPreference(Settings.KEY_PREF_VERSE).setSummary(sharedPref.getString(Settings.KEY_PREF_VERSE, "1"));
-
-        String uristring = sharedPref.getString(Settings.KEY_PREF_SRC_LOC, "");
+    private void updateSummariesSetViaActivities(SharedPreferences mSharedPreferences){
+        String uristring = mSharedPreferences.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, "");
         Uri dir = Uri.parse(uristring);
         if(dir != null) {
             uristring = dir.getLastPathSegment();
             //This removes "primary:", though maybe this is helpful in identifying between sd card and internal storage.
             //uristring = uristring.substring(uristring.indexOf(":")+1, uristring.length());
-            findPreference(Settings.KEY_PREF_SRC_LOC).setSummary(uristring);
+            findPreference(Settings.KEY_PREF_GLOBAL_SOURCE_LOC).setSummary(uristring);
         } else {
-            findPreference(Settings.KEY_PREF_SRC_LOC).setSummary(sharedPref.getString(Settings.KEY_PREF_SRC_LOC, ""));
+            findPreference(Settings.KEY_PREF_GLOBAL_SOURCE_LOC).setSummary(mSharedPreferences.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, ""));
         }
     }
 
-    public void updateSummaryText(SharedPreferences sharedPref, String key) {
+    public void updateSummaryText(SharedPreferences mSharedPreferences, String key) {
         try {
-            updateSummariesSetViaActivities(sharedPref);
-            String text  = sharedPref.getString(key, "");
+            updateSummariesSetViaActivities(mSharedPreferences);
+            String text  = mSharedPreferences.getString(key, "");
             if(findPreference(key) != null) {
                 findPreference(key).setSummary(text);
             }

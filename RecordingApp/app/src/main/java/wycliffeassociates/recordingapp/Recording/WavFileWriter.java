@@ -1,140 +1,151 @@
 package wycliffeassociates.recordingapp.Recording;
 
+import android.app.Application;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.Utils;
+import wycliffeassociates.recordingapp.wav.WavFile;
+import wycliffeassociates.recordingapp.wav.WavOutputStream;
 
 
-public class WavFileWriter extends Service{
+public class WavFileWriter extends Service {
 
-    private String filename = null;
+    public static final String KEY_WAV_FILE = "wavfile";
     private String nameWithoutExtension = null;
-    private String visTempFile = "visualization.vis";
     public static int largest = 0;
 
-    @Override
-    public void onCreate(){
-
+    public static Intent getIntent(Context ctx, WavFile wavFile) {
+        Intent intent = new Intent(ctx, WavFileWriter.class);
+        intent.putExtra(KEY_WAV_FILE, wavFile);
+        return intent;
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
-        filename = intent.getStringExtra("audioFileName");
-        nameWithoutExtension = filename.substring(filename.lastIndexOf("/")+1, filename.lastIndexOf("."));
-        final int screenWidth = intent.getIntExtra("screenWidth", 0);
-        System.out.println("Passed in string name " + filename);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        final WavFile audioFile = intent.getParcelableExtra(KEY_WAV_FILE);
+        String name = audioFile.getFile().getName();
+        nameWithoutExtension = name.substring(0, name.lastIndexOf("."));
         Thread writingThread = new Thread(new Runnable() {
             @Override
             public void run() {
-
                 boolean stopped = false;
-                try {
-                    FileOutputStream wavFile = new FileOutputStream(filename);
-                    writeWaveFileHeaderPlaceholder(wavFile);
-                    while(!stopped){
+
+                try (WavOutputStream rawAudio = new WavOutputStream(audioFile, true)) {
+                    //WARNING DO NOT USE BUFFERED OUTPUT HERE, WILL CAUSE END LINE TO BE OFF IN PLAYBACK
+                    while (!stopped) {
                         RecordingMessage message = RecordingQueues.writingQueue.take();
-                        if(message.isStopped()){
+                        if (message.isStopped()) {
+                            Logger.w(this.toString(), "raw audio thread received a stop message");
                             stopped = true;
-                        }
-                        else {
-                            if(!message.isPaused())
-                                wavFile.write(message.getData());
-                            else
-                                System.out.println("paused writing");
+                        } else {
+                            if (!message.isPaused()) {
+                                rawAudio.write(message.getData());
+                            } else {
+                                Logger.w(this.toString(), "raw audio thread received a onPause message");
+                            }
                         }
                     }
-                    System.out.println("writing to file");
-                    wavFile.close();
-                    File file = new File(filename);
-                    long totalAudioLength = file.length();
-                    overwriteHeaderData(filename, totalAudioLength);
+                    Logger.w(this.toString(), "raw audio thread exited loop");
                     RecordingQueues.writingQueue.clear();
-                    Logger.e(this.toString(), "Writing queue finishing, sending done message");
-                    RecordingQueues.doneWriting.put(new Boolean(true));
+                    Logger.e(this.toString(), "raw audio queue finishing, sending done message");
                 } catch (FileNotFoundException e) {
+                    Logger.e(this.toString(), "File not found exception in writing thread", e);
                     e.printStackTrace();
                 } catch (InterruptedException e) {
+                    Logger.e(this.toString(), "Interrupted Exception in writing queue", e);
                     e.printStackTrace();
-                } catch (IOException e ) {
+                } catch (IOException e) {
+                    Logger.e(this.toString(), "IO Exception in writing queue", e);
                     e.printStackTrace();
+                } finally {
+                    try {
+                        RecordingQueues.doneWriting.put(new Boolean(true));
+                    } catch (InterruptedException e) {
+                        Logger.e(this.toString(), "InterruptedException in finally of writing queue", e);
+                        e.printStackTrace();
+                    }
                 }
-
             }
         });
 
         Thread compressionThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                //Logger.w(this.toString(), "starting compression thread");
+                Logger.w(this.toString(), "starting compression thread");
                 int increment = AudioInfo.COMPRESSION_RATE;
-                //System.out.println("Increment is " + increment);
                 boolean stopped = false;
-                //int numRemoved = 0;
-                //int count = 0;
                 boolean stoppedRecording = false;
                 ArrayList<Byte> byteArrayList = new ArrayList<>();
-                try {
-                    File dir = new File(AudioInfo.fileDir+"/Visualization");
-                    if(!dir.exists()){
-                        dir.mkdir();
-                    }
-                    File file = new File(AudioInfo.pathToVisFile + nameWithoutExtension +".vis");
-                    if(!file.exists()){
+                File dir = new File(getExternalCacheDir(), "Visualization");
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                File file = new File(dir, nameWithoutExtension + ".vis");
+                if (!file.exists()) {
+                    file.getParentFile().mkdirs();
+                    try {
                         file.createNewFile();
-                        //Logger.w(this.toString(), "created a new vis file");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    FileOutputStream compressedFile = new FileOutputStream(file);
-                    while(!stopped){
-                        //Logger.w(this.toString(), "continue loop");
+                    Logger.w(this.toString(), "created a new vis file");
+                }
+                try (FileOutputStream compressedFile = new FileOutputStream(file)) {
+                    while (!stopped) {
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
-                        //Logger.w(this.toString(), "took a message from the queue");
-                        if(message.isStopped()){
-                            //Logger.w(this.toString(), "message contained stop");
+                        if (message.isStopped()) {
+                            Logger.w(this.toString(), "Compression thread received a stop message");
                             stopped = true;
                             stoppedRecording = true;
-                            //Logger.w(this.toString(), "writing remaining data");
+                            Logger.w(this.toString(), "Compression thread writing remaining data");
                             writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                             compressedFile.close();
-                            //Logger.w(this.toString(), "closing file");
-                        }
-                        else {
-                            if (!message.isPaused()){
-                                //Logger.w(this.toString(), "message contained data");
+                            Logger.w(this.toString(), "Compression thread closed file");
+                        } else {
+                            if (!message.isPaused()) {
                                 byte[] dataFromQueue = message.getData();
-                                for(byte x : dataFromQueue){
+                                for (byte x : dataFromQueue) {
                                     byteArrayList.add(new Byte(x));
-                                    //count++;
                                 }
-                                if(byteArrayList.size() >= increment) {
-                                    //Logger.w(this.toString(), "writing data to file");
+                                if (byteArrayList.size() >= increment) {
                                     writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                                 }
-                            }
-                            else{
-                                //System.out.println("paused writing");
+                            } else {
+                                Logger.w(this.toString(), "Compression thread received a onPause message");
                             }
                         }
                     }
-                    //Logger.w(this.toString(), "exited loop");
-                    //System.out.println("total count was " + count + " num removed is " + numRemoved);
+                    Logger.w(this.toString(), "exited compression thread loop");
                     RecordingQueues.compressionQueue.clear();
-                    //Logger.e(this.toString(), "Compression queue finishing, sending done message");
-                    RecordingQueues.doneWritingCompressed.put(new Boolean(true));
+                    Logger.w(this.toString(), "Compression queue finishing, sending done message");
                 } catch (FileNotFoundException e) {
+                    Logger.e(this.toString(), "File not found exception in compression thread", e);
                     e.printStackTrace();
                 } catch (InterruptedException e) {
+                    Logger.e(this.toString(), "Interrupted Exception in compression queue", e);
                     e.printStackTrace();
-                } catch (IOException e ) {
+                } catch (IOException e) {
+                    Logger.e(this.toString(), "IO Exception in compression queue", e);
                     e.printStackTrace();
+                } finally {
+                    try {
+                        RecordingQueues.doneWritingCompressed.put(new Boolean(true));
+                    } catch (InterruptedException e) {
+                        Logger.e(this.toString(), "InterruptedException in finally of Compression queue", e);
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -144,38 +155,30 @@ public class WavFileWriter extends Service{
         return START_STICKY;
     }
 
-    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording){
+    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording) throws IOException {
         byte[] data = new byte[increment];
-        byte[] minAndMax = new byte[2*AudioInfo.SIZE_OF_SHORT];
+        byte[] minAndMax = new byte[2 * AudioInfo.SIZE_OF_SHORT];
         //while there is more data in the arraylist than one increment
-        while(list.size() >= increment){
+        while (list.size() >= increment) {
             //remove that data and put it in an array for min/max computation
-            for(int i = 0; i < increment; i++){
+            for (int i = 0; i < increment; i++) {
                 data[i] = list.remove(0);
             }
             //write the min/max to the minAndMax array
             getMinAndMaxFromArray(data, minAndMax);
-            try {
-                //write the minAndMax array to the compressed file
-                compressedFile.write(minAndMax);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            //write the minAndMax array to the compressed file
+            compressedFile.write(minAndMax);
 
         }
         //if the recording was stopped and there is less data than a full increment, grab the remaining data
-        if(stoppedRecording){
+        if (stoppedRecording) {
             System.out.println("Stopped recording, writing some remaining data");
             byte[] remaining = new byte[list.size()];
-            for(int i = 0; i < list.size(); i++){
+            for (int i = 0; i < list.size(); i++) {
                 remaining[i] = list.remove(0);
             }
             getMinAndMaxFromArray(remaining, minAndMax);
-            try {
-                compressedFile.write(minAndMax);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            compressedFile.write(minAndMax);
         }
     }
 
@@ -184,111 +187,36 @@ public class WavFileWriter extends Service{
         return null;
     }
 
-    private void getMinAndMaxFromArray(byte[] data, byte[] minAndMax){
-        if(data.length < 4){ return; }
+    private void getMinAndMaxFromArray(byte[] data, byte[] minAndMax) {
+        if (data.length < 4) {
+            return;
+        }
         int max = Integer.MIN_VALUE;
         int min = Integer.MAX_VALUE;
         int minIdx = 0;
         int maxIdx = 0;
-        for(int j = 0; j < data.length; j+=AudioInfo.SIZE_OF_SHORT){
-            if((j+1) < data.length) {
+        for (int j = 0; j < data.length; j += AudioInfo.SIZE_OF_SHORT) {
+            if ((j + 1) < data.length) {
                 byte low = data[j];
                 byte hi = data[j + 1];
                 short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                if(max < value){
+                if (max < value) {
                     max = value;
                     maxIdx = j;
-                    if(value > largest){
+                    if (value > largest) {
                         largest = value;
                     }
                 }
-                if(min > value) {
+                if (min > value) {
                     min = value;
                     minIdx = j;
                 }
             }
         }
         minAndMax[0] = data[minIdx];
-        minAndMax[1] = data[minIdx+1];
+        minAndMax[1] = data[minIdx + 1];
         minAndMax[2] = data[maxIdx];
-        minAndMax[3] = data[maxIdx+1];
+        minAndMax[3] = data[maxIdx + 1];
 
     }
-
-    public static void overwriteHeaderData(String filepath, long totalDataLen){
-        long totalAudioLen = totalDataLen - AudioInfo.HEADER_SIZE; //While the header is 44 bytes, 8 consist of the data subchunk header
-        totalDataLen -= 8; //this subtracts out the data subchunk header
-        try {
-            RandomAccessFile fileAccessor = new RandomAccessFile(filepath, "rw");
-            //seek to header[4] to overwrite data length
-            long longSampleRate = AudioInfo.SAMPLERATE;
-            long byteRate = (AudioInfo.BPP * AudioInfo.SAMPLERATE * AudioInfo.NUM_CHANNELS) / 8;
-            byte[] header = new byte[44];
-
-            header[0] = 'R';
-            header[1] = 'I';
-            header[2] = 'F';
-            header[3] = 'F';
-            header[4] = (byte) (totalDataLen & 0xff);
-            header[5] = (byte) ((totalDataLen >> 8) & 0xff);
-            header[6] = (byte) ((totalDataLen >> 16) & 0xff);
-            header[7] = (byte) ((totalDataLen >> 24) & 0xff);
-            header[8] = 'W';
-            header[9] = 'A';
-            header[10] = 'V';
-            header[11] = 'E';
-            header[12] = 'f'; // fmt  chunk
-            header[13] = 'm';
-            header[14] = 't';
-            header[15] = ' ' ;
-            header[16] = 16; // 4 bytes: size of fmt chunk
-            header[17] = 0;
-            header[18] = 0;
-            header[19] = 0;
-            header[20] = 1; // format = 1
-            header[21] = 0;
-            header[22] = (byte) AudioInfo.NUM_CHANNELS; // number of channels
-            header[23] = 0;
-            header[24] = (byte) (longSampleRate & 0xff);
-            header[25] = (byte) ((longSampleRate >> 8) & 0xff);
-            header[26] = (byte) ((longSampleRate >> 16) & 0xff);
-            header[27] = (byte) ((longSampleRate >> 24) & 0xff);
-            header[28] = (byte) (byteRate & 0xff);
-            header[29] = (byte) ((byteRate >> 8) & 0xff);
-            header[30] = (byte) ((byteRate >> 16) & 0xff);
-            header[31] = (byte) ((byteRate >> 24) & 0xff);
-            header[32] = (byte) ((AudioInfo.NUM_CHANNELS * AudioInfo.BPP) / 8); // block align
-            header[33] = 0;
-            header[34] = AudioInfo.BPP; // bits per sample
-            header[35] = 0;
-            header[36] = 'd';
-            header[37] = 'a';
-            header[38] = 't';
-            header[39] = 'a';
-            header[40] = (byte) (totalAudioLen & 0xff);
-            header[41] = (byte) ((totalAudioLen >> 8) & 0xff);
-            header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
-            header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
-            fileAccessor.write(header);
-            fileAccessor.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-
-
-    /**
-     * Writes the Wave header to a file
-     *
-     * @param out filename of the .wav file being created
-     * @throws IOException
-     */
-    private void writeWaveFileHeaderPlaceholder(FileOutputStream out) throws IOException {
-        byte[] header = new byte[44];
-        out.write(header);
-    }
-
 }

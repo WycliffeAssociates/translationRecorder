@@ -16,9 +16,12 @@
 
     <EditText
         android:id="@+id/text"
-        android:layout_width="54dp"
+        android:minWidth="54dp"
+        android:layout_width="wrap_content"
         android:layout_height="54dp"
         android:layout_margin="0dp"
+        android:paddingStart="@dimen/default_padding_s"
+        android:paddingEnd="@dimen/default_padding_s"
         android:background="@color/very_dark_gray_0"
         android:text=""
         android:textColor="@color/text_light"

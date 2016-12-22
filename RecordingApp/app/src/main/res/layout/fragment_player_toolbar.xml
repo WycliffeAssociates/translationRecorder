@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/primary"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:id="@+id/file_info_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerVertical="true">
+
+        <!-- TODO: Remove -->
+        <TextView
+            android:id="@+id/filename_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Insert File Name"
+            android:textColor="@color/text_light"
+            android:textSize="24sp"
+            android:padding="4dp"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/playback_elapsed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00:00"
+                android:textColor="@color/text_light"
+                android:textSize="32sp"
+                android:padding="4dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/playback_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/ 00:00:00"
+                android:textColor="@color/text_light"
+                android:textSize="18sp"
+                android:padding="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerInParent="true" >
+
+        <ImageButton
+            android:id="@+id/btn_skip_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_skip_back"
+            android:background="#00000000"
+            />
+
+        <RelativeLayout
+            android:id="@+id/play_pause_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/btn_skip_back">
+
+            <ImageButton
+                android:id="@+id/btn_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_play_white"
+                android:background="#00000000" />
+
+            <ImageButton
+                android:id="@+id/btn_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_pause_white_48dp"
+                android:background="#00000000"
+                android:visibility="visible"
+                android:layout_centerInParent="true" />
+
+        </RelativeLayout>
+
+        <ImageButton
+            android:id="@+id/btn_skip_forward"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:layout_toEndOf="@id/play_pause_container"
+            android:src="@drawable/ic_skip_forward"
+            android:background="#00000000"
+            android:layout_marginStart="16dp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/btn_save"
+        android:layout_marginEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/btn_undo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="fitCenter"
+            android:layout_centerVertical="true"
+            android:visibility="invisible"
+            android:src="@drawable/ic_undo_white_48dp"
+            android:background="#00000000"
+            android:layout_marginRight="16dp"
+            android:padding="8dp" />
+
+        <ImageButton
+            android:id="@+id/btn_clear"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="fitCenter"
+            android:layout_centerVertical="true"
+            android:visibility="invisible"
+            android:src="@drawable/ic_clear_markers"
+            android:background="#00000000"
+            android:layout_marginRight="16dp"
+            android:layout_toEndOf="@id/btn_undo"/>
+
+        <RelativeLayout
+            android:id="@+id/start_end_marker_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/btn_clear">
+
+            <ImageButton
+                android:id="@+id/btn_start_mark"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="fitCenter"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_start_marker"
+                android:background="#00000000"
+                android:layout_marginRight="16dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_end_mark"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="fitCenter"
+                android:layout_centerVertical="true"
+                android:visibility="invisible"
+                android:src="@drawable/ic_out_marker"
+                android:background="#00000000"
+                android:layout_marginRight="16dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_cut"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="fitCenter"
+                android:layout_centerVertical="true"
+                android:visibility="invisible"
+                android:src="@drawable/ic_cut"
+                android:background="#00000000"
+                android:layout_marginRight="16dp"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_save_white"
+        android:background="#00000000"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true" />
+
+    <ImageButton
+        android:id="@+id/btn_drop_verse_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/bookmark_add"
+        android:background="?attr/selectableItemBackground"
+        android:visibility="gone"
+        />
+
+    <ImageButton
+        android:id="@+id/btn_verse_marker_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_done"
+        android:background="?attr/selectableItemBackground"
+        android:visibility="gone"
+        />
+
+</RelativeLayout>

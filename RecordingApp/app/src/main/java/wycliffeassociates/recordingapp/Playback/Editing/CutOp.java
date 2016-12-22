@@ -1,70 +1,77 @@
 package wycliffeassociates.recordingapp.Playback.Editing;
 
+import android.app.ProgressDialog;
 import android.util.Pair;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
 
 import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.Playback.WavPlayer;
 import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.wav.WavFile;
+import wycliffeassociates.recordingapp.wav.WavOutputStream;
 
 /**
  * Created by sarabiaj on 12/22/2015.
  */
 public class CutOp {
-    private Vector<Pair<Integer, Integer>> mStack;
-    private Vector<Pair<Integer, Integer>> mFlattenedStack;
-    private int mSizeCut = 0;
-    private Vector<Pair<Integer, Integer>> mCutStackUncmpLoc;
-    private Vector<Pair<Integer, Integer>> mCutStackCmpLoc;
-    private int mSizeCutCmp;
-    private int mSizeCutUncmp;
+    private Vector<Pair<Integer, Integer>> mTimeStack = new Vector<>();
+    private Vector<Pair<Integer, Integer>> mFlattenedFrameStack = new Vector<>();
+    private Vector<Pair<Integer, Integer>> mUncompressedFrameStack = new Vector<>();
+    private Vector<Pair<Integer, Integer>> mCompressedFrameStack = new Vector<>();
+    private int mSizeTimeCut = 0;
+    private int mSizeFrameCutCmp = 0;
+    private int mSizeFrameCutUncmp = 0;
 
     public CutOp() {
-        mStack = new Vector<>();
+        mTimeStack = new Vector<>();
     }
 
     public synchronized Vector<Pair<Integer,Integer>> getFlattenedStack(){
-        return mFlattenedStack;
+        return mFlattenedFrameStack;
     }
 
-    public synchronized void cut(int start, int end){
-        Pair<Integer, Integer> temp = new Pair<>(start, end);
-        mStack.add(temp);
-        mSizeCut = totalDataRemoved();
+    public synchronized void cut(int startFrame, int endFrame){
+        Pair<Integer, Integer> temp = new Pair<>(startFrame, endFrame);
+        mUncompressedFrameStack.add(temp);
+        mSizeTimeCut = totalFramesRemoved(); //?
         Logger.w(this.toString(), "Generating location stacks");
-        generateCutStackUncmpLoc();
+        generateTimeStack();
         generateCutStackCmpLoc();
     }
 
     public synchronized void clear(){
-        mStack.clear();
-        mFlattenedStack.clear();
-        mSizeCut = 0;
-        mCutStackCmpLoc.clear();
-        mCutStackUncmpLoc.clear();
-        mSizeCutCmp = 0;
-        mSizeCutUncmp = 0;
+        mTimeStack.clear();
+        mFlattenedFrameStack.clear();
+        mCompressedFrameStack.clear();
+        mUncompressedFrameStack.clear();
+        mSizeTimeCut = 0;
+        mSizeFrameCutCmp = 0;
+        mSizeFrameCutUncmp = 0;
     }
 
     public synchronized void undo(){
-        if(mStack.size() == 0){
+        if(mUncompressedFrameStack.size() == 0){
             return;
         }
-        mStack.remove(mStack.size() - 1);
-        mSizeCut = totalDataRemoved();
-        generateCutStackUncmpLoc();
+        mUncompressedFrameStack.remove(mUncompressedFrameStack.size() - 1);
+        mSizeTimeCut = totalFramesRemoved();
+        generateTimeStack();
         generateCutStackCmpLoc();
     }
 
     //change to use flattened stack
-    public synchronized int skip(int time){
+    public synchronized int skip(int frame){
         int max = -1;
-        for (Pair<Integer, Integer> cut : mStack) {
-            if (time >= cut.first && time < cut.second) {
+        for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+            if (frame >= cut.first && frame < cut.second) {
                 max = Math.max(cut.second, max);
             }
         }
@@ -72,17 +79,17 @@ public class CutOp {
     }
 
     public synchronized boolean hasCut(){
-        if(mStack.size() > 0){
+        if(mUncompressedFrameStack.size() > 0){
             return true;
         } else {
             return false;
         }
     }
 
-    public synchronized int skipReverse(int time){
+    public synchronized int skipReverse(int frame){
         int min = Integer.MAX_VALUE;
-        for (Pair<Integer, Integer> cut : mStack) {
-            if (time > cut.first && time <= cut.second) {
+        for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+            if (frame > cut.first && frame <= cut.second) {
                 min = Math.min(cut.first, min);
             }
         }
@@ -98,15 +105,15 @@ public class CutOp {
      * cut, it is added to a list and removed from the stack. For each cut in this list (beginning
      * only with one cut) cuts are added if they start between the current cut's start and end. Each
      * cut that is added is removed from the stack. When the list has been iterated over, the min
-     * and max are computed, which forms a new pair to be added to mFlattenedStack. The difference
+     * and max are computed, which forms a new pair to be added to mFlattenedFrameStack. The difference
      * between min and max are added to a sum. This process is repeated until the stack is empty.
      *
      * @return the total time removed from cuts.
      */
-    private synchronized int totalDataRemoved(){
-        Vector<Pair<Integer,Integer>> copy = new Vector<>(mStack.capacity());
-        mFlattenedStack = new Vector<>();
-        for (Pair<Integer, Integer> p : mStack) {
+    private synchronized int totalFramesRemoved(){
+        Vector<Pair<Integer,Integer>> copy = new Vector<>(mUncompressedFrameStack.capacity());
+        mFlattenedFrameStack = new Vector<>();
+        for (Pair<Integer, Integer> p : mUncompressedFrameStack) {
             copy.add(new Pair<>(p.first, p.second));
         }
         Collections.sort(copy, new Comparator<Pair<Integer, Integer>>() {
@@ -143,9 +150,10 @@ public class CutOp {
             for (int i = 1; i < list.size(); i++) {
                 end = (end < list.get(i).second) ? list.get(i).second : end;
             }
-            mFlattenedStack.add(new Pair<Integer, Integer>(start, end));
+            mFlattenedFrameStack.add(new Pair<Integer, Integer>(start, end));
             sum += end - start;
         }
+        mSizeFrameCutUncmp = sum;
         return sum;
     }
 
@@ -156,42 +164,40 @@ public class CutOp {
      * it adds total time cut out, and adds this to time. Time is then compared to the next cut, and
      * the process is repeated. Break when the next cut takes place at a later time than we're at.
      * <p/>
-     * mFlattenedStack is a representation of the cut stack WITHOUT any nested cuts, and based on
+     * mFlattenedFrameStack is a representation of the cut stack WITHOUT any nested cuts, and based on
      * the way it is computed, we can assume this list is sorted.
      *
-     * @param timeMs location that was computed from WavPlayer before considering cuts
+     * @param frame location that was computed from BufferPlayer before considering cuts
      * @return inflated time accounting for cuts
      */
-    public synchronized int timeAdjusted(int timeMs){
-        if(mFlattenedStack == null) {
-            return timeMs;
+    public synchronized int frameAdjusted(int frame){
+        if(mFlattenedFrameStack == null) {
+            return frame;
         }
-        int time = timeMs;
-        for (Pair<Integer, Integer> p : mFlattenedStack) {
-            if (time >= p.first) {
-                time += p.second - p.first;
+        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+            if (frame >= p.first) {
+                frame += p.second - p.first;
             } else {
                 break;
             }
         }
-        return time;
+        return frame;
     }
 
-    public synchronized int timeAdjusted(int timeMs, int playbackStart){
-        if(mFlattenedStack == null) {
-            return timeMs;
+    public synchronized int frameAdjusted(int frame, int playbackStart){
+        if(mFlattenedFrameStack == null) {
+            return frame;
         }
-        int time = timeMs;
-        for (Pair<Integer, Integer> p : mFlattenedStack) {
+        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
             if (p.second > playbackStart) {
-                if (time >= p.first) {
-                    time += p.second - p.first;
+                if (frame >= p.first) {
+                    frame += p.second - p.first;
                 } else {
                     break;
                 }
             }
         }
-        return time;
+        return frame;
     }
 
     /**
@@ -199,58 +205,68 @@ public class CutOp {
      * returns the adjusted time in the cut waveform.  The given
      * time must not be in an existing cut.
      *
-     * @param timeMs a time in ms in the uncut waveform.  timeMs must not
+     * @param frame a time in ms in the uncut waveform.  timeMs must not
      *               be in an existing cut.
      * @return the adjusted time in the cut waveform.
      */
-    public synchronized int reverseTimeAdjusted(int timeMs){
-        if (mFlattenedStack == null) {
-            return timeMs;
+    public synchronized int reverseFrameAdjusted(int frame){
+        if (mFlattenedFrameStack == null) {
+            return frame;
         }
-        int time = timeMs;
-        for (Pair<Integer, Integer> p : mFlattenedStack) {
-            if (timeMs >= p.second) {
-                time -= p.second - p.first;
+        int adjustedFrame = frame;
+        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+            if (frame >= p.second) {
+                adjustedFrame -= p.second - p.first;
             } else {
                 break;
             }
         }
 
-        return time;
+        return adjustedFrame;
+    }
+
+    private synchronized void generateTimeStack(){
+        mSizeTimeCut = 0;
+        mTimeStack = new Vector<Pair<Integer, Integer>>();
+        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+            Pair<Integer, Integer> y = new Pair<>(uncompressedFrameToTime(p.first), uncompressedFrameToTime(p.second));
+            mTimeStack.add(y);
+            mSizeTimeCut += y.second - y.first;
+        }
     }
 
     private synchronized void generateCutStackUncmpLoc(){
-        mSizeCutUncmp = 0;
-        mCutStackUncmpLoc = new Vector<Pair<Integer, Integer>>();
-        for (Pair<Integer, Integer> p : mFlattenedStack) {
-            Pair<Integer, Integer> y = new Pair<>(timeToUncmpLoc(p.first), timeToUncmpLoc(p.second));
-            mCutStackUncmpLoc.add(y);
-            mSizeCutUncmp += y.second - y.first;
+        mSizeFrameCutUncmp = 0;
+        mUncompressedFrameStack = new Vector<Pair<Integer, Integer>>();
+        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+            Pair<Integer, Integer> y = new Pair<>((p.first), (p.second));
+            mUncompressedFrameStack.add(y);
+            mSizeFrameCutUncmp += y.second - y.first;
         }
     }
 
     private synchronized void generateCutStackCmpLoc(){
-        mSizeCutCmp = 0;
-        mCutStackCmpLoc = new Vector<Pair<Integer, Integer>>();
-        for (Pair<Integer, Integer> p : mFlattenedStack) {
-            Pair<Integer, Integer> y = new Pair<>(timeToCmpLoc(p.first), timeToCmpLoc(p.second));
-            mCutStackCmpLoc.add(y);
-            mSizeCutCmp += y.second - y.first;
+        mSizeFrameCutCmp = 0;
+        mCompressedFrameStack = new Vector<Pair<Integer, Integer>>();
+        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+            Pair<Integer, Integer> y = new Pair<>(uncompressedToCompressed(p.first), uncompressedToCompressed(p.second));
+            mCompressedFrameStack.add(y);
+            mSizeFrameCutCmp += y.second - y.first;
         }
     }
 
-    public synchronized int timeToUncmpLoc(int timeMs){
+    public int timeToUncmpLoc(int timeMs){
         int seconds = timeMs/1000;
         int ms = (timeMs-(seconds*1000));
         int tens = ms/10;
 
 
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
-        idx *= 2;
+        //idx *= 2;
         return idx;
     }
 
-    public synchronized int timeToCmpLoc(int timeMs){
+    public int timeToCmpLoc(int timeMs){
         int seconds = timeMs/1000;
         int ms = (timeMs-(seconds*1000));
         int tens = ms/10;
@@ -258,42 +274,53 @@ public class CutOp {
 
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         idx /= 25;
-        idx *= 2;
+        //idx *= 2;
         return idx;
     }
 
-    public synchronized int skipLoc(int loc, boolean compressed){
+    public int uncompressedFrameToTime(int frame) {
+        return (int) Math.floor(frame/44.1);
+    }
+
+    public int uncompressedToCompressed(int frame) {
+        return frame / 25;
+    }
+
+    public synchronized int skipFrame(int frame, boolean compressed){
         int max = -1;
-        Vector<Pair<Integer, Integer>> stack = (compressed) ? mCutStackCmpLoc : mCutStackUncmpLoc;
+        Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mFlattenedFrameStack;
         for (Pair<Integer, Integer> cut : stack) {
-            if (loc >= cut.first && loc < cut.second) {
+            if (frame >= cut.first && frame < cut.second) {
                 max = Math.max(cut.second, max);
             }
         }
         return max;
     }
 
-    public synchronized int relativeLocToAbsolute(int loc, boolean compressed){
-        Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc;
+    public synchronized int relativeLocToAbsolute(int frame, boolean compressed){
+        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mFlattenedFrameStack;
         if(stack == null){
-            return loc;
+            return frame;
         }
         for (Pair<Integer, Integer> cut : stack) {
-            if (loc >= cut.first) {
-                loc += cut.second - cut.first;
+            if (frame >= cut.first) {
+                frame += cut.second - cut.first;
             }
         }
-        return loc;
+        return frame;
     }
 
-    public synchronized boolean cutExistsInRange(int position, int range){
+    public synchronized boolean cutExistsInRange(int frame, int range){
         if(hasCut()) {
-            for (Pair<Integer, Integer> cut : mCutStackUncmpLoc) {
-                //if the position is in the middle of a cut
-                if (position >= cut.first && position <= cut.second) {
+            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+                //if the frame is in the middle of a cut
+                if (frame >= cut.first && frame <= cut.second) {
                     return true;
-                    //if the cut is between the position and the end of the range
-                } else if (position < cut.first && (position + range) >= cut.second) {
+                    //if the cut is between the frame and the end of the range
+                } else if (frame < cut.first && (frame + range) >= cut.second) {
+                    return true;
+                    //if the frame begins before the first cut, and ends after
+                } else if (frame < cut.first && (frame + range) > cut.first) {
                     return true;
                 }
             }
@@ -303,28 +330,61 @@ public class CutOp {
     }
 
 
-    public synchronized int absoluteLocToRelative(int location, boolean compressed){
-        Vector<Pair<Integer,Integer>> stack = (compressed)? mCutStackCmpLoc : mCutStackUncmpLoc;
-        int loc = location;
+    public synchronized int absoluteLocToRelative(int frame, boolean compressed){
+        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mFlattenedFrameStack;
+        int loc = frame;
         if(stack == null){
             return loc;
         }
         for(int i = stack.size()-1; i >=0; i--) {
             Pair<Integer,Integer> cut = stack.get(i);
-            if (location >= cut.second) {
+            if (frame >= cut.second) {
                 loc -= cut.second - cut.first;
             }
         }
         return loc;
     }
 
-    public synchronized int getSizeCut(){
-        return mSizeCut;
+    public synchronized int getSizeTimeCut(){
+        return mSizeTimeCut;
     }
-    public synchronized int getSizeCutCmp(){
-        return mSizeCutCmp;
+    public synchronized int getSizeFrameCutCmp(){
+        return mSizeFrameCutCmp;
     }
-    public synchronized int getSizeCutUncmp(){
-        return mSizeCutUncmp;
+    public synchronized int getSizeFrameCutUncmp(){
+        return mSizeFrameCutUncmp;
     }
+
+    public void writeCut(WavFile to, final ShortBuffer buffer, ProgressDialog pd) throws IOException {
+        Logger.w(this.toString(), "Rewriting file to disk due to cuts");
+        pd.setProgress(0);
+        int audioLength = buffer.capacity();
+        try (WavOutputStream bos = new WavOutputStream(to, WavOutputStream.BUFFERED)){
+
+            int percent = (int)Math.round((audioLength) /100.0);
+            int count = percent;
+            for(int i = 0; i < audioLength; i++){
+                int skip = skipFrame(i, false);
+                if(skip != -1){
+                    i = skip;
+                    if(i >= audioLength){
+                        break;
+                    }
+                }
+                short sample = buffer.get(i);
+                byte hi = (byte)(((sample >> 8) & 0xFF));
+                byte lo = (byte)(sample & 0xFF);
+                bos.write(lo);
+                bos.write(hi);
+                if(count <= 0) {
+                    pd.incrementProgressBy(1);
+                    count = percent;
+                }
+                count--;
+            }
+            clear();
+        }
+        return;
+    }
+
 }

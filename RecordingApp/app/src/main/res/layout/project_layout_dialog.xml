@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:minWidth="@dimen/dialog_min_width"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dialog_content_margin">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open Bible Stories - Afaraf"
+            android:layout_marginBottom="@dimen/dialog_content_margin"
+            android:textColor="@color/dark_primary_text"
+            android:textSize="@dimen/headline"
+            android:id="@+id/title" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/formLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/Project"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/project_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Open Bible Stories (obs)"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/target_language"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/language_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Afaraf (aa)"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/translation_type"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/translation_type_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Unlocked Literal Bible (ULB)"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/unit"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/unit_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Verse"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Source Audio Language"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/source_audio_language"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:layout_marginRight="@dimen/default_padding_m"
+                    android:text=""/>
+
+                <ImageButton
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:id="@+id/edit_source_language"
+                    android:scaleType="fitCenter"
+                    android:background="?attr/selectableItemBackground"
+                    android:src="@drawable/ic_pencil_black_48dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="Source Audio Location"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/source_audio_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:layout_marginRight="@dimen/default_padding_m"
+                    android:text=""/>
+
+                <ImageButton
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:id="@+id/edit_source_location"
+                    android:scaleType="fitCenter"
+                    android:background="?attr/selectableItemBackground"
+                    android:src="@drawable/ic_pencil_black_48dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/progress"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body"
+                    android:text="60%"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contributors_group"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body"
+                    android:text="@string/translators"
+                    android:paddingRight="10dp"/>
+                <TextView
+                    android:id="@+id/translators"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/accent_dark"
+                    android:textSize="@dimen/body"
+                    android:text="translator"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/list_separator"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dialog_controls_margin">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageButton
+                android:id="@+id/delete_button"
+                android:src="@drawable/ic_delete_black_24dp"
+                android:background="?attr/selectableItemBackground"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_margin="12dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right|end">
+            <ImageButton
+                android:id="@+id/export_as_source_btn"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/export_as_source"
+                android:layout_margin="12dp"
+                android:scaleType="fitCenter" />
+            <ImageButton
+                android:id="@+id/sdcard_button"
+                android:src="@drawable/ic_sd_black_24dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_margin="12dp"
+                android:background="?attr/selectableItemBackground"
+                />
+            <ImageButton
+                android:id="@+id/folder_button"
+                android:src="@drawable/ic_folder_black_24dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_margin="12dp"
+                android:background="?attr/selectableItemBackground"
+                />
+
+            <ImageButton
+                android:visibility="gone"
+                android:id="@+id/publish_button"
+                android:src="@drawable/ic_cloud_upload_black_24dp"
+                android:layout_margin="12dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackground"
+                />
+
+            <ImageButton
+                android:id="@+id/other_button"
+                android:src="@drawable/ic_share_variant_black_24dp"
+                android:layout_height="36dp"
+                android:layout_width="36dp"
+                android:layout_margin="12dp"
+                android:background="?attr/selectableItemBackground"
+                />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,26 +1,26 @@
 package wycliffeassociates.recordingapp.Reporting;
 
 
-        import android.util.Log;
+import android.util.Log;
 
-        import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 
-        import java.io.BufferedReader;
-        import java.io.File;
-        import java.io.FileInputStream;
-        import java.io.FileOutputStream;
-        import java.io.IOException;
-        import java.io.InputStreamReader;
-        import java.nio.channels.FileChannel;
-        import java.text.DateFormat;
-        import java.text.SimpleDateFormat;
-        import java.util.ArrayList;
-        import java.util.Calendar;
-        import java.util.Date;
-        import java.util.List;
-        import java.util.Locale;
-        import java.util.regex.Matcher;
-        import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Logs messages using the android Log class and also records logs to a file if configured.
@@ -239,7 +239,7 @@ public class Logger {
     /**
      * Empties the log file
      */
-    public static void flush() {
+    public synchronized static void flush() {
         if (sInstance.mLogFile != null) {
             sInstance.mLogFile.delete();
         } else {
@@ -263,7 +263,7 @@ public class Logger {
      * @param logMessageTag A tag identifying a group of log messages.
      * @param logMessage    The message to add to the log.
      */
-    private void logToFile(Level level, String logMessageTag, String logMessage) {
+    private synchronized void logToFile(Level level, String logMessageTag, String logMessage) {
         // filter out logging levels
         if (level.getIndex() >= mMinLoggingLevel.getIndex() && mLogFile != null) {
             try {
@@ -298,7 +298,7 @@ public class Logger {
      * Returns a list of log entries
      * @return
      */
-    public static List<Entry> getLogEntries() {
+    public synchronized static List<Entry> getLogEntries() {
         List<Entry> logs = new ArrayList<>();
         if (sInstance.mLogFile != null) {
             try {

@@ -1,7 +1,7 @@
 package wycliffeassociates.recordingapp.Recording;
 
-import android.os.Bundle;
 import android.app.DialogFragment;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +24,7 @@ public class FragmentExitDialog extends DialogFragment implements View.OnClickLi
         rs = (RecordingScreen) getActivity();
 
         delete = (ImageButton) view.findViewById(R.id.btnDelete);
-        save = (ImageButton) view.findViewById(R.id.btnSave);
+        save = (ImageButton) view.findViewById(R.id.btn_save);
 
         delete.setOnClickListener(this);
         save.setOnClickListener(this);
@@ -35,11 +35,11 @@ public class FragmentExitDialog extends DialogFragment implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnSave:
+            case R.id.btn_save:
                 dismiss();
                 break;
             case R.id.btnDelete: {
-                rs.deleteTempFile();
+                //rs.deleteTempFile();
                 rs.finish();
                 break;
             }

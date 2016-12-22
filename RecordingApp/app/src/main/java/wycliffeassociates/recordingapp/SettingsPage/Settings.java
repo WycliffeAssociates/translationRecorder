@@ -1,146 +1,162 @@
 package wycliffeassociates.recordingapp.SettingsPage;
 
-import android.app.Activity;
-import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.Spinner;
-import android.widget.TextView;
 
-import com.google.gson.Gson;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-
-import wycliffeassociates.recordingapp.FilesPage.ExportFiles;
-import wycliffeassociates.recordingapp.MainMenu;
 import wycliffeassociates.recordingapp.R;
-import wycliffeassociates.recordingapp.SettingsPage.connectivity.LanguageNamesRequest;
+import wycliffeassociates.recordingapp.project.Language;
+import wycliffeassociates.recordingapp.project.ParseJSON;
+import wycliffeassociates.recordingapp.project.ScrollableListFragment;
+import wycliffeassociates.recordingapp.project.adapters.TargetLanguageAdapter;
+import wycliffeassociates.recordingapp.utilities.TaskFragment;
 
 /**
  *
  * The settings page -- for all persistent options/information.
  *
  */
-public class Settings extends Activity {
-    private Context c;
-    private Button hardReset;
-    private String sampleName;
-    public static final String KEY_PREF_SOURCE = "pref_source";
+public class Settings extends AppCompatActivity implements TaskFragment.OnTaskComplete, ScrollableListFragment.OnItemClickListener, SettingsFragment.LanguageSelector {
+    public static final String KEY_PREF_ANTHOLOGY = "pref_anthology";
+    public static final String KEY_PREF_VERSION = "pref_version";
     public static final String KEY_PREF_LANG = "pref_lang";
     public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
     public static final String KEY_PREF_BOOK = "pref_book";
+    public static final String KEY_PREF_BOOK_NUM = "pref_book_num";
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
-    public static final String KEY_PREF_FILENAME = "pref_filename";
     public static final String KEY_PREF_TAKE = "pref_take";
     public static final String KEY_PREF_CHUNK_VERSE = "pref_chunk_verse";
-    public static final String KEY_PREF_VERSE = "pref_verse";
+    public static final String KEY_PREF_START_VERSE = "pref_start_verse";
+    public static final String KEY_PREF_END_VERSE = "pref_end_verse";
     public static final String KEY_PREF_SRC_LOC = "pref_src_loc";
     public static final String KEY_SDK_LEVEL = "pref_sdk_level";
+    public static final String KEY_PROFILE = "pref_profile";
 
-    MyAutoCompleteTextView setLangCode,setBookCode;
+    public static final String KEY_PREF_GLOBAL_SOURCE_LOC = "pref_global_src_loc";
+    public static final String KEY_PREF_GLOBAL_LANG_SRC = "pref_global_lang_src";
+    public static final String KEY_PREF_ADD_LANGUAGE = "pref_add_temp_language";
+    public static final String KEY_PREF_UPDATE_LANGUAGES = "pref_update_languages";
 
-    /**
-     * Request code for Android 5.0+
-     */
-    final int SET_SAVE_DIR = 21;
 
-    /**
-     * Request code for Android <5.0
-     */
-    final int SET_SAVE_DIR2 = 22;
-
-    public static void updateFilename(Context c){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
-        String langCode = pref.getString(KEY_PREF_LANG, "en");
-        String bookCode = pref.getString(KEY_PREF_BOOK, "mat");
-        String chapter = formatDigit(pref.getString(KEY_PREF_CHAPTER, "1"));
-        String chunk = formatDigit(pref.getString(KEY_PREF_CHUNK, "1"));
-        String source = pref.getString(KEY_PREF_SOURCE, "udb");
-        String verse = formatDigit(pref.getString(KEY_PREF_VERSE, "1"));
-        String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
-        String filename;
-        if(chunkOrVerse.compareTo("chunk") == 0) {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + chunk;
-        } else {
-            filename = langCode + "_" + source + "_" + bookCode + "_" + chapter + "-" + verse;
-        }
-        pref.edit().putString(KEY_PREF_FILENAME, filename).commit();
-    }
-
-    public static void updateFilename(Context c, String lang, String src, String book,
-                                      int chap, int chunk){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
-        pref.edit().putString(KEY_PREF_LANG, lang).commit();
-        pref.edit().putString(KEY_PREF_SOURCE, src).commit();
-        pref.edit().putString(KEY_PREF_BOOK, book).commit();
-        pref.edit().putString(KEY_PREF_CHAPTER, String.valueOf(chap)).commit();
-        String chunkOrVerse = pref.getString(KEY_PREF_CHUNK_VERSE, "chunk");
-        if(chunkOrVerse.compareTo("chunk") == 0) {
-            pref.edit().putString(KEY_PREF_CHUNK, String.valueOf(chunk)).commit();
-        } else {
-            pref.edit().putString(KEY_PREF_VERSE, String.valueOf(chunk)).commit();
-        }
-        updateFilename(c);
-    }
-
-    public static String formatDigit(String number){
-        int value = Integer.parseInt(number);
-        return String.format("%02d", value);
-    }
-
-    public static void incrementTake(Context c, int setTo){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(c);
-        pref.edit().putString(KEY_PREF_TAKE, String.valueOf(setTo)).commit();
-        updateFilename(c);
-    }
+    private String mSearchText;
+    private FragmentManager mFragmentManager;
+    private Fragment mFragment;
+    public static boolean displayingList = false;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        displayingList = false;
+        mFragmentManager = getFragmentManager();
         setContentView(R.layout.settings);
         PreferenceManager.setDefaultValues(this, R.xml.preference, false);
-    }
 
-    public void resetPrefs() {
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Settings");
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     public void onBackPressed(View v) {
-        Intent intent = new Intent(Settings.this, MainMenu.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        backPressed();
     }
 
+    private void backPressed(){
+        if(displayingList){
+            FragmentManager fm = getFragmentManager();
+            fm.beginTransaction().remove(fm.findFragmentById(R.id.fragment_scroll_list)).commit();
+            displayingList = false;
+        } else {
+            finish();
+        }
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                backPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.language_menu, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        mMenu = menu;
+        super.onPrepareOptionsMenu(menu);
+        //if(mFragment instanceof LanguageListFragment) {
+        menu.findItem(R.id.action_update).setVisible(false);
+        menu.findItem(R.id.action_search).setVisible(false);
+
+        SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
+        final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+        searchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                mSearchText = s;
+                ((ScrollableListFragment)(mFragmentManager.findFragmentById(R.id.fragment_scroll_list))).onSearchQuery(s);
+                return true;
+            }
+        });
+        searchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        if(mSearchText != null){
+            searchViewAction.setQuery(mSearchText, true);
+        }
+        return true;
+    }
+
+    @Override
+    public void onItemClick(Object result) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        pref.edit().putString(KEY_PREF_GLOBAL_LANG_SRC, ((Language)result).getCode()).commit();
+        mFragmentManager.beginTransaction().remove(mFragmentManager.findFragmentById(R.id.fragment_scroll_list)).commit();
+        displayingList = false;
+        mMenu.findItem(R.id.action_search).setVisible(false);
+    }
+
+    @Override
+    public void sourceLanguageSelected() {
+        mMenu.findItem(R.id.action_search).setVisible(true);
+        Settings.displayingList = true;
+        mFragment = new ScrollableListFragment
+                .Builder(new TargetLanguageAdapter(Language.getLanguages(this), this))
+                .setSearchHint("Choose Source Language:")
+                .build();
+        mFragmentManager.beginTransaction().add(R.id.fragment_scroll_list, mFragment).commit();
+    }
+
+    @Override
+    public void onTaskComplete(int taskTag, int resultCode) {
+
+    }
 }

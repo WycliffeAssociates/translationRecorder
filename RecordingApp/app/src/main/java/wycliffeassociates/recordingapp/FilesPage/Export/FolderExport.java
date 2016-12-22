@@ -6,76 +6,55 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
-import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
-import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 
 /**
  * Created by sarabiaj on 12/10/2015.
  */
 public class FolderExport extends Export{
 
-    public FolderExport(ArrayList<FileItem> fileItemList,
-                        AudioFilesAdapter adapter, String currentDir){
-        super(fileItemList, adapter, currentDir);
+    public FolderExport(File projectToExport, Project project){
+        super(projectToExport, project);
     }
 
     /**
      * Exports to a folder or SD card by starting a wrapper activity around the Storage Access Framework
      */
     public void export(){
-        if(Export.shouldZip(mExportList)){
-            zipFiles(this);
-        } else {
-            handleUserInput();
-        }
+        zipFiles(this);
     }
 
     @Override
     protected void handleUserInput() {
         Intent i = new Intent(mCtx.getActivity(), StorageAccess.class);
-        System.out.println("size of export list is " + mExportList.size());
-        i.putStringArrayListExtra("exportList", mExportList);
-        i.putExtra("zipPath", mZipPath);
+        try {
+            i.putExtra("export_project", mProjectToExport.getCanonicalPath());
+            i.putExtra("zip_path", mZipFile.getCanonicalPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mCtx.startActivity(i);
     }
 
     public static class StorageAccess extends Activity{
 
         private Uri mCurrentUri;
-        private String mThisPath;
-        private String mZipPath;
-        private int mTotalFiles = 0;
-        private int mFileNum = 0;
-        private ArrayList<String> mExportList;
-        private int mNumFilesToExport;
+        private File mZipPath;
         private final int SAVE_FILE = 43;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             Intent intent = getIntent();
-            mExportList = intent.getStringArrayListExtra("exportList");
-            mZipPath = intent.getStringExtra("zipPath");
-
-            mThisPath = mExportList.get(0);
-            mNumFilesToExport = mExportList.size();
-            //export a zip
-            if (Export.shouldZip(mExportList)) {
-                createFile("application/zip", getNameFromPath(mZipPath));
-                //export a single wav
-            } else {
-                createFile("audio/*", getNameFromPath(mExportList.get(0)));
-            }
+            mZipPath = new File(intent.getStringExtra("zip_path"));
+            createFile("application/zip", mZipPath.getName());
         }
 
         /**
@@ -98,37 +77,30 @@ public class FolderExport extends Export{
             if (resultCode == Activity.RESULT_OK) {
                 if (requestCode == SAVE_FILE) {
                     mCurrentUri = resultData.getData();
-                    if(null!= mZipPath){
                         savefile(mCurrentUri, mZipPath);
                         mZipPath = null;//reset
-                    }//
-                    else
-                        savefile(mCurrentUri, mThisPath);
                 }
 
                 if(requestCode == 3){//delete zip file, needs to be done after upload
                     mZipPath = null;//set null for next time
                 }
-            } else {
-                finish();
             }
+            finish();
         }
 
         /**
          * Copies a file from a path to a uri
          * @param destUri The destination of the file
-         * @param path The original path to the file
+         * @param zippedProject The original path to the file
          */
-        public void savefile(Uri destUri, String path)
+        public void savefile(Uri destUri, File zippedProject)
         {
             BufferedInputStream bis = null;
             BufferedOutputStream bos = null;
             try {
-                String sourceFilename = path;
                 ParcelFileDescriptor destFilename = getContentResolver().openFileDescriptor(destUri, "w");
-                FileInputStream fis = new FileInputStream(sourceFilename);
+                FileInputStream fis = new FileInputStream(zippedProject);
                 bis = new BufferedInputStream(fis);
-                Logger.w(this.toString(), "Source file is " + sourceFilename);
                 FileOutputStream fos = new FileOutputStream(destFilename.getFileDescriptor());
                 bos = new BufferedOutputStream(fos);
                 byte[] buf = new byte[1024];
@@ -145,26 +117,7 @@ public class FolderExport extends Export{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                //not very well abstracted, but if we are working with non-zip-files
-                //keep saving files
-                if(!path.contains(".zip")) {
-                    iteratePath();
-                    if (mFileNum < mTotalFiles) {
-                        mThisPath = mExportList.get(mFileNum);
-                        createFile("audio/*", getNameFromPath(mThisPath));
-                    }
-                }
-                else//we just transferred a zip file, the old file needs to be deleted
-                {
-                    File toDelete = new File(path);
-                    try {
-                        toDelete.getCanonicalFile().delete();
-                    }
-                    catch(IOException e){
-                        e.printStackTrace();
-                    }
-                }
+                zippedProject.delete();
                 this.finish();
             }
         }
@@ -175,37 +128,11 @@ public class FolderExport extends Export{
          * @param fileName The name of the file selected.
          */
         private void createFile(String mimeType, String fileName) {
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT );
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType(mimeType);
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
             startActivityForResult(intent, SAVE_FILE);
-        }
-
-        /**
-         * A method to extract filename from the path
-         * @param path The paths to the files
-         * @return The simple filename of the file
-         */
-        public String getNameFromPath(String path){
-            String[] temp = path.split("/");
-            return temp[temp.length-1];
-        }
-
-        /**
-         * Iterates the file number that is being looked a
-         * @return Returns true if iteration worked, false if the end has been reached
-         */
-        public boolean iteratePath(){
-            if(mFileNum + 1 < mNumFilesToExport) {
-                mFileNum++;
-                return true;
-            }
-            if(mFileNum + 1 == mNumFilesToExport){
-                mFileNum++;
-                return false;
-            }
-            return false;
         }
     }
 }

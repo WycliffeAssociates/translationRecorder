@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ppv="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/card_bg"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:paddingLeft="@dimen/default_padding_m"
+    android:clickable="true">
+
+    <LinearLayout
+        android:id="@+id/text_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:weightSum="100"
+        android:gravity="center_vertical"
+        >
+
+        <TextView
+            android:id="@+id/language_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="40"
+            android:text="Language"
+            android:textStyle="bold"
+            android:textColor="@color/abc_primary_text_material_light"
+            android:textSize="@dimen/title"
+            android:textAlignment="gravity"
+            android:gravity="center_vertical"
+            android:clickable="false" />
+
+
+        <TextView
+            android:id="@+id/book_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="30"
+            android:text="Book"
+            android:textSize="@dimen/title"
+            android:textColor="@color/abc_primary_text_material_light"
+            android:textAlignment="gravity"
+            android:gravity="center_vertical"
+            />
+
+        <com.filippudak.ProgressPieView.ProgressPieView
+            android:id="@+id/progress_pie"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            ppv:ppvStrokeWidth="0dp"
+            ppv:ppvStrokeColor="@color/transparent"
+            ppv:ppvProgressColor="@color/primary"
+            ppv:ppvBackgroundColor="@color/primary_text_disabled_material_light"
+            android:clickable="true"
+            ppv:ppvProgress="65"
+            />
+
+        <LinearLayout
+            android:id="@+id/project_actions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="30"
+            android:weightSum="30"
+            android:gravity="right">
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:src="@drawable/ic_information_grey600_36dp"
+                android:clickable="true"
+                android:id="@+id/info_button"
+                android:background="@color/transparent"
+                />
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:src="@drawable/ic_microphone_grey600_36dp"
+                android:clickable="true"
+                android:id="@+id/record_button"
+                android:background="@color/transparent"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

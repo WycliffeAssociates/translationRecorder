@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
     <PreferenceCategory
         android:title="Translation Recorder Settings"
         android:key="pref_key_app_settings"
         android:layout="@layout/custom_pref_category">
 
-        <ListPreference
-            android:key="pref_chunk_verse"
-            android:layout="@layout/custom_pref"
-            android:title="Chunk or Verse"
-            android:entries="@array/chunk_verse_entries"
-            android:entryValues="@array/chunk_verse_values"
-            android:defaultValue="chunk" />
-
         <!--Not sure the default should be in the strings file; do other languages change directory text? -->
         <PreferenceScreen
-            android:key="pref_src_loc"
+            android:key="pref_global_src_loc"
             android:layout="@layout/custom_pref"
             android:title="Source Audio Location"
             android:summary="/storage/emulated/0/TranslationRecorder"
@@ -26,122 +19,25 @@
             </intent>
         </PreferenceScreen>
 
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="File Name Settings"
-        android:key="pref_key_file_name_lang"
-        android:layout="@layout/custom_pref_category">
-
         <PreferenceScreen
-            android:key="pref_lang_src"
+            android:key="pref_global_lang_src"
             android:layout="@layout/custom_pref"
             android:title="Source Language"
             android:summary="@string/pref_default_lang"
             android:defaultValue="@string/pref_default_lang">
-            <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
-                <extra android:name="lang_type" android:value="source" />
-            </intent>
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="pref_lang"
+            android:key="pref_add_temp_language"
             android:layout="@layout/custom_pref"
-            android:title="Target Language"
-            android:summary="@string/pref_default_lang"
-            android:defaultValue="@string/pref_default_lang">
-            <intent android:action="wycliffeassociates.recordingapp.SettingsPage.LANGUAGE_INTENT">
-                <extra android:name="lang_type" android:value="target" />
-            </intent>
+            android:title="Add Temporary Language">
         </PreferenceScreen>
-
-
-        <!--<wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference-->
-            <!--android:key="pref_lang"-->
-            <!--android:layout="@layout/custom_pref"-->
-            <!--android:title="Language"-->
-            <!--android:summary=""-->
-            <!--android:defaultValue="@string/pref_default_lang"-->
-            <!--android:inputType="text"-->
-            <!--android:imeOptions="actionDone"/>-->
-
-        <ListPreference
-            android:key="pref_source"
-            android:layout="@layout/custom_pref"
-            android:title="Source"
-            android:entries="@array/source_entries"
-            android:entryValues="@array/source_values"
-            android:summary="udb"
-            android:defaultValue="udb" />
 
         <PreferenceScreen
-            android:key="pref_book"
+            android:key="pref_update_languages"
             android:layout="@layout/custom_pref"
-            android:title="Book"
-            android:summary="@string/pref_default_book"
-            android:defaultValue="@string/pref_default_book">
-            <intent
-                android:action="wycliffeassociates.recordingapp.SettingsPage.BOOK_INTENT">
-            </intent>
+            android:title="Update Languages From translationDatabase">
         </PreferenceScreen>
-
-        <!--<wycliffeassociates.recordingapp.SettingsPage.AutoCompletePreference-->
-            <!--android:key="pref_book"-->
-            <!--android:layout="@layout/custom_pref"-->
-            <!--android:title="Book"-->
-            <!--android:summary=""-->
-            <!--android:defaultValue="@string/pref_default_book"-->
-            <!--android:inputType="text"-->
-            <!--android:imeOptions="actionDone"/>-->
-
-        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
-            android:key="pref_chapter"
-            android:layout="@layout/custom_pref"
-            android:title="Chapter"
-            android:entries="@array/chapter_values"
-            android:entryValues="@array/chapter_values"
-            android:summary="1"
-            android:defaultValue="1" />
-
-        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
-            android:key="pref_chunk"
-            android:layout="@layout/custom_pref"
-            android:title="Chunk"
-            android:entries="@array/chunk_values"
-            android:entryValues="@array/chunk_values"
-            android:summary="1"
-            android:defaultValue="1" />
-
-        <wycliffeassociates.recordingapp.SettingsPage.ChapterChunkListPreference
-            android:key="pref_verse"
-            android:layout="@layout/custom_pref"
-            android:title="Verse"
-            android:entries="@array/verse_values"
-            android:entryValues="@array/verse_values"
-            android:defaultValue="1"
-            android:summary="1"
-            android:enabled="false" />
-
-        <EditTextPreference
-            android:key="pref_take"
-            android:layout="@layout/custom_pref"
-            android:title="Take"
-            android:summary="1"
-            android:defaultValue="@string/pref_default_take"
-            android:inputType="number"
-            android:imeOptions="actionDone"
-            />
-
-        <EditTextPreference
-            android:key="pref_filename"
-            android:layout="@layout/custom_pref"
-            android:title="File Name"
-            android:defaultValue="en_udb_gen_01-01_01"
-            android:summary="en_udb_gen_01-01_01"
-            android:editable="false"
-            android:enabled="false"
-            />
 
     </PreferenceCategory>
 
@@ -158,18 +54,5 @@
             android:shouldDisableView="false"/>
     </PreferenceCategory>
 
-    <!--<PreferenceCategory-->
-        <!--android:title="Misc"-->
-        <!--android:key="pref_key_misc"-->
-        <!--android:layout="@layout/custom_pref_category">-->
-
-        <!--<SwitchPreference-->
-            <!--android:key="pref_decibel_lines"-->
-            <!--android:layout="@layout/custom_pref_switch"-->
-            <!--android:title="Decibel Lines"-->
-            <!--android:summary="Show decibel lines in the recording screen"-->
-            <!--android:defaultValue="true" />-->
-
-    <!--</PreferenceCategory>-->
 
 </PreferenceScreen>

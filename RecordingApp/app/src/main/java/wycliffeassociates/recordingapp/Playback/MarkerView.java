@@ -23,9 +23,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
-import wycliffeassociates.recordingapp.AudioInfo;
-import wycliffeassociates.recordingapp.AudioVisualization.SectionMarkers;
-import wycliffeassociates.recordingapp.AudioVisualization.UIDataManager;
+import wycliffeassociates.recordingapp.Playback.Editing.SectionMarkers;
+import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 
 
 /**

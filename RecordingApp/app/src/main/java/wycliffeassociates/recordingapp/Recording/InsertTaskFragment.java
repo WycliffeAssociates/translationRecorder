@@ -2,26 +2,24 @@ package wycliffeassociates.recordingapp.Recording;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import org.json.JSONException;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import wycliffeassociates.recordingapp.AudioInfo;
 import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
-import wycliffeassociates.recordingapp.Reporting.Logger;
+import wycliffeassociates.recordingapp.Utils;
+import wycliffeassociates.recordingapp.wav.WavFile;
 
 /**
  * Created by sarabiaj on 3/10/2016.
  */
 public class InsertTaskFragment extends Fragment {
     public interface Insert{
-        void writeInsert(String to, String from, int insertLoc);
+        void writeInsert(WavFile base, WavFile insertClip, int insertLoc);
     }
 
     private RecordingScreen mCtx;
@@ -43,57 +41,26 @@ public class InsertTaskFragment extends Fragment {
         super.onDetach();
     }
 
-    public void writeInsert(final String destination, final String previousRecording, final int insertTime, final  SharedPreferences pref) {
+    public void writeInsert(final WavFile base, final WavFile insertClip, final int insertTime) {
         Thread write = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    int insertLoc = timeToIndex(insertTime) + AudioInfo.HEADER_SIZE;
-                    //the file containing the section to insert is the destination name, so move it to a temporary file before we insert
-                    File insert = new File(destination);
-                    File tempInsertFile = new File(destination + "-temp.wav");
-                    insert.renameTo(tempInsertFile);
-                    File from = new File(previousRecording);
-                    File dir = FileNameExtractor.getDirectoryFromFile(pref, from);
-                    FileInputStream fisOrg = new FileInputStream(from);
-                    BufferedInputStream bisOrg = new BufferedInputStream(fisOrg);
-
-                    FileInputStream fisInsert = new FileInputStream(tempInsertFile);
-                    BufferedInputStream bisInsert = new BufferedInputStream(fisInsert);
-
-                    FileOutputStream fos = new FileOutputStream(new File(destination));
-                    BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-                    for (int i = 0; i < AudioInfo.HEADER_SIZE; i++) {
-                        bos.write(bisOrg.read());
-                    }
-                    Logger.e(this.toString(), "wrote header");
-                    for (int i = AudioInfo.HEADER_SIZE; i < insertLoc; i++) {
-                        bos.write(bisOrg.read());
-                    }
-                    Logger.e(this.toString(), "wrote before insert");
-                    fisInsert.skip(AudioInfo.HEADER_SIZE);
-                    for (int i = AudioInfo.HEADER_SIZE; i < tempInsertFile.length(); i++) {
-                        bos.write(bisInsert.read());
-                    }
-                    Logger.e(this.toString(), "wrote insert");
-                    for (int i = insertLoc; i < from.length(); i++) {
-                        bos.write(bisOrg.read());
-                    }
-                    Logger.e(this.toString(), "wrote after insert");
-                    WavFileWriter.overwriteHeaderData(destination, tempInsertFile.length() + from.length() - AudioInfo.HEADER_SIZE);
-                    Logger.e(this.toString(), "overwrote header");
-
-                    bos.close(); fos.close();
-                    bisInsert.close(); fisInsert.close(); tempInsertFile.delete();
-                    bisOrg.close(); fisInsert.close();
-
-                    File vis = new File(AudioInfo.pathToVisFile + "/"+FileNameExtractor.getNameWithoutExtention(insert)+".vis");
+                    int insertLoc = timeToIndex(insertTime);
+                    WavFile result = WavFile.insertWavFile(base, insertClip, insertLoc);
+                    insertClip.getFile().delete();
+                    File dir = new File(mCtx.getExternalCacheDir(), "Visualization");
+                    File vis = new File(dir, FileNameExtractor.getNameWithoutExtention(insertClip.getFile())+".vis");
                     vis.delete();
-                } catch (IOException e){
+                    result.getFile().renameTo(insertClip.getFile());
+                    mCtx.insertCallback(new WavFile(insertClip.getFile()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e){
+                    e.printStackTrace();
+                } catch (SecurityException e) {
                     e.printStackTrace();
                 }
-                mCtx.insertCallback(destination);
             }
         });
         write.start();

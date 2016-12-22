@@ -31,7 +31,7 @@
 
     <!-- EXPORT/SHARE OPTIONS -->
     <string name="export_sd_card">SD Card</string>
-    <string name="export_dir">Choose Directory</string>
+    <string name="export_dir">Directory</string>
     <string name="export_bluetooth">Bluetooth</string>
     <string name="export_wifi">Wi-Fi Direct</string>
     <string name="export_upload">Upload</string>
@@ -60,4 +60,6 @@
     <string name="pref_ftp_password_summary">@string/pref_ftp_password_value</string>
     <string name="pref_sync_summary">Sync data with server</string>
     <string name="pref_restore_default_summary">Revert all settings to initial value</string>
+    <string name="unit">Unit</string>
+    <string name="translation_type">Translation Type</string>
 </resources>

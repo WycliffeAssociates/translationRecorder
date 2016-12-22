@@ -1,7 +1,5 @@
 package wycliffeassociates.recordingapp.AudioVisualization.Utils;
 
-import android.util.Log;
-
 import wycliffeassociates.recordingapp.AudioInfo;
 
 /**

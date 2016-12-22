@@ -4,36 +4,33 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 
-import wycliffeassociates.recordingapp.FilesPage.FragmentShareDialog;
-
 
 /**
  * Created by sarabiaj on 2/19/2016.
  */
-public class ExportTaskFragment extends Fragment implements FragmentShareDialog.ExportDelegator, Export.ProgressUpdateCallback {
+public class ExportTaskFragment extends Fragment implements Export.ProgressUpdateCallback {
 
     Export.ProgressUpdateCallback mProgressUpdateCallback;
     private Export mExp;
 
     @Override
-    public void onAttach(Activity activity){
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mProgressUpdateCallback = (Export.ProgressUpdateCallback)activity;
+        mProgressUpdateCallback = (Export.ProgressUpdateCallback) activity;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
     }
 
     @Override
-    public void onDetach(){
+    public void onDetach() {
         super.onDetach();
         mProgressUpdateCallback = null;
     }
 
-    @Override
     public void delegateExport(Export exp) {
         mExp = exp;
         mExp.export();
@@ -50,7 +47,7 @@ public class ExportTaskFragment extends Fragment implements FragmentShareDialog.
     }
 
     @Override
-    public void setUploadProgress(int progress){
+    public void setUploadProgress(int progress) {
         mProgressUpdateCallback.setUploadProgress(progress);
     }
 
@@ -60,12 +57,12 @@ public class ExportTaskFragment extends Fragment implements FragmentShareDialog.
     }
 
     @Override
-    public void setZipping(boolean zipping){
+    public void setZipping(boolean zipping) {
         mProgressUpdateCallback.setZipping(zipping);
     }
 
     @Override
-    public void setExporting(boolean exporting){
+    public void setExporting(boolean exporting) {
         mProgressUpdateCallback.setExporting(exporting);
     }
 

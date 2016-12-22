@@ -1,6 +1,5 @@
 package wycliffeassociates.recordingapp.FilesPage.Export;
 
-import android.provider.Settings;
 import android.widget.Toast;
 
 import com.amazonaws.ClientConfiguration;
@@ -13,13 +12,10 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.S3ClientOptions;
 
 import java.io.File;
-import java.util.ArrayList;
 
-import wycliffeassociates.recordingapp.FileManagerUtils.FileItem;
-import wycliffeassociates.recordingapp.FilesPage.AudioFilesAdapter;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
 import wycliffeassociates.recordingapp.R;
 import wycliffeassociates.recordingapp.Reporting.Logger;
 
@@ -35,12 +31,12 @@ public class S3Export extends Export {
 
     /**
      * Creates an Export object to target AmazonS3
-     * @param fileItemList
-     * @param adapter
-     * @param currentDir
+//     * @param fileItemList
+//     * @param adapter
+//     * @param currentDir
      */
-    public S3Export(ArrayList<FileItem> fileItemList, AudioFilesAdapter adapter, String currentDir){
-        super(fileItemList, adapter, currentDir);
+    public S3Export(File projectToExport, Project project){
+        super(projectToExport, project);
         mExp = this;
     }
 
@@ -104,11 +100,11 @@ public class S3Export extends Export {
      */
     @Override
     public void export() {
-        if (Export.shouldZip(mExportList)) {
+        //if (Export.shouldZip(mExportList)) {
             zipFiles(this);
-        } else {
-            handleUserInput();
-        }
+//        } else {
+//            handleUserInput();
+//        }
     }
 
     @Override
@@ -119,27 +115,15 @@ public class S3Export extends Export {
     protected void upload(){
         mProgressCallback.setExporting(true);
         init();
-        String name = null;
-        if (mExportList.size() > 0) {
-            if (mZipPath == null) {
-                name = mExportList.get(0);
-            } else {
-                name = mZipPath;
-            }
 
-            File fileToUpload = new File(name);
-            name = name.substring(name.lastIndexOf('/'), name.length());
-            name = Settings.Secure.getString(mCtx.getActivity().getContentResolver(),
-                    Settings.Secure.ANDROID_ID) + name;
+        mProgressCallback.showProgress(ProgressUpdateCallback.UPLOAD);
 
-            mProgressCallback.showProgress(ProgressUpdateCallback.UPLOAD);
+        TransferObserver observer = mTransferUtility.upload(
+                mCtx.getResources().getString(R.string.door43_bucket),     /* The bucket to upload to */
+                mZipFile.getName(),    /* The key for the uploaded object */
+                mZipFile        /* The file where the data to upload exists */
+        );
+        observer.setTransferListener(mListener);
 
-            TransferObserver observer = mTransferUtility.upload(
-                    mCtx.getResources().getString(R.string.door43_bucket),     /* The bucket to upload to */
-                    name,    /* The key for the uploaded object */
-                    fileToUpload        /* The file where the data to upload exists */
-            );
-            observer.setTransferListener(mListener);
-        }
     }
 }

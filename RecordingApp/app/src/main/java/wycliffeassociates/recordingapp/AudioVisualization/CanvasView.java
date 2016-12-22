@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import wycliffeassociates.recordingapp.Playback.player.UIDataManager;
 import wycliffeassociates.recordingapp.R;
 
 public abstract class CanvasView extends View {
@@ -99,7 +100,7 @@ public abstract class CanvasView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
-    // override onDraw
+    // override onDrawMarkers
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

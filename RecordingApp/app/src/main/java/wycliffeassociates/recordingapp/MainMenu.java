@@ -12,32 +12,48 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
+import wycliffeassociates.recordingapp.FilesPage.FileNameExtractor;
+import wycliffeassociates.recordingapp.ProjectManager.Project;
+import wycliffeassociates.recordingapp.ProjectManager.activities.ActivityProjectManager;
+import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.Reporting.BugReportDialog;
 import wycliffeassociates.recordingapp.Reporting.GithubReporter;
 import wycliffeassociates.recordingapp.Reporting.GlobalExceptionHandler;
 import wycliffeassociates.recordingapp.Reporting.Logger;
-import wycliffeassociates.recordingapp.FilesPage.AudioFiles;
-import wycliffeassociates.recordingapp.Recording.RecordingScreen;
 import wycliffeassociates.recordingapp.SettingsPage.Settings;
+import wycliffeassociates.recordingapp.database.ProjectDatabaseHelper;
+import wycliffeassociates.recordingapp.project.ProjectWizardActivity;
 
-public class MainMenu extends Activity{
 
-    private ImageButton btnRecord;
+public class MainMenu extends Activity {
+
+    private RelativeLayout btnRecord;
     private ImageButton btnFiles;
-    private ImageButton btnSettings;
     private SharedPreferences pref;
+
+    private int mNumProjects = 0;
 
     public static final String KEY_PREF_LOGGING_LEVEL = "logging_level";
     public static final String PREF_DEFAULT_LOGGING_LEVEL = "1";
     public static final String STACKTRACE_DIR = "stacktrace";
+
+    public static final int FIRST_REQUEST = 1;
+    public static final int LANGUAGE_REQUEST = FIRST_REQUEST;
+    public static final int PROJECT_REQUEST = FIRST_REQUEST + 1;
+    public static final int BOOK_REQUEST = FIRST_REQUEST + 2;
+    public static final int MODE_REQUEST = FIRST_REQUEST + 3;
+    public static final int SOURCE_TEXT_REQUEST = FIRST_REQUEST + 4;
+    public static final int SOURCE_REQUEST = FIRST_REQUEST + 5;
+    public static final int PROJECT_WIZARD_REQUEST = FIRST_REQUEST + 6;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +68,24 @@ public class MainMenu extends Activity{
         System.out.println("External files dir is " + Environment.getExternalStorageDirectory());
 
         initApp();
+    }
 
-        btnRecord = (ImageButton) findViewById(R.id.new_record);
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        mNumProjects = db.getNumProjects();
+
+        btnRecord = (RelativeLayout) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Runtime.getRuntime().freeMemory();
-//              TODO: clicking new_record button should trigger a new_project activity instead of the recording
-                Intent intent = new Intent(v.getContext(), RecordingScreen.class);
-                startActivityForResult(intent, 0);
+                if (mNumProjects <= 0 || emptyPreferences()) {
+                    setupNewProject();
+                } else {
+                    startRecordingScreen();
+                }
             }
         });
 
@@ -68,21 +93,72 @@ public class MainMenu extends Activity{
         btnFiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), AudioFiles.class);
+                Intent intent = new Intent(v.getContext(), ActivityProjectManager.class);
                 startActivityForResult(intent, 0);
                 overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
             }
         });
 
-        btnSettings = (ImageButton) findViewById(R.id.settings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), Settings.class);
-                startActivityForResult(intent, 0);
-                overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
+        initViews();
+    }
+
+    private boolean emptyPreferences() {
+        if (pref.getString(Settings.KEY_PREF_LANG, "").compareTo("") == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case PROJECT_WIZARD_REQUEST: {
+                if (resultCode == RESULT_OK) {
+                    Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
+                    addProjectToDatabase(project);
+                    loadProject(project);
+                    Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
+                    startActivity(intent);
+                } else {
+                    onResume();
+                }
             }
-        });
+            default:
+        }
+    }
+
+    private void setupNewProject() {
+        startActivityForResult(new Intent(getBaseContext(), ProjectWizardActivity.class), PROJECT_WIZARD_REQUEST);
+    }
+
+    private void startRecordingScreen() {
+        Project project = Project.getProjectFromPreferences(this);
+        Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
+        startActivity(intent);
+    }
+
+    private void addProjectToDatabase(Project project) {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        db.addProject(project);
+    }
+
+    private void loadProject(Project project) {
+        pref.edit().putString("resume", "resume").commit();
+
+        pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
+        pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
+        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
+        pref.edit().putString(Settings.KEY_PREF_VERSION, project.getVersion()).commit();
+        pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
+        pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
+        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
+        pref.edit().putString(Settings.KEY_PREF_SRC_LOC, project.getSourceAudioPath()).commit();
+
+        //FIXME: find the last place worked on?
+        pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
+        pref.edit().putString(Settings.KEY_PREF_START_VERSE, "1").commit();
+        pref.edit().putString(Settings.KEY_PREF_END_VERSE, "1").commit();
+        pref.edit().putString(Settings.KEY_PREF_CHUNK, "1").commit();
     }
 
     public void report(final String message) {
@@ -95,7 +171,7 @@ public class MainMenu extends Activity{
         t.start();
     }
 
-    private void reportCrash(String message){
+    private void reportCrash(String message) {
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
         String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
         String githubTokenIdentifier = getResources().getString(R.string.github_token);
@@ -118,13 +194,13 @@ public class MainMenu extends Activity{
         }
     }
 
-    public void archiveStackTraces(){
+    public void archiveStackTraces() {
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
-        if(!dir.exists()){
+        if (!dir.exists()) {
             dir.mkdirs();
         }
         File archive = new File(dir, "Archive");
-        if(!archive.exists()){
+        if (!archive.exists()) {
             archive.mkdirs();
         }
         String[] stacktraces = GlobalExceptionHandler.getStacktraces(dir);
@@ -138,29 +214,37 @@ public class MainMenu extends Activity{
         }
     }
 
-    private void initApp(){
+    private void initViews() {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        TextView languageView = (TextView) findViewById(R.id.language_view);
+        String language = pref.getString(Settings.KEY_PREF_LANG, "");
+        if (language.compareTo("") != 0) {
+            language = db.getLanguageName(language);
+        }
+        languageView.setText(language);
+
+        TextView bookView = (TextView) findViewById(R.id.book_view);
+        String book = pref.getString(Settings.KEY_PREF_BOOK, "");
+        if (book.compareTo("") != 0) {
+            book = db.getBookName(book);
+        }
+        bookView.setText(book);
+    }
+
+    private void initApp() {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.edit().putString("version", BuildConfig.VERSION_NAME).commit();
 
         //set up Visualization folder
-        File visDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Visualization");
-        System.out.println("Result of making vis directory " + visDir.mkdirs());
-        if(visDir.exists()){
-            Logger.w(this.toString(), "SUCCESS: Visualization folder exists.");
-        } else {
-            Logger.e(this.toString(), "ERROR: Visualization folder does not exist.");
-        }
+        Utils.VISUALIZATION_DIR = new File(getExternalCacheDir(), "Visualization");
+        Utils.VISUALIZATION_DIR.mkdirs();
 
-        //set up directory paths
-        pref.edit().putString("vis_folder_path", visDir.getAbsolutePath() + "/").commit();
         //if the current directory is already set, then don't overwrite it
-        if(pref.getString("current_directory", null) == null){
+        if (pref.getString("current_directory", null) == null) {
             pref.edit().putString("current_directory",
                     Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
         }
         pref.edit().putString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
-        AudioInfo.pathToVisFile = visDir.getAbsolutePath() + "/";
-        AudioInfo.fileDir = Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString();
 
         //configure logger
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
@@ -178,7 +262,48 @@ public class MainMenu extends Activity{
             brd.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
             brd.show(fm, "Bug Report Dialog");
         }
+
+        removeUnusedVisualizationFiles();
     }
+
+    private void removeUnusedVisualizationFiles() {
+        File visFilesLocation = Utils.VISUALIZATION_DIR;
+        File[] visFiles = visFilesLocation.listFiles();
+        if (visFiles == null) {
+            return;
+        }
+        String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder").getAbsolutePath();
+        for (File v : visFiles) {
+            FileNameExtractor fne = new FileNameExtractor(v);
+            boolean found = false;
+            String path = rootPath + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
+            String name = fne.getNameWithoutTake() + "_t" + String.format("%02d", fne.getTake()) + ".wav";
+            File searchName = new File(path, name);
+            if (searchName != null && searchName.exists()) {
+                //check if the names match up; exclude the path to get to them or the file extention
+                if (extractFilename(searchName).equals(extractFilename(v))) {
+                    continue;
+                }
+            }
+            if (!found) {
+                System.out.println("Removing " + v.getName());
+                v.delete();
+            }
+        }
+    }
+
+    private String extractFilename(File a) {
+        if (a.isDirectory()) {
+            return "";
+        }
+        String nameWithExtention = a.getName();
+        if (nameWithExtention.lastIndexOf('.') < 0 || nameWithExtention.lastIndexOf('.') > nameWithExtention.length()) {
+            return "";
+        }
+        String filename = nameWithExtention.substring(0, nameWithExtention.lastIndexOf('.'));
+        return filename;
+    }
+
 
     public void configureLogger(int minLogLevel, File logDir) {
         File logFile = new File(logDir, "log.txt");
@@ -188,10 +313,10 @@ public class MainMenu extends Activity{
             e.printStackTrace();
         }
         Logger.configure(logFile, Logger.Level.getLevel(minLogLevel));
-        if(logFile.exists()){
+        if (logFile.exists()) {
             Logger.w(this.toString(), "SUCCESS: Log file initialized.");
         } else {
-            Logger.e(this.toString(),"ERROR: could not initialize log file.");
+            Logger.e(this.toString(), "ERROR: could not initialize log file.");
         }
     }
 }
