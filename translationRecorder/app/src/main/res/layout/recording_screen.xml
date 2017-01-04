@@ -102,16 +102,6 @@
             android:layout_marginStart="-24dp"
             android:visibility="visible" />
 
-
-        <!-- TODO: Remove. Legacy code.-->
-        <view
-            class="org.wycliffeassociates.translationrecorder.AudioVisualization.MinimapView"
-            android:id="@+id/minimap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:visibility="gone" />
-
     </LinearLayout>
 
     <org.wycliffeassociates.translationrecorder.Playback.SourceAudio

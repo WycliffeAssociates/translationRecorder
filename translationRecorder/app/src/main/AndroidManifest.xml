@@ -41,10 +41,6 @@
             android:noHistory="true"
             />
 
-        <activity android:name="org.wycliffeassociates.translationrecorder.Playback.PlaybackScreen"
-            android:screenOrientation="landscape"
-            />
-
         <activity android:name="org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity"
             android:screenOrientation="landscape"
             />
