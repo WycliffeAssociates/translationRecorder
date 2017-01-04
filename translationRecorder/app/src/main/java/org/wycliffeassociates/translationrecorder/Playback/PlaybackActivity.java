@@ -113,6 +113,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_playback_screen);
         initialize(getIntent());
+        Logger.w(this.toString(), "onCreate");
     }
 
     private void initialize(Intent intent) {
@@ -350,14 +351,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-//        mManager.release();
-//        SectionMarkers.clearLoopPoints(mManager);
-    }
-
-    @Override
     public void onPositiveClick(RatingDialog dialog) {
+        Logger.w(this.toString(), "rating set");
         mRating = dialog.getRating();
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), mRating);
@@ -367,12 +362,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onNegativeClick(RatingDialog dialog) {
+        Logger.w(this.toString(), "rating canceled");
         dialog.dismiss();
     }
 
     @Override
     public void onBackPressed() {
-        Logger.i(this.toString(), "Back was pressed.");
+        Logger.w(this.toString(), "Back was pressed.");
         if(isInVerseMarkerMode) {
             onDisableVerseMarkerMode();
         } else {
@@ -389,6 +385,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     public void onOpenRating(FourStepImageView v) {
+        Logger.w(this.toString(), "Rating dialog opened");
         RatingDialog dialog = RatingDialog.newInstance(mWavFile.getFile().getName(), mRating);
         dialog.show(getFragmentManager(), "single_unit_rating");
     }
@@ -478,7 +475,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                     }
                 }
                 isSaved = true;
-                pd.dismiss();
+                try {
+                    pd.dismiss();
+                } catch (IllegalArgumentException e) {
+                    Logger.e("PlaybackActivity", "Tried to dismiss cut dialog", e);
+                }
                 if (intent == null) {
                     finish();
                 } else {
@@ -588,6 +589,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onEnableVerseMarkerMode() {
+        Logger.w(this.toString(), "onEnableVerseMarkerMode");
         if(mMarkerMediator.hasVersesRemaining()) {
             isInVerseMarkerMode = true;
             FragmentManager fm = getFragmentManager();
@@ -602,6 +604,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onDisableVerseMarkerMode() {
+        Logger.w(this.toString(), "onDisableVerseMarkerMode");
         isInVerseMarkerMode = false;
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
@@ -614,6 +617,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onMarkerPlaced() {
+        Logger.w(this.toString(), "Placed verse marker");
         int frame = mAudioController.getLocationInFrames();
         mAudioController.dropVerseMarker("Verse " + startVerse + (endVerse-startVerse-mVersesLeft), frame);
         mWaveformFragment.addVerseMarker(mVersesLeft, frame);

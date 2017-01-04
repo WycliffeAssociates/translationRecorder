@@ -78,17 +78,18 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private List<Map<String, String>> mChunksList;
     private int mNumChapters;
     private String mStartVerse;
+    private String mEndVerse;
     private TextView mModeView;
 
     public static Intent getInsertIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit, int locationMs) {
+        Logger.w("RecordingScreen", "Creating Insert Intent");
         Intent intent = getRerecordIntent(ctx, project, wavFile, chapter, unit);
         intent.putExtra(KEY_INSERT_LOCATION, locationMs);
         return intent;
     }
 
-    private String mEndVerse;
-
     public static Intent getNewRecordingIntent(Context ctx, Project project, int chapter, int unit) {
+        Logger.w("RecordingScreen", "Creating New Recording Intent");
         Intent intent = new Intent(ctx, RecordingScreen.class);
         intent.putExtra(KEY_PROJECT, project);
         intent.putExtra(KEY_CHAPTER, chapter);
@@ -97,6 +98,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     }
 
     public static Intent getRerecordIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit) {
+        Logger.w("RecordingScreen", "Creating Rerecord Intent");
         Intent intent = getNewRecordingIntent(ctx, project, chapter, unit);
         intent.putExtra(KEY_WAV_FILE, wavFile);
         return intent;
@@ -117,6 +119,8 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         manager.listenForRecording(true);
         mSrcPlayer.initSrcAudio(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
                 Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
+
+        Logger.w(this.toString(), "Recording Screen onCreate");
     }
 
     private void initialize(Intent intent) {
@@ -237,6 +241,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Logger.w(this.toString(), "Initializing unit picker");
                 if (values != null && values.length > 0) {
                     mUnitPicker.setDisplayedValues(values);
                     mUnitPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
@@ -245,6 +250,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
                     mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
+                            Logger.w(this.toString(), "User changed unit");
                             setChunk(newVal + 1);
                             mSrcPlayer.reset(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
                                     Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
@@ -258,6 +264,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     }
 
     private void initializeChapterPicker() {
+        Logger.w(this.toString(), "Initializing chapter picker");
         int numChapters = mChunks.getNumChapters();
         final String[] values = new String[numChapters];
         for (int i = 0; i < numChapters; i++) {
@@ -269,6 +276,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                 @Override
                 public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
+                    Logger.w(this.toString(), "User changed chapter");
                     mUnit = 1;
                     mChapter = newVal + 1;
                     mUnitPicker.setCurrent(0);
@@ -310,6 +318,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     @Override
     public void onPause() {
+        Logger.w(this.toString(), "Recording screen onPause");
         super.onPause();
         if (isRecording) {
             isRecording = false;
@@ -328,6 +337,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     @Override
     public void onDestroy() {
+        Logger.w(this.toString(), "Recording screen onDestroy");
         mSrcPlayer.cleanup();
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
@@ -340,6 +350,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putBoolean(STATE_INSERTING, mInserting);
+        Logger.w(this.toString(), "Recording screen onSaveInstanceState");
     }
 
     public void swapViews(int[] toShow, int[] toHide) {
@@ -433,6 +444,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     @Override
     public void onBackPressed() {
+        Logger.w(this.toString(), "User pressed back");
         if (!isSaved && hasStartedRecording) {
             FragmentManager fm = getFragmentManager();
             FragmentExitDialog d = new FragmentExitDialog();
@@ -498,7 +510,11 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     public void insertCallback(WavFile result) {
         mInserting = false;
-        mProgressDialog.dismiss();
+        try {
+            mProgressDialog.dismiss();
+        } catch (IllegalArgumentException e) {
+            Logger.e(this.toString(), "Tried to dismiss insert progress dialog", e);
+        }
         Intent intent = PlaybackActivity.getPlaybackIntent(this, result, mProject, mChapter, mUnit);
         startActivity(intent);
         this.finish();
@@ -510,14 +526,17 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btnRecording: {
+                    Logger.w(this.toString(), "User pressed Record");
                     startRecording();
                     break;
                 }
                 case R.id.btnStop: {
+                    Logger.w(this.toString(), "User pressed Stop");
                     stopRecording();
                     break;
                 }
                 case R.id.btnPauseRecording: {
+                    Logger.w(this.toString(), "User pressed Pause");
                     pauseRecording();
                     break;
                 }
