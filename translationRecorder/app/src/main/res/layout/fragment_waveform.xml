@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent" >
+        <FrameLayout
+            android:id="@+id/waveform_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!--<FrameLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent">-->
+                <!--<View-->
+                    <!--android:id="@+id/main_canvas"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"/>-->
+            <!--</FrameLayout>-->
+
+            <org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame
+                android:id="@+id/draggable_view_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent"/>
+
+        </FrameLayout>
+
+</RelativeLayout>

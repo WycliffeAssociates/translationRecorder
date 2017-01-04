@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    >
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/unitCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_padding_xs"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="@dimen/cardview_default_elevation"
+        >
+
+        <LinearLayout
+            android:id="@+id/unitCardContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/card_bg"
+            >
+
+            <RelativeLayout
+                android:id="@+id/cardHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <TextView
+                    android:id="@+id/unitTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Unit 1"
+                    android:textSize="20sp"
+                    android:textColor="@color/primary_text_default_material_light"
+                    android:textStyle="bold"
+                    android:layout_centerVertical="true"
+                    android:padding="@dimen/default_padding_m"
+                    />
+
+                <LinearLayout
+                    android:id="@+id/unitActions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:padding="@dimen/default_padding_m"
+                    >
+
+                    <ImageView
+                        android:id="@+id/unitRecordBtn"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_unit_card_record"
+                        android:layout_gravity="center_vertical"
+                        android:duplicateParentState="true"
+                        android:clickable="true"
+                        android:cropToPadding="false"
+                        />
+
+                    <ImageView
+                        android:id="@+id/unitExpandBtn"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector_card_expand_toggle"
+                        android:visibility="visible"
+                        android:duplicateParentState="true"
+                        android:clickable="true"
+                        android:cropToPadding="false"
+                        android:layout_marginLeft="@dimen/default_padding_m"
+                        />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/take_count_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/unitActions"
+                    android:layout_marginEnd="@dimen/default_padding_m"
+                    android:gravity="center"
+                    >
+
+                    <ImageView
+                        android:id="@+id/take_count_icon"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/close_black"
+                        />
+
+                    <TextView
+                        android:id="@+id/take_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textColor="@color/primary_text_default_material_light"
+                        />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/cardBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/default_padding_m"
+                android:visibility="visible"
+                android:clickable="true"
+                >
+
+                <LinearLayout
+                    android:id="@+id/unitPlayback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/default_padding_m"
+                    >
+
+                    <TextView
+                        android:id="@+id/timeElapsed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00:00"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:layout_gravity="center_vertical|right"
+                        />
+
+                    <SeekBar
+                        android:id="@+id/seekBar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/default_padding_m"
+                        android:layout_marginEnd="@dimen/default_padding_m"
+                        android:layout_weight="1"
+                        />
+
+                    <TextView
+                        android:id="@+id/timeDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="00:00:00"
+                        android:textColor="@color/primary_text_default_material_light"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                        />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/takeActions"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/default_padding_m"
+                    android:paddingStart="42dp"
+                    android:paddingEnd="42dp"
+                    android:weightSum="100"
+                    >
+
+                    <FrameLayout
+                        android:id="@+id/deleteTakeContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <ImageButton
+                            android:id="@+id/deleteTakeBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/delete"
+                            android:background="#00000000"
+                            android:layout_gravity="center"
+                            />
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/extraContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <ImageButton
+                            android:id="@+id/editTakeBtn"
+                            android:src="@drawable/waveform_black"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:scaleType="fitXY"
+                            android:background="#00000000"
+                            android:layout_gravity="center"
+                            />
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/playPauseTakeContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <ImageButton
+                            android:id="@+id/playTakeBtn"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/selector_unit_card_play"
+                            android:visibility="visible"
+                            android:background="#00000000"
+                            android:layout_gravity="center"
+                            />
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/editTakeContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <ImageButton
+                            android:id="@+id/selectTakeBtn"
+                            android:src="@drawable/selector_take_selection"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:scaleType="fitXY"
+                            android:background="#00000000"
+                            android:layout_gravity="center"
+                            />
+
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/RateTakeContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="20"
+                        android:layout_gravity="center_vertical"
+                        >
+
+                        <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
+                            android:id="@+id/rateTakeBtn"
+                            android:src="@drawable/selector_take_rating"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:scaleType="fitXY"
+                            android:background="#00000000"
+                            android:layout_gravity="center"
+                            />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/cardFooter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/default_padding_m"
+                android:background="@drawable/border_top"
+                android:visibility="visible"
+                android:clickable="true"
+                >
+
+                <ImageView
+                    android:id="@+id/prevTakeBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/chevron_left"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    />
+
+                <LinearLayout
+                    android:id="@+id/currentTakeInfo"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center_horizontal"
+                    >
+
+                    <TextView
+                        android:id="@+id/currentTakeView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Take 1 of 10"
+                        android:textSize="@dimen/text_size_m"
+                        android:textColor="@color/primary_text_default_material_light"
+                        />
+
+                    <TextView
+                        android:id="@+id/currentTakeTimeStamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00/00/0000  00:00 AM"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                        android:textColor="@color/secondary_text_default_material_light"
+                        />
+
+                </LinearLayout>
+
+
+                <ImageView
+                    android:id="@+id/nextTakeBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/chevron_right"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</FrameLayout>
