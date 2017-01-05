@@ -112,7 +112,7 @@ public class WavVisualizer {
         startPosition = Math.max(0, startPosition);
         int end = mSamples.length/4;
 
-//        Log.i(this.toString(), "loc is " + location + " duration is " + BufferPlayer.getDuration() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (BufferPlayer.getDuration() - cut.getSizeCut()));
+//        Log.i(this.toString(), "loc is " + location + " duration is " + BufferPlayer.getRelativeDurationMs() + " adjusted loc is " + cut.timeAdjusted(location) + " duration without the cut " + (BufferPlayer.getRelativeDurationMs() - cut.getSizeCut()));
 //        Log.i(this.toString(), "start is " + startPosition);
 
         //beginning with the starting position, the width of each increment represents the data one pixel width is showing
@@ -159,7 +159,7 @@ public class WavVisualizer {
 //    private int mapLocationToTime(int idx){
 //        double idxP = (mUseCompressedFile)? idx/(double)mCompressed.capacity()
 //                : idx/(double)buffer.capacity();
-//        int ms = (int)Math.round(idxP * mManager.getDuration());
+//        int ms = (int)Math.round(idxP * mManager.getRelativeDurationMs());
 //        return ms;
 //    }
 

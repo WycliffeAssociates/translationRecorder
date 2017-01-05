@@ -9,6 +9,6 @@ public interface MediaControlReceiver {
     void pause();
     void seekNext();
     void seekPrevious();
-    int getLocation();
-    int getDuration();
+    int getAbsoluteLocationMs();
+    int getRelativeDurationMs();
 }
