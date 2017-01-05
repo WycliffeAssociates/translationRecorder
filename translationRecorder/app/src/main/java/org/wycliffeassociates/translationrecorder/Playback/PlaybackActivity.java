@@ -619,8 +619,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void onMarkerPlaced() {
         Logger.w(this.toString(), "Placed verse marker");
         int frame = mAudioController.getLocationInFrames();
-        mAudioController.dropVerseMarker("Verse " + startVerse + (endVerse-startVerse-mVersesLeft), frame);
-        mWaveformFragment.addVerseMarker(mVersesLeft, frame);
+        int markerNumber = (startVerse + 1) + (endVerse-startVerse-mVersesLeft);
+        mAudioController.dropVerseMarker("Verse " + markerNumber, frame);
+        mWaveformFragment.addVerseMarker(markerNumber, frame);
         mMarkerCounterFragment.decrementVersesRemaining();
         mWaveformFragment.onLocationUpdated(frame);
         mVersesLeft--;

@@ -179,8 +179,14 @@ public class UnitCard {
         Collections.sort(resultFiles, new Comparator<File>() {
             @Override
             public int compare(File f, File s) {
-                Long first = f.lastModified();
-                Long second = s.lastModified();
+                FileNameExtractor fne = new FileNameExtractor(f);
+                FileNameExtractor fne2 = new FileNameExtractor(s);
+//                Long first = f.lastModified();
+//                Long second = s.lastModified();
+                //Change to take name rather than last modified because editing verse markers modifies the file
+                //this means that adding verse markers would change the postition in the list when returning to the card
+                Integer first = fne.getTake();
+                Integer second = fne2.getTake();
                 return first.compareTo(second);
             }
         });
