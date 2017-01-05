@@ -267,6 +267,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onPlayerPaused() {
         mFragmentPlaybackTools.onPlayerPaused();
+        mMarkerToolbarFragment.showPlayButton();
         onLocationUpdated(0);
     }
 
@@ -328,6 +329,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return mAudioController.isPlaying();
     }
 
     @Override
@@ -676,7 +682,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 mFragmentPlaybackTools.onLocationUpdated(mAudioController.getLocation());
                 mWaveformFragment.onLocationUpdated(location);
                 mFragmentTabbedWidget.onLocationChanged();
-
+                mMarkerToolbarFragment.onLocationUpdated(mAudioController.getLocation());
                 try {
                     Thread.sleep(45);
                 } catch (InterruptedException e) {
