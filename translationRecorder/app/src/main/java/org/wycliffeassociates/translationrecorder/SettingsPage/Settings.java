@@ -12,14 +12,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-
-import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.project.Language;
 import org.wycliffeassociates.translationrecorder.project.ScrollableListFragment;
 import org.wycliffeassociates.translationrecorder.project.adapters.TargetLanguageAdapter;
+import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
 /**
  *
@@ -53,7 +52,7 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
     private FragmentManager mFragmentManager;
     private Fragment mFragment;
     public static boolean displayingList = false;
-    private Menu mMenu;
+    private boolean mShowSearch = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,17 +70,15 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
         }
     }
 
-    public void onBackPressed(View v) {
-        backPressed();
-    }
-
-    private void backPressed(){
+    @Override
+    public void onBackPressed() {
         if(displayingList){
             FragmentManager fm = getFragmentManager();
             fm.beginTransaction().remove(fm.findFragmentById(R.id.fragment_scroll_list)).commit();
             displayingList = false;
+            hideSearchMenu();
         } else {
-            finish();
+            super.onBackPressed();
         }
     }
 
@@ -89,7 +86,8 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                backPressed();
+                Utils.closeKeyboard(this);
+                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -105,48 +103,69 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu){
-        mMenu = menu;
         super.onPrepareOptionsMenu(menu);
-        //if(mFragment instanceof LanguageListFragment) {
-        menu.findItem(R.id.action_update).setVisible(false);
-        menu.findItem(R.id.action_search).setVisible(false);
+        if(mShowSearch) {
+            //if(mFragment instanceof LanguageListFragment) {
+            menu.findItem(R.id.action_update).setVisible(false);
+            menu.findItem(R.id.action_search).setVisible(true);
 
-        SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
-        final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
-        final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
-        searchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return true;
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+            final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+            searchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String s) {
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String s) {
+                    mSearchText = s;
+                    Fragment fragment = (mFragmentManager.findFragmentById(R.id.fragment_scroll_list));
+                    //Seems to sometimes pull SettingsFragment instead and thus cannot cast?
+                    if(fragment instanceof ScrollableListFragment) {
+                        ((ScrollableListFragment) fragment).onSearchQuery(s);
+                    }
+                    return true;
+                }
+            });
+            searchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+            if (mSearchText != null) {
+                searchViewAction.setQuery(mSearchText, true);
             }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                mSearchText = s;
-                ((ScrollableListFragment)(mFragmentManager.findFragmentById(R.id.fragment_scroll_list))).onSearchQuery(s);
-                return true;
-            }
-        });
-        searchViewAction.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
-        if(mSearchText != null){
-            searchViewAction.setQuery(mSearchText, true);
+        } else {
+            menu.findItem(R.id.action_update).setVisible(false);
+            menu.findItem(R.id.action_search).setVisible(false);
         }
         return true;
     }
 
     @Override
     public void onItemClick(Object result) {
+        Utils.closeKeyboard(this);
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.edit().putString(KEY_PREF_GLOBAL_LANG_SRC, ((Language)result).getCode()).commit();
         mFragmentManager.beginTransaction().remove(mFragmentManager.findFragmentById(R.id.fragment_scroll_list)).commit();
         displayingList = false;
-        mMenu.findItem(R.id.action_search).setVisible(false);
+        hideSearchMenu();
+    }
+
+    private void displaySearchMenu(){
+        mShowSearch = true;
+        invalidateOptionsMenu();
+        mSearchText = "";
+    }
+
+    private void hideSearchMenu(){
+        mShowSearch = false;
+        invalidateOptionsMenu();
+        mSearchText = "";
     }
 
     @Override
     public void sourceLanguageSelected() {
-        mMenu.findItem(R.id.action_search).setVisible(true);
+        displaySearchMenu();
         Settings.displayingList = true;
         mFragment = new ScrollableListFragment
                 .Builder(new TargetLanguageAdapter(Language.getLanguages(this), this))
