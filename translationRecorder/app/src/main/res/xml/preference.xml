@@ -15,7 +15,7 @@
             android:summary="/storage/emulated/0/TranslationRecorder"
             android:defaultValue="/storage/emulated/0/TranslationRecorder">
             <intent
-                android:action="wycliffeassociates.recordingapp.SettingsPage.SELECT_SRC_INTENT">
+                android:action="org.wycliffeassociates.translationrecorder.SettingsPage.SELECT_SRC_INTENT">
             </intent>
         </PreferenceScreen>
 
