@@ -41,6 +41,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     private Searchable mFragment;
     private FragmentManager mFragmentManager;
     protected String mSearchText;
+    private boolean mShowSearch = false;
 
     public static Intent getSourceAudioIntent(Context ctx, Project project){
         Intent intent = new Intent(ctx, SourceAudioActivity.class);
@@ -120,6 +121,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
         //if the source language fragment is showing, then close that, otherwise proceed with back press
         if (findViewById(R.id.fragment_container).getVisibility() == View.VISIBLE) {
             findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);
+            hideSearchMenu();
         } else {
             super.onBackPressed();
             finish();
@@ -143,6 +145,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
 //        }
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        searchMenuItem.setVisible(mShowSearch);
         final SearchView searchViewAction = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchViewAction.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -212,6 +215,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
                     break;
                 }
                 case R.id.language_btn: {
+                    displaySearchMenu();
                     setSourceLanguage();
                     break;
                 }
@@ -222,6 +226,18 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
             }
         }
     };
+
+    private void displaySearchMenu(){
+        mShowSearch = true;
+        invalidateOptionsMenu();
+        mSearchText = "";
+    }
+
+    private void hideSearchMenu(){
+        mShowSearch = false;
+        invalidateOptionsMenu();
+        mSearchText = "";
+    }
 
     public void continueIfBothSet() {
         if (mSetLocation && mSetLanguage) {
@@ -245,6 +261,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     @Override
     public void onItemClick(Object result) {
         Utils.closeKeyboard(this);
+        hideSearchMenu();
         mProject.setSourceLanguage(((Language) result).getCode());
         btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
         mSetLanguage = true;
