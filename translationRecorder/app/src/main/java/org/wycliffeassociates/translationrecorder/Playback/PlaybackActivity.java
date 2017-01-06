@@ -225,7 +225,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onSeekTo(float x) {
-        mAudioController.seekTo((int)(x * mAudioController.getAbsoluteDurationInFrames()));
+        mAudioController.seekTo(mAudioController.mCutOp.relativeLocToAbsolute((int)(x * mAudioController.getRelativeDurationInFrames()), false));
         onLocationUpdated(getLocation());
     }
 
