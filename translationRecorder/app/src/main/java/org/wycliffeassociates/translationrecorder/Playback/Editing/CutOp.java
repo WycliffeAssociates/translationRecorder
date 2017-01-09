@@ -3,7 +3,10 @@ package org.wycliffeassociates.translationrecorder.Playback.Editing;
 import android.app.ProgressDialog;
 import android.util.Pair;
 
+import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import org.wycliffeassociates.translationrecorder.wav.WavFile;
+import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
 import java.io.IOException;
 import java.nio.ShortBuffer;
@@ -11,10 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
-
-import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.wav.WavFile;
-import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
 /**
  * Created by sarabiaj on 12/22/2015.
@@ -28,70 +27,124 @@ public class CutOp {
     private int mSizeFrameCutCmp = 0;
     private int mSizeFrameCutUncmp = 0;
 
+    private ReadPriorityLock mLock;
+
     public CutOp() {
         mTimeStack = new Vector<>();
+        mLock = new ReadPriorityLock();
     }
 
-    public synchronized Vector<Pair<Integer,Integer>> getFlattenedStack(){
+    public Vector<Pair<Integer, Integer>> getFlattenedStack() {
         return mFlattenedFrameStack;
     }
 
-    public synchronized void cut(int startFrame, int endFrame){
-        Pair<Integer, Integer> temp = new Pair<>(startFrame, endFrame);
-        mUncompressedFrameStack.add(temp);
-        mSizeTimeCut = totalFramesRemoved(); //?
-        Logger.w(this.toString(), "Generating location stacks");
-        generateTimeStack();
-        generateCutStackCmpLoc();
-    }
-
-    public synchronized void clear(){
-        mTimeStack.clear();
-        mFlattenedFrameStack.clear();
-        mCompressedFrameStack.clear();
-        mUncompressedFrameStack.clear();
-        mSizeTimeCut = 0;
-        mSizeFrameCutCmp = 0;
-        mSizeFrameCutUncmp = 0;
-    }
-
-    public synchronized void undo(){
-        if(mUncompressedFrameStack.size() == 0){
-            return;
+    public void cut(int startFrame, int endFrame) {
+        try {
+            mLock.writeLock();
+            Pair<Integer, Integer> temp = new Pair<>(startFrame, endFrame);
+            mUncompressedFrameStack.add(temp);
+            mSizeTimeCut = totalFramesRemoved(); //?
+            Logger.w(this.toString(), "Generating location stacks");
+            generateTimeStack();
+            generateCutStackCmpLoc();
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock the cut stack to write", e);
+        } finally {
+            mLock.writeUnlock();
         }
-        mUncompressedFrameStack.remove(mUncompressedFrameStack.size() - 1);
-        mSizeTimeCut = totalFramesRemoved();
-        generateTimeStack();
-        generateCutStackCmpLoc();
+    }
+
+
+    public void clear() {
+        try {
+            mLock.writeLock();
+            mTimeStack.clear();
+            mFlattenedFrameStack.clear();
+            mCompressedFrameStack.clear();
+            mUncompressedFrameStack.clear();
+            mSizeTimeCut = 0;
+            mSizeFrameCutCmp = 0;
+            mSizeFrameCutUncmp = 0;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock the cut stack to write", e);
+        } finally {
+            mLock.writeUnlock();
+        }
+    }
+
+    public void undo() {
+        try {
+            mLock.readLock();
+            if (mUncompressedFrameStack.size() == 0) {
+                return;
+            }
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read", e);
+        } finally {
+            mLock.readUnlock();
+        }
+        try {
+            mLock.writeLock();
+            mUncompressedFrameStack.remove(mUncompressedFrameStack.size() - 1);
+            mSizeTimeCut = totalFramesRemoved();
+            generateTimeStack();
+            generateCutStackCmpLoc();
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a write", e);
+        } finally {
+            mLock.writeUnlock();
+        }
     }
 
     //change to use flattened stack
-    public synchronized int skip(int frame){
+    public int skip(int frame) {
         int max = -1;
-        for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
-            if (frame >= cut.first && frame < cut.second) {
-                max = Math.max(cut.second, max);
+        try {
+            mLock.readLock();
+            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+                if (frame >= cut.first && frame < cut.second) {
+                    max = Math.max(cut.second, max);
+                }
             }
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
         }
         return max;
     }
 
-    public synchronized boolean hasCut(){
-        if(mUncompressedFrameStack.size() > 0){
-            return true;
-        } else {
-            return false;
+    public boolean hasCut() {
+        try {
+            mLock.readLock();
+            boolean hasCut = mUncompressedFrameStack.size() > 0;
+            return hasCut;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in hasCut()", e);
+            //TODO: think of better approach... needs to return but shouldn't return invalid info
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
         }
     }
 
-    public synchronized int skipReverse(int frame){
+    public int skipReverse(int frame) {
         int min = Integer.MAX_VALUE;
-        for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
-            if (frame > cut.first && frame <= cut.second) {
-                min = Math.min(cut.first, min);
+        try {
+            mLock.readLock();
+            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+                if (frame > cut.first && frame <= cut.second) {
+                    min = Math.min(cut.first, min);
+                }
             }
+            return min;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in skipReverse()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
         }
-        return min;
     }
 
     /**
@@ -108,8 +161,8 @@ public class CutOp {
      *
      * @return the total time removed from cuts.
      */
-    private synchronized int totalFramesRemoved(){
-        Vector<Pair<Integer,Integer>> copy = new Vector<>(mUncompressedFrameStack.capacity());
+    private int totalFramesRemoved() {
+        Vector<Pair<Integer, Integer>> copy = new Vector<>(mUncompressedFrameStack.capacity());
         mFlattenedFrameStack = new Vector<>();
         for (Pair<Integer, Integer> p : mUncompressedFrameStack) {
             copy.add(new Pair<>(p.first, p.second));
@@ -117,7 +170,7 @@ public class CutOp {
         Collections.sort(copy, new Comparator<Pair<Integer, Integer>>() {
             @Override
             public synchronized int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
-                if(lhs.first == rhs.first) {
+                if (lhs.first == rhs.first) {
                     return 0;
                 } else if (lhs.first > rhs.first) {
                     return 1;
@@ -132,12 +185,12 @@ public class CutOp {
             Pair<Integer, Integer> pair = copy.firstElement();
             ArrayList<Pair<Integer, Integer>> list = new ArrayList<>();
             list.add(pair);
-            for(int i = 0; i < list.size(); i++){
-                Pair<Integer,Integer> p =  list.get(i);
+            for (int i = 0; i < list.size(); i++) {
+                Pair<Integer, Integer> p = list.get(i);
                 copy.remove(p);
-                for(int j = copy.size()-1; j >= 0; j--){
-                    Pair<Integer,Integer> q = copy.get(j);
-                    if((q.first >= p.first && q.first <= p.second) || (p.first >= q.first && p.first <= q.second)){
+                for (int j = copy.size() - 1; j >= 0; j--) {
+                    Pair<Integer, Integer> q = copy.get(j);
+                    if ((q.first >= p.first && q.first <= p.second) || (p.first >= q.first && p.first <= q.second)) {
                         list.add(q);
                         copy.remove(q);
                     }
@@ -155,75 +208,88 @@ public class CutOp {
         return sum;
     }
 
-    /**
-     * Since the marker position takes into account total data played by audiotrack, the position
-     * is agnostic of the "actual" position. This method computes the time to add back to it,
-     * it takes the original time, looks to see if it's greater than or equal to a start cut. If so
-     * it adds total time cut out, and adds this to time. Time is then compared to the next cut, and
-     * the process is repeated. Break when the next cut takes place at a later time than we're at.
-     * <p/>
-     * mFlattenedFrameStack is a representation of the cut stack WITHOUT any nested cuts, and based on
-     * the way it is computed, we can assume this list is sorted.
-     *
-     * @param frame location that was computed from BufferPlayer before considering cuts
-     * @return inflated time accounting for cuts
-     */
-    public synchronized int frameAdjusted(int frame){
-        if(mFlattenedFrameStack == null) {
-            return frame;
-        }
-        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
-            if (frame >= p.first) {
-                frame += p.second - p.first;
-            } else {
-                break;
-            }
-        }
-        return frame;
-    }
+//    /**
+//     * Since the marker position takes into account total data played by audiotrack, the position
+//     * is agnostic of the "actual" position. This method computes the time to add back to it,
+//     * it takes the original time, looks to see if it's greater than or equal to a start cut. If so
+//     * it adds total time cut out, and adds this to time. Time is then compared to the next cut, and
+//     * the process is repeated. Break when the next cut takes place at a later time than we're at.
+//     * <p/>
+//     * mFlattenedFrameStack is a representation of the cut stack WITHOUT any nested cuts, and based on
+//     * the way it is computed, we can assume this list is sorted.
+//     *
+//     * @param frame location that was computed from BufferPlayer before considering cuts
+//     * @return inflated time accounting for cuts
+//     */
+//    public int frameAdjusted(int frame){
+//        mReaders.incrementAndGet();
+//        while(!mWriteRequest.compareAndSet(false,false));
+//        if(mFlattenedFrameStack == null) {
+//            mReaders.decrementAndGet();
+//            return frame;
+//        }
+//        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+//            if (frame >= p.first) {
+//                frame += p.second - p.first;
+//            } else {
+//                break;
+//            }
+//        }
+//        mReaders.decrementAndGet();
+//        return frame;
+//    }
+//
+//    public int frameAdjusted(int frame, int playbackStart){
+//        mReaders.incrementAndGet();
+//        while(!mWriteRequest.compareAndSet(false,false));
+//        if(mFlattenedFrameStack == null) {
+//            mReaders.decrementAndGet();
+//            return frame;
+//        }
+//        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+//            if (p.second > playbackStart) {
+//                if (frame >= p.first) {
+//                    frame += p.second - p.first;
+//                } else {
+//                    break;
+//                }
+//            }
+//        }
+//        mReaders.decrementAndGet();
+//        return frame;
+//    }
+//
+//    /**
+//     * Given an absolute time in the uncut waveform, this method
+//     * returns the adjusted time in the cut waveform.  The given
+//     * time must not be in an existing cut.
+//     *
+//     * @param frame a time in ms in the uncut waveform.  timeMs must not
+//     *               be in an existing cut.
+//     * @return the adjusted time in the cut waveform.
+//     */
+//    public synchronized int reverseFrameAdjusted(int frame){
+//        mReaders.incrementAndGet();
+//        while(!mWriteRequest.compareAndSet(false,false));
+//        if (mFlattenedFrameStack == null) {
+//            mReaders.decrementAndGet();
+//            return frame;
+//        }
+//        int adjustedFrame = frame;
+//        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
+//            if (frame >= p.second) {
+//                adjustedFrame -= p.second - p.first;
+//            } else {
+//                break;
+//            }
+//        }
+//        mReaders.decrementAndGet();
+//        return adjustedFrame;
+//    }
 
-    public synchronized int frameAdjusted(int frame, int playbackStart){
-        if(mFlattenedFrameStack == null) {
-            return frame;
-        }
-        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
-            if (p.second > playbackStart) {
-                if (frame >= p.first) {
-                    frame += p.second - p.first;
-                } else {
-                    break;
-                }
-            }
-        }
-        return frame;
-    }
 
-    /**
-     * Given an absolute time in the uncut waveform, this method
-     * returns the adjusted time in the cut waveform.  The given
-     * time must not be in an existing cut.
-     *
-     * @param frame a time in ms in the uncut waveform.  timeMs must not
-     *               be in an existing cut.
-     * @return the adjusted time in the cut waveform.
-     */
-    public synchronized int reverseFrameAdjusted(int frame){
-        if (mFlattenedFrameStack == null) {
-            return frame;
-        }
-        int adjustedFrame = frame;
-        for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
-            if (frame >= p.second) {
-                adjustedFrame -= p.second - p.first;
-            } else {
-                break;
-            }
-        }
-
-        return adjustedFrame;
-    }
-
-    private synchronized void generateTimeStack(){
+    //NOT THREAD SAFE make sure this function is called under a write lock
+    private void generateTimeStack() {
         mSizeTimeCut = 0;
         mTimeStack = new Vector<Pair<Integer, Integer>>();
         for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
@@ -233,7 +299,8 @@ public class CutOp {
         }
     }
 
-    private synchronized void generateCutStackUncmpLoc(){
+    //NOT THREAD SAFE make sure this function is called under a write lock
+    private void generateCutStackUncmpLoc() {
         mSizeFrameCutUncmp = 0;
         mUncompressedFrameStack = new Vector<Pair<Integer, Integer>>();
         for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
@@ -243,7 +310,8 @@ public class CutOp {
         }
     }
 
-    private synchronized void generateCutStackCmpLoc(){
+    //NOT THREAD SAFE make sure this function is called under a write lock
+    private void generateCutStackCmpLoc() {
         mSizeFrameCutCmp = 0;
         mCompressedFrameStack = new Vector<Pair<Integer, Integer>>();
         for (Pair<Integer, Integer> p : mFlattenedFrameStack) {
@@ -251,76 +319,97 @@ public class CutOp {
             mCompressedFrameStack.add(y);
             mSizeFrameCutCmp += y.second - y.first;
         }
+
     }
 
-    public int timeToUncmpLoc(int timeMs){
-        int seconds = timeMs/1000;
-        int ms = (timeMs-(seconds*1000));
-        int tens = ms/10;
-
-
+    public static int timeToUncmpLoc(int timeMs) {
+        int seconds = timeMs / 1000;
+        int ms = (timeMs - (seconds * 1000));
+        int tens = ms / 10;
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         //idx *= 2;
         return idx;
     }
 
-    public int timeToCmpLoc(int timeMs){
-        int seconds = timeMs/1000;
-        int ms = (timeMs-(seconds*1000));
-        int tens = ms/10;
-
-
+    public static int timeToCmpLoc(int timeMs) {
+        int seconds = timeMs / 1000;
+        int ms = (timeMs - (seconds * 1000));
+        int tens = ms / 10;
         int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         idx /= 25;
         //idx *= 2;
         return idx;
     }
 
-    public int uncompressedFrameToTime(int frame) {
-        return (int) Math.floor(frame/44.1);
+    public static int uncompressedFrameToTime(int frame) {
+        return (int) Math.floor(frame / 44.1);
     }
 
-    public int uncompressedToCompressed(int frame) {
+    public static int uncompressedToCompressed(int frame) {
         return frame / 25;
     }
 
-    public synchronized int skipFrame(int frame, boolean compressed){
-        int max = -1;
-        Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mFlattenedFrameStack;
-        for (Pair<Integer, Integer> cut : stack) {
-            if (frame >= cut.first && frame < cut.second) {
-                max = Math.max(cut.second, max);
-            }
-        }
-        return max;
-    }
-
-    public synchronized int relativeLocToAbsolute(int frame, boolean compressed){
-        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mFlattenedFrameStack;
-        if(stack == null){
-            return frame;
-        }
-        for (Pair<Integer, Integer> cut : stack) {
-            if (frame >= cut.first) {
-                frame += cut.second - cut.first;
-            }
-        }
-        return frame;
-    }
-
-    public synchronized boolean cutExistsInRange(int frame, int range){
-        if(hasCut()) {
-            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
-                //if the frame is in the middle of a cut
-                if (frame >= cut.first && frame <= cut.second) {
-                    return true;
-                    //if the cut is between the frame and the end of the range
-                } else if (frame < cut.first && (frame + range) >= cut.second) {
-                    return true;
-                    //if the frame begins before the first cut, and ends after
-                } else if (frame < cut.first && (frame + range) > cut.first) {
-                    return true;
+    public int skipFrame(int frame, boolean compressed) {
+        try {
+            int max = -1;
+            mLock.readLock();
+            Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mFlattenedFrameStack;
+            for (Pair<Integer, Integer> cut : stack) {
+                if (frame >= cut.first && frame < cut.second) {
+                    max = Math.max(cut.second, max);
                 }
+            }
+            return max;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in skipFrame()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
+        }
+    }
+
+    public int relativeLocToAbsolute(int frame, boolean compressed) {
+        try {
+            mLock.readLock();
+            Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mFlattenedFrameStack;
+            if (stack == null) {
+                return frame;
+            }
+            for (Pair<Integer, Integer> cut : stack) {
+                if (frame >= cut.first) {
+                    frame += cut.second - cut.first;
+                }
+            }
+            return frame;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in relativeLocToAbsolute()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
+        }
+    }
+
+    public boolean cutExistsInRange(int frame, int range) {
+        if (hasCut()) {
+            try {
+                mLock.readLock();
+                for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+                    //if the frame is in the middle of a cut
+                    if (frame >= cut.first && frame <= cut.second) {
+                        return true;
+                        //if the cut is between the frame and the end of the range
+                    } else if (frame < cut.first && (frame + range) >= cut.second) {
+                        return true;
+                        //if the frame begins before the first cut, and ends after
+                    } else if (frame < cut.first && (frame + range) > cut.first) {
+                        return true;
+                    }
+                }
+            } catch (InterruptedException e) {
+                Logger.e(this.toString(), "Error trying to lock for a read in cutExistsInRange()", e);
+                throw new RuntimeException(e);
+            } finally {
+                mLock.readUnlock();
             }
         }
         //otherwise no cut
@@ -328,61 +417,105 @@ public class CutOp {
     }
 
 
-    public synchronized int absoluteLocToRelative(int frame, boolean compressed){
-        Vector<Pair<Integer,Integer>> stack = (compressed)? mCompressedFrameStack : mFlattenedFrameStack;
+    public int absoluteLocToRelative(int frame, boolean compressed) {
         int loc = frame;
-        if(stack == null){
-            return loc;
-        }
-        for(int i = stack.size()-1; i >=0; i--) {
-            Pair<Integer,Integer> cut = stack.get(i);
-            if (frame >= cut.second) {
-                loc -= cut.second - cut.first;
+        try {
+            mLock.readLock();
+            Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mFlattenedFrameStack;
+            if (stack == null) {
+                return loc;
             }
+            for (int i = stack.size() - 1; i >= 0; i--) {
+                Pair<Integer, Integer> cut = stack.get(i);
+                if (frame >= cut.second) {
+                    loc -= cut.second - cut.first;
+                }
+            }
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in absoluteLocToRelative()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
         }
         return loc;
     }
 
-    public synchronized int getSizeTimeCut(){
-        return mSizeTimeCut;
+
+    public int getSizeTimeCut() {
+        try {
+            mLock.readLock();
+            return mSizeTimeCut;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in getSizeTimeCut()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
+        }
     }
-    public synchronized int getSizeFrameCutCmp(){
-        return mSizeFrameCutCmp;
+
+    public int getSizeFrameCutCmp() {
+        try {
+            mLock.readLock();
+            return mSizeFrameCutCmp;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in getSizeFrameCutCmp()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
+        }
     }
-    public synchronized int getSizeFrameCutUncmp(){
-        return mSizeFrameCutUncmp;
+
+    public int getSizeFrameCutUncmp() {
+        try {
+            mLock.readLock();
+            return mSizeFrameCutUncmp;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in getSizeFrameCutUncmp()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
+        }
     }
 
     public void writeCut(WavFile to, final ShortBuffer buffer, ProgressDialog pd) throws IOException {
-        Logger.w(this.toString(), "Rewriting file to disk due to cuts");
-        pd.setProgress(0);
-        int audioLength = buffer.capacity();
-        try (WavOutputStream bos = new WavOutputStream(to, WavOutputStream.BUFFERED)){
+        try {
+            mLock.readLock();
+            Logger.w(this.toString(), "Rewriting file to disk due to cuts");
+            pd.setProgress(0);
+            int audioLength = buffer.capacity();
+            try (WavOutputStream bos = new WavOutputStream(to, WavOutputStream.BUFFERED)) {
 
-            int percent = (int)Math.round((audioLength) /100.0);
-            int count = percent;
-            for(int i = 0; i < audioLength; i++){
-                int skip = skipFrame(i, false);
-                if(skip != -1){
-                    i = skip;
-                    if(i >= audioLength){
-                        break;
+                int percent = (int) Math.round((audioLength) / 100.0);
+                int count = percent;
+                for (int i = 0; i < audioLength; i++) {
+                    int skip = skipFrame(i, false);
+                    if (skip != -1) {
+                        i = skip;
+                        if (i >= audioLength) {
+                            break;
+                        }
                     }
+                    short sample = buffer.get(i);
+                    byte hi = (byte) (((sample >> 8) & 0xFF));
+                    byte lo = (byte) (sample & 0xFF);
+                    bos.write(lo);
+                    bos.write(hi);
+                    if (count <= 0) {
+                        pd.incrementProgressBy(1);
+                        count = percent;
+                    }
+                    count--;
                 }
-                short sample = buffer.get(i);
-                byte hi = (byte)(((sample >> 8) & 0xFF));
-                byte lo = (byte)(sample & 0xFF);
-                bos.write(lo);
-                bos.write(hi);
-                if(count <= 0) {
-                    pd.incrementProgressBy(1);
-                    count = percent;
-                }
-                count--;
+                clear();
             }
-            clear();
+            return;
+        } catch (InterruptedException e) {
+            Logger.e(this.toString(), "Error trying to lock for a read in writeCut()", e);
+            throw new RuntimeException(e);
+        } finally {
+            mLock.readUnlock();
         }
-        return;
     }
+
 
 }
