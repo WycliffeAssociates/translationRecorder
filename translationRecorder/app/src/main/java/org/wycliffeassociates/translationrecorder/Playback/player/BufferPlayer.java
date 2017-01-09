@@ -199,7 +199,7 @@ class BufferPlayer {
 //    int getLocationMs(){
 //        if(player != null) {
 //            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
-//                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
+//                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getRelativeDurationMs());
 ////            if(mMovedBackwards){
 ////                loc = mCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
 ////            } else {
@@ -224,7 +224,7 @@ class BufferPlayer {
 //        }
 //    }
 //
-//    int getDuration(){
+//    int getRelativeDurationMs(){
 //        if(player != null && audioData != null){
 //            int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
 //            return duration;
@@ -235,7 +235,7 @@ class BufferPlayer {
 //    }
 //
 //    int getAdjustedDuration(){
-//        return getDuration() - mCutOp.getSizeCut();
+//        return getRelativeDurationMs() - mCutOp.getSizeCut();
 //    }
 
 
@@ -296,7 +296,7 @@ class BufferPlayer {
 //                }
 //                //location doesn't usually end up going to the end before audio playback stops.
 //                //continue to loop until the end is reached.
-////                while(audioData != null && (getLocationMs() <= (getDuration())) && !forceBreakOut && thisThread == mPlaybackThread){
+////                while(audioData != null && (getLocationMs() <= (getRelativeDurationMs())) && !forceBreakOut && thisThread == mPlaybackThread){
 ////                    Thread.yield();
 ////                }
 //                if(releaseAtEnd){
@@ -427,7 +427,7 @@ class BufferPlayer {
 //                seekTo(endPlaybackPosition);
 //            }
 //            else {
-//                seekTo(mCutOp.timeAdjusted(getDuration() - mCutOp.getSizeCut()));
+//                seekTo(mCutOp.timeAdjusted(getRelativeDurationMs() - mCutOp.getSizeCut()));
 //            }
 //        }
 //    }
@@ -479,7 +479,7 @@ class BufferPlayer {
 //    }
 //
 //    boolean checkIfShouldStop(){
-//        if((getDuration()) <= getLocationMs()) {
+//        if((getRelativeDurationMs()) <= getLocationMs()) {
 //            onPause();
 //            if(mOnCompleteListener != null){
 //                mOnCompleteListener.onComplete();
@@ -530,7 +530,7 @@ class BufferPlayer {
 //    int getLocationMs(){
 //        if(player != null) {
 //            int loc = Math.min((int)Math.round(((playbackStart / 2 + player.getPlaybackHeadPosition()) *
-//                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getDuration());
+//                    (1000.0 / (float)AudioInfo.SAMPLERATE))), getRelativeDurationMs());
 ////            if(mMovedBackwards){
 ////                loc = mCutOp.reverseTimeAdjusted(loc, (int) (playbackStart / 88.2));
 ////            } else {
@@ -555,7 +555,7 @@ class BufferPlayer {
 //        }
 //    }
 //
-//    int getDuration(){
+//    int getRelativeDurationMs(){
 //        if(player != null && audioData != null){
 //            int duration = (int)(audioData.capacity()/((AudioInfo.SAMPLERATE/1000.0) * AudioInfo.BLOCKSIZE));
 //            return duration;
@@ -566,7 +566,7 @@ class BufferPlayer {
 //    }
 //
 //    int getAdjustedDuration(){
-//        return getDuration() - mCutOp.getSizeCut();
+//        return getRelativeDurationMs() - mCutOp.getSizeCut();
 //    }
 //
 //    int getSelectionEnd(){

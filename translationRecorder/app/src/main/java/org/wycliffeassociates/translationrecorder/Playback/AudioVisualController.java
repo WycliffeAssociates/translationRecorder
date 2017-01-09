@@ -4,13 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
-import java.nio.ShortBuffer;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.AudioStateCallback;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.MediaControlReceiver;
@@ -18,6 +11,13 @@ import org.wycliffeassociates.translationrecorder.Playback.player.WavPlayer;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
+
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by sarabiaj on 10/27/2016.
@@ -54,7 +54,7 @@ public class AudioVisualController implements MediaControlReceiver {
 //        mDropStartMarkerBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                mPlayer.setLoopStart(mPlayer.getLocationInFrames());
+//                mPlayer.setLoopStart(mPlayer.getRelativeLocationInFrames());
 //                swapViews(new View[]{mDropEndMarkerBtn}, new View[]{mDropStartMarkerBtn});
 //            }
 //        });
@@ -62,7 +62,7 @@ public class AudioVisualController implements MediaControlReceiver {
 //        mDropEndMarkerBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                mPlayer.setLoopEnd(mPlayer.getLocationInFrames());
+//                mPlayer.setLoopEnd(mPlayer.getRelativeLocationInFrames());
 //                swapViews(new View[]{mClearBtn, mCutBtn}, new View[]{mDropEndMarkerBtn});
 //            }
 //        });
@@ -132,17 +132,29 @@ public class AudioVisualController implements MediaControlReceiver {
     }
 
     @Override
-    public int getLocation() {
+    public int getAbsoluteLocationMs() {
         return mPlayer.getAbsoluteLocationMs();
     }
 
-    public int getLocationInFrames(){
+    public int getRelativeLocationMs(){
+        return mPlayer.getRelativeLocationMs();
+    }
+
+    public int getRelativeLocationInFrames(){
         return mPlayer.getRelativeLocationInFrames();
     }
 
     @Override
-    public int getDuration() {
+    public int getRelativeDurationMs() {
         return mPlayer.getRelativeDurationMs();
+    }
+
+    public int getAbsoluteDurationInFrames() {
+        return mPlayer.getAbsoluteDurationInFrames();
+    }
+
+    public int getRelativeDurationInFrames(){
+        return mPlayer.getRelativeDurationInFrames();
     }
 
     public boolean isPlaying(){
@@ -204,7 +216,7 @@ public class AudioVisualController implements MediaControlReceiver {
             }
         }
         mPlayer.seekToAbsolute(seekTo);
-        mCallback.onLocationUpdated(getLocation());
+        mCallback.onLocationUpdated(getAbsoluteLocationMs());
     }
 
     public void setStartMarker(int relativeLocation) {
@@ -213,14 +225,6 @@ public class AudioVisualController implements MediaControlReceiver {
 
     public void setEndMarker(int relativeLocation) {
         mPlayer.setLoopEnd(Math.min(mCutOp.relativeLocToAbsolute(relativeLocation, false), mPlayer.getAbsoluteDurationInFrames()));
-    }
-
-    public int getDurationInFrames() {
-        return mPlayer.getAbsoluteDurationInFrames();
-    }
-
-    public int getRelativeDurationInFrames(){
-        return mPlayer.getRelativeDurationInFrames();
     }
 
     public WavFileLoader getWavLoader(){

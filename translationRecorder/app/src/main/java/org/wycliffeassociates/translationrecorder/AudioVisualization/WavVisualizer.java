@@ -214,7 +214,7 @@ public class WavVisualizer {
 //    private int mapLocationToTime(int idx){
 //        double idxP = (mUseCompressedFile)? idx/(double)mCompressed.capacity()
 //                : idx/(double)buffer.capacity();
-//        int ms = (int)Math.round(idxP * mManager.getDuration());
+//        int ms = (int)Math.round(idxP * mManager.getRelativeDurationMs());
 //        return ms;
 //    }
 
