@@ -3,7 +3,10 @@ package org.wycliffeassociates.translationrecorder.Playback.Editing;
 import android.app.ProgressDialog;
 import android.util.Pair;
 
+import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import org.wycliffeassociates.translationrecorder.wav.WavFile;
+import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
 import java.io.IOException;
 import java.nio.ShortBuffer;
@@ -11,10 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
-
-import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.wav.WavFile;
-import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
 /**
  * Created by sarabiaj on 12/22/2015.
