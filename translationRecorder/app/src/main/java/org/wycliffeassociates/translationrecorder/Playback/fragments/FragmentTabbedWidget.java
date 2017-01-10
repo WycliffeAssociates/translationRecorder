@@ -264,4 +264,8 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     public void onTap(float x) {
         mMediaController.onSeekTo((x/(float)getWidgetWidth()));
     }
+
+    public void invalidate(int ms) {
+
+    }
 }
