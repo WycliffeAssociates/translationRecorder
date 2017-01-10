@@ -166,7 +166,7 @@ public class MarkerHolder implements MarkerMediator {
     @Override
     public void onCueScroll(int id, float distX) {
         int position = mMarkers.get(id).getFrame() + ((int) (-distX) * 230);
-        position = Math.min(Math.max(position, 0), mAudioController.getDurationInFrames());
+        position = Math.min(Math.max(position, 0), mAudioController.getAbsoluteDurationInFrames());
         if (id == START_MARKER_ID) {
             mAudioController.setStartMarker(position);
         } else if (id == END_MARKER_ID) {

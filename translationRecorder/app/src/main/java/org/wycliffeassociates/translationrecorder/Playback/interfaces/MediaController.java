@@ -20,4 +20,5 @@ public interface MediaController {
     int getStartMarkerFrame();
     int getEndMarkerFrame();
     boolean hasSetMarkers();
+    boolean isPlaying();
 }

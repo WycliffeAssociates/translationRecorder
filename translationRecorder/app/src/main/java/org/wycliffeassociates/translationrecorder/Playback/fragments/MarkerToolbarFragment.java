@@ -64,6 +64,11 @@ public class MarkerToolbarFragment extends Fragment {
         findViews();
         initViews();
         initTimer(mPlaybackElapsed, mPlaybackDuration);
+        if (mMediaController.isPlaying()) {
+            showPauseButton();
+        } else {
+            showPlayButton();
+        }
     }
 
     private void findViews(){
@@ -79,11 +84,19 @@ public class MarkerToolbarFragment extends Fragment {
         mPlaceMarker = (ImageView) view.findViewById(R.id.btn_drop_verse_marker);
     }
 
+    public void showPlayButton(){
+        Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
+    }
+
+    public void showPauseButton(){
+        Utils.swapViews(new View[]{mPauseBtn}, new View[]{mPlayBtn});
+    }
+
     private void initViews(){
         mPlayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Utils.swapViews(new View[]{mPauseBtn}, new View[]{mPlayBtn});
+                showPauseButton();
                 mMediaController.onMediaPlay();
             }
         });
@@ -91,7 +104,7 @@ public class MarkerToolbarFragment extends Fragment {
         mPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
+                showPlayButton();
                 mMediaController.onMediaPause();
             }
         });
@@ -125,10 +138,14 @@ public class MarkerToolbarFragment extends Fragment {
     }
 
     public void onLocationUpdated(int ms){
-        mTimer.setElapsed(ms);
+        if(mTimer != null) {
+            mTimer.setElapsed(ms);
+        }
     }
 
     public void onDurationUpdated(int ms){
-        mTimer.setDuration(ms);
+        if(mTimer != null){
+            mTimer.setDuration(ms);
+        }
     }
 }

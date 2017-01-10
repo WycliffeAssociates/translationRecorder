@@ -85,6 +85,11 @@ public class FragmentPlaybackTools extends Fragment{
         attachListeners();
         initTimer(mPlaybackElapsed, mPlaybackDuration);
         Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
+        if(mMediaController.isPlaying()) {
+            showPauseButton();
+        } else {
+            showPlayButton();
+        }
     }
 
     private void findViews(){
@@ -126,11 +131,11 @@ public class FragmentPlaybackTools extends Fragment{
         attachMediaControllerListeners();
     }
 
-    public void viewOnPlay(){
+    public void showPauseButton(){
         Utils.swapViews(new View[]{mPauseBtn}, new View[]{mPlayBtn});
     }
 
-    public void viewOnPause(){
+    public void showPlayButton(){
         Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
     }
 
@@ -166,7 +171,7 @@ public class FragmentPlaybackTools extends Fragment{
         mPlayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewOnPlay();
+                showPauseButton();
                 mMediaController.onMediaPlay();
             }
         });
@@ -174,7 +179,7 @@ public class FragmentPlaybackTools extends Fragment{
         mPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewOnPause();
+                showPlayButton();
                 mMediaController.onMediaPause();
             }
         });
