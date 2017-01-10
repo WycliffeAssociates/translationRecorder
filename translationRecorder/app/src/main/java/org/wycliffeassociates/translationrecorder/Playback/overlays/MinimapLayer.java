@@ -46,22 +46,22 @@ public class MinimapLayer extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-//        if (initialized) {
-//            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
-//        } else {
+        if (initialized) {
+            canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+        } else {
             mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(mBitmap);
             Drawable background = getBackground();
-            if(background != null){
+            if (background != null) {
                 background.draw(c);
-            }
-            else {
+            } else {
                 c.drawColor(Color.TRANSPARENT);
             }
             if (mMinimapDrawDelegator.onDelegateMinimapDraw(c, mPaint)) {
                 setBackground(background);
                 initialized = true;
             }
+        }
         canvas.drawBitmap(mBitmap, 0, 0, mPaint);
 
     }
