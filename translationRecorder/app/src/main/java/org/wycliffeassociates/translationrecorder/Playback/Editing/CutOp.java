@@ -506,7 +506,6 @@ public class CutOp {
                     }
                     count--;
                 }
-                clear();
             }
             return;
         } catch (InterruptedException e) {
