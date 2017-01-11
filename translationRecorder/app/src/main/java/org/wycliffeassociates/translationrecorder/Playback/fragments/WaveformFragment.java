@@ -59,6 +59,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     private int mCurrentFrame;
     private WavVisualizer mWavVis;
     private int mCurrentMs;
+    private long mStart;
 
 
     public interface OnScrollDelegator {
@@ -179,7 +180,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     @Override
     public void onPositionChanged(int id, float x) {
         mOnScrollDelegator.onCueScroll(id, x);
-        mMarkerLineLayer.postInvalidate();
+        mMarkerLineLayer.invalidate();
     }
 
     @Override
@@ -190,6 +191,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         }
         canvas.drawLine(mWaveformLayer.getWidth()/8, 0, mWaveformLayer.getWidth()/8, mWaveformLayer.getHeight(), mPaintPlaback);
         canvas.drawLine(0, mWaveformLayer.getHeight()/2, mWaveformLayer.getWidth(), mWaveformLayer.getHeight()/2, mPaintBaseLine);
+        //System.out.println("Markers " + (System.currentTimeMillis() - mStart) + "ms");
     }
 
     public void onDrawHighlight(Canvas canvas, Paint paint) {
@@ -197,6 +199,7 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
             canvas.drawRect(mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX(), 0,
                     mMarkerMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), mFrame.getHeight(), paint);
         }
+        //System.out.println("Highlight (should be last):" + (System.currentTimeMillis() - mStart) + "ms");
     }
 
     @Override
@@ -204,19 +207,22 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         if(mWavVis != null) {
             canvas.drawLines(mWavVis.getDataToDraw(mCurrentMs), paint);
         }
+        //System.out.println("Waveform: " + (System.currentTimeMillis() - mStart) + "ms");
     }
 
     public void invalidateFrame(int frame, int ms) {
         mCurrentFrame = frame;
         mCurrentMs = ms;
+        mStart = System.currentTimeMillis();
+
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 mMarkerMediator.updateCurrentFrame(mCurrentFrame);
-                mWaveformLayer.postInvalidate();
-                mDraggableViewFrame.postInvalidate();
-                mMarkerLineLayer.postInvalidate();
-                mHighlightLayer.postInvalidate();
+                mWaveformLayer.invalidate();
+                mDraggableViewFrame.invalidate();
+                mMarkerLineLayer.invalidate();
+                mHighlightLayer.invalidate();
             }
         });
     }

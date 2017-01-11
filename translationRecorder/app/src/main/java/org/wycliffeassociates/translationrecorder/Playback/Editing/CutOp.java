@@ -101,9 +101,14 @@ public class CutOp {
         int max = -1;
         try {
             mLock.readLock();
-            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
-                if (frame >= cut.first && frame < cut.second) {
-                    max = Math.max(cut.second, max);
+//            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+//                if (frame >= cut.first && frame < cut.second) {
+//                    max = Math.max(cut.second, max);
+//                }
+//            }
+            for (int i = 0; i < mFlattenedFrameStack.size(); i++) {
+                if (frame >= mFlattenedFrameStack.get(i).first && frame < mFlattenedFrameStack.get(i).second) {
+                    max = Math.max(mFlattenedFrameStack.get(i).second, max);
                 }
             }
         } catch (InterruptedException e) {
@@ -133,9 +138,14 @@ public class CutOp {
         int min = Integer.MAX_VALUE;
         try {
             mLock.readLock();
-            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
-                if (frame > cut.first && frame <= cut.second) {
-                    min = Math.min(cut.first, min);
+//            for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+//                if (frame > cut.first && frame <= cut.second) {
+//                    min = Math.min(cut.first, min);
+//                }
+//            }
+            for (int i = 0; i < mFlattenedFrameStack.size(); i++) {
+                if (frame > mFlattenedFrameStack.get(i).first && frame <= mFlattenedFrameStack.get(i).second) {
+                    min = Math.min(mFlattenedFrameStack.get(i).first, min);
                 }
             }
             return min;
@@ -354,9 +364,14 @@ public class CutOp {
             int max = -1;
             mLock.readLock();
             Vector<Pair<Integer, Integer>> stack = (compressed) ? mCompressedFrameStack : mFlattenedFrameStack;
-            for (Pair<Integer, Integer> cut : stack) {
-                if (frame >= cut.first && frame < cut.second) {
-                    max = Math.max(cut.second, max);
+//            for (Pair<Integer, Integer> cut : stack) {
+//                if (frame >= cut.first && frame < cut.second) {
+//                    max = Math.max(cut.second, max);
+//                }
+//            }
+            for (int i = 0; i < stack.size(); i++) {
+                if (frame >= stack.get(i).first && frame < stack.get(i).second) {
+                    max = Math.max(stack.get(i).second, max);
                 }
             }
             return max;
@@ -375,9 +390,14 @@ public class CutOp {
             if (stack == null) {
                 return frame;
             }
-            for (Pair<Integer, Integer> cut : stack) {
-                if (frame >= cut.first) {
-                    frame += cut.second - cut.first;
+//            for (Pair<Integer, Integer> cut : stack) {
+//                if (frame >= cut.first) {
+//                    frame += cut.second - cut.first;
+//                }
+//            }
+            for (int i = 0; i < stack.size(); i++) {
+                if (frame >= stack.get(i).first) {
+                    frame += stack.get(i).second - stack.get(i).first;
                 }
             }
             return frame;
@@ -393,15 +413,16 @@ public class CutOp {
         if (hasCut()) {
             try {
                 mLock.readLock();
-                for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+                //for (Pair<Integer, Integer> cut : mFlattenedFrameStack) {
+                for (int i = 0; i < mFlattenedFrameStack.size(); i++) {
                     //if the frame is in the middle of a cut
-                    if (frame >= cut.first && frame <= cut.second) {
+                    if (frame >= mFlattenedFrameStack.get(i).first && frame <= mFlattenedFrameStack.get(i).second) {
                         return true;
                         //if the cut is between the frame and the end of the range
-                    } else if (frame < cut.first && (frame + range) >= cut.second) {
+                    } else if (frame < mFlattenedFrameStack.get(i).first && (frame + range) >= mFlattenedFrameStack.get(i).second) {
                         return true;
                         //if the frame begins before the first cut, and ends after
-                    } else if (frame < cut.first && (frame + range) > cut.first) {
+                    } else if (frame < mFlattenedFrameStack.get(i).first && (frame + range) > mFlattenedFrameStack.get(i).first) {
                         return true;
                     }
                 }
@@ -426,9 +447,8 @@ public class CutOp {
                 return loc;
             }
             for (int i = stack.size() - 1; i >= 0; i--) {
-                Pair<Integer, Integer> cut = stack.get(i);
-                if (frame >= cut.second) {
-                    loc -= cut.second - cut.first;
+                if (frame >= stack.get(i).second) {
+                    loc -= stack.get(i).second - stack.get(i).first;
                 }
             }
         } catch (InterruptedException e) {

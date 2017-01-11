@@ -674,25 +674,27 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             int frame;
             int ms;
             while (!finished) {
-                frame = mAudioController.getRelativeLocationInFrames();
-                ms = mAudioController.getRelativeLocationMs();
+                if(mAudioController != null && mAudioController.isPlaying()) {
+                    frame = mAudioController.getRelativeLocationInFrames();
+                    ms = mAudioController.getRelativeLocationMs();
 
-                mWaveformFragment.invalidateFrame(frame, ms);
-                
+                    mWaveformFragment.invalidateFrame(frame, ms);
+
 //                //// TODO
 //                mFragmentTabbedWidget.invalidateFrame(frame);
 //                mFragmentPlaybackTools.invalidateMs(ms);
 //                mMarkerToolbarFragment.invalidateMs(ms);
 
-                mFragmentPlaybackTools.onLocationUpdated(mAudioController.getRelativeLocationMs());
-                mFragmentTabbedWidget.onLocationChanged();
-                mMarkerToolbarFragment.onLocationUpdated(mAudioController.getRelativeLocationMs());
+                    mFragmentPlaybackTools.onLocationUpdated(mAudioController.getRelativeLocationMs());
+                    mFragmentTabbedWidget.onLocationChanged();
+                    mMarkerToolbarFragment.onLocationUpdated(mAudioController.getRelativeLocationMs());
 
 
-                try {
-                    Thread.sleep(45);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    try {
+                        Thread.sleep(45);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

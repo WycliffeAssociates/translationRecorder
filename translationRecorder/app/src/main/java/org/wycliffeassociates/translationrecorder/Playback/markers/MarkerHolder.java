@@ -4,17 +4,16 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import org.wycliffeassociates.translationrecorder.Playback.AudioVisualController;
-import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
-
-import java.util.Collection;
-import java.util.HashMap;
-
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentPlaybackTools;
+import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame;
 import org.wycliffeassociates.translationrecorder.widgets.DraggableMarker;
 import org.wycliffeassociates.translationrecorder.widgets.SectionMarker;
 import org.wycliffeassociates.translationrecorder.widgets.VerseMarker;
+
+import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * Created by sarabiaj on 11/30/2016.
@@ -174,7 +173,7 @@ public class MarkerHolder implements MarkerMediator {
         }
         mMarkers.get(id).updateFrame(position);
         mMarkers.get(id).updateX(position, mDraggableViewFrame.getWidth());
-        mActivity.onLocationUpdated(0);
+        //mActivity.onLocationUpdated(0);
     }
 
     @Override
@@ -192,7 +191,7 @@ public class MarkerHolder implements MarkerMediator {
             mMarkers.get(id).updateFrame(frame);
             mMarkers.get(id).updateX(frame, mDraggableViewFrame.getWidth());
         }
-        mActivity.onLocationUpdated(0);
+        //mActivity.onLocationUpdated(0);
     }
 
     @Override
