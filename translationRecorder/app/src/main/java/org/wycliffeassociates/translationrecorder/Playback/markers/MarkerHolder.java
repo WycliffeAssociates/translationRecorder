@@ -8,9 +8,9 @@ import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentPlaybackTools;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame;
-import org.wycliffeassociates.translationrecorder.widgets.DraggableMarker;
-import org.wycliffeassociates.translationrecorder.widgets.SectionMarker;
-import org.wycliffeassociates.translationrecorder.widgets.VerseMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarker;
 
 import java.util.Collection;
 import java.util.HashMap;

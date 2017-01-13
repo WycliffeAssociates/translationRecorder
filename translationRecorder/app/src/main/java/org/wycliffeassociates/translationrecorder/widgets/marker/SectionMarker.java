@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.widgets;
+package org.wycliffeassociates.translationrecorder.widgets.marker;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

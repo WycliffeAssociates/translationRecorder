@@ -23,11 +23,11 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.RectangularH
 import org.wycliffeassociates.translationrecorder.Playback.overlays.ScrollGestureLayer;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.WaveformLayer;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.widgets.DraggableMarker;
-import org.wycliffeassociates.translationrecorder.widgets.SectionMarker;
-import org.wycliffeassociates.translationrecorder.widgets.SectionMarkerView;
-import org.wycliffeassociates.translationrecorder.widgets.VerseMarker;
-import org.wycliffeassociates.translationrecorder.widgets.VerseMarkerView;
+import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarkerView;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarkerView;
 
 import java.util.Collection;
 
@@ -141,7 +141,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
 
     public void addStartMarker(int frame){
 //        if (!mMarkers.containsKey(START_MARKER_ID)) {
-            SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_startmarker_cyan, MarkerHolder.START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
+            SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_startmarker_cyan, MarkerHolder.START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
             //div.setPositionChangeMediator(this);
             div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth())-div.getWidth());
             //mDraggableViewFrame.addView(div);
@@ -150,7 +150,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     }
 
     public void addEndMarker(int frame){
-                    SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, MarkerHolder.END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
+                    SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, MarkerHolder.END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
             //div.setPositionChangeMediator(this);
             div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth()));
             //mDraggableViewFrame.addView(div);
@@ -159,7 +159,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     }
 
     public void addVerseMarker(int verseNumber, int frame){
-        VerseMarkerView div = VerseMarkerView.newInstance(getActivity(), R.drawable.verse_marker_yellow, verseNumber);
+        VerseMarkerView div = new VerseMarkerView(getActivity(), R.drawable.verse_marker_yellow, verseNumber);
         //div.setPositionChangeMediator(this);
         //mDraggableViewFrame.addView(div);
         mMarkerMediator.onAddVerseMarker(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow), frame));

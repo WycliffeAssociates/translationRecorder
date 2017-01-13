@@ -41,7 +41,7 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
-import org.wycliffeassociates.translationrecorder.widgets.DraggableMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 
 import java.io.File;
