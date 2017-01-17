@@ -2,7 +2,6 @@ package org.wycliffeassociates.translationrecorder.Playback.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,17 +12,16 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
+import org.wycliffeassociates.translationrecorder.Playback.SourceAudio;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.MediaController;
+import org.wycliffeassociates.translationrecorder.Playback.interfaces.ViewCreatedCallback;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.MarkerLineLayer;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.RectangularHighlightLayer;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.ScrollGestureLayer;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import org.wycliffeassociates.translationrecorder.Playback.SourceAudio;
-import org.wycliffeassociates.translationrecorder.Playback.interfaces.ViewCreatedCallback;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.TimecodeLayer;
-
+import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.R;
 
 /**
@@ -63,8 +61,6 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
     private DelegateMinimapMarkerDraw mMinimapLineDrawDelegator;
     private RectangularHighlightLayer mHighlightLayer;
     private MarkerMediator mMarkerMediator;
-    private Bitmap minimap;
-    private Paint mPaint;
 
     public interface DelegateMinimapMarkerDraw {
         void onDelegateMinimapMarkerDraw(Canvas canvas, Paint location, Paint section, Paint verse);
@@ -205,23 +201,23 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
 
     @Override
     public boolean onDelegateMinimapDraw(Canvas canvas, Paint paint) {
-        if(minimap == null) {
-            Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-            minimap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), conf);
-            Canvas temp = new Canvas(minimap);
-            mPaint = new Paint();
-            boolean success =  mMinimapDrawDelegator.onDelegateMinimapDraw(temp, paint);
+//        if(minimap == null) {
+//            Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+//            minimap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), conf);
+//            Canvas temp = new Canvas(minimap);
+//            mPaint = new Paint();
+            boolean success =  mMinimapDrawDelegator.onDelegateMinimapDraw(canvas, paint);
             if(!success){
-                minimap = null;
+                invalidateMinimap();
                 return false;
             }
-        }
-        canvas.drawBitmap(minimap, 0, 0, mPaint);
+        //}
+        //canvas.drawBitmap(minimap, 0, 0, mPaint);
         return true;
     }
 
     public void invalidateMinimap(){
-        minimap = null;
+        mMinimapLayer.invalidateMinimap();
     }
 
     public void onLocationChanged(){

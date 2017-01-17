@@ -16,7 +16,6 @@ import android.widget.FrameLayout;
 public class MinimapLayer extends View {
 
     private Bitmap mBitmap = null;
-    private boolean initialized = false;
     private Paint mPaint = new Paint();
     private MinimapDrawDelegator mMinimapDrawDelegator;
 
@@ -43,10 +42,14 @@ public class MinimapLayer extends View {
         mMinimapDrawDelegator = minimapDrawDelegator;
     }
 
+    public void invalidateMinimap(){
+        mBitmap = null;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (initialized) {
+        if (mBitmap != null) {
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);
         } else {
             mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
@@ -59,11 +62,9 @@ public class MinimapLayer extends View {
             }
             if (mMinimapDrawDelegator.onDelegateMinimapDraw(c, mPaint)) {
                 setBackground(background);
-                initialized = true;
             }
         }
         canvas.drawBitmap(mBitmap, 0, 0, mPaint);
-
     }
 }
 
