@@ -21,7 +21,6 @@ import java.util.HashMap;
 
 public class MarkerHolder implements MarkerMediator {
 
-
     FrameLayout mDraggableViewFrame;
     AudioVisualController mAudioController;
     PlaybackActivity mActivity;
@@ -196,6 +195,11 @@ public class MarkerHolder implements MarkerMediator {
 
     @Override
     public boolean hasVersesRemaining() {
+        return numVersesRemaining() > 0;
+    }
+
+    @Override
+    public int numVersesRemaining() {
         int markers = mMarkers.size();
         if(mMarkers.containsKey(START_MARKER_ID)) {
             markers--;
@@ -203,6 +207,6 @@ public class MarkerHolder implements MarkerMediator {
         if(mMarkers.containsKey(END_MARKER_ID)){
             markers--;
         }
-        return mTotalVerses - markers + 1 > 0;
+        return mTotalVerses - markers;
     }
 }

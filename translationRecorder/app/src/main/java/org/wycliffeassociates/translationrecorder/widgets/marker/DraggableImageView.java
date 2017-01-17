@@ -20,6 +20,11 @@ import org.wycliffeassociates.translationrecorder.R;
 public class DraggableImageView extends ImageView {
 
     int mId;
+    OnMarkerMovementRequest markerMovementRequest;
+
+    public interface OnMarkerMovementRequest {
+        boolean onMarkerMovementRequest(int markerId);
+    }
 
     public DraggableImageView(Activity context, int drawableId, int viewId) {
         this(
@@ -44,6 +49,11 @@ public class DraggableImageView extends ImageView {
         setImageResource(drawableId);
         setLayoutParams(params);
         setMarkerId(viewId);
+        if(context instanceof OnMarkerMovementRequest) {
+            markerMovementRequest = (OnMarkerMovementRequest)context;
+        } else {
+            throw new RuntimeException("Activity used to create DraggableImageView does not implement OnMarkerMovementRequest");
+        }
     }
 
     protected void setMarkerId(int id) {
@@ -55,26 +65,27 @@ public class DraggableImageView extends ImageView {
         this.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    String tag = String.valueOf(mId);
-                    DraggableImageView.this.setTag(tag);
-                    ClipData data = ClipData.newPlainText("marker", tag);
-                    Paint paint = new Paint();
-                    paint.setStrokeWidth(8f);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setColor(getResources().getColor(R.color.tertiary));
-                    MarkerShadow.Orientation orientation;
-                    if (mId == MarkerHolder.START_MARKER_ID) {
-                        orientation = MarkerShadow.Orientation.RIGHT;
-                    } else {
-                        orientation = MarkerShadow.Orientation.LEFT;
+                if (markerMovementRequest.onMarkerMovementRequest(mId)) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        String tag = String.valueOf(mId);
+                        DraggableImageView.this.setTag(tag);
+                        ClipData data = ClipData.newPlainText("marker", tag);
+                        Paint paint = new Paint();
+                        paint.setStrokeWidth(8f);
+                        paint.setStyle(Paint.Style.STROKE);
+                        paint.setColor(getResources().getColor(R.color.tertiary));
+                        MarkerShadow.Orientation orientation;
+                        if (mId == MarkerHolder.START_MARKER_ID) {
+                            orientation = MarkerShadow.Orientation.RIGHT;
+                        } else {
+                            orientation = MarkerShadow.Orientation.LEFT;
+                        }
+                        View.DragShadowBuilder shadowBuilder = new MarkerShadow(DraggableImageView.this, paint, orientation);
+                        view.startDrag(data, shadowBuilder, view, 0);
+                        return true;
                     }
-                    View.DragShadowBuilder shadowBuilder = new MarkerShadow(DraggableImageView.this, paint, orientation);
-                    view.startDrag(data, shadowBuilder, view, 0);
-                    return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
         });
     }
