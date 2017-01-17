@@ -169,9 +169,10 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     public float onPositionRequested(int id, float x){
         if(id < 0) {
             if(id == MarkerHolder.END_MARKER_ID){
-                x = Math.max(mMarkerMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), x);
+                x = Math.max(mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX(), x);
             } else {
-                x = Math.max(mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX() - mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getWidth(), x);
+                x += (mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getWidth());
+                x = Math.min(mMarkerMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), x);
             }
         }
         return x;

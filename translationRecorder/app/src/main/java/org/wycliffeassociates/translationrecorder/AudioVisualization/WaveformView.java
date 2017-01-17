@@ -17,21 +17,21 @@ public class WaveformView extends CanvasView {
     private float[] mSamples;
     private int mDb = 0;
 
-    public void drawDbLines(Canvas c) {
-        //int db3 = dBLine(23197);
-        //int ndb3 = dBLine(-23197);
-        //c.drawLine(0, db3, getWidth(), db3, mPaintGrid);
-        //c.drawLine(0, ndb3, getWidth(), ndb3, mPaintGrid);
-        //c.drawText(Integer.toString(-3), 0, db3, mPaintText);
-        //c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
-
-        //int db18 = dBLine(4125);
-        //int ndb18 = dBLine(-4125);
-        //c.drawLine(0, db18, getWidth(), db18, mPaintGrid);
-        //c.drawLine(0, ndb18, getWidth(), ndb18, mPaintGrid);
-        //c.drawText(Integer.toString(-18), 0, db18, mPaintText);
-        //c.drawText(Integer.toString(-18), 0, ndb18, mPaintText);
-    }
+//    public void drawDbLines(Canvas c) {
+//        int db3 = dBLine(23197);
+//        int ndb3 = dBLine(-23197);
+//        c.drawLine(0, db3, getWidth(), db3, mPaintGrid);
+//        c.drawLine(0, ndb3, getWidth(), ndb3, mPaintGrid);
+//        c.drawText(Integer.toString(-3), 0, db3, mPaintText);
+//        c.drawText(Integer.toString(-3), 0, ndb3, mPaintText);
+//
+//        int db18 = dBLine(4125);
+//        int ndb18 = dBLine(-4125);
+//        c.drawLine(0, db18, getWidth(), db18, mPaintGrid);
+//        c.drawLine(0, ndb18, getWidth(), ndb18, mPaintGrid);
+//        c.drawText(Integer.toString(-18), 0, db18, mPaintText);
+//        c.drawText(Integer.toString(-18), 0, ndb18, mPaintText);
+//    }
 
 
     private int dBLine(int val) {
@@ -72,12 +72,12 @@ public class WaveformView extends CanvasView {
         super.onDraw(canvas);
         //DrawingFromBuffers will draw data received from the microphone during recording
         if (mDrawingFromBuffer) {
-            drawDbLines(canvas);
+            //drawDbLines(canvas);
             drawBuffer(canvas, mBuffer, AudioInfo.BLOCKSIZE);
 
             //Samples is a sampled section of the waveform extracted at mTimeToDraw
         } else if (mSamples != null) {
-            drawDbLines(canvas);
+            //drawDbLines(canvas);
             try {
                 drawWaveform(mSamples, canvas);
             } catch (Exception e) {

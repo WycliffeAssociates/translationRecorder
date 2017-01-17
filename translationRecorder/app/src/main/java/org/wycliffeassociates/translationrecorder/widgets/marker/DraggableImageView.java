@@ -21,13 +21,6 @@ public class DraggableImageView extends ImageView {
 
     int mId;
 
-    public interface PositionChangeMediator {
-        float onPositionRequested(int id, float x);
-
-        void onPositionChanged(int id, float x);
-        //void onRemoveMarker(int id);
-    }
-
     public DraggableImageView(Activity context, int drawableId, int viewId) {
         this(
                 context,
@@ -59,7 +52,6 @@ public class DraggableImageView extends ImageView {
 
     public DraggableImageView(final Context context) {
         super(context);
-        //setOnTouchListener(this);
         this.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -85,7 +77,6 @@ public class DraggableImageView extends ImageView {
                 }
             }
         });
-
     }
 
     public float getMarkerX() {
@@ -96,5 +87,4 @@ public class DraggableImageView extends ImageView {
         float mspp = 1000 * 10 / (float) width;
         return (int) ((location / 44.1) / mspp);
     }
-
 }
