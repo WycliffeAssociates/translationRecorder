@@ -31,4 +31,5 @@ public interface MarkerMediator {
     void setMarkerButtons(FragmentPlaybackTools playbackTools);
     boolean hasVersesRemaining();
     int numVersesRemaining();
+    int numVerseMarkersPlaced();
 }

@@ -200,6 +200,10 @@ public class MarkerHolder implements MarkerMediator {
 
     @Override
     public int numVersesRemaining() {
+        return mTotalVerses - numVerseMarkersPlaced();
+    }
+
+    public int numVerseMarkersPlaced(){
         int markers = mMarkers.size();
         if(mMarkers.containsKey(START_MARKER_ID)) {
             markers--;
@@ -207,6 +211,6 @@ public class MarkerHolder implements MarkerMediator {
         if(mMarkers.containsKey(END_MARKER_ID)){
             markers--;
         }
-        return mTotalVerses - markers;
+        return markers;
     }
 }

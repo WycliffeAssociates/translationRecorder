@@ -377,10 +377,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         Logger.w(this.toString(), "Back was pressed.");
         if (isInVerseMarkerMode) {
             onDisableVerseMarkerMode();
-        } else {
-            super.onBackPressed();
-        }
-        if (!isSaved && mAudioController.mCutOp.hasCut()) {
+        } else if (actionsToSave()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
             ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
             exit.show();
@@ -388,6 +385,14 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 //            clearLoopPoints();
             super.onBackPressed();
         }
+    }
+
+    public boolean actionsToSave(){
+        boolean cuts = mAudioController.mCutOp.hasCut();
+        int markersOriginally = Math.max(mWavFile.getMetadata().getCuePoints().size(), 1);
+        int markersNow = mMarkerMediator.numVerseMarkersPlaced();
+        boolean markersPlaced = markersNow > markersOriginally;
+        return cuts || markersPlaced;
     }
 
     public void onOpenRating(FourStepImageView v) {
