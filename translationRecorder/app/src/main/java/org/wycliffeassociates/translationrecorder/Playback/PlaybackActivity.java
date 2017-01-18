@@ -70,6 +70,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         MinimapLayer.MinimapDrawDelegator, FragmentTabbedWidget.DelegateMinimapMarkerDraw, FragmentFileBar.RerecordCallback, FragmentFileBar.RatingCallback,
         FragmentFileBar.InsertCallback, DraggableImageView.OnMarkerMovementRequest {
 
+    public enum MODE {
+        EDIT,
+        VERSE_MARKER
+    }
+
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     private static final String KEY_PROJECT = "key_project";
     private static final String KEY_WAV_FILE = "wavfile";
@@ -78,7 +83,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private volatile boolean isSaved = true;
     private boolean isPlaying = false;
-    private boolean isInVerseMarkerMode = false;
+    private MODE mode;
 
     private WavVisualizer wavVis;
     private WavFile mWavFile;
@@ -97,7 +102,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private boolean mWaveformInflated = false;
     private boolean mMinimapInflated = false;
     private DrawThread mDrawLoop;
-
+    
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackActivity.class);
         intent.putExtra(KEY_PROJECT, project);
@@ -375,7 +380,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onBackPressed() {
         Logger.w(this.toString(), "Back was pressed.");
-        if (isInVerseMarkerMode) {
+        if (mode == MODE.VERSE_MARKER) {
             onDisableVerseMarkerMode();
         } else if (actionsToSave()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
@@ -598,7 +603,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void onEnableVerseMarkerMode() {
         Logger.w(this.toString(), "onEnableVerseMarkerMode");
         //if (mMarkerMediator.hasVersesRemaining()) {
-            isInVerseMarkerMode = true;
+            mode = MODE.VERSE_MARKER;
             FragmentManager fm = getFragmentManager();
             fm.beginTransaction()
                     .remove(mFragmentFileBar)
@@ -612,7 +617,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onDisableVerseMarkerMode() {
         Logger.w(this.toString(), "onDisableVerseMarkerMode");
-        isInVerseMarkerMode = false;
+        mode = MODE.EDIT;
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
                 .remove(mMarkerCounterFragment)
@@ -667,9 +672,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public boolean onMarkerMovementRequest(int markerId) {
-        if(!isInVerseMarkerMode && (markerId == MarkerHolder.END_MARKER_ID || markerId == MarkerHolder.START_MARKER_ID)){
+        if(mode == MODE.EDIT && (markerId == MarkerHolder.END_MARKER_ID || markerId == MarkerHolder.START_MARKER_ID)){
             return true;
-        } else if (isInVerseMarkerMode && markerId != MarkerHolder.START_MARKER_ID && markerId != MarkerHolder.END_MARKER_ID) {
+        } else if (mode == MODE.VERSE_MARKER && markerId != MarkerHolder.START_MARKER_ID && markerId != MarkerHolder.END_MARKER_ID) {
             return true;
         } else {
             return false;
