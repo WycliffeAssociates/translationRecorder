@@ -256,4 +256,8 @@ public class FragmentPlaybackTools extends Fragment{
     public void onPlayerPaused(){
         Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
     }
+
+    public void invalidate(int ms){
+
+    }
 }

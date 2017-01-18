@@ -148,4 +148,8 @@ public class MarkerToolbarFragment extends Fragment {
             mTimer.setDuration(ms);
         }
     }
+
+    public void invalidate(int ms) {
+
+    }
 }

@@ -13,7 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import org.wycliffeassociates.translationrecorder.AudioVisualization.WavVisualizer;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
+import org.wycliffeassociates.translationrecorder.Playback.interfaces.MediaController;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.ViewCreatedCallback;
 import org.wycliffeassociates.translationrecorder.Playback.markers.MarkerHolder;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame;
@@ -22,12 +24,11 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.RectangularH
 import org.wycliffeassociates.translationrecorder.Playback.overlays.ScrollGestureLayer;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.WaveformLayer;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.widgets.DraggableImageView;
-import org.wycliffeassociates.translationrecorder.widgets.DraggableMarker;
-import org.wycliffeassociates.translationrecorder.widgets.SectionMarker;
-import org.wycliffeassociates.translationrecorder.widgets.SectionMarkerView;
-import org.wycliffeassociates.translationrecorder.widgets.VerseMarker;
-import org.wycliffeassociates.translationrecorder.widgets.VerseMarkerView;
+import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarkerView;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarkerView;
 
 import java.util.Collection;
 
@@ -35,7 +36,7 @@ import java.util.Collection;
  * Created by sarabiaj on 11/4/2016.
  */
 
-public class WaveformFragment extends Fragment implements DraggableImageView.PositionChangeMediator,
+public class WaveformFragment extends Fragment implements DraggableViewFrame.PositionChangeMediator,
         MarkerLineLayer.MarkerLineDrawDelegator, WaveformLayer.WaveformDrawDelegator, ScrollGestureLayer.OnScrollListener,
         RectangularHighlightLayer.HighlightDelegator
 
@@ -47,25 +48,26 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     WaveformLayer mWaveformLayer;
     RectangularHighlightLayer mHighlightLayer;
     ScrollGestureLayer mScrollGestureLayer;
-    MarkerMediator mMediator;
+    MarkerMediator mMarkerMediator;
     Handler mHandler;
     FrameLayout mFrame;
 
-    WaveformDrawDelegator mDrawDelegator;
     OnScrollDelegator mOnScrollDelegator;
     ViewCreatedCallback mViewCreatedCallback;
     private Paint mPaintPlaback;
     private Paint mPaintBaseLine;
+    private int mCurrentFrame;
+    private WavVisualizer mWavVis;
+    private int mCurrentMs;
+    private long mStart;
+    private MediaController mMediaController;
 
-    public interface WaveformDrawDelegator {
-        void onDrawWaveform(Canvas canvas, Paint paint);
-    }
 
     public interface OnScrollDelegator {
+
         void delegateOnScroll(float distY);
         void onCueScroll(int id, float distY);
     }
-
     @Override
     public void onScroll(float x1, float x2, float distX) {
         mOnScrollDelegator.delegateOnScroll(distX);
@@ -78,7 +80,11 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     }
 
     private void setMarkerMediator(MarkerMediator mediator) {
-        mMediator = mediator;
+        mMarkerMediator = mediator;
+    }
+
+    public void setWavRenderer(WavVisualizer vis){
+        mWavVis = vis;
     }
 
     @Override
@@ -109,23 +115,24 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
         mPaintBaseLine.setStyle(Paint.Style.STROKE);
         mPaintBaseLine.setStrokeWidth(2f);
         mDraggableViewFrame.bringToFront();
-        mMediator.setDraggableViewFrame(mDraggableViewFrame);
+        mDraggableViewFrame.setPositionChangeMediator(this);
+        mMarkerMediator.setDraggableViewFrame(mDraggableViewFrame);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mDrawDelegator = (WaveformDrawDelegator) activity;
         mOnScrollDelegator = (OnScrollDelegator) activity;
         mViewCreatedCallback = (ViewCreatedCallback) activity;
+        mMediaController = (MediaController) activity;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mDrawDelegator = null;
         mOnScrollDelegator = null;
         mViewCreatedCallback = null;
+        mMediaController = null;
     }
 
     private void findViews(){
@@ -136,39 +143,36 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
 
     //-------------MARKERS----------------------//
 
-    public void addStartMarker(int location){
-//        if (!mMarkers.containsKey(START_MARKER_ID)) {
-            SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_startmarker_cyan, MarkerHolder.START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
-            div.setPositionChangeMediator(this);
-            div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth())-div.getWidth());
-            //mDraggableViewFrame.addView(div);
-            mMediator.onAddStartSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
-        onLocationUpdated(location);
+    public void addStartMarker(int frame){
+        int color =  getResources().getColor(R.color.dark_moderate_cyan);
+        SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_startmarker_cyan, MarkerHolder.START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER, color);
+        div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth())-div.getWidth());
+        mMarkerMediator.onAddStartSectionMarker(new SectionMarker(div, frame));
+        invalidateFrame(mCurrentFrame, mCurrentMs);
     }
 
-    public void addEndMarker(int location){
-                    SectionMarkerView div = SectionMarkerView.newInstance(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, MarkerHolder.END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
-            div.setPositionChangeMediator(this);
-            div.setX(div.mapLocationToScreenSpace(location, mFrame.getWidth()));
-            //mDraggableViewFrame.addView(div);
-           mMediator.onAddEndSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), location));
-        onLocationUpdated(location);
+    public void addEndMarker(int frame){
+        int color =  getResources().getColor(R.color.dark_moderate_cyan);
+        SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, MarkerHolder.END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER, color);
+        div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth()));
+        mMarkerMediator.onAddEndSectionMarker(new SectionMarker(div, frame));
+        invalidateFrame(mCurrentFrame, mCurrentMs);
     }
 
     public void addVerseMarker(int verseNumber, int frame){
-        VerseMarkerView div = VerseMarkerView.newInstance(getActivity(), R.drawable.verse_marker_yellow, verseNumber);
-        div.setPositionChangeMediator(this);
-        //mDraggableViewFrame.addView(div);
-        mMediator.onAddVerseMarker(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow), frame));
+        int color =  getResources().getColor(R.color.yellow);
+        VerseMarkerView div = new VerseMarkerView(getActivity(), R.drawable.verse_marker_yellow, verseNumber, color);
+        mMarkerMediator.onAddVerseMarker(verseNumber, new VerseMarker(div, frame));
     }
 
     @Override
     public float onPositionRequested(int id, float x){
         if(id < 0) {
             if(id == MarkerHolder.END_MARKER_ID){
-                x = Math.max(mMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), x);
+                x = Math.max(mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX(), x);
             } else {
-                x = Math.max(mMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX() - mMediator.getMarker(MarkerHolder.START_MARKER_ID).getWidth(), x);
+                x += (mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getWidth());
+                x = Math.min(mMarkerMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), x);
             }
         }
         return x;
@@ -177,40 +181,51 @@ public class WaveformFragment extends Fragment implements DraggableImageView.Pos
     @Override
     public void onPositionChanged(int id, float x) {
         mOnScrollDelegator.onCueScroll(id, x);
-        mMarkerLineLayer.postInvalidate();
     }
 
     @Override
     public void onDrawMarkers(Canvas canvas) {
-        Collection<DraggableMarker> markers = mMediator.getMarkers();
+        Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
         for (DraggableMarker d : markers) {
+            if(d instanceof VerseMarker && mMediaController.isInEditMode()) {
+                continue;
+            }
             d.drawMarkerLine(canvas);
         }
         canvas.drawLine(mWaveformLayer.getWidth()/8, 0, mWaveformLayer.getWidth()/8, mWaveformLayer.getHeight(), mPaintPlaback);
         canvas.drawLine(0, mWaveformLayer.getHeight()/2, mWaveformLayer.getWidth(), mWaveformLayer.getHeight()/2, mPaintBaseLine);
+        //System.out.println("Markers " + (System.currentTimeMillis() - mStart) + "ms");
     }
 
     public void onDrawHighlight(Canvas canvas, Paint paint) {
-        if(mMediator.contains(MarkerHolder.END_MARKER_ID) && mMediator.contains(MarkerHolder.START_MARKER_ID)) {
-            canvas.drawRect(mMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX(), 0,
-                    mMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), mFrame.getHeight(), paint);
+        if(mMarkerMediator.contains(MarkerHolder.END_MARKER_ID) && mMarkerMediator.contains(MarkerHolder.START_MARKER_ID)) {
+            canvas.drawRect(mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX(), 0,
+                    mMarkerMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), mFrame.getHeight(), paint);
         }
+        //System.out.println("Highlight (should be last):" + (System.currentTimeMillis() - mStart) + "ms");
     }
 
     @Override
     public void onDrawWaveform(Canvas canvas, Paint paint){
-        mDrawDelegator.onDrawWaveform(canvas, paint);
+        if(mWavVis != null) {
+            canvas.drawLines(mWavVis.getDataToDraw(mCurrentMs), paint);
+        }
+        //System.out.println("Waveform: " + (System.currentTimeMillis() - mStart) + "ms");
     }
 
-    public void onLocationUpdated(final int location){
+    public void invalidateFrame(int frame, int ms) {
+        mCurrentFrame = frame;
+        mCurrentMs = ms;
+        mStart = System.currentTimeMillis();
+
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mMediator.updateCurrentFrame(location);
-                mWaveformLayer.postInvalidate();
-                mDraggableViewFrame.postInvalidate();
-                mMarkerLineLayer.postInvalidate();
-                mHighlightLayer.postInvalidate();
+                mMarkerMediator.updateCurrentFrame(mCurrentFrame);
+                mWaveformLayer.invalidate();
+                mDraggableViewFrame.invalidate();
+                mMarkerLineLayer.invalidate();
+                mHighlightLayer.invalidate();
             }
         });
     }

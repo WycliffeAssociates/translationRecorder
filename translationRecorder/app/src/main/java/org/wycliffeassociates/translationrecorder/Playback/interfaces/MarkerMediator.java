@@ -1,12 +1,12 @@
 package org.wycliffeassociates.translationrecorder.Playback.interfaces;
 
-import java.util.Collection;
-
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentPlaybackTools;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame;
-import org.wycliffeassociates.translationrecorder.widgets.DraggableMarker;
-import org.wycliffeassociates.translationrecorder.widgets.SectionMarker;
-import org.wycliffeassociates.translationrecorder.widgets.VerseMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarker;
+
+import java.util.Collection;
 
 /**
  * Created by sarabiaj on 11/30/2016.
@@ -30,4 +30,6 @@ public interface MarkerMediator {
     void updateEndMarkerFrame(int frame);
     void setMarkerButtons(FragmentPlaybackTools playbackTools);
     boolean hasVersesRemaining();
+    int numVersesRemaining();
+    int numVerseMarkersPlaced();
 }

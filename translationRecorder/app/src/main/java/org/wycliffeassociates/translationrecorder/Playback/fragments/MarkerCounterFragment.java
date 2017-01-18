@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.VerseMarkerModeToggler;
 
 import org.wycliffeassociates.translationrecorder.R;
@@ -22,21 +23,21 @@ public class MarkerCounterFragment extends Fragment {
     private static String KEY_MARKERS_REMAINING = "markers_remaining";
 
     private VerseMarkerModeToggler mModeToggleCallback;
-    private int mVersesRemaining;
+    private MarkerMediator mMarkerMediator;
     private TextView mVersesRemainingView;
     private ImageView mEscape;
     private TextView mLeftView;
 
-    public static MarkerCounterFragment newInstance(int versesRemaining){
+    public static MarkerCounterFragment newInstance(MarkerMediator mediator){
         MarkerCounterFragment f = new MarkerCounterFragment();
-        Bundle args = new Bundle();
-        f.setVersesRemaining(versesRemaining);
+        f.setMarkerMediator(mediator);
         return f;
     }
 
-    private void setVersesRemaining(int versesRemaining){
-        mVersesRemaining = versesRemaining;
+    private void setMarkerMediator(MarkerMediator mediator){
+        mMarkerMediator = mediator;
     }
+
 
     @Override
     public void onAttach(Activity activity) {
@@ -65,7 +66,7 @@ public class MarkerCounterFragment extends Fragment {
 
     private void initViews(){
         mLeftView.setText("Left");
-        mVersesRemainingView.setText(String.valueOf(mVersesRemaining));
+        mVersesRemainingView.setText(String.valueOf(mMarkerMediator.numVersesRemaining()));
         mEscape.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,10 +76,6 @@ public class MarkerCounterFragment extends Fragment {
     }
 
     public void decrementVersesRemaining(){
-        mVersesRemaining--;
-        mVersesRemainingView.setText(String.valueOf(mVersesRemaining));
-        if(mVersesRemaining <= 0) {
-            mModeToggleCallback.onDisableVerseMarkerMode();
-        }
+        mVersesRemainingView.setText(String.valueOf(mMarkerMediator.numVersesRemaining()));
     }
 }

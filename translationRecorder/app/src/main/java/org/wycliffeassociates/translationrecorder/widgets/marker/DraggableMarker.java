@@ -1,7 +1,6 @@
-package org.wycliffeassociates.translationrecorder.widgets;
+package org.wycliffeassociates.translationrecorder.widgets.marker;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.view.View;
 
 /**
@@ -10,14 +9,12 @@ import android.view.View;
 
 public abstract class DraggableMarker {
 
-    protected Paint mMarkerLinePaint;
     DraggableImageView mView;
-    private int mLocation;
+    private volatile int mFrame;
 
-    public DraggableMarker(DraggableImageView view, Paint paint, int location){
+    public DraggableMarker(DraggableImageView view, int frame){
         mView = view;
-        mMarkerLinePaint = paint;
-        mLocation = location;
+        mFrame = frame;
     }
 
     public abstract void drawMarkerLine(Canvas canvas);
@@ -31,15 +28,15 @@ public abstract class DraggableMarker {
     }
 
     public void updateX(int playbackLocation, int containerWidth){
-        mView.setX((containerWidth/8) + (mView.mapLocationToScreenSpace(mLocation, containerWidth) - mView.mapLocationToScreenSpace(playbackLocation, containerWidth)));
+        mView.setX((containerWidth/8) + (mView.mapLocationToScreenSpace(mFrame, containerWidth) - mView.mapLocationToScreenSpace(playbackLocation, containerWidth)));
     }
 
     public void updateFrame(int frame) {
-        mLocation = frame;
+        mFrame = frame;
     }
 
     public int getFrame(){
-        return mLocation;
+        return mFrame;
     }
 
     public View getView(){

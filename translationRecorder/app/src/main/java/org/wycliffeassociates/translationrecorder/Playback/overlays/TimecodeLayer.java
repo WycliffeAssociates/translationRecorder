@@ -23,6 +23,8 @@ public class TimecodeLayer extends View {
     private double timecodeInterval= 200;
     private int audioLength =13040;
 
+    char[] timecodeStr;
+
     public static TimecodeLayer newInstance(Context context){
         TimecodeLayer view = new TimecodeLayer(context);
         view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -31,6 +33,7 @@ public class TimecodeLayer extends View {
 
     public TimecodeLayer(Context context) {
         super(context);
+        timecodeStr = new char[5];
         mPaintText.setColor(getResources().getColor(R.color.minimap_timecode));
         mPaintText.setTextSize(18.f);
 
@@ -82,17 +85,29 @@ public class TimecodeLayer extends View {
 
                 //System.out.println("integer is " + integerSecs);
                 // Turn, e.g. 67 seconds into "1:07"
-                String timecodeMinutes = "" + (integerSecs / 60);
-                String timecodeSeconds = "" + (integerSecs % 60);
-                if ((integerSecs % 60) < 10) {
-                    timecodeSeconds = "0" + timecodeSeconds;
-                }
-                String timecodeStr = timecodeMinutes + ":" + timecodeSeconds;
-                mPaintText.getTextBounds(timecodeStr, 0, timecodeStr.length(), bounds);
+//                String timecodeMinutes = String.format("%d",integerSecs / 60);
+//                String timecodeSeconds = String.format("%02d", integerSecs % 60);
+                int timecodeMinutes = integerSecs / 60;
+                int timecodeSeconds = integerSecs % 60;
+
+//                if ((integerSecs % 60) < 10) {
+//                    timecodeSeconds = "0" + timecodeSeconds;
+//                }
+                //String timecodeStr = timecodeMinutes + ":" + timecodeSeconds;
+
+                timecodeStr[0] = (char)('0' + timecodeMinutes / 10);
+                timecodeStr[1] = (char)('0' + timecodeMinutes % 10);
+                timecodeStr[2] = ':';
+                timecodeStr[3] = (char)('0' + timecodeSeconds / 10);
+                timecodeStr[4] = (char)('0' + timecodeSeconds % 10);
+
+
+                mPaintText.getTextBounds(timecodeStr, 0, timecodeStr.length, bounds);
                 float padding = getResources().getDimension(R.dimen.default_padding_xs);
-                float xOffset = mPaintText.measureText(timecodeStr) + padding;
+                float xOffset = mPaintText.measureText(timecodeStr, 0, timecodeStr.length) + padding;
                 float yOffset = bounds.height() + padding;
-                canvas.drawText(timecodeStr, i - xOffset, yOffset, mPaintText);
+
+                canvas.drawText(timecodeStr, 0, timecodeStr.length, i - xOffset, yOffset, mPaintText);
                 canvas.drawLine(i, 0.f, i, getHeight(), mPaintGrid);
             }
         }

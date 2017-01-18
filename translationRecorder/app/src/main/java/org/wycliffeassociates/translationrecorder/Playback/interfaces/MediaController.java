@@ -21,4 +21,6 @@ public interface MediaController {
     int getEndMarkerFrame();
     boolean hasSetMarkers();
     boolean isPlaying();
+    boolean isInVerseMarkerMode();
+    boolean isInEditMode();
 }
