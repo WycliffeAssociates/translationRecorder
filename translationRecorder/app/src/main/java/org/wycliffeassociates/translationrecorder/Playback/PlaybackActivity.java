@@ -219,13 +219,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onSeekForward() {
         mAudioController.seekNext();
-        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getRelativeLocationMs());
+        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
     }
 
     @Override
     public void onSeekBackward() {
         mAudioController.seekPrevious();
-        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getRelativeLocationMs());
+        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
     }
 
     @Override
@@ -590,7 +590,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onLocationUpdated(int location) {
-        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getRelativeLocationMs());
+        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
         mFragmentTabbedWidget.onLocationChanged();
     }
 
@@ -638,7 +638,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             mAudioController.dropVerseMarker("Verse " + markerNumber, frame);
             mWaveformFragment.addVerseMarker(markerNumber, frame);
             mMarkerCounterFragment.decrementVersesRemaining();
-            mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getRelativeLocationMs());
+            mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
         }
     }
 
@@ -709,7 +709,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             while (!finished) {
                 if(mAudioController != null && mAudioController.isPlaying()) {
                     frame = mAudioController.getRelativeLocationInFrames();
-                    ms = mAudioController.getRelativeLocationMs();
+                    ms = mAudioController.getAbsoluteLocationMs();
 
                     mWaveformFragment.invalidateFrame(frame, ms);
 
