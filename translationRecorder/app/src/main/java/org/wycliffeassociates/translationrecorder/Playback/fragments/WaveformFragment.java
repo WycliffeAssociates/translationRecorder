@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.WavVisualizer;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
+import org.wycliffeassociates.translationrecorder.Playback.interfaces.MediaController;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.ViewCreatedCallback;
 import org.wycliffeassociates.translationrecorder.Playback.markers.MarkerHolder;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame;
@@ -59,6 +60,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     private WavVisualizer mWavVis;
     private int mCurrentMs;
     private long mStart;
+    private MediaController mMediaController;
 
 
     public interface OnScrollDelegator {
@@ -122,6 +124,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
         super.onAttach(activity);
         mOnScrollDelegator = (OnScrollDelegator) activity;
         mViewCreatedCallback = (ViewCreatedCallback) activity;
+        mMediaController = (MediaController) activity;
     }
 
     @Override
@@ -129,6 +132,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
         super.onDestroy();
         mOnScrollDelegator = null;
         mViewCreatedCallback = null;
+        mMediaController = null;
     }
 
     private void findViews(){
@@ -187,6 +191,9 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     public void onDrawMarkers(Canvas canvas) {
         Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
         for (DraggableMarker d : markers) {
+            if(d instanceof VerseMarker && mMediaController.isInEditMode()) {
+                continue;
+            }
             d.drawMarkerLine(canvas);
         }
         canvas.drawLine(mWaveformLayer.getWidth()/8, 0, mWaveformLayer.getWidth()/8, mWaveformLayer.getHeight(), mPaintPlaback);

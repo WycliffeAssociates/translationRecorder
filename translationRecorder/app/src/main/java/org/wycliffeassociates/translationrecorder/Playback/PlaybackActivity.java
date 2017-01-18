@@ -102,7 +102,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private boolean mWaveformInflated = false;
     private boolean mMinimapInflated = false;
     private DrawThread mDrawLoop;
-    
+
     public static Intent getPlaybackIntent(Context ctx, WavFile file, Project project, int chapter, int unit) {
         Intent intent = new Intent(ctx, PlaybackActivity.class);
         intent.putExtra(KEY_PROJECT, project);
@@ -130,6 +130,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         initializeFragments();
         wavFileLoader = mAudioController.getWavLoader();
         mMarkerMediator.setMarkerButtons(mFragmentPlaybackTools);
+        mode = MODE.EDIT;
     }
 
     public void startDrawThread() {
@@ -154,7 +155,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mUnit = intent.getIntExtra(KEY_UNIT, 1);
         mChapter = intent.getIntExtra(KEY_CHAPTER, 1);
         FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
-
     }
 
     private void initializeFragments() {
@@ -602,6 +602,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onEnableVerseMarkerMode() {
         Logger.w(this.toString(), "onEnableVerseMarkerMode");
+        onClearMarkers();
         //if (mMarkerMediator.hasVersesRemaining()) {
             mode = MODE.VERSE_MARKER;
             FragmentManager fm = getFragmentManager();
@@ -625,6 +626,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 .remove(mMarkerToolbarFragment)
                 .add(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools)
                 .commit();
+        onLocationUpdated(0);
     }
 
     @Override
@@ -679,6 +681,14 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         } else {
             return false;
         }
+    }
+
+    public boolean isInVerseMarkerMode(){
+        return mode == MODE.VERSE_MARKER;
+    }
+
+    public boolean isInEditMode(){
+        return mode == MODE.EDIT;
     }
 
     private class DrawThread implements Runnable {

@@ -8,9 +8,6 @@ import android.view.DragEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import org.wycliffeassociates.translationrecorder.Playback.VerseMarker;
-import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableImageView;
-
 /**
  * Created by sarabiaj on 11/8/2016.
  */
@@ -80,12 +77,4 @@ public class DraggableViewFrame extends FrameLayout {
     public void setPositionChangeMediator(PositionChangeMediator mediator) {
         mMarkerMediator = mediator;
     }
-
-    public void addStartMarker(DraggableImageView startMarker){
-        addView(startMarker);
-    }
-
-    public void addVerseMarker(VerseMarker verseMarker){
-    }
-
 }
