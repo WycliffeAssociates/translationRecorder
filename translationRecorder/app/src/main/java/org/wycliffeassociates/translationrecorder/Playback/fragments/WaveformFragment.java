@@ -144,29 +144,25 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     //-------------MARKERS----------------------//
 
     public void addStartMarker(int frame){
-//        if (!mMarkers.containsKey(START_MARKER_ID)) {
-            SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_startmarker_cyan, MarkerHolder.START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER);
-            //div.setPositionChangeMediator(this);
-            div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth())-div.getWidth());
-            //mDraggableViewFrame.addView(div);
-            mMarkerMediator.onAddStartSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), frame));
+        int color =  getResources().getColor(R.color.dark_moderate_cyan);
+        SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_startmarker_cyan, MarkerHolder.START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER, color);
+        div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth())-div.getWidth());
+        mMarkerMediator.onAddStartSectionMarker(new SectionMarker(div, frame));
         invalidateFrame(mCurrentFrame, mCurrentMs);
     }
 
     public void addEndMarker(int frame){
-                    SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, MarkerHolder.END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER);
-            //div.setPositionChangeMediator(this);
-            div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth()));
-            //mDraggableViewFrame.addView(div);
-           mMarkerMediator.onAddEndSectionMarker(new SectionMarker(div, getResources().getColor(R.color.dark_moderate_cyan), frame));
+        int color =  getResources().getColor(R.color.dark_moderate_cyan);
+        SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, MarkerHolder.END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER, color);
+        div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth()));
+        mMarkerMediator.onAddEndSectionMarker(new SectionMarker(div, frame));
         invalidateFrame(mCurrentFrame, mCurrentMs);
     }
 
     public void addVerseMarker(int verseNumber, int frame){
-        VerseMarkerView div = new VerseMarkerView(getActivity(), R.drawable.verse_marker_yellow, verseNumber);
-        //div.setPositionChangeMediator(this);
-        //mDraggableViewFrame.addView(div);
-        mMarkerMediator.onAddVerseMarker(verseNumber, new VerseMarker(div, getResources().getColor(R.color.yellow), frame));
+        int color =  getResources().getColor(R.color.yellow);
+        VerseMarkerView div = new VerseMarkerView(getActivity(), R.drawable.verse_marker_yellow, verseNumber, color);
+        mMarkerMediator.onAddVerseMarker(verseNumber, new VerseMarker(div, frame));
     }
 
     @Override

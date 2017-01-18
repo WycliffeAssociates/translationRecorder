@@ -11,7 +11,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import org.wycliffeassociates.translationrecorder.Playback.markers.MarkerHolder;
-import org.wycliffeassociates.translationrecorder.R;
 
 /**
  * Created by sarabiaj on 11/8/2016.
@@ -21,31 +20,35 @@ public class DraggableImageView extends ImageView {
 
     int mId;
     OnMarkerMovementRequest markerMovementRequest;
+    Paint mPaint;
 
     public interface OnMarkerMovementRequest {
         boolean onMarkerMovementRequest(int markerId);
     }
 
-    public DraggableImageView(Activity context, int drawableId, int viewId) {
+    public DraggableImageView(Activity context, int drawableId, int viewId, Paint paint) {
         this(
                 context,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT),
                 drawableId,
-                viewId
+                viewId,
+                paint
         );
     }
 
-    public DraggableImageView(Activity context, int drawableId, int gravity, int viewId) {
+    public DraggableImageView(Activity context, int drawableId, int gravity, int viewId, Paint paint) {
         this(
                 context,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, gravity),
                 drawableId,
-                viewId
+                viewId,
+                paint
         );
     }
 
-    public DraggableImageView(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId) {
+    public DraggableImageView(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId, Paint paint) {
         this(context);
+        mPaint = paint;
         setImageResource(drawableId);
         setLayoutParams(params);
         setMarkerId(viewId);
@@ -70,17 +73,13 @@ public class DraggableImageView extends ImageView {
                         String tag = String.valueOf(mId);
                         DraggableImageView.this.setTag(tag);
                         ClipData data = ClipData.newPlainText("marker", tag);
-                        Paint paint = new Paint();
-                        paint.setStrokeWidth(8f);
-                        paint.setStyle(Paint.Style.STROKE);
-                        paint.setColor(getResources().getColor(R.color.tertiary));
                         MarkerShadow.Orientation orientation;
                         if (mId == MarkerHolder.START_MARKER_ID) {
                             orientation = MarkerShadow.Orientation.RIGHT;
                         } else {
                             orientation = MarkerShadow.Orientation.LEFT;
                         }
-                        View.DragShadowBuilder shadowBuilder = new MarkerShadow(DraggableImageView.this, paint, orientation);
+                        View.DragShadowBuilder shadowBuilder = new MarkerShadow(DraggableImageView.this, mPaint, orientation);
                         view.startDrag(data, shadowBuilder, view, 0);
                         return true;
                     }
@@ -92,6 +91,18 @@ public class DraggableImageView extends ImageView {
 
     public float getMarkerX() {
         return this.getX();
+    }
+
+    Paint getPaint(){
+        return mPaint;
+    }
+
+    protected static Paint configurePaint(int color){
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(8.f);
+        return paint;
     }
 
     public static int mapLocationToScreenSpace(int location, int width) {

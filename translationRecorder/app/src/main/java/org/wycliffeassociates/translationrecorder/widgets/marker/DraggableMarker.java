@@ -1,7 +1,6 @@
 package org.wycliffeassociates.translationrecorder.widgets.marker;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.view.View;
 
 /**
@@ -10,13 +9,11 @@ import android.view.View;
 
 public abstract class DraggableMarker {
 
-    protected Paint mMarkerLinePaint;
     DraggableImageView mView;
     private volatile int mFrame;
 
-    public DraggableMarker(DraggableImageView view, Paint paint, int frame){
+    public DraggableMarker(DraggableImageView view, int frame){
         mView = view;
-        mMarkerLinePaint = paint;
         mFrame = frame;
     }
 
