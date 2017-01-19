@@ -723,11 +723,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                     mMarkerToolbarFragment.onLocationUpdated(mAudioController.getRelativeLocationMs());
 
 
-                    try {
-                        Thread.sleep(45);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                }
+                try {
+                    Thread.sleep(45);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
