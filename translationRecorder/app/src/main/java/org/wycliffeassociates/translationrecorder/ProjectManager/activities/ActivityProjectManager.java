@@ -27,7 +27,7 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFra
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.DatabaseResyncTask;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ProjectLevelResyncTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSourceAudioTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
@@ -137,7 +137,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         //still need to track whether a db resync was issued so as to not issue them in the middle of another
         if (!mDbResyncing) {
             mDbResyncing = true;
-            DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager());
+            ProjectLevelResyncTask task = new ProjectLevelResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager());
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
