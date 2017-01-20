@@ -134,6 +134,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     public void startDrawThread() {
+        if(mDrawLoop != null) {
+            mDrawLoop.finish();
+        }
         mDrawLoop = new DrawThread();
         Thread draw = new Thread(mDrawLoop);
         draw.start();
@@ -693,7 +696,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private class DrawThread implements Runnable {
 
-        private boolean finished = false;
+        private volatile boolean finished = false;
 
         public DrawThread() {
         }
