@@ -56,9 +56,11 @@ public class ProjectLevelResyncTask extends Task implements ProjectDatabaseHelpe
                             continue;
                         }
                         FileNameExtractor fne = new FileNameExtractor(takes[0]);
-                        Project project = new Project(fne.getLang(), "", fne.getBookNumber(), fne.getBook(), fne.getSource(), fne.getMode(), "", "", "");
-                        projectList.add(project);
-                        break;
+                        if (fne.matched()) {
+                            Project project = new Project(fne.getLang(), "", fne.getBookNumber(), fne.getBook(), fne.getSource(), fne.getMode(), "", "", "");
+                            projectList.add(project);
+                            break;
+                        }
                     }
                 }
             }
