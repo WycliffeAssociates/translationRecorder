@@ -52,7 +52,7 @@ public class ProjectListResync extends Task implements ProjectDatabaseHelper.OnL
                     }
                     for (int l = 0; l < chapters.length; l++) {
                         File[] takes = chapters[l].listFiles();
-                        if (takes == null) {
+                        if (takes == null || takes.length <= 0) {
                             continue;
                         }
                         FileNameExtractor fne = new FileNameExtractor(takes[0]);
