@@ -43,13 +43,21 @@ public class WavVisualizer {
         mAccessor = new AudioFileAccessor(compressed, buffer, cut);
         mMinimap = new float[minimapWidth * 4];
 
-        mThreads = new ThreadPoolExecutor(numThreads, numThreads, Long.MAX_VALUE, TimeUnit.DAYS, new ArrayBlockingQueue<Runnable>(numThreads));
+        mThreads = new ThreadPoolExecutor(numThreads, numThreads, 20, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(numThreads));
+        mThreads.allowCoreThreadTimeOut(true);
         mThreadResponse = new ArrayBlockingQueue[numThreads];
         mRunnable = new VisualizerRunnable[numThreads];
         for(int i = 0; i < numThreads; i++){
             mThreadResponse[i] = new ArrayBlockingQueue<Integer>(1);
             mRunnable[i] = new VisualizerRunnable();
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        mThreads.shutdown();
+        mThreads.purge();
     }
 
     public void enableCompressedFileNextDraw(ShortBuffer compressed){
