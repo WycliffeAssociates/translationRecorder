@@ -20,12 +20,12 @@ import java.util.concurrent.BlockingQueue;
  * Created by sarabiaj on 1/19/2017.
  */
 
-public class ProjectLevelResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound {
+public class ProjectListResync extends Task implements ProjectDatabaseHelper.OnLanguageNotFound {
 
     Context mCtx;
     FragmentManager mFragmentManager;
 
-    public ProjectLevelResyncTask(int taskId, Context ctx, FragmentManager fm) {
+    public ProjectListResync(int taskId, Context ctx, FragmentManager fm) {
         super(taskId);
         mCtx = ctx;
         mFragmentManager = fm;
@@ -72,7 +72,12 @@ public class ProjectLevelResyncTask extends Task implements ProjectDatabaseHelpe
     @Override
     public void run() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        db.resyncProjectsWithFs(getAllProjects(), this);
+        //db.resyncProjectsWithFs(getAllProjects(), this);
+        List<Project> projects = db.projectsNeedingResync(getAllProjects());
+        for(Project p : projects) {
+            File projectDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + p.getTargetLanguage() + "/" + p.getVersion() + "/" + p.getSlug() + "/");
+            db.resyncProjectWithFilesystem(p, TaskUtils.getAllTakes(projectDir), this);
+        }
         db.close();
         onTaskCompleteDelegator();
     }
