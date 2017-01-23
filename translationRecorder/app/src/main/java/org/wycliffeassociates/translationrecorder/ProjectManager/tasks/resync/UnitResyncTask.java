@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.ProjectManager.tasks;
+package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
 import android.app.FragmentManager;
 import android.content.Context;

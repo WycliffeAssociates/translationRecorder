@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.ProjectManager.tasks;
+package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
 import android.app.FragmentManager;
 import android.content.Context;
@@ -51,7 +51,7 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
         List<Integer> chapters = getAllChapters(mChapterDir);
         for(Integer i : chapters) {
             if(!db.chapterExists(mProject, i)){
-                db.resyncProjectWithFilesystem(mProject, TaskUtils.getFilesInDirectory(mChapterDir.listFiles()), this);
+                db.resyncProjectWithFilesystem(mProject, ResyncUtils.getFilesInDirectory(mChapterDir.listFiles()), this);
                 break;
             }
         }

@@ -17,7 +17,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.UnitResyncTask;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Chunks;

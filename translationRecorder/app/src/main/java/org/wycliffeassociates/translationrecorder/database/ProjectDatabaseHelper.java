@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ProjectListResync;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.Book;
 import org.wycliffeassociates.translationrecorder.project.Language;
@@ -1081,7 +1081,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_TEMP);
     }
 
-    public List<Project> resyncProjectsWithFs(List<Project> allProjects, ProjectListResync projectLevelResync) {
+    public List<Project> resyncProjectsWithFs(List<Project> allProjects, ProjectListResyncTask projectLevelResync) {
         List<Project> newProjects = new ArrayList<>();
         for (Project p : allProjects) {
             if(!languageExists(p.getTargetLanguage())) {

@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.ProjectManager.tasks;
+package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -8,8 +8,8 @@ import java.util.List;
  * Created by sarabiaj on 1/23/2017.
  */
 
-public class TaskUtils {
-    private TaskUtils(){}
+public class ResyncUtils {
+    private ResyncUtils(){}
 
     public static List<File> getAllTakes(File root){
         File[] dirs = root.listFiles();
