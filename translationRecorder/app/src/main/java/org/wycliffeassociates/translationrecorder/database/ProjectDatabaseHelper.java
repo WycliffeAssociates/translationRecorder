@@ -116,6 +116,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean projectExists(String languageCode, String slug, String version){
+        if (!languageExists(languageCode)) {
+            return false;
+        }
         int languageId = getLanguageId(languageCode);
         int bookId = getBookId(slug);
         SQLiteDatabase db = getReadableDatabase();
@@ -511,7 +514,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, fne.getTake());
         cv.put(ProjectContract.TakeEntry.TAKE_FILENAME, takeFilename);
         cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, timestamp);
-        long result = db.insert(ProjectContract.TakeEntry.TABLE_TAKE, null, cv);
+        long result = db.insertWithOnConflict(ProjectContract.TakeEntry.TABLE_TAKE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         if(result > 0){
             autoSelectTake(unitId);
         }

@@ -72,10 +72,14 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
     @Override
     public void run() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        List<Project> projects = db.projectsNeedingResync(getAllProjects());
-        for(Project p : projects) {
-            File projectDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + p.getTargetLanguage() + "/" + p.getVersion() + "/" + p.getSlug() + "/");
-            db.resyncProjectWithFilesystem(p, ResyncUtils.getAllTakes(projectDir), this);
+        List<Project> projects = getAllProjects();
+        //if the number of projects doesn't match up between the filesystem and the db, OR,
+        //the projects themselves don't match an id in the db, then resync everything (only resyncing
+        // projects missing won't remove dangling take references in the db)
+        //NOTE: removing a project only removes dangling takes, not the project itself from the db
+        if (projects.size() != db.getNumProjects() || db.projectsNeedingResync(projects).size() > 0) {
+            File projectDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/");
+            db.resyncDbWithFs(ResyncUtils.getAllTakes(projectDir), this);
         }
         db.close();
         onTaskCompleteDelegator();

@@ -37,9 +37,11 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
     public List<Integer> getAllChapters(File chapterDir) {
         List<Integer> chapterList = new ArrayList<>();
         File[] dirs = chapterDir.listFiles();
-        for(File f : dirs){
-            if(f.isDirectory()){
-                chapterList.add(Integer.parseInt(f.getName()));
+        if(dirs != null) {
+            for (File f : dirs) {
+                if (f.isDirectory()) {
+                    chapterList.add(Integer.parseInt(f.getName()));
+                }
             }
         }
         return chapterList;

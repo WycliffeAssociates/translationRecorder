@@ -11,6 +11,7 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,31 +40,14 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
         File root = new File(Environment.getExternalStorageDirectory(),
                 "TranslationRecorder/" + mProject.getTargetLanguage() + "/" + mProject.getVersion() + "/" + mProject.getSlug() + "/" + FileNameExtractor.chapterIntToString(mProject, mChapter) + "/");
         File[] dirs = root.listFiles();
-        List<File> files = new LinkedList<>(Arrays.asList(dirs));
-
-//        if(dirs != null && dirs.length > 0) {
-//
-////old from when the entire project was resynced at the project level
-////            for (File f : dirs) {
-////                if (f.isDirectory()) {
-////                    files.addAll(getFilesInDirectory(f.listFiles()));
-////                }
-////            }
-//        }
+        List<File> files;
+        if(dirs != null) {
+            files = new LinkedList<>(Arrays.asList(dirs));
+        } else {
+            files = new ArrayList<>();
+        }
         return files;
     }
-
-//    public List<File> getFilesInDirectory(File[] files){
-//        List<File> list = new LinkedList<>();
-//        for(File f : files){
-//            if(f.isDirectory()) {
-//                list.addAll(getFilesInDirectory(f.listFiles()));
-//            } else {
-//                list.add(f);
-//            }
-//        }
-//        return list;
-//    }
 
     @Override
     public void run() {
