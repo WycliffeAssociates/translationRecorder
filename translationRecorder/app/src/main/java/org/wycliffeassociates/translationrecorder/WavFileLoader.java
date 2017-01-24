@@ -5,7 +5,9 @@ import android.content.Context;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -53,7 +55,8 @@ public class WavFileLoader {
             try {
                 RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");
                 FileChannel fcCached = rafCached.getChannel();
-                preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+                //start at 4 to skip the DONE bytes
+                preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 4, rafCached.length()-4);
                 if(onVisualizationFileCreatedListener != null) {
                     onVisualizationFileCreatedListener.onVisualizationCreated(preprocessedBuffer);
                 }
@@ -92,10 +95,11 @@ public class WavFileLoader {
                     filename.lastIndexOf('.')) + ".vis");
 
             //If the visualization file exists, map it to memory
-            if (audioVisFile.exists()) {
+            if (audioVisFile.exists() && verifyVisualizationFile(audioVisFile)) {
                 RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");
                 FileChannel fcCached = rafCached.getChannel();
-                preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 0, rafCached.length());
+                //start at 4 to skip the DONE bytes
+                preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 4, rafCached.length()-4);
                 Logger.i(WavFileLoader.class.toString(), "Found a matching visualization file: "
                         + audioVisFile.getPath());
                 //otherwise spawn a thread to generate the vis file file
@@ -119,10 +123,22 @@ public class WavFileLoader {
         }
     }
 
+    private boolean verifyVisualizationFile(File file) {
+        boolean verified = false;
+        try (FileInputStream fis = new FileInputStream(file)) {
+            if(fis.read() =='D' && fis.read() == 'O' && fis.read() == 'N' && fis.read() == 'E') {
+                return true;
+            }
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        return verified;
+    }
+
     private void generateTempFile() {
-        try {
-            //audioVisFile  = new File(AudioInfo.pathToVisFile + loadedFilename.substring(loadedFilename.lastIndexOf('/'), loadedFilename.lastIndexOf('.')) + ".vis");
-            FileOutputStream temp = new FileOutputStream(audioVisFile);
+        try (FileOutputStream fis = new FileOutputStream(audioVisFile);
+            BufferedOutputStream temp = new BufferedOutputStream(fis)) {
+            temp.write(new byte[4]);
             int increment = AudioInfo.COMPRESSION_RATE;
             System.out.println(increment + "increment ");
 
@@ -148,7 +164,7 @@ public class WavFileLoader {
                     }
                 }
                 //order matters, rather than get the values themselves, find the index on this range and use that to write the values
-                try {
+                //try {
                     if (minIdx < maxIdx) {
                         temp.write(buffer.get(i + minIdx));
                         temp.write(buffer.get(i + minIdx + 1));
@@ -160,11 +176,22 @@ public class WavFileLoader {
                         temp.write(buffer.get(i + minIdx));
                         temp.write(buffer.get(i + minIdx + 1));
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                //}
             }
-            temp.close();
+            temp.flush();
+            fis.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (RandomAccessFile raf = new RandomAccessFile(audioVisFile, "rw")) {
+            raf.seek(0);
+            raf.write('D');
+            raf.write('O');
+            raf.write('N');
+            raf.write('E');
+            raf.close();
             threadFinished = true;
             mapNewVisFile();
         } catch (FileNotFoundException e) {

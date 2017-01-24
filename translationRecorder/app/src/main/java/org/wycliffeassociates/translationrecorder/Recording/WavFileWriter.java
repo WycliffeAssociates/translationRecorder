@@ -5,17 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
+import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
-
-import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
 
 public class WavFileWriter extends Service {
@@ -102,6 +102,7 @@ public class WavFileWriter extends Service {
                     Logger.w(this.toString(), "created a new vis file");
                 }
                 try (FileOutputStream compressedFile = new FileOutputStream(file)) {
+                    compressedFile.write(new byte[4]);
                     while (!stopped) {
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
                         if (message.isStopped()) {
@@ -125,6 +126,14 @@ public class WavFileWriter extends Service {
                                 Logger.w(this.toString(), "Compression thread received a onPause message");
                             }
                         }
+                    }
+                    try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                        raf.seek(0);
+                        raf.write('D');
+                        raf.write('O');
+                        raf.write('N');
+                        raf.write('E');
+                        raf.close();
                     }
                     Logger.w(this.toString(), "exited compression thread loop");
                     RecordingQueues.compressionQueue.clear();
