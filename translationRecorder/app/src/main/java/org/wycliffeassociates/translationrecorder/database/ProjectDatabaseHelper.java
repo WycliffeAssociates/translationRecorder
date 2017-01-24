@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ProjectLevelResyncTask;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.Book;
 import org.wycliffeassociates.translationrecorder.project.Language;
@@ -32,6 +32,18 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         replaceWith.put(ProjectContract.ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, String.valueOf(sourceLanguageId));
         replaceWith.put(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, projectContainingUpdatedSource.getSourceAudioPath());
         db.update(ProjectContract.ProjectEntry.TABLE_PROJECT, replaceWith, replaceTakeWhere, new String[]{String.valueOf(projectId)});
+    }
+
+    public List<Project> projectsNeedingResync(List<Project> allProjects) {
+        List<Project> needingResync = new ArrayList<>();
+        if(allProjects != null) {
+            for(Project p : allProjects) {
+                if (!projectExists(p)) {
+                    needingResync.add(p);
+                }
+            }
+        }
+        return needingResync;
     }
 
     public interface OnLanguageNotFound {
@@ -104,6 +116,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean projectExists(String languageCode, String slug, String version){
+        if (!languageExists(languageCode)) {
+            return false;
+        }
         int languageId = getLanguageId(languageCode);
         int bookId = getBookId(slug);
         SQLiteDatabase db = getReadableDatabase();
@@ -499,7 +514,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, fne.getTake());
         cv.put(ProjectContract.TakeEntry.TAKE_FILENAME, takeFilename);
         cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, timestamp);
-        long result = db.insert(ProjectContract.TakeEntry.TABLE_TAKE, null, cv);
+        long result = db.insertWithOnConflict(ProjectContract.TakeEntry.TABLE_TAKE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         if(result > 0){
             autoSelectTake(unitId);
         }
@@ -821,12 +836,33 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void resyncProjectWithFilesystem(Project project, List<File> takes, OnLanguageNotFound callback){
+        importTakesToDatabase(takes, callback);
         if(projectExists(project)) {
             int projectId = getProjectId(project);
-            importTakesToDatabase(takes, callback);
-            removeTakesWithNoFiles(takes, projectId, callback);
+            String where = String.format("%s.%s=?",
+                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK);
+            String[] whereArgs = new String[]{String.valueOf(projectId)};
+            removeTakesWithNoFiles(takes, where, whereArgs);
         }
     }
+
+    public void resyncChapterWithFilesystem(Project project, int chapter, List<File> takes, OnLanguageNotFound callback){
+        importTakesToDatabase(takes, callback);
+        if(projectExists(project)) {
+            int projectId = getProjectId(project);
+            int chapterId = getChapterId(project, chapter);
+            String whereClause = String.format("%s.%s=? AND %s.%s=?",
+                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
+                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_CHAPTER_FK);
+            String[] whereArgs = new String[]{String.valueOf(projectId), String.valueOf(chapterId)};
+            removeTakesWithNoFiles(takes, whereClause, whereArgs);
+        }
+    }
+
+//    private void resyncWithFilesystem(List<File> takes, String whereClause, String[] whereArgs, OnLanguageNotFound callback){
+//        importTakesToDatabase(takes, callback);
+//        removeTakesWithNoFiles(takes, whereClause, whereArgs);
+//    }
 
     private void importTakesToDatabase(List<File> takes, OnLanguageNotFound callback){
         SQLiteDatabase db = getWritableDatabase();
@@ -872,14 +908,25 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.endTransaction();
     }
 
-    private void removeTakesWithNoFiles(List<File> takes, int projectId, OnLanguageNotFound callback) {
+    /**
+     * Removes takes from the database that adhere to the where clause and do not appear in the provided takes list
+     * Example: takes contains a list of all takes in a chapter, the where clause matches takes with that projectId and chapterId
+     * and the result is that all database entries with that projectId and chapterId without a matching file in the takes list are removed
+     * from the database.
+     *
+     * This is used to resync part of the database in the event that a user manually removed a file from an external file manager application
+     *
+     * @param takes the list of files to NOT be removed from the database
+     * @param whereClause which takes should be cleared from the database
+     */
+    private void removeTakesWithNoFiles(List<File> takes, String whereClause, String[] whereArgs) {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
-        final String allTakesFromAProject = String.format("SELECT %s.%s as takefilename, %s.%s as takeid from %s LEFT JOIN %s ON %s.%s=%s.%s WHERE %s.%s=?",
+        final String allTakesFromAProject = String.format("SELECT %s.%s as takefilename, %s.%s as takeid from %s LEFT JOIN %s ON %s.%s=%s.%s WHERE %s",
                 ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry._ID, //select
                 ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.UnitEntry.TABLE_UNIT, //tables to join takes left join units
                 ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID, //ON takes.unit_fk = units._id
-                ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK); //WHERE units.project_fk = ?
+                whereClause); //ie WHERE units.chapter_fk = ?
 
         final String danglingReferences = String.format("SELECT takefilename, takeid FROM (%s) LEFT JOIN %s as temps ON temps.%s=takefilename WHERE temps.%s IS NULL",
                 allTakesFromAProject, ProjectContract.TempEntry.TABLE_TEMP,
@@ -891,7 +938,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 //        final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
 //                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
         //Cursor c = db.rawQuery(deleteDanglingReferences, null);
-        Cursor c = db.rawQuery(danglingReferences, new String[]{String.valueOf(projectId)});
+        Cursor c = db.rawQuery(danglingReferences, whereArgs);
         //for each of these takes that do not have a corresponding match, remove them from the database
         if(c.getCount() > 0) {
             int idIndex = c.getColumnIndex("takeid");
@@ -1037,7 +1084,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_TEMP);
     }
 
-    public List<Project> resyncProjectsWithFs(List<Project> allProjects, ProjectLevelResyncTask projectLevelResync) {
+    public List<Project> resyncProjectsWithFs(List<Project> allProjects, ProjectListResyncTask projectLevelResync) {
         List<Project> newProjects = new ArrayList<>();
         for (Project p : allProjects) {
             if(!languageExists(p.getTargetLanguage())) {

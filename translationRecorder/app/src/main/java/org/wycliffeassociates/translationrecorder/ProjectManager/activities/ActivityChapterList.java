@@ -18,7 +18,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.Chapte
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ResyncProjectTask;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ChapterResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Chunks;
@@ -60,7 +60,6 @@ public class ActivityChapterList extends AppCompatActivity implements
         intent.putExtra(PROJECT_KEY, p);
         return intent;
     }
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,7 +122,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         super.onResume();
         if (!mDbResyncing) {
             mDbResyncing = true;
-            ResyncProjectTask task = new ResyncProjectTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager(), mProject);
+            ChapterResyncTask task = new ChapterResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager(), mProject);
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }

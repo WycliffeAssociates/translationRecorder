@@ -17,7 +17,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ResyncProjectTask;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Chunks;
@@ -117,7 +117,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         super.onResume();
         if (!mDbResyncing) {
             mDbResyncing = true;
-            ResyncProjectTask task = new ResyncProjectTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager(), mProject);
+            UnitResyncTask task = new UnitResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager(), mProject, mChapterNum);
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
