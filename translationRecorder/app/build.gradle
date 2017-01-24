@@ -8,7 +8,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 22
         versionCode 4
-        versionName "1.0.0- Closed Beta Jan 24"
+        versionName "1.0.0- Closed Beta Jan 24b"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

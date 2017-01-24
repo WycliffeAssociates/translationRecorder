@@ -213,4 +213,8 @@ public class MarkerHolder implements MarkerMediator {
         }
         return markers;
     }
+
+    public boolean hasSectionMarkers(){
+        return mMarkers.containsKey(START_MARKER_ID) || mMarkers.containsKey(END_MARKER_ID);
+    }
 }

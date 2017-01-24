@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -37,13 +39,13 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingD
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
+import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableImageView;
 import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
-import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -332,7 +334,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public boolean hasSetMarkers() {
-        if (mAudioController.getLoopStart() != 0 && mAudioController.getLoopEnd() != mAudioController.getAbsoluteDurationInFrames()) {
+        if (mMarkerMediator.hasSectionMarkers()) {
             return true;
         } else {
             return false;
@@ -598,8 +600,19 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onVisualizationLoaded(MappedByteBuffer mappedVisualizationFile) {
-        wavVis.enableCompressedFileNextDraw(mappedVisualizationFile.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer());
+    public void onVisualizationLoaded(final MappedByteBuffer mappedVisualizationFile) {
+        if(wavVis == null) {
+            //delay the call if the visualizer hasn't loaded yet
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onVisualizationLoaded(mappedVisualizationFile);
+                }
+            }, 1000);
+        } else {
+            wavVis.enableCompressedFileNextDraw(mappedVisualizationFile.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer());
+        }
     }
 
     @Override
