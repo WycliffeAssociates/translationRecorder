@@ -848,7 +848,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
     public void resyncChapterWithFilesystem(Project project, int chapter, List<File> takes, OnLanguageNotFound callback){
         importTakesToDatabase(takes, callback);
-        if(projectExists(project)) {
+        if(projectExists(project) && chapterExists(project, chapter)) {
             int projectId = getProjectId(project);
             int chapterId = getChapterId(project, chapter);
             String whereClause = String.format("%s.%s=? AND %s.%s=?",
