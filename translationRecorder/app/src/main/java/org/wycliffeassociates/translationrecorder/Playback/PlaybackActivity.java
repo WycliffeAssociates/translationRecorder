@@ -429,7 +429,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             }
         });
         int i = 0;
-        for (DraggableMarker m : markers) {
+        for (DraggableMarker m : markersList) {
             wav.addMarker(String.valueOf(startVerse + i), m.getFrame());
             i++;
         }
