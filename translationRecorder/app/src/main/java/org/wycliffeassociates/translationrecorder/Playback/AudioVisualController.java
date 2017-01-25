@@ -216,7 +216,7 @@ public class AudioVisualController implements MediaControlReceiver {
             }
         }
         mPlayer.seekToAbsolute(seekTo);
-        mCallback.onLocationUpdated(getAbsoluteLocationMs());
+        mCallback.onLocationUpdated();
     }
 
     public void setStartMarker(int relativeLocation) {

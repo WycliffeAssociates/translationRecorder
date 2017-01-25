@@ -8,6 +8,6 @@ import java.nio.MappedByteBuffer;
 
 public interface AudioStateCallback {
     void onPlayerPaused();
-    void onLocationUpdated(int location);
+    void onLocationUpdated();
     void onVisualizationLoaded(MappedByteBuffer mappedVisualizationFile);
 }

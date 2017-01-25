@@ -239,7 +239,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onSeekTo(float x) {
         mAudioController.seekTo(mAudioController.mCutOp.relativeLocToAbsolute((int) (x * mAudioController.getRelativeDurationInFrames()), false));
-        onLocationUpdated(getLocation());
+        onLocationUpdated();
     }
 
     @Override
@@ -281,7 +281,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void onPlayerPaused() {
         mFragmentPlaybackTools.onPlayerPaused();
         mMarkerToolbarFragment.showPlayButton();
-        onLocationUpdated(0);
+        onLocationUpdated();
     }
 
     @Override
@@ -305,7 +305,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mAudioController.dropStartMarker();
         int location = mAudioController.getLoopStart();
         mWaveformFragment.addStartMarker(mAudioController.mCutOp.absoluteLocToRelative(location, false));
-        onLocationUpdated(0);
+        onLocationUpdated();
     }
 
     @Override
@@ -313,21 +313,21 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mAudioController.dropEndMarker();
         int location = mAudioController.getLoopEnd();
         mWaveformFragment.addEndMarker(mAudioController.mCutOp.absoluteLocToRelative(location, false));
-        onLocationUpdated(0);
+        onLocationUpdated();
     }
 
     @Override
     public void setStartMarkerAt(int frameRelative) {
         mAudioController.setStartMarker(frameRelative);
         mWaveformFragment.addStartMarker(frameRelative);
-        onLocationUpdated(0);
+        onLocationUpdated();
     }
 
     @Override
     public void setEndMarkerAt(int frame) {
         mAudioController.setEndMarker(frame);
         mWaveformFragment.addEndMarker(frame);
-        onLocationUpdated(0);
+        onLocationUpdated();
     }
 
     @Override
@@ -361,7 +361,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             isSaved = true;
         }
         mFragmentTabbedWidget.invalidateMinimap();
-        onLocationUpdated(0);
+        onLocationUpdated();
     }
 
     @Override
@@ -597,9 +597,20 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onLocationUpdated(int location) {
-        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+    public void onLocationUpdated() {
+        int frame = mAudioController.getRelativeLocationInFrames();
+        int absoluteMs = mAudioController.getAbsoluteLocationMs();
+
+        mWaveformFragment.invalidateFrame(frame, absoluteMs);
+
+//                //// TODO
+//                mFragmentTabbedWidget.invalidateFrame(frame);
+//                mFragmentPlaybackTools.invalidateMs(ms);
+//                mMarkerToolbarFragment.invalidateMs(ms);
+
+        mFragmentPlaybackTools.onLocationUpdated(mAudioController.getRelativeLocationMs());
         mFragmentTabbedWidget.onLocationChanged();
+        mMarkerToolbarFragment.onLocationUpdated(mAudioController.getRelativeLocationMs());
     }
 
     @Override
@@ -645,7 +656,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 .remove(mMarkerToolbarFragment)
                 .add(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools)
                 .commit();
-        onLocationUpdated(0);
+        onLocationUpdated();
     }
 
     @Override
@@ -723,25 +734,10 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
         @Override
         public void run() {
-            int frame;
-            int ms;
+
             while (!finished) {
                 if(mAudioController != null && mAudioController.isPlaying()) {
-                    frame = mAudioController.getRelativeLocationInFrames();
-                    ms = mAudioController.getAbsoluteLocationMs();
-
-                    mWaveformFragment.invalidateFrame(frame, ms);
-
-//                //// TODO
-//                mFragmentTabbedWidget.invalidateFrame(frame);
-//                mFragmentPlaybackTools.invalidateMs(ms);
-//                mMarkerToolbarFragment.invalidateMs(ms);
-
-                    mFragmentPlaybackTools.onLocationUpdated(mAudioController.getRelativeLocationMs());
-                    mFragmentTabbedWidget.onLocationChanged();
-                    mMarkerToolbarFragment.onLocationUpdated(mAudioController.getRelativeLocationMs());
-
-
+                   onLocationUpdated();
                 }
                 try {
                     Thread.sleep(45);
