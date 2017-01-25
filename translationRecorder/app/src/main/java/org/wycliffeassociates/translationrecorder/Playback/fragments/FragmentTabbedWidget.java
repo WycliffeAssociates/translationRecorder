@@ -222,7 +222,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
 
     public void onLocationChanged(){
         mMinimapLayer.postInvalidate();
-        initializeTimecode(mMediaController.getDuration());
+        initializeTimecode(mMediaController.getDurationMs());
         mTimecodeLayer.postInvalidate();
         mMarkerLineLayer.postInvalidate();
         mHighlightLayer.postInvalidate();

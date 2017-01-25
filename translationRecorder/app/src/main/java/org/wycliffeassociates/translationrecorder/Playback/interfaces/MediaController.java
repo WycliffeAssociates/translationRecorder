@@ -9,8 +9,10 @@ public interface MediaController {
     void onMediaPause();
     void onSeekForward();
     void onSeekBackward();
-    int getDuration();
-    int getLocation();
+    //The durations and locations here are intended to be relative, ideally to abstract away
+    //relative vs absolute times/frames
+    int getDurationMs();
+    int getLocationMs();
     int getDurationInFrames();
     int getLocationInFrames();
     void setOnCompleteListner(Runnable onComplete);

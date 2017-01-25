@@ -115,8 +115,8 @@ public class FragmentPlaybackTools extends Fragment{
 
     private void initTimer(final TextView elapsed, final TextView duration) {
         mTimer = new PlaybackTimer(elapsed, duration);
-        mTimer.setElapsed(0);
-        mTimer.setDuration(mMediaController.getDuration());
+        mTimer.setElapsed(mMediaController.getLocationMs());
+        mTimer.setDuration(mMediaController.getDurationMs());
     }
 
     public void onLocationUpdated(int ms){
