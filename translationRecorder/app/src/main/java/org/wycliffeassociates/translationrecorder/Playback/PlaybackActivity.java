@@ -243,13 +243,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public int getDuration() {
+    public int getDurationMs() {
         return mAudioController.getRelativeDurationMs();
     }
 
     @Override
-    public int getLocation() {
-        return mAudioController.getAbsoluteLocationMs();
+    public int getLocationMs() {
+        return mAudioController.getRelativeLocationMs();
     }
 
     @Override
@@ -643,6 +643,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                     .add(R.id.playback_tools_fragment_holder, mMarkerToolbarFragment)
                     .commit();
         //}
+        onLocationUpdated();
     }
 
     @Override

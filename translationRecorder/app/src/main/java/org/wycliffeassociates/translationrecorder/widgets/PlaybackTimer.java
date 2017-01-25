@@ -36,7 +36,7 @@ public class PlaybackTimer {
             @Override
             public void run() {
                 mElapsed.setText(durationString);
-                mElapsed.postInvalidate();
+                mElapsed.invalidate();
             }
         });
     }
