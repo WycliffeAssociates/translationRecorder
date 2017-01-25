@@ -190,6 +190,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void finish() {
         super.finish();
         mDrawLoop.finish();
+        if(mAudioController.isPlaying()) {
+            mAudioController.pause();
+        }
     }
 
     private String getUnitLabel() {
