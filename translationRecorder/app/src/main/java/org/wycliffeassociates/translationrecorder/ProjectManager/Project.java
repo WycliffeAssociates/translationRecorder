@@ -9,12 +9,11 @@ import android.preference.PreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+
+import java.io.File;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -36,26 +35,26 @@ public class Project implements Parcelable {
     public Project() {
     }
 
-    public Project(String tLang, String sLang, String bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath) {
+    public Project(String tLang, String sLang, String bookNum, String slug, String version, String mode, String anthology, String contributors, String sourceAudioPath) {
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
         mSlug = slug;
         mBookNumber = bookNum;
         mVersion = version;
         mMode = mode;
-        mAnthology = project;
+        mAnthology = anthology;
         mContributors = contributors;
         mSourceAudioPath = sourceAudioPath;
     }
 
-    public Project(String tLang, String sLang, int bookNum, String slug, String version, String mode, String project, String contributors, String sourceAudioPath) {
+    public Project(String tLang, String sLang, int bookNum, String slug, String version, String mode, String anthology, String contributors, String sourceAudioPath) {
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
         mSlug = slug;
         mBookNumber = String.valueOf(bookNum);
         mVersion = version;
         mMode = mode;
-        mAnthology = project;
+        mAnthology = anthology;
         mContributors = contributors;
         mSourceAudioPath = sourceAudioPath;
     }
@@ -68,10 +67,10 @@ public class Project implements Parcelable {
         String slug = pref.getString(Settings.KEY_PREF_BOOK, "");
         String version = pref.getString(Settings.KEY_PREF_VERSION, "");
         String mode = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "");
-        String project = pref.getString(Settings.KEY_PREF_ANTHOLOGY, "");
+        String anthology = pref.getString(Settings.KEY_PREF_ANTHOLOGY, "");
         String contributors = getContributorsFromJson(pref.getString(Settings.KEY_PROFILE, ""));
         String sourceAudioPath = pref.getString(Settings.KEY_PREF_SRC_LOC, "");
-        return new Project(tLang, sLang, bookNum, slug, version, mode, project, contributors, sourceAudioPath);
+        return new Project(tLang, sLang, bookNum, slug, version, mode, anthology, contributors, sourceAudioPath);
     }
 
     private static String getContributorsFromJson(String jsonString){

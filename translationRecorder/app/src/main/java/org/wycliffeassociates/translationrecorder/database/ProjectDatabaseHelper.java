@@ -10,14 +10,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.Book;
+import org.wycliffeassociates.translationrecorder.project.Language;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.wycliffeassociates.translationrecorder.project.Language;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -32,6 +32,18 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         replaceWith.put(ProjectContract.ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK, String.valueOf(sourceLanguageId));
         replaceWith.put(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, projectContainingUpdatedSource.getSourceAudioPath());
         db.update(ProjectContract.ProjectEntry.TABLE_PROJECT, replaceWith, replaceTakeWhere, new String[]{String.valueOf(projectId)});
+    }
+
+    public List<Project> projectsNeedingResync(List<Project> allProjects) {
+        List<Project> needingResync = new ArrayList<>();
+        if(allProjects != null) {
+            for(Project p : allProjects) {
+                if (!projectExists(p)) {
+                    needingResync.add(p);
+                }
+            }
+        }
+        return needingResync;
     }
 
     public interface OnLanguageNotFound {
@@ -104,6 +116,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean projectExists(String languageCode, String slug, String version){
+        if (!languageExists(languageCode)) {
+            return false;
+        }
         int languageId = getLanguageId(languageCode);
         int bookId = getBookId(slug);
         SQLiteDatabase db = getReadableDatabase();
@@ -499,7 +514,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, fne.getTake());
         cv.put(ProjectContract.TakeEntry.TAKE_FILENAME, takeFilename);
         cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, timestamp);
-        long result = db.insert(ProjectContract.TakeEntry.TABLE_TAKE, null, cv);
+        long result = db.insertWithOnConflict(ProjectContract.TakeEntry.TABLE_TAKE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         if(result > 0){
             autoSelectTake(unitId);
         }
@@ -820,7 +835,194 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return takesToCompile;
     }
 
+    public void resyncProjectWithFilesystem(Project project, List<File> takes, OnLanguageNotFound callback){
+        importTakesToDatabase(takes, callback);
+        if(projectExists(project)) {
+            int projectId = getProjectId(project);
+            String where = String.format("%s.%s=?",
+                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK);
+            String[] whereArgs = new String[]{String.valueOf(projectId)};
+            removeTakesWithNoFiles(takes, where, whereArgs);
+        }
+    }
+
+    public void resyncChapterWithFilesystem(Project project, int chapter, List<File> takes, OnLanguageNotFound callback){
+        importTakesToDatabase(takes, callback);
+        if(projectExists(project) && chapterExists(project, chapter)) {
+            int projectId = getProjectId(project);
+            int chapterId = getChapterId(project, chapter);
+            String whereClause = String.format("%s.%s=? AND %s.%s=?",
+                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
+                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_CHAPTER_FK);
+            String[] whereArgs = new String[]{String.valueOf(projectId), String.valueOf(chapterId)};
+            removeTakesWithNoFiles(takes, whereClause, whereArgs);
+        }
+    }
+
+//    private void resyncWithFilesystem(List<File> takes, String whereClause, String[] whereArgs, OnLanguageNotFound callback){
+//        importTakesToDatabase(takes, callback);
+//        removeTakesWithNoFiles(takes, whereClause, whereArgs);
+//    }
+
+    private void importTakesToDatabase(List<File> takes, OnLanguageNotFound callback){
+        SQLiteDatabase db = getWritableDatabase();
+        //create a temporary table to store take names from the filesystem
+        db.execSQL(ProjectContract.DELETE_TEMP);
+        db.execSQL(ProjectContract.TempEntry.CREATE_TEMP_TABLE);
+        db.beginTransaction();
+        //add all the take names to the temp table
+        for(File f : takes){
+            ContentValues cv = new ContentValues();
+            FileNameExtractor fne = new FileNameExtractor(f);
+            if(fne.matched()) {
+                cv.put(ProjectContract.TempEntry.TEMP_TAKE_NAME, f.getName());
+                cv.put(ProjectContract.TempEntry.TEMP_TIMESTAMP, f.lastModified());
+                db.insert(ProjectContract.TempEntry.TABLE_TEMP, null, cv);
+            }
+        }
+        //compare the names of all takes from the filesystem with the takes already in the database
+        //names that do not have a match (are null in the left join) in the database need to be added
+        final String getMissingTakes = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TempEntry.TEMP_TIMESTAMP, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+        Cursor c = db.rawQuery(getMissingTakes, null);
+        //loop through all of the missing takes and add them to the db
+        if(c.getCount() > 0){
+            int nameIndex = c.getColumnIndex(ProjectContract.TempEntry.TEMP_TAKE_NAME);
+            int timestampIndex = c.getColumnIndex(ProjectContract.TempEntry.TEMP_TIMESTAMP);
+            c.moveToFirst();
+            do {
+                FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
+                if(!languageExists(fne.getLang())) {
+                    if(callback != null) {
+                        String name = callback.requestLanguageName(fne.getLang());
+                        addLanguage(fne.getLang(), name);
+                    } else {
+                        addLanguage(fne.getLang(), "???"); //missingno
+                    }
+                }
+                addTake(fne, c.getString(nameIndex), c.getLong(timestampIndex), 0);
+            } while (c.moveToNext());
+        }
+        c.close();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+    }
+
+    /**
+     * Removes takes from the database that adhere to the where clause and do not appear in the provided takes list
+     * Example: takes contains a list of all takes in a chapter, the where clause matches takes with that projectId and chapterId
+     * and the result is that all database entries with that projectId and chapterId without a matching file in the takes list are removed
+     * from the database.
+     *
+     * This is used to resync part of the database in the event that a user manually removed a file from an external file manager application
+     *
+     * @param takes the list of files to NOT be removed from the database
+     * @param whereClause which takes should be cleared from the database
+     */
+    private void removeTakesWithNoFiles(List<File> takes, String whereClause, String[] whereArgs) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        final String allTakesFromAProject = String.format("SELECT %s.%s as takefilename, %s.%s as takeid from %s LEFT JOIN %s ON %s.%s=%s.%s WHERE %s",
+                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry._ID, //select
+                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.UnitEntry.TABLE_UNIT, //tables to join takes left join units
+                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID, //ON takes.unit_fk = units._id
+                whereClause); //ie WHERE units.chapter_fk = ?
+
+        final String danglingReferences = String.format("SELECT takefilename, takeid FROM (%s) LEFT JOIN %s as temps ON temps.%s=takefilename WHERE temps.%s IS NULL",
+                allTakesFromAProject, ProjectContract.TempEntry.TABLE_TEMP,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME
+                );
+
+//        //find all the takes in the db that do not have a match in the filesystem
+//        final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+//                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+        //Cursor c = db.rawQuery(deleteDanglingReferences, null);
+        Cursor c = db.rawQuery(danglingReferences, whereArgs);
+        //for each of these takes that do not have a corresponding match, remove them from the database
+        if(c.getCount() > 0) {
+            int idIndex = c.getColumnIndex("takeid");
+            final String deleteTake = String.format("%s=?", ProjectContract.TakeEntry._ID);
+            final String removeSelectedTake = String.format("%s=?", ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK);
+            c.moveToFirst();
+            do {
+                ContentValues cv = new ContentValues();
+                cv.putNull(ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK);
+                db.update(ProjectContract.UnitEntry.TABLE_UNIT, cv, removeSelectedTake, new String[] {String.valueOf(c.getInt(idIndex))});
+                db.delete(ProjectContract.TakeEntry.TABLE_TAKE, deleteTake, new String[]{String.valueOf(c.getInt(idIndex))});
+            } while (c.moveToNext());
+        }
+        c.close();
+        db.execSQL(ProjectContract.DELETE_TEMP);
+        db.setTransactionSuccessful();
+        db.endTransaction();
+    }
+
+
     public void resyncDbWithFs(List<File> takes, OnLanguageNotFound callback) {
+        SQLiteDatabase db = getWritableDatabase();
+        //create a temporary table to store take names from the filesystem
+        db.execSQL(ProjectContract.DELETE_TEMP);
+        db.execSQL(ProjectContract.TempEntry.CREATE_TEMP_TABLE);
+        db.beginTransaction();
+        //add all the take names to the temp table
+        for(File f : takes){
+            ContentValues cv = new ContentValues();
+            FileNameExtractor fne = new FileNameExtractor(f);
+            if(fne.matched()) {
+                cv.put(ProjectContract.TempEntry.TEMP_TAKE_NAME, f.getName());
+                cv.put(ProjectContract.TempEntry.TEMP_TIMESTAMP, f.lastModified());
+                db.insert(ProjectContract.TempEntry.TABLE_TEMP, null, cv);
+            }
+        }
+        //compare the names of all takes from the filesystem with the takes already in the database
+        //names that do not have a match (are null in the left join) in the database need to be added
+        final String getMissingTakes = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TempEntry.TEMP_TIMESTAMP, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+        Cursor c = db.rawQuery(getMissingTakes, null);
+        //loop through all of the missing takes and add them to the db
+        if(c.getCount() > 0){
+            int nameIndex = c.getColumnIndex(ProjectContract.TempEntry.TEMP_TAKE_NAME);
+            int timestampIndex = c.getColumnIndex(ProjectContract.TempEntry.TEMP_TIMESTAMP);
+            c.moveToFirst();
+            do {
+                FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
+                if(!languageExists(fne.getLang())) {
+                    if(callback != null) {
+                        String name = callback.requestLanguageName(fne.getLang());
+                        addLanguage(fne.getLang(), name);
+                    } else {
+                        addLanguage(fne.getLang(), "???"); //missingno
+                    }
+                }
+                addTake(fne, c.getString(nameIndex), c.getLong(timestampIndex), 0);
+            } while (c.moveToNext());
+        }
+        c.close();
+        //find all the takes in the db that do not have a match in the filesystem
+        final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+        c = db.rawQuery(deleteDanglingReferences, null);
+        //for each of these takes that do not have a corresponding match, remove them from the database
+        if(c.getCount() > 0) {
+            int idIndex = c.getColumnIndex(ProjectContract.TakeEntry._ID);
+            final String deleteTake = String.format("%s=?", ProjectContract.TakeEntry._ID);
+            final String removeSelectedTake = String.format("%s=?", ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK);
+            c.moveToFirst();
+            do {
+                ContentValues cv = new ContentValues();
+                cv.putNull(ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK);
+                db.update(ProjectContract.UnitEntry.TABLE_UNIT, cv, removeSelectedTake, new String[] {String.valueOf(c.getInt(idIndex))});
+                db.delete(ProjectContract.TakeEntry.TABLE_TAKE, deleteTake, new String[]{String.valueOf(c.getInt(idIndex))});
+            } while (c.moveToNext());
+        }
+        c.close();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.execSQL(ProjectContract.DELETE_TEMP);
+    }
+
+    public void resyncBookWithFs(List<File> takes, OnLanguageNotFound callback) {
         SQLiteDatabase db = getWritableDatabase();
         //create a temporary table to store take names from the filesystem
         db.execSQL(ProjectContract.DELETE_TEMP);
@@ -880,6 +1082,21 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.setTransactionSuccessful();
         db.endTransaction();
         db.execSQL(ProjectContract.DELETE_TEMP);
+    }
+
+    public List<Project> resyncProjectsWithFs(List<Project> allProjects, ProjectListResyncTask projectLevelResync) {
+        List<Project> newProjects = new ArrayList<>();
+        for (Project p : allProjects) {
+            if(!languageExists(p.getTargetLanguage())) {
+                String name = projectLevelResync.requestLanguageName(p.getTargetLanguage());
+                addLanguage(p.getTargetLanguage(), name);
+            }
+            if(!projectExists(p)) {
+                newProjects.add(p);
+            }
+            addProject(p);
+        }
+        return newProjects;
     }
 
     public void autoSelectTake(int unitId){

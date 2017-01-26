@@ -1,18 +1,18 @@
-package org.wycliffeassociates.translationrecorder.ProjectManager.tasks;
+package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
 import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
+
+import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
-import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 /**
  * Created by sarabiaj on 9/27/2016.
@@ -31,13 +31,9 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         File[] dirs = root.listFiles();
         List<File> files = new LinkedList<>();
-        //files shouldn't be at this level, and the app currently could not handle adding them in this way.
-        //skip the visualization folder
         if(dirs != null && dirs.length > 0) {
             for (File f : dirs) {
-                if (f.isDirectory() && !f.getName().equals("Visualization")) {
-                    files.addAll(getFilesInDirectory(f.listFiles()));
-                }
+                files.addAll(getFilesInDirectory(f.listFiles()));
             }
         }
         return files;

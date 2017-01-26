@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ResyncLanguageNamesTask;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ResyncLanguageNamesTask;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
 import org.wycliffeassociates.translationrecorder.R;

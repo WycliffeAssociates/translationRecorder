@@ -32,4 +32,5 @@ public interface MarkerMediator {
     boolean hasVersesRemaining();
     int numVersesRemaining();
     int numVerseMarkersPlaced();
+    boolean hasSectionMarkers();
 }

@@ -27,15 +27,15 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFra
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
-import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.DatabaseResyncTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSourceAudioTask;
+import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
-import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
@@ -137,7 +137,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         //still need to track whether a db resync was issued so as to not issue them in the middle of another
         if (!mDbResyncing) {
             mDbResyncing = true;
-            DatabaseResyncTask task = new DatabaseResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager());
+            ProjectListResyncTask task = new ProjectListResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager());
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
@@ -289,9 +289,15 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         pref.edit().putString(Settings.KEY_PREF_CHUNK, "1").commit();
     }
 
-    private void addProjectToDatabase(Project project) {
+    private boolean addProjectToDatabase(Project project) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.addProject(project);
+        if(db.projectExists(project)) {
+            ProjectWizardActivity.displayProjectExists(this);
+            return false;
+        } else {
+            db.addProject(project);
+            return true;
+        }
     }
 
     @Override
@@ -300,12 +306,15 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             case PROJECT_WIZARD_REQUEST: {
                 if (resultCode == RESULT_OK) {
                     Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                    addProjectToDatabase(project);
-                    loadProject(project);
-                    finish();
-                    //TODO: should find place left off at?
-                    Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
-                    startActivity(intent);
+                    if (addProjectToDatabase(project)) {
+                        loadProject(project);
+                        finish();
+                        //TODO: should find place left off at?
+                        Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
+                        startActivity(intent);
+                    } else {
+                        onResume();
+                    }
                 } else {
                     onResume();
                 }

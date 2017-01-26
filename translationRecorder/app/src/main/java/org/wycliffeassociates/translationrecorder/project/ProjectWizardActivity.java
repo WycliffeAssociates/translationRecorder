@@ -1,8 +1,10 @@
 package org.wycliffeassociates.translationrecorder.project;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -264,5 +266,20 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             intent.putExtra(Project.PROJECT_EXTRA, mProject);
             startActivityForResult(intent, SOURCE_AUDIO_REQUEST);
         }
+    }
+
+    public static void displayProjectExists(Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Project Already Exists!");
+        builder.setMessage("A project already exists for that language, book, and version.\n" +
+                "If you would like to switch recording modes, please delete the project before creating it again.");
+        builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
