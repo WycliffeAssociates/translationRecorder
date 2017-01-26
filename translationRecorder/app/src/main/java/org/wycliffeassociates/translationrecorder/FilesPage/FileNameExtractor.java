@@ -4,12 +4,11 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 
 /**
  * Created by sarabiaj on 3/15/2016.
@@ -162,6 +161,10 @@ public class FileNameExtractor {
     }
 
     public int getEndVerse() {
+        //if there is no end verse, there is no verse range, so the end verse is the start verse
+        if(mEndVerse == -1) {
+            return mStartVerse;
+        }
         return mEndVerse;
     }
 
