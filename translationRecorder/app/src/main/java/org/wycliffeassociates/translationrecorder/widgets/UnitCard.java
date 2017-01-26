@@ -163,9 +163,6 @@ public class UnitCard {
         FileNameExtractor fne;
         int first = mFirstVerse;
         int end = mEndVerse;
-        if (mProject.getMode().equals("verse") || first == end) {
-            end = -1;
-        }
         //Get only the files of the appropriate unit
         List<File> resultFiles = new ArrayList<>();
         if (files != null) {
