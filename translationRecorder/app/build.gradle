@@ -7,8 +7,8 @@ android {
         applicationId "org.wycliffeassociates.translationrecorder"
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode 6
-        versionName "1.0.1 Beta"
+        versionCode 7
+        versionName "1.0.2 Beta"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
