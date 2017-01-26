@@ -6,6 +6,7 @@ import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
@@ -40,7 +41,11 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
         if(dirs != null) {
             for (File f : dirs) {
                 if (f.isDirectory()) {
-                    chapterList.add(Integer.parseInt(f.getName()));
+                    try {
+                        chapterList.add(Integer.parseInt(f.getName()));
+                    } catch (NumberFormatException e) {
+                        Logger.e(this.toString(), "Tried to add chapter " + f.getName() + " which does not parse as an Integer");
+                    }
                 }
             }
         }
