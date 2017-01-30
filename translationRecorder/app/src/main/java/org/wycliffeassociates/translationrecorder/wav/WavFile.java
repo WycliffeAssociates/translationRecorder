@@ -532,7 +532,7 @@ public class WavFile implements Parcelable {
 //    }
 
     public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile) {
-        File root = FileNameExtractor.getDirectoryFromProject(project, chapter);
+        File root = FileNameExtractor.getParentDirectory(project, chapter);
         File chap = new File(root, "chapter.wav");
         chap.delete();
         String chapterString = FileNameExtractor.chapterIntToString(project, chapter);

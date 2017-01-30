@@ -9,6 +9,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
+import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -60,7 +61,8 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                         }
                         FileNameExtractor fne = new FileNameExtractor(takes[0]);
                         if (fne.matched()) {
-                            Project project = new Project(fne.getLang(), "", fne.getBookNumber(), fne.getBook(), fne.getSource(), fne.getMode(), "", "", "");
+                            WavFile wav = new WavFile(takes[0]);
+                            Project project = new Project(fne.getLang(), "", fne.getBookNumber(), fne.getBook(), fne.getSource(), fne.getMode(wav), "", "", "");
                             projectList.add(project);
                             break;
                         }

@@ -14,6 +14,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.Pr
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.Book;
 import org.wycliffeassociates.translationrecorder.project.Language;
+import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -486,14 +487,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(FileNameExtractor fne, String takeFilename, long timestamp, int rating) {
+    public void addTake(FileNameExtractor fne, String recordingMode, String takeFilename, long timestamp, int rating) {
         String book = fne.getBook();
         String language = fne.getLang();
         String version = fne.getSource();
         int chapter = fne.getChapter();
         int start = fne.getStartVerse();
         if(!projectExists(language, book, version)){
-            addProject(language, book, version, fne.getMode());
+            addProject(language, book, version, recordingMode);
             addChapter(language, book, version, chapter);
             addUnit(language, book, version, chapter, start);
         //If the chapter doesn't exist, then the unit can't either
@@ -900,7 +901,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                         addLanguage(fne.getLang(), "???"); //missingno
                     }
                 }
-                addTake(fne, c.getString(nameIndex), c.getLong(timestampIndex), 0);
+                //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
+                File dir = fne.getParentDirectory();
+                WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
+                addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
             } while (c.moveToNext());
         }
         c.close();
@@ -995,7 +999,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                         addLanguage(fne.getLang(), "???"); //missingno
                     }
                 }
-                addTake(fne, c.getString(nameIndex), c.getLong(timestampIndex), 0);
+                //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
+                File dir = fne.getParentDirectory();
+                WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
+                addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
             } while (c.moveToNext());
         }
         c.close();
@@ -1058,7 +1065,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                         addLanguage(fne.getLang(), "???"); //missingno
                     }
                 }
-                addTake(fne, c.getString(nameIndex), c.getLong(timestampIndex), 0);
+                //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
+                File dir = fne.getParentDirectory();
+                WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
+                addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
             } while (c.moveToNext());
         }
         c.close();

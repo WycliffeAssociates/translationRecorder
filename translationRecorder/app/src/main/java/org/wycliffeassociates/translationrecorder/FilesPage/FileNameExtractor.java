@@ -5,6 +5,7 @@ import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -176,32 +177,34 @@ public class FileNameExtractor {
         return mTake;
     }
 
-    public String getMode() {
-        if (mEndVerse == -1) {
-            return "verse";
-        } else {
-            return "chunk";
-        }
+    public String getMode(WavFile file) {
+        return file.getMetadata().getMode();
     }
 
     public boolean matched() {
         return mMatched;
     }
 
-    public static File getDirectoryFromFile(SharedPreferences pref, File file) {
-        FileNameExtractor fne = new FileNameExtractor(file);
-        String root = pref.getString("root_directory", "");
-        File out = new File(new File(root), fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter()));
+    public File getParentDirectory(){
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File out = new File(root, getLang() + "/" + getSource() + "/" + getBook() + "/" + String.format("%02d", getChapter()));
         return out;
     }
 
-    public static File getDirectoryFromProject(Project project, int chapter) {
+    public static File getParentDirectory(File file) {
+        FileNameExtractor fne = new FileNameExtractor(file);
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File out = new File(root, fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter()));
+        return out;
+    }
+
+    public static File getParentDirectory(Project project, int chapter) {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         return new File(root, project.getTargetLanguage() + "/" + project.getVersion() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
     }
 
-    public static File getFileFromFileName(SharedPreferences pref, File file) {
-        File dir = getDirectoryFromFile(pref, file);
+    public static File getFileFromFileName(File file) {
+        File dir = getParentDirectory(file);
         if (file.getName().contains(".wav")) {
             return new File(dir, file.getName());
         } else {
@@ -246,7 +249,7 @@ public class FileNameExtractor {
     }
 
     public static File getFileFromFileName(SharedPreferences pref, String file) {
-        return getFileFromFileName(pref, new File(file));
+        return getFileFromFileName(new File(file));
     }
 
     public static int getLargestTake(File directory, File filename) {
@@ -282,7 +285,7 @@ public class FileNameExtractor {
 
     public static File createFile(Project project, int chapter, int startVerse, int endVerse) {
         FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
-        File dir = fne.getDirectoryFromProject(project, chapter);
+        File dir = fne.getParentDirectory(project, chapter);
         String nameWithoutTake = fne.getNameWithoutTake();
         int take = fne.getLargestTake(dir, nameWithoutTake) + 1;
         return new File(dir, nameWithoutTake + "_t" + String.format("%02d", take) + ".wav");
