@@ -33,8 +33,11 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
 
     public List<Project> getAllProjects() {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File[] langs = root.listFiles();
         List<Project> projectList = new ArrayList<>();
+        File[] langs = root.listFiles();
+        if (langs == null) {
+            return projectList;
+        }
         for (int i = 0; i < langs.length; i++) {
             File[] versions = langs[i].listFiles();
             if(versions == null) {
