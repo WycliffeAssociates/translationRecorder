@@ -487,7 +487,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(FileNameExtractor fne, String recordingMode, String takeFilename, long timestamp, int rating) {
+    public void addTake(FileNameExtractor fne, String takeFilename, String recordingMode, long timestamp, int rating) {
         String book = fne.getBook();
         String language = fne.getLang();
         String version = fne.getSource();
