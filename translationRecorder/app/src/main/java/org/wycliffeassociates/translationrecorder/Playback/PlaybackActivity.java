@@ -487,7 +487,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                         to.delete();
                         toTemp.renameTo(to);
                         ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackActivity.this);
-                        db.addTake(new FileNameExtractor(to), from.getMetadata().getMode(), to.getName(), to.lastModified(), 0);
+                        db.addTake(new FileNameExtractor(to), to.getName(), from.getMetadata().getMode(), to.lastModified(), 0);
                         db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));
