@@ -63,6 +63,10 @@ public class DraggableImageView extends ImageView {
         mId = id;
     }
 
+    public int getMarkerId(){
+        return mId;
+    }
+
     public DraggableImageView(final Context context) {
         super(context);
         this.setOnTouchListener(new OnTouchListener() {

@@ -46,6 +46,8 @@ import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableImageView;
 import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarker;
+import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarkerView;
 
 import java.io.File;
 import java.io.IOException;
@@ -292,7 +294,20 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onCut() {
         isSaved = false;
+        Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
+        for(DraggableMarker marker : markers) {
+            if(marker.getFrame() <= mAudioController.getLoopEnd() && marker.getFrame() > mAudioController.getLoopStart()) {
+                if(marker instanceof VerseMarker) {
+                    mMarkerMediator.onRemoveVerseMarker(((VerseMarkerView) marker.getView()).getMarkerId());
+                }
+            } else {
+                marker.updateFrame(mAudioController.mCutOp.relativeLocToAbsolute(marker.getFrame(), false));
+            }
+        }
         mAudioController.cut();
+        for(DraggableMarker marker : markers) {
+            marker.updateFrame(mAudioController.mCutOp.absoluteLocToRelative(marker.getFrame(), false));
+        }
         mFragmentPlaybackTools.onLocationUpdated(mAudioController.getAbsoluteLocationMs());
         mFragmentPlaybackTools.onDurationUpdated(mAudioController.getRelativeDurationMs());
         onClearMarkers();
@@ -356,8 +371,15 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onUndo() {
+        Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
+        //map markers back to absolute before
+        for(DraggableMarker marker : markers) {
+            marker.updateFrame(mAudioController.mCutOp.relativeLocToAbsolute(marker.getFrame(), false));
+        }
         mAudioController.undo();
-        if (!mAudioController.mCutOp.hasCut()) {
+        for(DraggableMarker marker : markers) {
+            marker.updateFrame(mAudioController.mCutOp.absoluteLocToRelative(marker.getFrame(), false));
+        }        if (!mAudioController.mCutOp.hasCut()) {
             isSaved = true;
         }
         mFragmentTabbedWidget.invalidateMinimap();
