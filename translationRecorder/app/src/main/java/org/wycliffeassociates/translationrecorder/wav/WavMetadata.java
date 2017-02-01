@@ -142,7 +142,7 @@ public class WavMetadata implements Parcelable {
      * @param chunk
      */
     private void parseList(ByteBuffer chunk) {
-        while (chunk.position() < chunk.capacity()) {
+        while (chunk.position() < chunk.limit()) {
             //read the subchunk name
             String label = readLabel(chunk);
             if (new String("adtl").equals(label)) {
