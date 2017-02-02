@@ -45,7 +45,7 @@ public class VisualizerRunnable implements Runnable {
 //                count--;
 //                addedLeftover = true;
 //            }
-            if(startPosition+increment > mAccessor.size()){
+            if(startPosition > mAccessor.size()){
                 break;
             }
             mIndex = WavVisualizer.addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment, mIndex, mScreenHeight);
