@@ -587,8 +587,8 @@ public class WavFile implements Parcelable {
 
             WavOutputStream wos = new WavOutputStream(resultWav, 1);
         ) {
-            MappedByteBuffer baseBuffer = fisBase.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, base.getTotalAudioLength() + HEADER_SIZE);
-            MappedByteBuffer insertBuffer = fisInsert.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, insert.getTotalAudioLength() + HEADER_SIZE);
+            MappedByteBuffer baseBuffer = fisBase.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, base.getTotalAudioLength());
+            MappedByteBuffer insertBuffer = fisInsert.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, insert.getTotalAudioLength());
             int oldAudioLength = base.getTotalAudioLength();
             int newAudioLength = insert.getTotalAudioLength();
 

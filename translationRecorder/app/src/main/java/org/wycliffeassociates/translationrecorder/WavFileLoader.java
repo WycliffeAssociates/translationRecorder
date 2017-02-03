@@ -85,9 +85,9 @@ public class WavFileLoader {
 
             //only map the PCM data; the file could contain metadata that should not be mapped
             buffer = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
-                    AudioInfo.HEADER_SIZE + wavFile.getTotalAudioLength());
+                    wavFile.getTotalAudioLength());
             mappedAudioFile = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,
-                    AudioInfo.HEADER_SIZE + wavFile.getTotalAudioLength());
+                    wavFile.getTotalAudioLength());
 
             //If the file was loaded, look for a .vis file with the same name
             File visDir = new File(ctx.getExternalCacheDir(), "Visualization");
