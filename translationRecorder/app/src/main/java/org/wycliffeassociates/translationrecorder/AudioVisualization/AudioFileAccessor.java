@@ -1,11 +1,10 @@
 package org.wycliffeassociates.translationrecorder.AudioVisualization;
 
+import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.nio.ShortBuffer;
-
-import org.wycliffeassociates.translationrecorder.AudioInfo;
 
 /**
  * Created by sarabiaj on 1/12/2016.

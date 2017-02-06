@@ -136,9 +136,9 @@ public class WavFileLoader {
     }
 
     private void generateTempFile() {
-        try (FileOutputStream fis = new FileOutputStream(audioVisFile);
-            BufferedOutputStream temp = new BufferedOutputStream(fis)) {
-            temp.write(new byte[4]);
+        try (FileOutputStream fos = new FileOutputStream(audioVisFile);
+            BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+            bos.write(new byte[4]);
             int increment = AudioInfo.COMPRESSION_RATE;
             System.out.println(increment + "increment ");
 
@@ -166,20 +166,20 @@ public class WavFileLoader {
                 //order matters, rather than get the values themselves, find the index on this range and use that to write the values
                 //try {
                     if (minIdx < maxIdx) {
-                        temp.write(buffer.get(i + minIdx));
-                        temp.write(buffer.get(i + minIdx + 1));
-                        temp.write(buffer.get(i + maxIdx));
-                        temp.write(buffer.get(i + maxIdx + 1));
+                        bos.write(buffer.get(i + minIdx));
+                        bos.write(buffer.get(i + minIdx + 1));
+                        bos.write(buffer.get(i + maxIdx));
+                        bos.write(buffer.get(i + maxIdx + 1));
                     } else {
-                        temp.write(buffer.get(i + maxIdx));
-                        temp.write(buffer.get(i + maxIdx + 1));
-                        temp.write(buffer.get(i + minIdx));
-                        temp.write(buffer.get(i + minIdx + 1));
+                        bos.write(buffer.get(i + maxIdx));
+                        bos.write(buffer.get(i + maxIdx + 1));
+                        bos.write(buffer.get(i + minIdx));
+                        bos.write(buffer.get(i + minIdx + 1));
                     }
                 //}
             }
-            temp.flush();
-            fis.flush();
+            bos.flush();
+            fos.flush();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
