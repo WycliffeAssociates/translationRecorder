@@ -119,6 +119,7 @@ public class WavVisualizer {
 
     public float[] getDataToDraw(int frame){
 
+       // long start = System.currentTimeMillis();
         mNumFramesOnScreen = computeNumFramesOnScreen(mUserScale);
         //based on the user scale, determine which buffer waveData should be
         mUseCompressedFile = shouldUseCompressedFile(mNumFramesOnScreen);
@@ -179,7 +180,9 @@ public class WavVisualizer {
             mSamples[i] = 0;
         }
 
+        //long stop = System.currentTimeMillis();
 
+       //System.out.println("Took " + (stop-start) + "ms to generate the array in parallel");
 
         return mSamples;
     }
