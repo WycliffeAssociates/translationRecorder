@@ -5,7 +5,6 @@ import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.nio.ShortBuffer;
-import java.util.List;
 
 /**
  * Created by sarabiaj on 1/12/2016.
@@ -18,14 +17,14 @@ import java.util.List;
  * Absolute - index or time with cut data still existing
  */
 public class AudioFileAccessor {
-    List<ShortBuffer> mCompressed;
-    List<ShortBuffer> mUncompressed;
+    ShortBuffer mCompressed;
+    ShortBuffer mUncompressed;
     CutOp mCut;
     int mWidth;
     int mUncmpToCmp;
     boolean mUseCmp = false;
 
-    public AudioFileAccessor(List<ShortBuffer> compressed, List<ShortBuffer> uncompressed, CutOp cut) {
+    public AudioFileAccessor(ShortBuffer compressed, ShortBuffer uncompressed, CutOp cut) {
         mCompressed = compressed;
         mUncompressed = uncompressed;
         mCut = cut;
@@ -42,41 +41,41 @@ public class AudioFileAccessor {
         }
     }
 
-    public void setCompressed(List<ShortBuffer> compressed) {
+    public void setCompressed(ShortBuffer compressed) {
         mCompressed = compressed;
     }
 
     //FIXME: should not be returning 0 if out of bounds access, there's a bigger issue here
-    public short get(int idx, int tid) {
+    public short get(int idx) {
         int loc = mCut.relativeLocToAbsolute(idx, mUseCmp);
         short val;
         if (mUseCmp) {
             if (loc < 0) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
-            } else if (loc >= mCompressed.get(tid).capacity()) {
+            } else if (loc >= mCompressed.capacity()) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
             }
-            val = mCompressed.get(tid).get(loc);
+            val = mCompressed.get(loc);
         } else {
             if (loc < 0) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
-            } else if (loc >= mUncompressed.get(tid).capacity()) {
+            } else if (loc >= mUncompressed.capacity()) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
             }
-            val = mUncompressed.get(tid).get(loc);
+            val = mUncompressed.get(loc);
         }
         return val;
     }
 
-    public int size(int tid) {
+    public int size() {
         if (mUseCmp) {
-            return mCompressed.get(tid).capacity() - mCut.getSizeFrameCutCmp();
+            return mCompressed.capacity() - mCut.getSizeFrameCutCmp();
         }
-        return mUncompressed.get(tid).capacity() - mCut.getSizeFrameCutUncmp();
+        return mUncompressed.capacity() - mCut.getSizeFrameCutUncmp();
     }
 
     //can return an invalid index, negative indices useful for how many zeros to add
@@ -102,13 +101,17 @@ public class AudioFileAccessor {
 
     public int[] indexAfterSubtractingFrame(int framesToSubtract, int currentFrame){
         int frame = currentFrame;
-        for (int i = 1; i < framesToSubtract; i++) {
-            frame--;
-            int skip = mCut.skipReverse(frame);
-            if (skip != Integer.MAX_VALUE) {
-                frame = skip;
-                //System.out.println("here, skip back to " + time);
+        if(mCut.cutExistsInRange(currentFrame-framesToSubtract-1, framesToSubtract)) {
+            for (int i = 1; i < framesToSubtract; i++) {
+                frame--;
+                int skip = mCut.skipReverse(frame);
+                if (skip != Integer.MAX_VALUE) {
+                    frame = skip;
+                    //System.out.println("here, skip back to " + time);
+                }
             }
+        } else {
+            frame -= framesToSubtract;
         }
         int loc = absoluteIndexFromAbsoluteTime(frame);
         loc = absoluteIndexToRelative(loc);

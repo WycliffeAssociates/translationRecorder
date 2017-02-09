@@ -5,7 +5,6 @@ import org.wycliffeassociates.translationrecorder.AudioVisualization.Utils.U;
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
 
 import java.nio.ShortBuffer;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -13,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 public class WavVisualizer {
 
-    private List<ShortBuffer> mCompressed;
-    private List<ShortBuffer> buffer;
+    private ShortBuffer mCompressed;
+    private ShortBuffer buffer;
     private float mUserScale = 1f;
     private final int mDefaultFramesOnScreen = 441000;
     public static int mNumFramesOnScreen;
@@ -33,7 +32,7 @@ public class WavVisualizer {
     int mNumThreads = 4;
 
 
-    public WavVisualizer(List<ShortBuffer> buffer, List<ShortBuffer> compressed, int numThreads, int screenWidth, int screenHeight, int minimapWidth, CutOp cut) {
+    public WavVisualizer(ShortBuffer buffer, ShortBuffer compressed, int numThreads, int screenWidth, int screenHeight, int minimapWidth, CutOp cut) {
         this.buffer = buffer;
         mScreenHeight = screenHeight;
         mScreenWidth = screenWidth;
@@ -61,7 +60,7 @@ public class WavVisualizer {
         mThreads.purge();
     }
 
-    public void enableCompressedFileNextDraw(List<ShortBuffer> compressed){
+    public void enableCompressedFileNextDraw(ShortBuffer compressed){
         //System.out.println("Swapping buffers now");
         mCompressed = compressed;
         mAccessor.setCompressed(compressed);
@@ -94,10 +93,10 @@ public class WavVisualizer {
                 leapedInc = true;
             }
             for(int j = 0; j < increment; j++){
-                if(pos >= mAccessor.size(0)){
+                if(pos >= mAccessor.size()){
                     break;
                 }
-                short value = mAccessor.get(pos, 0);
+                short value = mAccessor.get(pos);
                 max = (max < (double) value) ? value : max;
                 min = (min > (double) value) ? value : min;
                 pos++;
@@ -120,7 +119,6 @@ public class WavVisualizer {
 
     public float[] getDataToDraw(int frame){
 
-        //long start = System.currentTimeMillis();
         mNumFramesOnScreen = computeNumFramesOnScreen(mUserScale);
         //based on the user scale, determine which buffer waveData should be
         mUseCompressedFile = shouldUseCompressedFile(mNumFramesOnScreen);
@@ -175,13 +173,13 @@ public class WavVisualizer {
             }
         }
 
+
         //zero out the rest of the array
         for (int i = index; i < mSamples.length; i++){
             mSamples[i] = 0;
         }
 
-//        long stop = System.currentTimeMillis();
-//        System.out.println("Took " + (stop-start) + "ms to generate the array in parallel");
+
 
         return mSamples;
     }
@@ -206,15 +204,15 @@ public class WavVisualizer {
 //    }
 
 
-    public static int addHighAndLowToDrawingArray(AudioFileAccessor accessor, float[] samples, int beginIdx, int endIdx, int index, int screenHeight, int tid){
+    public static int addHighAndLowToDrawingArray(AudioFileAccessor accessor, float[] samples, int beginIdx, int endIdx, int index, int screenHeight){
 
         boolean addedVal = false;
         double max = Double.MIN_VALUE;
         double min = Double.MAX_VALUE;
 
         //loop over the indicated chunk of data to extract out the high and low in that section, then store it in samples
-        for(int i = beginIdx; i < Math.min(accessor.size(tid), endIdx); i++){
-            short value = accessor.get(i, tid);
+        for(int i = beginIdx; i < Math.min(accessor.size(), endIdx); i++){
+            short value = accessor.get(i);
             max = (max < (double) value) ? value : max;
             min = (min > (double) value) ? value : min;
         }

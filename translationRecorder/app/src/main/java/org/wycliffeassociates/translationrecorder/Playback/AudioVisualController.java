@@ -89,7 +89,7 @@ public class AudioVisualController implements MediaControlReceiver {
         mWavLoader = new WavFileLoader(wav, ctx);
         mWavLoader.setOnVisualizationFileCreatedListener(new WavFileLoader.OnVisualizationFileCreatedListener() {
             @Override
-            public void onVisualizationCreated(List<ShortBuffer> mappedVisualizationFile) {
+            public void onVisualizationCreated(ShortBuffer mappedVisualizationFile) {
                 mCallback.onVisualizationLoaded(mappedVisualizationFile);
             }
         });

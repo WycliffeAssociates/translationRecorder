@@ -291,7 +291,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onCut() {
+    public synchronized void onCut() {
         isSaved = false;
         Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
         for(DraggableMarker marker : markers) {
@@ -606,9 +606,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private void initializeRenderer() {
         try {
-            int numThreads = 2;
-            List<ShortBuffer> uncompressed = wavFileLoader.getListOfMappedAudioFiles(numThreads);
-            List<ShortBuffer> compressed = wavFileLoader.getListOfCachedFiles(numThreads);
+            int numThreads = 4;
+            ShortBuffer uncompressed = wavFileLoader.getMappedAudioFile(numThreads);
+            ShortBuffer compressed = wavFileLoader.getMappedVisualizationFile(numThreads);
             wavVis = new WavVisualizer(uncompressed, compressed, numThreads, mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
             mWaveformFragment.setWavRenderer(wavVis);
             mFragmentTabbedWidget.initializeTimecode(mAudioController.getRelativeDurationMs());
@@ -641,7 +641,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onVisualizationLoaded(final List<ShortBuffer> mappedVisualizationFile) {
+    public void onVisualizationLoaded(final ShortBuffer mappedVisualizationFile) {
         if(wavVis == null) {
             //delay the call if the visualizer hasn't loaded yet
             Handler handler = new Handler(Looper.getMainLooper());

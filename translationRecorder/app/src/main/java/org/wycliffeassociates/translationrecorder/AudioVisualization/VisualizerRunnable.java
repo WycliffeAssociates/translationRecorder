@@ -49,12 +49,12 @@ public class VisualizerRunnable implements Runnable {
         long endMs = 0;
         long sum = 0;
 
+        //startMs = System.currentTimeMillis();
         for(int i = mStart; i < mEnd; i++){
-            //startMs = System.nanoTime();
-            if(startPosition > mAccessor.size(tid)){
+            if(startPosition > mAccessor.size()){
                 break;
             }
-            mIndex = Math.max(WavVisualizer.addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment, mIndex, mScreenHeight, tid), mIndex);
+            mIndex = Math.max(WavVisualizer.addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment, mIndex, mScreenHeight), mIndex);
             startPosition += Math.floor(increment);
             if(resetIncrementNextIteration){
                 resetIncrementNextIteration = false;
@@ -73,11 +73,11 @@ public class VisualizerRunnable implements Runnable {
 //                increment = (mUseCompressedFile)? increment - 0 : increment;
 //            }
             wroteData = true;
-            //endMs = System.nanoTime();
-            sum += (endMs - startMs);
-            iterations++;
+            //sum += (endMs - startMs);
+            //iterations++;
         }
-        //System.out.println("Average iteration took: " + (sum/(double)iterations) + " ns");
+       // endMs = System.currentTimeMillis();
+        //System.out.println("Average iteration took: " + (endMs-startMs) + " ns");
         try {
             mResponse.put((wroteData)? mIndex : 0);
         } catch (InterruptedException e) {
