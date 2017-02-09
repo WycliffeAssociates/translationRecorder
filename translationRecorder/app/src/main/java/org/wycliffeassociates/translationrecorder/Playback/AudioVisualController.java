@@ -89,7 +89,7 @@ public class AudioVisualController implements MediaControlReceiver {
         mWavLoader = new WavFileLoader(wav, ctx);
         mWavLoader.setOnVisualizationFileCreatedListener(new WavFileLoader.OnVisualizationFileCreatedListener() {
             @Override
-            public void onVisualizationCreated(MappedByteBuffer mappedVisualizationFile) {
+            public void onVisualizationCreated(List<ShortBuffer> mappedVisualizationFile) {
                 mCallback.onVisualizationLoaded(mappedVisualizationFile);
             }
         });
@@ -134,6 +134,10 @@ public class AudioVisualController implements MediaControlReceiver {
     @Override
     public int getAbsoluteLocationMs() {
         return mPlayer.getAbsoluteLocationMs();
+    }
+
+    public int getAbsoluteLocationInFrames() {
+        return mPlayer.getAbsoluteLocationInFrames();
     }
 
     public int getRelativeLocationMs(){

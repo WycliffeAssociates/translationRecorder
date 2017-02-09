@@ -5,6 +5,7 @@ import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.nio.ShortBuffer;
+import java.util.List;
 
 /**
  * Created by sarabiaj on 1/12/2016.
@@ -17,14 +18,14 @@ import java.nio.ShortBuffer;
  * Absolute - index or time with cut data still existing
  */
 public class AudioFileAccessor {
-    ShortBuffer mCompressed;
-    ShortBuffer mUncompressed;
+    List<ShortBuffer> mCompressed;
+    List<ShortBuffer> mUncompressed;
     CutOp mCut;
     int mWidth;
     int mUncmpToCmp;
     boolean mUseCmp = false;
 
-    public AudioFileAccessor(ShortBuffer compressed, ShortBuffer uncompressed, CutOp cut) {
+    public AudioFileAccessor(List<ShortBuffer> compressed, List<ShortBuffer> uncompressed, CutOp cut) {
         mCompressed = compressed;
         mUncompressed = uncompressed;
         mCut = cut;
@@ -41,41 +42,41 @@ public class AudioFileAccessor {
         }
     }
 
-    public void setCompressed(ShortBuffer compressed) {
+    public void setCompressed(List<ShortBuffer> compressed) {
         mCompressed = compressed;
     }
 
     //FIXME: should not be returning 0 if out of bounds access, there's a bigger issue here
-    public short get(int idx) {
+    public short get(int idx, int tid) {
         int loc = mCut.relativeLocToAbsolute(idx, mUseCmp);
         short val;
         if (mUseCmp) {
             if (loc < 0) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
-            } else if (loc >= mCompressed.capacity()) {
+            } else if (loc >= mCompressed.get(tid).capacity()) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
             }
-            val = mCompressed.get(loc);
+            val = mCompressed.get(tid).get(loc);
         } else {
             if (loc < 0) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
-            } else if (loc >= mUncompressed.capacity()) {
+            } else if (loc >= mUncompressed.get(tid).capacity()) {
                 Logger.e(this.toString(), "ERROR, tried to access a negative location from the compressed buffer!");
                 return 0;
             }
-            val = mUncompressed.get(loc);
+            val = mUncompressed.get(tid).get(loc);
         }
         return val;
     }
 
-    public int size() {
+    public int size(int tid) {
         if (mUseCmp) {
-            return mCompressed.capacity() - mCut.getSizeFrameCutCmp();
+            return mCompressed.get(tid).capacity() - mCut.getSizeFrameCutCmp();
         }
-        return mUncompressed.capacity() - mCut.getSizeFrameCutUncmp();
+        return mUncompressed.get(tid).capacity() - mCut.getSizeFrameCutUncmp();
     }
 
     //can return an invalid index, negative indices useful for how many zeros to add
@@ -99,6 +100,23 @@ public class AudioFileAccessor {
         return locAndTime;
     }
 
+    public int[] indexAfterSubtractingFrame(int framesToSubtract, int currentFrame){
+        int frame = currentFrame;
+        for (int i = 1; i < framesToSubtract; i++) {
+            frame--;
+            int skip = mCut.skipReverse(frame);
+            if (skip != Integer.MAX_VALUE) {
+                frame = skip;
+                //System.out.println("here, skip back to " + time);
+            }
+        }
+        int loc = absoluteIndexFromAbsoluteTime(frame);
+        loc = absoluteIndexToRelative(loc);
+        int locAndTime[] = new int[2];
+        locAndTime[0] = loc;
+        locAndTime[1] = frame;
+        return locAndTime;    }
+
     //deprecated
 //    public int indicesInAPixelMinimap() {
 //        //get the number of milliseconds in a pixel, map it to an absolute index, then convert to relative
@@ -109,13 +127,13 @@ public class AudioFileAccessor {
 //        return increment;
 //    }
 
-    public int absoluteIndexFromAbsoluteTime(int timeMs) {
-        int seconds = timeMs / 1000;
-        int ms = (timeMs - (seconds * 1000));
-        int tens = ms / 10;
-
-
-        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+    public int absoluteIndexFromAbsoluteTime(int idx) {
+//        int seconds = timeMs / 1000;
+//        int ms = (timeMs - (seconds * 1000));
+//        int tens = ms / 10;
+//
+//
+//        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         if (mUseCmp) {
             idx /= 25;
         }

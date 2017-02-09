@@ -18,6 +18,7 @@ public class AudioInfo {
     public static final int AMPLITUDE_RANGE = 32767;
     public static final int COMPRESSION_RATE = 100;
     public static int COMPRESSED_SECONDS_ON_SCREEN = 1;
+    public static int COMPRESSED_FRAMES_ON_SCREEN = 44100;
     public static int SCREEN_WIDTH;
 
     private AudioInfo() {

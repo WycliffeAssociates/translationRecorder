@@ -18,46 +18,68 @@ public class VisualizerRunnable implements Runnable {
     BlockingQueue<Integer> mResponse;
     int mIndex;
     int mScreenHeight;
-    int increment;
+    float increment;
+    int tid;
 
     public VisualizerRunnable(){
 
     }
 
-    public VisualizerRunnable newState(int start, int end, BlockingQueue<Integer> response, AudioFileAccessor accessor, float[] samples, int index, int screenHeight, int startPosition, int increment){
+    public VisualizerRunnable newState(int start, int end, BlockingQueue<Integer> response, AudioFileAccessor accessor, float[] samples, int index, int screenHeight, int startPosition, float increment, int tid){
         mStart = start;
         mEnd = end;
         mResponse = response;
         mAccessor = accessor;
         mSamples = samples;
-        mIndex = index;
+        mIndex = start * 4;
         mScreenHeight = screenHeight;
         this.startPosition = startPosition;
         this.increment = increment;
+        this.tid = tid;
         return this;
     }
 
     @Override
     public void run() {
+        boolean wroteData = false;
+        boolean resetIncrementNextIteration = false;
+        float offset = 0;
+        int iterations = 0;
+        long startMs = 0;
+        long endMs = 0;
+        long sum = 0;
+
         for(int i = mStart; i < mEnd; i++){
-//            if(count > 1){
-//                increment = (mUseCompressedFile)? increment + 0 : increment;
-//                count--;
-//                addedLeftover = true;
-//            }
-            if(startPosition > mAccessor.size()){
+            //startMs = System.nanoTime();
+            if(startPosition > mAccessor.size(tid)){
                 break;
             }
-            mIndex = WavVisualizer.addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment, mIndex, mScreenHeight);
-            startPosition += increment;
+            mIndex = Math.max(WavVisualizer.addHighAndLowToDrawingArray(mAccessor, mSamples, startPosition, startPosition+(int)increment, mIndex, mScreenHeight, tid), mIndex);
+            startPosition += Math.floor(increment);
+            if(resetIncrementNextIteration){
+                resetIncrementNextIteration = false;
+                increment--;
+                offset--;
+            }
+            if(offset > 1.0) {
+                increment++;
+                resetIncrementNextIteration = true;
+            }
+            offset += increment - Math.floor(increment);
+
 //            count += leftover;
 //            if(addedLeftover){
 //                addedLeftover = false;
 //                increment = (mUseCompressedFile)? increment - 0 : increment;
 //            }
+            wroteData = true;
+            //endMs = System.nanoTime();
+            sum += (endMs - startMs);
+            iterations++;
         }
+        //System.out.println("Average iteration took: " + (sum/(double)iterations) + " ns");
         try {
-            mResponse.put(mIndex);
+            mResponse.put((wroteData)? mIndex : 0);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

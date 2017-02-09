@@ -12,13 +12,39 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WavFileLoader {
 
+    public List<ShortBuffer> getListOfMappedAudioFiles(int numThreads) throws IOException {
+        ArrayList<ShortBuffer> list = new ArrayList<>();
+        for (int i = 0; i < numThreads; i++) {
+            FileChannel fc = new FileInputStream(mAudioFile.getFile()).getChannel();
+            MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_ONLY, AudioInfo.HEADER_SIZE,  mAudioFile.getTotalAudioLength());
+            ShortBuffer buff = map.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+            list.add(buff);
+        }
+        return list;
+    }
+
+    public List<ShortBuffer> getListOfCachedFiles(int numThreads) throws IOException {
+        ArrayList<ShortBuffer> list = new ArrayList<>();
+        for (int i = 0; i < numThreads; i++) {
+            FileChannel fc = new FileInputStream(audioVisFile).getChannel();
+            MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_ONLY, 4,  audioVisFile.length()-4);
+            ShortBuffer buff = map.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+            list.add(buff);
+        }
+        return list;
+    }
+
     public interface OnVisualizationFileCreatedListener {
-        void onVisualizationCreated(MappedByteBuffer mappedVisualizationFile);
+        void onVisualizationCreated(List<ShortBuffer> mappedVisualizationFile);
     }
 
     private volatile boolean threadFinished = false;
@@ -26,7 +52,10 @@ public class WavFileLoader {
     private MappedByteBuffer mappedAudioFile;
     private MappedByteBuffer preprocessedBuffer;
     private File audioVisFile;
+    private WavFile mAudioFile;
     private OnVisualizationFileCreatedListener onVisualizationFileCreatedListener;
+
+
 
     public MappedByteBuffer getMappedAudioFile() {
         return mappedAudioFile;
@@ -53,12 +82,8 @@ public class WavFileLoader {
     public void mapNewVisFile() {
         if (threadFinished) {
             try {
-                RandomAccessFile rafCached = new RandomAccessFile(audioVisFile, "r");
-                FileChannel fcCached = rafCached.getChannel();
-                //start at 4 to skip the DONE bytes
-                preprocessedBuffer = fcCached.map(FileChannel.MapMode.READ_ONLY, 4, rafCached.length()-4);
                 if(onVisualizationFileCreatedListener != null) {
-                    onVisualizationFileCreatedListener.onVisualizationCreated(preprocessedBuffer);
+                    onVisualizationFileCreatedListener.onVisualizationCreated(getListOfMappedAudioFiles(2));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -79,6 +104,7 @@ public class WavFileLoader {
         RandomAccessFile raf;
         try {
             String filename = wavFile.getFile().getName();
+            mAudioFile = wavFile;
             Logger.i(WavFileLoader.class.toString(), "Loading the file: " + wavFile.getFile());
             raf = new RandomAccessFile(wavFile.getFile(), "r");
             FileChannel fc = raf.getChannel();
@@ -142,7 +168,10 @@ public class WavFileLoader {
             int increment = AudioInfo.COMPRESSION_RATE;
             System.out.println(increment + "increment ");
 
-            for (int i = 0; i < buffer.capacity(); i += increment) {
+            for (int i = 0; i < buffer.capacity() + increment; i += increment) {
+                if(i >= buffer.capacity()) {
+                    break;
+                }
                 int max = Integer.MIN_VALUE;
                 int min = Integer.MAX_VALUE;
                 int minIdx = 0;

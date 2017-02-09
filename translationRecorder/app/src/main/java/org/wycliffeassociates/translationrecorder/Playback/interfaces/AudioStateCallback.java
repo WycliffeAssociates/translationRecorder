@@ -1,6 +1,7 @@
 package org.wycliffeassociates.translationrecorder.Playback.interfaces;
 
-import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
+import java.util.List;
 
 /**
  * Created by Joe on 11/7/2016.
@@ -9,5 +10,5 @@ import java.nio.MappedByteBuffer;
 public interface AudioStateCallback {
     void onPlayerPaused();
     void onLocationUpdated();
-    void onVisualizationLoaded(MappedByteBuffer mappedVisualizationFile);
+    void onVisualizationLoaded(List<ShortBuffer> mappedVisualizationFile);
 }

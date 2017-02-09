@@ -52,7 +52,6 @@ import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarkerView
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -229,13 +228,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onSeekForward() {
         mAudioController.seekNext();
-        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+        mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
     }
 
     @Override
     public void onSeekBackward() {
         mAudioController.seekPrevious();
-        mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+        mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
     }
 
     @Override
@@ -606,11 +605,16 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void initializeRenderer() {
-        ShortBuffer uncompressed = wavFileLoader.getMappedFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        ShortBuffer compressed = (wavFileLoader.getMappedCacheFile() != null) ? wavFileLoader.getMappedCacheFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer() : null;
-        wavVis = new WavVisualizer(uncompressed, compressed, mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
-        mWaveformFragment.setWavRenderer(wavVis);
-        mFragmentTabbedWidget.initializeTimecode(mAudioController.getRelativeDurationMs());
+        try {
+            int numThreads = 2;
+            List<ShortBuffer> uncompressed = wavFileLoader.getListOfMappedAudioFiles(numThreads);
+            List<ShortBuffer> compressed = wavFileLoader.getListOfCachedFiles(numThreads);
+            wavVis = new WavVisualizer(uncompressed, compressed, numThreads, mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
+            mWaveformFragment.setWavRenderer(wavVis);
+            mFragmentTabbedWidget.initializeTimecode(mAudioController.getRelativeDurationMs());
+        } catch (IOException e){
+
+        }
     }
 
     @Override
@@ -620,10 +624,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onLocationUpdated() {
-        int frame = mAudioController.getRelativeLocationInFrames();
+        int absoluteFrame = mAudioController.getAbsoluteLocationInFrames();
+        int relativeFrame = mAudioController.getRelativeLocationInFrames();
         int absoluteMs = mAudioController.getAbsoluteLocationMs();
 
-        mWaveformFragment.invalidateFrame(frame, absoluteMs);
+        mWaveformFragment.invalidateFrame(absoluteFrame, relativeFrame, absoluteMs);
 
 //                //// TODO
 //                mFragmentTabbedWidget.invalidateFrame(frame);
@@ -636,7 +641,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public void onVisualizationLoaded(final MappedByteBuffer mappedVisualizationFile) {
+    public void onVisualizationLoaded(final List<ShortBuffer> mappedVisualizationFile) {
         if(wavVis == null) {
             //delay the call if the visualizer hasn't loaded yet
             Handler handler = new Handler(Looper.getMainLooper());
@@ -647,7 +652,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 }
             }, 1000);
         } else {
-            wavVis.enableCompressedFileNextDraw(mappedVisualizationFile.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer());
+            wavVis.enableCompressedFileNextDraw(mappedVisualizationFile);
         }
     }
 
@@ -691,7 +696,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             mAudioController.dropVerseMarker("Verse " + markerNumber, frame);
             mWaveformFragment.addVerseMarker(markerNumber, frame);
             mMarkerCounterFragment.decrementVersesRemaining();
-            mWaveformFragment.invalidateFrame(mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+            mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
         }
     }
 
