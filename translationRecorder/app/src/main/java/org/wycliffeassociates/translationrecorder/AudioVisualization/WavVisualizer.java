@@ -281,7 +281,7 @@ public class WavVisualizer {
     private float getIncrement(int numFramesOnScreen){
         float increment = (int)( numFramesOnScreen / (float)mScreenWidth);
         if(mUseCompressedFile) {
-            increment /= 25;
+            increment /= 25.0;
         }
 //        if(mUseCompressedFile){
 //            increment *= 1;

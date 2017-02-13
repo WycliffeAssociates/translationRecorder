@@ -102,7 +102,7 @@ public class WavFileLoader {
         if (threadFinished) {
             try {
                 if(onVisualizationFileCreatedListener != null) {
-                    onVisualizationFileCreatedListener.onVisualizationCreated(getMappedAudioFile(4));
+                    onVisualizationFileCreatedListener.onVisualizationCreated(getMappedVisualizationFile(4));
                 }
             } catch (IOException e) {
                 e.printStackTrace();

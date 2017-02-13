@@ -99,7 +99,7 @@ public class WavMetadata implements Parcelable {
                 int audioLength = WavUtils.littleEndianToDecimal(word);
                 //audio length field incorrect
                 //TODO: #664
-                if (audioLength <= 0 || audioLength > file.length() - WavUtils.HEADER_SIZE) {
+                if (audioLength < 0 || audioLength > file.length() - WavUtils.HEADER_SIZE) {
                     throw new RuntimeException("Audio data field reported to be " + audioLength + " while the file length is " + file.length());
                 }
                 //seek to the end of the header + audio data to parse metadata
