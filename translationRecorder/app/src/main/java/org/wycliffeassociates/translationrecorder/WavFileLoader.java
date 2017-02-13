@@ -40,7 +40,8 @@ public class WavFileLoader {
     }
 
     public ShortBuffer getMappedVisualizationFile(int numThreads) throws IOException {
-        //for (int i = 0; i < 1; i++) {
+        if(audioVisFile != null && audioVisFile.exists()) {
+            //for (int i = 0; i < 1; i++) {
             FileChannel fc = new FileInputStream(audioVisFile).getChannel();
             ShortBuffer buff;
 //            if(fc.size() < THIRTY_MEGABYTES){
@@ -51,10 +52,13 @@ public class WavFileLoader {
 //                bis.read(bb);
 //                buff = ByteBuffer.wrap(bb).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
 //            } else {
-                MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_ONLY, 4, audioVisFile.length() - 4);
-                buff = map.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+            MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_ONLY, 4, audioVisFile.length() - 4);
+            buff = map.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
             //}
             return buff;
+        } else {
+            return null;
+        }
         //}
     }
 

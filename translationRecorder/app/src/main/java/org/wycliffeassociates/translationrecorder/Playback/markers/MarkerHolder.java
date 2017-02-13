@@ -98,7 +98,7 @@ public class MarkerHolder implements MarkerMediator {
         mActivity.onLocationUpdated();
     }
 
-    private void addMarker(int id, DraggableMarker marker) {
+    private synchronized void addMarker(int id, DraggableMarker marker) {
         if (mMarkers.get(id) != null) {
             if (mDraggableViewFrame != null) {
                 mDraggableViewFrame.removeView(mMarkers.get(id).getView());

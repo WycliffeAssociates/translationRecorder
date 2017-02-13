@@ -294,9 +294,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public synchronized void onCut() {
         isSaved = false;
         Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
-        for(DraggableMarker marker : markers) {
+        List<DraggableMarker> markerList = new ArrayList<>(markers);
+        for(int i = 0; i < markerList.size(); i++) {
+            DraggableMarker marker = markerList.get(i);
             if(marker.getFrame() <= mAudioController.getLoopEnd() && marker.getFrame() > mAudioController.getLoopStart()) {
                 if(marker instanceof VerseMarker) {
+                    //iter.remove();
                     mMarkerMediator.onRemoveVerseMarker(((VerseMarkerView) marker.getView()).getMarkerId());
                 }
             } else {
@@ -539,7 +542,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     public void onInsert() {
-        Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mAudioController.getAbsoluteLocationMs());
+        Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mAudioController.getRelativeLocationMs());
         save(insertIntent);
     }
 
