@@ -51,7 +51,6 @@ import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarkerView
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -128,7 +127,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         isSaved = true;
         parseIntent(intent);
         getVerseRange();
-        mAudioController = new AudioVisualController(this, mWavFile, this);
+        try {
+            mAudioController = new AudioVisualController(this, mWavFile, this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mMarkerMediator = new MarkerHolder(mAudioController, this, mFragmentPlaybackTools, mTotalVerses);
         initializeFragments();
         wavFileLoader = mAudioController.getWavLoader();
@@ -506,7 +509,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                         File dir = Project.getProjectDirectory(mProject);
                         File toTemp = new File(dir, "temp.wav");
                         WavFile toTempWav = new WavFile(toTemp, from.getMetadata());
-                        mAudioController.mCutOp.writeCut(toTempWav, wavFileLoader.getMappedAudioFile().order(ByteOrder.LITTLE_ENDIAN).asShortBuffer(), pd);
+                        mAudioController.mCutOp.writeCut(toTempWav, wavFileLoader.mapAndGetAudioBuffer(), pd);
                         writeMarkers(toTempWav);
                         to.delete();
                         toTemp.renameTo(to);
@@ -610,8 +613,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     private void initializeRenderer() {
         try {
             int numThreads = 4;
-            ShortBuffer uncompressed = wavFileLoader.getMappedAudioFile(numThreads);
-            ShortBuffer compressed = wavFileLoader.getMappedVisualizationFile(numThreads);
+            ShortBuffer uncompressed = wavFileLoader.mapAndGetAudioBuffer();
+            ShortBuffer compressed = wavFileLoader.mapAndGetVisualizationBuffer();
             wavVis = new WavVisualizer(uncompressed, compressed, numThreads, mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
             mWaveformFragment.setWavRenderer(wavVis);
             mFragmentTabbedWidget.initializeTimecode(mAudioController.getRelativeDurationMs());

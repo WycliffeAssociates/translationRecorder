@@ -12,8 +12,7 @@ import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
-import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
+import java.io.IOException;
 import java.nio.ShortBuffer;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,7 +25,6 @@ import java.util.List;
 public class AudioVisualController implements MediaControlReceiver {
 
     WavPlayer mPlayer;
-    MappedByteBuffer mAudio;
     CutOp mCutOp = new CutOp();
 
     AudioStateCallback mCallback;
@@ -36,7 +34,7 @@ public class AudioVisualController implements MediaControlReceiver {
     private int durationInFrames;
     WavFileLoader mWavLoader;
 
-    public AudioVisualController(final AudioStateCallback callback, final WavFile wav, Context ctx) {
+    public AudioVisualController(final AudioStateCallback callback, final WavFile wav, Context ctx) throws IOException {
 
         mCallback = callback;
 
@@ -85,7 +83,7 @@ public class AudioVisualController implements MediaControlReceiver {
 //        });
     }
 
-    private void initPlayer(WavFile wav, Context ctx) {
+    private void initPlayer(WavFile wav, Context ctx) throws IOException {
         mWavLoader = new WavFileLoader(wav, ctx);
         mWavLoader.setOnVisualizationFileCreatedListener(new WavFileLoader.OnVisualizationFileCreatedListener() {
             @Override
@@ -97,9 +95,7 @@ public class AudioVisualController implements MediaControlReceiver {
         if (mCues != null) {
             sortCues(mCues);
         }
-        mAudio = mWavLoader.getMappedAudioFile();
-        ShortBuffer mAudioShort = mAudio.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        mPlayer = new WavPlayer(mAudioShort, mCutOp, mCues);
+        mPlayer = new WavPlayer(mWavLoader.mapAndGetAudioBuffer(), mCutOp, mCues);
     }
 
     private void sortCues(List<WavCue> cues) {
