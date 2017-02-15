@@ -28,7 +28,7 @@ public class WavFileLoader {
     }
 
     public ShortBuffer mapAndGetVisualizationBuffer() throws IOException {
-        if (audioVisFile != null && audioVisFile.exists()) {
+        if (audioVisFile != null && audioVisFile.exists() && visualizationReady) {
             FileChannel fc = new FileInputStream(audioVisFile).getChannel();
             ShortBuffer buff;
             //visualization starts with 4 bytes that say "DONE"
@@ -44,7 +44,7 @@ public class WavFileLoader {
         void onVisualizationCreated(ShortBuffer mappedVisualizationFile);
     }
 
-    private volatile boolean threadFinished = false;
+    private volatile boolean visualizationReady = false;
     private File audioVisFile;
     private WavFile mAudioFile;
     private OnVisualizationFileCreatedListener onVisualizationFileCreatedListener;
@@ -60,7 +60,7 @@ public class WavFileLoader {
      * @return returns whether or not the thread generating the visualization file is finished
      */
     public void mapNewVisFile() {
-        if (threadFinished) {
+        if (visualizationReady) {
             try {
                 if (onVisualizationFileCreatedListener != null) {
                     onVisualizationFileCreatedListener.onVisualizationCreated(mapAndGetVisualizationBuffer());
@@ -80,7 +80,7 @@ public class WavFileLoader {
      * @param wavFile file to be mapped
      */
     public WavFileLoader(WavFile wavFile, Context ctx) {
-        threadFinished = false;
+        visualizationReady = false;
         mAudioFile = wavFile;
         Logger.i(WavFileLoader.class.toString(), "Loading the file: " + wavFile.getFile());
         String filename = wavFile.getFile().getName();
@@ -97,11 +97,12 @@ public class WavFileLoader {
                     Logger.w(WavFileLoader.class.toString(), "Could not find a matching vis file, creating...");
                     generateTempFile();
                     Logger.w(WavFileLoader.class.toString(), "Finished creating a vis file");
-                    threadFinished = true;
+                    visualizationReady = true;
                 }
             });
             writeVisFile.start();
         } else {
+            visualizationReady = true;
             Logger.i(WavFileLoader.class.toString(), "Found a matching visualization file: "
                     + audioVisFile.getPath());
         }
@@ -187,7 +188,7 @@ public class WavFileLoader {
             raf.write('N');
             raf.write('E');
             raf.close();
-            threadFinished = true;
+            visualizationReady = true;
             mapNewVisFile();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

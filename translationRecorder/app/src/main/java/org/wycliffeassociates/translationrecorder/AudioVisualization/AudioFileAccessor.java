@@ -157,7 +157,7 @@ public class AudioFileAccessor {
 
     //used for minimap
     public static double uncompressedIncrement(double adjustedDuration, double screenWidth) {
-        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration) / (double) 1000) / screenWidth);
+        double increment = (adjustedDuration / screenWidth);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
@@ -171,7 +171,7 @@ public class AudioFileAccessor {
 
     //FIXME: rounding will compound error in long files, resulting in pixels being off
     //used for minimap- this is why the duration matters
-    public static double getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration, double screenWidth) {
+    public static double getIncrement(boolean useCmp, double adjustedDuration, double screenWidth) {
         if (useCmp) {
             return compressedIncrement(adjustedDuration, screenWidth);
         } else {

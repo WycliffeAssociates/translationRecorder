@@ -12,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 public class WavVisualizer {
 
-    private ShortBuffer mCompressed;
-    private ShortBuffer buffer;
     private float mUserScale = 1f;
     private final int mDefaultFramesOnScreen = 441000;
     public static int mNumFramesOnScreen;
@@ -33,10 +31,8 @@ public class WavVisualizer {
 
 
     public WavVisualizer(ShortBuffer buffer, ShortBuffer compressed, int numThreads, int screenWidth, int screenHeight, int minimapWidth, CutOp cut) {
-        this.buffer = buffer;
         mScreenHeight = screenHeight;
         mScreenWidth = screenWidth;
-        mCompressed = compressed;
         mNumFramesOnScreen = mDefaultFramesOnScreen;
         mCanSwitch = (compressed == null)? false : true;
         mSamples = new float[screenWidth*4];
@@ -62,21 +58,19 @@ public class WavVisualizer {
 
     public void enableCompressedFileNextDraw(ShortBuffer compressed){
         //System.out.println("Swapping buffers now");
-        mCompressed = compressed;
         mAccessor.setCompressed(compressed);
         mCanSwitch = true;
     }
 
-    public float[] getMinimap(int minimapHeight, int minimapWidth, int durationMs){
+    public float[] getMinimap(int minimapHeight, int minimapWidth, int durationFrames){
         //selects the proper buffer to use
         boolean useCompressed = mCanSwitch && mNumFramesOnScreen > AudioInfo.COMPRESSED_FRAMES_ON_SCREEN;
         mAccessor.switchBuffers(useCompressed);
 
         int pos = 0;
         int index = 0;
-        double seconds = durationMs / (double) 1000;
 
-        double incrementTemp = mAccessor.getIncrement(seconds, useCompressed, durationMs, minimapWidth);
+        double incrementTemp = mAccessor.getIncrement(useCompressed, durationFrames, minimapWidth);
         double leftover = incrementTemp - (int)Math.floor(incrementTemp);
         double count = 0;
         int increment = (int)Math.floor(incrementTemp);

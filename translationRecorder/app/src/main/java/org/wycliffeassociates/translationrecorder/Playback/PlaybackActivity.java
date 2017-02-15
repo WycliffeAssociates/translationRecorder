@@ -648,9 +648,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onVisualizationLoaded(final ShortBuffer mappedVisualizationFile) {
+        Handler handler = new Handler(Looper.getMainLooper());
         if(wavVis == null) {
             //delay the call if the visualizer hasn't loaded yet
-            Handler handler = new Handler(Looper.getMainLooper());
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -658,7 +658,13 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                 }
             }, 1000);
         } else {
-            wavVis.enableCompressedFileNextDraw(mappedVisualizationFile);
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    wavVis.enableCompressedFileNextDraw(mappedVisualizationFile);
+                    mFragmentTabbedWidget.invalidateMinimap();
+                }
+            });
         }
     }
 
@@ -714,7 +720,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public boolean onDelegateMinimapDraw(Canvas canvas, Paint paint) {
         if (wavVis != null) {
-            canvas.drawLines(wavVis.getMinimap(canvas.getHeight(), canvas.getWidth(), mAudioController.getRelativeDurationMs()), paint);
+            canvas.drawLines(wavVis.getMinimap(canvas.getHeight(), canvas.getWidth(), mAudioController.getRelativeDurationInFrames()), paint);
             return true;
         } else {
             return false;

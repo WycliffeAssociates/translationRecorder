@@ -49,38 +49,6 @@ public class AudioVisualController implements MediaControlReceiver {
             }
         });
 
-//        mDropStartMarkerBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mPlayer.setLoopStart(mPlayer.getRelativeLocationInFrames());
-//                swapViews(new View[]{mDropEndMarkerBtn}, new View[]{mDropStartMarkerBtn});
-//            }
-//        });
-//
-//        mDropEndMarkerBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mPlayer.setLoopEnd(mPlayer.getRelativeLocationInFrames());
-//                swapViews(new View[]{mClearBtn, mCutBtn}, new View[]{mDropEndMarkerBtn});
-//            }
-//        });
-//
-//        mClearBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mPlayer.clearLoopPoints();
-//                swapViews(new View[]{mDropStartMarkerBtn}, new View[]{mClearBtn, mCutBtn});
-//            }
-//        });
-//
-//        mCutBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mCutOp.cut(mPlayer.getLoopStart(), mPlayer.getLoopEnd());
-//                mPlayer.clearLoopPoints();
-//                swapViews(new View[]{mUndoBtn}, new View[]{mCutBtn});
-//            }
-//        });
     }
 
     private void initPlayer(WavFile wav, Context ctx) throws IOException {
