@@ -42,12 +42,13 @@ public class MinimapLayer extends View {
         mMinimapDrawDelegator = minimapDrawDelegator;
     }
 
-    public void invalidateMinimap(){
+    //synchronized so as not to null out the minimap during a draw
+    public synchronized void invalidateMinimap(){
         mBitmap = null;
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (mBitmap != null) {
             canvas.drawBitmap(mBitmap, 0, 0, mPaint);

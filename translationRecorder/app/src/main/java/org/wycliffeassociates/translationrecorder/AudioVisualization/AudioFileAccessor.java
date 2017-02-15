@@ -1,11 +1,10 @@
 package org.wycliffeassociates.translationrecorder.AudioVisualization;
 
+import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.nio.ShortBuffer;
-
-import org.wycliffeassociates.translationrecorder.AudioInfo;
 
 /**
  * Created by sarabiaj on 1/12/2016.
@@ -100,6 +99,27 @@ public class AudioFileAccessor {
         return locAndTime;
     }
 
+    public int[] indexAfterSubtractingFrame(int framesToSubtract, int currentFrame){
+        int frame = currentFrame;
+        if(mCut.cutExistsInRange(currentFrame-framesToSubtract-1, framesToSubtract)) {
+            for (int i = 1; i < framesToSubtract; i++) {
+                frame--;
+                int skip = mCut.skipReverse(frame);
+                if (skip != Integer.MAX_VALUE) {
+                    frame = skip;
+                    //System.out.println("here, skip back to " + time);
+                }
+            }
+        } else {
+            frame -= framesToSubtract;
+        }
+        int loc = absoluteIndexFromAbsoluteTime(frame);
+        loc = absoluteIndexToRelative(loc);
+        int locAndTime[] = new int[2];
+        locAndTime[0] = loc;
+        locAndTime[1] = frame;
+        return locAndTime;    }
+
     //deprecated
 //    public int indicesInAPixelMinimap() {
 //        //get the number of milliseconds in a pixel, map it to an absolute index, then convert to relative
@@ -110,13 +130,13 @@ public class AudioFileAccessor {
 //        return increment;
 //    }
 
-    public int absoluteIndexFromAbsoluteTime(int timeMs) {
-        int seconds = timeMs / 1000;
-        int ms = (timeMs - (seconds * 1000));
-        int tens = ms / 10;
-
-
-        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
+    public int absoluteIndexFromAbsoluteTime(int idx) {
+//        int seconds = timeMs / 1000;
+//        int ms = (timeMs - (seconds * 1000));
+//        int tens = ms / 10;
+//
+//
+//        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
         if (mUseCmp) {
             idx /= 25;
         }
@@ -137,7 +157,7 @@ public class AudioFileAccessor {
 
     //used for minimap
     public static double uncompressedIncrement(double adjustedDuration, double screenWidth) {
-        double increment = (((AudioInfo.SAMPLERATE * adjustedDuration) / (double) 1000) / screenWidth);
+        double increment = (adjustedDuration / screenWidth);
         //increment = (increment % 2 == 0)? increment : increment+1;
         return increment;
     }
@@ -151,7 +171,7 @@ public class AudioFileAccessor {
 
     //FIXME: rounding will compound error in long files, resulting in pixels being off
     //used for minimap- this is why the duration matters
-    public static double getIncrement(double numSecondsOnScreen, boolean useCmp, double adjustedDuration, double screenWidth) {
+    public static double getIncrement(boolean useCmp, double adjustedDuration, double screenWidth) {
         if (useCmp) {
             return compressedIncrement(adjustedDuration, screenWidth);
         } else {

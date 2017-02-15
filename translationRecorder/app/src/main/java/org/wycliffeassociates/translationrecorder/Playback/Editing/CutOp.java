@@ -356,7 +356,7 @@ public class CutOp {
     }
 
     public static int uncompressedToCompressed(int frame) {
-        return frame / 25;
+        return (int)Math.round(frame / 25.0);
     }
 
     public int skipFrame(int frame, boolean compressed) {

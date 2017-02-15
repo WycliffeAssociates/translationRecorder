@@ -15,3 +15,6 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# http://stackoverflow.com/questions/36592864/error-in-gradle-build-after-updating-android-studio-with-log4j/39701164#39701164
+-keepattributes EnclosingMethod
