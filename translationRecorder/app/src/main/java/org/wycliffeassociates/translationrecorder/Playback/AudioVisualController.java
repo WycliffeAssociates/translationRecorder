@@ -51,6 +51,11 @@ public class AudioVisualController implements MediaControlReceiver {
 
     }
 
+    public void setCueList(List<WavCue> cueList) {
+        mCues = cueList;
+        mPlayer.setCueList(cueList);
+    }
+
     private void initPlayer(WavFile wav, Context ctx) throws IOException {
         mWavLoader = new WavFileLoader(wav, ctx);
         mWavLoader.setOnVisualizationFileCreatedListener(new WavFileLoader.OnVisualizationFileCreatedListener() {

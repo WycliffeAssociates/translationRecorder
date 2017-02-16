@@ -8,12 +8,17 @@ import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentPlaybackTools;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.MarkerMediator;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame;
+import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
 import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarker;
 import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarker;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by sarabiaj on 11/30/2016.
@@ -95,6 +100,7 @@ public class MarkerHolder implements MarkerMediator {
             mDraggableViewFrame.removeView(marker);
             mMarkers.remove(id);
         }
+        mAudioController.setCueList(getCueLocationList());
         mActivity.onLocationUpdated();
     }
 
@@ -108,6 +114,7 @@ public class MarkerHolder implements MarkerMediator {
         if (mDraggableViewFrame != null) {
             mDraggableViewFrame.addView(marker.getView());
         }
+        mAudioController.setCueList(getCueLocationList());
         mActivity.onLocationUpdated();
     }
 
@@ -171,8 +178,8 @@ public class MarkerHolder implements MarkerMediator {
             mAudioController.setEndMarker(position);
         }
         mMarkers.get(id).updateFrame(position);
+        mAudioController.setCueList(getCueLocationList());
         mActivity.onLocationUpdated();
-        //mMarkers.get(id).updateX(position, mDraggableViewFrame.getWidth());
     }
 
     @Override
@@ -190,7 +197,7 @@ public class MarkerHolder implements MarkerMediator {
             mMarkers.get(id).updateFrame(frame);
             mMarkers.get(id).updateX(frame, mDraggableViewFrame.getWidth());
         }
-        //mActivity.onLocationUpdated(0);
+        mAudioController.setCueList(getCueLocationList());
     }
 
     @Override
@@ -216,5 +223,23 @@ public class MarkerHolder implements MarkerMediator {
 
     public boolean hasSectionMarkers(){
         return mMarkers.containsKey(START_MARKER_ID) || mMarkers.containsKey(END_MARKER_ID);
+    }
+
+    @Override
+    public List<WavCue> getCueLocationList() {
+        Collection<DraggableMarker> markers = mMarkers.values();
+        ArrayList<WavCue> cueList = new ArrayList<>();
+        for(DraggableMarker marker : markers) {
+            if (marker instanceof VerseMarker) {
+                cueList.add(new WavCue(marker.getFrame()));
+            }
+        }
+        Collections.sort(cueList, new Comparator<WavCue>() {
+            @Override
+            public int compare(WavCue wavCue, WavCue t1) {
+                return Integer.compare(wavCue.getLocation(), t1.getLocation());
+            }
+        });
+        return cueList;
     }
 }

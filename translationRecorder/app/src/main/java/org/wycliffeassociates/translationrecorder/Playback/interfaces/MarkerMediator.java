@@ -2,11 +2,13 @@ package org.wycliffeassociates.translationrecorder.Playback.interfaces;
 
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentPlaybackTools;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.DraggableViewFrame;
+import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.widgets.marker.DraggableMarker;
 import org.wycliffeassociates.translationrecorder.widgets.marker.SectionMarker;
 import org.wycliffeassociates.translationrecorder.widgets.marker.VerseMarker;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by sarabiaj on 11/30/2016.
@@ -33,4 +35,5 @@ public interface MarkerMediator {
     int numVersesRemaining();
     int numVerseMarkersPlaced();
     boolean hasSectionMarkers();
+    List<WavCue> getCueLocationList();
 }
