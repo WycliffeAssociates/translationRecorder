@@ -40,13 +40,12 @@ public class InsertTaskFragment extends Fragment {
         super.onDetach();
     }
 
-    public void writeInsert(final WavFile base, final WavFile insertClip, final int insertTime) {
+    public void writeInsert(final WavFile base, final WavFile insertClip, final int insertFrame) {
         Thread write = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    int insertLoc = timeToIndex(insertTime);
-                    WavFile result = WavFile.insertWavFile(base, insertClip, insertLoc);
+                    WavFile result = WavFile.insertWavFile(base, insertClip, insertFrame);
                     insertClip.getFile().delete();
                     File dir = new File(mCtx.getExternalCacheDir(), "Visualization");
                     File vis = new File(dir, FileNameExtractor.getNameWithoutExtention(insertClip.getFile())+".vis");
@@ -63,15 +62,5 @@ public class InsertTaskFragment extends Fragment {
             }
         });
         write.start();
-    }
-
-    private int timeToIndex(int timeMs){
-        int seconds = timeMs/1000;
-        int ms = (timeMs-(seconds*1000));
-        int tens = ms/10;
-
-        int idx = (AudioInfo.SAMPLERATE * seconds) + (ms * 44) + (tens);
-        idx*=2;
-        return idx;
     }
 }

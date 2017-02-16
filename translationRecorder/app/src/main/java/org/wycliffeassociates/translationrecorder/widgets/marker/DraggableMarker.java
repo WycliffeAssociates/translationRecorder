@@ -28,7 +28,8 @@ public abstract class DraggableMarker {
     }
 
     public void updateX(int playbackLocation, int containerWidth){
-        mView.setX((containerWidth/8) + (mView.mapLocationToScreenSpace(mFrame, containerWidth) - mView.mapLocationToScreenSpace(playbackLocation, containerWidth)));
+        int delta = mFrame - playbackLocation;
+        mView.setX((containerWidth/8) + (mView.mapLocationToScreenSpace(delta, containerWidth)));
     }
 
     public void updateFrame(int frame) {

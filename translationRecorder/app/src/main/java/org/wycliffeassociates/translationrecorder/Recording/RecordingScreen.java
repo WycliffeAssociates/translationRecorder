@@ -438,7 +438,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
     private void addTakeToDb() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         FileNameExtractor fne = new FileNameExtractor(mNewRecording.getFile());
-        db.addTake(fne, mNewRecording.getFile().getName(), mNewRecording.getFile().lastModified(), 0);
+        db.addTake(fne, mNewRecording.getFile().getName(), mNewRecording.getMetadata().getMode(), mNewRecording.getFile().lastModified(), 0);
         db.close();
     }
 
@@ -494,18 +494,18 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
         enableButton(R.id.btnPauseRecording, true);
     }
 
-    private void finalizeInsert(WavFile base, WavFile insertClip, int insertLoc) {
+    private void finalizeInsert(WavFile base, WavFile insertClip, int insertFrame) {
         //need to reparse the sizes after recording; updates to the object aren't reflected due to parceling to the writing service
         mNewRecording.parseHeader();
         mLoadedWav.parseHeader();
         mInserting = true;
         displayProgressDialog();
-        writeInsert(base, insertClip, insertLoc);
+        writeInsert(base, insertClip, insertFrame);
     }
 
     @Override
-    public void writeInsert(WavFile base, WavFile insertClip, int insertLoc) {
-        mInsertTaskFragment.writeInsert(base, insertClip, insertLoc);
+    public void writeInsert(WavFile base, WavFile insertClip, int insertFrame) {
+        mInsertTaskFragment.writeInsert(base, insertClip, insertFrame);
     }
 
     public void insertCallback(WavFile result) {

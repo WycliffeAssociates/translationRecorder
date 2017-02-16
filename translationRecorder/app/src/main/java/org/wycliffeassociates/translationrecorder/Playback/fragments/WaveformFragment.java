@@ -56,11 +56,12 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     ViewCreatedCallback mViewCreatedCallback;
     private Paint mPaintPlaback;
     private Paint mPaintBaseLine;
-    private int mCurrentFrame;
+    private int mCurrentRelativeFrame;
     private WavVisualizer mWavVis;
     private int mCurrentMs;
     private long mStart;
     private MediaController mMediaController;
+    private int mCurrentAbsoluteFrame;
 
 
     public interface OnScrollDelegator {
@@ -148,7 +149,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
         SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_startmarker_cyan, MarkerHolder.START_MARKER_ID, SectionMarkerView.Orientation.LEFT_MARKER, color);
         div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth())-div.getWidth());
         mMarkerMediator.onAddStartSectionMarker(new SectionMarker(div, frame));
-        invalidateFrame(mCurrentFrame, mCurrentMs);
+        invalidateFrame(mCurrentAbsoluteFrame, mCurrentRelativeFrame, mCurrentMs);
     }
 
     public void addEndMarker(int frame){
@@ -156,7 +157,7 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
         SectionMarkerView div = new SectionMarkerView(getActivity(), R.drawable.ic_endmarker_cyan, Gravity.BOTTOM, MarkerHolder.END_MARKER_ID, SectionMarkerView.Orientation.RIGHT_MARKER, color);
         div.setX(div.mapLocationToScreenSpace(frame, mFrame.getWidth()));
         mMarkerMediator.onAddEndSectionMarker(new SectionMarker(div, frame));
-        invalidateFrame(mCurrentFrame, mCurrentMs);
+        invalidateFrame(mCurrentAbsoluteFrame, mCurrentRelativeFrame, mCurrentMs);
     }
 
     public void addVerseMarker(int verseNumber, int frame){
@@ -172,7 +173,9 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
                 x = Math.max(mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getMarkerX(), x);
             } else {
                 x += (mMarkerMediator.getMarker(MarkerHolder.START_MARKER_ID).getWidth());
-                x = Math.min(mMarkerMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), x);
+                if(mMarkerMediator.contains(MarkerHolder.END_MARKER_ID)) {
+                    x = Math.min(mMarkerMediator.getMarker(MarkerHolder.END_MARKER_ID).getMarkerX(), x);
+                }
             }
         }
         return x;
@@ -208,20 +211,21 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
     @Override
     public void onDrawWaveform(Canvas canvas, Paint paint){
         if(mWavVis != null) {
-            canvas.drawLines(mWavVis.getDataToDraw(mCurrentMs), paint);
+            canvas.drawLines(mWavVis.getDataToDraw(mCurrentAbsoluteFrame), paint);
         }
         //System.out.println("Waveform: " + (System.currentTimeMillis() - mStart) + "ms");
     }
 
-    public void invalidateFrame(int frame, int ms) {
-        mCurrentFrame = frame;
+    public void invalidateFrame(int absoluteFrame, int relativeFrame, int ms) {
+        mCurrentRelativeFrame = relativeFrame;
+        mCurrentAbsoluteFrame = absoluteFrame;
         mCurrentMs = ms;
         mStart = System.currentTimeMillis();
 
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mMarkerMediator.updateCurrentFrame(mCurrentFrame);
+                mMarkerMediator.updateCurrentFrame(mCurrentRelativeFrame);
                 mWaveformLayer.invalidate();
                 mDraggableViewFrame.invalidate();
                 mMarkerLineLayer.invalidate();

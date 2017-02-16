@@ -5,6 +5,7 @@ import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -17,7 +18,7 @@ public class FileNameExtractor {
     private String mLang = "";
     private String mSource = "";
     private String mBook = "";
-    private String mProject = "";
+    private String mAnthology = "";
     private int mChap;
     private int mChunk;
     private int mStartVerse;
@@ -44,7 +45,7 @@ public class FileNameExtractor {
             mBookNum = -1;
         }
         mBook = book;
-        mProject = project;
+        mAnthology = project;
         try {
             mChap = Integer.parseInt(chapter);
         } catch (NumberFormatException e) {
@@ -70,6 +71,16 @@ public class FileNameExtractor {
     private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse) {
         this(project.getTargetLanguage(), project.getVersion(), project.getBookNumber(), project.getSlug(), project.getAnthology(), chapterIntToString(project, chapter), unitIntToString(startVerse),
                 unitIntToString(endVerse), "00");
+    }
+
+    public static String chapterIntToString(String bookSlug, int chapter) {
+        String result;
+        if (bookSlug.compareTo("psa") == 0) {
+            result = String.format("%03d", chapter);
+        } else {
+            result = String.format("%02d", chapter);
+        }
+        return result;
     }
 
     public static String chapterIntToString(Project project, int chapter) {
@@ -118,7 +129,7 @@ public class FileNameExtractor {
         //m.group starts with the pattern, so the first group is at 1
         if (found) {
             mLang = m.group(1);
-            mProject = m.group(2);
+            mAnthology = m.group(2);
             mSource = m.group(3);
             mBookNum = (m.group(4) != null) ? Integer.parseInt(m.group(4)) : -1;
             mBook = m.group(5);
@@ -130,10 +141,6 @@ public class FileNameExtractor {
         } else {
             mMatched = false;
         }
-    }
-
-    public String getProject() {
-        return mProject;
     }
 
     public String getLang() {
@@ -176,32 +183,34 @@ public class FileNameExtractor {
         return mTake;
     }
 
-    public String getMode() {
-        if (mEndVerse == -1) {
-            return "verse";
-        } else {
-            return "chunk";
-        }
+    public String getMode(WavFile file) {
+        return file.getMetadata().getMode();
     }
 
     public boolean matched() {
         return mMatched;
     }
 
-    public static File getDirectoryFromFile(SharedPreferences pref, File file) {
-        FileNameExtractor fne = new FileNameExtractor(file);
-        String root = pref.getString("root_directory", "");
-        File out = new File(new File(root), fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter()));
+    public File getParentDirectory(){
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File out = new File(root, getLang() + "/" + getSource() + "/" + getBook() + "/" + chapterIntToString(getBook(), getChapter()));
         return out;
     }
 
-    public static File getDirectoryFromProject(Project project, int chapter) {
+    public static File getParentDirectory(File file) {
+        FileNameExtractor fne = new FileNameExtractor(file);
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File out = new File(root, fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + chapterIntToString(fne.getBook(), fne.getChapter()));
+        return out;
+    }
+
+    public static File getParentDirectory(Project project, int chapter) {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         return new File(root, project.getTargetLanguage() + "/" + project.getVersion() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
     }
 
-    public static File getFileFromFileName(SharedPreferences pref, File file) {
-        File dir = getDirectoryFromFile(pref, file);
+    public static File getFileFromFileName(File file) {
+        File dir = getParentDirectory(file);
         if (file.getName().contains(".wav")) {
             return new File(dir, file.getName());
         } else {
@@ -210,7 +219,7 @@ public class FileNameExtractor {
     }
 
     public String getNameWithoutTake() {
-        if (mProject != null && mProject.compareTo("obs") == 0) {
+        if (mAnthology != null && mAnthology.compareTo("obs") == 0) {
             return mLang + "_obs_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse);
         } else {
             String name;
@@ -219,9 +228,9 @@ public class FileNameExtractor {
                 name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             } else if (mBook.compareTo("psa") == 0) {
                 end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
-                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%03d", mStartVerse) + end;
+                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%03d", mStartVerse) + end;
             } else {
-                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%02d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             }
             return name;
         }
@@ -246,7 +255,7 @@ public class FileNameExtractor {
     }
 
     public static File getFileFromFileName(SharedPreferences pref, String file) {
-        return getFileFromFileName(pref, new File(file));
+        return getFileFromFileName(new File(file));
     }
 
     public static int getLargestTake(File directory, File filename) {
@@ -282,7 +291,7 @@ public class FileNameExtractor {
 
     public static File createFile(Project project, int chapter, int startVerse, int endVerse) {
         FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
-        File dir = fne.getDirectoryFromProject(project, chapter);
+        File dir = fne.getParentDirectory(project, chapter);
         String nameWithoutTake = fne.getNameWithoutTake();
         int take = fne.getLargestTake(dir, nameWithoutTake) + 1;
         return new File(dir, nameWithoutTake + "_t" + String.format("%02d", take) + ".wav");

@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.json.JSONException;
+import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
@@ -22,8 +23,6 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
-
-import org.wycliffeassociates.translationrecorder.AudioInfo;
 
 /**
  * Created by sarabiaj on 6/2/2016.
@@ -532,7 +531,7 @@ public class WavFile implements Parcelable {
 //    }
 
     public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile) {
-        File root = FileNameExtractor.getDirectoryFromProject(project, chapter);
+        File root = FileNameExtractor.getParentDirectory(project, chapter);
         File chap = new File(root, "chapter.wav");
         chap.delete();
         String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
@@ -576,7 +575,9 @@ public class WavFile implements Parcelable {
         return chapterWav;
     }
 
-    public static WavFile insertWavFile(WavFile base, WavFile insert, int insertIndex) throws IOException, JSONException {
+    public static WavFile insertWavFile(WavFile base, WavFile insert, int insertFrame) throws IOException, JSONException {
+        //convert to two byte PCM
+        insertFrame *= 2;
         File result = new File(base.getFile().getParentFile(),"temp.wav");
         WavFile resultWav = new WavFile(result, base.getMetadata());
 
@@ -586,10 +587,10 @@ public class WavFile implements Parcelable {
             FileInputStream fisBase = new FileInputStream(base.getFile());
             FileInputStream fisInsert = new FileInputStream(insert.getFile());
 
-            WavOutputStream wos = new WavOutputStream(resultWav, 1);
+            WavOutputStream wos = new WavOutputStream(resultWav, 0);
         ) {
-            MappedByteBuffer baseBuffer = fisBase.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, base.getTotalAudioLength() + HEADER_SIZE);
-            MappedByteBuffer insertBuffer = fisInsert.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, insert.getTotalAudioLength() + HEADER_SIZE);
+            MappedByteBuffer baseBuffer = fisBase.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, base.getTotalAudioLength());
+            MappedByteBuffer insertBuffer = fisInsert.getChannel().map(FileChannel.MapMode.READ_ONLY, HEADER_SIZE, insert.getTotalAudioLength());
             int oldAudioLength = base.getTotalAudioLength();
             int newAudioLength = insert.getTotalAudioLength();
 
@@ -599,9 +600,9 @@ public class WavFile implements Parcelable {
             int increment = 1024 * 4;
             byte[] bytes = new byte[increment];
             //Logger.e("WavFile", "wrote header");
-            for (int i = 0; i < insertIndex; i+=increment) {
-                if(insertIndex - i <= increment){
-                    increment = insertIndex-i;
+            for (int i = 0; i < insertFrame; i+=increment) {
+                if(insertFrame - i <= increment){
+                    increment = insertFrame-i;
                     bytes = new byte[increment];
                 }
                 baseBuffer.get(bytes);
@@ -625,7 +626,7 @@ public class WavFile implements Parcelable {
             //Logger.e("WavFile", "wrote insert");
             increment = 1024 * 4;
             bytes = new byte[increment];
-            for (int i = insertIndex; i < oldAudioLength; i+=increment) {
+            for (int i = insertFrame; i < oldAudioLength; i+=increment) {
                 if(oldAudioLength - i <= increment){
                     increment = oldAudioLength-i;
                     bytes = new byte[increment];
