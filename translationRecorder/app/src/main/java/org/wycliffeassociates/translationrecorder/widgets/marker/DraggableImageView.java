@@ -110,7 +110,7 @@ public class DraggableImageView extends ImageView {
     }
 
     public static int mapLocationToScreenSpace(int location, int width) {
-        float mspp = 1000 * 10 / (float) width;
-        return (int) ((location / 44.1) / mspp);
+        float fpp = (float)Math.floor(441000 / (float) width);
+        return (int) Math.round(location / fpp);
     }
 }
