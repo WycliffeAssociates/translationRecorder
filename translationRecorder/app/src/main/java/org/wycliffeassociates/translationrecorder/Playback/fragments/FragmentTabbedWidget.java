@@ -92,6 +92,7 @@ public class FragmentTabbedWidget extends Fragment implements MinimapLayer.Minim
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.fragment_tabbed_widget, container, false);
     }
 

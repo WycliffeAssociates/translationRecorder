@@ -385,18 +385,18 @@ class BufferPlayer {
 //                minBufferSize, AudioTrack.MODE_STREAM);
 //    }
 //
-//    //Pause calls flush so as to eliminate data that may have been written right after the onPause
-//    void onPause(boolean fromButtonPress){
+//    //Pause calls flush so as to eliminate data that may have been written right after the onPauseRecording
+//    void onPauseRecording(boolean fromButtonPress){
 //        if(player != null){
 //            playbackStart = (int)(getLocationMs() * 88.2);
 //            sPressedPause = true;
-//            onPause();
+//            onPauseRecording();
 //        }
 //    }
 //
-//    void onPause(){
+//    void onPauseRecording(){
 //        if(player != null){
-//            player.onPause();
+//            player.onPauseRecording();
 //            player.flush();
 //            forceBreakOut = true;
 //            keepPlaying = false;
@@ -459,7 +459,7 @@ class BufferPlayer {
 //    void stop(){
 //        if(isPlaying() || isPaused()){
 //            keepPlaying = false;
-//            player.onPause();
+//            player.onPauseRecording();
 //            player.stop();
 //            if(mPlaybackThread != null){
 //                forceBreakOut = true;
@@ -480,14 +480,14 @@ class BufferPlayer {
 //
 //    boolean checkIfShouldStop(){
 //        if((getRelativeDurationMs()) <= getLocationMs()) {
-//            onPause();
+//            onPauseRecording();
 //            if(mOnCompleteListener != null){
 //                mOnCompleteListener.onComplete();
 //            }
 //            return true;
 //        }
 //        if(mOnlyPlayingSection && (getLocationMs() >= endPlaybackPosition)){
-//            onPause();
+//            onPauseRecording();
 //            seekTo(startPlaybackPosition);
 //            stop();
 //            if(mOnCompleteListener != null){

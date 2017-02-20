@@ -52,7 +52,7 @@ public class WavFileWriter extends Service {
                             if (!message.isPaused()) {
                                 rawAudio.write(message.getData());
                             } else {
-                                Logger.w(this.toString(), "raw audio thread received a onPause message");
+                                Logger.w(this.toString(), "raw audio thread received a onPauseRecording message");
                             }
                         }
                     }
@@ -123,7 +123,7 @@ public class WavFileWriter extends Service {
                                     writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                                 }
                             } else {
-                                Logger.w(this.toString(), "Compression thread received a onPause message");
+                                Logger.w(this.toString(), "Compression thread received a onPauseRecording message");
                             }
                         }
                     }

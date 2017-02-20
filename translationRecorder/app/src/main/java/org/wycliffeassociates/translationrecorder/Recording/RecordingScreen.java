@@ -90,7 +90,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     public static Intent getNewRecordingIntent(Context ctx, Project project, int chapter, int unit) {
         Logger.w("RecordingScreen", "Creating New Recording Intent");
-        Intent intent = new Intent(ctx, RecordingScreen.class);
+        Intent intent = new Intent(ctx, RecordingActivity.class);
         intent.putExtra(KEY_PROJECT, project);
         intent.putExtra(KEY_CHAPTER, chapter);
         intent.putExtra(KEY_UNIT, unit);
@@ -318,7 +318,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     @Override
     public void onPause() {
-        Logger.w(this.toString(), "Recording screen onPause");
+        Logger.w(this.toString(), "Recording screen onPauseRecording");
         super.onPause();
         if (isRecording) {
             isRecording = false;
