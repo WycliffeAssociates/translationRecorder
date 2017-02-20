@@ -41,8 +41,10 @@ public class Utils {
     //http://stackoverflow.com/questions/13410949/how-to-delete-folder-from-internal-storage-in-android
     public static void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
-            for (File child : fileOrDirectory.listFiles()) {
-                deleteRecursive(child);
+            if(fileOrDirectory.listFiles() != null) {
+                for (File child : fileOrDirectory.listFiles()) {
+                    deleteRecursive(child);
+                }
             }
         }
         fileOrDirectory.delete();

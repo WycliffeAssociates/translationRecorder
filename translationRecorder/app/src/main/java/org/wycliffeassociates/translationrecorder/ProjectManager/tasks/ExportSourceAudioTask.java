@@ -82,22 +82,28 @@ public class ExportSourceAudioTask extends Task {
         File version = new File(lang, project.getVersion());
         File book = new File(version, project.getSlug());
         book.mkdirs();
-        for (File c : input.listFiles()) {
-            if (c.isDirectory()) {
-                File chapter = new File(book, c.getName());
-                chapter.mkdir();
-                for (File f : c.listFiles()) {
-                    if (!f.isDirectory()) {
-                        try {
-                            FileUtils.copyFileToDirectory(f, chapter);
-                            mStagingProgress += f.length();
-                            //this step accounts for half of the work, so it is multiplied by 50 instead of 100
-                            int progressPercentage = (int) ((mStagingProgress / (double) mTotalStagingSize) * 50);
-                            onTaskProgressUpdateDelegator(progressPercentage);
-                        } catch (IOException e) {
-                            Logger.e(this.toString(), "IOException staging files for archive", e);
-                            e.printStackTrace();
+        if(input.listFiles() != null) {
+            for (File c : input.listFiles()) {
+                if (c.isDirectory()) {
+                    File chapter = new File(book, c.getName());
+                    chapter.mkdir();
+                    if (c.listFiles() != null) {
+                        for (File f : c.listFiles()) {
+                            if (!f.isDirectory()) {
+                                try {
+                                    FileUtils.copyFileToDirectory(f, chapter);
+                                    mStagingProgress += f.length();
+                                    //this step accounts for half of the work, so it is multiplied by 50 instead of 100
+                                    int progressPercentage = (int) ((mStagingProgress / (double) mTotalStagingSize) * 50);
+                                    onTaskProgressUpdateDelegator(progressPercentage);
+                                } catch (IOException e) {
+                                    Logger.e(this.toString(), "IOException staging files for archive", e);
+                                    e.printStackTrace();
+                                }
+                            }
                         }
+                    } else {
+                        continue;
                     }
                 }
             }
