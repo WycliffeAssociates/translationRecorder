@@ -1,11 +1,12 @@
 package org.wycliffeassociates.translationrecorder.AudioVisualization;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.Recording.RecordingMessage;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingQueues;
+import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingControls;
+import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingWaveform;
+import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 /**
@@ -14,33 +15,42 @@ import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 public class ActiveRecordingRenderer {
 
-    private final WaveformView mainWave;
-    private final VolumeBar mVolume;
-    private final TextView mTimerView;
-    private Handler mHandler;
+    private FragmentRecordingControls mFragmentRecordingControls;
+    private FragmentVolumeBar mFragmentVolumeBar;
+    private FragmentRecordingWaveform mFragmentRecordingWaveform;
+    //RecordingTimer timer;
+    //    private WaveformView mainWave;
+//    private VolumeBar mVolume;
+//    private TextView mTimerView;
+//    private Handler mHandler;
     private boolean isRecording;
-    RecordingTimer timer;
 
     public ActiveRecordingRenderer(WaveformView mainWave, VolumeBar volume, TextView timerView){
-        mainWave.setUIDataManager(this);
-        this.mainWave = mainWave;
-        mVolume = volume;
-        mTimerView = timerView;
-        mHandler = new Handler(Looper.getMainLooper());
-        timer = new RecordingTimer();
+//        mainWave.setUIDataManager(this);
+//        this.mainWave = mainWave;
+//        mVolume = volume;
+//        mTimerView = timerView;
+//        mHandler = new Handler(Looper.getMainLooper());
+//        timer = new RecordingTimer();
     }
 
-    public void startTimer(){
-        timer.startTimer();
+    public ActiveRecordingRenderer(FragmentRecordingControls timer, FragmentVolumeBar volume, FragmentRecordingWaveform waveform) {
+        mFragmentRecordingControls = timer;
+        mFragmentVolumeBar = volume;
+        mFragmentRecordingWaveform = waveform;
     }
 
-    public void pauseTimer(){
-        timer.pause();
-    }
-
-    public void resumeTimer(){
-        timer.resume();
-    }
+//    public void startTimer(){
+//        timer.startTimer();
+//    }
+//
+//    public void pauseTimer(){
+//        timer.pause();
+//    }
+//
+//    public void resumeTimer(){
+//        timer.resume();
+//    }
 
     public void setIsRecording(boolean isRecording){
         this.isRecording = isRecording;
@@ -49,7 +59,7 @@ public class ActiveRecordingRenderer {
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
     //canvas views to listen for recording on the same activity
     public void listenForRecording(final boolean onlyVolumeTest){
-        mainWave.setDrawingFromBuffer(true);
+        mFragmentRecordingWaveform.setDrawingFromBuffer(true);
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -69,39 +79,23 @@ public class ActiveRecordingRenderer {
                             double db = Math.abs(max);
                             if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 33)) {
                                 maxDB = db;
-                                mVolume.setDb((int) maxDB);
-                                mVolume.postInvalidate();
-                                timeDelay = System.currentTimeMillis();
+                                mFragmentVolumeBar.updateDb((int)maxDB);
                             } else if (((System.currentTimeMillis() - timeDelay) > 33)) {
                                 maxDB = db;
-                                mVolume.setDb((int) maxDB);
-                                mVolume.postInvalidate();
-                                timeDelay = System.currentTimeMillis();
+                                mFragmentVolumeBar.updateDb((int)maxDB);
                             }
                             if (isRecording) {
-                                mainWave.setBuffer(buffer);
-                                mainWave.postInvalidate();
-                                if (timer != null) {
-                                    long t = timer.getTimeElapsed();
-                                    final String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mTimerView.setText(time);
-                                            mTimerView.invalidate();
-                                        }
-                                    });
-                                }
+                                mFragmentRecordingWaveform.updateWaveform(buffer);
+                                mFragmentRecordingControls.updateTime();
                                 //if only running the volume meter, the queues need to be emptied
                             } else if (onlyVolumeTest) {
-                                mainWave.setBuffer(null);
+                                mFragmentRecordingWaveform.updateWaveform(null);
                                 RecordingQueues.writingQueue.clear();
                                 RecordingQueues.compressionQueue.clear();
                             }
                         }
                         if (isStopped) {
-                            mainWave.setBuffer(null);
-                            mainWave.postInvalidate();
+                            mFragmentRecordingWaveform.updateWaveform(null);
                             Logger.w(this.toString(), "UI thread received a stop message");
                             return;
                         }
@@ -118,7 +112,7 @@ public class ActiveRecordingRenderer {
                     }
                 }
 
-                mainWave.setDrawingFromBuffer(false);
+                mFragmentRecordingWaveform.setDrawingFromBuffer(false);
             }
         });
         uiThread.setName("UIThread");

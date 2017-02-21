@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
+import org.wycliffeassociates.translationrecorder.AudioVisualization.ActiveRecordingRenderer;
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
@@ -61,9 +62,9 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
     private FragmentRecordingControls mFragmentRecordingControls;
     private FragmentSourceAudio mFragmentSourceAudio;
     private FragmentRecordingWaveform mFragmentRecordingWaveform;
+    private ActiveRecordingRenderer mRecordingRenderer;
     private boolean isRecording = false;
     private boolean onlyVolumeTest = true;
-    private DrawThread mDrawThread;
     private WavFile mNewRecording;
     private boolean isPausedRecording;
     private boolean isSaved;
@@ -100,8 +101,6 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
 
         initialize(getIntent());
         initializeTaskFragment(savedInstanceState);
-
-
     }
 
     @Override
@@ -109,21 +108,19 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
         super.onResume();
         onlyVolumeTest = true;
         startService(new Intent(this, WavRecorder.class));
-        mDrawThread = new DrawThread();
-        Thread uiThread = new Thread(mDrawThread);
-        uiThread.start();
+        mRecordingRenderer.listenForRecording(true);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDrawThread.finish();
     }
 
     private void initialize(Intent intent) {
         parseIntent(intent);
         initializeFragments();
         attachFragments();
+        mRecordingRenderer = new ActiveRecordingRenderer(mFragmentRecordingControls, mFragmentVolumeBar, mFragmentRecordingWaveform);
     }
 
     private void initializeFragments() {
@@ -199,6 +196,7 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
         onlyVolumeTest = false;
         isRecording = true;
         stopService(new Intent(this, WavRecorder.class));
+        mRecordingRenderer.setIsRecording(true);
         if (!isPausedRecording) {
             RecordingQueues.stopVolumeTest();
             isSaved = false;
@@ -209,6 +207,7 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
             mNewRecording = new WavFile(file, new WavMetadata(mProject, String.valueOf(mChapter), startVerse, endVerse));
             startService(new Intent(this, WavRecorder.class));
             startService(WavFileWriter.getIntent(this, mNewRecording));
+            mRecordingRenderer.listenForRecording(false);
         } else {
             isPausedRecording = false;
             startService(new Intent(this, WavRecorder.class));
@@ -277,90 +276,4 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
         startActivity(intent);
         this.finish();
     }
-
-    private class DrawThread implements Runnable{
-
-        private volatile boolean finished = false;
-
-        public DrawThread() {
-
-        }
-
-        public void finish(){
-            finished = true;
-            try {
-                RecordingQueues.doneUI.put(new Boolean(true));
-            } catch (InterruptedException e) {
-                Logger.e(this.toString(), "Interruption exception in finally of UI thread for recording", e);
-                e.printStackTrace();
-            }
-        }
-
-        public double getPeakVolume(byte[] buffer){
-            double max = 0;
-            for(int i =0; i < buffer.length; i+=4) {
-                byte low = buffer[i];
-                byte hi = buffer[i + 1];
-                short value = (short)(((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                max = (Math.abs(value) > max)? Math.abs(value) : max;
-            }
-            return max;
-        }
-
-        @Override
-        public void run() {
-            while(!finished) {
-
-                boolean isStopped = false;
-                boolean isPaused = false;
-                double maxDB = 0;
-                long timeDelay = System.currentTimeMillis();
-                try {
-                    if (!isStopped && mFragmentVolumeBar != null && mFragmentRecordingWaveform != null) {
-                        RecordingMessage message = RecordingQueues.UIQueue.take();
-                        isStopped = message.isStopped();
-                        isPaused = message.isPaused();
-
-                        if (!isPaused && message.getData() != null) {
-                            byte[] buffer = message.getData();
-                            double max = getPeakVolume(buffer);
-                            double db = Math.abs(max);
-                            if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 33)) {
-                                maxDB = db;
-                                mFragmentVolumeBar.updateDb((int)maxDB);
-                            } else if (((System.currentTimeMillis() - timeDelay) > 33)) {
-                                maxDB = db;
-                                mFragmentVolumeBar.updateDb((int)maxDB);
-                            }
-                            if (isRecording) {
-                                mFragmentRecordingWaveform.updateWaveform(buffer);
-                                mFragmentRecordingControls.updateTime();
-                                //if only running the volume meter, the queues need to be emptied
-                            } else if (onlyVolumeTest) {
-                                mFragmentRecordingWaveform.updateWaveform(null);
-                                RecordingQueues.writingQueue.clear();
-                                RecordingQueues.compressionQueue.clear();
-                            }
-                        }
-                        if (isStopped) {
-                            mFragmentRecordingWaveform.updateWaveform(null);
-                            Logger.w(this.toString(), "UI thread received a stop message");
-                            return;
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    Logger.e(this.toString(), "Interruption exception in UI thread for recording", e);
-                    e.printStackTrace();
-                }
-
-//
-//                try {
-//                    Thread.sleep(12);
-//                } catch (InterruptedException e) {
-//
-//                }
-            }
-        }
-    }
-
 }

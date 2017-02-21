@@ -52,4 +52,8 @@ public class FragmentRecordingWaveform extends Fragment {
         mainWave.setBuffer(buffer);
         mainWave.postInvalidate();
     }
+
+    public void setDrawingFromBuffer(boolean drawFromBuffer) {
+        mainWave.setDrawingFromBuffer(drawFromBuffer);
+    }
 }

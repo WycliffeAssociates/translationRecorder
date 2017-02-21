@@ -370,7 +370,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
     private void pauseRecording() {
         isPausedRecording = true;
-        manager.pauseTimer();
+        //manager.pauseTimer();
         isRecording = false;
         int toShow[] = {R.id.btnRecording, R.id.btnStop};
         int toHide[] = {R.id.btnPauseRecording};
@@ -398,7 +398,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
 
         if (!isPausedRecording) {
             RecordingQueues.stopVolumeTest();
-            manager.startTimer();
+            //manager.startTimer();
             isSaved = false;
             RecordingQueues.clearQueues();
             File file = FileNameExtractor.createFile(mProject, mChapter, Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse));
@@ -407,7 +407,7 @@ public class RecordingScreen extends Activity implements InsertTaskFragment.Inse
             startService(WavFileWriter.getIntent(this, mNewRecording));
             manager.listenForRecording(false);
         } else {
-            manager.resumeTimer();
+            //manager.resumeTimer();
             isPausedRecording = false;
             startService(new Intent(this, WavRecorder.class));
         }
