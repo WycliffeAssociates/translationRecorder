@@ -225,6 +225,10 @@ public class WavFileWriter extends Service {
         minAndMax[1] = data[minIdx + 1];
         minAndMax[2] = data[maxIdx];
         minAndMax[3] = data[maxIdx + 1];
-
+        try {
+            RecordingQueues.UIQueue.put(new RecordingMessage(minAndMax, false, false));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

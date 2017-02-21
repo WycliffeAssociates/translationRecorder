@@ -81,7 +81,7 @@ public class WavRecorder extends Service {
             if(AudioRecord.ERROR_INVALID_OPERATION != read){
                 RecordingMessage temp = new RecordingMessage(data, false, false);
                 try {
-                    RecordingQueues.UIQueue.put(temp);
+                    //RecordingQueues.UIQueue.put(temp);
                     RecordingQueues.writingQueue.put(temp);
                     RecordingQueues.compressionQueue.put(temp);
                 } catch (InterruptedException e) {

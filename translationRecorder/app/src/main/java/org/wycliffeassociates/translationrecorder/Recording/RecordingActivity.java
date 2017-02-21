@@ -193,6 +193,8 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
 
     @Override
     public void onStartRecording() {
+        mFragmentSourceAudio.disableSourceAudio();
+        mFragmentRecordingFileBar.disablePickers();
         onlyVolumeTest = false;
         isRecording = true;
         stopService(new Intent(this, WavRecorder.class));

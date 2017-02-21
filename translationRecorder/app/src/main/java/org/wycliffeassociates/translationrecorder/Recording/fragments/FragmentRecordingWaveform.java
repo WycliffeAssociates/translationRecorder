@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.wycliffeassociates.translationrecorder.AudioVisualization.VolumeBar;
 import org.wycliffeassociates.translationrecorder.AudioVisualization.WaveformView;
 import org.wycliffeassociates.translationrecorder.R;
 
@@ -20,7 +19,6 @@ import org.wycliffeassociates.translationrecorder.R;
 public class FragmentRecordingWaveform extends Fragment {
 
     private WaveformView mainWave;
-    private VolumeBar mVolume;
     private Handler mHandler;
 
     public static FragmentRecordingWaveform newInstance(){
@@ -45,15 +43,32 @@ public class FragmentRecordingWaveform extends Fragment {
     private void findViews(){
         View view = getView();
         mainWave = (WaveformView) view.findViewById(R.id.main_canvas);
-        mVolume = (VolumeBar) view.findViewById(R.id.volumeBar1);
     }
 
-    public void updateWaveform(byte[] buffer) {
+    public void updateWaveform(float[] buffer) {
         mainWave.setBuffer(buffer);
         mainWave.postInvalidate();
     }
 
     public void setDrawingFromBuffer(boolean drawFromBuffer) {
         mainWave.setDrawingFromBuffer(drawFromBuffer);
+    }
+
+    public int getWidth(){
+        View view = getView();
+        if(view != null) {
+            return view.getWidth();
+        } else {
+            return 0;
+        }
+    }
+
+    public int getHeight() {
+        View view = getView();
+        if(view != null) {
+            return view.getHeight();
+        } else {
+            return 0;
+        }
     }
 }

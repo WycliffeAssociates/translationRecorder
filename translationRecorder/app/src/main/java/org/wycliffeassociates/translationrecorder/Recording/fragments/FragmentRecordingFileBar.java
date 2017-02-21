@@ -236,4 +236,9 @@ public class FragmentRecordingFileBar extends Fragment {
     public String getEndVerse() {
         return mEndVerse;
     }
+
+    public void disablePickers(){
+        mUnitPicker.displayIncrementDecrement(false);
+        mChapterPicker.displayIncrementDecrement(false);
+    }
 }

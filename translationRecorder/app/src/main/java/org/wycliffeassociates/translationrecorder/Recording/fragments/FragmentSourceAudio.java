@@ -40,4 +40,9 @@ public class FragmentSourceAudio extends Fragment {
     public void loadAudio(Project project, String filename, int chapter){
         mSourcePlayer.initSrcAudio(project, filename, chapter);
     }
+
+    public void disableSourceAudio() {
+        mSourcePlayer.cleanup();
+        mSourcePlayer.setEnabled(false);
+    }
 }

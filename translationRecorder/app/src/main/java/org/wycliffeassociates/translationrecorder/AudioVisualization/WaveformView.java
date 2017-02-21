@@ -5,14 +5,13 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 
 import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.AudioVisualization.Utils.U;
 
 /**
  * A canvas view intended for use as the main waveform
  */
 public class WaveformView extends CanvasView {
 
-    private byte[] mBuffer;
+    private float[] mBuffer;
     private boolean mDrawingFromBuffer = false;
     private float[] mSamples;
     private int mDb = 0;
@@ -94,7 +93,7 @@ public class WaveformView extends CanvasView {
      *
      * @param buffer a byte buffer containing 16 bit pcm data
      */
-    public synchronized void setBuffer(byte[] buffer) {
+    public synchronized void setBuffer(float[] buffer) {
         mBuffer = buffer;
     }
 
@@ -111,31 +110,48 @@ public class WaveformView extends CanvasView {
      * @param buffer    the byte buffer containing 16 bit pcm data to draw
      * @param blocksize the size of a block of audio data; 2 for 16 bit mono PCM
      */
-    public synchronized void drawBuffer(Canvas canvas, byte[] buffer, int blocksize) {
+    public synchronized void drawBuffer(Canvas canvas, float[] buffer, int blocksize) {
+//        if (buffer == null || canvas == null) {
+//            return;
+//        }
+//        //convert PCM data in a byte array to a short array
+//        Short[] temp = new Short[buffer.length / blocksize];
+//        int index = 0;
+//        for (int i = 0; i < buffer.length; i += blocksize) {
+//            byte low = buffer[i];
+//            byte hi = buffer[i + 1];
+//            //PCM data is stored little endian
+//            temp[index] = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+//            index++;
+//        }
+//        int width = canvas.getWidth();
+//        int height = canvas.getHeight();
+//        double xScale = width / (index * .999);
+//        double yScale = height / 65536.0;
+//        for (int i = 0; i < temp.length - 1; i++) {
+////            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2),
+////                    (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
+//            canvas.drawLine((int) (xScale * i), (int) U.getValueForScreen(temp[i], height),
+//                    (int) (xScale * (i + 1)), (int) U.getValueForScreen(temp[i + 1], height), mPaintWaveform);
+//
+//        }
+//        this.postInvalidate();
+
         if (buffer == null || canvas == null) {
             return;
         }
-        //convert PCM data in a byte array to a short array
-        Short[] temp = new Short[buffer.length / blocksize];
-        int index = 0;
-        for (int i = 0; i < buffer.length; i += blocksize) {
-            byte low = buffer[i];
-            byte hi = buffer[i + 1];
-            //PCM data is stored little endian
-            temp[index] = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-            index++;
-        }
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
-        double xScale = width / (index * .999);
-        double yScale = height / 65536.0;
-        for (int i = 0; i < temp.length - 1; i++) {
-//            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2),
-//                    (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
-            canvas.drawLine((int) (xScale * i), (int) U.getValueForScreen(temp[i], height),
-                    (int) (xScale * (i + 1)), (int) U.getValueForScreen(temp[i + 1], height), mPaintWaveform);
-
-        }
+//        int width = canvas.getWidth();
+//        int height = canvas.getHeight();
+//        double xScale = width / (index * .999);
+//        double yScale = height / 65536.0;
+//        for (int i = 0; i < temp.length - 1; i++) {
+////            canvas.drawLine((int)(xScale*i), (int)((yScale*temp[i])+ height/2),
+////                    (int)(xScale*(i+1)), (int)((yScale*temp[i+1]) + height/2), mPaint);
+//            canvas.drawLine((int) (xScale * i), (int) U.getValueForScreen(temp[i], height),
+//                    (int) (xScale * (i + 1)), (int) U.getValueForScreen(temp[i + 1], height), mPaintWaveform);
+//
+//        }
+        canvas.drawLines(buffer, mPaintWaveform);
         this.postInvalidate();
     }
 }
