@@ -36,12 +36,6 @@
         <activity android:name="org.wycliffeassociates.translationrecorder.MainMenu" />
 
         <!-- Other activities -->
-        <activity android:name="org.wycliffeassociates.translationrecorder.Recording.RecordingScreen"
-            android:screenOrientation="landscape"
-            android:noHistory="true"
-            />
-
-        <!-- Other activities -->
         <activity android:name="org.wycliffeassociates.translationrecorder.Recording.RecordingActivity"
             android:screenOrientation="landscape"
             android:noHistory="true"

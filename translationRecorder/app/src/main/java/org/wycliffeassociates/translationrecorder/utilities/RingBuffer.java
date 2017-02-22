@@ -6,21 +6,19 @@ package org.wycliffeassociates.translationrecorder.utilities;
 
 public class RingBuffer {
 
-    private int mCapacity = 0;
     private int mHead = 0;
     private int mTail = 0;
     private float[] mBuffer;
 
     public RingBuffer(int capacity) {
         mBuffer = new float[capacity];
-        mCapacity = capacity;
     }
 
     public void add(float i) {
         mBuffer[mTail] = i;
-        mTail = (mTail + 1) % mCapacity;
+        mTail = (mTail + 1) % mBuffer.length;
         if(mHead == mTail) {
-            mHead = (mHead + 1) % mCapacity;
+            mHead = (mHead + 1) % mBuffer.length;
         }
     }
 
@@ -30,7 +28,7 @@ public class RingBuffer {
     }
 
     public float get(int i) {
-        int index = (mHead + i) % mCapacity;
+        int index = (mHead + i) % mBuffer.length;
         return mBuffer[index];
     }
 
@@ -39,10 +37,10 @@ public class RingBuffer {
     }
 
     public int size() {
-        if(mHead == 0 && mTail < mCapacity) {
+        if(mHead == 0 && mTail < mBuffer.length) {
             return mTail;
         } else {
-            return mCapacity;
+            return mBuffer.length;
         }
     }
 

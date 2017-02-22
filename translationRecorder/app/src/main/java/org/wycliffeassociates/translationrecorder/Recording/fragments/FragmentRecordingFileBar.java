@@ -1,5 +1,6 @@
 package org.wycliffeassociates.translationrecorder.Recording.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
@@ -30,6 +32,7 @@ public class FragmentRecordingFileBar extends Fragment {
     private static final int DEFAULT_CHAPTER = 1;
     private static final int DEFAULT_UNIT = 1;
     private static final String KEY_PROJECT = "key_project";
+    private static final String KEY_IS_CHUNK_MODE = "key_unit";
 
     private TextView mBookView;
     private TextView mSourceView;
@@ -47,13 +50,41 @@ public class FragmentRecordingFileBar extends Fragment {
     private String mStartVerse;
     private String mEndVerse;
     private int mNumChapters;
+    private OnUnitChangedListener mOnUnitChangedListener;
+    private FragmentRecordingControls.Mode mMode;
 
-    public static FragmentRecordingFileBar newInstance(Project project){
+    public interface OnUnitChangedListener {
+        void onUnitChanged(Project project, String fileName, int chapter);
+    }
+
+    public static FragmentRecordingFileBar newInstance(Project project, FragmentRecordingControls.Mode mode, boolean unitIsChunks){
         FragmentRecordingFileBar f = new FragmentRecordingFileBar();
         Bundle args = new Bundle();
         args.putParcelable(KEY_PROJECT, project);
+        args.putBoolean(KEY_IS_CHUNK_MODE, unitIsChunks);
         f.setArguments(args);
+        f.setMode(mode);
         return f;
+    }
+
+    private void setMode(FragmentRecordingControls.Mode mode) {
+        mMode = mode;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if( activity instanceof OnUnitChangedListener) {
+            mOnUnitChangedListener = (OnUnitChangedListener)activity;
+        } else {
+            throw new RuntimeException("Attemped to attach activity which does not implement OnUnitChangedListener");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mOnUnitChangedListener = null;
     }
 
     @Nullable
@@ -72,6 +103,9 @@ public class FragmentRecordingFileBar extends Fragment {
         initializeViews();
         try {
             initializePickers();
+            if(mMode == FragmentRecordingControls.Mode.INSERT_MODE) {
+                disablePickers();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             Logger.e(this.toString(), "onViewCreate", e);
@@ -80,6 +114,7 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void loadArgs(Bundle args) {
         mProject = (Project) args.getParcelable(KEY_PROJECT);
+        isChunkMode = args.getBoolean(KEY_IS_CHUNK_MODE);
     }
 
     private void findViews() {
@@ -146,14 +181,16 @@ public class FragmentRecordingFileBar extends Fragment {
                     mUnitPicker.setDisplayedValues(values);
                     mUnitPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
                     setChunk(getChunkIndex(mChunksList, mUnit) + 1);
+                    mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                            Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                     //reinitialize all of the filenames
                     mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             Logger.w(this.toString(), "User changed unit");
                             setChunk(newVal + 1);
-//                            mSrcPlayer.reset(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
-//                                    Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
+                            mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                                    Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                         }
                     });
                 } else {
@@ -182,8 +219,8 @@ public class FragmentRecordingFileBar extends Fragment {
                     mUnitPicker.setCurrent(0);
                     mChunksList = mChunks.getChunks(mProject, mChapter);
                     initializeUnitPicker();
-//                    mSrcPlayer.reset(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
-//                            Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
+                    mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                            Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                 }
             });
         } else {

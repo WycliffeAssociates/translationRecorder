@@ -34,7 +34,7 @@ public class FragmentSourceAudio extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mSourcePlayer = new SourceAudio(getActivity());
+        mSourcePlayer = (SourceAudio)getView().findViewById(R.id.source_audio_player);
     }
 
     public void loadAudio(Project project, String filename, int chapter){
@@ -44,5 +44,20 @@ public class FragmentSourceAudio extends Fragment {
     public void disableSourceAudio() {
         mSourcePlayer.cleanup();
         mSourcePlayer.setEnabled(false);
+    }
+
+    public void resetSourceAudio(Project project, String filename, int chapter) {
+        mSourcePlayer.reset(project, filename, chapter);
+    }
+
+    public void initialize(Project project, String filename, int chapter) {
+        mSourcePlayer.initSrcAudio(project, filename, chapter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mSourcePlayer.pauseSource();
+        mSourcePlayer.cleanup();
     }
 }

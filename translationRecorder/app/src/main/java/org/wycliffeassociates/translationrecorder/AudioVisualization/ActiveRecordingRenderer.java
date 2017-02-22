@@ -51,8 +51,8 @@ public class ActiveRecordingRenderer {
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
     //canvas views to listen for recording on the same activity
     public void listenForRecording(final boolean onlyVolumeTest){
-        mFragmentRecordingWaveform.setDrawingFromBuffer(true);
         if(!onlyVolumeTest) {
+            mFragmentRecordingWaveform.setDrawingFromBuffer(true);
             initializeRingBuffer();
             mCanvasHeight = mFragmentRecordingWaveform.getHeight();
         }

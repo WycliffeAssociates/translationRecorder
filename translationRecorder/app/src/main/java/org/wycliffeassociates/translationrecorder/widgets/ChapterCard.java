@@ -12,7 +12,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.Chapte
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
+import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
@@ -396,7 +396,7 @@ public class ChapterCard {
                 pauseAudio();
                 destroyAudioPlayer();
                 int chapter = mViewHolder.getAdapterPosition() + 1;
-                Intent intent = RecordingScreen.getNewRecordingIntent(mCtx, mProject, chapter, 1);
+                Intent intent = RecordingActivity.getNewRecordingIntent(mCtx, mProject, chapter, 1);
                 mCtx.startActivity(intent);
             }
         };

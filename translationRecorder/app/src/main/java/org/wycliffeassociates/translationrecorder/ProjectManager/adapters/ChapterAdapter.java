@@ -14,7 +14,7 @@ import android.widget.TextView;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
+import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.project.Chunks;
 
 import java.io.File;
@@ -101,7 +101,7 @@ public class ChapterAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 Project.loadProjectIntoPreferences(mCtx, mProject);
-                v.getContext().startActivity(RecordingScreen.getNewRecordingIntent(v.getContext(), mProject, (position+1), 1));
+                v.getContext().startActivity(RecordingActivity.getNewRecordingIntent(v.getContext(), mProject, (position+1), 1));
             }
         });
 

@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.RecordingTimer;
@@ -20,12 +21,21 @@ import org.wycliffeassociates.translationrecorder.Reporting.Logger;
  */
 
 public class FragmentRecordingControls extends Fragment {
+
+
+    public enum Mode {
+        RECORDING_MODE,
+        INSERT_MODE;
+    }
+
+    private RelativeLayout mToolBar;
     private TextView mTimerView;
     RecordingTimer timer;
     Handler mHandler;
     RecordingControlCallback mRecordingControlCallback;
     private boolean isRecording = false;
     private boolean isPausedRecording = false;
+    private Mode mMode;
 
     public interface RecordingControlCallback {
         void onStartRecording();
@@ -33,9 +43,14 @@ public class FragmentRecordingControls extends Fragment {
         void onStopRecording();
     }
 
-    public static FragmentRecordingControls newInstance(){
+    public static FragmentRecordingControls newInstance(Mode mode){
         FragmentRecordingControls f = new FragmentRecordingControls();
+        f.setMode(mode);
         return f;
+    }
+
+    private void setMode(Mode mode){
+        mMode = mode;
     }
 
     @Override
@@ -68,11 +83,15 @@ public class FragmentRecordingControls extends Fragment {
         mHandler = new Handler(Looper.getMainLooper());
         findViews();
         timer = new RecordingTimer();
+        if(mMode == Mode.INSERT_MODE) {
+            mToolBar.setBackgroundColor(getResources().getColor(R.color.secondary));
+        }
     }
 
     private void findViews(){
         View view = getView();
         mTimerView = (TextView) view.findViewById(R.id.timer_view);
+        mToolBar = (RelativeLayout) view.findViewById(R.id.toolbar);
         view.findViewById(R.id.btnRecording).setOnClickListener(btnClick);
         view.findViewById(R.id.btnStop).setOnClickListener(btnClick);
         view.findViewById(R.id.btnPauseRecording).setOnClickListener(btnClick);

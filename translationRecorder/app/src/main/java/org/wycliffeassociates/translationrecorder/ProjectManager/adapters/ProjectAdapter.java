@@ -18,7 +18,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityChapterList;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
+import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Chunks;
@@ -109,7 +109,7 @@ public class ProjectAdapter extends ArrayAdapter {
             public void onClick(View v) {
                 Project.loadProjectIntoPreferences(ctx, project);
                 //TODO: should find place left off at?
-                v.getContext().startActivity(RecordingScreen.getNewRecordingIntent(v.getContext(), project, 1, 1));
+                v.getContext().startActivity(RecordingActivity.getNewRecordingIntent(v.getContext(), project, 1, 1));
             }
         });
 

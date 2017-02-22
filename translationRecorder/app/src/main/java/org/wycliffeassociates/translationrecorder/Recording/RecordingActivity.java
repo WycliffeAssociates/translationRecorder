@@ -1,5 +1,6 @@
 package org.wycliffeassociates.translationrecorder.Recording;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -35,7 +36,10 @@ import java.util.Set;
  * Created by sarabiaj on 2/20/2017.
  */
 
-public class RecordingActivity extends AppCompatActivity implements FragmentRecordingControls.RecordingControlCallback, InsertTaskFragment.Insert {
+public class RecordingActivity extends AppCompatActivity implements
+        FragmentRecordingControls.RecordingControlCallback, InsertTaskFragment.Insert,
+        FragmentRecordingFileBar.OnUnitChangedListener
+{
 
     public static final String KEY_PROJECT = "key_project";
     public static final String KEY_WAV_FILE = "key_wav_file";
@@ -68,7 +72,7 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
     private WavFile mNewRecording;
     private boolean isPausedRecording;
     private boolean isSaved;
-
+    private boolean hasStartedRecording = false;
 
     public static Intent getInsertIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit, int locationMs) {
         Logger.w("RecordingActivity", "Creating Insert Intent");
@@ -107,8 +111,40 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
     protected void onResume() {
         super.onResume();
         onlyVolumeTest = true;
-        startService(new Intent(this, WavRecorder.class));
-        mRecordingRenderer.listenForRecording(true);
+        Intent volumeTestIntent = new Intent(this, WavRecorder.class);
+        volumeTestIntent.putExtra(WavRecorder.KEY_VOLUME_TEST, onlyVolumeTest);
+        startService(volumeTestIntent);
+        mRecordingRenderer.listenForRecording(onlyVolumeTest);
+    }
+
+    @Override
+    public void onPause() {
+        Logger.w(this.toString(), "Recording screen onPauseRecording");
+        super.onPause();
+        if (isRecording) {
+            isRecording = false;
+            stopService(new Intent(this, WavRecorder.class));
+            RecordingQueues.stopQueues(this);
+        } else if (isPausedRecording) {
+            RecordingQueues.stopQueues(this);
+        } else if (!hasStartedRecording) {
+            stopService(new Intent(this, WavRecorder.class));
+            RecordingQueues.stopVolumeTest();
+        }
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Logger.w(this.toString(), "User pressed back");
+        if (!isSaved && hasStartedRecording) {
+            FragmentManager fm = getFragmentManager();
+            FragmentExitDialog d = new FragmentExitDialog();
+            d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+            d.show(fm, "Exit Dialog");
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -125,13 +161,20 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
 
     private void initializeFragments() {
         mFragmentHolder = new HashMap<>();
-        mFragmentRecordingControls = FragmentRecordingControls.newInstance();
+
+        mFragmentRecordingControls = FragmentRecordingControls.newInstance(
+                (mInsertMode)? FragmentRecordingControls.Mode.INSERT_MODE : FragmentRecordingControls.Mode.RECORDING_MODE
+        );
         mFragmentHolder.put(R.id.fragment_recording_controls_holder, mFragmentRecordingControls);
 
         mFragmentSourceAudio = FragmentSourceAudio.newInstance();
         mFragmentHolder.put(R.id.fragment_source_audio_holder, mFragmentSourceAudio);
 
-        mFragmentRecordingFileBar = FragmentRecordingFileBar.newInstance(mProject);
+        mFragmentRecordingFileBar = FragmentRecordingFileBar.newInstance(
+                mProject,
+                (mInsertMode)? FragmentRecordingControls.Mode.INSERT_MODE : FragmentRecordingControls.Mode.RECORDING_MODE,
+                isChunkMode
+        );
         mFragmentHolder.put(R.id.fragment_recording_file_bar_holder, mFragmentRecordingFileBar);
 
         mFragmentVolumeBar = FragmentVolumeBar.newInstance();
@@ -162,7 +205,7 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
             mInsertLocation = intent.getIntExtra(KEY_INSERT_LOCATION, 0);
             mInsertMode = true;
         }
-        isChunkMode = mProject.getMode().compareTo("chunk") == 0;
+        isChunkMode = mProject.getMode().equals("chunk");
     }
 
     private void initializeTaskFragment(Bundle savedInstanceState) {
@@ -193,6 +236,7 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
 
     @Override
     public void onStartRecording() {
+        hasStartedRecording = true;
         mFragmentSourceAudio.disableSourceAudio();
         mFragmentRecordingFileBar.disablePickers();
         onlyVolumeTest = false;
@@ -277,5 +321,10 @@ public class RecordingActivity extends AppCompatActivity implements FragmentReco
         Intent intent = PlaybackActivity.getPlaybackIntent(this, result, mProject, mChapter, mUnit);
         startActivity(intent);
         this.finish();
+    }
+
+    @Override
+    public void onUnitChanged(Project project, String fileName, int chapter) {
+        mFragmentSourceAudio.resetSourceAudio(project, fileName, chapter);
     }
 }
