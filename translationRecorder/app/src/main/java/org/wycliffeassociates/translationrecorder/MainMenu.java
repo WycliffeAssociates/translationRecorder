@@ -19,7 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityProjectManager;
-import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
+import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog;
 import org.wycliffeassociates.translationrecorder.Reporting.GithubReporter;
 import org.wycliffeassociates.translationrecorder.Reporting.GlobalExceptionHandler;
@@ -114,9 +114,9 @@ public class MainMenu extends Activity {
             case PROJECT_WIZARD_REQUEST: {
                 if (resultCode == RESULT_OK) {
                     Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                    if(addProjectToDatabase(project)) {
+                    if (addProjectToDatabase(project)) {
                         loadProject(project);
-                        Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
+                        Intent intent = RecordingActivity.getNewRecordingIntent(this, project, 1, 1);
                         startActivity(intent);
                     } else {
                         onResume();
@@ -135,13 +135,13 @@ public class MainMenu extends Activity {
 
     private void startRecordingScreen() {
         Project project = Project.getProjectFromPreferences(this);
-        Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
+        Intent intent = RecordingActivity.getNewRecordingIntent(this, project, 1, 1);
         startActivity(intent);
     }
 
     private boolean addProjectToDatabase(Project project) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if(db.projectExists(project)) {
+        if (db.projectExists(project)) {
             ProjectWizardActivity.displayProjectExists(this);
             return false;
         } else {
@@ -149,7 +149,6 @@ public class MainMenu extends Activity {
             return true;
         }
     }
-
 
 
     private void loadProject(Project project) {

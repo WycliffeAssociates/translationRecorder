@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/file_bar"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/abc_action_bar_default_height_material"
+    android:paddingStart="@dimen/default_padding_m"
+    android:paddingEnd="@dimen/default_padding_m"
+    android:background="@color/very_dark_gray_1"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/file_language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="English"
+        android:textColor="@color/text_light"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/file_project"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_l"
+        android:text="UDB"
+        android:textColor="@color/text_light"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/file_book"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_l"
+        android:text="Matthew"
+        android:textColor="@color/text_light"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/file_chapter_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_l"
+        android:text="Chapter"
+        android:textColor="@color/text_light"
+        android:textSize="18sp"/>
+
+    <org.wycliffeassociates.translationrecorder.Recording.UnitPicker
+        android:id="@+id/chapter_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_m"/>
+
+    <!-- NOTE: Unit can be verse or chunk, depending on the mode -->
+    <TextView
+        android:id="@+id/file_unit_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_l"
+        android:text="Chunk"
+        android:textColor="@color/text_light"
+        android:textSize="18sp"/>
+
+    <org.wycliffeassociates.translationrecorder.Recording.UnitPicker
+        android:id="@+id/unit_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_padding_m"/>
+
+</LinearLayout>

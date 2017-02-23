@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recording_screen_container"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent" >
+
+    <FrameLayout
+        android:id="@+id/fragment_recording_file_bar_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        />
+
+    <LinearLayout
+        android:id="@+id/wave_view"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:background="#0A0A0A"
+        android:layout_weight="10">
+
+        <FrameLayout
+            android:id="@+id/fragment_recording_waveform_holder"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="9"
+            />
+
+        <FrameLayout
+            android:id="@+id/fragment_volume_bar_holder"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            />
+
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/fragment_source_audio_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/fragment_recording_controls_holder"
+        />
+
+    <FrameLayout
+        android:id="@+id/fragment_recording_controls_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        />
+
+</LinearLayout>

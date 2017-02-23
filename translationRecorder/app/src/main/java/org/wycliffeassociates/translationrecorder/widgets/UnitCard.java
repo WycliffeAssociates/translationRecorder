@@ -13,7 +13,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
+import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.Utils;
@@ -349,7 +349,7 @@ public class UnitCard {
             public void onClick(View view) {
                 pauseAudio();
                 Project.loadProjectIntoPreferences(mCtx, mProject);
-                view.getContext().startActivity(RecordingScreen.getNewRecordingIntent(mCtx, mProject, mChapter, mFirstVerse));
+                view.getContext().startActivity(RecordingActivity.getNewRecordingIntent(mCtx, mProject, mChapter, mFirstVerse));
             }
         };
     }

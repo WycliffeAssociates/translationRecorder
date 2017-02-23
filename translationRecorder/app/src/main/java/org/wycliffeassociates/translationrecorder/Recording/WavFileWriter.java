@@ -10,10 +10,12 @@ import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
@@ -52,7 +54,7 @@ public class WavFileWriter extends Service {
                             if (!message.isPaused()) {
                                 rawAudio.write(message.getData());
                             } else {
-                                Logger.w(this.toString(), "raw audio thread received a onPause message");
+                                Logger.w(this.toString(), "raw audio thread received a onPauseRecording message");
                             }
                         }
                     }
@@ -101,7 +103,9 @@ public class WavFileWriter extends Service {
                     }
                     Logger.w(this.toString(), "created a new vis file");
                 }
-                try (FileOutputStream compressedFile = new FileOutputStream(file)) {
+                try (FileOutputStream fos = new FileOutputStream(file);
+                     BufferedOutputStream compressedFile = new BufferedOutputStream(fos);
+                ) {
                     compressedFile.write(new byte[4]);
                     while (!stopped) {
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
@@ -123,10 +127,11 @@ public class WavFileWriter extends Service {
                                     writeDataReceivedSoFar(compressedFile, byteArrayList, increment, stoppedRecording);
                                 }
                             } else {
-                                Logger.w(this.toString(), "Compression thread received a onPause message");
+                                Logger.w(this.toString(), "Compression thread received a onPauseRecording message");
                             }
                         }
                     }
+                    compressedFile.flush();
                     try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                         raf.seek(0);
                         raf.write('D');
@@ -163,7 +168,7 @@ public class WavFileWriter extends Service {
         return START_STICKY;
     }
 
-    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording) throws IOException {
+    private void writeDataReceivedSoFar(OutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording) throws IOException {
         byte[] data = new byte[increment];
         byte[] minAndMax = new byte[2 * AudioInfo.SIZE_OF_SHORT];
         //while there is more data in the arraylist than one increment
@@ -225,6 +230,10 @@ public class WavFileWriter extends Service {
         minAndMax[1] = data[minIdx + 1];
         minAndMax[2] = data[maxIdx];
         minAndMax[3] = data[maxIdx + 1];
-
+        try {
+            RecordingQueues.UIQueue.put(new RecordingMessage(minAndMax, false, false));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -37,7 +37,7 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
+import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -140,7 +140,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     public void startDrawThread() {
-        if(mDrawLoop != null) {
+        if (mDrawLoop != null) {
             mDrawLoop.finish();
         }
         mDrawLoop = new DrawThread();
@@ -194,7 +194,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void finish() {
         super.finish();
         mDrawLoop.finish();
-        if(mAudioController.isPlaying()) {
+        if (mAudioController.isPlaying()) {
             mAudioController.pause();
         }
     }
@@ -300,10 +300,10 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         isSaved = false;
         Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
         List<DraggableMarker> markerList = new ArrayList<>(markers);
-        for(int i = 0; i < markerList.size(); i++) {
+        for (int i = 0; i < markerList.size(); i++) {
             DraggableMarker marker = markerList.get(i);
-            if(marker.getFrame() <= mAudioController.getLoopEnd() && marker.getFrame() > mAudioController.getLoopStart()) {
-                if(marker instanceof VerseMarker) {
+            if (marker.getFrame() <= mAudioController.getLoopEnd() && marker.getFrame() > mAudioController.getLoopStart()) {
+                if (marker instanceof VerseMarker) {
                     //iter.remove();
                     mMarkerMediator.onRemoveVerseMarker(((VerseMarkerView) marker.getView()).getMarkerId());
                 }
@@ -312,7 +312,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             }
         }
         mAudioController.cut();
-        for(DraggableMarker marker : markers) {
+        for (DraggableMarker marker : markers) {
             marker.updateFrame(mAudioController.mCutOp.absoluteLocToRelative(marker.getFrame(), false));
         }
         mFragmentPlaybackTools.onLocationUpdated(mAudioController.getAbsoluteLocationMs());
@@ -380,13 +380,14 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     public void onUndo() {
         Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
         //map markers back to absolute before
-        for(DraggableMarker marker : markers) {
+        for (DraggableMarker marker : markers) {
             marker.updateFrame(mAudioController.mCutOp.relativeLocToAbsolute(marker.getFrame(), false));
         }
         mAudioController.undo();
-        for(DraggableMarker marker : markers) {
+        for (DraggableMarker marker : markers) {
             marker.updateFrame(mAudioController.mCutOp.absoluteLocToRelative(marker.getFrame(), false));
-        }        if (!mAudioController.mCutOp.hasCut()) {
+        }
+        if (!mAudioController.mCutOp.hasCut()) {
             isSaved = true;
         }
         mFragmentTabbedWidget.invalidateMinimap();
@@ -429,7 +430,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         }
     }
 
-    public boolean actionsToSave(){
+    public boolean actionsToSave() {
         boolean cuts = mAudioController.mCutOp.hasCut();
         int markersOriginally = Math.max(mWavFile.getMetadata().getCuePoints().size(), 1);
         int markersNow = mMarkerMediator.numVerseMarkersPlaced();
@@ -444,7 +445,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     public void onRerecord() {
-        Intent intent = RecordingScreen.getRerecordIntent(this, mProject, mWavFile, mChapter, mUnit);
+        Intent intent = RecordingActivity.getRerecordIntent(this, mProject, mWavFile, mChapter, mUnit);
         save(intent);
     }
 
@@ -537,7 +538,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                     finish();
                 } else {
                     WavFile result = new WavFile(to);
-                    intent.putExtra(RecordingScreen.KEY_WAV_FILE, result);
+                    intent.putExtra(RecordingActivity.KEY_WAV_FILE, result);
                     startActivity(intent);
                     finish();
                 }
@@ -547,7 +548,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     public void onInsert() {
-        Intent insertIntent = RecordingScreen.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mAudioController.getRelativeLocationInFrames());
+        Intent insertIntent = RecordingActivity.getInsertIntent(this, mProject, mWavFile, mChapter, mUnit, mAudioController.getRelativeLocationInFrames());
         save(insertIntent);
     }
 
@@ -620,7 +621,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             wavVis = new WavVisualizer(uncompressed, compressed, numThreads, mWaveformFragment.getView().getWidth(), mWaveformFragment.getView().getHeight(), mFragmentTabbedWidget.getWidgetWidth(), mAudioController.getCutOp());
             mWaveformFragment.setWavRenderer(wavVis);
             mFragmentTabbedWidget.initializeTimecode(mAudioController.getRelativeDurationMs());
-        } catch (IOException e){
+        } catch (IOException e) {
 
         }
     }
@@ -651,7 +652,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     @Override
     public void onVisualizationLoaded(final ShortBuffer mappedVisualizationFile) {
         Handler handler = new Handler(Looper.getMainLooper());
-        if(wavVis == null) {
+        if (wavVis == null) {
             //delay the call if the visualizer hasn't loaded yet
             handler.postDelayed(new Runnable() {
                 @Override
@@ -675,14 +676,14 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         Logger.w(this.toString(), "onEnableVerseMarkerMode");
         onClearMarkers();
         //if (mMarkerMediator.hasVersesRemaining()) {
-            mode = MODE.VERSE_MARKER;
-            FragmentManager fm = getFragmentManager();
-            fm.beginTransaction()
-                    .remove(mFragmentFileBar)
-                    .add(R.id.file_bar_fragment_holder, mMarkerCounterFragment)
-                    .remove(mFragmentPlaybackTools)
-                    .add(R.id.playback_tools_fragment_holder, mMarkerToolbarFragment)
-                    .commit();
+        mode = MODE.VERSE_MARKER;
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction()
+                .remove(mFragmentFileBar)
+                .add(R.id.file_bar_fragment_holder, mMarkerCounterFragment)
+                .remove(mFragmentPlaybackTools)
+                .add(R.id.playback_tools_fragment_holder, mMarkerToolbarFragment)
+                .commit();
         //}
         onLocationUpdated();
     }
@@ -703,7 +704,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onMarkerPlaced() {
-        if(mMarkerMediator.hasVersesRemaining()) {
+        if (mMarkerMediator.hasVersesRemaining()) {
             Logger.w(this.toString(), "Placed verse marker");
             int frame = mAudioController.getRelativeLocationInFrames();
             int markerNumber = (startVerse + 1) + (endVerse - startVerse - mMarkerMediator.numVersesRemaining());
@@ -746,7 +747,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public boolean onMarkerMovementRequest(int markerId) {
-        if(mode == MODE.EDIT && (markerId == MarkerHolder.END_MARKER_ID || markerId == MarkerHolder.START_MARKER_ID)){
+        if (mode == MODE.EDIT && (markerId == MarkerHolder.END_MARKER_ID || markerId == MarkerHolder.START_MARKER_ID)) {
             return true;
         } else if (mode == MODE.VERSE_MARKER && markerId != MarkerHolder.START_MARKER_ID && markerId != MarkerHolder.END_MARKER_ID) {
             return true;
@@ -755,11 +756,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         }
     }
 
-    public boolean isInVerseMarkerMode(){
+    public boolean isInVerseMarkerMode() {
         return mode == MODE.VERSE_MARKER;
     }
 
-    public boolean isInEditMode(){
+    public boolean isInEditMode() {
         return mode == MODE.EDIT;
     }
 
@@ -778,8 +779,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         public void run() {
 
             while (!finished) {
-                if(mAudioController != null && mAudioController.isPlaying()) {
-                   onLocationUpdated();
+                if (mAudioController != null && mAudioController.isPlaying()) {
+                    onLocationUpdated();
                 }
                 try {
                     Thread.sleep(45);

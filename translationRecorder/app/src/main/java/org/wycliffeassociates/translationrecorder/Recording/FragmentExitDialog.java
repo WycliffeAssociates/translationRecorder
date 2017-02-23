@@ -1,5 +1,6 @@
 package org.wycliffeassociates.translationrecorder.Recording;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,13 +16,13 @@ import org.wycliffeassociates.translationrecorder.R;
 public class FragmentExitDialog extends DialogFragment implements View.OnClickListener{
 
     ImageButton delete, save;
-    RecordingScreen rs;
+    Activity activity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_exit_record, null);
 
-        rs = (RecordingScreen) getActivity();
+        activity = getActivity();
 
         delete = (ImageButton) view.findViewById(R.id.btnDelete);
         save = (ImageButton) view.findViewById(R.id.btn_save);
@@ -40,7 +41,7 @@ public class FragmentExitDialog extends DialogFragment implements View.OnClickLi
                 break;
             case R.id.btnDelete: {
                 //rs.deleteTempFile();
-                rs.finish();
+                activity.finish();
                 break;
             }
             default:{

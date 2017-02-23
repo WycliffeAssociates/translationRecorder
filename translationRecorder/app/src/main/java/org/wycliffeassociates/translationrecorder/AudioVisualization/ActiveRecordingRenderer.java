@@ -1,12 +1,15 @@
 package org.wycliffeassociates.translationrecorder.AudioVisualization;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.TextView;
 
+import org.wycliffeassociates.translationrecorder.AudioVisualization.Utils.U;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingMessage;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingQueues;
+import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingControls;
+import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingWaveform;
+import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import org.wycliffeassociates.translationrecorder.utilities.RingBuffer;
 
 /**
  * Created by sarabiaj on 9/10/2015.
@@ -14,42 +17,45 @@ import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 public class ActiveRecordingRenderer {
 
-    private final WaveformView mainWave;
-    private final VolumeBar mVolume;
-    private final TextView mTimerView;
-    private Handler mHandler;
+    private VisualizerCompressor mVisualizerCompressor;
+    private FragmentRecordingControls mFragmentRecordingControls;
+    private FragmentVolumeBar mFragmentVolumeBar;
+    private FragmentRecordingWaveform mFragmentRecordingWaveform;
     private boolean isRecording;
-    RecordingTimer timer;
+    private RingBuffer mRingBuffer;
+    private int mCanvasHeight;
 
     public ActiveRecordingRenderer(WaveformView mainWave, VolumeBar volume, TextView timerView){
-        mainWave.setUIDataManager(this);
-        this.mainWave = mainWave;
-        mVolume = volume;
-        mTimerView = timerView;
-        mHandler = new Handler(Looper.getMainLooper());
-        timer = new RecordingTimer();
     }
 
-    public void startTimer(){
-        timer.startTimer();
+    public ActiveRecordingRenderer(FragmentRecordingControls timer, FragmentVolumeBar volume, FragmentRecordingWaveform waveform) {
+        mFragmentRecordingControls = timer;
+        mFragmentVolumeBar = volume;
+        mFragmentRecordingWaveform = waveform;
+        mVisualizerCompressor = new VisualizerCompressor(10);
     }
 
-    public void pauseTimer(){
-        timer.pause();
-    }
-
-    public void resumeTimer(){
-        timer.resume();
-    }
 
     public void setIsRecording(boolean isRecording){
         this.isRecording = isRecording;
     }
 
+    //hold off on initializing until needed- the waveform view hasn't been drawn yet and thus the
+    //canvas has not been inflated to query the width
+    private void initializeRingBuffer(){
+        if(mRingBuffer == null) {
+            mRingBuffer = new RingBuffer(mFragmentRecordingWaveform.getWidth());
+        }
+    }
+
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
     //canvas views to listen for recording on the same activity
     public void listenForRecording(final boolean onlyVolumeTest){
-        mainWave.setDrawingFromBuffer(true);
+        if(!onlyVolumeTest) {
+            mFragmentRecordingWaveform.setDrawingFromBuffer(true);
+            initializeRingBuffer();
+            mCanvasHeight = mFragmentRecordingWaveform.getHeight();
+        }
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -67,41 +73,31 @@ public class ActiveRecordingRenderer {
                             byte[] buffer = message.getData();
                             double max = getPeakVolume(buffer);
                             double db = Math.abs(max);
-                            if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 33)) {
+                            if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 60)) {
                                 maxDB = db;
-                                mVolume.setDb((int) maxDB);
-                                mVolume.postInvalidate();
-                                timeDelay = System.currentTimeMillis();
-                            } else if (((System.currentTimeMillis() - timeDelay) > 33)) {
+                                mFragmentVolumeBar.updateDb((int)maxDB);
+                            } else if (((System.currentTimeMillis() - timeDelay) > 60)) {
                                 maxDB = db;
-                                mVolume.setDb((int) maxDB);
-                                mVolume.postInvalidate();
-                                timeDelay = System.currentTimeMillis();
+                                mFragmentVolumeBar.updateDb((int)maxDB);
                             }
                             if (isRecording) {
-                                mainWave.setBuffer(buffer);
-                                mainWave.postInvalidate();
-                                if (timer != null) {
-                                    long t = timer.getTimeElapsed();
-                                    final String time = String.format("%02d:%02d:%02d", t / 3600000, (t / 60000) % 60, (t / 1000) % 60);
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mTimerView.setText(time);
-                                            mTimerView.invalidate();
-                                        }
-                                    });
+                                for(int i = 0; i < buffer.length; i+=2) {
+                                    byte low = buffer[i];
+                                    byte hi = buffer[i+1];
+                                    short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
+                                    mVisualizerCompressor.add(value);
                                 }
+                                mFragmentRecordingWaveform.updateWaveform(mRingBuffer.getArray());
+                                mFragmentRecordingControls.updateTime();
                                 //if only running the volume meter, the queues need to be emptied
                             } else if (onlyVolumeTest) {
-                                mainWave.setBuffer(null);
+                                mFragmentRecordingWaveform.updateWaveform(null);
                                 RecordingQueues.writingQueue.clear();
                                 RecordingQueues.compressionQueue.clear();
                             }
                         }
                         if (isStopped) {
-                            mainWave.setBuffer(null);
-                            mainWave.postInvalidate();
+                            mFragmentRecordingWaveform.updateWaveform(null);
                             Logger.w(this.toString(), "UI thread received a stop message");
                             return;
                         }
@@ -118,7 +114,7 @@ public class ActiveRecordingRenderer {
                     }
                 }
 
-                mainWave.setDrawingFromBuffer(false);
+                mFragmentRecordingWaveform.setDrawingFromBuffer(false);
             }
         });
         uiThread.setName("UIThread");
@@ -134,5 +130,45 @@ public class ActiveRecordingRenderer {
             max = (Math.abs(value) > max)? Math.abs(value) : max;
         }
         return max;
+    }
+
+    private class VisualizerCompressor {
+
+        float[] accumulator;
+        int index = 0;
+
+        public VisualizerCompressor(int numSecondsOnScreen) {
+            accumulator = new float[numSecondsOnScreen * 2];
+        }
+
+        public void add(float[] data) {
+            for(float sample : data) {
+                accumulator[index] = sample;
+                index++;
+                if(index >= accumulator.length){
+                    sendDataToRingBuffer();
+                }
+            }
+        }
+
+        public void add(float data) {
+            accumulator[index] = data;
+            index++;
+            if(index >= accumulator.length){
+                sendDataToRingBuffer();
+            }
+        }
+
+        private void sendDataToRingBuffer(){
+            float min = Float.MAX_VALUE;
+            float max = Float.MIN_VALUE;
+            for(float sample : accumulator) {
+                max = (max < sample)? sample : max;
+                min = (min > sample)? sample : min;
+            }
+            mRingBuffer.add(U.getValueForScreen(min, mCanvasHeight));
+            mRingBuffer.add(U.getValueForScreen(max, mCanvasHeight));
+            index = 0;
+        }
     }
 }

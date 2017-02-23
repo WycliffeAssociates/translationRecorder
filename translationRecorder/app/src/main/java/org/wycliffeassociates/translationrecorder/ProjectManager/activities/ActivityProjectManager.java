@@ -30,7 +30,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Project
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSourceAudioTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Recording.RecordingScreen;
+import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
@@ -310,7 +310,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         loadProject(project);
                         finish();
                         //TODO: should find place left off at?
-                        Intent intent = RecordingScreen.getNewRecordingIntent(this, project, 1, 1);
+                        Intent intent = RecordingActivity.getNewRecordingIntent(this, project, 1, 1);
                         startActivity(intent);
                     } else {
                         onResume();
