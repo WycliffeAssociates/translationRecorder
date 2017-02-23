@@ -10,10 +10,12 @@ import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
@@ -101,7 +103,9 @@ public class WavFileWriter extends Service {
                     }
                     Logger.w(this.toString(), "created a new vis file");
                 }
-                try (FileOutputStream compressedFile = new FileOutputStream(file)) {
+                try (FileOutputStream fos = new FileOutputStream(file);
+                     BufferedOutputStream compressedFile = new BufferedOutputStream(fos);
+                ) {
                     compressedFile.write(new byte[4]);
                     while (!stopped) {
                         RecordingMessage message = RecordingQueues.compressionQueue.take();
@@ -127,6 +131,7 @@ public class WavFileWriter extends Service {
                             }
                         }
                     }
+                    compressedFile.flush();
                     try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                         raf.seek(0);
                         raf.write('D');
@@ -163,7 +168,7 @@ public class WavFileWriter extends Service {
         return START_STICKY;
     }
 
-    private void writeDataReceivedSoFar(FileOutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording) throws IOException {
+    private void writeDataReceivedSoFar(OutputStream compressedFile, ArrayList<Byte> list, int increment, boolean stoppedRecording) throws IOException {
         byte[] data = new byte[increment];
         byte[] minAndMax = new byte[2 * AudioInfo.SIZE_OF_SHORT];
         //while there is more data in the arraylist than one increment

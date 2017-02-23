@@ -17,21 +17,22 @@
         android:id="@+id/wave_view"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:background="#0A0A0A"
-        android:layout_weight="1">
+        android:layout_weight="10">
 
         <FrameLayout
             android:id="@+id/fragment_recording_waveform_holder"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="9"
             />
 
         <FrameLayout
             android:id="@+id/fragment_volume_bar_holder"
-            android:layout_width="24dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="-24dp"
+            android:layout_weight="1"
             />
 
 

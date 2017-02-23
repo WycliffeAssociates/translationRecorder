@@ -73,10 +73,10 @@ public class ActiveRecordingRenderer {
                             byte[] buffer = message.getData();
                             double max = getPeakVolume(buffer);
                             double db = Math.abs(max);
-                            if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 33)) {
+                            if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 60)) {
                                 maxDB = db;
                                 mFragmentVolumeBar.updateDb((int)maxDB);
-                            } else if (((System.currentTimeMillis() - timeDelay) > 33)) {
+                            } else if (((System.currentTimeMillis() - timeDelay) > 60)) {
                                 maxDB = db;
                                 mFragmentVolumeBar.updateDb((int)maxDB);
                             }

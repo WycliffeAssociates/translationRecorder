@@ -11,7 +11,7 @@ import org.wycliffeassociates.translationrecorder.R;
 /**
  * Created by sarabiaj on 3/29/2016.
  */
-public class VolumeBar extends CanvasView{
+public class VolumeBar extends CanvasView {
 
     public int mDb = 0;
     int dbNone;
