@@ -172,6 +172,8 @@ public class RecordingActivity extends AppCompatActivity implements
 
         mFragmentRecordingFileBar = FragmentRecordingFileBar.newInstance(
                 mProject,
+                mChapter,
+                mUnit,
                 (mInsertMode)? FragmentRecordingControls.Mode.INSERT_MODE : FragmentRecordingControls.Mode.RECORDING_MODE,
                 isChunkMode
         );

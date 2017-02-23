@@ -32,7 +32,9 @@ public class FragmentRecordingFileBar extends Fragment {
     private static final int DEFAULT_CHAPTER = 1;
     private static final int DEFAULT_UNIT = 1;
     private static final String KEY_PROJECT = "key_project";
-    private static final String KEY_IS_CHUNK_MODE = "key_unit";
+    public static final String KEY_CHAPTER = "key_chapter";
+    public static final String KEY_UNIT = "key_unit";
+    private static final String KEY_IS_CHUNK_MODE = "key_unit_mode";
 
     private TextView mBookView;
     private TextView mSourceView;
@@ -57,11 +59,13 @@ public class FragmentRecordingFileBar extends Fragment {
         void onUnitChanged(Project project, String fileName, int chapter);
     }
 
-    public static FragmentRecordingFileBar newInstance(Project project, FragmentRecordingControls.Mode mode, boolean unitIsChunks){
+    public static FragmentRecordingFileBar newInstance(Project project, int chapter, int unit, FragmentRecordingControls.Mode mode, boolean unitIsChunks){
         FragmentRecordingFileBar f = new FragmentRecordingFileBar();
         Bundle args = new Bundle();
         args.putParcelable(KEY_PROJECT, project);
         args.putBoolean(KEY_IS_CHUNK_MODE, unitIsChunks);
+        args.putInt(KEY_CHAPTER, chapter);
+        args.putInt(KEY_UNIT, unit);
         f.setArguments(args);
         f.setMode(mode);
         return f;
@@ -115,6 +119,8 @@ public class FragmentRecordingFileBar extends Fragment {
     private void loadArgs(Bundle args) {
         mProject = (Project) args.getParcelable(KEY_PROJECT);
         isChunkMode = args.getBoolean(KEY_IS_CHUNK_MODE);
+        mChapter = args.getInt(KEY_CHAPTER);
+        mUnit = args.getInt(KEY_UNIT);
     }
 
     private void findViews() {
