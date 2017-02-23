@@ -1,11 +1,10 @@
 package org.wycliffeassociates.translationrecorder.Playback.player;
 
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
+import org.wycliffeassociates.translationrecorder.wav.WavCue;
 
 import java.nio.ShortBuffer;
 import java.util.List;
-
-import org.wycliffeassociates.translationrecorder.wav.WavCue;
 
 /**
  * Created by sarabiaj on 10/28/2016.
@@ -18,7 +17,7 @@ import org.wycliffeassociates.translationrecorder.wav.WavCue;
  */
 public class WavPlayer {
 
-    private final List<WavCue> mCueList;
+    private List<WavCue> mCueList;
     ShortBuffer mAudioBuffer;
     CutOp mOperationStack;
     BufferPlayer mPlayer;
@@ -94,6 +93,10 @@ public class WavPlayer {
         if(wasPlaying){
             play();
         }
+    }
+
+    public synchronized void setCueList(List<WavCue> cueList) {
+        mCueList = cueList;
     }
 
     public void play(){
