@@ -62,7 +62,8 @@ public class ActiveRecordingRenderer {
                 boolean isStopped = false;
                 boolean isPaused = false;
                 double maxDB = 0;
-                long timeDelay = System.currentTimeMillis();
+                long volumeBarDelay = System.currentTimeMillis();
+                long waveformDelay = System.currentTimeMillis();
                 try {
                     while (!isStopped) {
                         RecordingMessage message = RecordingQueues.UIQueue.take();
@@ -73,10 +74,11 @@ public class ActiveRecordingRenderer {
                             byte[] buffer = message.getData();
                             double max = getPeakVolume(buffer);
                             double db = Math.abs(max);
-                            if (db > maxDB && ((System.currentTimeMillis() - timeDelay) < 60)) {
+                            if (db > maxDB && ((System.currentTimeMillis() - volumeBarDelay) < 60)) {
                                 maxDB = db;
                                 mFragmentVolumeBar.updateDb((int)maxDB);
-                            } else if (((System.currentTimeMillis() - timeDelay) > 60)) {
+                            } else if (((System.currentTimeMillis() - volumeBarDelay) > 60)) {
+                                volumeBarDelay = System.currentTimeMillis();
                                 maxDB = db;
                                 mFragmentVolumeBar.updateDb((int)maxDB);
                             }
@@ -87,12 +89,16 @@ public class ActiveRecordingRenderer {
                                     short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
                                     mVisualizerCompressor.add(value);
                                 }
-                                mFragmentRecordingWaveform.updateWaveform(mRingBuffer.getArray());
-                                mFragmentRecordingControls.updateTime();
+                                if((System.currentTimeMillis() - waveformDelay) > 12){
+                                    waveformDelay = System.currentTimeMillis();
+                                    mFragmentRecordingWaveform.updateWaveform(mRingBuffer.getArray());
+                                    mFragmentRecordingControls.updateTime();
+                                }
                                 //if only running the volume meter, the queues need to be emptied
                             } else if (onlyVolumeTest) {
                                 mFragmentRecordingWaveform.updateWaveform(null);
                                 RecordingQueues.writingQueue.clear();
+                                RecordingQueues.compressionWriterQueue.clear();
                                 RecordingQueues.compressionQueue.clear();
                             }
                         }
