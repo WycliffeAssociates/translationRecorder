@@ -170,16 +170,22 @@ public class MarkerHolder implements MarkerMediator {
 
     @Override
     public void onCueScroll(int id, float newXPos) {
-        int position = mMarkers.get(id).getFrame() + ((int) (newXPos - mMarkers.get(id).getMarkerX()) * 230);
+        DraggableMarker selectedMarker = mMarkers.get(id);
+        float fpp = getFramesPerPixel();
+        int position = selectedMarker.getFrame() + ((int) Math.round((newXPos - selectedMarker.getMarkerX()) * fpp));
         position = Math.min(Math.max(position, 0), mAudioController.getAbsoluteDurationInFrames());
         if (id == START_MARKER_ID) {
             mAudioController.setStartMarker(position);
         } else if (id == END_MARKER_ID) {
             mAudioController.setEndMarker(position);
         }
-        mMarkers.get(id).updateFrame(position);
+        selectedMarker.updateFrame(position);
         mAudioController.setCueList(getCueLocationList());
         mActivity.onLocationUpdated();
+    }
+
+    private float getFramesPerPixel(){
+        return (44100 * 10) / (float) mDraggableViewFrame.getWidth();
     }
 
     @Override
