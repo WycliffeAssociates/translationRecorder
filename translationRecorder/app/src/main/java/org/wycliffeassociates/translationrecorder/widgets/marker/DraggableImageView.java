@@ -101,11 +101,11 @@ public class DraggableImageView extends ImageView {
         return mPaint;
     }
 
-    protected static Paint configurePaint(int color){
+    protected static Paint configurePaint(int color, float strokeWidth){
         Paint paint = new Paint();
         paint.setColor(color);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(8.f);
+        paint.setStrokeWidth(strokeWidth);
         return paint;
     }
 

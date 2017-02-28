@@ -22,30 +22,32 @@ public class SectionMarkerView extends DraggableImageView {
         mOrientation = orientation;
     }
 
-    public SectionMarkerView(Activity context, int drawableId, int viewId, Orientation orientation, int color){
+    public SectionMarkerView(Activity context, int drawableId, int viewId, Orientation orientation, int color, float strokeWidth){
         this(
                 context,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT),
                 drawableId,
                 viewId,
                 orientation,
-                color
+                color,
+                strokeWidth
         );
     }
 
-    public SectionMarkerView(Activity context, int drawableId, int gravity, int viewId, Orientation orientation, int color){
+    public SectionMarkerView(Activity context, int drawableId, int gravity, int viewId, Orientation orientation, int color, float strokeWidth){
         this(
                 context,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, gravity),
                 drawableId,
                 viewId,
                 orientation,
-                color
+                color,
+                strokeWidth
         );
     }
 
-    private SectionMarkerView(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId, Orientation orientation, int color){
-        super(context, params, drawableId, viewId, configurePaint(color));
+    private SectionMarkerView(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId, Orientation orientation, int color, float strokeWidth){
+        super(context, params, drawableId, viewId, configurePaint(color, strokeWidth));
         setOrientation(orientation);
         if(orientation == Orientation.LEFT_MARKER) {
             setScaleType(ScaleType.FIT_START);

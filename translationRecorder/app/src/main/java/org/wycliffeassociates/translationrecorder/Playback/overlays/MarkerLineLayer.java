@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -29,9 +31,13 @@ public class MarkerLineLayer extends View {
     }
 
     private void setPaint(){
+        int dpSize =  1;
+        DisplayMetrics dm = getResources().getDisplayMetrics() ;
+        float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpSize, dm);
+
         mPaintBaseLine = new Paint(Color.BLACK);
         mPaintBaseLine.setStyle(Paint.Style.STROKE);
-        mPaintBaseLine.setStrokeWidth(2f);
+        mPaintBaseLine.setStrokeWidth(strokeWidth);
     }
 
     MarkerLineDrawDelegator mMarkerLineDrawDelegator;
