@@ -10,28 +10,30 @@ import android.widget.FrameLayout;
 
 public class VerseMarkerView extends DraggableImageView {
 
-    public VerseMarkerView(Activity context, int drawableId, int viewId, int color){
+    public VerseMarkerView(Activity context, int drawableId, int viewId, int color, float strokeWidth){
         this(
                 context,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT),
                 drawableId,
                 viewId,
-                color
+                color,
+                strokeWidth
         );
     }
 
-    public VerseMarkerView(Activity context, int drawableId, int gravity, int viewId, int color){
+    public VerseMarkerView(Activity context, int drawableId, int gravity, int viewId, int color, float strokeWidth){
         this(
                 context,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, gravity),
                 drawableId,
                 viewId,
-                color
+                color,
+                strokeWidth
         );
     }
 
-    private VerseMarkerView(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId, int color){
-        super(context, params, drawableId, viewId, configurePaint(color));
+    private VerseMarkerView(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId, int color, float strokeWidth){
+        super(context, params, drawableId, viewId, configurePaint(color, strokeWidth));
         setScaleType(ScaleType.FIT_START);
     }
 }

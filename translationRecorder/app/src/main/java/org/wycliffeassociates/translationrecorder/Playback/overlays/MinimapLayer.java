@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -32,10 +34,15 @@ public class MinimapLayer extends View {
 
     public MinimapLayer(Context context) {
         super(context);
+
+        int dpSize =  1;
+        DisplayMetrics dm = getResources().getDisplayMetrics() ;
+        float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpSize, dm);
+
         mPaint = new Paint();
         mPaint.setColor(Color.GRAY);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(1f);
+        mPaint.setStrokeWidth(strokeWidth);
     }
 
     public void setMinimapDrawDelegator(MinimapDrawDelegator minimapDrawDelegator) {

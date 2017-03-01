@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 
 import org.wycliffeassociates.translationrecorder.R;
@@ -23,18 +25,23 @@ public abstract class CanvasView extends View {
     }
 
     protected void init(){
+
+        int dpSize =  1;
+        DisplayMetrics dm = getResources().getDisplayMetrics() ;
+        float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpSize, dm);
+
         mPaintGrid = new Paint();
         mPaintGrid.setColor(Color.GRAY);
         mPaintGrid.setStyle(Paint.Style.STROKE);
-        mPaintGrid.setStrokeWidth(1f);
+        mPaintGrid.setStrokeWidth(strokeWidth);
 
         mPaintWaveform = new Paint();
-        mPaintWaveform.setStrokeWidth(1.5f);
+        mPaintWaveform.setStrokeWidth(strokeWidth);
         mPaintWaveform.setColor(getResources().getColor(R.color.off_white));
 
         mPaintBaseLine = new Paint();
         mPaintBaseLine.setColor(getResources().getColor(R.color.bright_blue));
-        mPaintBaseLine.setStrokeWidth(3f);
+        mPaintBaseLine.setStrokeWidth(strokeWidth);
     }
 
     // override onDrawMarkers

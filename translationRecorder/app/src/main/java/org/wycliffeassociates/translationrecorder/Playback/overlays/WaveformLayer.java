@@ -3,6 +3,8 @@ package org.wycliffeassociates.translationrecorder.Playback.overlays;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -31,10 +33,15 @@ public class WaveformLayer extends View {
 
     public WaveformLayer(Context context) {
         super(context);
+
+        int dpSize =  0;
+        DisplayMetrics dm = getResources().getDisplayMetrics() ;
+        float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpSize, dm);
+
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(getResources().getColor(R.color.off_white));
-        mPaint.setStrokeWidth(0);
+        mPaint.setStrokeWidth(strokeWidth);
     }
 
     private void setWaveformDrawDelegator(WaveformDrawDelegator drawDelegator){
