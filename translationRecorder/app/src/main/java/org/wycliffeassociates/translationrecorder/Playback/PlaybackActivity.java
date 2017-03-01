@@ -300,9 +300,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         isSaved = false;
         Collection<DraggableMarker> markers = mMarkerMediator.getMarkers();
         List<DraggableMarker> markerList = new ArrayList<>(markers);
+        long relativeLoopStart = mAudioController.mCutOp.absoluteLocToRelative(mAudioController.getLoopStart(), false);
+        long relativeLoopEnd = mAudioController.mCutOp.absoluteLocToRelative(mAudioController.getLoopEnd(), false);
+
         for (int i = 0; i < markerList.size(); i++) {
             DraggableMarker marker = markerList.get(i);
-            if (marker.getFrame() <= mAudioController.getLoopEnd() && marker.getFrame() > mAudioController.getLoopStart()) {
+            if (marker.getFrame() <= relativeLoopEnd && marker.getFrame() > relativeLoopStart) {
                 if (marker instanceof VerseMarker) {
                     //iter.remove();
                     mMarkerMediator.onRemoveVerseMarker(((VerseMarkerView) marker.getView()).getMarkerId());
