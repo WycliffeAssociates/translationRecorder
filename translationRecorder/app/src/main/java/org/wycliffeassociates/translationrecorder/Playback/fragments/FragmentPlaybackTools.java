@@ -22,21 +22,22 @@ import org.wycliffeassociates.translationrecorder.widgets.PlaybackTimer;
  * Created by sarabiaj on 11/4/2016.
  */
 
-public class FragmentPlaybackTools extends Fragment{
+public class FragmentPlaybackTools extends Fragment {
 
     MediaController mMediaController;
     AudioEditDelegator mAudioEditDelegator;
     ImageButton mPlayBtn, mPauseBtn, mSkipBackBtn, mSkipForwardBtn,
             mDropStartMarkBtn, mDropEndMarkBtn,
             mUndoBtn, mCutBtn, mClearBtn,
-            mSaveBtn, mDropVerseMarkerBtn;
 
+    mSaveBtn, mDropVerseMarkerBtn;
     private TextView mPlaybackDuration;
+
     private TextView mPlaybackElapsed;
-
     private PlaybackTimer mTimer;
+    private boolean mUndoVisible = false;
 
-    public static FragmentPlaybackTools newInstance(){
+    public static FragmentPlaybackTools newInstance() {
         FragmentPlaybackTools f = new FragmentPlaybackTools();
         return f;
     }
@@ -57,7 +58,7 @@ public class FragmentPlaybackTools extends Fragment{
                     });
                 }
             });
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement MediaController");
         }
         try {
@@ -71,6 +72,9 @@ public class FragmentPlaybackTools extends Fragment{
     public void onDetach() {
         super.onDetach();
         mMediaController = null;
+        mAudioEditDelegator = null;
+        //hold the visibility of the undo button for switching contexts to verse marker mode and back
+        mUndoVisible = mUndoBtn.getVisibility() == View.VISIBLE;
     }
 
     @Override
@@ -85,14 +89,16 @@ public class FragmentPlaybackTools extends Fragment{
         attachListeners();
         initTimer(mPlaybackElapsed, mPlaybackDuration);
         Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
-        if(mMediaController.isPlaying()) {
+        if (mMediaController.isPlaying()) {
             showPauseButton();
         } else {
             showPlayButton();
         }
+        //restore undo button visibility from detach
+        mUndoBtn.setVisibility((mUndoVisible) ? View.VISIBLE : View.INVISIBLE);
     }
 
-    private void findViews(){
+    private void findViews() {
         View view = getView();
         mPlayBtn = (ImageButton) view.findViewById(R.id.btn_play);
         mPauseBtn = (ImageButton) view.findViewById(R.id.btn_pause);
@@ -119,55 +125,55 @@ public class FragmentPlaybackTools extends Fragment{
         mTimer.setDuration(mMediaController.getDurationMs());
     }
 
-    public void onLocationUpdated(int ms){
+    public void onLocationUpdated(int ms) {
         mTimer.setElapsed(ms);
     }
 
-    public void onDurationUpdated(int ms){
+    public void onDurationUpdated(int ms) {
         mTimer.setDuration(ms);
     }
 
-    private void attachListeners(){
+    private void attachListeners() {
         attachMediaControllerListeners();
     }
 
-    public void showPauseButton(){
+    public void showPauseButton() {
         Utils.swapViews(new View[]{mPauseBtn}, new View[]{mPlayBtn});
     }
 
-    public void showPlayButton(){
+    public void showPlayButton() {
         Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
     }
 
-    public void viewOnSetStartMarker(){
+    public void viewOnSetStartMarker() {
         Utils.swapViews(new View[]{mDropEndMarkBtn, mClearBtn}, new View[]{mDropStartMarkBtn});
     }
 
-    public void viewOnSetEndMarker(){
+    public void viewOnSetEndMarker() {
         Utils.swapViews(new View[]{mCutBtn}, new View[]{mDropEndMarkBtn, mDropStartMarkBtn});
     }
 
-    public void viewOnSetBothMarkers(){
+    public void viewOnSetBothMarkers() {
         Utils.swapViews(new View[]{mCutBtn}, new View[]{mDropEndMarkBtn, mDropStartMarkBtn});
     }
 
-    public void viewOnCut(){
+    public void viewOnCut() {
         Utils.swapViews(new View[]{mDropStartMarkBtn, mUndoBtn}, new View[]{mCutBtn, mClearBtn});
     }
 
-    public void viewOnUndo(){
+    public void viewOnUndo() {
         View[] toHide = {};
-        if(!((EditStateInformer)mAudioEditDelegator).hasEdits()){
+        if (!((EditStateInformer) mAudioEditDelegator).hasEdits()) {
             toHide = new View[]{mUndoBtn};
         }
         Utils.swapViews(new View[]{}, toHide);
     }
 
-    public void viewOnClearMarkers(){
+    public void viewOnClearMarkers() {
         Utils.swapViews(new View[]{mDropStartMarkBtn}, new View[]{mClearBtn, mCutBtn, mDropEndMarkBtn});
     }
 
-    private void attachMediaControllerListeners(){
+    private void attachMediaControllerListeners() {
         mPlayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -253,11 +259,11 @@ public class FragmentPlaybackTools extends Fragment{
         });
     }
 
-    public void onPlayerPaused(){
+    public void onPlayerPaused() {
         Utils.swapViews(new View[]{mPlayBtn}, new View[]{mPauseBtn});
     }
 
-    public void invalidate(int ms){
+    public void invalidate(int ms) {
 
     }
 }
