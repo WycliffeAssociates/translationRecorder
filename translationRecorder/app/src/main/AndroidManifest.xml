@@ -63,6 +63,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="org.wycliffeassociates.translationrecorder.DocumentationActivity">
+            <intent-filter>
+                <action android:name="org.wycliffeassociates.translationrecorder.DOCUMENTATION_INTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name="org.wycliffeassociates.translationrecorder.project.SourceAudioActivity"
             android:theme="@style/TR"
             />
