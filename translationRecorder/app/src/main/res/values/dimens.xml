@@ -22,4 +22,6 @@
 
     <dimen name="action_bar_negative">-64dp</dimen>
 
+    <dimen name="icon_1">24dp</dimen>
+    <dimen name="icon_2">48dp</dimen>
 </resources>
