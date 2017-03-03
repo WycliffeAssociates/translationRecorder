@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="English"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <TextView
@@ -25,7 +25,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="UDB"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <TextView
@@ -35,7 +35,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="Matthew"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <TextView
@@ -45,7 +45,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="Chapter"
         android:textColor="@color/text_light"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/text_size_m"/>
 
     <org.wycliffeassociates.translationrecorder.Recording.UnitPicker
         android:id="@+id/chapter_picker"
@@ -61,7 +61,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="Chunk"
         android:textColor="@color/text_light"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/text_size_m"/>
 
     <org.wycliffeassociates.translationrecorder.Recording.UnitPicker
         android:id="@+id/unit_picker"

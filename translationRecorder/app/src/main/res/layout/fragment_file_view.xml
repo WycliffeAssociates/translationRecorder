@@ -11,8 +11,8 @@
 
     <ImageButton
         android:id="@+id/btn_exit_verse_marker_mode"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="@dimen/icon_m"
+        android:layout_height="@dimen/icon_m"
         android:layout_marginEnd="@dimen/default_padding_m"
         android:scaleType="fitCenter"
         android:src="@drawable/close_white"
@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textColor="@color/primary_text_default_material_dark"
         android:textStyle="bold"
         android:visibility="gone"
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_padding_s"
         android:text="left"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textColor="@color/primary_text_default_material_dark"
         android:textStyle="bold"
         android:visibility="gone"
@@ -49,7 +49,7 @@
         android:layout_height="wrap_content"
         android:text="English"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <TextView
@@ -59,7 +59,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="UDB"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <TextView
@@ -69,7 +69,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="Matthew"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <TextView
@@ -79,7 +79,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="Chapter"
         android:textColor="@color/text_light"
-        android:textSize="18sp" />
+        android:textSize="@dimen/text_size_m" />
 
     <TextView
         android:id="@+id/file_chapter"
@@ -88,7 +88,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="1"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <TextView
@@ -98,7 +98,7 @@
         android:layout_marginStart="@dimen/default_padding_l"
         android:text="Chunk"
         android:textColor="@color/text_light"
-        android:textSize="18sp" />
+        android:textSize="@dimen/text_size_m" />
 
     <TextView
         android:id="@+id/file_unit"
@@ -107,7 +107,7 @@
         android:layout_marginStart="@dimen/default_padding_s"
         android:text="1"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -119,8 +119,8 @@
 
         <ImageButton
             android:id="@+id/btn_enter_verse_marker_mode"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/icon_l"
+            android:layout_height="@dimen/icon_l"
             android:layout_marginStart="24dp"
             android:background="#00000000"
             android:src="@drawable/bookmark_o"
@@ -130,8 +130,8 @@
         <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
             xmlns:app="http://schemas.android.com/apk/res/org.wycliffeassociates.translationrecorder"
             android:id="@+id/btn_rate"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/icon_l"
+            android:layout_height="@dimen/icon_l"
             android:layout_marginStart="24dp"
             android:src="@drawable/selector_take_rating"
             android:scaleType="fitCenter"
@@ -141,8 +141,8 @@
 
         <ImageButton
             android:id="@+id/btn_rerecord"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/icon_l"
+            android:layout_height="@dimen/icon_l"
             android:layout_marginStart="24dp"
             android:background="#00000000"
             android:src="@drawable/redo"
@@ -151,8 +151,8 @@
 
         <ImageButton
             android:id="@+id/btn_insert_record"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/icon_l"
+            android:layout_height="@dimen/icon_l"
             android:layout_marginStart="24dp"
             android:background="#00000000"
             android:src="@drawable/insert_recording_white"

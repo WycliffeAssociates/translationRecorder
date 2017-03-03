@@ -7,8 +7,8 @@
 
     <ImageButton
         android:id="@+id/decrement"
-        android:layout_width="36dp"
-        android:layout_height="54dp"
+        android:layout_width="@dimen/icon_l"
+        android:layout_height="@dimen/unit_picker_size"
         android:layout_margin="0dp"
         android:background="#00000000"
         android:src="@drawable/ic_minus"
@@ -16,24 +16,24 @@
 
     <EditText
         android:id="@+id/text"
-        android:minWidth="54dp"
+        android:minWidth="@dimen/unit_picker_size"
         android:layout_width="wrap_content"
-        android:layout_height="54dp"
+        android:layout_height="@dimen/unit_picker_size"
         android:layout_margin="0dp"
         android:paddingStart="@dimen/default_padding_s"
         android:paddingEnd="@dimen/default_padding_s"
         android:background="@color/very_dark_gray_0"
         android:text=""
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textStyle="bold"
         android:gravity="center"
         android:inputType="none" />
 
     <ImageButton
         android:id="@+id/increment"
-        android:layout_width="36dp"
-        android:layout_height="54dp"
+        android:layout_width="@dimen/icon_l"
+        android:layout_height="@dimen/unit_picker_size"
         android:layout_margin="0dp"
         android:background="#00000000"
         android:scaleType="fitCenter"

@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="@dimen/list_item_height"
-    android:padding="16dp"
+    android:padding="@dimen/default_padding_m"
     android:gravity="center_vertical"
     android:id='@+id/scroll_list_item_layout'>
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_m"
+        android:layout_height="@dimen/icon_m"
+        android:scaleType="fitCenter"
         android:background="@drawable/ic_library_books_black_24dp"
         android:id="@+id/itemIcon" />
 
@@ -19,7 +20,7 @@
         android:textSize="@dimen/title"
         android:text="Major Text"
         android:textColor="@color/dark_primary_text"
-        android:paddingLeft="16dp" />
+        android:paddingLeft="@dimen/default_padding_m" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -38,8 +39,8 @@
             android:gravity="right"/>
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/icon_m"
+            android:layout_height="@dimen/icon_m"
             android:background="@drawable/ic_chevron_right_black_24dp"
             android:id="@+id/moreIcon" />
     </LinearLayout>

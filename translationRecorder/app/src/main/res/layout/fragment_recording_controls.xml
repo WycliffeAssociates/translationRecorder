@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/primary"
-    android:padding="16dp"
+    android:padding="@dimen/default_padding_m"
     android:layout_alignParentBottom="true"
     android:layout_weight="30">
 
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:text="00:00:00"
             android:textColor="@color/text_light"
-            android:textSize="32sp"
+            android:textSize="@dimen/text_size_xl"
             android:padding="4dp"
             android:textStyle="bold" />
 
@@ -29,8 +29,8 @@
 
     <ImageButton
         android:id="@+id/btnRecording"
-        android:layout_width="84dp"
-        android:layout_height="84dp"
+        android:layout_width="@dimen/icon_xxl"
+        android:layout_height="@dimen/icon_xxl"
         android:layout_centerInParent="true"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_record"
@@ -38,8 +38,8 @@
 
     <ImageButton
         android:id="@+id/btnPauseRecording"
-        android:layout_width="84dp"
-        android:layout_height="84dp"
+        android:layout_width="@dimen/icon_xxl"
+        android:layout_height="@dimen/icon_xxl"
         android:src="@drawable/ic_record_pause"
         android:layout_centerInParent="true"
         android:scaleType="fitCenter"
@@ -48,8 +48,9 @@
 
     <ImageButton
         android:id="@+id/btnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_xxl"
+        android:layout_height="@dimen/icon_xxl"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_done"
         android:layout_alignParentEnd="true"
         android:background="#00000000"

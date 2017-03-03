@@ -1,5 +1,5 @@
 <resources>
-    <dimen name="title">20sp</dimen>
+    <dimen name="title">18sp</dimen>
     <dimen name="body">16sp</dimen>
     <dimen name="list_item_height">70dp</dimen>
 
@@ -7,21 +7,36 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="default_padding_xxs">2dp</dimen>
-    <dimen name="default_padding_xs">4dp</dimen>
-    <dimen name="default_padding_s">8dp</dimen>
-    <dimen name="default_padding_m">16dp</dimen>
-    <dimen name="default_padding_l">32dp</dimen>
+    <dimen name="default_padding_xxs">1dp</dimen>
+    <dimen name="default_padding_xs">2dp</dimen>
+    <dimen name="default_padding_s">4dp</dimen>
+    <dimen name="default_padding_m">8dp</dimen>
+    <dimen name="default_padding_l">16dp</dimen>
+
+    <dimen name="padding_xl">21dp</dimen>
+
 
     <dimen name="heading_1">18sp</dimen>
     <dimen name="heading_2">16sp</dimen>
     <dimen name="heading_3">14sp</dimen>
     <dimen name="heading_4">12sp</dimen>
 
-    <dimen name="text_size_m">18sp</dimen>
+    <dimen name="text_size_s">12sp</dimen>
+    <dimen name="text_size_m">16sp</dimen>
+    <dimen name="text_size_l">18sp</dimen>
+    <dimen name="text_size_xl">22sp</dimen>
 
     <dimen name="action_bar_negative">-64dp</dimen>
 
-    <dimen name="icon_1">24dp</dimen>
-    <dimen name="icon_2">48dp</dimen>
+    <dimen name="icon_xs">8dp</dimen>
+    <dimen name="icon_s">12dp</dimen>
+    <dimen name="icon_m">16dp</dimen>
+    <dimen name="icon_l">24dp</dimen>
+    <dimen name="icon_xl">36dp</dimen>
+    <dimen name="icon_xxl">48dp</dimen>
+
+    <dimen name="unit_picker_size">36dp</dimen>
+    <dimen name="tabbed_widget_size">70dp</dimen>
+    <dimen name="project_card_padding">12dp</dimen>
+
 </resources>

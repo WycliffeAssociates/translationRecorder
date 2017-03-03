@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/card_bg"
-    android:paddingTop="20dp"
-    android:paddingBottom="20dp"
+    android:paddingTop="@dimen/project_card_padding"
+    android:paddingBottom="@dimen/project_card_padding"
     android:paddingLeft="@dimen/default_padding_m"
     android:clickable="true">
 
@@ -48,8 +48,8 @@
 
         <com.filippudak.ProgressPieView.ProgressPieView
             android:id="@+id/progress_pie"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/icon_l"
+            android:layout_height="@dimen/icon_l"
             ppv:ppvStrokeWidth="0dp"
             ppv:ppvStrokeColor="@color/transparent"
             ppv:ppvProgressColor="@color/primary"
@@ -68,8 +68,9 @@
 
             <ImageButton
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/icon_l"
                 android:layout_weight="10"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_information_grey600_36dp"
                 android:clickable="true"
                 android:id="@+id/info_button"
@@ -78,8 +79,9 @@
 
             <ImageButton
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/icon_l"
                 android:layout_weight="10"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_microphone_grey600_36dp"
                 android:clickable="true"
                 android:id="@+id/record_button"

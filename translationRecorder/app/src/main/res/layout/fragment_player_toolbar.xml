@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/primary"
-    android:padding="16dp">
+    android:padding="@dimen/default_padding_l">
 
     <LinearLayout
         android:id="@+id/file_info_container"
@@ -19,8 +19,8 @@
             android:layout_height="wrap_content"
             android:text="Insert File Name"
             android:textColor="@color/text_light"
-            android:textSize="24sp"
-            android:padding="4dp"
+            android:textSize="@dimen/text_size_l"
+            android:padding="@dimen/default_padding_xs"
             android:visibility="gone"/>
 
         <LinearLayout
@@ -34,8 +34,8 @@
                 android:layout_height="wrap_content"
                 android:text="00:00:00"
                 android:textColor="@color/text_light"
-                android:textSize="32sp"
-                android:padding="4dp"
+                android:textSize="@dimen/text_size_xl"
+                android:padding="@dimen/default_padding_xs"
                 android:textStyle="bold" />
 
             <TextView
@@ -44,8 +44,8 @@
                 android:layout_height="wrap_content"
                 android:text="/ 00:00:00"
                 android:textColor="@color/text_light"
-                android:textSize="18sp"
-                android:padding="4dp" />
+                android:textSize="@dimen/text_size_m"
+                android:padding="@dimen/default_padding_xs" />
 
         </LinearLayout>
 
@@ -60,8 +60,8 @@
 
         <ImageButton
             android:id="@+id/btn_skip_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_xl"
+            android:layout_height="@dimen/icon_xl"
             android:layout_marginEnd="16dp"
             android:layout_centerVertical="true"
             android:scaleType="fitCenter"
@@ -77,15 +77,17 @@
 
             <ImageButton
                 android:id="@+id/btn_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/icon_xl"
+                android:layout_height="@dimen/icon_xl"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_play_white"
                 android:background="#00000000" />
 
             <ImageButton
                 android:id="@+id/btn_pause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/icon_xl"
+                android:layout_height="@dimen/icon_xl"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_pause_white_48dp"
                 android:background="#00000000"
                 android:visibility="visible"
@@ -95,8 +97,8 @@
 
         <ImageButton
             android:id="@+id/btn_skip_forward"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_xl"
+            android:layout_height="@dimen/icon_xl"
             android:layout_marginEnd="16dp"
             android:layout_centerVertical="true"
             android:scaleType="fitCenter"
@@ -117,20 +119,20 @@
 
         <ImageButton
             android:id="@+id/btn_undo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_xl"
+            android:layout_height="@dimen/icon_xl"
             android:scaleType="fitCenter"
             android:layout_centerVertical="true"
             android:visibility="invisible"
             android:src="@drawable/ic_undo_white_48dp"
             android:background="#00000000"
             android:layout_marginRight="16dp"
-            android:padding="8dp" />
+            android:padding="@dimen/default_padding_s" />
 
         <ImageButton
             android:id="@+id/btn_clear"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_xl"
+            android:layout_height="@dimen/icon_xl"
             android:scaleType="fitCenter"
             android:layout_centerVertical="true"
             android:visibility="invisible"
@@ -147,8 +149,8 @@
 
             <ImageButton
                 android:id="@+id/btn_start_mark"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/icon_xl"
+                android:layout_height="@dimen/icon_xl"
                 android:scaleType="fitCenter"
                 android:layout_centerVertical="true"
                 android:src="@drawable/ic_start_marker"
@@ -157,8 +159,8 @@
 
             <ImageButton
                 android:id="@+id/btn_end_mark"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/icon_xl"
+                android:layout_height="@dimen/icon_xl"
                 android:scaleType="fitCenter"
                 android:layout_centerVertical="true"
                 android:visibility="invisible"
@@ -168,8 +170,8 @@
 
             <ImageButton
                 android:id="@+id/btn_cut"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/icon_xl"
+                android:layout_height="@dimen/icon_xl"
                 android:scaleType="fitCenter"
                 android:layout_centerVertical="true"
                 android:visibility="invisible"
@@ -183,8 +185,9 @@
 
     <ImageButton
         android:id="@+id/btn_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_xl"
+        android:layout_height="@dimen/icon_xl"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_save_white"
         android:background="#00000000"
         android:layout_alignParentEnd="true"
@@ -192,8 +195,9 @@
 
     <ImageButton
         android:id="@+id/btn_drop_verse_marker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_xl"
+        android:layout_height="@dimen/icon_xl"
+        android:scaleType="fitCenter"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@drawable/bookmark_add"
@@ -203,8 +207,9 @@
 
     <ImageButton
         android:id="@+id/btn_verse_marker_done"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_xl"
+        android:layout_height="@dimen/icon_xl"
+        android:scaleType="fitCenter"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_done"
