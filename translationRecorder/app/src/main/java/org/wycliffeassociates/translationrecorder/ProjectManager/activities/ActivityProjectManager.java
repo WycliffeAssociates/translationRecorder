@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
@@ -170,6 +171,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             case R.id.action_settings:
                 Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
+                return true;
+            case R.id.action_help:
+                Intent help = new Intent(this, DocumentationActivity.class);
+                startActivity(help);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
