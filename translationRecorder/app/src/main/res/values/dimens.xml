@@ -15,7 +15,6 @@
 
     <dimen name="padding_xl">21dp</dimen>
 
-
     <dimen name="heading_1">18sp</dimen>
     <dimen name="heading_2">16sp</dimen>
     <dimen name="heading_3">14sp</dimen>
@@ -38,5 +37,13 @@
     <dimen name="unit_picker_size">36dp</dimen>
     <dimen name="tabbed_widget_size">70dp</dimen>
     <dimen name="project_card_padding">12dp</dimen>
+
+    <dimen name="splash_title_size">48sp</dimen>
+
+
+    <dimen name="headline">24dp</dimen>
+    <dimen name="dialog_content_margin">24dp</dimen>
+    <dimen name="dialog_controls_margin">8dp</dimen>
+
 
 </resources>

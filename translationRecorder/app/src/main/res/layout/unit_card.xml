@@ -182,6 +182,7 @@
                             android:id="@+id/deleteTakeBtn"
                             android:layout_width="@dimen/icon_l"
                             android:layout_height="@dimen/icon_l"
+                            android:scaleType="fitXY"
                             android:src="@drawable/delete"
                             android:background="#00000000"
                             android:layout_gravity="center"

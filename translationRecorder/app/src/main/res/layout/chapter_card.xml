@@ -35,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Chapter 1"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/title"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textStyle="bold"
                     android:layout_centerVertical="true"
@@ -53,8 +53,8 @@
 
                     <com.filippudak.ProgressPieView.ProgressPieView
                         android:id="@+id/progress_pie"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/icon_l"
+                        android:layout_height="@dimen/icon_l"
                         ppv:ppvStrokeWidth="0dp"
                         ppv:ppvStrokeColor="@color/transparent"
                         ppv:ppvProgressColor="@color/primary"
@@ -66,8 +66,8 @@
 
                     <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
                         android:id="@+id/check_level_btn"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/icon_l"
+                        android:layout_height="@dimen/icon_l"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_unit_card_check_level"
                         android:layout_marginLeft="@dimen/default_padding_m"
@@ -78,8 +78,8 @@
 
                     <ImageView
                         android:id="@+id/compile_btn"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/icon_l"
+                        android:layout_height="@dimen/icon_l"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_chapter_compile"
                         android:layout_marginLeft="@dimen/default_padding_m"
@@ -89,8 +89,8 @@
 
                     <ImageView
                         android:id="@+id/record_btn"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/icon_l"
+                        android:layout_height="@dimen/icon_l"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_unit_card_record"
                         android:layout_marginLeft="@dimen/default_padding_m"
@@ -100,8 +100,8 @@
 
                     <ImageView
                         android:id="@+id/expand_btn"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/icon_l"
+                        android:layout_height="@dimen/icon_l"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_card_expand_toggle"
                         android:layout_marginLeft="@dimen/default_padding_m"
@@ -185,8 +185,9 @@
 
                         <ImageButton
                             android:id="@+id/delete_chapter_audio_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/icon_l"
+                            android:layout_height="@dimen/icon_l"
+                            android:scaleType="fitCenter"
                             android:src="@drawable/delete"
                             android:background="#00000000"
                             android:layout_gravity="center"
@@ -216,8 +217,8 @@
 
                         <ImageButton
                             android:id="@+id/play_pause_chapter_btn"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="@dimen/icon_xl"
+                            android:layout_height="@dimen/icon_xl"
                             android:scaleType="fitCenter"
                             android:src="@drawable/selector_unit_card_play"
                             android:background="#00000000"

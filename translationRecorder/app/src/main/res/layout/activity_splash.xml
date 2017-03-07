@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:text="translationRecorder"
             android:textColor="@color/primary_text_default_material_dark"
-            android:textSize="72sp"
+            android:textSize="@dimen/splash_title_size"
             android:layout_margin="@dimen/default_padding_m"
             />
 
