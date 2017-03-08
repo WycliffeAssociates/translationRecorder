@@ -61,16 +61,10 @@ public class Project implements Parcelable {
 
     public static Project getProjectFromPreferences(Context ctx) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
-        String tLang = pref.getString(Settings.KEY_PREF_LANG, "");
-        String sLang = pref.getString(Settings.KEY_PREF_LANG_SRC, "");
-        String bookNum = pref.getString(Settings.KEY_PREF_BOOK_NUM, "");
-        String slug = pref.getString(Settings.KEY_PREF_BOOK, "");
-        String version = pref.getString(Settings.KEY_PREF_VERSION, "");
-        String mode = pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "");
-        String anthology = pref.getString(Settings.KEY_PREF_ANTHOLOGY, "");
-        String contributors = getContributorsFromJson(pref.getString(Settings.KEY_PROFILE, ""));
-        String sourceAudioPath = pref.getString(Settings.KEY_PREF_SRC_LOC, "");
-        return new Project(tLang, sLang, bookNum, slug, version, mode, anthology, contributors, sourceAudioPath);
+        int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
+        Project project = db.getProject(projectId);
+        return project;
     }
 
     private static String getContributorsFromJson(String jsonString){
@@ -84,15 +78,11 @@ public class Project implements Parcelable {
 
     public static void loadProjectIntoPreferences(Context ctx, Project project) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
-        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
-        pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
-        pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
-        pref.edit().putString(Settings.KEY_PREF_VERSION, project.getVersion()).commit();
-        pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
-        pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
-        pref.edit().putString(Settings.KEY_PROFILE, project.getContributors()).commit();
-        pref.edit().putString(Settings.KEY_PREF_SRC_LOC, project.getSourceAudioPath()).commit();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
+        if(db.projectExists(project)) {
+            int projectId = db.getProjectId(project);
+            pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();
+        }
     }
 
     public static File getProjectDirectory(Project project) {
