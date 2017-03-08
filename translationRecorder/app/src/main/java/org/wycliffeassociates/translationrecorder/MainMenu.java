@@ -224,21 +224,24 @@ public class MainMenu extends Activity {
     private void initViews() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
+        TextView languageView = (TextView) findViewById(R.id.language_view);
+        TextView bookView = (TextView) findViewById(R.id.book_view);
         if(projectId != -1) {
             Project project = db.getProject(projectId);
             String language = project.getTargetLanguage();
-            TextView languageView = (TextView) findViewById(R.id.language_view);
             if (language.compareTo("") != 0) {
                 language = db.getLanguageName(language);
             }
             languageView.setText(language);
 
-            TextView bookView = (TextView) findViewById(R.id.book_view);
             String book = project.getSlug();
             if (book.compareTo("") != 0) {
                 book = db.getBookName(book);
             }
             bookView.setText(book);
+        } else {
+            languageView.setText("");
+            bookView.setText("");
         }
     }
 

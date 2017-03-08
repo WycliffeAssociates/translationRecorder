@@ -1,7 +1,5 @@
 package org.wycliffeassociates.translationrecorder.AudioVisualization;
 
-import android.widget.TextView;
-
 import org.wycliffeassociates.translationrecorder.AudioVisualization.Utils.U;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingMessage;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingQueues;
@@ -17,22 +15,18 @@ import org.wycliffeassociates.translationrecorder.utilities.RingBuffer;
 
 public class ActiveRecordingRenderer {
 
-    private VisualizerCompressor mVisualizerCompressor;
     private FragmentRecordingControls mFragmentRecordingControls;
     private FragmentVolumeBar mFragmentVolumeBar;
     private FragmentRecordingWaveform mFragmentRecordingWaveform;
     private boolean isRecording;
-    private RingBuffer mRingBuffer;
     private int mCanvasHeight;
 
-    public ActiveRecordingRenderer(WaveformView mainWave, VolumeBar volume, TextView timerView){
-    }
+    public static int NUM_SECONDS_ON_SCREEN = 10;
 
     public ActiveRecordingRenderer(FragmentRecordingControls timer, FragmentVolumeBar volume, FragmentRecordingWaveform waveform) {
         mFragmentRecordingControls = timer;
         mFragmentVolumeBar = volume;
         mFragmentRecordingWaveform = waveform;
-        mVisualizerCompressor = new VisualizerCompressor(10);
     }
 
 
@@ -40,25 +34,22 @@ public class ActiveRecordingRenderer {
         this.isRecording = isRecording;
     }
 
-    //hold off on initializing until needed- the waveform view hasn't been drawn yet and thus the
-    //canvas has not been inflated to query the width
-    private void initializeRingBuffer(){
-        if(mRingBuffer == null) {
-            mRingBuffer = new RingBuffer(mFragmentRecordingWaveform.getWidth());
-        }
-    }
-
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
     //canvas views to listen for recording on the same activity
     public void listenForRecording(final boolean onlyVolumeTest){
         if(!onlyVolumeTest) {
             mFragmentRecordingWaveform.setDrawingFromBuffer(true);
-            initializeRingBuffer();
+            //initializeRingBuffer();
             mCanvasHeight = mFragmentRecordingWaveform.getHeight();
         }
         Thread uiThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                RingBuffer ringBuffer = null;
+                if(!onlyVolumeTest) {
+                    ringBuffer = new RingBuffer(mFragmentRecordingWaveform.getWidth());
+                }
+                VisualizerCompressor visualizerCompressor = new VisualizerCompressor(NUM_SECONDS_ON_SCREEN, ringBuffer);
                 boolean isStopped = false;
                 boolean isPaused = false;
                 double maxDB = 0;
@@ -87,11 +78,11 @@ public class ActiveRecordingRenderer {
                                     byte low = buffer[i];
                                     byte hi = buffer[i+1];
                                     short value = (short) (((hi << 8) & 0x0000FF00) | (low & 0x000000FF));
-                                    mVisualizerCompressor.add(value);
+                                    visualizerCompressor.add(value);
                                 }
                                 if((System.currentTimeMillis() - waveformDelay) > 12){
                                     waveformDelay = System.currentTimeMillis();
-                                    mFragmentRecordingWaveform.updateWaveform(mRingBuffer.getArray());
+                                    mFragmentRecordingWaveform.updateWaveform(ringBuffer.getArray());
                                     mFragmentRecordingControls.updateTime();
                                 }
                                 //if only running the volume meter, the queues need to be emptied
@@ -140,32 +131,39 @@ public class ActiveRecordingRenderer {
 
     private class VisualizerCompressor {
 
+        RingBuffer mRingBuffer;
         float[] accumulator;
         int index = 0;
 
-        public VisualizerCompressor(int numSecondsOnScreen) {
+        public VisualizerCompressor(int numSecondsOnScreen, RingBuffer ringBuffer) {
             accumulator = new float[numSecondsOnScreen * 2];
+            mRingBuffer = ringBuffer;
         }
 
         public void add(float[] data) {
             for(float sample : data) {
-                accumulator[index] = sample;
-                index++;
                 if(index >= accumulator.length){
                     sendDataToRingBuffer();
+                    index = 0;
                 }
+                accumulator[index] = sample;
+                index++;
             }
         }
 
         public void add(float data) {
-            accumulator[index] = data;
-            index++;
             if(index >= accumulator.length){
                 sendDataToRingBuffer();
+                index = 0;
             }
+            accumulator[index] = data;
+            index++;
         }
 
         private void sendDataToRingBuffer(){
+            if(mRingBuffer == null) {
+                return;
+            }
             float min = Float.MAX_VALUE;
             float max = Float.MIN_VALUE;
             for(float sample : accumulator) {
@@ -174,7 +172,6 @@ public class ActiveRecordingRenderer {
             }
             mRingBuffer.add(U.getValueForScreen(min, mCanvasHeight));
             mRingBuffer.add(U.getValueForScreen(max, mCanvasHeight));
-            index = 0;
         }
     }
 }

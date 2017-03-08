@@ -1034,8 +1034,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 }
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
                 File dir = fne.getParentDirectory();
-                WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
-                addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                try {
+                    WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
+                    addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                } catch (IllegalArgumentException e) {
+                    //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
+                    Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
+                    throw new RuntimeException(e);
+                }
             } while (c.moveToNext());
         }
         c.close();
