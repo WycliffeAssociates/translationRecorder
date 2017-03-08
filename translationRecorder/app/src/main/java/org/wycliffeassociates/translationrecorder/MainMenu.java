@@ -102,7 +102,7 @@ public class MainMenu extends Activity {
     }
 
     private boolean emptyPreferences() {
-        if (pref.getString(Settings.KEY_PREF_LANG, "").compareTo("") == 0) {
+        if (pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1) == -1) {
             return true;
         }
         return false;
@@ -154,14 +154,12 @@ public class MainMenu extends Activity {
     private void loadProject(Project project) {
         pref.edit().putString("resume", "resume").commit();
 
-        pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
-        pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
-        pref.edit().putString(Settings.KEY_PREF_VERSION, project.getVersion()).commit();
-        pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
-        pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
-        pref.edit().putString(Settings.KEY_PREF_SRC_LOC, project.getSourceAudioPath()).commit();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        if(db.projectExists(project)){
+            pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, db.getProjectId(project)).commit();
+        } else {
+            Logger.e(this.toString(), "Project " + project + " doesn't exist in the database");
+        }
 
         //FIXME: find the last place worked on?
         pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
@@ -225,19 +223,23 @@ public class MainMenu extends Activity {
 
     private void initViews() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        TextView languageView = (TextView) findViewById(R.id.language_view);
-        String language = pref.getString(Settings.KEY_PREF_LANG, "");
-        if (language.compareTo("") != 0) {
-            language = db.getLanguageName(language);
-        }
-        languageView.setText(language);
+        int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
+        if(projectId != -1) {
+            Project project = db.getProject(projectId);
+            String language = project.getTargetLanguage();
+            TextView languageView = (TextView) findViewById(R.id.language_view);
+            if (language.compareTo("") != 0) {
+                language = db.getLanguageName(language);
+            }
+            languageView.setText(language);
 
-        TextView bookView = (TextView) findViewById(R.id.book_view);
-        String book = pref.getString(Settings.KEY_PREF_BOOK, "");
-        if (book.compareTo("") != 0) {
-            book = db.getBookName(book);
+            TextView bookView = (TextView) findViewById(R.id.book_view);
+            String book = project.getSlug();
+            if (book.compareTo("") != 0) {
+                book = db.getBookName(book);
+            }
+            bookView.setText(book);
         }
-        bookView.setText(book);
     }
 
     private void initApp() {

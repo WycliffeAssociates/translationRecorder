@@ -556,6 +556,39 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return projectList;
     }
 
+
+    public Project getProject(int projectId){
+        String query = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT + " WHERE " + ProjectContract.ProjectEntry._ID + " =" + String.valueOf(projectId);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Project project = null;
+        if(cursor.moveToFirst()){
+            project = new Project();
+            project.setVersion(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_VERSION)));
+            String targetLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_TARGET_LANGUAGE_FK)));
+            project.setTargetLanguage(targetLanguageCode);
+            int sourceLanguageIndex = cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK);
+            //Source language could be null
+            if(cursor.getType(sourceLanguageIndex) == Cursor.FIELD_TYPE_INTEGER) {
+                String sourceLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK)));
+                project.setSourceLanguage(sourceLanguageCode);
+                project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
+            }
+            project.setMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE)));
+            String slug = getBookSlug(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_BOOK_FK)));
+            project.setSlug(slug);
+            String anthology = getBookAnthology(slug);
+            project.setProject(anthology);
+            int number = getBookNumber(slug);
+            project.setBookNumber(number);
+            project.setContributors(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_CONTRIBUTORS)));
+
+        }
+        cursor.close();
+        return project;
+    }
+
+
     public int getNumProjects(){
         SQLiteDatabase db = getReadableDatabase();
         String countQuery = "SELECT * FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT;

@@ -26,12 +26,9 @@ import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
  *
  */
 public class Settings extends AppCompatActivity implements TaskFragment.OnTaskComplete, ScrollableListFragment.OnItemClickListener, SettingsFragment.LanguageSelector {
-    public static final String KEY_PREF_ANTHOLOGY = "pref_anthology";
-    public static final String KEY_PREF_VERSION = "pref_version";
-    public static final String KEY_PREF_LANG = "pref_lang";
-    public static final String KEY_PREF_LANG_SRC = "pref_lang_src";
-    public static final String KEY_PREF_BOOK = "pref_book";
-    public static final String KEY_PREF_BOOK_NUM = "pref_book_num";
+
+    public static final String KEY_RECENT_PROJECT_ID = "pref_recent_project_id";
+
     public static final String KEY_PREF_CHAPTER = "pref_chapter";
     public static final String KEY_PREF_CHUNK = "pref_chunk";
     public static final String KEY_PREF_TAKE = "pref_take";
