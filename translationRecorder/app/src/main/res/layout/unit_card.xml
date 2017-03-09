@@ -290,6 +290,7 @@
                     android:id="@+id/prevTakeBtn"
                     android:layout_width="@dimen/icon_l"
                     android:layout_height="@dimen/icon_l"
+                    android:scaleType="fitXY"
                     android:src="@drawable/chevron_left"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
@@ -327,8 +328,9 @@
 
                 <ImageView
                     android:id="@+id/nextTakeBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/icon_l"
+                    android:layout_height="@dimen/icon_l"
+                    android:scaleType="fitXY"
                     android:src="@drawable/chevron_right"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"

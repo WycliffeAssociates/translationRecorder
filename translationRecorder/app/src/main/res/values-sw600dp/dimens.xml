@@ -42,4 +42,6 @@
 
     <dimen name="splash_title_size">72sp</dimen>
 
+    <integer name="project_management_list_weight">80</integer>
+
 </resources>

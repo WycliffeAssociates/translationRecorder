@@ -152,8 +152,8 @@
 
                     <ImageButton
                         android:id="@+id/edit_source_language"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="@dimen/icon_m"
+                        android:layout_height="@dimen/icon_m"
                         android:background="?attr/selectableItemBackground"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_pencil_black_48dp" />
@@ -185,8 +185,8 @@
 
                     <ImageButton
                         android:id="@+id/edit_source_location"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="@dimen/icon_m"
+                        android:layout_height="@dimen/icon_m"
                         android:background="?attr/selectableItemBackground"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_pencil_black_48dp" />
@@ -263,6 +263,7 @@
                 android:id="@+id/delete_button"
                 android:layout_width="@dimen/icon_l"
                 android:layout_height="@dimen/icon_l"
+                android:scaleType="fitCenter"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/ic_delete_black_24dp" />
@@ -278,13 +279,14 @@
                 android:layout_height="@dimen/icon_xl"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
-                android:scaleType="fitXY"
+                android:scaleType="fitCenter"
                 android:src="@drawable/export_as_source" />
 
             <ImageButton
                 android:id="@+id/sdcard_button"
                 android:layout_width="@dimen/icon_l"
                 android:layout_height="@dimen/icon_l"
+                android:scaleType="fitCenter"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/ic_sd_black_24dp" />
@@ -293,6 +295,7 @@
                 android:id="@+id/folder_button"
                 android:layout_width="@dimen/icon_l"
                 android:layout_height="@dimen/icon_l"
+                android:scaleType="fitCenter"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/ic_folder_black_24dp" />
@@ -301,6 +304,7 @@
                 android:id="@+id/publish_button"
                 android:layout_width="@dimen/icon_l"
                 android:layout_height="@dimen/icon_l"
+                android:scaleType="fitCenter"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/ic_cloud_upload_black_24dp"
@@ -310,6 +314,7 @@
                 android:id="@+id/other_button"
                 android:layout_width="@dimen/icon_l"
                 android:layout_height="@dimen/icon_l"
+                android:scaleType="fitCenter"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/ic_share_variant_black_24dp" />

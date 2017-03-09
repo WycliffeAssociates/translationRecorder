@@ -16,13 +16,14 @@
         android:text="English"
         android:textColor="@color/text_light"
         android:textSize="@dimen/text_size_m"
+        android:maxEms="5"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/file_project"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_padding_l"
+        android:layout_marginStart="@dimen/default_padding_m"
         android:text="UDB"
         android:textColor="@color/text_light"
         android:textSize="@dimen/text_size_m"
@@ -32,17 +33,18 @@
         android:id="@+id/file_book"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_padding_l"
+        android:layout_marginStart="@dimen/default_padding_m"
         android:text="Matthew"
         android:textColor="@color/text_light"
         android:textSize="@dimen/text_size_m"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        />
 
     <TextView
         android:id="@+id/file_chapter_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_padding_l"
+        android:layout_marginStart="@dimen/default_padding_m"
         android:text="Chapter"
         android:textColor="@color/text_light"
         android:textSize="@dimen/text_size_m"/>
