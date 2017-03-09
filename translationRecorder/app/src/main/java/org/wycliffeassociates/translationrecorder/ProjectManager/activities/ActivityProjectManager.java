@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/23/2016.
@@ -203,9 +202,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     public void initializeRecentProject() {
         Project project = null;
-        if (!pref.getString(Settings.KEY_PREF_LANG, "").equals("")
-                && !pref.getString(Settings.KEY_PREF_BOOK, "").equals("")) {
-            project = Project.getProjectFromPreferences(this);
+        int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
+        if (projectId != -1) {
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+            project = db.getProject(projectId);
             Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguage()
                     + " book " + project.getSlug() + " version "
                     + project.getVersion() + " mode " + project.getMode());
@@ -233,25 +233,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
     }
 
-    private void removeProjectFromPreferences(Project project) {
-        Map<String, ?> vals = pref.getAll();
-        String prefLang = (String) vals.get(Settings.KEY_PREF_LANG);
-        String prefSource = (String) vals.get(Settings.KEY_PREF_VERSION);
-        String prefProject = (String) vals.get(Settings.KEY_PREF_ANTHOLOGY);
-        String prefBook = (String) vals.get(Settings.KEY_PREF_BOOK);
-
-        if (prefLang != null && prefLang.equals(project.getTargetLanguage())) {
-            pref.edit().putString(Settings.KEY_PREF_LANG, "").commit();
-        }
-        if (prefSource != null && prefSource.equals(project.getVersion())) {
-            pref.edit().putString(Settings.KEY_PREF_VERSION, "").commit();
-        }
-        if (prefProject != null && prefProject.equals(project.getAnthology())) {
-            pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, "").commit();
-        }
-        if (prefBook != null && prefBook.equals(project.getSlug())) {
-            pref.edit().putString(Settings.KEY_PREF_BOOK, "").commit();
-        }
+    private void removeProjectFromPreferences() {
+        pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, -1).commit();
     }
 
     private void populateProjectList() {
@@ -277,15 +260,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private void loadProject(Project project) {
-        pref.edit().putString("resume", "resume").commit();
-
-        pref.edit().putString(Settings.KEY_PREF_BOOK, project.getSlug()).commit();
-        pref.edit().putString(Settings.KEY_PREF_BOOK_NUM, project.getBookNumber()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG, project.getTargetLanguage()).commit();
-        pref.edit().putString(Settings.KEY_PREF_VERSION, project.getVersion()).commit();
-        pref.edit().putString(Settings.KEY_PREF_ANTHOLOGY, project.getAnthology()).commit();
-        pref.edit().putString(Settings.KEY_PREF_CHUNK_VERSE, project.getMode()).commit();
-        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, project.getSourceLanguage()).commit();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        if(!db.projectExists(project)) {
+            Logger.e(this.toString(), "Project " + project + " does not exist");
+        }
+        int projectId = db.getProjectId(project);
+        pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId);
 
         //FIXME: find the last place worked on?
         pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
@@ -375,7 +355,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                             Project.deleteProject(ActivityProjectManager.this, project);
                             populateProjectList();
                             hideProjectsIfEmpty(mAdapter.getCount());
-                            removeProjectFromPreferences(project);
+                            removeProjectFromPreferences();
                             mNumProjects--;
                             initializeViews();
                         }

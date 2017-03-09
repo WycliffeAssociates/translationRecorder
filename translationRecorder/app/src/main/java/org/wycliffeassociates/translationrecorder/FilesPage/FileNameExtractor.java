@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -95,19 +94,6 @@ public class FileNameExtractor {
 
     public static String unitIntToString(int unit) {
         return String.format("%02d", unit);
-    }
-
-
-    public FileNameExtractor(SharedPreferences pref) {
-        this(pref.getString(Settings.KEY_PREF_LANG, ""),
-                pref.getString(Settings.KEY_PREF_VERSION, ""),
-                pref.getString(Settings.KEY_PREF_BOOK_NUM, ""),
-                pref.getString(Settings.KEY_PREF_BOOK, ""),
-                pref.getString(Settings.KEY_PREF_ANTHOLOGY, ""),
-                pref.getString(Settings.KEY_PREF_CHAPTER, ""),
-                pref.getString(Settings.KEY_PREF_START_VERSE, ""),
-                pref.getString(Settings.KEY_PREF_END_VERSE, ""),
-                pref.getString(Settings.KEY_PREF_TAKE, ""));
     }
 
     private void extractData(String file) {
@@ -238,11 +224,6 @@ public class FileNameExtractor {
 
     public static String getNameWithoutTake(String name) {
         FileNameExtractor fne = new FileNameExtractor(name);
-        return fne.getNameWithoutTake();
-    }
-
-    public static String getNameWithoutTake(SharedPreferences pref) {
-        FileNameExtractor fne = new FileNameExtractor(pref);
         return fne.getNameWithoutTake();
     }
 

@@ -4,22 +4,18 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.S3Export;
-
+import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.SourceAudioActivity;
 
@@ -207,17 +203,7 @@ public class ProjectInfoDialog extends DialogFragment {
                 if(updatedProject.getSourceLanguage() != null && !updatedProject.getSourceLanguage().equals("")) {
                     mProject = updatedProject;
                     db.updateSourceAudio(projectId, mProject);
-                    db.close();
                     setSourceAudioTextInfo();
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    //If the project was the recent project that is stored in the settings, reflect the changes there
-                    if (pref.getString(Settings.KEY_PREF_LANG, "").equals(mProject.getTargetLanguage())
-                            && pref.getString(Settings.KEY_PREF_BOOK, "").equals(mProject.getSlug())
-                            && pref.getString(Settings.KEY_PREF_VERSION, "").equals(mProject.getVersion())
-                            && pref.getString(Settings.KEY_PREF_CHUNK_VERSE, "").equals(mProject.getMode())) {
-                        pref.edit().putString(Settings.KEY_PREF_LANG_SRC, mProject.getSourceLanguage()).commit();
-                        pref.edit().putString(Settings.KEY_PREF_SRC_LOC, mProject.getSourceAudioPath()).commit();
-                    }
                 }
             }
         }
