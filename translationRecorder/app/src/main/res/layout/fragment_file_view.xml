@@ -9,45 +9,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageButton
-        android:id="@+id/btn_exit_verse_marker_mode"
-        android:layout_width="@dimen/icon_m"
-        android:layout_height="@dimen/icon_m"
-        android:layout_marginEnd="@dimen/default_padding_m"
-        android:scaleType="fitCenter"
-        android:src="@drawable/close_white"
-        android:background="?attr/selectableItemBackground"
-        android:visibility="gone"
-        />
-
-    <TextView
-        android:id="@+id/verse_marker_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="@dimen/text_size_m"
-        android:textColor="@color/primary_text_default_material_dark"
-        android:textStyle="bold"
-        android:visibility="gone"
-        />
-
-    <TextView
-        android:id="@+id/verse_marker_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_padding_s"
-        android:text="left"
-        android:textSize="@dimen/text_size_m"
-        android:textColor="@color/primary_text_default_material_dark"
-        android:textStyle="bold"
-        android:visibility="gone"
-        />
-
     <TextView
         android:id="@+id/file_language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="English"
+        android:maxEms="5"
         android:textColor="@color/text_light"
         android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
