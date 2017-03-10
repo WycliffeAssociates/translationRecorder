@@ -244,7 +244,6 @@ public class RecordingActivity extends AppCompatActivity implements
         onlyVolumeTest = false;
         isRecording = true;
         stopService(new Intent(this, WavRecorder.class));
-        mRecordingRenderer.setIsRecording(true);
         if (!isPausedRecording) {
             RecordingQueues.stopVolumeTest();
             isSaved = false;
