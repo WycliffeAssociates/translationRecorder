@@ -34,10 +34,10 @@
     <dimen name="icon_m">24dp</dimen>
     <dimen name="icon_l">36dp</dimen>
     <dimen name="icon_xl">48dp</dimen>
-    <dimen name="icon_xxl">84dp</dimen>
+    <dimen name="icon_xxl">64dp</dimen>
 
     <dimen name="unit_picker_size">54dp</dimen>
-    <dimen name="tabbed_widget_size">124dp</dimen>
+    <dimen name="tabbed_widget_size">112dp</dimen>
     <dimen name="project_card_padding">20dp</dimen>
 
     <dimen name="splash_title_size">72sp</dimen>

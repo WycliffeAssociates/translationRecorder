@@ -275,8 +275,8 @@
 
             <ImageButton
                 android:id="@+id/delete_button"
-                android:layout_width="@dimen/icon_l"
-                android:layout_height="@dimen/icon_l"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="fitCenter"
@@ -290,8 +290,8 @@
 
             <ImageButton
                 android:id="@+id/export_as_source_btn"
-                android:layout_width="@dimen/icon_xl"
-                android:layout_height="@dimen/icon_xl"
+                android:layout_width="@dimen/icon_l"
+                android:layout_height="@dimen/icon_l"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="fitCenter"
@@ -299,8 +299,8 @@
 
             <ImageButton
                 android:id="@+id/sdcard_button"
-                android:layout_width="@dimen/icon_l"
-                android:layout_height="@dimen/icon_l"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="fitCenter"
@@ -308,8 +308,8 @@
 
             <ImageButton
                 android:id="@+id/folder_button"
-                android:layout_width="@dimen/icon_l"
-                android:layout_height="@dimen/icon_l"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="fitCenter"
@@ -317,8 +317,8 @@
 
             <ImageButton
                 android:id="@+id/publish_button"
-                android:layout_width="@dimen/icon_l"
-                android:layout_height="@dimen/icon_l"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="fitCenter"
@@ -327,8 +327,8 @@
 
             <ImageButton
                 android:id="@+id/other_button"
-                android:layout_width="@dimen/icon_l"
-                android:layout_height="@dimen/icon_l"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="fitCenter"
