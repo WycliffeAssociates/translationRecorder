@@ -100,7 +100,7 @@ public class WavMetadata implements Parcelable {
                 //audio length field incorrect
                 //TODO: #664
                 if (audioLength < 0 || audioLength > file.length() - WavUtils.HEADER_SIZE) {
-                    throw new RuntimeException("Audio data field reported to be " + audioLength + " while the file length is " + file.length());
+                    throw new IllegalArgumentException("Audio data field reported to be " + audioLength + " while the file length is " + file.length());
                 }
                 //seek to the end of the header + audio data to parse metadata
                 raf.seek(audioLength + WavUtils.HEADER_SIZE);
@@ -117,7 +117,7 @@ public class WavMetadata implements Parcelable {
                         WavUtils.seek(bb, chunkSize);
                     } else {
                         //TODO: #664
-                        throw new RuntimeException("Chunk size larger than remaining file length; " +
+                        throw new IllegalArgumentException("Chunk size larger than remaining file length; " +
                                 "attempting to allocate " + chunkSize + " with remaining file size of " +
                                 (file.length() - bb.remaining()));
                     }

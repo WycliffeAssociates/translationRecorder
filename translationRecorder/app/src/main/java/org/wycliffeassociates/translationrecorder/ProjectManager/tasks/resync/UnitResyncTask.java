@@ -1,5 +1,6 @@
 package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
+import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
@@ -7,6 +8,7 @@ import android.os.Environment;
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
@@ -22,7 +24,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by sarabiaj on 1/20/2017.
  */
 
-public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound {
+public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound, ProjectDatabaseHelper.OnCorruptFile {
     private final Project mProject;
     Context mCtx;
     FragmentManager mFragmentManager;
@@ -52,9 +54,14 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
     @Override
     public void run() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        db.resyncChapterWithFilesystem(mProject, mChapter, getAllTakes(), this);
+        db.resyncChapterWithFilesystem(mProject, mChapter, getAllTakes(), this, this);
         db.close();
         onTaskCompleteDelegator();
+    }
+
+    public void onCorruptFile(File file) {
+        CorruptFileDialog cfd = CorruptFileDialog.Build(mCtx, DialogFragment.STYLE_NORMAL, file);
+        cfd.show();
     }
 
     public String requestLanguageName(String code) {
