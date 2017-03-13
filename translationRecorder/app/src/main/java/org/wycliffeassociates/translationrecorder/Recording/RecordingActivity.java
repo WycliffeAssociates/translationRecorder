@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.ActiveRecordingRenderer;
+import org.wycliffeassociates.translationrecorder.FilesPage.ExitDialog;
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
@@ -138,10 +139,12 @@ public class RecordingActivity extends AppCompatActivity implements
     public void onBackPressed() {
         Logger.w(this.toString(), "User pressed back");
         if (!isSaved && hasStartedRecording) {
-            FragmentManager fm = getFragmentManager();
-            FragmentExitDialog d = new FragmentExitDialog();
-            d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-            d.show(fm, "Exit Dialog");
+//            FragmentManager fm = getFragmentManager();
+//            FragmentExitDialog d = new FragmentExitDialog();
+//            d.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+//            d.show(fm, "Exit Dialog");
+            ExitDialog exitDialog = ExitDialog.Build(this, DialogFragment.STYLE_NORMAL, false, false, mNewRecording.getFile());
+            exitDialog.show();
         } else {
             super.onBackPressed();
         }
