@@ -7,6 +7,8 @@ import android.os.Environment;
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
@@ -21,7 +23,8 @@ import java.util.concurrent.BlockingQueue;
  * Created by sarabiaj on 1/19/2017.
  */
 
-public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound {
+public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound,
+        ProjectDatabaseHelper.OnCorruptFile {
 
     Context mCtx;
     FragmentManager mFragmentManager;
@@ -59,11 +62,18 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                         if (takes == null || takes.length <= 0) {
                             continue;
                         }
-                        FileNameExtractor fne = new FileNameExtractor(takes[0]);
+                        //loop over all files here in the event the first wav file happens to be corrupted
+                        FileNameExtractor fne = new FileNameExtractor(takes[l]);
                         if (fne.matched()) {
-                            WavFile wav = new WavFile(takes[0]);
-                            Project project = new Project(fne.getLang(), "", fne.getBookNumber(), fne.getBook(), fne.getSource(), fne.getMode(wav), "", "", "");
-                            projectList.add(project);
+                            try {
+                                WavFile wav = new WavFile(takes[l]);
+                                Project project = new Project(fne.getLang(), "", fne.getBookNumber(),
+                                        fne.getBook(), fne.getSource(), fne.getMode(wav), "", "", "");
+                                projectList.add(project);
+                            } catch (IllegalArgumentException e) {
+                                //don't worry about the corrupt file dialog here; the database resync will pick it up.
+                                Logger.e(this.toString(), "Corrupt File: " + takes[l].toString(), e);
+                            }
                             break;
                         }
                     }
@@ -84,10 +94,15 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
         //NOTE: removing a project only removes dangling takes, not the project itself from the db
         if (projects.size() != db.getNumProjects() || db.projectsNeedingResync(projects).size() > 0) {
             File projectDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/");
-            db.resyncDbWithFs(ResyncUtils.getAllTakes(projectDir), this);
+            db.resyncDbWithFs(ResyncUtils.getAllTakes(projectDir), this, this);
         }
         db.close();
         onTaskCompleteDelegator();
+    }
+
+    public void onCorruptFile(final File file) {
+        CorruptFileDialog cfd = CorruptFileDialog.newInstance(file);
+        cfd.show(mFragmentManager, "CORRUPT_FILE");
     }
 
     public String requestLanguageName(String code) {
