@@ -1,6 +1,5 @@
 package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
-import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
@@ -69,8 +68,8 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
     }
 
     public void onCorruptFile(File file) {
-        CorruptFileDialog cfd = CorruptFileDialog.Build(mCtx, DialogFragment.STYLE_NORMAL, file);
-        cfd.show();
+        CorruptFileDialog cfd = CorruptFileDialog.newInstance(file);
+        cfd.show(mFragmentManager, "CORRUPT_FILE");
     }
 
     public String requestLanguageName(String code) {

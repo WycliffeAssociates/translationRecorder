@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="The following file is corrupted and will be deleted: "
+            android:text="The following file is corrupted and cannot be read by translationRecorder: "
             android:layout_marginBottom="@dimen/dialog_content_margin"
             android:textColor="@color/dark_primary_text"
             android:textSize="@dimen/abc_text_size_large_material"
@@ -24,24 +24,18 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:id="@+id/formLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                >
                 <TextView
                     android:id="@+id/filename_view"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:layout_marginBottom="@dimen/dialog_content_margin"
                     android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:textSize="@dimen/text_size_m"
                     android:text="File Name"/>
-            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout

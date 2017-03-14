@@ -1,8 +1,9 @@
 package org.wycliffeassociates.translationrecorder.database;
 
 
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,42 +14,34 @@ import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.io.File;
 
-public class CorruptFileDialog extends Dialog implements View.OnClickListener {
+public class CorruptFileDialog extends DialogFragment implements View.OnClickListener {
 
-    protected Context mCtx;
     protected File mFile = null;
-    private TextView mFileName;
-    private Button btnDelete;
-    private Button btnIgnore;
 
-    public static CorruptFileDialog Build(Context a, int theme, File file){
-        CorruptFileDialog exit = new CorruptFileDialog(a, theme);
-        exit.setFile(file);
-        return exit;
+    public static CorruptFileDialog newInstance(File file){
+        CorruptFileDialog dialog = new CorruptFileDialog();
+        dialog.setFile(file);
+        return dialog;
     }
 
     public void setFile(File file){
         mFile = file;
     }
 
-    public CorruptFileDialog(Context a, int theme) {
-        super(a, theme);
-        this.mCtx = a;
-    }
-
     @Override
-    protected void onCreate (Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_corrupt_file);
-
-        btnDelete = (Button) findViewById(R.id.ok_button);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_corrupt_file, null);
+        final Button btnDelete = (Button) view.findViewById(R.id.ok_button);
         btnDelete.setOnClickListener(this);
 
-        btnIgnore = (Button) findViewById(R.id.ignore_button);
+        final Button btnIgnore = (Button) view.findViewById(R.id.ignore_button);
         btnIgnore.setOnClickListener(this);
 
-        mFileName = (TextView) findViewById(R.id.filename_view);
+        final TextView mFileName = (TextView) view.findViewById(R.id.filename_view);
         mFileName.setText(mFile.getName());
+        builder.setView(view);
+        return builder.create();
     }
 
     @Override
