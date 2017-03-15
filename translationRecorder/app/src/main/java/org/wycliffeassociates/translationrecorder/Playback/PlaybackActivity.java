@@ -70,7 +70,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         AudioStateCallback, AudioEditDelegator, EditStateInformer,
         ViewCreatedCallback, WaveformFragment.OnScrollDelegator, VerseMarkerModeToggler, MarkerToolbarFragment.OnMarkerPlacedListener,
         MinimapLayer.MinimapDrawDelegator, FragmentTabbedWidget.DelegateMinimapMarkerDraw, FragmentFileBar.RerecordCallback, FragmentFileBar.RatingCallback,
-        FragmentFileBar.InsertCallback, DraggableImageView.OnMarkerMovementRequest {
+        FragmentFileBar.InsertCallback, DraggableImageView.OnMarkerMovementRequest, ExitDialog.DeleteFileCallback {
 
     public enum MODE {
         EDIT,
@@ -290,6 +290,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         onLocationUpdated();
     }
 
+    //Exit dialog requires this (mainly so that during recording the file can be deleted)
+    //but the file shouldn't be deleted at this point- so just leave this empty
+    @Override
+    public void onDeleteRecording() {
+    }
+
     @Override
     public void onSave() {
         save(null);
@@ -428,10 +434,10 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
             exit.show();
         } else {
-//            clearLoopPoints();
             super.onBackPressed();
         }
     }
+
 
     public boolean actionsToSave() {
         boolean cuts = mAudioController.mCutOp.hasCut();

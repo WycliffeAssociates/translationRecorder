@@ -14,16 +14,27 @@ import java.io.File;
  */
 public class ExitDialog extends Dialog implements View.OnClickListener {
 
+    public interface DeleteFileCallback {
+        void onDeleteRecording();
+    }
+
     protected boolean mIsPlaying = false;
     protected File mFile = null;
     protected boolean mKeepFile = false;
+    protected ImageButton btnSave, btnDelete;
+    protected DeleteFileCallback activity;
 
-    public static ExitDialog Build(Activity a, int theme, boolean keepFile, boolean isPlaying, File file){
+    public static ExitDialog Build(DeleteFileCallback a, int theme, boolean keepFile, boolean isPlaying, File file){
         ExitDialog exit = new ExitDialog(a, theme);
         exit.setFile(file);
         exit.setIsPlaying(isPlaying);
         exit.setKeepFile(keepFile);
+        exit.setDeleteCallback(a);
         return exit;
+    }
+
+    private void setDeleteCallback(DeleteFileCallback dfc) {
+        this.activity = dfc;
     }
 
     public void setKeepFile(boolean loadedFile){ mKeepFile = loadedFile;}
@@ -36,12 +47,8 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
         mFile = file;
     }
 
-    protected Activity activity;
-
-    protected ImageButton btnSave, btnDelete;
-
-    public ExitDialog(Activity a, int theme) {
-        super(a, theme);
+    public ExitDialog(DeleteFileCallback a, int theme) {
+        super((Activity)a, theme);
         this.activity = a;
     }
 
@@ -66,9 +73,8 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
                 break;
             case R.id.btnDelete: {
                 if (mFile != null && !mKeepFile){
-                    mFile.delete();
+                    activity.onDeleteRecording();
                 }
-                activity.finish();
                 break;
             }
             default:{
