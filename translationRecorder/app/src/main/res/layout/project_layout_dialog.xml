@@ -1,301 +1,338 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/white"
-    android:orientation="vertical"
-    android:minWidth="@dimen/dialog_min_width"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:animateLayoutChanges="true"
+    android:background="@color/white"
+    android:minWidth="@dimen/dialog_min_width"
+    android:orientation="vertical"
+    android:weightSum="1">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dialog_content_margin">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Open Bible Stories - Afaraf"
-            android:layout_marginBottom="@dimen/dialog_content_margin"
-            android:textColor="@color/dark_primary_text"
-            android:textSize="@dimen/headline"
-            android:id="@+id/title" />
+        android:padding="@dimen/default_padding_m"
+        android:text="Open Bible Stories - Afaraf"
+        android:textColor="@color/dark_primary_text"
+        android:textSize="@dimen/headline" />
+
+    <ScrollView
+        android:id="@+id/project_info_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
-            android:orientation="vertical"
             android:id="@+id/formLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/default_padding_m">
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:paddingBottom="@dimen/dialog_controls_margin"
-                android:layout_height="wrap_content">
+                android:paddingTop="@dimen/dialog_controls_margin">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:paddingRight="10dp"
                     android:text="@string/Project"
-                    android:paddingRight="10dp"/>
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body" />
+
                 <TextView
                     android:id="@+id/project_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="Open Bible Stories (obs)"
                     android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:text="Open Bible Stories (obs)"/>
+                    android:textSize="@dimen/body" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:paddingBottom="@dimen/dialog_controls_margin"
-                android:layout_height="wrap_content">
+                android:paddingTop="@dimen/dialog_controls_margin">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:paddingRight="10dp"
                     android:text="@string/target_language"
-                    android:paddingRight="10dp"/>
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body" />
+
                 <TextView
                     android:id="@+id/language_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="Afaraf (aa)"
                     android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:text="Afaraf (aa)"/>
+                    android:textSize="@dimen/body" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:paddingBottom="@dimen/dialog_controls_margin"
-                android:layout_height="wrap_content">
+                android:paddingTop="@dimen/dialog_controls_margin">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:paddingRight="10dp"
                     android:text="@string/translation_type"
-                    android:paddingRight="10dp"/>
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body" />
+
                 <TextView
                     android:id="@+id/translation_type_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="Unlocked Literal Bible (ULB)"
                     android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:text="Unlocked Literal Bible (ULB)"/>
+                    android:textSize="@dimen/body" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:paddingBottom="@dimen/dialog_controls_margin"
-                android:layout_height="wrap_content">
+                android:paddingTop="@dimen/dialog_controls_margin">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:paddingRight="10dp"
                     android:text="@string/unit"
-                    android:paddingRight="10dp"/>
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body" />
+
                 <TextView
                     android:id="@+id/unit_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="Verse"
                     android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:text="Verse"/>
+                    android:textSize="@dimen/body" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:paddingBottom="@dimen/dialog_controls_margin"
-                android:layout_height="wrap_content">
+                android:paddingTop="@dimen/dialog_controls_margin">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:paddingRight="10dp"
                     android:text="Source Audio Language"
-                    android:paddingRight="10dp"/>
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body" />
+
                 <TextView
                     android:id="@+id/source_audio_language"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
                     android:layout_marginRight="@dimen/default_padding_m"
-                    android:text=""/>
+                    android:text=""
+                    android:textColor="@color/dark_primary_text"
+                    android:textSize="@dimen/body" />
 
                 <ImageButton
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
                     android:id="@+id/edit_source_language"
-                    android:scaleType="fitCenter"
+                    android:layout_width="@dimen/icon_m"
+                    android:layout_height="@dimen/icon_m"
                     android:background="?attr/selectableItemBackground"
-                    android:src="@drawable/ic_pencil_black_48dp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
-                android:paddingBottom="@dimen/dialog_controls_margin"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
-                    android:text="Source Audio Location"
-                    android:paddingRight="10dp"/>
-                <TextView
-                    android:id="@+id/source_audio_location"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:layout_marginRight="@dimen/default_padding_m"
-                    android:text=""/>
-
-                <ImageButton
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:id="@+id/edit_source_location"
                     android:scaleType="fitCenter"
-                    android:background="?attr/selectableItemBackground"
                     android:src="@drawable/ic_pencil_black_48dp" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
-                android:paddingBottom="@dimen/dialog_controls_margin"
                 android:layout_height="wrap_content"
-                android:visibility="gone">
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:weightSum="10">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingRight="10dp"
+                    android:text="Source Audio Location"
                     android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:textSize="@dimen/body" />
+
+                <HorizontalScrollView
+                    android:layout_weight="9"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/default_padding_m"
+                    >
+
+                    <TextView
+                        android:id="@+id/source_audio_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:scrollHorizontally="true"
+                        android:text=""
+                        android:textColor="@color/dark_primary_text"
+                        android:textSize="@dimen/body" />
+                </HorizontalScrollView>
+
+                <ImageButton
+                    android:id="@+id/edit_source_location"
+                    android:layout_width="@dimen/icon_m"
+                    android:layout_height="@dimen/icon_m"
+                    android:background="?attr/selectableItemBackground"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_pencil_black_48dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:paddingTop="@dimen/dialog_controls_margin"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="10dp"
                     android:text="@string/progress"
-                    android:paddingRight="10dp"/>
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body" />
+
                 <TextView
                     android:id="@+id/progress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="60%"
                     android:textColor="@color/dark_primary_text"
-                    android:textSize="@dimen/body"
-                    android:text="60%"/>
+                    android:textSize="@dimen/body" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/contributors_group"
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:paddingTop="@dimen/dialog_controls_margin"
-                android:paddingBottom="@dimen/dialog_controls_margin"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/dialog_controls_margin"
+                android:paddingTop="@dimen/dialog_controls_margin"
                 android:visibility="gone">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/dark_secondary_text"
-                    android:textSize="@dimen/body"
+                    android:paddingRight="10dp"
                     android:text="@string/translators"
-                    android:paddingRight="10dp"/>
+                    android:textColor="@color/dark_secondary_text"
+                    android:textSize="@dimen/body" />
+
                 <TextView
                     android:id="@+id/translators"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="translator"
                     android:textColor="@color/accent_dark"
-                    android:textSize="@dimen/body"
-                    android:text="translator"/>
+                    android:textSize="@dimen/body" />
             </LinearLayout>
 
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="@color/list_separator"/>
+        android:background="@color/list_separator"
+        android:orientation="horizontal" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/dialog_controls_margin">
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
+
             <ImageButton
                 android:id="@+id/delete_button"
-                android:src="@drawable/ic_delete_black_24dp"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
+                android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_margin="12dp" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_delete_black_24dp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right|end">
-            <ImageButton
-                android:id="@+id/export_as_source_btn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackground"
-                android:src="@drawable/export_as_source"
-                android:layout_margin="12dp"
-                android:scaleType="fitCenter" />
-            <ImageButton
-                android:id="@+id/sdcard_button"
-                android:src="@drawable/ic_sd_black_24dp"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_margin="12dp"
-                android:background="?attr/selectableItemBackground"
-                />
-            <ImageButton
-                android:id="@+id/folder_button"
-                android:src="@drawable/ic_folder_black_24dp"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_margin="12dp"
-                android:background="?attr/selectableItemBackground"
-                />
 
             <ImageButton
-                android:visibility="gone"
-                android:id="@+id/publish_button"
-                android:src="@drawable/ic_cloud_upload_black_24dp"
+                android:id="@+id/export_as_source_btn"
+                android:layout_width="@dimen/icon_l"
+                android:layout_height="@dimen/icon_l"
                 android:layout_margin="12dp"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
                 android:background="?attr/selectableItemBackground"
-                />
+                android:scaleType="fitCenter"
+                android:src="@drawable/export_as_source" />
+
+            <ImageButton
+                android:id="@+id/sdcard_button"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
+                android:layout_margin="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_sd_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/folder_button"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
+                android:layout_margin="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_folder_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/publish_button"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
+                android:layout_margin="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_cloud_upload_black_24dp"
+                android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/other_button"
-                android:src="@drawable/ic_share_variant_black_24dp"
-                android:layout_height="36dp"
-                android:layout_width="36dp"
+                android:layout_width="@dimen/icon_m"
+                android:layout_height="@dimen/icon_m"
                 android:layout_margin="12dp"
                 android:background="?attr/selectableItemBackground"
-                />
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_share_variant_black_24dp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

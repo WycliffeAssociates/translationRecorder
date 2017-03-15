@@ -62,7 +62,7 @@
                 android:layout_height="match_parent"
                 android:visibility="visible"
                 android:layout_centerHorizontal="true"
-                android:layout_weight="80"
+                android:layout_weight="@integer/project_management_list_weight"
                 >
 
                 <LinearLayout
@@ -70,26 +70,24 @@
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/default_padding_m"
-                    android:paddingBottom="@dimen/default_padding_m"
-                    android:paddingRight="@dimen/default_padding_m"
-                    android:weightSum="100"
+                    android:layout_margin="@dimen/default_padding_m"
+                    android:weightSum="1000"
                     >
 
                     <FrameLayout
                         android:id="@+id/language_sort"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:padding="0dp"
-                        android:layout_weight="40"
+                        android:layout_weight="390"
                         >
 
                         <ImageView
                             android:id="@+id/language_sort_icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/icon_m"
+                            android:layout_height="@dimen/icon_m"
+                            android:scaleType="fitCenter"
                             android:src="@drawable/ic_record_voice_over_black_24dp"
-                            android:layout_marginStart="16dp" />
+                            />
 
                     </FrameLayout>
 
@@ -97,14 +95,14 @@
                         android:id="@+id/book_sort"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:padding="0dp"
-                        android:layout_weight="30"
+                        android:layout_weight="295"
                         >
 
                         <ImageView
                             android:id="@+id/book_sort_icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/icon_m"
+                            android:layout_height="@dimen/icon_m"
+                            android:scaleType="fitCenter"
                             android:src="@drawable/ic_library_books_black_24dp"
                             />
 
@@ -114,14 +112,14 @@
                         android:id="@+id/progress_sort"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:padding="0dp"
-                        android:layout_weight="30"
+                        android:layout_weight="315"
                         >
 
                         <ImageView
                             android:id="@+id/progress_sort_icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/icon_m"
+                            android:layout_height="@dimen/icon_m"
+                            android:scaleType="fitCenter"
                             android:src="@drawable/ic_book_black_24dp"
                             />
 

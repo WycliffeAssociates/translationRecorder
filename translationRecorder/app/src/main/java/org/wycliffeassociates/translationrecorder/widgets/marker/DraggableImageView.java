@@ -3,7 +3,12 @@ package org.wycliffeassociates.translationrecorder.widgets.marker;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import org.wycliffeassociates.translationrecorder.Playback.markers.MarkerHolder;
+import org.wycliffeassociates.translationrecorder.R;
 
 /**
  * Created by sarabiaj on 11/8/2016.
@@ -49,7 +55,17 @@ public class DraggableImageView extends ImageView {
     public DraggableImageView(Activity context, ViewGroup.LayoutParams params, int drawableId, int viewId, Paint paint) {
         this(context);
         mPaint = paint;
-        setImageResource(drawableId);
+
+        int dp = (int)context.getResources().getDimension(R.dimen.icon_xl);
+        Drawable d = context.getResources().getDrawable(drawableId);
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inPurgeable = true;
+        opts.inScaled = true;
+        Bitmap bmp = Bitmap.createScaledBitmap(drawableToBitmap(d), dp, dp, true);
+        setImageBitmap(bmp);
+
+        //setImageResource(drawableId);
         setLayoutParams(params);
         setMarkerId(viewId);
         if(context instanceof OnMarkerMovementRequest) {
@@ -57,6 +73,20 @@ public class DraggableImageView extends ImageView {
         } else {
             throw new RuntimeException("Activity used to create DraggableImageView does not implement OnMarkerMovementRequest");
         }
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 
     protected void setMarkerId(int id) {

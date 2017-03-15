@@ -51,6 +51,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String requestLanguageName(String languageCode);
     }
 
+    public interface OnCorruptFile {
+        void onCorruptFile(File file);
+    }
+
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "translation_projects";
     private Language[] languages;
@@ -869,8 +873,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return takesToCompile;
     }
 
-    public void resyncProjectWithFilesystem(Project project, List<File> takes, OnLanguageNotFound callback){
-        importTakesToDatabase(takes, callback);
+    public void resyncProjectWithFilesystem(Project project, List<File> takes, OnLanguageNotFound callback, OnCorruptFile onCorruptFile){
+        importTakesToDatabase(takes, callback, onCorruptFile);
         if(projectExists(project)) {
             int projectId = getProjectId(project);
             String where = String.format("%s.%s=?",
@@ -880,8 +884,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void resyncChapterWithFilesystem(Project project, int chapter, List<File> takes, OnLanguageNotFound callback){
-        importTakesToDatabase(takes, callback);
+    public void resyncChapterWithFilesystem(Project project, int chapter, List<File> takes, OnLanguageNotFound callback, OnCorruptFile onCorruptFile){
+        importTakesToDatabase(takes, callback, onCorruptFile);
         if(projectExists(project) && chapterExists(project, chapter)) {
             int projectId = getProjectId(project);
             int chapterId = getChapterId(project, chapter);
@@ -898,7 +902,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 //        removeTakesWithNoFiles(takes, whereClause, whereArgs);
 //    }
 
-    private void importTakesToDatabase(List<File> takes, OnLanguageNotFound callback){
+    private void importTakesToDatabase(List<File> takes, OnLanguageNotFound callback, OnCorruptFile corruptFileCallback){
         SQLiteDatabase db = getWritableDatabase();
         //create a temporary table to store take names from the filesystem
         db.execSQL(ProjectContract.DELETE_TEMP);
@@ -936,8 +940,15 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 }
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
                 File dir = fne.getParentDirectory();
-                WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
-                addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                File file = new File(dir, c.getString(nameIndex));
+                try {
+                    WavFile wav = new WavFile(file);
+                    addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                } catch (IllegalArgumentException e) {
+                    //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
+                    Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
+                    corruptFileCallback.onCorruptFile(file);
+                }
             } while (c.moveToNext());
         }
         c.close();
@@ -996,7 +1007,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public void resyncDbWithFs(List<File> takes, OnLanguageNotFound callback) {
+    public void resyncDbWithFs(List<File> takes, OnLanguageNotFound callback, OnCorruptFile corruptFileCallback) {
         SQLiteDatabase db = getWritableDatabase();
         //create a temporary table to store take names from the filesystem
         db.execSQL(ProjectContract.DELETE_TEMP);
@@ -1034,13 +1045,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 }
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
                 File dir = fne.getParentDirectory();
+                File file = new File(dir, c.getString(nameIndex));
                 try {
-                    WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
+                    WavFile wav = new WavFile(file);
                     addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
                 } catch (IllegalArgumentException e) {
                     //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
                     Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
-                    throw new RuntimeException(e);
+                    corruptFileCallback.onCorruptFile(file);
                 }
             } while (c.moveToNext());
         }

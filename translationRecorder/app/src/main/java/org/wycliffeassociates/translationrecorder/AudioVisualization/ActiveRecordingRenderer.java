@@ -18,7 +18,6 @@ public class ActiveRecordingRenderer {
     private FragmentRecordingControls mFragmentRecordingControls;
     private FragmentVolumeBar mFragmentVolumeBar;
     private FragmentRecordingWaveform mFragmentRecordingWaveform;
-    private boolean isRecording;
     private int mCanvasHeight;
 
     public static int NUM_SECONDS_ON_SCREEN = 10;
@@ -27,11 +26,6 @@ public class ActiveRecordingRenderer {
         mFragmentRecordingControls = timer;
         mFragmentVolumeBar = volume;
         mFragmentRecordingWaveform = waveform;
-    }
-
-
-    public void setIsRecording(boolean isRecording){
-        this.isRecording = isRecording;
     }
 
     //NOTE: software architecture will only allow one instance of this at a time, do not declare multiple
@@ -73,7 +67,7 @@ public class ActiveRecordingRenderer {
                                 maxDB = db;
                                 mFragmentVolumeBar.updateDb((int)maxDB);
                             }
-                            if (isRecording) {
+                            if (!onlyVolumeTest) {
                                 for(int i = 0; i < buffer.length; i+=2) {
                                     byte low = buffer[i];
                                     byte hi = buffer[i+1];
@@ -86,7 +80,7 @@ public class ActiveRecordingRenderer {
                                     mFragmentRecordingControls.updateTime();
                                 }
                                 //if only running the volume meter, the queues need to be emptied
-                            } else if (onlyVolumeTest) {
+                            } else {
                                 mFragmentRecordingWaveform.updateWaveform(null);
                                 RecordingQueues.writingQueue.clear();
                                 RecordingQueues.compressionWriterQueue.clear();

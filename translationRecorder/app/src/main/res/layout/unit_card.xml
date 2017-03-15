@@ -35,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Unit 1"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/title"
                     android:textColor="@color/primary_text_default_material_light"
                     android:textStyle="bold"
                     android:layout_centerVertical="true"
@@ -54,8 +54,8 @@
 
                     <ImageView
                         android:id="@+id/unitRecordBtn"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/icon_l"
+                        android:layout_height="@dimen/icon_l"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_unit_card_record"
                         android:layout_gravity="center_vertical"
@@ -66,8 +66,8 @@
 
                     <ImageView
                         android:id="@+id/unitExpandBtn"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/icon_l"
+                        android:layout_height="@dimen/icon_l"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector_card_expand_toggle"
                         android:visibility="visible"
@@ -91,8 +91,8 @@
 
                     <ImageView
                         android:id="@+id/take_count_icon"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="@dimen/icon_s"
+                        android:layout_height="@dimen/icon_s"
                         android:src="@drawable/close_black"
                         />
 
@@ -101,7 +101,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="18sp"
+                        android:textSize="@dimen/text_size_m"
                         android:textColor="@color/primary_text_default_material_light"
                         />
 
@@ -165,8 +165,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/default_padding_m"
-                    android:paddingStart="42dp"
-                    android:paddingEnd="42dp"
+                    android:paddingStart="@dimen/padding_xl"
+                    android:paddingEnd="@dimen/padding_xl"
                     android:weightSum="100"
                     >
 
@@ -180,8 +180,9 @@
 
                         <ImageButton
                             android:id="@+id/deleteTakeBtn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/icon_l"
+                            android:layout_height="@dimen/icon_l"
+                            android:scaleType="fitXY"
                             android:src="@drawable/delete"
                             android:background="#00000000"
                             android:layout_gravity="center"
@@ -200,8 +201,8 @@
                         <ImageButton
                             android:id="@+id/editTakeBtn"
                             android:src="@drawable/waveform_black"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="@dimen/icon_l"
+                            android:layout_height="@dimen/icon_l"
                             android:scaleType="fitXY"
                             android:background="#00000000"
                             android:layout_gravity="center"
@@ -219,8 +220,8 @@
 
                         <ImageButton
                             android:id="@+id/playTakeBtn"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="@dimen/icon_xl"
+                            android:layout_height="@dimen/icon_xl"
                             android:scaleType="fitCenter"
                             android:src="@drawable/selector_unit_card_play"
                             android:visibility="visible"
@@ -241,8 +242,8 @@
                         <ImageButton
                             android:id="@+id/selectTakeBtn"
                             android:src="@drawable/selector_take_selection"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="@dimen/icon_l"
+                            android:layout_height="@dimen/icon_l"
                             android:scaleType="fitXY"
                             android:background="#00000000"
                             android:layout_gravity="center"
@@ -261,8 +262,8 @@
                         <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
                             android:id="@+id/rateTakeBtn"
                             android:src="@drawable/selector_take_rating"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="@dimen/icon_l"
+                            android:layout_height="@dimen/icon_l"
                             android:scaleType="fitXY"
                             android:background="#00000000"
                             android:layout_gravity="center"
@@ -287,8 +288,9 @@
 
                 <ImageView
                     android:id="@+id/prevTakeBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/icon_l"
+                    android:layout_height="@dimen/icon_l"
+                    android:scaleType="fitXY"
                     android:src="@drawable/chevron_left"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
@@ -326,8 +328,9 @@
 
                 <ImageView
                     android:id="@+id/nextTakeBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/icon_l"
+                    android:layout_height="@dimen/icon_l"
+                    android:scaleType="fitXY"
                     android:src="@drawable/chevron_right"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"

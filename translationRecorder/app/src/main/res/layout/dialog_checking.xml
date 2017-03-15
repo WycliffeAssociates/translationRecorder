@@ -15,8 +15,8 @@
 
         <ImageButton
             android:id="@+id/check_level_zero"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
+            android:layout_width="@dimen/rating_icon_size"
+            android:layout_height="@dimen/rating_icon_size"
             android:scaleType="fitCenter"
             android:src="@drawable/selector_check_level_zero"
             android:padding="@dimen/default_padding_m"
@@ -25,8 +25,8 @@
 
         <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
             android:id="@+id/check_level_one"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
+            android:layout_width="@dimen/rating_icon_size"
+            android:layout_height="@dimen/rating_icon_size"
             android:scaleType="fitCenter"
             android:src="@drawable/selector_check_level_one"
             android:padding="@dimen/default_padding_m"
@@ -34,8 +34,8 @@
 
         <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
             android:id="@+id/check_level_two"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
+            android:layout_width="@dimen/rating_icon_size"
+            android:layout_height="@dimen/rating_icon_size"
             android:scaleType="fitCenter"
             android:src="@drawable/selector_check_level_two"
             android:padding="@dimen/default_padding_m"
@@ -43,8 +43,8 @@
 
         <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
             android:id="@+id/check_level_three"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
+            android:layout_width="@dimen/rating_icon_size"
+            android:layout_height="@dimen/rating_icon_size"
             android:scaleType="fitCenter"
             android:src="@drawable/selector_check_level_three"
             android:padding="@dimen/default_padding_m"

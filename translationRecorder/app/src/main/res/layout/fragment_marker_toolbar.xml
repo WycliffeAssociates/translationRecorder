@@ -2,8 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minHeight="@dimen/tabbed_widget_size"
+    android:maxHeight="@dimen/tabbed_widget_size"
     android:background="@color/tertiary"
-    android:padding="16dp">
+    android:padding="@dimen/default_padding_m">
 
     <LinearLayout
         android:id="@+id/file_info_container"
@@ -11,17 +13,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_centerVertical="true">
-
-        <!-- TODO: Remove -->
-        <TextView
-            android:id="@+id/filename_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Insert File Name"
-            android:textColor="@color/text_light"
-            android:textSize="24sp"
-            android:padding="4dp"
-            android:visibility="gone"/>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -34,18 +25,26 @@
                 android:layout_height="wrap_content"
                 android:text="00:00:00"
                 android:textColor="@color/text_light"
-                android:textSize="32sp"
-                android:padding="4dp"
+                android:textSize="@dimen/text_size_xl"
+                android:padding="@dimen/default_padding_xs"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/"
+                android:textColor="@color/text_light"
+                android:textSize="@dimen/text_size_m"
+                />
 
             <TextView
                 android:id="@+id/playback_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="/ 00:00:00"
+                android:text="00:00:00"
                 android:textColor="@color/text_light"
-                android:textSize="18sp"
-                android:padding="4dp" />
+                android:textSize="@dimen/text_size_m"
+                android:padding="@dimen/default_padding_xs" />
 
         </LinearLayout>
 
@@ -60,8 +59,8 @@
 
         <ImageButton
             android:id="@+id/btn_skip_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_xl"
+            android:layout_height="@dimen/icon_xl"
             android:layout_marginEnd="16dp"
             android:layout_centerVertical="true"
             android:scaleType="fitCenter"
@@ -77,15 +76,17 @@
 
             <ImageButton
                 android:id="@+id/btn_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/icon_xl"
+                android:layout_height="@dimen/icon_xl"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_play_white"
                 android:background="#00000000" />
 
             <ImageButton
                 android:id="@+id/btn_pause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/icon_xl"
+                android:layout_height="@dimen/icon_xl"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_pause_white_48dp"
                 android:background="#00000000"
                 android:visibility="gone"
@@ -95,8 +96,8 @@
 
         <ImageButton
             android:id="@+id/btn_skip_forward"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_xl"
+            android:layout_height="@dimen/icon_xl"
             android:layout_marginEnd="16dp"
             android:layout_centerVertical="true"
             android:scaleType="fitCenter"
@@ -109,8 +110,9 @@
 
     <ImageButton
         android:id="@+id/btn_drop_verse_marker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_xl"
+        android:layout_height="@dimen/icon_xl"
+        android:scaleType="fitCenter"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@drawable/bookmark_add"
@@ -119,8 +121,9 @@
 
     <ImageButton
         android:id="@+id/btn_verse_marker_done"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/icon_xl"
+        android:layout_height="@dimen/icon_xl"
+        android:scaleType="fitCenter"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_done"

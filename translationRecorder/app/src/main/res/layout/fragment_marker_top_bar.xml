@@ -11,8 +11,8 @@
 
     <ImageButton
         android:id="@+id/btn_exit_verse_marker_mode"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="@dimen/icon_m"
+        android:layout_height="@dimen/icon_m"
         android:layout_marginEnd="@dimen/default_padding_m"
         android:scaleType="fitCenter"
         android:src="@drawable/close_white"
@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textColor="@color/primary_text_default_material_dark"
         android:textStyle="bold"
         />
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_padding_s"
         android:text="left"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textColor="@color/primary_text_default_material_dark"
         android:textStyle="bold"
         />

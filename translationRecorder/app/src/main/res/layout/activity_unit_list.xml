@@ -29,7 +29,7 @@
             android:id="@+id/unit_list"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="80"
+            android:layout_weight="@integer/project_management_list_weight"
             android:scrollbars="vertical"
             android:paddingTop="@dimen/default_padding_m"
             android:paddingBottom="@dimen/default_padding_m"

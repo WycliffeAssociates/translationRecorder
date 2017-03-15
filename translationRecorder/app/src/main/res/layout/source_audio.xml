@@ -9,8 +9,8 @@
 
     <ImageButton
         android:id="@+id/playButton"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="@dimen/icon_l"
+        android:layout_height="@dimen/icon_l"
         android:scaleType="fitCenter"
         android:src="@drawable/selector_source_audio_play"
         android:visibility="visible"
@@ -23,7 +23,7 @@
         android:layout_marginStart="@dimen/default_padding_m"
         android:layout_gravity="center_vertical"
         android:text="No source audio"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textColor="@color/text_light_disabled"
         android:textStyle="italic"
         android:visibility="gone" />
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_padding_m"
         android:text="00:00:00"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_m"
         android:textColor="@color/text_light"
         android:layout_gravity="center_vertical" />
 
@@ -54,6 +54,6 @@
         android:layout_gravity="center_vertical"
         android:text="00:00:00"
         android:textColor="@color/text_light"
-        android:textSize="18sp" />
+        android:textSize="@dimen/text_size_m" />
 
 </LinearLayout>
