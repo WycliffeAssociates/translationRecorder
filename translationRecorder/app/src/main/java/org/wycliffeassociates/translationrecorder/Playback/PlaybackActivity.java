@@ -290,10 +290,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         onLocationUpdated();
     }
 
-    //Exit dialog requires this (mainly so that during recording the file can be deleted)
-    //but the file shouldn't be deleted at this point- so just leave this empty
     @Override
     public void onDeleteRecording() {
+        super.onBackPressed();
     }
 
     @Override
@@ -431,7 +430,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             onDisableVerseMarkerMode();
         } else if (actionsToSave()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
-            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, true, isPlaying, mWavFile.getFile());
+            //keep file needs to be false so the callback will go through and the super.onBackPressed is called
+            ExitDialog exit = ExitDialog.Build(this, R.style.Theme_AppCompat_Light_Dialog, false, isPlaying, mWavFile.getFile());
             exit.show();
         } else {
             super.onBackPressed();
