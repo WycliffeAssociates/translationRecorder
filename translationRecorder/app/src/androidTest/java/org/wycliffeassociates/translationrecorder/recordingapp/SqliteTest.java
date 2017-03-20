@@ -61,7 +61,7 @@ public class SqliteTest {
 
         assertEquals(p.getTargetLanguage(), databaseProject1.getTargetLanguage());
         assertEquals(p.getSourceLanguage(), databaseProject1.getSourceLanguage());
-        assertEquals(p.getSlug(), databaseProject1.getSlug());
+        assertEquals(p.getBookSlug(), databaseProject1.getBookSlug());
         assertEquals(p.getVersion(), databaseProject1.getVersion());
         assertEquals(p.getMode(), databaseProject1.getMode());
         assertEquals(p.getBookNumber(), databaseProject1.getBookNumber());
@@ -71,7 +71,7 @@ public class SqliteTest {
 
         assertEquals(p2.getTargetLanguage(), databaseProject2.getTargetLanguage());
         assertEquals(p2.getSourceLanguage(), databaseProject2.getSourceLanguage());
-        assertEquals(p2.getSlug(), databaseProject2.getSlug());
+        assertEquals(p2.getBookSlug(), databaseProject2.getBookSlug());
         assertEquals(p2.getVersion(), databaseProject2.getVersion());
         assertEquals(p2.getMode(), databaseProject2.getMode());
         assertEquals(p2.getBookNumber(), databaseProject2.getBookNumber());
@@ -89,7 +89,7 @@ public class SqliteTest {
 
 //        assertEquals(p3.getTargetLanguage(), databaseProject3.getTargetLanguage());
 //        assertEquals(p3.getSourceLanguage(), databaseProject3.getSourceLanguage());
-//        assertEquals(p3.getSlug(), databaseProject3.getSlug());
+//        assertEquals(p3.getBookSlug(), databaseProject3.getBookSlug());
 //        assertEquals(p3.getVersion(), databaseProject3.getVersion());
 //        assertEquals(p3.getMode(), databaseProject3.getMode());
 //        assertEquals(p3.getBookNumber(), databaseProject3.getBookNumber());

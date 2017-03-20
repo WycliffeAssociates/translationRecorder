@@ -83,7 +83,7 @@ public class ProjectAdapter extends ArrayAdapter {
         if(project.isOBS()){
             bookView.setText("Open Bible Stories");
         } else {
-            String book = dB.getBookName(project.getSlug());
+            String book = dB.getBookName(project.getBookSlug());
             bookView.setText(book);
         }
 
@@ -94,7 +94,7 @@ public class ProjectAdapter extends ArrayAdapter {
         if (dB.projectExists(project)) {
             try {
                 // TODO: This is a bottle neck. Please optimize the progress calculation.
-                Chunks chunks = new Chunks(ctx.getBaseContext(), project.getSlug());
+                Chunks chunks = new Chunks(ctx.getBaseContext(), project.getBookSlug());
                 int chapterCount = chunks.getNumChapters();
                 int projectId = dB.getProjectId(project);
                 int progress = Math.round((float)dB.getProjectProgressSum(projectId) / chapterCount);

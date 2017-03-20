@@ -45,7 +45,7 @@ public class WavMetadata implements Parcelable {
         mAnthology = p.getAnthology();
         mLanguage = p.getTargetLanguage();
         mVersion = p.getVersion();
-        mSlug = p.getSlug();
+        mSlug = p.getBookSlug();
         mBookNumber = p.getBookNumber();
         mMode = p.getMode();
         mChapter = chapter;

@@ -207,7 +207,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             project = db.getProject(projectId);
             Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguage()
-                    + " book " + project.getSlug() + " version "
+                    + " book " + project.getBookSlug() + " version "
                     + project.getVersion() + " mode " + project.getMode());
         } else {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
@@ -241,7 +241,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
         for (Project p : projects) {
-            Logger.w(this.toString(), "Project: language " + p.getTargetLanguage() + " book " + p.getSlug() + " version " + p.getVersion() + " mode " + p.getMode());
+            Logger.w(this.toString(), "Project: language " + p.getTargetLanguage() + " book " + p.getBookSlug() + " version " + p.getVersion() + " mode " + p.getMode());
         }
         mAdapter = new ProjectAdapter(this, projects);
         mProjectList.setAdapter(mAdapter);
@@ -350,7 +350,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == dialog.BUTTON_POSITIVE) {
                             Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguage()
-                                    + " book " + project.getSlug() + " version "
+                                    + " book " + project.getBookSlug() + " version "
                                     + project.getVersion() + " mode " + project.getMode());
                             Project.deleteProject(ActivityProjectManager.this, project);
                             populateProjectList();
@@ -451,7 +451,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getSlug() + ".tr");
+        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getBookSlug() + ".tr");
         intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
         startActivityForResult(intent, SAVE_SOURCE_AUDIO_REQUEST);
     }

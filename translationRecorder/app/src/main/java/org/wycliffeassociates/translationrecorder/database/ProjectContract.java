@@ -2,6 +2,10 @@ package org.wycliffeassociates.translationrecorder.database;
 
 import android.provider.BaseColumns;
 
+import static org.wycliffeassociates.translationrecorder.database.ProjectContract.BookEntry.TABLE_BOOK;
+import static org.wycliffeassociates.translationrecorder.database.ProjectContract.ChapterEntry.TABLE_CHAPTER;
+import static org.wycliffeassociates.translationrecorder.database.ProjectContract.VersionRelationshipEntry.ANTHOLOGY_FK;
+
 /**
  * Created by sarabiaj on 5/19/2016.
  */
@@ -28,7 +32,7 @@ public final class ProjectContract {
         public static final String BOOK_SLUG = "slug";
         public static final String BOOK_NAME = "name";
         public static final String BOOK_NUMBER = "number";
-        public static final String BOOK_ANTHOLOGY = "anthology";
+        public static final String BOOK_ANTHOLOGY_FK = "anthology_fk";
         public static final String BOOK_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_BOOK_TABLE = "CREATE TABLE " + TABLE_BOOK + " ("
@@ -36,8 +40,59 @@ public final class ProjectContract {
                 + BOOK_SLUG + TEXTCOMMA
                 + BOOK_NAME + TEXTCOMMA
                 + BOOK_NUMBER + INTCOMMA
-                + BOOK_ANTHOLOGY + TEXTCOMMA
+                + BOOK_ANTHOLOGY_FK + INTCOMMA
+                + "FOREIGN KEY(" + ANTHOLOGY_FK + ") REFERENCES " + AnthologyEntry.TABLE_ANTHOLOGY + "(" + _ID + ")"
                 + "CONSTRAINT " + BOOK_UNIQUE_CONSTRAINT + " UNIQUE(" + BOOK_SLUG + ")"
+                + ");";
+    }
+
+    public static abstract class AnthologyEntry implements BaseColumns {
+        public static final String TABLE_ANTHOLOGY = "anthologies";
+        public static final String ANTHOLOGY_SLUG = "slug";
+        public static final String ANTHOLOGY_NAME = "name";
+        public static final String ANTHOLOGY_RESOURCE = "resource";
+        public static final String ANTHOLOGY_REGEX = "regex";
+        public static final String ANTHOLOGY_MASK = "mask";
+        public static final String ANTHOLOGY_UNIQUE_CONSTRAINT = "cols_unique";
+
+        public static final String CREATE_ANTHOLOGY_TABLE = "CREATE TABLE " + TABLE_ANTHOLOGY + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + ANTHOLOGY_SLUG + TEXTCOMMA
+                + ANTHOLOGY_NAME + TEXTCOMMA
+                + ANTHOLOGY_RESOURCE + TEXTCOMMA
+                + ANTHOLOGY_REGEX + TEXTCOMMA
+                + ANTHOLOGY_MASK + TEXTCOMMA
+                + "CONSTRAINT " + ANTHOLOGY_UNIQUE_CONSTRAINT + " UNIQUE(" + ANTHOLOGY_SLUG + ")"
+                + ");";
+    }
+
+    public static abstract class VersionEntry implements BaseColumns {
+        public static final String TABLE_VERSION = "versions";
+        public static final String VERSION_SLUG = "slug";
+        public static final String VERSION_NAME = "name";
+        public static final String VERSION_UNIQUE_CONSTRAINT = "cols_unique";
+
+        public static final String CREATE_VERSION_TABLE = "CREATE TABLE " + TABLE_VERSION + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + VERSION_SLUG + TEXTCOMMA
+                + VERSION_NAME + TEXTCOMMA
+                + "CONSTRAINT " + VERSION_UNIQUE_CONSTRAINT + " UNIQUE(" + VERSION_SLUG + ")"
+                + ");";
+    }
+
+    public static abstract class VersionRelationshipEntry implements BaseColumns {
+        public static final String TABLE_VERSION_RELATIONSHIP = "version_relationship";
+        public static final String VERSION_FK = "version_fk";
+        public static final String ANTHOLOGY_FK = "anthology_fk";
+        public static final String UNIQUE_CONSTRAINT = "cols_unique";
+
+        public static final String CREATE_VERSION_RELATIONSHIP_TABLE = "CREATE TABLE " + TABLE_VERSION_RELATIONSHIP + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + VERSION_FK + INTCOMMA
+                + ANTHOLOGY_FK + INTCOMMA
+                + "FOREIGN KEY(" + VERSION_FK + ") REFERENCES " + VersionEntry.TABLE_VERSION + "(" + _ID + ")"
+                + "FOREIGN KEY(" + ANTHOLOGY_FK + ") REFERENCES " + AnthologyEntry.TABLE_ANTHOLOGY + "(" + _ID + ")"
+                + "CONSTRAINT " + UNIQUE_CONSTRAINT + " UNIQUE(" + VERSION_FK + COMMA + ANTHOLOGY_FK + ")"
                 + ");";
     }
 
@@ -81,7 +136,7 @@ public final class ProjectContract {
                 + UNIT_NOTES + TEXTCOMMA
                 + UNIT_CHOSEN_TAKE_FK + INTCOMMA
                 + "FOREIGN KEY(" + UNIT_PROJECT_FK + ") REFERENCES " + ProjectEntry.TABLE_PROJECT + "(" + _ID + ")"
-                + "FOREIGN KEY(" + UNIT_CHAPTER_FK + ") REFERENCES " + ChapterEntry.TABLE_CHAPTER + "(" + _ID + ")"
+                + "FOREIGN KEY(" + UNIT_CHAPTER_FK + ") REFERENCES " + TABLE_CHAPTER + "(" + _ID + ")"
                 + "FOREIGN KEY(" + UNIT_CHOSEN_TAKE_FK + ") REFERENCES " + TakeEntry.TABLE_TAKE + "(" + _ID + ")"
                 + "CONSTRAINT " + UNIT_UNIQUE_CONSTRAINT + " UNIQUE(" + UNIT_PROJECT_FK + "," +  UNIT_CHAPTER_FK + "," + UNIT_START_VERSE + ")"
                 + ");";
@@ -113,7 +168,7 @@ public final class ProjectContract {
         public static final String TABLE_PROJECT = "projects";
         public static final String PROJECT_TARGET_LANGUAGE_FK = "target_language_fk";
         public static final String PROJECT_BOOK_FK = "book_fk";
-        public static final String PROJECT_VERSION = "version";
+        public static final String PROJECT_VERSION_FK = "version_fk";
         public static final String PROJECT_MODE = "mode";
         public static final String PROJECT_SOURCE_LANGUAGE_FK = "source_lang_fk";
         public static final String PROJECT_SOURCE_AUDIO_PATH = "source_audio_path";
@@ -126,7 +181,7 @@ public final class ProjectContract {
                 + _ID + " INTEGER PRIMARY KEY,"
                 + PROJECT_TARGET_LANGUAGE_FK + INTCOMMA
                 + PROJECT_BOOK_FK + TEXTCOMMA
-                + PROJECT_VERSION + TEXTCOMMA
+                + PROJECT_VERSION_FK + INTCOMMA
                 + PROJECT_MODE + TEXTCOMMA
                 + PROJECT_SOURCE_LANGUAGE_FK + INTCOMMA
                 + PROJECT_SOURCE_AUDIO_PATH + TEXTCOMMA
@@ -135,7 +190,8 @@ public final class ProjectContract {
                 + PROJECT_PROGRESS + INTCOMMA
                 + "FOREIGN KEY(" + PROJECT_TARGET_LANGUAGE_FK + ") REFERENCES " + LanguageEntry.TABLE_LANGUAGE + "(" + _ID + ")"
                 + "FOREIGN KEY(" + PROJECT_SOURCE_LANGUAGE_FK + ") REFERENCES " + LanguageEntry.TABLE_LANGUAGE + "(" + _ID + ")"
-                + "CONSTRAINT " + PROJECT_UNIQUE_CONSTRAINT + " UNIQUE(" + PROJECT_BOOK_FK + "," +  PROJECT_TARGET_LANGUAGE_FK + "," + PROJECT_VERSION + ")"
+                + "FOREIGN KEY(" + PROJECT_VERSION_FK + ") REFERENCES " + VersionEntry.TABLE_VERSION + "(" + _ID + ")"
+                + "CONSTRAINT " + PROJECT_UNIQUE_CONSTRAINT + " UNIQUE(" + PROJECT_BOOK_FK + "," +  PROJECT_TARGET_LANGUAGE_FK + "," + PROJECT_VERSION_FK + ")"
                 + " );";
     }
 
@@ -158,10 +214,13 @@ public final class ProjectContract {
     public static final String INTCOMMA = " INTEGER,";
 
     public static final String DELETE_LANGUAGE = "DROP TABLE IF EXISTS " + LanguageEntry.TABLE_LANGUAGE;
-    public static final String DELETE_BOOKS = "DROP TABLE IF EXISTS " + BookEntry.TABLE_BOOK;
+    public static final String DELETE_BOOKS = "DROP TABLE IF EXISTS " + TABLE_BOOK;
     public static final String DELETE_PROJECTS = "DROP TABLE IF EXISTS " + ProjectEntry.TABLE_PROJECT;
-    public static final String DELETE_CHAPTERS = "DROP TABLE IF EXISTS " + ChapterEntry.TABLE_CHAPTER;
+    public static final String DELETE_CHAPTERS = "DROP TABLE IF EXISTS " + TABLE_CHAPTER;
     public static final String DELETE_UNITS = "DROP TABLE IF EXISTS " + UnitEntry.TABLE_UNIT;
+    public static final String DELETE_VERSIONS = "DROP TABLE IF EXISTS " + VersionEntry.TABLE_VERSION;
+    public static final String DELETE_ANTHOLOGIES = "DROP TABLE IF EXISTS " + AnthologyEntry.TABLE_ANTHOLOGY;
+    public static final String DELETE_VERSION_RELATIONSHIPS = "DROP TABLE IF EXISTS " + VersionRelationshipEntry.TABLE_VERSION_RELATIONSHIP;
     public static final String DELETE_TAKES = "DROP TABLE IF EXISTS " + TakeEntry.TABLE_TAKE;
 
     public static final String DELETE_TEMP = "DROP TABLE IF EXISTS stuff";

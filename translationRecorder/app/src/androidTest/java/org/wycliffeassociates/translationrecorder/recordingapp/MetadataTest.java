@@ -129,7 +129,7 @@ public class MetadataTest {
         WavMetadata metadata = parceled.getMetadata();
         assertEquals(project.getAnthology(), metadata.getAnthology());
         assertEquals(project.getMode(), metadata.getMode());
-        assertEquals(project.getSlug(), metadata.getSlug());
+        assertEquals(project.getBookSlug(), metadata.getSlug());
         assertEquals(project.getTargetLanguage(), metadata.getLanguage());
         assertEquals(project.getBookNumber(), metadata.getBookNumber());
         assertEquals(project.getVersion(), metadata.getVersion());

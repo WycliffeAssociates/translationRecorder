@@ -176,7 +176,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mFragmentContainerMapping.put(R.id.tabbed_widget_fragment_holder, mFragmentTabbedWidget);
 
         mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguage(),
-                mProject.getVersion(), mProject.getSlug(), "Chapter", String.valueOf(mChapter),
+                mProject.getVersion(), mProject.getBookSlug(), "Chapter", String.valueOf(mChapter),
                 mProject.getMode(),
                 getUnitLabel());
 

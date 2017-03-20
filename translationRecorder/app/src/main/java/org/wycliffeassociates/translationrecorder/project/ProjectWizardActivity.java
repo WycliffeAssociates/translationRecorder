@@ -167,14 +167,14 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             } else {
                 project = "obs";
             }
-            ((Project) mProject).setProject(project);
+            ((Project) mProject).setAnthology(project);
             mLastFragment = mCurrentFragment;
             mCurrentFragment = project.compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
             this.displayFragment();
         } else if (mCurrentFragment == BOOK && result instanceof Book) {
             Book book = (Book) result;
             mProject.setBookNumber(book.getOrder());
-            mProject.setSlug(book.getSlug());
+            mProject.setBookSlug(book.getSlug());
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == SOURCE_TEXT && result instanceof String) {

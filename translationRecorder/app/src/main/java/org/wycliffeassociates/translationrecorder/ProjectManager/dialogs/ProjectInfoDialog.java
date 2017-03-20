@@ -86,7 +86,7 @@ public class ProjectInfoDialog extends DialogFragment {
 
         String languageCode = mProject.getTargetLanguage();
         String language = db.getLanguageName(languageCode);
-        String bookCode = mProject.getSlug();
+        String bookCode = mProject.getBookSlug();
         String book = db.getBookName(bookCode);
         String translation = mProject.getVersion();
         if(mProject.isOBS()){

@@ -39,7 +39,7 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
 
     public List<File> getAllTakes(){
         File root = new File(Environment.getExternalStorageDirectory(),
-                "TranslationRecorder/" + mProject.getTargetLanguage() + "/" + mProject.getVersion() + "/" + mProject.getSlug() + "/" + FileNameExtractor.chapterIntToString(mProject, mChapter) + "/");
+                "TranslationRecorder/" + mProject.getTargetLanguage() + "/" + mProject.getVersion() + "/" + mProject.getBookSlug() + "/" + FileNameExtractor.chapterIntToString(mProject, mChapter) + "/");
         File[] dirs = root.listFiles();
         List<File> files;
         if(dirs != null) {

@@ -68,7 +68,7 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                             try {
                                 WavFile wav = new WavFile(takes[l]);
                                 Project project = new Project(fne.getLang(), "", fne.getBookNumber(),
-                                        fne.getBook(), fne.getSource(), fne.getMode(wav), "", "", "");
+                                        fne.getBook(), fne.getVersion(), fne.getMode(wav), "", "", "");
                                 projectList.add(project);
                             } catch (IllegalArgumentException e) {
                                 //don't worry about the corrupt file dialog here; the database resync will pick it up.

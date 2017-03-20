@@ -82,7 +82,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
         ProjectDatabaseHelper mDb = new ProjectDatabaseHelper(this);
         String language = mDb.getLanguageName(mProject.getTargetLanguage());
-        String book = mDb.getBookName(mProject.getSlug());
+        String book = mDb.getBookName(mProject.getBookSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
@@ -92,7 +92,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         }
 
         try {
-            mChunks = new Chunks(this, mProject.getSlug());
+            mChunks = new Chunks(this, mProject.getBookSlug());
         } catch (Exception e) {
 
         }

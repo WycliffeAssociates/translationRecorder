@@ -73,7 +73,7 @@ public abstract class Export {
     //TODO: Zip file appears to just use the name of the first file, what should this change to?
     protected void zipFiles(Export export){
             Project project = export.getProject();
-            String zipName = project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getSlug();
+            String zipName = project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getBookSlug();
             if(project.isOBS()){
                 zipName += project.getAnthology();
             }

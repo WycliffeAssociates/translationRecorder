@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  */
 public class FileNameExtractor {
     private String mLang = "";
-    private String mSource = "";
+    private String mVersion = "";
     private String mBook = "";
     private String mAnthology = "";
     private int mChap;
@@ -37,7 +37,7 @@ public class FileNameExtractor {
     public FileNameExtractor(String lang, String source, String bookNum, String book, String project, String chapter,
                              String startV, String endV, String take) {
         mLang = lang;
-        mSource = source;
+        mVersion = source;
         try {
             mBookNum = Integer.parseInt(bookNum);
         } catch (NumberFormatException e) {
@@ -68,7 +68,7 @@ public class FileNameExtractor {
     }
 
     private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse) {
-        this(project.getTargetLanguage(), project.getVersion(), project.getBookNumber(), project.getSlug(), project.getAnthology(), chapterIntToString(project, chapter), unitIntToString(startVerse),
+        this(project.getTargetLanguage(), project.getVersion(), project.getBookNumber(), project.getBookSlug(), project.getAnthology(), chapterIntToString(project, chapter), unitIntToString(startVerse),
                 unitIntToString(endVerse), "00");
     }
 
@@ -84,7 +84,7 @@ public class FileNameExtractor {
 
     public static String chapterIntToString(Project project, int chapter) {
         String result;
-        if (project.getSlug().compareTo("psa") == 0) {
+        if (project.getBookSlug().compareTo("psa") == 0) {
             result = String.format("%03d", chapter);
         } else {
             result = String.format("%02d", chapter);
@@ -116,7 +116,7 @@ public class FileNameExtractor {
         if (found) {
             mLang = m.group(1);
             mAnthology = m.group(2);
-            mSource = m.group(3);
+            mVersion = m.group(3);
             mBookNum = (m.group(4) != null) ? Integer.parseInt(m.group(4)) : -1;
             mBook = m.group(5);
             mChap = Integer.parseInt(m.group(6));
@@ -133,8 +133,8 @@ public class FileNameExtractor {
         return mLang;
     }
 
-    public String getSource() {
-        return mSource;
+    public String getVersion() {
+        return mVersion;
     }
 
     public String getBook() {
@@ -179,20 +179,20 @@ public class FileNameExtractor {
 
     public File getParentDirectory(){
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, getLang() + "/" + getSource() + "/" + getBook() + "/" + chapterIntToString(getBook(), getChapter()));
+        File out = new File(root, getLang() + "/" + getVersion() + "/" + getBook() + "/" + chapterIntToString(getBook(), getChapter()));
         return out;
     }
 
     public static File getParentDirectory(File file) {
         FileNameExtractor fne = new FileNameExtractor(file);
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + chapterIntToString(fne.getBook(), fne.getChapter()));
+        File out = new File(root, fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + chapterIntToString(fne.getBook(), fne.getChapter()));
         return out;
     }
 
     public static File getParentDirectory(Project project, int chapter) {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        return new File(root, project.getTargetLanguage() + "/" + project.getVersion() + "/" + project.getSlug() + "/" + chapterIntToString(project, chapter));
+        return new File(root, project.getTargetLanguage() + "/" + project.getVersion() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
     }
 
     public static File getFileFromFileName(File file) {
@@ -211,12 +211,12 @@ public class FileNameExtractor {
             String name;
             String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
             if (mBook.compareTo("psa") == 0 && mChap != 119) {
-                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+                name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             } else if (mBook.compareTo("psa") == 0) {
                 end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
-                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%03d", mStartVerse) + end;
+                name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%03d", mStartVerse) + end;
             } else {
-                name = mLang + "_" + mSource + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+                name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             }
             return name;
         }

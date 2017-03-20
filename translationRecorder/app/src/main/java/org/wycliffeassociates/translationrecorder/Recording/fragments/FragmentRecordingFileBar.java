@@ -135,7 +135,7 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void initializeViews() {
         //Logging to help track issue #669
-        if(mProject.getSlug().equals("")) {
+        if(mProject.getBookSlug().equals("")) {
             Logger.e(this.toString(), "Project book is empty string " + mProject);
         }
 
@@ -143,7 +143,7 @@ public class FragmentRecordingFileBar extends Fragment {
         mLanguageView.setText(languageCode.toUpperCase());
         mLanguageView.postInvalidate();
 
-        String bookCode = mProject.getSlug();
+        String bookCode = mProject.getBookSlug();
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
         String bookName = db.getBookName(bookCode);
         mBookView.setText(bookName);
@@ -162,7 +162,7 @@ public class FragmentRecordingFileBar extends Fragment {
         if (mProject.isOBS()) {
             //mNumChapters = OBS_SIZE;
         } else {
-            mChunks = new Chunks(getActivity(), mProject.getSlug());
+            mChunks = new Chunks(getActivity(), mProject.getBookSlug());
             mNumChapters = mChunks.getNumChapters();
             mChunksList = mChunks.getChunks(mProject, mChapter);
         }

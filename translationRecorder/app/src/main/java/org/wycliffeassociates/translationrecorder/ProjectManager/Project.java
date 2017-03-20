@@ -24,7 +24,7 @@ public class Project implements Parcelable {
 
     String mTargetLanguage;
     String mSourceLanguage;
-    String mSlug;
+    String mBookSlug;
     String mVersion;
     String mMode;
     String mAnthology;
@@ -38,7 +38,7 @@ public class Project implements Parcelable {
     public Project(String tLang, String sLang, String bookNum, String slug, String version, String mode, String anthology, String contributors, String sourceAudioPath) {
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
-        mSlug = slug;
+        mBookSlug = slug;
         mBookNumber = bookNum;
         mVersion = version;
         mMode = mode;
@@ -50,7 +50,7 @@ public class Project implements Parcelable {
     public Project(String tLang, String sLang, int bookNum, String slug, String version, String mode, String anthology, String contributors, String sourceAudioPath) {
         mTargetLanguage = tLang;
         mSourceLanguage = sLang;
-        mSlug = slug;
+        mBookSlug = slug;
         mBookNumber = String.valueOf(bookNum);
         mVersion = version;
         mMode = mode;
@@ -87,7 +87,7 @@ public class Project implements Parcelable {
 
     public static File getProjectDirectory(Project project) {
         File projectDir = new File(getLanguageDirectory(project), project.getVersion() +
-                "/" + project.getSlug());
+                "/" + project.getBookSlug());
         return projectDir;
     }
 
@@ -113,8 +113,8 @@ public class Project implements Parcelable {
         return (mSourceLanguage == null) ? "" : mSourceLanguage;
     }
 
-    public String getSlug() {
-        return (mSlug == null) ? "" : mSlug;
+    public String getBookSlug() {
+        return (mBookSlug == null) ? "" : mBookSlug;
     }
 
     public String getVersion() {
@@ -153,15 +153,15 @@ public class Project implements Parcelable {
         mVersion = version;
     }
 
-    public void setSlug(String slug) {
-        mSlug = slug;
+    public void setBookSlug(String slug) {
+        mBookSlug = slug;
     }
 
     public void setMode(String mode) {
         mMode = mode;
     }
 
-    public void setProject(String project) {
+    public void setAnthology(String project) {
         mAnthology = project;
     }
 
@@ -210,7 +210,7 @@ public class Project implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mTargetLanguage);
         dest.writeString(mSourceLanguage);
-        dest.writeString(mSlug);
+        dest.writeString(mBookSlug);
         dest.writeString(mVersion);
         dest.writeString(mMode);
         dest.writeString(mAnthology);
@@ -232,7 +232,7 @@ public class Project implements Parcelable {
     public Project(Parcel in) {
         mTargetLanguage = in.readString();
         mSourceLanguage = in.readString();
-        mSlug = in.readString();
+        mBookSlug = in.readString();
         mVersion = in.readString();
         mMode = in.readString();
         mAnthology = in.readString();

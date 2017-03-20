@@ -234,7 +234,7 @@ public class MainMenu extends Activity {
             }
             languageView.setText(language);
 
-            String book = project.getSlug();
+            String book = project.getBookSlug();
             if (book.compareTo("") != 0) {
                 book = db.getBookName(book);
             }
@@ -290,7 +290,7 @@ public class MainMenu extends Activity {
         for (File v : visFiles) {
             FileNameExtractor fne = new FileNameExtractor(v);
             boolean found = false;
-            String path = rootPath + "/" + fne.getLang() + "/" + fne.getSource() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
+            String path = rootPath + "/" + fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
             String name = fne.getNameWithoutTake() + "_t" + String.format("%02d", fne.getTake()) + ".wav";
             File searchName = new File(path, name);
             if (searchName != null && searchName.exists()) {

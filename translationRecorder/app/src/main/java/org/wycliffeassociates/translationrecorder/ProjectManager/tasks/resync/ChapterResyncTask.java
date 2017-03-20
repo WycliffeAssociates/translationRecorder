@@ -33,7 +33,7 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
         mCtx = ctx;
         mFragmentManager = fm;
         mProject = project;
-        mChapterDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + mProject.getTargetLanguage() + "/" + mProject.getVersion() + "/" + mProject.getSlug() + "/");
+        mChapterDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + mProject.getTargetLanguage() + "/" + mProject.getVersion() + "/" + mProject.getBookSlug() + "/");
     }
 
     public List<Integer> getAllChapters(File chapterDir) {

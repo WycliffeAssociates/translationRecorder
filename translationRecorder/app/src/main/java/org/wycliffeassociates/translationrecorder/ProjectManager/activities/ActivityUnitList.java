@@ -82,7 +82,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
         // Setup toolbar
         String language = db.getLanguageName(mProject.getTargetLanguage());
-        String book = db.getBookName(mProject.getSlug());
+        String book = db.getBookName(mProject.getBookSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
@@ -178,7 +178,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     private void prepareUnitCardData() {
         try {
-            Chunks chunks = new Chunks(this, mProject.getSlug());
+            Chunks chunks = new Chunks(this, mProject.getBookSlug());
             List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);
             for (Map<String, String> unit : map) {
                 mUnitCardList.add(new UnitCard(this, mProject, mChapterNum, Integer.parseInt(unit.get(Chunks.FIRST_VERSE)), Integer.parseInt(unit.get(Chunks.LAST_VERSE))));
