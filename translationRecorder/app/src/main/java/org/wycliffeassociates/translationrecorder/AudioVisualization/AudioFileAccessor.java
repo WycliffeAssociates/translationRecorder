@@ -1,8 +1,9 @@
 package org.wycliffeassociates.translationrecorder.AudioVisualization;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.nio.ShortBuffer;
 
