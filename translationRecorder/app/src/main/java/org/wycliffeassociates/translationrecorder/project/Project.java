@@ -10,6 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.R.attr.key;
 
 /**
  * Created by sarabiaj on 3/20/2017.
@@ -53,11 +57,13 @@ public class Project {
         FileInputStream fis = new FileInputStream(plugin);
         Reader reader = new FileReader(plugin);
         init(reader);
-    }
 
-    public void importProjectPlugin(Context context, AssetManager assetManager, String pluginAssetPath) throws IOException {
-        Reader reader = new InputStreamReader(assetManager.open(pluginAssetPath));
-        init(reader);
+        Reader bookReader = new FileReader(new File(pluginDir, booksPath));
+        readBooks(new JsonReader(bookReader));
+        Reader versionReader = new FileReader(new File(pluginDir, versionsPath));
+        readVersions(new JsonReader(versionReader));
+        Reader chunksReader = new FileReader(new File(pluginDir, chunksPath));
+        readVersions(new JsonReader(chunksReader));
     }
 
     private void init(Reader reader) throws IOException {
@@ -67,16 +73,58 @@ public class Project {
         importPluginToDatabase();
     }
 
-    private void readBooks(JsonReader jsonReader) {
-
+    private List<Book> readBooks(JsonReader jsonReader) throws IOException {
+        List<Book> bookList = new ArrayList<>();
+        jsonReader.beginArray();
+        while (jsonReader.hasNext()) {
+            jsonReader.beginObject();
+            String slug = null;
+            int num = 0;
+            String anth = null;
+            String name = null;
+            while (jsonReader.hasNext()) {
+                String key = jsonReader.nextName();
+                if(key.equals("slug")) {
+                    slug = jsonReader.nextString();
+                } else if (key.equals("num")) {
+                    num = jsonReader.nextInt();
+                } else if (key.equals("anth")) {
+                    anth = jsonReader.nextString();
+                } else if (key.equals("name")) {
+                    name = jsonReader.nextString();
+                }
+            }
+            bookList.add(new Book(slug, name, anth, num));
+            jsonReader.endObject();
+        }
+        jsonReader.endArray();
+        return bookList;
     }
 
     private void readChunks(JsonReader jsonReader) {
 
     }
 
-    private void readVersions(JsonReader jsonReader) {
-        
+    private List<Version> readVersions(JsonReader jsonReader) throws IOException {
+        List<Version> bookList = new ArrayList<>();
+        jsonReader.beginArray();
+        while (jsonReader.hasNext()) {
+            jsonReader.beginObject();
+            String slug = null;
+            String name = null;
+            while (jsonReader.hasNext()) {
+                String key = jsonReader.nextName();
+                if(key.equals("slug")) {
+                    slug = jsonReader.nextString();
+                } else if (key.equals("name")) {
+                    name = jsonReader.nextString();
+                }
+            }
+            bookList.add(new Version(slug, name));
+            jsonReader.endObject();
+        }
+        jsonReader.endArray();
+        return bookList;
     }
 
     private void importPluginToDatabase() {
