@@ -8,7 +8,7 @@ import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

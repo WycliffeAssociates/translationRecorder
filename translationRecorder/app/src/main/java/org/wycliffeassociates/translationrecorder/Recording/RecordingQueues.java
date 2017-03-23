@@ -3,7 +3,7 @@ package org.wycliffeassociates.translationrecorder.Recording;
 import android.app.Activity;
 import android.content.Intent;
 
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;

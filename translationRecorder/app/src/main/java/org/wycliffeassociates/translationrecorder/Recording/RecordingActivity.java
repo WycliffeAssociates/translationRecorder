@@ -23,7 +23,7 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRe
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingWaveform;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSourceAudio;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;

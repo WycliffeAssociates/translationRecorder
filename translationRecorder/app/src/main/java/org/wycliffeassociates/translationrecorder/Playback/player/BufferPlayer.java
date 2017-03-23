@@ -5,7 +5,7 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 
 import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 /**
  * Plays .Wav audio files

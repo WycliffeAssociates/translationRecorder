@@ -1,7 +1,7 @@
 package org.wycliffeassociates.translationrecorder.Playback.player;
 
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 import java.nio.ShortBuffer;
 

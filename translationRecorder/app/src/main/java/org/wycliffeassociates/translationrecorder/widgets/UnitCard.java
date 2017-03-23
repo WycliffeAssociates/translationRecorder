@@ -14,7 +14,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCa
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;

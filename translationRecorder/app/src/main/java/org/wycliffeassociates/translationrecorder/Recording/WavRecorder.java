@@ -7,7 +7,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.IBinder;
 
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.AudioInfo;
 
 
