@@ -40,6 +40,8 @@
             android:noHistory="true"
             />
 
+        <activity android:name="org.wycliffeassociates.translationrecorder.Recording.PermissionsDeniedActivity" />
+
         <activity android:name="org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity"
             android:screenOrientation="landscape"
             />
