@@ -6,7 +6,6 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -156,7 +155,7 @@ public class MainMenu extends Activity {
         pref.edit().putString("resume", "resume").commit();
 
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if(db.projectExists(project)){
+        if (db.projectExists(project)) {
             pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, db.getProjectId(project)).commit();
         } else {
             Logger.e(this.toString(), "Project " + project + " doesn't exist in the database");
@@ -227,7 +226,7 @@ public class MainMenu extends Activity {
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
         TextView languageView = (TextView) findViewById(R.id.language_view);
         TextView bookView = (TextView) findViewById(R.id.book_view);
-        if(projectId != -1) {
+        if (projectId != -1) {
             Project project = db.getProject(projectId);
             String language = project.getTargetLanguage();
             if (language.compareTo("") != 0) {
@@ -279,23 +278,6 @@ public class MainMenu extends Activity {
         }
 
         removeUnusedVisualizationFiles();
-        try {
-            initializePlugins();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void initializePlugins() throws IOException {
-        AssetManager am = getAssets();
-        String[] plugins = am.list("Plugins/Anthologies");
-        File pluginsDir = new File(getExternalCacheDir(), "Plugins");
-        if(!pluginsDir.exists()) {
-            pluginsDir.mkdirs();
-        }
-
-
-
     }
 
     private void removeUnusedVisualizationFiles() {

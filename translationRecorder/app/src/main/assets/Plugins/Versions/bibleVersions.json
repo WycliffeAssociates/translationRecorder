@@ -1,0 +1,14 @@
+[
+    {
+        "slug": "ulb",
+        "name": "unlocked literal bible"
+    },
+    {
+        "slug": "udb",
+        "name": "unlocked dynamic bible"
+    },
+    {
+        "slug": "reg",
+        "name": "regular"
+    }
+]

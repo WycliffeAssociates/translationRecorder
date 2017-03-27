@@ -6,7 +6,6 @@ import android.util.JsonReader;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -17,7 +16,7 @@ import java.util.List;
  * Created by sarabiaj on 3/20/2017.
  */
 
-public class Project {
+public class ProjectPlugin {
 
     File pluginDir;
 
@@ -50,20 +49,19 @@ public class Project {
     static final int END_VERSE = 0x7;
     static final int TAKE = 0x8;
 
-    public Project(){}
-
-    public void importProjectPlugin(Context context, File pluginDir, File plugin) throws IOException {
+    public ProjectPlugin(File pluginDir, File plugin) throws IOException {
         this.pluginDir = pluginDir;
-        FileInputStream fis = new FileInputStream(plugin);
         Reader reader = new FileReader(plugin);
         init(reader);
+    }
 
-        Reader bookReader = new FileReader(new File(pluginDir, booksPath));
+    public void importProjectPlugin(Context context, File pluginDir) throws IOException {
+        Reader bookReader = new FileReader(new File(pluginDir, "Books/" + booksPath));
         List<Book> books = readBooks(new JsonReader(bookReader));
-        Reader versionReader = new FileReader(new File(pluginDir, versionsPath));
+        Reader versionReader = new FileReader(new File(pluginDir, "Versions/" + versionsPath));
         List<Version> versions = readVersions(new JsonReader(versionReader));
-        Reader chunksReader = new FileReader(new File(pluginDir, chunksPath));
-        readVersions(new JsonReader(chunksReader));
+//        Reader chunksReader = new FileReader(new File(pluginDir, "Chunks/" + chunksPath));
+//        readChunks(new JsonReader(chunksReader));
 
         importPluginToDatabase(context, books.toArray(new Book[books.size()]), versions.toArray(new Version[versions.size()]));
     }
@@ -236,5 +234,17 @@ public class Project {
             }
         }
         jsonReader.endObject();
+    }
+
+    public String getBooksPath(){
+        return booksPath;
+    }
+
+    public String getChunksPath() {
+        return chunksPath;
+    }
+
+    public String getVersionsPath() {
+        return versionsPath;
     }
 }
