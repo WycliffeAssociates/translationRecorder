@@ -14,6 +14,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.Pr
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.Book;
 import org.wycliffeassociates.translationrecorder.project.Language;
+import org.wycliffeassociates.translationrecorder.project.Version;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -461,6 +462,30 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
+    public void addLanguages(Language[] languages) {
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        try {
+            for (Language l : languages) {
+                addLanguage(l.getCode(), l.getName());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void addAnthology(String anthologySlug, String name, String resource, String regex, int mask) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_SLUG, anthologySlug);
+        cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_NAME, name);
+        cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_RESOURCE, resource);
+        cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX, regex);
+        cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK, mask);
+        long result = db.insertWithOnConflict(ProjectContract.AnthologyEntry.TABLE_ANTHOLOGY, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
     public void addBook(String bookSlug, String bookName, String anthologySlug, int bookNumber) {
         int anthologyId = getAnthologyId(anthologySlug);
         SQLiteDatabase db = getWritableDatabase();
@@ -471,6 +496,52 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.BookEntry.BOOK_NUMBER, bookNumber);
         long result = db.insertWithOnConflict(ProjectContract.BookEntry.TABLE_BOOK, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         //db.close();
+    }
+
+    public void addBooks(Book[] books) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for (Book b : books) {
+                addBook(b.getSlug(), b.getName(), b.getAnthology(), b.getOrder());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void addVersion(String versionSlug, String versionName) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ProjectContract.VersionEntry.VERSION_SLUG, versionSlug);
+        cv.put(ProjectContract.VersionEntry.VERSION_NAME, versionName);
+        long result = db.insertWithOnConflict(ProjectContract.VersionEntry.TABLE_VERSION, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
+    public void addVersions(Version[] versions) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for (Version v : versions) {
+                addVersion(v.getSlug(), v.getName());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void addVersionRelationships(String anthologySlug, Version[] versions) {
+        int anthId = getAnthologyId(anthologySlug);
+        SQLiteDatabase db = getWritableDatabase();
+        for(Version v : versions) {
+            int versionId = getVersionId(v.getSlug());
+            ContentValues cv = new ContentValues();
+            cv.put(ProjectContract.VersionRelationshipEntry.ANTHOLOGY_FK, anthId);
+            cv.put(ProjectContract.VersionRelationshipEntry.VERSION_FK, versionId);
+            long result = db.insertWithOnConflict(ProjectContract.VersionRelationshipEntry.TABLE_VERSION_RELATIONSHIP, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+        }
     }
 
     public void addProject(Project p) throws IllegalArgumentException {
@@ -1231,32 +1302,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             c.moveToFirst();
             int takeId = c.getInt(0);
             setSelectedTake(unitId, takeId);
-        }
-    }
-
-    public void addLanguages(Language[] languages) {
-        SQLiteDatabase db = getReadableDatabase();
-        db.beginTransaction();
-        try {
-            for (Language l : languages) {
-                addLanguage(l.getCode(), l.getName());
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    public void addBooks(Book[] books) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.beginTransaction();
-        try {
-            for (Book b : books) {
-                addBook(b.getSlug(), b.getName(), b.getAnthology(), b.getOrder());
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
         }
     }
 

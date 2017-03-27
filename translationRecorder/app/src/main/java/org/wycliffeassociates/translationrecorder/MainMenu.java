@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -278,6 +279,23 @@ public class MainMenu extends Activity {
         }
 
         removeUnusedVisualizationFiles();
+        try {
+            initializePlugins();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializePlugins() throws IOException {
+        AssetManager am = getAssets();
+        String[] plugins = am.list("Plugins/Anthologies");
+        File pluginsDir = new File(getExternalCacheDir(), "Plugins");
+        if(!pluginsDir.exists()) {
+            pluginsDir.mkdirs();
+        }
+
+
+
     }
 
     private void removeUnusedVisualizationFiles() {

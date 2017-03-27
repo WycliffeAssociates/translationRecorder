@@ -1,19 +1,17 @@
 package org.wycliffeassociates.translationrecorder.project;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.util.JsonReader;
+
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.key;
 
 /**
  * Created by sarabiaj on 3/20/2017.
@@ -41,6 +39,8 @@ public class Project {
     int endVerse;
     int take;
 
+    int mask;
+
     static final int LANGUAGE = 0x1;
     static final int VERSION = 0x2;
     static final int BOOK_NUMBER = 0x3;
@@ -59,18 +59,19 @@ public class Project {
         init(reader);
 
         Reader bookReader = new FileReader(new File(pluginDir, booksPath));
-        readBooks(new JsonReader(bookReader));
+        List<Book> books = readBooks(new JsonReader(bookReader));
         Reader versionReader = new FileReader(new File(pluginDir, versionsPath));
-        readVersions(new JsonReader(versionReader));
+        List<Version> versions = readVersions(new JsonReader(versionReader));
         Reader chunksReader = new FileReader(new File(pluginDir, chunksPath));
         readVersions(new JsonReader(chunksReader));
+
+        importPluginToDatabase(context, books.toArray(new Book[books.size()]), versions.toArray(new Version[versions.size()]));
     }
 
     private void init(Reader reader) throws IOException {
         JsonReader jsonReader = new JsonReader(reader);
         readPlugin(jsonReader);
-        int mask = createMatchGroupMask();
-        importPluginToDatabase();
+        mask = createMatchGroupMask();
     }
 
     private List<Book> readBooks(JsonReader jsonReader) throws IOException {
@@ -127,10 +128,13 @@ public class Project {
         return bookList;
     }
 
-    private void importPluginToDatabase() {
-        addBooks();
-        addVersions();
-        addVersionRelationships();
+    private void importPluginToDatabase(Context ctx, Book[] books, Version[] versions) {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
+        db.addAnthology(slug, name, resource, regex, mask);
+        db.addBooks(books);
+        db.addVersions(versions);
+        db.addVersionRelationships(slug, versions);
+        db.close();
     }
 
     private int createMatchGroupMask(){
