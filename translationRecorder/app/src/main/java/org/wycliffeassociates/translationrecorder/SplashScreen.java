@@ -62,17 +62,17 @@ public class SplashScreen extends Activity {
             intent.putExtra(Profile.PROFILE_KEY, profile);
             startActivityForResult(intent, 42);
         } else {
-            try {
-                initializePlugins();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             Thread initDb = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    initDatabase();
-                    startActivity(new Intent(SplashScreen.this, MainMenu.class));
-                    finish();
+                    try {
+                        initializePlugins();
+                        initDatabase();
+                        startActivity(new Intent(SplashScreen.this, MainMenu.class));
+                        finish();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             initDb.start();
@@ -141,8 +141,8 @@ public class SplashScreen extends Activity {
         ProjectPlugin projectPlugin = new ProjectPlugin(pluginsDir, pluginPath);
         copyPluginContentFromAssets(am, pluginsDir, "Books", projectPlugin.getBooksPath());
         copyPluginContentFromAssets(am, pluginsDir, "Versions", projectPlugin.getVersionsPath());
-        //copyPluginContentFromAssets(am, pluginPath, "Chunks", projectPlugin.getChunksPath());
-        //projectPlugin.importProjectPlugin(this, pluginsDir);
+        copyPluginContentFromAssets(am, pluginPath, "Chunks", projectPlugin.getChunksPath());
+        projectPlugin.importProjectPlugin(this, pluginsDir);
     }
 
     private void copyPluginContentFromAssets(AssetManager am, File outputRoot, String prefix, String pluginName) {
