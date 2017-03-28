@@ -6,6 +6,8 @@ import android.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -237,7 +239,7 @@ public class ParseJSON {
         }
         mLanguages = new String[languageList.size()];
         for (int a = 0; a < mLanguages.length; a++) {
-            mLanguages[a] = (languageList.get(a)).getCode() + " - " +
+            mLanguages[a] = (languageList.get(a)).getSlug() + " - " +
                     (languageList.get(a)).getName();
         }
         Language[] languages = new Language[languageList.size()];

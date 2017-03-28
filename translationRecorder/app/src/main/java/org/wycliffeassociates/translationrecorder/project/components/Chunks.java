@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.project;
+package org.wycliffeassociates.translationrecorder.project.components;
 
 import android.content.Context;
 

@@ -15,7 +15,7 @@ import android.view.MenuItem;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
-import org.wycliffeassociates.translationrecorder.project.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.ScrollableListFragment;
 import org.wycliffeassociates.translationrecorder.project.adapters.TargetLanguageAdapter;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
@@ -142,7 +142,7 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
     public void onItemClick(Object result) {
         Utils.closeKeyboard(this);
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        pref.edit().putString(KEY_PREF_GLOBAL_LANG_SRC, ((Language)result).getCode()).commit();
+        pref.edit().putString(KEY_PREF_GLOBAL_LANG_SRC, ((Language)result).getSlug()).commit();
         mFragmentManager.beginTransaction().remove(mFragmentManager.findFragmentById(R.id.fragment_scroll_list)).commit();
         displayingList = false;
         hideSearchMenu();

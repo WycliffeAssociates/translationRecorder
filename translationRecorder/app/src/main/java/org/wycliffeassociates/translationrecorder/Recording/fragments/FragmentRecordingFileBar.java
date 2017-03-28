@@ -17,7 +17,7 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Chunks;
+import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 
 import java.io.IOException;
 import java.util.List;

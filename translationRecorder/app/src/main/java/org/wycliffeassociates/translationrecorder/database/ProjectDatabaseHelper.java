@@ -12,9 +12,10 @@ import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
-import org.wycliffeassociates.translationrecorder.project.Book;
-import org.wycliffeassociates.translationrecorder.project.Language;
-import org.wycliffeassociates.translationrecorder.project.Version;
+import org.wycliffeassociates.translationrecorder.project.components.Anthology;
+import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Version;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -399,6 +400,22 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return slug;
     }
 
+
+    public String getVersionName(int id) throws IllegalArgumentException {
+        SQLiteDatabase db = getReadableDatabase();
+        final String versionSlugQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                ProjectContract.VersionEntry.VERSION_NAME, ProjectContract.VersionEntry.TABLE_VERSION, ProjectContract.VersionEntry._ID);
+        String name;
+        try {
+            name = DatabaseUtils.stringForQuery(db, versionSlugQuery, new String[]{String.valueOf(id)});
+        } catch (SQLiteDoneException e) {
+            //db.close();
+            throw new IllegalArgumentException("Version id not found in database.");
+        }
+        //db.close();
+        return name;
+    }
+
     public String getVersionSlug(int id) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
         final String versionSlugQuery = String.format("SELECT %s FROM %s WHERE %s=?",
@@ -467,7 +484,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             for (Language l : languages) {
-                addLanguage(l.getCode(), l.getName());
+                addLanguage(l.getSlug(), l.getName());
             }
             db.setTransactionSuccessful();
         } finally {
@@ -1322,5 +1339,71 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.endTransaction();
         //db.close();
         return languageList.toArray(new Language[languageList.size()]);
+    }
+
+    public Anthology[] getAnthologies() {
+        List<Anthology> anthologyList = new ArrayList<>();
+        String query = "SELECT * FROM " + ProjectContract.AnthologyEntry.TABLE_ANTHOLOGY;
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                String anthologySlug = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_SLUG));
+                String anthologyName = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_NAME));
+                String resource = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_RESOURCE));
+                anthologyList.add(new Anthology(anthologySlug, anthologyName, resource));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.endTransaction();
+        //db.close();
+        return anthologyList.toArray(new Anthology[anthologyList.size()]);
+    }
+
+    public Book[] getBooks(String anthologySlug) {
+        int anthId = getAnthologyId(anthologySlug);
+        List<Book> bookList = new ArrayList<>();
+        String query = "SELECT * FROM " + ProjectContract.BookEntry.TABLE_BOOK + " WHERE " +
+                ProjectContract.BookEntry.BOOK_ANTHOLOGY_FK + "=" + String.valueOf(anthId) +
+                " ORDER BY " + ProjectContract.BookEntry.BOOK_NUMBER + " ASC";
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                String bookSlug = cursor.getString(cursor.getColumnIndex(ProjectContract.BookEntry.BOOK_SLUG));
+                String bookName = cursor.getString(cursor.getColumnIndex(ProjectContract.BookEntry.BOOK_NAME));
+                int anthologyId = cursor.getInt(cursor.getColumnIndex(ProjectContract.BookEntry.BOOK_ANTHOLOGY_FK));
+                int order = cursor.getInt(cursor.getColumnIndex(ProjectContract.BookEntry.BOOK_NUMBER));
+                bookList.add(new Book(bookSlug, bookName, getAnthologySlug(anthologyId), order));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.endTransaction();
+        //db.close();
+        return bookList.toArray(new Book[bookList.size()]);
+    }
+
+    public Version[] getVersions(String anthologySlug) {
+        int anthId = getAnthologyId(anthologySlug);
+        List<Version> versionList = new ArrayList<>();
+        String query = "SELECT * FROM " + ProjectContract.VersionRelationshipEntry.TABLE_VERSION_RELATIONSHIP +
+                " WHERE " + ProjectContract.VersionRelationshipEntry.ANTHOLOGY_FK + "=" + String.valueOf(anthId);
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int versionId = cursor.getInt(cursor.getColumnIndex(ProjectContract.VersionRelationshipEntry.VERSION_FK));
+                String versionSlug = getVersionSlug(versionId);
+                String versionName = getVersionName(versionId);
+                versionList.add(new Version(versionSlug, versionName));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.endTransaction();
+        //db.close();
+        return versionList.toArray(new Version[versionList.size()]);
     }
 }

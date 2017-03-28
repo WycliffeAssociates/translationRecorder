@@ -21,7 +21,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileCh
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ChapterResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Chunks;
+import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;

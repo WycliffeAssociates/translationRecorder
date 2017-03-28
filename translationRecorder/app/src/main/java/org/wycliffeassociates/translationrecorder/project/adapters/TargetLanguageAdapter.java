@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.project.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public class TargetLanguageAdapter extends ArrayAdapter {
 
         // render view
         holder.mLanguageView.setText(getItem(position).getName());
-        holder.mCodeView.setText(getItem(position).getCode());
+        holder.mCodeView.setText(getItem(position).getSlug());
 
 
         LinearLayout ll = (LinearLayout)v.findViewById(R.id.scroll_list_item_layout);
@@ -122,7 +122,7 @@ public class TargetLanguageAdapter extends ArrayAdapter {
                 List<Language> filteredCategories = new ArrayList<>();
                 for(Language language:mLanguages) {
                     // match the target language id
-                    boolean match = language.getCode().toLowerCase().startsWith(charSequence.toString().toLowerCase());
+                    boolean match = language.getSlug().toLowerCase().startsWith(charSequence.toString().toLowerCase());
                     if(!match) {
                         if (language.getName().toLowerCase().startsWith(charSequence.toString().toLowerCase())) {
                             // match the target language name
@@ -159,8 +159,8 @@ public class TargetLanguageAdapter extends ArrayAdapter {
         Collections.sort(languages, new Comparator<Language>() {
             @Override
             public int compare(Language lhs, Language rhs) {
-                String lhId = lhs.getCode();
-                String rhId = rhs.getCode();
+                String lhId = lhs.getSlug();
+                String rhId = rhs.getSlug();
                 // give priority to matches with the reference
                 if(lhId.startsWith(referenceId.toString().toLowerCase())) {
                     lhId = "!" + lhId;

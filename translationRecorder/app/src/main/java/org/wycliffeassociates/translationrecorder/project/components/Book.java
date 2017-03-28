@@ -1,11 +1,13 @@
-package org.wycliffeassociates.translationrecorder.project;
+package org.wycliffeassociates.translationrecorder.project.components;
+
+import org.wycliffeassociates.translationrecorder.Utils;
 
 import java.util.ArrayList;
 
 /**
  * Created by sarabiaj on 1/15/2016.
  */
-public class Book {
+public class Book extends ProjectComponent {
 
     public static class Chunk {
         public int chapterId;
@@ -15,26 +17,22 @@ public class Book {
     }
 
     private int mNumChapters;
-    private String mSlug;
-    private String mName;
     private String mAnthology;
     private ArrayList<ArrayList<Chunk>> mChunks;
     private int mOrder;
 
 
     public Book(String slug, String name, String anthology, int chapters, ArrayList<ArrayList<Chunk>> chunks, int order){
+        super(slug, name);
         mNumChapters = chapters;
-        mName = name;
-        mSlug = slug;
         mAnthology = anthology;
         mChunks = chunks;
         mOrder = order;
     }
 
     public Book(String slug, String name, String anthology, int order){
+        super(slug, name);
         mNumChapters = 0;
-        mName = name;
-        mSlug = slug;
         mAnthology = anthology;
         mChunks = null;
         mOrder = order;
@@ -42,14 +40,6 @@ public class Book {
 
     public int getNumChapters() {
         return mNumChapters;
-    }
-
-    public String getSlug() {
-        return mSlug;
-    }
-
-    public String getName() {
-        return mName;
     }
 
     public String getAnthology() {
@@ -62,5 +52,20 @@ public class Book {
 
     public int getOrder() {
         return mOrder;
+    }
+
+    @Override
+    public String getLabel() {
+        String label = "";
+        String[] resourceLabels = mName.split(" ");
+        for(String part : resourceLabels) {
+            label += " " + Utils.capitalizeFirstLetter(part);
+        }
+        return label;
+    }
+
+    @Override
+    public int compareTo(Object another) {
+        return new Integer(mOrder).compareTo(((Book)another).getOrder());
     }
 }

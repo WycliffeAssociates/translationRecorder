@@ -15,7 +15,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.project.Chunks;
+import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 
 import java.io.File;
 import java.util.ArrayList;

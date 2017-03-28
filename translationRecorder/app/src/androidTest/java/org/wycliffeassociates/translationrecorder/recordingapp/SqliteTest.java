@@ -12,8 +12,8 @@ import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Book;
-import org.wycliffeassociates.translationrecorder.project.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 
 import static junit.framework.Assert.assertEquals;
@@ -107,7 +107,7 @@ public class SqliteTest {
                 db.addBook(book.getSlug(), book.getName(), book.getAnthology(), book.getOrder());
             }
             for (Language language : languages) {
-                db.addLanguage(language.getCode(), language.getName());
+                db.addLanguage(language.getSlug(), language.getName());
             }
             System.out.println("Proof: en is " + db.getLanguageName("en"));
         } catch (JSONException e) {

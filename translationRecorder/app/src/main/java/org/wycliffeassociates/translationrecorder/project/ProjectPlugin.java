@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.JsonReader;
 
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Version;
 
 import java.io.File;
 import java.io.FileReader;

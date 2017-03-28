@@ -19,6 +19,7 @@ import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.project.adapters.TargetLanguageAdapter;
 
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 
 /**
  * Created by sarabiaj on 5/25/2016.
@@ -262,7 +263,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     public void onItemClick(Object result) {
         Utils.closeKeyboard(this);
         hideSearchMenu();
-        mProject.setSourceLanguage(((Language) result).getCode());
+        mProject.setSourceLanguage(((Language) result).getSlug());
         btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
         mSetLanguage = true;
         mFragmentManager.beginTransaction().remove((Fragment) mFragment).commit();

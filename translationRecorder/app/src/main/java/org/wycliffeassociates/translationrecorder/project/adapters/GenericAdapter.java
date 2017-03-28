@@ -1,5 +1,6 @@
 package org.wycliffeassociates.translationrecorder.project.adapters;
 
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.project.Book;
+import org.wycliffeassociates.translationrecorder.project.components.ProjectComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,33 +20,34 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by sarabiaj on 2/25/2016.
+ * Created by joel on 9/4/2015.
  */
-public class TargetBookAdapter extends ArrayAdapter {
-    private Book[] mBooks;
-    private Book[] mFilteredBooks;
-    private BookFilter mBookFilter;
+public class GenericAdapter extends ArrayAdapter {
+    private ProjectComponent[] mProjectComponents;
+    private ProjectComponent[] mFilteredProjectComponents;
+    private ProjectComponentFilter mProjectComponentFilter;
 
-    public TargetBookAdapter(Book[] targetBooks, Context ctx) {
+    public GenericAdapter(ProjectComponent[] component, Context ctx) {
         super(ctx, R.layout.fragment_scroll_list_item);
-        List<Book> targetBooksList = Arrays.asList(targetBooks);
-        //Collections.sort(targetBooksList);
-        mBooks = targetBooksList.toArray(new Book[targetBooksList.size()]);
-        mFilteredBooks = mBooks;
+        List<ProjectComponent> targetProjectComponentsList = Arrays.asList(component);
+        Collections.sort(targetProjectComponentsList);
+        mProjectComponents = targetProjectComponentsList.toArray(new ProjectComponent[targetProjectComponentsList.size()]);
+        mFilteredProjectComponents = mProjectComponents;
     }
+
 
     @Override
     public int getCount() {
-        if(mFilteredBooks != null) {
-            return mFilteredBooks.length;
+        if(mFilteredProjectComponents != null) {
+            return mFilteredProjectComponents.length;
         } else {
             return 0;
         }
     }
 
     @Override
-    public Book getItem(int position) {
-        return mFilteredBooks[position];
+    public ProjectComponent getItem(int position) {
+        return mFilteredProjectComponents[position];
     }
 
     @Override
@@ -66,13 +68,19 @@ public class TargetBookAdapter extends ArrayAdapter {
         }
 
         // render view
-        holder.mBookView.setText(getItem(position).getName());
+        holder.mProjectComponentView.setText(getItem(position).getLabel());
         holder.mCodeView.setText(getItem(position).getSlug());
 
+
         LinearLayout ll = (LinearLayout)v.findViewById(R.id.scroll_list_item_layout);
-        ll.removeView(ll.findViewById(R.id.itemIcon));
+        if(!mFilteredProjectComponents[position].displayItemIcon()) {
+            ll.removeView(ll.findViewById(R.id.itemIcon));
+        }
         LinearLayout rmll = (LinearLayout)ll.findViewById(R.id.rightmost_scroll_list_item_layout);
-        rmll.removeView((rmll.findViewById(R.id.moreIcon)));
+        if(!mFilteredProjectComponents[position].displayMoreIcon()) {
+            rmll.removeView((rmll.findViewById(R.id.moreIcon)));
+        }
+
 
         return v;
     }
@@ -87,36 +95,36 @@ public class TargetBookAdapter extends ArrayAdapter {
      * @return
      */
     public Filter getFilter() {
-        if(mBookFilter == null) {
-            mBookFilter = new BookFilter();
+        if(mProjectComponentFilter == null) {
+            mProjectComponentFilter = new ProjectComponentFilter();
         }
-        return mBookFilter;
+        return mProjectComponentFilter;
     }
 
     public static class ViewHolder {
-        public TextView mBookView;
+        public TextView mProjectComponentView;
         public TextView mCodeView;
 
         public ViewHolder(View view) {
-            mBookView = (TextView) view.findViewById(R.id.majorText);
+            mProjectComponentView = (TextView) view.findViewById(R.id.majorText);
             mCodeView = (TextView) view.findViewById(R.id.minorText);
             view.setTag(this);
         }
     }
 
-    private class BookFilter extends Filter {
+    private class ProjectComponentFilter extends Filter {
 
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             FilterResults results = new FilterResults();
             if(charSequence == null || charSequence.length() == 0) {
                 // no filter
-                results.values = Arrays.asList(mBooks);
-                results.count = mBooks.length;
+                results.values = Arrays.asList(mProjectComponents);
+                results.count = mProjectComponents.length;
             } else {
                 // perform filter
-                List<Book> filteredCategories = new ArrayList<>();
-                for(Book language:mBooks) {
+                List<ProjectComponent> filteredCategories = new ArrayList<>();
+                for(ProjectComponent language:mProjectComponents) {
                     // match the target language id
                     boolean match = language.getSlug().toLowerCase().startsWith(charSequence.toString().toLowerCase());
                     if(!match) {
@@ -137,31 +145,31 @@ public class TargetBookAdapter extends ArrayAdapter {
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            List<Book> filteredBooks = (List<Book>)filterResults.values;
+            List<ProjectComponent> filteredProjectComponents = (List<ProjectComponent>)filterResults.values;
             if(charSequence != null && charSequence.length() > 0) {
-                sortBooks(filteredBooks, charSequence);
+                sortProjectComponents(filteredProjectComponents, charSequence);
             }
-            mFilteredBooks = filteredBooks.toArray(new Book[filteredBooks.size()]);
+            mFilteredProjectComponents = filteredProjectComponents.toArray(new ProjectComponent[filteredProjectComponents.size()]);
             notifyDataSetChanged();
         }
     }
 
     /**
-     * Sorts target books by id
-     * @param books
+     * Sorts target languages by id
+     * @param languages
      * @param referenceId languages are sorted according to the reference id
      */
-    private static void sortBooks(List<Book> books, final CharSequence referenceId) {
-        Collections.sort(books, new Comparator<Book>() {
+    private static void sortProjectComponents(List<ProjectComponent> languages, final CharSequence referenceId) {
+        Collections.sort(languages, new Comparator<ProjectComponent>() {
             @Override
-            public int compare(Book lhs, Book rhs) {
+            public int compare(ProjectComponent lhs, ProjectComponent rhs) {
                 String lhId = lhs.getSlug();
                 String rhId = rhs.getSlug();
                 // give priority to matches with the reference
-                if (lhId.startsWith(referenceId.toString().toLowerCase())) {
+                if(lhId.startsWith(referenceId.toString().toLowerCase())) {
                     lhId = "!" + lhId;
                 }
-                if (rhId.startsWith(referenceId.toString().toLowerCase())) {
+                if(rhId.startsWith(referenceId.toString().toLowerCase())) {
                     rhId = "!" + rhId;
                 }
                 return lhId.compareToIgnoreCase(rhId);

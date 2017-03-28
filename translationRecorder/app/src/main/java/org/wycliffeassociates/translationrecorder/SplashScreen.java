@@ -16,8 +16,8 @@ import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
-import org.wycliffeassociates.translationrecorder.project.Book;
-import org.wycliffeassociates.translationrecorder.project.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 import org.wycliffeassociates.translationrecorder.project.ProjectPlugin;
 
