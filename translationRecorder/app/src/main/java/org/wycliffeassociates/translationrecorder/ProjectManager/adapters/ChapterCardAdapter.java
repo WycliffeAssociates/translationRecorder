@@ -23,7 +23,7 @@ import com.bignerdranch.android.multiselector.MultiSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 import com.filippudak.ProgressPieView.ProgressPieView;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;

@@ -14,7 +14,7 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.S3Export;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.SourceAudioActivity;
@@ -84,11 +84,11 @@ public class ProjectInfoDialog extends DialogFragment {
         mSourceLanguage = (TextView) view.findViewById(R.id.source_audio_language);
         mSourceLocation = (TextView) view.findViewById(R.id.source_audio_location);
 
-        String languageCode = mProject.getTargetLanguage();
+        String languageCode = mProject.getTargetLanguageSlug();
         String language = db.getLanguageName(languageCode);
         String bookCode = mProject.getBookSlug();
         String book = db.getBookName(bookCode);
-        String translation = mProject.getVersion();
+        String translation = mProject.getVersionSlug();
         if(mProject.isOBS()){
             bookCode = "obs";
             book = "Open Bible Stories";
@@ -185,7 +185,7 @@ public class ProjectInfoDialog extends DialogFragment {
 
     private void setSourceAudioTextInfo() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
-        String sourceLanguageCode = mProject.getSourceLanguage();
+        String sourceLanguageCode = mProject.getSourceLanguageSlug();
         String sourceLanguageName = (db.languageExists(sourceLanguageCode))? db.getLanguageName(sourceLanguageCode) : "";
         mSourceLanguage.setText(String.format("%s - (%s)", sourceLanguageName, sourceLanguageCode));
         mSourceLocation.setText(mProject.getSourceAudioPath());
@@ -200,7 +200,7 @@ public class ProjectInfoDialog extends DialogFragment {
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
                 int projectId = db.getProjectId(mProject);
                 Project updatedProject = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                if(updatedProject.getSourceLanguage() != null && !updatedProject.getSourceLanguage().equals("")) {
+                if(updatedProject.getSourceLanguageSlug() != null && !updatedProject.getSourceLanguageSlug().equals("")) {
                     mProject = updatedProject;
                     db.updateSourceAudio(projectId, mProject);
                     setSourceAudioTextInfo();

@@ -25,7 +25,7 @@ import android.widget.ListView;
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSourceAudioTask;
@@ -206,9 +206,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if (projectId != -1) {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             project = db.getProject(projectId);
-            Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguage()
+            Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguageSlug()
                     + " book " + project.getBookSlug() + " version "
-                    + project.getVersion() + " mode " + project.getMode());
+                    + project.getVersionSlug() + " mode " + project.getMode());
         } else {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             List<Project> projects = db.getAllProjects();
@@ -241,7 +241,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         final List<Project> projects = db.getAllProjects();
         for (Project p : projects) {
-            Logger.w(this.toString(), "Project: language " + p.getTargetLanguage() + " book " + p.getBookSlug() + " version " + p.getVersion() + " mode " + p.getMode());
+            Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getMode());
         }
         mAdapter = new ProjectAdapter(this, projects);
         mProjectList.setAdapter(mAdapter);
@@ -349,9 +349,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == dialog.BUTTON_POSITIVE) {
-                            Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguage()
+                            Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
                                     + " book " + project.getBookSlug() + " version "
-                                    + project.getVersion() + " mode " + project.getMode());
+                                    + project.getVersionSlug() + " mode " + project.getMode());
                             Project.deleteProject(ActivityProjectManager.this, project);
                             populateProjectList();
                             hideProjectsIfEmpty(mAdapter.getCount());
@@ -451,7 +451,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getBookSlug() + ".tr");
+        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguageSlug() + "_" + project.getVersionSlug() + "_" + project.getBookSlug() + ".tr");
         intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
         startActivityForResult(intent, SAVE_SOURCE_AUDIO_REQUEST);
     }

@@ -17,8 +17,8 @@ import com.wycliffeassociates.io.ArchiveOfHolding;
 import com.wycliffeassociates.io.ArchiveOfHoldingEntry;
 import com.wycliffeassociates.io.LanguageLevel;
 
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
@@ -130,7 +130,7 @@ public class SourceAudio extends LinearLayout {
             return false;
         }
         ArchiveOfHoldingEntry entry = aoh.getEntry(importantSection, sourceLanguage,
-                mProject.getVersion(), mProject.getBookSlug(), FileNameExtractor.chapterIntToString(mProject, mChapter));
+                mProject.getVersionSlug(), mProject.getBookSlug(), FileNameExtractor.chapterIntToString(mProject, mChapter));
         if(entry == null){
             return false;
         }
@@ -161,7 +161,7 @@ public class SourceAudio extends LinearLayout {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mCtx);
 
         String projectSourceLocation = mProject.getSourceAudioPath();
-        String projectSourceLanguage = mProject.getSourceLanguage();
+        String projectSourceLanguage = mProject.getSourceLanguageSlug();
         String globalSourceLocation = sp.getString(Settings.KEY_PREF_GLOBAL_SOURCE_LOC, null);
         String globalSourceLanguage = sp.getString(Settings.KEY_PREF_GLOBAL_LANG_SRC, null);
 

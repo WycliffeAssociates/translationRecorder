@@ -18,7 +18,7 @@ import android.view.WindowManager;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.WavVisualizer;
 import org.wycliffeassociates.translationrecorder.FilesPage.ExitDialog;
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentFileBar;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentPlaybackTools;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentTabbedWidget;
@@ -34,7 +34,7 @@ import org.wycliffeassociates.translationrecorder.Playback.interfaces.VerseMarke
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.ViewCreatedCallback;
 import org.wycliffeassociates.translationrecorder.Playback.markers.MarkerHolder;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
@@ -175,8 +175,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
         mFragmentContainerMapping.put(R.id.tabbed_widget_fragment_holder, mFragmentTabbedWidget);
 
-        mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguage(),
-                mProject.getVersion(), mProject.getBookSlug(), "Chapter", String.valueOf(mChapter),
+        mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguageSlug(),
+                mProject.getVersionSlug(), mProject.getBookSlug(), "Chapter", String.valueOf(mChapter),
                 mProject.getMode(),
                 getUnitLabel());
 

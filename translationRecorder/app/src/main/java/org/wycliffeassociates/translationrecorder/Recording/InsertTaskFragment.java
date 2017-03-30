@@ -5,7 +5,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 import org.json.JSONException;
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;

@@ -14,9 +14,9 @@ import android.view.WindowManager;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.ActiveRecordingRenderer;
 import org.wycliffeassociates.translationrecorder.FilesPage.ExitDialog;
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingControls;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingFileBar;

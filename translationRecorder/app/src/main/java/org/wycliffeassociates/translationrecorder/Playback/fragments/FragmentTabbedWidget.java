@@ -21,7 +21,7 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer
 import org.wycliffeassociates.translationrecorder.Playback.overlays.RectangularHighlightLayer;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.ScrollGestureLayer;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.TimecodeLayer;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 
 /**

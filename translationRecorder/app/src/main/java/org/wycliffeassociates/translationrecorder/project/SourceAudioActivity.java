@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.project.adapters.TargetLanguageAdapter;
 
@@ -107,7 +106,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
             btnSourceLocation.setText("Source Location: " + mProject.getSourceAudioPath());
         }
         if (mSetLanguage) {
-            btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
+            btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguageSlug());
         }
         if(savedInstanceState.getBoolean(mUserSearchingLanguageKey)){
             mSearchText = savedInstanceState.getString(mSearchTextKey);
@@ -264,7 +263,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
         Utils.closeKeyboard(this);
         hideSearchMenu();
         mProject.setSourceLanguage(((Language) result).getSlug());
-        btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguage());
+        btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguageSlug());
         mSetLanguage = true;
         mFragmentManager.beginTransaction().remove((Fragment) mFragment).commit();
         findViewById(R.id.fragment_container).setVisibility(View.INVISIBLE);

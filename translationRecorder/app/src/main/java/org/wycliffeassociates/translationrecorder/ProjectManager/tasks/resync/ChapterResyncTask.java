@@ -4,7 +4,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
@@ -33,7 +33,7 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
         mCtx = ctx;
         mFragmentManager = fm;
         mProject = project;
-        mChapterDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + mProject.getTargetLanguage() + "/" + mProject.getVersion() + "/" + mProject.getBookSlug() + "/");
+        mChapterDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + mProject.getTargetLanguageSlug() + "/" + mProject.getVersionSlug() + "/" + mProject.getBookSlug() + "/");
     }
 
     public List<Integer> getAllChapters(File chapterDir) {

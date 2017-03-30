@@ -7,9 +7,9 @@ import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;

@@ -6,8 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;

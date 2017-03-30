@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.io.File;
@@ -42,9 +42,9 @@ public class WavMetadata implements Parcelable {
     HashMap<Integer, WavCue> mCuePoints = new HashMap<>();
 
     public WavMetadata(Project p, String chapter, String startVerse, String endVerse) {
-        mAnthology = p.getAnthology();
-        mLanguage = p.getTargetLanguage();
-        mVersion = p.getVersion();
+        mAnthology = p.getAnthologySlug();
+        mLanguage = p.getTargetLanguageSlug();
+        mVersion = p.getVersionSlug();
         mSlug = p.getBookSlug();
         mBookNumber = p.getBookNumber();
         mMode = p.getMode();

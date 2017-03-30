@@ -1,9 +1,8 @@
-package org.wycliffeassociates.translationrecorder.FilesPage;
+package org.wycliffeassociates.translationrecorder.project;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -68,7 +67,7 @@ public class FileNameExtractor {
     }
 
     private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse) {
-        this(project.getTargetLanguage(), project.getVersion(), project.getBookNumber(), project.getBookSlug(), project.getAnthology(), chapterIntToString(project, chapter), unitIntToString(startVerse),
+        this(project.getTargetLanguageSlug(), project.getVersionSlug(), project.getBookNumber(), project.getBookSlug(), project.getAnthologySlug(), chapterIntToString(project, chapter), unitIntToString(startVerse),
                 unitIntToString(endVerse), "00");
     }
 
@@ -192,7 +191,7 @@ public class FileNameExtractor {
 
     public static File getParentDirectory(Project project, int chapter) {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        return new File(root, project.getTargetLanguage() + "/" + project.getVersion() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
+        return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
     }
 
     public static File getFileFromFileName(File file) {

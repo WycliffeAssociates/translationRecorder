@@ -14,7 +14,6 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -163,7 +162,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         } else if (mCurrentFragment == PROJECT && result instanceof Anthology) {
             ((Project) mProject).setAnthology(((Anthology)result).getSlug());
             mLastFragment = mCurrentFragment;
-            mCurrentFragment = mProject.getAnthology().compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
+            mCurrentFragment = mProject.getAnthologySlug().compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
             this.displayFragment();
         } else if (mCurrentFragment == BOOK && result instanceof Book) {
             Book book = (Book) result;
@@ -222,13 +221,13 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 break;
             case BOOK:
                 mFragment = new ScrollableListFragment
-                        .Builder(new GenericAdapter(getBooksList(mProject.getAnthology()), this))
+                        .Builder(new GenericAdapter(getBooksList(mProject.getAnthologySlug()), this))
                         .setSearchHint("Choose a Book")
                         .build();
                 break;
             case SOURCE_TEXT:
                 mFragment = new ScrollableListFragment
-                        .Builder(new GenericAdapter(getVersionsList(mProject.getAnthology()), this))
+                        .Builder(new GenericAdapter(getVersionsList(mProject.getAnthologySlug()), this))
                         .setSearchHint("Choose Translation Type")
                         .build();
                 break;

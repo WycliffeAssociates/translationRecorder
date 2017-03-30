@@ -16,8 +16,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityProjectManager;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog;
@@ -228,7 +228,7 @@ public class MainMenu extends Activity {
         TextView bookView = (TextView) findViewById(R.id.book_view);
         if (projectId != -1) {
             Project project = db.getProject(projectId);
-            String language = project.getTargetLanguage();
+            String language = project.getTargetLanguageSlug();
             if (language.compareTo("") != 0) {
                 language = db.getLanguageName(language);
             }

@@ -3,7 +3,7 @@ package org.wycliffeassociates.translationrecorder.ProjectManager.tasks;
 import com.wycliffeassociates.io.ArchiveOfHolding;
 
 import org.apache.commons.io.FileUtils;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
@@ -77,9 +77,9 @@ public class ExportSourceAudioTask extends Task {
     }
 
     private File stageFilesForArchive(Project project, File input, File stagingRoot) {
-        File root = new File(stagingRoot, project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getBookSlug());
-        File lang = new File(root, project.getTargetLanguage());
-        File version = new File(lang, project.getVersion());
+        File root = new File(stagingRoot, project.getTargetLanguageSlug() + "_" + project.getVersionSlug() + "_" + project.getBookSlug());
+        File lang = new File(root, project.getTargetLanguageSlug());
+        File version = new File(lang, project.getVersionSlug());
         File book = new File(version, project.getBookSlug());
         book.mkdirs();
         if(input.listFiles() != null) {

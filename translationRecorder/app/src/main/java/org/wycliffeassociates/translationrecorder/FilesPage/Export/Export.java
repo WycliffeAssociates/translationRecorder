@@ -11,7 +11,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import net.lingala.zip4j.util.Zip4jConstants;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,9 +73,9 @@ public abstract class Export {
     //TODO: Zip file appears to just use the name of the first file, what should this change to?
     protected void zipFiles(Export export){
             Project project = export.getProject();
-            String zipName = project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getBookSlug();
+            String zipName = project.getTargetLanguageSlug() + "_" + project.getVersionSlug() + "_" + project.getBookSlug();
             if(project.isOBS()){
-                zipName += project.getAnthology();
+                zipName += project.getAnthologySlug();
             }
             zipName += ".zip";
             mZipFile = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + zipName);

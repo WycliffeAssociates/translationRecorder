@@ -13,7 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
@@ -81,7 +81,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         // Setup toolbar
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
         ProjectDatabaseHelper mDb = new ProjectDatabaseHelper(this);
-        String language = mDb.getLanguageName(mProject.getTargetLanguage());
+        String language = mDb.getLanguageName(mProject.getTargetLanguageSlug());
         String book = mDb.getBookName(mProject.getBookSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
         setSupportActionBar(mToolbar);

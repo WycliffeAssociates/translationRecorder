@@ -12,8 +12,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
@@ -81,7 +81,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         }
 
         // Setup toolbar
-        String language = db.getLanguageName(mProject.getTargetLanguage());
+        String language = db.getLanguageName(mProject.getTargetLanguageSlug());
         String book = db.getBookName(mProject.getBookSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
         setSupportActionBar(mToolbar);

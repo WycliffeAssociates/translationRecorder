@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.filippudak.ProgressPieView.ProgressPieView;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityChapterList;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.R;
@@ -87,7 +87,7 @@ public class ProjectAdapter extends ArrayAdapter {
             bookView.setText(book);
         }
 
-        String language = dB.getLanguageName(project.getTargetLanguage());
+        String language = dB.getLanguageName(project.getTargetLanguageSlug());
         languageView.setText(language);
 
         // Calculate project's progress

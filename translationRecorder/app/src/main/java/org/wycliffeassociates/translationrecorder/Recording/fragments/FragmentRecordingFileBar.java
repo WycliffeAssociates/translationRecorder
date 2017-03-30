@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
@@ -139,7 +139,7 @@ public class FragmentRecordingFileBar extends Fragment {
             Logger.e(this.toString(), "Project book is empty string " + mProject);
         }
 
-        String languageCode = mProject.getTargetLanguage();
+        String languageCode = mProject.getTargetLanguageSlug();
         mLanguageView.setText(languageCode.toUpperCase());
         mLanguageView.postInvalidate();
 
@@ -155,7 +155,7 @@ public class FragmentRecordingFileBar extends Fragment {
             mModeView.setText("Verse");
         }
 
-        mSourceView.setText(mProject.getVersion().toUpperCase());
+        mSourceView.setText(mProject.getVersionSlug().toUpperCase());
     }
 
     private void initializePickers() throws IOException {

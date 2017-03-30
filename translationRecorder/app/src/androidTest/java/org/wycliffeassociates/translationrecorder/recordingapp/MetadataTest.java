@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.wycliffeassociates.translationrecorder.MainMenu;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
@@ -127,12 +127,12 @@ public class MetadataTest {
     public void testParcel(Parcel parcel, Project project, String chapter, String startVerse, String endVerse){
         WavFile parceled = WavFile.CREATOR.createFromParcel(parcel);
         WavMetadata metadata = parceled.getMetadata();
-        assertEquals(project.getAnthology(), metadata.getAnthology());
+        assertEquals(project.getAnthologySlug(), metadata.getAnthology());
         assertEquals(project.getMode(), metadata.getMode());
         assertEquals(project.getBookSlug(), metadata.getSlug());
-        assertEquals(project.getTargetLanguage(), metadata.getLanguage());
+        assertEquals(project.getTargetLanguageSlug(), metadata.getLanguage());
         assertEquals(project.getBookNumber(), metadata.getBookNumber());
-        assertEquals(project.getVersion(), metadata.getVersion());
+        assertEquals(project.getVersionSlug(), metadata.getVersion());
         assertEquals(chapter, metadata.getChapter());
         assertEquals(startVerse, metadata.getStartVerse());
         assertEquals(endVerse, metadata.getEndVerse());

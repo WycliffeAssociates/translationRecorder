@@ -1,5 +1,8 @@
 package org.wycliffeassociates.translationrecorder.project.components;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.wycliffeassociates.translationrecorder.Utils;
 
 import java.util.ArrayList;
@@ -7,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Created by sarabiaj on 1/15/2016.
  */
-public class Book extends ProjectComponent {
+public class Book extends ProjectComponent implements Parcelable {
 
     public static class Chunk {
         public int chapterId;
@@ -67,5 +70,34 @@ public class Book extends ProjectComponent {
     @Override
     public int compareTo(Object another) {
         return new Integer(mOrder).compareTo(((Book)another).getOrder());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mSlug);
+        dest.writeString(mName);
+        dest.writeString(mAnthology);
+        dest.writeInt(mOrder);
+    }
+
+    public static final Parcelable.Creator<Book> CREATOR = new Parcelable.Creator<Book>() {
+        public Book createFromParcel(Parcel in) {
+            return new Book(in);
+        }
+
+        public Book[] newArray(int size) {
+            return new Book[size];
+        }
+    };
+
+    public Book(Parcel in) {
+        super(in);
+        mAnthology = in.readString();
+        mOrder = in.readInt();
     }
 }
