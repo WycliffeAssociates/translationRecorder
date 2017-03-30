@@ -15,7 +15,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 import java.io.File;
 

@@ -1,12 +1,13 @@
 package org.wycliffeassociates.translationrecorder.AudioVisualization;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.AudioVisualization.Utils.U;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingMessage;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingQueues;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingControls;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingWaveform;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.utilities.RingBuffer;
 
 /**
