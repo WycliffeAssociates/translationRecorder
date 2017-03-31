@@ -36,6 +36,7 @@ import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
@@ -314,7 +315,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         fos = getContentResolver().openOutputStream(uri, "w");
                         bos = new BufferedOutputStream(fos);
                         //sending output streams to the task to run in a thread means they cannot be closed in a finally block here
-                        ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, mProjectToExport.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
+                        ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, ProjectFileUtils.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
                         mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...", false);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -352,7 +353,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                             Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
                                     + " book " + project.getBookSlug() + " version "
                                     + project.getVersionSlug() + " mode " + project.getMode());
-                            Project.deleteProject(ActivityProjectManager.this, project);
+                            ProjectFileUtils.deleteProject(ActivityProjectManager.this, project);
                             populateProjectList();
                             hideProjectsIfEmpty(mAdapter.getCount());
                             removeProjectFromPreferences();

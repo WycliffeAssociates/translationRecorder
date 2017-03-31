@@ -5,7 +5,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 import org.json.JSONException;
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -46,7 +46,7 @@ public class InsertTaskFragment extends Fragment {
                     WavFile result = WavFile.insertWavFile(base, insertClip, insertFrame);
                     insertClip.getFile().delete();
                     File dir = new File(mCtx.getExternalCacheDir(), "Visualization");
-                    File vis = new File(dir, FileNameExtractor.getNameWithoutExtention(insertClip.getFile())+".vis");
+                    File vis = new File(dir, ProjectFileUtils.getNameWithoutExtention(insertClip.getFile())+".vis");
                     vis.delete();
                     result.getFile().renameTo(insertClip.getFile());
                     mCtx.insertCallback(new WavFile(insertClip.getFile()));

@@ -3,8 +3,6 @@ package org.wycliffeassociates.translationrecorder.project;
 import android.content.SharedPreferences;
 import android.os.Environment;
 
-import org.wycliffeassociates.translationrecorder.wav.WavFile;
-
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,32 +65,8 @@ public class FileNameExtractor {
     }
 
     private FileNameExtractor(Project project, int chapter, int startVerse, int endVerse) {
-        this(project.getTargetLanguageSlug(), project.getVersionSlug(), project.getBookNumber(), project.getBookSlug(), project.getAnthologySlug(), chapterIntToString(project, chapter), unitIntToString(startVerse),
-                unitIntToString(endVerse), "00");
-    }
-
-    public static String chapterIntToString(String bookSlug, int chapter) {
-        String result;
-        if (bookSlug.compareTo("psa") == 0) {
-            result = String.format("%03d", chapter);
-        } else {
-            result = String.format("%02d", chapter);
-        }
-        return result;
-    }
-
-    public static String chapterIntToString(Project project, int chapter) {
-        String result;
-        if (project.getBookSlug().compareTo("psa") == 0) {
-            result = String.format("%03d", chapter);
-        } else {
-            result = String.format("%02d", chapter);
-        }
-        return result;
-    }
-
-    public static String unitIntToString(int unit) {
-        return String.format("%02d", unit);
+        this(project.getTargetLanguageSlug(), project.getVersionSlug(), project.getBookNumber(), project.getBookSlug(), project.getAnthologySlug(), ProjectFileUtils.chapterIntToString(project, chapter), ProjectFileUtils.unitIntToString(startVerse),
+                ProjectFileUtils.unitIntToString(endVerse), "00");
     }
 
     private void extractData(String file) {
@@ -168,39 +142,26 @@ public class FileNameExtractor {
         return mTake;
     }
 
-    public String getMode(WavFile file) {
-        return file.getMetadata().getMode();
-    }
-
     public boolean matched() {
         return mMatched;
     }
 
     public File getParentDirectory(){
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, getLang() + "/" + getVersion() + "/" + getBook() + "/" + chapterIntToString(getBook(), getChapter()));
+        File out = new File(root, getLang() + "/" + getVersion() + "/" + getBook() + "/" + ProjectFileUtils.chapterIntToString(getBook(), getChapter()));
         return out;
     }
 
     public static File getParentDirectory(File file) {
         FileNameExtractor fne = new FileNameExtractor(file);
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + chapterIntToString(fne.getBook(), fne.getChapter()));
+        File out = new File(root, fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + ProjectFileUtils.chapterIntToString(fne.getBook(), fne.getChapter()));
         return out;
     }
 
     public static File getParentDirectory(Project project, int chapter) {
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
-    }
-
-    public static File getFileFromFileName(File file) {
-        File dir = getParentDirectory(file);
-        if (file.getName().contains(".wav")) {
-            return new File(dir, file.getName());
-        } else {
-            return new File(dir, file.getName() + ".wav");
-        }
+        return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + ProjectFileUtils.chapterIntToString(project, chapter));
     }
 
     public String getNameWithoutTake() {
@@ -213,29 +174,12 @@ public class FileNameExtractor {
                 name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + String.format("%03d", mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             } else if (mBook.compareTo("psa") == 0) {
                 end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
-                name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%03d", mStartVerse) + end;
+                name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + ProjectFileUtils.chapterIntToString(mBook, mChap) + "_v" + String.format("%03d", mStartVerse) + end;
             } else {
-                name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + chapterIntToString(mBook, mChap) + "_v" + String.format("%02d", mStartVerse) + end;
+                name = mLang + "_" + mVersion + "_b" + String.format("%02d", mBookNum) + "_" + mBook + "_c" + ProjectFileUtils.chapterIntToString(mBook, mChap) + "_v" + String.format("%02d", mStartVerse) + end;
             }
             return name;
         }
-    }
-
-    public static String getNameWithoutTake(String name) {
-        FileNameExtractor fne = new FileNameExtractor(name);
-        return fne.getNameWithoutTake();
-    }
-
-    public static String getNameWithoutExtention(File file) {
-        String name = file.getName();
-        if (name.contains(".wav")) {
-            name = name.replace(".wav", "");
-        }
-        return name;
-    }
-
-    public static File getFileFromFileName(SharedPreferences pref, String file) {
-        return getFileFromFileName(new File(file));
     }
 
     public static int getLargestTake(File directory, File filename) {
@@ -282,16 +226,4 @@ public class FileNameExtractor {
         return fne.getNameWithoutTake();
     }
 
-    //Extracts the identifiable section of a filename for source audio
-    public static String getChapterAndVerseSection(String name) {
-        String CHAPTER = "c([\\d]{2,3})";
-        String VERSE = "v([\\d]{2,3})(-([\\d]{2,3}))?";
-        Pattern chapterAndVerseSection = Pattern.compile("(" + CHAPTER + "_" + VERSE + ")");
-        Matcher matcher = chapterAndVerseSection.matcher(name);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return null;
-        }
-    }
 }

@@ -107,7 +107,7 @@ public class ProjectAdapter extends ArrayAdapter {
         recordView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Project.loadProjectIntoPreferences(ctx, project);
+                project.loadProjectIntoPreferences(ctx);
                 //TODO: should find place left off at?
                 v.getContext().startActivity(RecordingActivity.getNewRecordingIntent(v.getContext(), project, 1, 1));
             }

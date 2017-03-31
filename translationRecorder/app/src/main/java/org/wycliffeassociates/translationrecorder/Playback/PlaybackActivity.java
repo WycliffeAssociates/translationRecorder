@@ -41,6 +41,7 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
@@ -172,7 +173,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mFragmentPlaybackTools = FragmentPlaybackTools.newInstance();
         mFragmentContainerMapping.put(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools);
 
-        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, FileNameExtractor.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
+        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, ProjectFileUtils.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
         mFragmentContainerMapping.put(R.id.tabbed_widget_fragment_holder, mFragmentTabbedWidget);
 
         mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguageSlug(),
@@ -489,7 +490,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             }
         }
 
-        File dir = new File(Project.getProjectDirectory(mProject), FileNameExtractor.chapterIntToString(mProject, mChapter));
+        File dir = new File(ProjectFileUtils.getProjectDirectory(mProject), ProjectFileUtils.chapterIntToString(mProject, mChapter));
         File from = mWavFile.getFile();
         int takeInt = FileNameExtractor.getLargestTake(dir, from) + 1;
         String take = String.format("%02d", takeInt);
@@ -518,7 +519,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             public void run() {
                 if (mAudioController.mCutOp.hasCut()) {
                     try {
-                        File dir = Project.getProjectDirectory(mProject);
+                        File dir = ProjectFileUtils.getProjectDirectory(mProject);
                         File toTemp = new File(dir, "temp.wav");
                         WavFile toTempWav = new WavFile(toTemp, from.getMetadata());
                         mAudioController.mCutOp.writeCut(toTempWav, wavFileLoader.mapAndGetAudioBuffer(), pd);

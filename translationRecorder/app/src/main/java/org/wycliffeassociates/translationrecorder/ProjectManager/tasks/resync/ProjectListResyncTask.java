@@ -10,6 +10,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Request
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
@@ -68,7 +69,7 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                             try {
                                 WavFile wav = new WavFile(takes[l]);
                                 Project project = new Project(fne.getLang(), "", fne.getBookNumber(),
-                                        fne.getBook(), fne.getVersion(), fne.getMode(wav), "", "", "");
+                                        fne.getBook(), fne.getVersion(), ProjectFileUtils.getMode(wav), "", "", "");
                                 projectList.add(project);
                             } catch (IllegalArgumentException e) {
                                 //don't worry about the corrupt file dialog here; the database resync will pick it up.

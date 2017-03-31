@@ -15,6 +15,7 @@ import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 
 import java.io.File;
@@ -55,7 +56,7 @@ public class ChapterAdapter extends ArrayAdapter {
     }
 
     private static boolean isChapterStarted(Project project, int chapter){
-        File dir = Project.getProjectDirectory(project);
+        File dir = ProjectFileUtils.getProjectDirectory(project);
         File[] files = dir.listFiles();
         if(files != null) {
             for (File f : files) {
@@ -100,7 +101,7 @@ public class ChapterAdapter extends ArrayAdapter {
         holder.mRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Project.loadProjectIntoPreferences(mCtx, mProject);
+                mProject.loadProjectIntoPreferences(mCtx);
                 v.getContext().startActivity(RecordingActivity.getNewRecordingIntent(v.getContext(), mProject, (position+1), 1));
             }
         });

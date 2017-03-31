@@ -17,6 +17,7 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.S3Export;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.SourceAudioActivity;
 
 import static android.app.Activity.RESULT_OK;
@@ -133,7 +134,7 @@ public class ProjectInfoDialog extends DialogFragment {
         View.OnClickListener localExport = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new FolderExport(Project.getProjectDirectory(mProject), mProject);
+                mExp = new FolderExport(ProjectFileUtils.getProjectDirectory(mProject), mProject);
                 mExportDelegator.delegateExport(mExp);
             }
         };
@@ -143,7 +144,7 @@ public class ProjectInfoDialog extends DialogFragment {
         publishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new S3Export(Project.getProjectDirectory(mProject), mProject);
+                mExp = new S3Export(ProjectFileUtils.getProjectDirectory(mProject), mProject);
                 mExportDelegator.delegateExport(mExp);
             }
         });
@@ -151,7 +152,7 @@ public class ProjectInfoDialog extends DialogFragment {
         otherButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new AppExport(Project.getProjectDirectory(mProject), mProject);
+                mExp = new AppExport(ProjectFileUtils.getProjectDirectory(mProject), mProject);
                 mExportDelegator.delegateExport(mExp);
             }
         });

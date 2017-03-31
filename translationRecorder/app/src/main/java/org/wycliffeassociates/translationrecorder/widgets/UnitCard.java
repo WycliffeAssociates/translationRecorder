@@ -17,6 +17,7 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -156,8 +157,8 @@ public class UnitCard {
     }
 
     private List<File> populateTakeList() {
-        File root = Project.getProjectDirectory(mProject);
-        String chap = FileNameExtractor.chapterIntToString(mProject, mChapter);
+        File root = ProjectFileUtils.getProjectDirectory(mProject);
+        String chap = ProjectFileUtils.chapterIntToString(mProject, mChapter);
         File folder = new File(root, chap);
         File[] files = folder.listFiles();
         FileNameExtractor fne;
@@ -251,8 +252,8 @@ public class UnitCard {
 
     // Public API
     public void refreshUnitStarted(Project project, int chapter, int startVerse) {
-        File dir = Project.getProjectDirectory(project);
-        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        File dir = ProjectFileUtils.getProjectDirectory(project);
+        String chapterString = ProjectFileUtils.chapterIntToString(project, chapter);
         File chapterDir = new File(dir, chapterString);
         if (chapterDir.exists()) {
             File[] files = chapterDir.listFiles();
@@ -348,7 +349,7 @@ public class UnitCard {
             @Override
             public void onClick(View view) {
                 pauseAudio();
-                Project.loadProjectIntoPreferences(mCtx, mProject);
+                mProject.loadProjectIntoPreferences(mCtx);
                 view.getContext().startActivity(RecordingActivity.getNewRecordingIntent(mCtx, mProject, mChapter, mFirstVerse));
             }
         };

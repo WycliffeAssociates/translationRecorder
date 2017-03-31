@@ -1,9 +1,7 @@
 package org.wycliffeassociates.translationrecorder.project;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -17,10 +15,6 @@ import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static android.R.id.mask;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -39,22 +33,22 @@ public class Project implements Parcelable {
     String mContributors;
     String mSourceAudioPath;
 
-    private FileNameUtils mFileNameUtils;
+    private ProjectPatternMatcher mProjectPatternMatcher;
 
     public Project() {
     }
 
-    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String regex, int mask) {
+    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String regex, String groups) {
         mTargetLanguage = target;
         mAnthology = anthology;
         mBook = book;
         mVersion = version;
         mMode = mode;
-        mFileNameUtils = new FileNameUtils(regex, mask);
+        mProjectPatternMatcher = new ProjectPatternMatcher(regex, groups);
     }
 
-    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String regex, int mask, String sourceAudioPath) {
-        this(target, anthology, book, version, mode, regex, mask);
+    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String regex, String groups, String sourceAudioPath) {
+        this(target, anthology, book, version, mode, regex, groups);
         mSourceAudioPath = sourceAudioPath;
     }
 
@@ -66,25 +60,13 @@ public class Project implements Parcelable {
         return project;
     }
 
-    public static void loadProjectIntoPreferences(Context ctx, Project project) {
+    public void loadProjectIntoPreferences(Context ctx) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        if(db.projectExists(project)) {
-            int projectId = db.getProjectId(project);
+        if(db.projectExists(this)) {
+            int projectId = db.getProjectId(this);
             pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();
         }
-    }
-
-    public static File getProjectDirectory(Project project) {
-        File projectDir = new File(getLanguageDirectory(project), project.getVersionSlug() +
-                "/" + project.getBookSlug());
-        return projectDir;
-    }
-
-    public static File getLanguageDirectory(Project project) {
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File projectDir = new File(root, project.getTargetLanguageSlug());
-        return projectDir;
     }
 
     public boolean isOBS() {
@@ -139,6 +121,10 @@ public class Project implements Parcelable {
         mSourceLanguage = source;
     }
 
+    public void setBook(Book book) {
+        mBook = book;
+    }
+
     public void setVersion(Version version) {
         mVersion = version;
     }
@@ -159,26 +145,6 @@ public class Project implements Parcelable {
         mSourceAudioPath = sourceAudioPath;
     }
 
-    public static void deleteProject(Context ctx, Project project) {
-        File dir = getProjectDirectory(project);
-        Utils.deleteRecursive(dir);
-        File langDir = getLanguageDirectory(project);
-        File sourceDir;
-        if (project.isOBS()) {
-            sourceDir = new File(langDir, "obs");
-        } else {
-            sourceDir = new File(langDir, project.getVersionSlug());
-        }
-        if (sourceDir.exists() && sourceDir.listFiles().length == 0) {
-            sourceDir.delete();
-            if (langDir.listFiles().length == 0) {
-                langDir.delete();
-            }
-        }
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        db.deleteProject(project);
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -197,8 +163,8 @@ public class Project implements Parcelable {
         dest.writeParcelable(mVersion, flags);
         dest.writeString(mMode);
         dest.writeParcelable(mAnthology, flags);
-        dest.writeString(mFileNameUtils.getRegex());
-        dest.writeInt(mFileNameUtils.getMask());
+        dest.writeString(mProjectPatternMatcher.getRegex());
+        dest.writeString(mProjectPatternMatcher.getGroups());
         dest.writeString(mContributors);
         dest.writeString(mSourceAudioPath);
     }
@@ -223,122 +189,8 @@ public class Project implements Parcelable {
         mVersion = in.readParcelable(Version.class.getClassLoader());
         mMode = in.readString();
         mAnthology = in.readParcelable(Anthology.class.getClassLoader());
-        mFileNameUtils = new FileNameUtils(in.readString(), in.readInt());
+        mProjectPatternMatcher = new ProjectPatternMatcher(in.readString(), in.readString());
         mContributors = in.readString();
         mSourceAudioPath = in.readString();
-    }
-
-    private class FileNameUtils {
-
-        String mRegex;
-        String mGroups;
-        Pattern mPattern;
-        Matcher mMatch;
-        int[] locations;
-
-        File mFile;
-        String mName;
-
-
-        public FileNameUtils(String regex, String groups) {
-            mRegex = regex;
-            mGroups = groups;
-            mPattern = Pattern.compile(regex);
-            parseLocations();
-        }
-
-        private void parseLocations() {
-            String[] groups = mGroups.split(" ");
-            locations = new int[groups.length];
-            for(int i = 0; i < locations.length; i++) {
-                locations[i] = Integer.parseInt(groups[i]);
-            }
-        }
-
-
-        public String getRegex() {
-            return mRegex;
-        }
-
-        public ProjectSlugs match(File file){
-            match(file.getName());
-        }
-
-        public ProjectSlugs match(String file) {
-            if (!(mName.equals(file))) {
-                mName = file;
-                mMatch = mPattern.matcher(file);
-                mMatch.find();
-                if(locations[0] != -1) {
-                    mTargetLanguage =
-                }
-            } else {
-                return
-            }
-        }
-
-    }
-
-    public class ProjectSlugs {
-
-        public String getLanguage() {
-            return mLanguage;
-        }
-
-        public String getAnthology() {
-            return mAnthology;
-        }
-
-        public String getVersion() {
-            return mVersion;
-        }
-
-        public int getBookNumber() {
-            return mBookNumber;
-        }
-
-        public String getBook() {
-            return mBook;
-        }
-
-        public int getChapter() {
-            return mChapter;
-        }
-
-        public int getStartVerse() {
-            return mStartVerse;
-        }
-
-        public int getEndVerse() {
-            return mEndVerse;
-        }
-
-        public int getTake() {
-            return mTake;
-        }
-
-        String mLanguage;
-        String mAnthology;
-        String mVersion;
-        int mBookNumber;
-        String mBook;
-        int mChapter;
-        int mStartVerse;
-        int mEndVerse;
-        int mTake;
-
-        public ProjectSlugs(String language, String anthology, String version, int bookNumber, String book,
-                            int chapter, int startVerse, int endVerse, int take)
-        {
-            mLanguage = language;
-            mAnthology = anthology;
-            mVersion = version;
-            mBookNumber = bookNumber;
-            mBook = book;
-            mChapter = chapter;
-            mStartVerse = startVerse;
-            mEndVerse = endVerse;
-            mTake = take;
-        }
     }
 }

@@ -17,11 +17,11 @@ import com.wycliffeassociates.io.ArchiveOfHolding;
 import com.wycliffeassociates.io.ArchiveOfHoldingEntry;
 import com.wycliffeassociates.io.LanguageLevel;
 
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.widgets.AudioPlayer;
 
 import java.io.BufferedInputStream;
@@ -125,12 +125,12 @@ public class SourceAudio extends LinearLayout {
         ArchiveOfHolding aoh = new ArchiveOfHolding(is, ll);
         //The archive of holding entry requires the path to look for the file, so that part of the name can be ignored
         //chapter and verse information is all that is necessary to be identifiable at this point.
-        String importantSection = FileNameExtractor.getChapterAndVerseSection(mFileName);
+        String importantSection = ProjectFileUtils.getChapterAndVerseSection(mFileName);
         if(importantSection == null) {
             return false;
         }
         ArchiveOfHoldingEntry entry = aoh.getEntry(importantSection, sourceLanguage,
-                mProject.getVersionSlug(), mProject.getBookSlug(), FileNameExtractor.chapterIntToString(mProject, mChapter));
+                mProject.getVersionSlug(), mProject.getBookSlug(), ProjectFileUtils.chapterIntToString(mProject, mChapter));
         if(entry == null){
             return false;
         }

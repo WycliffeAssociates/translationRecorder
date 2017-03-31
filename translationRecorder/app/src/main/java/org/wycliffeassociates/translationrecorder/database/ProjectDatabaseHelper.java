@@ -716,24 +716,35 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         Project project = null;
         if (cursor.moveToFirst()) {
             project = new Project();
-            String versionSlug = getVersionSlug(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_VERSION_FK)));
-            project.setVersion(versionSlug);
-            String targetLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_TARGET_LANGUAGE_FK)));
-            project.setTargetLanguage(targetLanguageCode);
+            int versionId = cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_VERSION_FK));
+            String versionSlug = getVersionSlug(versionId);
+            String versionName = getVersionName(versionId);
+            project.setVersion(new Version(versionSlug, versionName));
+            int languageId = cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_TARGET_LANGUAGE_FK));
+            String targetLanguageSlug = getLanguageCode(languageId);
+            String targetLanguageName = getLanguageName(languageId);
+            project.setTargetLanguage(new Language(targetLanguageSlug, targetLanguageName));
             int sourceLanguageIndex = cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK);
             //Source language could be null
             if (cursor.getType(sourceLanguageIndex) == Cursor.FIELD_TYPE_INTEGER) {
-                String sourceLanguageCode = getLanguageCode(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK)));
-                project.setSourceLanguage(sourceLanguageCode);
+                int sourceLanguageId = cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_LANGUAGE_FK));
+                String sourceLanguageSlug = getLanguageCode(sourceLanguageId);
+                String sourceLanguageName = getLanguageName(sourceLanguageId);
+                project.setSourceLanguage(new Language(sourceLanguageSlug, sourceLanguageName));
                 project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
             }
             project.setMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE)));
-            String bookSlug = getBookSlug(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_BOOK_FK)));
-            project.setBookSlug(bookSlug);
+
+            int bookId = cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_BOOK_FK));
+            String bookSlug = getBookSlug(bookId);
+            String bookName = getBookName(bookSlug);
+            int bookNumber = getBookNumber(bookSlug);
             String anthology = getAnthologySlug(bookSlug);
-            project.setAnthology(anthology);
-            int number = getBookNumber(bookSlug);
-            project.setBookNumber(number);
+            String anthology = getAnthologyName(bookSlug);
+            String anthology = resource(bookSlug);
+            project.setAnthology(new Anthology(anthologySlug, anthologyName, resource));
+
+            project.setBook(new Book(bookSlug, bookName, anthologySlug, bookNumber));
             project.setContributors(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_CONTRIBUTORS)));
 
         }
@@ -839,14 +850,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void setTakeRating(FileNameExtractor fne, int rating) {
-        int unitId = getUnitId(fne.getLang(), fne.getBook(), fne.getVersion(), fne.getChapter(), fne.getStartVerse());
+    public void setTakeRating(FileNameExtractor projectSlugs, int rating) {
+        int unitId = getUnitId(projectSlugs.getLang(), projectSlugs.getBook(), projectSlugs.getVersion(), projectSlugs.getChapter(), projectSlugs.getStartVerse());
         SQLiteDatabase db = getReadableDatabase();
         final String replaceTakeWhere = String.format("%s=? AND %s=?",
                 ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(ProjectContract.TakeEntry.TAKE_RATING, rating);
-        int result = db.update(ProjectContract.TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{String.valueOf(unitId), String.valueOf(fne.getTake())});
+        int result = db.update(ProjectContract.TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{String.valueOf(unitId), String.valueOf(projectSlugs.getTake())});
         if (result > 0) {
             autoSelectTake(unitId);
         }

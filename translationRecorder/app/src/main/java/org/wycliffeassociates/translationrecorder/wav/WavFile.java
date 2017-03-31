@@ -9,6 +9,7 @@ import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -534,7 +535,7 @@ public class WavFile implements Parcelable {
         File root = FileNameExtractor.getParentDirectory(project, chapter);
         File chap = new File(root, "chapter.wav");
         chap.delete();
-        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        String chapterString = ProjectFileUtils.chapterIntToString(project, chapter);
         String startVerse = toCompile.get(0).getMetadata().getStartVerse();
         String endVerse = toCompile.get(toCompile.size()-1).getMetadata().getEndVerse();
         WavFile chapterWav = new WavFile(chap, new WavMetadata(project, chapterString, startVerse, endVerse));

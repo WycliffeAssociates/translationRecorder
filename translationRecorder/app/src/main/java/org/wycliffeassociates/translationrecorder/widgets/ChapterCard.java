@@ -14,6 +14,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Compile
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -91,8 +92,8 @@ public class ChapterCard {
         if (!mCanCompile) {
             return;
         }
-        File dir = Project.getProjectDirectory(mProject);
-        String chapterString = FileNameExtractor.chapterIntToString(mProject, chapter);
+        File dir = ProjectFileUtils.getProjectDirectory(mProject);
+        String chapterString = ProjectFileUtils.chapterIntToString(mProject, chapter);
         File chapterDir = new File(dir, chapterString);
         if (chapterDir.exists()) {
             mChapterWav = new File(chapterDir, "chapter.wav");
