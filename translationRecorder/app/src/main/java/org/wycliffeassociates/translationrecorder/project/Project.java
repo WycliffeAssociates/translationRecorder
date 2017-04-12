@@ -7,14 +7,11 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
-import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
-
-import java.io.File;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -143,6 +140,10 @@ public class Project implements Parcelable {
 
     public void setSourceAudioPath(String sourceAudioPath) {
         mSourceAudioPath = sourceAudioPath;
+    }
+
+    public ProjectPatternMatcher getPatternMatcher(){
+        return mProjectPatternMatcher;
     }
 
     @Override

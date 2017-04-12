@@ -11,12 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 
 import java.io.IOException;
@@ -187,7 +187,7 @@ public class FragmentRecordingFileBar extends Fragment {
                     mUnitPicker.setDisplayedValues(values);
                     mUnitPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
                     setChunk(getChunkIndex(mChunksList, mUnit) + 1);
-                    mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                    mOnUnitChangedListener.onUnitChanged(mProject, ProjectFileUtils.getNameFromProject(mProject, mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                     //reinitialize all of the filenames
                     mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
@@ -195,7 +195,7 @@ public class FragmentRecordingFileBar extends Fragment {
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             Logger.w(this.toString(), "User changed unit");
                             setChunk(newVal + 1);
-                            mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                            mOnUnitChangedListener.onUnitChanged(mProject, ProjectFileUtils.getNameFromProject(mProject, mChapter,
                                     Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                         }
                     });
@@ -225,7 +225,7 @@ public class FragmentRecordingFileBar extends Fragment {
                     mUnitPicker.setCurrent(0);
                     mChunksList = mChunks.getChunks(mProject, mChapter);
                     initializeUnitPicker();
-                    mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
+                    mOnUnitChangedListener.onUnitChanged(mProject, ProjectFileUtils.getNameFromProject(mProject, mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                 }
             });

@@ -1,8 +1,5 @@
 package org.wycliffeassociates.translationrecorder.project;
 
-import android.content.SharedPreferences;
-import android.os.Environment;
-
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -146,23 +143,11 @@ public class FileNameExtractor {
         return mMatched;
     }
 
-    public File getParentDirectory(){
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, getLang() + "/" + getVersion() + "/" + getBook() + "/" + ProjectFileUtils.chapterIntToString(getBook(), getChapter()));
-        return out;
-    }
-
-    public static File getParentDirectory(File file) {
-        FileNameExtractor fne = new FileNameExtractor(file);
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + ProjectFileUtils.chapterIntToString(fne.getBook(), fne.getChapter()));
-        return out;
-    }
-
-    public static File getParentDirectory(Project project, int chapter) {
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + ProjectFileUtils.chapterIntToString(project, chapter));
-    }
+//    public File getParentDirectory(){
+//        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+//        File out = new File(root, getLang() + "/" + getVersion() + "/" + getBook() + "/" + ProjectFileUtils.chapterIntToString(getBook(), getChapter()));
+//        return out;
+//    }
 
     public String getNameWithoutTake() {
         if (mAnthology != null && mAnthology.compareTo("obs") == 0) {
@@ -180,50 +165,6 @@ public class FileNameExtractor {
             }
             return name;
         }
-    }
-
-    public static int getLargestTake(File directory, File filename) {
-        File[] files = directory.listFiles();
-        if (files == null) {
-            return 0;
-        }
-        FileNameExtractor inputFNE = new FileNameExtractor(filename);
-        int maxTake = inputFNE.getTake();
-        for (File f : files) {
-            FileNameExtractor fne = new FileNameExtractor(f);
-            if ((inputFNE.getNameWithoutTake()).compareTo((fne.getNameWithoutTake())) == 0) {
-                maxTake = (maxTake < fne.getTake()) ? fne.getTake() : maxTake;
-            }
-        }
-        return maxTake;
-    }
-
-    private static int getLargestTake(File directory, String nameWithoutTake) {
-        File[] files = directory.listFiles();
-        if (files == null) {
-            return 0;
-        }
-        int maxTake = 0;
-        for (File f : files) {
-            FileNameExtractor fne = new FileNameExtractor(f);
-            if (nameWithoutTake.compareTo((fne.getNameWithoutTake())) == 0) {
-                maxTake = (maxTake < fne.getTake()) ? fne.getTake() : maxTake;
-            }
-        }
-        return maxTake;
-    }
-
-    public static File createFile(Project project, int chapter, int startVerse, int endVerse) {
-        FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
-        File dir = fne.getParentDirectory(project, chapter);
-        String nameWithoutTake = fne.getNameWithoutTake();
-        int take = fne.getLargestTake(dir, nameWithoutTake) + 1;
-        return new File(dir, nameWithoutTake + "_t" + String.format("%02d", take) + ".wav");
-    }
-
-    public static String getNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
-        FileNameExtractor fne = new FileNameExtractor(project, chapter, startVerse, endVerse);
-        return fne.getNameWithoutTake();
     }
 
 }

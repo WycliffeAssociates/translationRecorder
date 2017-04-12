@@ -8,10 +8,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.ProjectSlugs;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
@@ -185,12 +186,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return exists;
     }
 
-    public boolean takeExists(FileNameExtractor fne) {
-        String unitId = String.valueOf(getUnitId(fne.getLang(), fne.getBook(), fne.getVersion(), fne.getChapter(), fne.getStartVerse()));
+    public boolean takeExists(ProjectSlugs slugs) {
+        String unitId = String.valueOf(getUnitId(slugs.getLanguage(), slugs.getBook(), slugs.getVersion(), slugs.getChapter(), slugs.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
         final String takeCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
                 ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
-        boolean exists = (DatabaseUtils.longForQuery(db, takeCountQuery, new String[]{unitId, String.valueOf(fne.getTake())})) > 0;
+        boolean exists = (DatabaseUtils.longForQuery(db, takeCountQuery, new String[]{unitId, String.valueOf(slugs.getTake())})) > 0;
         //db.close();
         return exists;
     }
@@ -638,12 +639,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(FileNameExtractor fne, String takeFilename, String recordingMode, long timestamp, int rating) {
-        String bookSlug = fne.getBook();
-        String languageSlug = fne.getLang();
-        String versionSlug = fne.getVersion();
-        int chapter = fne.getChapter();
-        int start = fne.getStartVerse();
+    public void addTake(ProjectSlugs slugs, String takeFilename, String recordingMode, long timestamp, int rating) {
+        String bookSlug = slugs.getBook();
+        String languageSlug = slugs.getLanguage();
+        String versionSlug = slugs.getVersion();
+        int chapter = slugs.getChapter();
+        int start = slugs.getStartVerse();
         if (!projectExists(languageSlug, bookSlug, versionSlug)) {
             addProject(languageSlug, bookSlug, versionSlug, recordingMode);
             addChapter(languageSlug, bookSlug, versionSlug, chapter);
@@ -663,7 +664,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.TakeEntry.TAKE_UNIT_FK, unitId);
         cv.put(ProjectContract.TakeEntry.TAKE_RATING, rating);
         cv.put(ProjectContract.TakeEntry.TAKE_NOTES, "");
-        cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, fne.getTake());
+        cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, slugs.getTake());
         cv.put(ProjectContract.TakeEntry.TAKE_FILENAME, takeFilename);
         cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, timestamp);
         long result = db.insertWithOnConflict(ProjectContract.TakeEntry.TABLE_TAKE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);

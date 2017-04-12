@@ -6,7 +6,6 @@ import android.os.Parcelable;
 
 import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
@@ -532,7 +531,7 @@ public class WavFile implements Parcelable {
 //    }
 
     public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile) {
-        File root = FileNameExtractor.getParentDirectory(project, chapter);
+        File root = ProjectFileUtils.getParentDirectory(project, chapter);
         File chap = new File(root, "chapter.wav");
         chap.delete();
         String chapterString = ProjectFileUtils.chapterIntToString(project, chapter);

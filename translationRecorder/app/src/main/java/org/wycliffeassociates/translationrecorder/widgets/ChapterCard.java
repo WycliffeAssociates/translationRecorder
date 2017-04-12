@@ -346,7 +346,7 @@ public class ChapterCard {
             }
         });
         List<WavFile> wavFiles = new ArrayList<>();
-        File base = FileNameExtractor.getParentDirectory(mProject, mChapter);
+        File base = ProjectFileUtils.getParentDirectory(mProject, mChapter);
         for (String s : files) {
             File f = new File(base, s);
             wavFiles.add(new WavFile(f));

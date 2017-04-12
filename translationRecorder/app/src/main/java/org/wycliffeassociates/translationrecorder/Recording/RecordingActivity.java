@@ -25,6 +25,7 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSo
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 
@@ -260,7 +261,7 @@ public class RecordingActivity extends AppCompatActivity implements
             RecordingQueues.clearQueues();
             String startVerse = mFragmentRecordingFileBar.getStartVerse();
             String endVerse = mFragmentRecordingFileBar.getEndVerse();
-            File file = FileNameExtractor.createFile(mProject, mChapter, Integer.parseInt(startVerse), Integer.parseInt(endVerse));
+            File file = ProjectFileUtils.createFile(mProject, mChapter, Integer.parseInt(startVerse), Integer.parseInt(endVerse));
             mNewRecording = new WavFile(file, new WavMetadata(mProject, String.valueOf(mChapter), startVerse, endVerse));
             startService(new Intent(this, WavRecorder.class));
             startService(WavFileWriter.getIntent(this, mNewRecording));

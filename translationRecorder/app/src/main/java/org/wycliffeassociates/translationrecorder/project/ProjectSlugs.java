@@ -71,4 +71,21 @@ public class ProjectSlugs {
         return mEndVerse;
     }
 
+    public String getNameWithoutTake() {
+        if (mAnthology != null && mAnthology.compareTo("obs") == 0) {
+            return mLanguage + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
+        } else {
+            String name;
+            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
+            if (mBook.compareTo("psa") == 0 && mChapter != 119) {
+                name = mLanguage + "_" + mVersion + "_b" + String.format("%02d", mBookNumber) + "_" + mBook + "_c" + String.format("%03d", mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
+            } else if (mBook.compareTo("psa") == 0) {
+                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
+                name = mLanguage + "_" + mVersion + "_b" + String.format("%02d", mBookNumber) + "_" + mBook + "_c" + ProjectFileUtils.chapterIntToString(mBook, mChapter) + "_v" + String.format("%03d", mStartVerse) + end;
+            } else {
+                name = mLanguage + "_" + mVersion + "_b" + String.format("%02d", mBookNumber) + "_" + mBook + "_c" + ProjectFileUtils.chapterIntToString(mBook, mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
+            }
+            return name;
+        }
+    }
 }

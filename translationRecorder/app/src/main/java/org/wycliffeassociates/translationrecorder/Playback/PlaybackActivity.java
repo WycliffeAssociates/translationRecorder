@@ -492,7 +492,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
         File dir = new File(ProjectFileUtils.getProjectDirectory(mProject), ProjectFileUtils.chapterIntToString(mProject, mChapter));
         File from = mWavFile.getFile();
-        int takeInt = FileNameExtractor.getLargestTake(dir, from) + 1;
+        int takeInt = ProjectFileUtils.getLargestTake(dir, from) + 1;
         String take = String.format("%02d", takeInt);
         FileNameExtractor fne = new FileNameExtractor(from);
 
