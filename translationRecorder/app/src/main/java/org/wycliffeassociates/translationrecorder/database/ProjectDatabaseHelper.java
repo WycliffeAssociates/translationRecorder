@@ -12,7 +12,10 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.Pr
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.project.ProjectSlugs;
+import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
@@ -22,6 +25,8 @@ import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.R.attr.rating;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -639,12 +644,13 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(ProjectSlugs slugs, String takeFilename, String recordingMode, long timestamp, int rating) {
+    public void addTake(TakeInfo takeInfo, String takeFilename, String recordingMode, long timestamp, int rating) {
+        ProjectSlugs slugs = takeInfo.getProjectSlugs();
         String bookSlug = slugs.getBook();
         String languageSlug = slugs.getLanguage();
         String versionSlug = slugs.getVersion();
-        int chapter = slugs.getChapter();
-        int start = slugs.getStartVerse();
+        int chapter = takeInfo.getChapter();
+        int start = takeInfo.getStartVerse();
         if (!projectExists(languageSlug, bookSlug, versionSlug)) {
             addProject(languageSlug, bookSlug, versionSlug, recordingMode);
             addChapter(languageSlug, bookSlug, versionSlug, chapter);
@@ -664,7 +670,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.TakeEntry.TAKE_UNIT_FK, unitId);
         cv.put(ProjectContract.TakeEntry.TAKE_RATING, rating);
         cv.put(ProjectContract.TakeEntry.TAKE_NOTES, "");
-        cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, slugs.getTake());
+        cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, takeInfo.getTake());
         cv.put(ProjectContract.TakeEntry.TAKE_FILENAME, takeFilename);
         cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, timestamp);
         long result = db.insertWithOnConflict(ProjectContract.TakeEntry.TABLE_TAKE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
@@ -851,14 +857,15 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void setTakeRating(FileNameExtractor projectSlugs, int rating) {
-        int unitId = getUnitId(projectSlugs.getLang(), projectSlugs.getBook(), projectSlugs.getVersion(), projectSlugs.getChapter(), projectSlugs.getStartVerse());
+    public void setTakeRating(TakeInfo takeInfo) {
+        ProjectSlugs projectSlugs = takeInfo.getProjectSlugs();
+        int unitId = getUnitId(projectSlugs.getLanguage(), projectSlugs.getBook(), projectSlugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse());
         SQLiteDatabase db = getReadableDatabase();
         final String replaceTakeWhere = String.format("%s=? AND %s=?",
                 ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(ProjectContract.TakeEntry.TAKE_RATING, rating);
-        int result = db.update(ProjectContract.TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{String.valueOf(unitId), String.valueOf(projectSlugs.getTake())});
+        int result = db.update(ProjectContract.TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{String.valueOf(unitId), String.valueOf(takeInfo.getTake())});
         if (result > 0) {
             autoSelectTake(unitId);
         }
@@ -1036,7 +1043,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void resyncProjectWithFilesystem(Project project, List<File> takes, OnLanguageNotFound callback, OnCorruptFile onCorruptFile) {
-        importTakesToDatabase(takes, callback, onCorruptFile);
+        importTakesToDatabase(project, takes, callback, onCorruptFile);
         if (projectExists(project)) {
             int projectId = getProjectId(project);
             String where = String.format("%s.%s=?",
@@ -1047,7 +1054,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void resyncChapterWithFilesystem(Project project, int chapter, List<File> takes, OnLanguageNotFound callback, OnCorruptFile onCorruptFile) {
-        importTakesToDatabase(takes, callback, onCorruptFile);
+        importTakesToDatabase(project, takes, callback, onCorruptFile);
         if (projectExists(project) && chapterExists(project, chapter)) {
             int projectId = getProjectId(project);
             int chapterId = getChapterId(project, chapter);
@@ -1064,7 +1071,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 //        removeTakesWithNoFiles(takes, whereClause, whereArgs);
 //    }
 
-    private void importTakesToDatabase(List<File> takes, OnLanguageNotFound callback, OnCorruptFile corruptFileCallback) {
+    private void importTakesToDatabase(Project project, List<File> takes, OnLanguageNotFound callback, OnCorruptFile corruptFileCallback) {
         SQLiteDatabase db = getWritableDatabase();
         //create a temporary table to store take names from the filesystem
         db.execSQL(ProjectContract.DELETE_TEMP);
@@ -1091,21 +1098,25 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             int timestampIndex = c.getColumnIndex(ProjectContract.TempEntry.TEMP_TIMESTAMP);
             c.moveToFirst();
             do {
-                FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
-                if (!languageExists(fne.getLang())) {
+                String takeName = c.getString(nameIndex);
+                ProjectPatternMatcher ppm = project.getPatternMatcher();
+                ppm.match(takeName);
+                TakeInfo takeInfo = ppm.getTakeInfo();
+                ProjectSlugs slugs = takeInfo.getProjectSlugs();
+                if (!languageExists(slugs.getLanguage())) {
                     if (callback != null) {
-                        String name = callback.requestLanguageName(fne.getLang());
-                        addLanguage(fne.getLang(), name);
+                        String name = callback.requestLanguageName(slugs.getLanguage());
+                        addLanguage(slugs.getLanguage(), name);
                     } else {
-                        addLanguage(fne.getLang(), "???"); //missingno
+                        addLanguage(slugs.getLanguage(), "???"); //missingno
                     }
                 }
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
-                File dir = fne.getParentDirectory();
+                File dir = ProjectFileUtils.getParentDirectory(project, takeName);
                 File file = new File(dir, c.getString(nameIndex));
                 try {
                     WavFile wav = new WavFile(file);
-                    addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
                 } catch (IllegalArgumentException e) {
                     //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
                     Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
@@ -1169,7 +1180,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public void resyncDbWithFs(List<File> takes, OnLanguageNotFound callback, OnCorruptFile corruptFileCallback) {
+    public void resyncDbWithFs(Project project, List<File> takes, OnLanguageNotFound callback, OnCorruptFile corruptFileCallback) {
         SQLiteDatabase db = getWritableDatabase();
         //create a temporary table to store take names from the filesystem
         db.execSQL(ProjectContract.DELETE_TEMP);
@@ -1196,21 +1207,25 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             int timestampIndex = c.getColumnIndex(ProjectContract.TempEntry.TEMP_TIMESTAMP);
             c.moveToFirst();
             do {
-                FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
-                if (!languageExists(fne.getLang())) {
+                String takeName = c.getString(nameIndex);
+                ProjectPatternMatcher ppm = project.getPatternMatcher();
+                ppm.match(takeName);
+                TakeInfo takeInfo = ppm.getTakeInfo();
+                ProjectSlugs slugs = takeInfo.getProjectSlugs();
+                if (!languageExists(slugs.getLanguage())) {
                     if (callback != null) {
-                        String name = callback.requestLanguageName(fne.getLang());
-                        addLanguage(fne.getLang(), name);
+                        String name = callback.requestLanguageName(slugs.getLanguage());
+                        addLanguage(slugs.getLanguage(), name);
                     } else {
-                        addLanguage(fne.getLang(), "???"); //missingno
+                        addLanguage(slugs.getLanguage(), "???"); //missingno
                     }
                 }
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
-                File dir = fne.getParentDirectory();
+                File dir = ProjectFileUtils.getParentDirectory(project, takeName);
                 File file = new File(dir, c.getString(nameIndex));
                 try {
                     WavFile wav = new WavFile(file);
-                    addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
                 } catch (IllegalArgumentException e) {
                     //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
                     Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
@@ -1242,7 +1257,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_TEMP);
     }
 
-    public void resyncBookWithFs(List<File> takes, OnLanguageNotFound callback) {
+    public void resyncBookWithFs(Project project, List<File> takes, OnLanguageNotFound callback) {
         SQLiteDatabase db = getWritableDatabase();
         //create a temporary table to store take names from the filesystem
         db.execSQL(ProjectContract.DELETE_TEMP);
@@ -1269,19 +1284,23 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             int timestampIndex = c.getColumnIndex(ProjectContract.TempEntry.TEMP_TIMESTAMP);
             c.moveToFirst();
             do {
-                FileNameExtractor fne = new FileNameExtractor(c.getString(nameIndex));
-                if (!languageExists(fne.getLang())) {
+                String takeName = c.getString(nameIndex);
+                ProjectPatternMatcher ppm = project.getPatternMatcher();
+                ppm.match(takeName);
+                TakeInfo takeInfo = ppm.getTakeInfo();
+                ProjectSlugs slugs = takeInfo.getProjectSlugs();
+                if (!languageExists(slugs.getLanguage())) {
                     if (callback != null) {
-                        String name = callback.requestLanguageName(fne.getLang());
-                        addLanguage(fne.getLang(), name);
+                        String name = callback.requestLanguageName(slugs.getLanguage());
+                        addLanguage(slugs.getLanguage(), name);
                     } else {
-                        addLanguage(fne.getLang(), "???"); //missingno
+                        addLanguage(slugs.getLanguage(), "???"); //missingno
                     }
                 }
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
-                File dir = fne.getParentDirectory();
+                File dir = takeInfo.getParentDirectory();
                 WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
-                addTake(fne, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
             } while (c.moveToNext());
         }
         c.close();

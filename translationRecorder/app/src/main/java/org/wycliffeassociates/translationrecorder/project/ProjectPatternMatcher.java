@@ -20,6 +20,7 @@ public class ProjectPatternMatcher {
     boolean mMatched = false;
 
     private ProjectSlugs mProjectSlugs;
+    private TakeInfo mTakeInfo;
 
     public ProjectPatternMatcher(String regex, String groups) {
         mRegex = regex;
@@ -68,10 +69,11 @@ public class ProjectPatternMatcher {
                         values[i] = "";
                     }
                 }
-                mProjectSlugs = new ProjectSlugs(values[0], values[1], values[2], Integer.parseInt(values[3]),
-                        values[4], Integer.parseInt(values[5]), Integer.parseInt(values[6]),
-                        Integer.parseInt(values[7]), Integer.parseInt(values[8])
-                );
+                mProjectSlugs = new ProjectSlugs(values[0], values[1], values[2], Integer.parseInt(values[3]), values[4]);
+
+                mTakeInfo = new TakeInfo(mProjectSlugs, Integer.parseInt(values[5]), Integer.parseInt(values[6]),
+                        Integer.parseInt(values[7]), Integer.parseInt(values[8]));
+
             } else {
                 mMatched = false;
                 mProjectSlugs = null;
@@ -83,5 +85,9 @@ public class ProjectPatternMatcher {
 
     public ProjectSlugs getProjectSlugs(){
         return mProjectSlugs;
+    }
+
+    public TakeInfo getTakeInfo() {
+        return mTakeInfo;
     }
 }

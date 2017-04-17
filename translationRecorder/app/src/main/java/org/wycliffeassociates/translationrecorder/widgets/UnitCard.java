@@ -7,17 +7,19 @@ import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -161,15 +163,17 @@ public class UnitCard {
         String chap = ProjectFileUtils.chapterIntToString(mProject, mChapter);
         File folder = new File(root, chap);
         File[] files = folder.listFiles();
-        FileNameExtractor fne;
+        ProjectPatternMatcher ppm;
         int first = mFirstVerse;
         int end = mEndVerse;
         //Get only the files of the appropriate unit
         List<File> resultFiles = new ArrayList<>();
         if (files != null) {
             for (File file : files) {
-                fne = new FileNameExtractor(file);
-                if (fne.getStartVerse() == first && fne.getEndVerse() == end) {
+                ppm = mProject.getPatternMatcher();
+                ppm.match(file);
+                TakeInfo ti = ppm.getTakeInfo();
+                if (ti.getStartVerse() == first && ti.getEndVerse() == end) {
                     resultFiles.add(file);
                 }
             }
@@ -177,14 +181,20 @@ public class UnitCard {
         Collections.sort(resultFiles, new Comparator<File>() {
             @Override
             public int compare(File f, File s) {
-                FileNameExtractor fne = new FileNameExtractor(f);
-                FileNameExtractor fne2 = new FileNameExtractor(s);
+                ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+                ProjectPatternMatcher ppm2 = mProject.getPatternMatcher();
+                ppm.match(f);
+                TakeInfo takeInfo = ppm.getTakeInfo();
+                ppm2.match(s);
+                TakeInfo takeInfo2 = ppm.getTakeInfo();
+
+
 //                Long first = f.lastModified();
 //                Long second = s.lastModified();
                 //Change to take name rather than last modified because editing verse markers modifies the file
                 //this means that adding verse markers would change the postition in the list when returning to the card
-                Integer first = fne.getTake();
-                Integer second = fne2.getTake();
+                Integer first = takeInfo.getTake();
+                Integer second = takeInfo2.getTake();
                 return first.compareTo(second);
             }
         });
@@ -499,7 +509,9 @@ public class UnitCard {
                 if (takes.size() > 0) {
                     pauseAudio();
                     String name = takes.get(mTakeIndex).getName();
-                    RatingDialog dialog = RatingDialog.newInstance(name, mCurrentTakeRating);
+                    ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+                    TakeInfo takeInfo = ppm.getTakeInfo();
+                    RatingDialog dialog = RatingDialog.newInstance(takeInfo, mCurrentTakeRating);
                     dialog.show(mCtx.getFragmentManager(), "single_take_rating");
                 }
             }

@@ -1,91 +1,77 @@
 package org.wycliffeassociates.translationrecorder.project;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Joe on 3/31/2017.
  */
 
-public class ProjectSlugs {
+public class ProjectSlugs implements Parcelable {
 
-    String mLanguage;
-    String mAnthology;
-    String mVersion;
-    int mBookNumber;
-    String mBook;
-    int mChapter;
-    int mStartVerse;
-    int mEndVerse;
+    String language;
+    String anthology;
+    String version;
+    int bookNumber;
+    String book;
 
-    int mTake;
-
-    public ProjectSlugs(String language, String anthology, String version, int bookNumber, String book,
-                        int chapter, int startVerse, int endVerse, int take)
-    {
-        mLanguage = language;
-        mAnthology = anthology;
-        mVersion = version;
-        mBookNumber = bookNumber;
-        mBook = book;
-        mChapter = chapter;
-        mStartVerse = startVerse;
-        mEndVerse = endVerse;
-        mTake = take;
+    public ProjectSlugs(String language, String anthology, String version, int bookNumber, String book) {
+        this.language = language;
+        this.anthology = anthology;
+        this.version = version;
+        this.bookNumber = bookNumber;
+        this.book = book;
     }
 
     public String getLanguage() {
-        return mLanguage;
+        return language;
     }
 
     public String getAnthology() {
-        return mAnthology;
+        return anthology;
     }
 
     public String getVersion() {
-        return mVersion;
+        return version;
     }
 
     public int getBookNumber() {
-        return mBookNumber;
+        return bookNumber;
     }
 
     public String getBook() {
-        return mBook;
+        return book;
     }
 
-    public int getChapter() {
-        return mChapter;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public int getStartVerse() {
-        return mStartVerse;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(language);
+        dest.writeString(anthology);
+        dest.writeString(book);
+        dest.writeString(version);
+        dest.writeInt(bookNumber);
     }
 
-    public int getTake() {
-        return mTake;
-    }
-
-    public int getEndVerse() {
-        //if there is no end verse, there is no verse range, so the end verse is the start verse
-        if(mEndVerse == -1) {
-            return mStartVerse;
+    public static final Parcelable.Creator<ProjectSlugs> CREATOR = new Parcelable.Creator<ProjectSlugs>() {
+        public ProjectSlugs createFromParcel(Parcel in) {
+            return new ProjectSlugs(in);
         }
-        return mEndVerse;
-    }
 
-    public String getNameWithoutTake() {
-        if (mAnthology != null && mAnthology.compareTo("obs") == 0) {
-            return mLanguage + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
-        } else {
-            String name;
-            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
-            if (mBook.compareTo("psa") == 0 && mChapter != 119) {
-                name = mLanguage + "_" + mVersion + "_b" + String.format("%02d", mBookNumber) + "_" + mBook + "_c" + String.format("%03d", mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-            } else if (mBook.compareTo("psa") == 0) {
-                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
-                name = mLanguage + "_" + mVersion + "_b" + String.format("%02d", mBookNumber) + "_" + mBook + "_c" + ProjectFileUtils.chapterIntToString(mBook, mChapter) + "_v" + String.format("%03d", mStartVerse) + end;
-            } else {
-                name = mLanguage + "_" + mVersion + "_b" + String.format("%02d", mBookNumber) + "_" + mBook + "_c" + ProjectFileUtils.chapterIntToString(mBook, mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-            }
-            return name;
+        public ProjectSlugs[] newArray(int size) {
+            return new ProjectSlugs[size];
         }
+    };
+
+    public ProjectSlugs(Parcel in) {
+        language = in.readString();
+        anthology = in.readString();
+        book = in.readString();
+        version = in.readString();
+        bookNumber = in.readInt();
     }
 }

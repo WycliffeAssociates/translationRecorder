@@ -74,6 +74,10 @@ public class Project implements Parcelable {
         }
     }
 
+    public ProjectSlugs getProjectSlugs(){
+        return new ProjectSlugs(getTargetLanguageSlug(), getAnthologySlug(), getVersionSlug(), Integer.parseInt(getBookNumber()), getBookSlug());
+    }
+
     public String getTargetLanguageSlug() {
         return (mTargetLanguage == null) ? "" : mTargetLanguage.getSlug();
     }

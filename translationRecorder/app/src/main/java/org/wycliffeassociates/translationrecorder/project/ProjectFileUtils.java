@@ -21,18 +21,6 @@ public class ProjectFileUtils {
 
     private ProjectFileUtils(){}
 
-    public static File getParentDirectory(File file) {
-        FileNameExtractor fne = new FileNameExtractor(file);
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + chapterIntToString(fne.getBook(), fne.getChapter()));
-        return out;
-    }
-
-    public static File getParentDirectory(Project project, int chapter) {
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
-    }
-
     public static File createFile(Project project, int chapter, int startVerse, int endVerse) {
         File dir = getParentDirectory(project, chapter);
         String nameWithoutTake = getNameWithoutTake(project, chapter, startVerse, endVerse);
@@ -49,9 +37,9 @@ public class ProjectFileUtils {
         ProjectPatternMatcher ppm = project.getPatternMatcher();
         for (File f : files) {
             ppm.match(f);
-            ProjectSlugs ps = ppm.getProjectSlugs();
-            if (nameWithoutTake.compareTo((ps.getNameWithoutTake())) == 0) {
-                maxTake = (maxTake < ps.getTake()) ? ps.getTake() : maxTake;
+            TakeInfo ti = ppm.getTakeInfo();
+            if (nameWithoutTake.compareTo((ti.getNameWithoutTake())) == 0) {
+                maxTake = (maxTake < ti.getTake()) ? ti.getTake() : maxTake;
             }
         }
         return maxTake;
@@ -64,13 +52,13 @@ public class ProjectFileUtils {
         }
         ProjectPatternMatcher ppm = project.getPatternMatcher();
         ppm.match(filename);
-        ProjectSlugs slugs = ppm.getProjectSlugs();
-        int maxTake = slugs.getTake();
+        TakeInfo takeInfo = ppm.getTakeInfo();
+        int maxTake = takeInfo.getTake();
         for (File f : files) {
             ppm.match(f);
-            ProjectSlugs ps = ppm.getProjectSlugs();
-            if ((slugs.getNameWithoutTake()).compareTo((ps.getNameWithoutTake())) == 0) {
-                maxTake = (maxTake < ps.getTake()) ? ps.getTake() : maxTake;
+            TakeInfo ti = ppm.getTakeInfo();
+            if ((takeInfo.getNameWithoutTake()).compareTo((ti.getNameWithoutTake())) == 0) {
+                maxTake = (maxTake < ti.getTake()) ? ti.getTake() : maxTake;
             }
         }
         return maxTake;
@@ -80,10 +68,36 @@ public class ProjectFileUtils {
         return getNameWithoutTake(project, chapter, startVerse, endVerse);
     }
 
-    public File getParentDirectory(ProjectSlugs slugs){
+    public File getParentDirectory(TakeInfo takeInfo){
+        ProjectSlugs slugs = takeInfo.getProjectSlugs();
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, slugs.getLanguage() + "/" + getVersion() + "/" + slugs.getBook() + "/" + ProjectFileUtils.chapterIntToString(slugs.getBook(), slugs.getChapter()));
+        File out = new File(root, slugs.getLanguage() + "/" + getVersion() + "/" + slugs.getBook() + "/" + ProjectFileUtils.chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
+    }
+
+    public static File getParentDirectory(Project project, File file) {
+        ProjectPatternMatcher ppm = project.getPatternMatcher();
+        ppm.match(file);
+        TakeInfo takeInfo = ppm.getTakeInfo();
+        ProjectSlugs slugs = takeInfo.getProjectSlugs();
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
+        return out;
+    }
+
+    public static File getParentDirectory(Project project, String file) {
+        ProjectPatternMatcher ppm = project.getPatternMatcher();
+        ppm.match(file);
+        TakeInfo takeInfo = ppm.getTakeInfo();
+        ProjectSlugs slugs = takeInfo.getProjectSlugs();
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
+        return out;
+    }
+
+    public static File getParentDirectory(Project project, int chapter) {
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
     }
 
     public static File getProjectDirectory(Project project) {
@@ -146,14 +160,14 @@ public class ProjectFileUtils {
         return file.getMetadata().getMode();
     }
 
-    public static File getFileFromFileName(File file) {
-        File dir = getParentDirectory(file);
-        if (file.getName().contains(".wav")) {
-            return new File(dir, file.getName());
-        } else {
-            return new File(dir, file.getName() + ".wav");
-        }
-    }
+//    public static File getFileFromFileName(File file) {
+//        File dir = getParentDirectory(file);
+//        if (file.getName().contains(".wav")) {
+//            return new File(dir, file.getName());
+//        } else {
+//            return new File(dir, file.getName() + ".wav");
+//        }
+//    }
 
     public static String getNameWithoutTake(String name) {
         FileNameExtractor fne = new FileNameExtractor(name);

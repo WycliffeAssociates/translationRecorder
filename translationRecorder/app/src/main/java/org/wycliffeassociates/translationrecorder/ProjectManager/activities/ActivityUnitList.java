@@ -12,14 +12,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
@@ -160,7 +159,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     @Override
     public void onPositiveClick(RatingDialog dialog) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), dialog.getRating());
+        db.setTakeRating(dialog.getTakeInfo());
         db.close();
         mAdapter.notifyDataSetChanged();
     }
