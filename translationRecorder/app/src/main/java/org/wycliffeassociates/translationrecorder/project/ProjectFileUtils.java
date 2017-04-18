@@ -68,7 +68,7 @@ public class ProjectFileUtils {
         return getNameWithoutTake(project, chapter, startVerse, endVerse);
     }
 
-    public File getParentDirectory(TakeInfo takeInfo){
+    public static File getParentDirectory(TakeInfo takeInfo){
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         File out = new File(root, slugs.getLanguage() + "/" + getVersion() + "/" + slugs.getBook() + "/" + ProjectFileUtils.chapterIntToString(slugs.getBook(), takeInfo.getChapter()));

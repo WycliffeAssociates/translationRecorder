@@ -9,11 +9,11 @@ import android.os.Parcelable;
 
 public class ProjectSlugs implements Parcelable {
 
-    String language;
-    String anthology;
-    String version;
-    int bookNumber;
-    String book;
+    final String language;
+    final String anthology;
+    final String version;
+    final int bookNumber;
+    final String book;
 
     public ProjectSlugs(String language, String anthology, String version, int bookNumber, String book) {
         this.language = language;

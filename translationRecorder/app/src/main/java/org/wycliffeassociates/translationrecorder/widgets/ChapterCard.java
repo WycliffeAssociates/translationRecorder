@@ -6,15 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -332,10 +333,15 @@ public class ChapterCard {
         Collections.sort(files, new Comparator<String>() {
             @Override
             public int compare(String lhs, String rhs) {
-                FileNameExtractor fneLeft = new FileNameExtractor(lhs);
-                FileNameExtractor fneRight = new FileNameExtractor(rhs);
-                int startLeft = fneLeft.getStartVerse();
-                int startRight = fneRight.getStartVerse();
+                ProjectPatternMatcher ppmLeft = mProject.getPatternMatcher();
+                ProjectPatternMatcher ppmRight = mProject.getPatternMatcher();
+                ppmLeft.match(lhs);
+                TakeInfo takeInfoLeft = ppmLeft.getTakeInfo();
+                ppmRight.match(rhs);
+                TakeInfo takeInfoRight = ppmRight.getTakeInfo();
+
+                int startLeft = takeInfoLeft.getStartVerse();
+                int startRight = takeInfoRight.getStartVerse();
                 if (startLeft < startRight) {
                     return -1;
                 } else if (startLeft == startRight) {

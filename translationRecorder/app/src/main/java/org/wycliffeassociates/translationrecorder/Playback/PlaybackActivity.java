@@ -18,7 +18,6 @@ import android.view.WindowManager;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.WavVisualizer;
 import org.wycliffeassociates.translationrecorder.FilesPage.ExitDialog;
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentFileBar;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentPlaybackTools;
 import org.wycliffeassociates.translationrecorder.Playback.fragments.FragmentTabbedWidget;
@@ -34,14 +33,16 @@ import org.wycliffeassociates.translationrecorder.Playback.interfaces.VerseMarke
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.ViewCreatedCallback;
 import org.wycliffeassociates.translationrecorder.Playback.markers.MarkerHolder;
 import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
@@ -61,7 +62,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 /**
  * Created by sarabiaj on 10/27/2016.
@@ -164,7 +164,6 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mProject = intent.getParcelableExtra(KEY_PROJECT);
         mUnit = intent.getIntExtra(KEY_UNIT, 1);
         mChapter = intent.getIntExtra(KEY_CHAPTER, 1);
-        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
     }
 
     private void initializeFragments() {
@@ -202,8 +201,10 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     private String getUnitLabel() {
         if (mProject.getMode().equals("chunk")) {
-            FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
-            return String.format("%d-%d", fne.getStartVerse(), fne.getEndVerse());
+            ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+            ppm.match(mWavFile.getFile());
+            TakeInfo takeInfo = ppm.getTakeInfo();
+            return String.format("%d-%d", takeInfo.getStartVerse(), takeInfo.getEndVerse());
         } else {
             return String.valueOf(mUnit);
         }
@@ -413,7 +414,8 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         Logger.w(this.toString(), "rating set");
         mRating = dialog.getRating();
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setTakeRating(new FileNameExtractor(dialog.getTakeName()), mRating);
+
+        db.setTakeRating(dialog.getTakeInfo(), mRating);
         db.close();
         mFragmentFileBar.onRatingChanged(mRating);
     }
@@ -450,7 +452,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     public void onOpenRating(FourStepImageView v) {
         Logger.w(this.toString(), "Rating dialog opened");
-        RatingDialog dialog = RatingDialog.newInstance(mWavFile.getFile().getName(), mRating);
+        ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+        ppm.match(mWavFile.getFile());
+        RatingDialog dialog = RatingDialog.newInstance(ppm.getTakeInfo(), mRating);
         dialog.show(getFragmentManager(), "single_unit_rating");
     }
 
@@ -492,11 +496,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
         File dir = new File(ProjectFileUtils.getProjectDirectory(mProject), ProjectFileUtils.chapterIntToString(mProject, mChapter));
         File from = mWavFile.getFile();
-        int takeInt = ProjectFileUtils.getLargestTake(dir, from) + 1;
+        int takeInt = ProjectFileUtils.getLargestTake(mProject, dir, from) + 1;
         String take = String.format("%02d", takeInt);
-        FileNameExtractor fne = new FileNameExtractor(from);
-
-        File to = new File(dir, fne.getNameWithoutTake() + "_t" + take + AUDIO_RECORDER_FILE_EXT_WAV);
+        ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+        ppm.match(from);
+        TakeInfo takeInfo = ppm.getTakeInfo();
+        File to = new File(dir, takeInfo.getNameWithoutTake() + "_t" + take + AUDIO_RECORDER_FILE_EXT_WAV);
         writeCutToFile(to, mWavFile, intent);
     }
 
@@ -527,7 +532,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                         to.delete();
                         toTemp.renameTo(to);
                         ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackActivity.this);
-                        db.addTake(new FileNameExtractor(to), to.getName(), from.getMetadata().getMode(), to.lastModified(), 0);
+                        ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+                        ppm.match(to);
+                        db.addTake(ppm.getTakeInfo(), to.getName(), from.getMetadata().getMode(), to.lastModified(), 0);
                         db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));
@@ -567,10 +574,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private void getVerseRange() {
-        FileNameExtractor fne = new FileNameExtractor(mWavFile.getFile());
-        mTotalVerses = (fne.getEndVerse() - fne.getStartVerse() + 1);
-        startVerse = fne.getStartVerse();
-        endVerse = fne.getEndVerse();
+        ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+        ppm.match(mWavFile.getFile());
+        TakeInfo takeInfo = ppm.getTakeInfo();
+        mTotalVerses = (takeInfo.getEndVerse() - takeInfo.getStartVerse() + 1);
+        startVerse = takeInfo.getStartVerse();
+        endVerse = takeInfo.getEndVerse();
     }
 
     private void setVerseMarkerCount(int count) {

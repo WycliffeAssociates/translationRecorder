@@ -14,9 +14,7 @@ import android.view.WindowManager;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.ActiveRecordingRenderer;
 import org.wycliffeassociates.translationrecorder.FilesPage.ExitDialog;
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingControls;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingFileBar;
@@ -25,7 +23,9 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSo
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 
@@ -304,8 +304,9 @@ public class RecordingActivity extends AppCompatActivity implements
 
     private void addTakeToDb() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        FileNameExtractor fne = new FileNameExtractor(mNewRecording.getFile());
-        db.addTake(fne, mNewRecording.getFile().getName(), mNewRecording.getMetadata().getMode(), mNewRecording.getFile().lastModified(), 0);
+        ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+        ppm.match(mNewRecording.getFile());
+        db.addTake(ppm.getTakeInfo(), mNewRecording.getFile().getName(), mNewRecording.getMetadata().getMode(), mNewRecording.getFile().lastModified(), 0);
         db.close();
     }
 

@@ -289,6 +289,7 @@ public class MainMenu extends Activity {
         String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder").getAbsolutePath();
         for (File v : visFiles) {
             FileNameExtractor fne = new FileNameExtractor(v);
+
             boolean found = false;
             String path = rootPath + "/" + fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
             String name = fne.getNameWithoutTake() + "_t" + String.format("%02d", fne.getTake()) + ".wav";

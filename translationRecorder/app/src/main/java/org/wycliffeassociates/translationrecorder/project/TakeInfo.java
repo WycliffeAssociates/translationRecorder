@@ -46,6 +46,7 @@ public class TakeInfo implements Parcelable {
         }
         return mEndVerse;
     }
+
     public String getNameWithoutTake() {
         if (mSlugs.anthology != null && mSlugs.anthology.compareTo("obs") == 0) {
             return mSlugs.language + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
