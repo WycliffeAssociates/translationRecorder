@@ -515,11 +515,26 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             String anthologySlug = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_SLUG));
             String anthologyName = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_NAME));
             String resourceSlug = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_RESOURCE));
-            anthology = new Anthology(anthologySlug, anthologyName, resourceSlug);
+            String regex = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX));
+            String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
+            anthology = new Anthology(anthologySlug, anthologyName, resourceSlug, regex, mask);
         } else {
             throw new IllegalArgumentException("Version id not found in database.");
         }
         return anthology;
+    }
+
+    public List<ProjectPatternMatcher> getProjectPatternMatchers(){
+        SQLiteDatabase db = getReadableDatabase();
+        String query = String.format("SELECT * FROM %s", ProjectContract.AnthologyEntry.TABLE_ANTHOLOGY);
+        Cursor cursor = db.rawQuery(query, null);
+        List<ProjectPatternMatcher> patterns = new ArrayList<>();
+        while (cursor.moveToFirst()) {
+            String regex = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX));
+            String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
+            patterns.add(new ProjectPatternMatcher(regex, mask));
+        }
+        return patterns;
     }
 
     public int getBookNumber(String bookSlug) throws IllegalArgumentException {
@@ -803,6 +818,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return project;
     }
 
+    public Project getProject(String languageSlug, String versionSlug, String bookSlug) {
+        if(projectExists(languageSlug, bookSlug, versionSlug)) {
+            int id = getProjectId(languageSlug, bookSlug, versionSlug);
+            return getProject(id);
+        } else {
+            return null;
+        }
+    }
 
     public int getNumProjects() {
         SQLiteDatabase db = getReadableDatabase();
@@ -1430,7 +1453,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 String anthologySlug = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_SLUG));
                 String anthologyName = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_NAME));
                 String resource = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_RESOURCE));
-                anthologyList.add(new Anthology(anthologySlug, anthologyName, resource));
+                String regex = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX));
+                String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
+                anthologyList.add(new Anthology(anthologySlug, anthologyName, resource, regex, mask));
             } while (cursor.moveToNext());
         }
         cursor.close();

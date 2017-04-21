@@ -169,9 +169,11 @@ public class ProjectFileUtils {
 //        }
 //    }
 
-    public static String getNameWithoutTake(String name) {
-        FileNameExtractor fne = new FileNameExtractor(name);
-        return fne.getNameWithoutTake();
+    public static String getNameWithoutTake(Project project, String name) {
+        ProjectPatternMatcher ppm = project.getPatternMatcher();
+        ppm.match(name);
+        TakeInfo takeInfo = ppm.getTakeInfo();
+        return takeInfo.getNameWithoutTake();
     }
 
     public static String getNameWithoutTake(Project project, int mChapter, int mStartVerse, int mEndVerse) {

@@ -12,14 +12,26 @@ import org.wycliffeassociates.translationrecorder.Utils;
 public class Anthology extends ProjectComponent implements Parcelable {
 
     private String mResource;
+    private String mRegex;
+    private String mMask;
 
-    public Anthology(String slug, String name, String resource) {
+    public Anthology(String slug, String name, String resource, String regex, String mask) {
         super(slug, name);
         mResource = resource;
+        mRegex = regex;
+        mMask = mask;
     }
 
     public String getResource(){
         return mResource;
+    }
+
+    public String getRegex() {
+        return mRegex;
+    }
+
+    public String getMask(){
+        return mMask;
     }
 
     @Override
@@ -44,6 +56,8 @@ public class Anthology extends ProjectComponent implements Parcelable {
         dest.writeString(mSlug);
         dest.writeString(mName);
         dest.writeString(mResource);
+        dest.writeString(mRegex);
+        dest.writeString(mMask);
     }
 
     public static final Parcelable.Creator<Anthology> CREATOR = new Parcelable.Creator<Anthology>() {
@@ -59,5 +73,7 @@ public class Anthology extends ProjectComponent implements Parcelable {
     public Anthology(Parcel in) {
         super(in);
         mResource = in.readString();
+        mRegex = in.readString();
+        mMask = in.readString();
     }
 }

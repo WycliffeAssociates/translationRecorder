@@ -15,7 +15,6 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
@@ -216,18 +215,22 @@ public class UnitCard {
     private void refreshSelectedTake(File take) {
         if (mViewHolder != null) {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-            FileNameExtractor fne = new FileNameExtractor(take);
-            int chosen = db.getSelectedTakeNumber(fne);
-            mViewHolder.takeSelectBtn.setActivated(chosen == fne.getTake());
+            ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+            ppm.match(take);
+            TakeInfo takeInfo = ppm.getTakeInfo();
+            int chosen = db.getSelectedTakeNumber(takeInfo);
+            mViewHolder.takeSelectBtn.setActivated(chosen == takeInfo.getTake());
             db.close();
         }
     }
 
     private void refreshTakeRating(File take) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        FileNameExtractor fne = new FileNameExtractor(take);
+        ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+        ppm.match(take);
+        TakeInfo takeInfo = ppm.getTakeInfo();
         Logger.w(this.toString(), "Refreshing take rating for " + take.getName());
-        mCurrentTakeRating = db.getTakeRating(fne);
+        mCurrentTakeRating = db.getTakeRating(takeInfo);
         if (mViewHolder != null) {
             mViewHolder.takeRatingBtn.setStep(mCurrentTakeRating);
             mViewHolder.takeRatingBtn.invalidate();
@@ -269,8 +272,10 @@ public class UnitCard {
             File[] files = chapterDir.listFiles();
             if (files != null) {
                 for (File f : files) {
-                    FileNameExtractor fne = new FileNameExtractor(f);
-                    if (fne.getStartVerse() == startVerse) {
+                    ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+                    ppm.match(f);
+                    TakeInfo takeInfo = ppm.getTakeInfo();
+                    if (takeInfo.getStartVerse() == startVerse) {
                         mIsEmpty = false;
                         return;
                     }
@@ -435,9 +440,11 @@ public class UnitCard {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     File selectedFile = takes.get(mTakeIndex);
-                                    FileNameExtractor fne = new FileNameExtractor(selectedFile);
+                                    ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+                                    ppm.match(selectedFile);
+                                    TakeInfo takeInfo = ppm.getTakeInfo();
                                     ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-                                    db.deleteTake(fne);
+                                    db.deleteTake(takeInfo);
                                     db.close();
                                     takes.get(mTakeIndex).delete();
                                     takes.remove(mTakeIndex);
@@ -525,13 +532,15 @@ public class UnitCard {
                 List<File> takes = getTakeList();
                 if (takes.size() > 0) {
                     ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-                    FileNameExtractor fne = new FileNameExtractor(takes.get(mTakeIndex));
+                    ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+                    ppm.match(takes.get(mTakeIndex));
+                    TakeInfo takeInfo = ppm.getTakeInfo();
                     if (view.isActivated()) {
                         view.setActivated(false);
-                        db.removeSelectedTake(fne);
+                        db.removeSelectedTake(takeInfo);
                     } else {
                         view.setActivated(true);
-                        db.setSelectedTake(fne);
+                        db.setSelectedTake(takeInfo);
                     }
                     db.close();
                 }

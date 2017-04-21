@@ -172,7 +172,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mFragmentPlaybackTools = FragmentPlaybackTools.newInstance();
         mFragmentContainerMapping.put(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools);
 
-        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, ProjectFileUtils.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
+        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, ProjectFileUtils.getNameWithoutTake(mProject, mWavFile.getFile().getName()), mChapter);
         mFragmentContainerMapping.put(R.id.tabbed_widget_fragment_holder, mFragmentTabbedWidget);
 
         mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguageSlug(),

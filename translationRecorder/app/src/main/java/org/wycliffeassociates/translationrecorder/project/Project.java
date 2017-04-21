@@ -35,17 +35,17 @@ public class Project implements Parcelable {
     public Project() {
     }
 
-    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String regex, String groups) {
+    public Project(Language target, Anthology anthology, Book book, Version version, String mode) {
         mTargetLanguage = target;
         mAnthology = anthology;
         mBook = book;
         mVersion = version;
         mMode = mode;
-        mProjectPatternMatcher = new ProjectPatternMatcher(regex, groups);
+        mProjectPatternMatcher = new ProjectPatternMatcher(mAnthology.getRegex(), mAnthology.getMask());
     }
 
-    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String regex, String groups, String sourceAudioPath) {
-        this(target, anthology, book, version, mode, regex, groups);
+    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String sourceAudioPath) {
+        this(target, anthology, book, version, mode);
         mSourceAudioPath = sourceAudioPath;
     }
 

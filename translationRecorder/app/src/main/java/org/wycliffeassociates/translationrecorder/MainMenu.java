@@ -16,8 +16,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityProjectManager;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog;
@@ -26,10 +24,15 @@ import org.wycliffeassociates.translationrecorder.Reporting.GlobalExceptionHandl
 import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.project.ProjectSlugs;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
+import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 
 public class MainMenu extends Activity {
@@ -287,12 +290,27 @@ public class MainMenu extends Activity {
             return;
         }
         String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder").getAbsolutePath();
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        List<ProjectPatternMatcher> patterns = db.getProjectPatternMatchers();
         for (File v : visFiles) {
-            FileNameExtractor fne = new FileNameExtractor(v);
-
+            boolean matched = false;
+            TakeInfo takeInfo = null;
+            //no idea what project the vis file is, so try all known anthology regexes until one works
+            for(ProjectPatternMatcher ppm : patterns) {
+                if (ppm.match(v)) {
+                    matched = true;
+                    takeInfo = ppm.getTakeInfo();
+                    break;
+                }
+            }
+            if (!matched) {
+                v.delete();
+                continue;
+            }
             boolean found = false;
-            String path = rootPath + "/" + fne.getLang() + "/" + fne.getVersion() + "/" + fne.getBook() + "/" + String.format("%02d", fne.getChapter());
-            String name = fne.getNameWithoutTake() + "_t" + String.format("%02d", fne.getTake()) + ".wav";
+            ProjectSlugs slugs = takeInfo.getProjectSlugs();
+            String path = rootPath + "/" + slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + String.format("%02d", takeInfo.getChapter());
+            String name = takeInfo.getNameWithoutTake() + "_t" + String.format("%02d", takeInfo.getTake()) + ".wav";
             File searchName = new File(path, name);
             if (searchName != null && searchName.exists()) {
                 //check if the names match up; exclude the path to get to them or the file extention

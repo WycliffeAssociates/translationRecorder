@@ -7,11 +7,16 @@ import android.os.Environment;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -52,9 +57,71 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
         return list;
     }
 
+    public Map<Project, File> getProjectDirectoriesOnFileSystem() {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        Map<Project, File> projectDirectories = new HashMap<>();
+        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File[] langs = root.listFiles();
+        if (langs != null) {
+            for(File lang : langs) {
+                File[] versions = lang.listFiles();
+                if (versions != null) {
+                    for(File version : versions) {
+                        File[] books = version.listFiles();
+                        if (books != null) {
+                            for(File book : books) {
+                                Project project = db.getProject(lang.getName(), version.getName(), book.getName());
+                                if(project != null) {
+                                    projectDirectories.put(project, book);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return projectDirectories;
+    }
+
+    public Map<Project, File> getProjectDirectories(List<Project> projects) {
+        Map<Project, File> projectDirectories = new HashMap();
+        for (Project p : projects) {
+            projectDirectories.put(p, ProjectFileUtils.getProjectDirectory(p));
+        }
+        return projectDirectories;
+    }
+
+    public Map<Project, File> getDirectoriesMissingFromDb(Map<Project, File> fs, Map<Project, File> db) {
+        Map<Project, File> missingDirectories = new HashMap<>();
+        for(Map.Entry<Project, File> f : fs.entrySet()) {
+            if(!db.containsValue(f.getValue())) {
+                missingDirectories.put(f.getKey(), f.getValue());
+            }
+        }
+        return missingDirectories;
+    }
+
     @Override
     public void run() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        List<Project> projects = db.getAllProjects();
+        Map<Project, File> directoriesOnFs = getProjectDirectoriesOnFileSystem();
+        Map<Project, File> directoriesFromDb = getProjectDirectories(projects);
+        Map<Project, File> directoriesMissingFromFs = getDirectoriesMissingFromDb(directoriesOnFs, directoriesFromDb);
+
+        //get directories of projects
+        //check which directories are not in the list
+        //for projects with directories, get their files and resync
+        //for directories not in the list, try to find which pattern match succeeds
+        for(Map.Entry<Project, File> dir : directoriesFromDb.entrySet()) {
+            File[] chapters = dir.getValue().listFiles();
+            if(chapters != null) {
+                List<File> takes = getFilesInDirectory(chapters);
+                db.resyncDbWithFs(dir.getKey(), takes, this, this);
+            }
+        }
+
+        List<ProjectPatternMatcher> patternMatchers = db.getProjectPatternMatchers();
         db.resyncDbWithFs(getAllTakes(), this, this);
         db.close();
         onTaskCompleteDelegator();
