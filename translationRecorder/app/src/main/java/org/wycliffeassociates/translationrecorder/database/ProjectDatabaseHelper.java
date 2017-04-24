@@ -1268,7 +1268,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //compare the names of all takes from the filesystem with the takes already in the database
         //names that do not have a match (are null in the left join) in the database need to be added
         final String getMissingTakes = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
-                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TempEntry.TEMP_TIMESTAMP, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TempEntry.TEMP_TIMESTAMP,
+                ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME);
         Cursor c = db.rawQuery(getMissingTakes, null);
         //loop through all of the missing takes and add them to the db
         if (c.getCount() > 0) {
@@ -1304,8 +1307,29 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         c.close();
         //find all the takes in the db that do not have a match in the filesystem
-        final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
-                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+//        final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
+//                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID,
+//                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TABLE_TEMP,
+//                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME,
+//                ProjectContract.TakeEntry.TAKE_FILENAME);
+
+       // select * from takes as t1
+        // left join units on (t1.unit_fk=units._id AND units.project_fk=1)
+        // left join stuff as t2 on t1.filename=t2.filename
+        // where t2.filename is null and project_fk is not null group by number
+        final String deleteDanglingReferences = String.format(
+                "SELECT t1.%s, t1.%s FROM %s AS t1 " + //t1.filename t1.timestamp from takes as t1
+                "LEFT JOIN %s ON t1.%s=%s.%s AND %s.%s=?" + //units on t1.unit_fk=units._id and units.project_fk=?
+                "LEFT JOIN %s AS t2 ON t1.%s=t2.%s " + //temp as t2 on t1.filename=t2.filename
+                "WHERE t2.%s IS NULL AND %s IS NOT NULL " + //t2.filename is null and project_fk is not null
+                "GROUP BY %s", //number
+                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK
+                ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
+                ProjectContract.TakeEntry.TAKE_NUMBER);
+
+
         c = db.rawQuery(deleteDanglingReferences, null);
         //for each of these takes that do not have a corresponding match, remove them from the database
         if (c.getCount() > 0) {
