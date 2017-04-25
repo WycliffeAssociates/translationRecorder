@@ -24,6 +24,7 @@ import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -40,7 +41,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.update(ProjectContract.ProjectEntry.TABLE_PROJECT, replaceWith, replaceTakeWhere, new String[]{String.valueOf(projectId)});
     }
 
-    public List<Project> projectsNeedingResync(List<Project> allProjects) {
+    public List<Project> projectsNeedingResync(Set<Project> allProjects) {
         List<Project> needingResync = new ArrayList<>();
         if (allProjects != null) {
             for (Project p : allProjects) {

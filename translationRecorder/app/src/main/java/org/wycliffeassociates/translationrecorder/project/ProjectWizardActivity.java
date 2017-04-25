@@ -156,26 +156,25 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         clearSearchState();
         Utils.closeKeyboard(this);
         if (mCurrentFragment == TARGET_LANGUAGE && result instanceof Language) {
-            ((Project) mProject).setTargetLanguage(((Language) result).getSlug());
+            mProject.setTargetLanguage((Language) result);
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == PROJECT && result instanceof Anthology) {
-            ((Project) mProject).setAnthology(((Anthology)result).getSlug());
+            mProject.setAnthology((Anthology)result);
             mLastFragment = mCurrentFragment;
             mCurrentFragment = mProject.getAnthologySlug().compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
             this.displayFragment();
         } else if (mCurrentFragment == BOOK && result instanceof Book) {
             Book book = (Book) result;
-            mProject.setBookNumber(book.getOrder());
-            mProject.setBookSlug(book.getSlug());
+            mProject.setBook(book);
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == SOURCE_TEXT && result instanceof Version) {
-            ((Project) mProject).setVersion(((Version)result).getSlug());
+            mProject.setVersion((Version)result);
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == MODE && result instanceof String) {
-            ((Project) mProject).setMode(((String) result).toLowerCase());
+            mProject.setMode((String) result);
             mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();

@@ -4,21 +4,21 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
 
-import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
-import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import static org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ResyncUtils.getFilesInDirectory;
 
 /**
  * Created by sarabiaj on 1/19/2017.
@@ -36,69 +36,90 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
         mFragmentManager = fm;
     }
 
-    public List<Project> getAllProjects() {
+    public Map<Project, File> getProjectDirectoriesOnFileSystem() {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
+        Map<Project, File> projectDirectories = new HashMap<>();
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        List<Project> projectList = new ArrayList<>();
         File[] langs = root.listFiles();
-        if (langs == null) {
-            return projectList;
-        }
-        for (int i = 0; i < langs.length; i++) {
-            File[] versions = langs[i].listFiles();
-            if(versions == null) {
-                continue;
-            }
-            for (int j = 0; j < versions.length; j++) {
-                File[] books = versions[j].listFiles();
-                if(books == null) {
-                    continue;
-                }
-                for (int k = 0; k < books.length; k++) {
-                    File[] chapters = books[k].listFiles();
-                    if (chapters == null) {
-                        continue;
-                    }
-                    for (int l = 0; l < chapters.length; l++) {
-                        File[] takes = chapters[l].listFiles();
-                        if (takes == null || takes.length <= 0) {
-                            continue;
-                        }
-                        //loop over all files here in the event the first wav file happens to be corrupted
-                        FileNameExtractor fne = new FileNameExtractor(takes[l]);
-                        if (fne.matched()) {
-                            try {
-                                WavFile wav = new WavFile(takes[l]);
-                                Project project = new Project(fne.getLang(), "", fne.getBookNumber(),
-                                        fne.getBook(), fne.getVersion(), ProjectFileUtils.getMode(wav), "", "", "");
-                                projectList.add(project);
-                            } catch (IllegalArgumentException e) {
-                                //don't worry about the corrupt file dialog here; the database resync will pick it up.
-                                Logger.e(this.toString(), "Corrupt File: " + takes[l].toString(), e);
+        if (langs != null) {
+            for(File lang : langs) {
+                File[] versions = lang.listFiles();
+                if (versions != null) {
+                    for(File version : versions) {
+                        File[] books = version.listFiles();
+                        if (books != null) {
+                            for(File book : books) {
+                                Project project = db.getProject(lang.getName(), version.getName(), book.getName());
+                                if(project != null) {
+                                    projectDirectories.put(project, book);
+                                }
                             }
-                            break;
                         }
                     }
                 }
             }
         }
+        return projectDirectories;
+    }
 
-        return projectList;
+    public Map<Project, File> getProjectDirectories(List<Project> projects) {
+        Map<Project, File> projectDirectories = new HashMap();
+        for (Project p : projects) {
+            projectDirectories.put(p, ProjectFileUtils.getProjectDirectory(p));
+        }
+        return projectDirectories;
+    }
+
+    public Map<Project, File> getDirectoriesMissingFromDb(Map<Project, File> fs, Map<Project, File> db) {
+        Map<Project, File> missingDirectories = new HashMap<>();
+        for(Map.Entry<Project, File> f : fs.entrySet()) {
+            if(!db.containsValue(f.getValue())) {
+                missingDirectories.put(f.getKey(), f.getValue());
+            }
+        }
+        return missingDirectories;
     }
 
     @Override
     public void run() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
-        List<Project> projects = getAllProjects();
+        Map<Project, File> directoriesOnFs = getProjectDirectoriesOnFileSystem();
         //if the number of projects doesn't match up between the filesystem and the db, OR,
         //the projects themselves don't match an id in the db, then resync everything (only resyncing
         // projects missing won't remove dangling take references in the db)
         //NOTE: removing a project only removes dangling takes, not the project itself from the db
-        if (projects.size() != db.getNumProjects() || db.projectsNeedingResync(projects).size() > 0) {
-            File projectDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/");
-            db.resyncDbWithFs(ResyncUtils.getAllTakes(projectDir), this, this);
+        if (directoriesOnFs.size() != db.getNumProjects() || db.projectsNeedingResync(directoriesOnFs.keySet()).size() > 0) {
+            fullResync(db, directoriesOnFs);
         }
         db.close();
         onTaskCompleteDelegator();
+    }
+
+    public void fullResync(ProjectDatabaseHelper db, Map<Project, File> directoriesOnFs) {
+        List<Project> projects = db.getAllProjects();
+        Map<Project, File> directoriesFromDb = getProjectDirectories(projects);
+        Map<Project, File> directoriesMissingFromFs = getDirectoriesMissingFromDb(directoriesOnFs, directoriesFromDb);
+
+        //get directories of projects
+        //check which directories are not in the list
+        //for projects with directories, get their files and resync
+        //for directories not in the list, try to find which pattern match succeeds
+        for(Map.Entry<Project, File> dir : directoriesOnFs.entrySet()) {
+            File[] chapters = dir.getValue().listFiles();
+            if(chapters != null) {
+                List<File> takes = getFilesInDirectory(chapters);
+                db.resyncDbWithFs(dir.getKey(), takes, this, this);
+            }
+        }
+        for(Map.Entry<Project, File> dir : directoriesMissingFromFs.entrySet()) {
+            File[] chapters = dir.getValue().listFiles();
+            if(chapters != null) {
+                List<File> takes = getFilesInDirectory(chapters);
+                db.resyncDbWithFs(dir.getKey(), takes, this, this);
+            }
+        }
+
+        db.close();
     }
 
     public void onCorruptFile(final File file) {

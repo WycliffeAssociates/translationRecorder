@@ -262,7 +262,7 @@ public class SourceAudioActivity extends AppCompatActivity implements Scrollable
     public void onItemClick(Object result) {
         Utils.closeKeyboard(this);
         hideSearchMenu();
-        mProject.setSourceLanguage(((Language) result).getSlug());
+        mProject.setSourceLanguage((Language) result);
         btnSourceLanguage.setText("Source Language: " + mProject.getSourceLanguageSlug());
         mSetLanguage = true;
         mFragmentManager.beginTransaction().remove((Fragment) mFragment).commit();
