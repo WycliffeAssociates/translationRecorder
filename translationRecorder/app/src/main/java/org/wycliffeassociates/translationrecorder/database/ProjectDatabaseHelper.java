@@ -1324,7 +1324,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 "WHERE t2.%s IS NULL AND %s IS NOT NULL " + //t2.filename is null and project_fk is not null
                 "GROUP BY %s", //number
                 ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE,
-                ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK
+                ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
                 ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME,
                 ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
                 ProjectContract.TakeEntry.TAKE_NUMBER);

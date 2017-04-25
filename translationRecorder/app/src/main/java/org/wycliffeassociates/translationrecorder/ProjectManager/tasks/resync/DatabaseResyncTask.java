@@ -9,7 +9,6 @@ import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
-import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 import java.io.File;
@@ -113,7 +112,14 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
         //check which directories are not in the list
         //for projects with directories, get their files and resync
         //for directories not in the list, try to find which pattern match succeeds
-        for(Map.Entry<Project, File> dir : directoriesFromDb.entrySet()) {
+        for(Map.Entry<Project, File> dir : directoriesOnFs.entrySet()) {
+            File[] chapters = dir.getValue().listFiles();
+            if(chapters != null) {
+                List<File> takes = getFilesInDirectory(chapters);
+                db.resyncDbWithFs(dir.getKey(), takes, this, this);
+            }
+        }
+        for(Map.Entry<Project, File> dir : directoriesMissingFromFs.entrySet()) {
             File[] chapters = dir.getValue().listFiles();
             if(chapters != null) {
                 List<File> takes = getFilesInDirectory(chapters);
@@ -121,8 +127,6 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
             }
         }
 
-        List<ProjectPatternMatcher> patternMatchers = db.getProjectPatternMatchers();
-        db.resyncDbWithFs(getAllTakes(), this, this);
         db.close();
         onTaskCompleteDelegator();
     }
