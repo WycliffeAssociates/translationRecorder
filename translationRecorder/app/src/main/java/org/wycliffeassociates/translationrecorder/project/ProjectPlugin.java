@@ -31,16 +31,16 @@ public class ProjectPlugin {
     String versionsPath;
 
     //groups
-    int language;
-    int version;
-    int bookNumber;
-    int book;
-    int chapter;
-    int startVerse;
-    int endVerse;
-    int take;
+    int language = -1;
+    int version = -1;
+    int bookNumber = -1;
+    int book = -1;
+    int chapter = -1;
+    int startVerse = -1;
+    int endVerse = -1;
+    int take = -1;
 
-    int mask;
+    String mask;
 
     static final int LANGUAGE = 0x1;
     static final int VERSION = 0x2;
@@ -137,33 +137,24 @@ public class ProjectPlugin {
         db.close();
     }
 
-    private int createMatchGroupMask(){
-        int mask = 0;
-        if(language > 0) {
-            mask |= LANGUAGE;
-        }
-        if(version > 0) {
-            mask |= VERSION;
-        }
-        if(bookNumber > 0){
-            mask |= BOOK_NUMBER;
-        }
-        if(book > 0) {
-            mask |= BOOK;
-        }
-        if(chapter > 0) {
-            mask |= CHAPTER;
-        }
-        if(startVerse > 0) {
-            mask |= START_VERSE;
-        }
-        if(endVerse > 0) {
-            mask |= END_VERSE;
-        }
-        if(take > 0) {
-            mask |= TAKE;
-        }
-        return mask;
+    private String createMatchGroupMask(){
+        StringBuilder mask= new StringBuilder();
+        mask.append(language);
+        mask.append(" ");
+        mask.append(version);
+        mask.append(" ");
+        mask.append(bookNumber);
+        mask.append(" ");
+        mask.append(book);
+        mask.append(" ");
+        mask.append(chapter);
+        mask.append(" ");
+        mask.append(startVerse);
+        mask.append(" ");
+        mask.append(endVerse);
+        mask.append(" ");
+        mask.append(take);
+        return mask.toString();
     }
 
     private void readPlugin(JsonReader jsonReader) throws IOException {

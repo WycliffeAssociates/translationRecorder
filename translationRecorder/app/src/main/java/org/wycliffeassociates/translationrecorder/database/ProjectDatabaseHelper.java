@@ -530,7 +530,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String query = String.format("SELECT * FROM %s", ProjectContract.AnthologyEntry.TABLE_ANTHOLOGY);
         Cursor cursor = db.rawQuery(query, null);
         List<ProjectPatternMatcher> patterns = new ArrayList<>();
-        while (cursor.moveToFirst()) {
+        while (cursor.moveToNext()) {
             String regex = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX));
             String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
             patterns.add(new ProjectPatternMatcher(regex, mask));
@@ -575,7 +575,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void addAnthology(String anthologySlug, String name, String resource, String regex, int mask) {
+    public void addAnthology(String anthologySlug, String name, String resource, String regex, String mask) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_SLUG, anthologySlug);
