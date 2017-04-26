@@ -23,7 +23,7 @@ public class ProjectFileUtils {
 
     public static File createFile(Project project, int chapter, int startVerse, int endVerse) {
         File dir = getParentDirectory(project, chapter);
-        String nameWithoutTake = getNameWithoutTake(project, chapter, startVerse, endVerse);
+        String nameWithoutTake = getFileNameFromProject(project, chapter, startVerse, endVerse);
         int take = getLargestTake(project, dir, nameWithoutTake) + 1;
         return new File(dir, nameWithoutTake + "_t" +  String.format("%02d", take) + ".wav");
     }
@@ -33,12 +33,14 @@ public class ProjectFileUtils {
         if (files == null) {
             return 0;
         }
-        int maxTake = 0;
         ProjectPatternMatcher ppm = project.getPatternMatcher();
+        ppm.match(nameWithoutTake);
+        TakeInfo baseTakeInfo = ppm.getTakeInfo();
+        int maxTake = Math.max(baseTakeInfo.getTake(), 0);
         for (File f : files) {
             ppm.match(f);
             TakeInfo ti = ppm.getTakeInfo();
-            if (nameWithoutTake.compareTo((ti.getNameWithoutTake())) == 0) {
+            if (baseTakeInfo.equals(ti)) {
                 maxTake = (maxTake < ti.getTake()) ? ti.getTake() : maxTake;
             }
         }
@@ -57,15 +59,34 @@ public class ProjectFileUtils {
         for (File f : files) {
             ppm.match(f);
             TakeInfo ti = ppm.getTakeInfo();
-            if ((takeInfo.getNameWithoutTake()).compareTo((ti.getNameWithoutTake())) == 0) {
+            if (takeInfo.equals(ti)) {
                 maxTake = (maxTake < ti.getTake()) ? ti.getTake() : maxTake;
             }
         }
         return maxTake;
     }
 
-    public static String getNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
-        return getNameWithoutTake(project, chapter, startVerse, endVerse);
+    public static String getFileNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
+        String anthology = project.getAnthologySlug();
+        String language = project.getTargetLanguageSlug();
+        String book = project.getBookSlug();
+        int bookNumber = Integer.parseInt(project.getBookNumber());
+        String version = project.getVersionSlug();
+        if (anthology != null && anthology.compareTo("obs") == 0) {
+            return language + "_obs_c" + String.format("%02d", chapter) + "_v" + String.format("%02d", startVerse);
+        } else {
+            String name;
+            String end = (endVerse != -1 && startVerse != endVerse) ? String.format("-%02d", endVerse) : "";
+            if (book.compareTo("psa") == 0 && chapter != 119) {
+                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + String.format("%03d", chapter) + "_v" + String.format("%02d", startVerse) + end;
+            } else if (book.compareTo("psa") == 0) {
+                end = (endVerse != -1) ? String.format("-%03d", endVerse) : "";
+                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%03d", startVerse) + end;
+            } else {
+                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%02d", startVerse) + end;
+            }
+            return name;
+        }
     }
 
     public static File getParentDirectory(TakeInfo takeInfo){
@@ -169,35 +190,35 @@ public class ProjectFileUtils {
 //        }
 //    }
 
-    public static String getNameWithoutTake(Project project, String name) {
-        ProjectPatternMatcher ppm = project.getPatternMatcher();
-        ppm.match(name);
-        TakeInfo takeInfo = ppm.getTakeInfo();
-        return takeInfo.getNameWithoutTake();
-    }
+//    public static String getNameWithoutTake(Project project, String name) {
+//        ProjectPatternMatcher ppm = project.getPatternMatcher();
+//        ppm.match(name);
+//        TakeInfo takeInfo = ppm.getTakeInfo();
+//        return takeInfo.getNameWithoutTake();
+//    }
 
-    public static String getNameWithoutTake(Project project, int mChapter, int mStartVerse, int mEndVerse) {
-        String anthology = project.getAnthologySlug();
-        String language = project.getTargetLanguageSlug();
-        String book = project.getBookSlug();
-        int bookNumber = Integer.parseInt(project.getBookNumber());
-        String version = project.getVersionSlug();
-        if (anthology != null && anthology.compareTo("obs") == 0) {
-            return language + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
-        } else {
-            String name;
-            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
-            if (book.compareTo("psa") == 0 && mChapter != 119) {
-                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + String.format("%03d", mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-            } else if (book.compareTo("psa") == 0) {
-                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
-                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, mChapter) + "_v" + String.format("%03d", mStartVerse) + end;
-            } else {
-                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-            }
-            return name;
-        }
-    }
+//    public static String getNameWithoutTake(Project project, int mChapter, int mStartVerse, int mEndVerse) {
+//        String anthology = project.getAnthologySlug();
+//        String language = project.getTargetLanguageSlug();
+//        String book = project.getBookSlug();
+//        int bookNumber = Integer.parseInt(project.getBookNumber());
+//        String version = project.getVersionSlug();
+//        if (anthology != null && anthology.compareTo("obs") == 0) {
+//            return language + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
+//        } else {
+//            String name;
+//            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
+//            if (book.compareTo("psa") == 0 && mChapter != 119) {
+//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + String.format("%03d", mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
+//            } else if (book.compareTo("psa") == 0) {
+//                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
+//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, mChapter) + "_v" + String.format("%03d", mStartVerse) + end;
+//            } else {
+//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
+//            }
+//            return name;
+//        }
+//    }
 
     public static String getNameWithoutExtention(File file) {
         String name = file.getName();
@@ -205,6 +226,14 @@ public class ProjectFileUtils {
             name = name.replace(".wav", "");
         }
         return name;
+    }
+
+    public static String getNameWithoutTake(File file){
+        return getNameWithoutTake(file.getName());
+    }
+
+    public static String getNameWithoutTake(String file){
+        return file.split("(_t([\\d]{2}))?(.wav)?$")[0];
     }
 
     //Extracts the identifiable section of a filename for source audio

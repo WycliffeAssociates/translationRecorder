@@ -10,14 +10,12 @@ import android.os.Parcelable;
 public class ProjectSlugs implements Parcelable {
 
     final String language;
-    final String anthology;
     final String version;
     final int bookNumber;
     final String book;
 
-    public ProjectSlugs(String language, String anthology, String version, int bookNumber, String book) {
+    public ProjectSlugs(String language, String version, int bookNumber, String book) {
         this.language = language;
-        this.anthology = anthology;
         this.version = version;
         this.bookNumber = bookNumber;
         this.book = book;
@@ -25,10 +23,6 @@ public class ProjectSlugs implements Parcelable {
 
     public String getLanguage() {
         return language;
-    }
-
-    public String getAnthology() {
-        return anthology;
     }
 
     public String getVersion() {
@@ -51,7 +45,6 @@ public class ProjectSlugs implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(language);
-        dest.writeString(anthology);
         dest.writeString(book);
         dest.writeString(version);
         dest.writeInt(bookNumber);
@@ -69,9 +62,25 @@ public class ProjectSlugs implements Parcelable {
 
     public ProjectSlugs(Parcel in) {
         language = in.readString();
-        anthology = in.readString();
         book = in.readString();
         version = in.readString();
         bookNumber = in.readInt();
+    }
+
+    @Override
+    public boolean equals(Object slugs){
+        if(slugs == null) {
+            return false;
+        }
+        if(!(slugs instanceof ProjectSlugs)) {
+            return false;
+        } else {
+            return (
+                    getVersion().equals(((ProjectSlugs) slugs).getVersion())
+                    && getBook().equals(((ProjectSlugs) slugs).getBook())
+                    && getBookNumber() == ((ProjectSlugs) slugs).getBookNumber()
+                    && getLanguage().equals(((ProjectSlugs) slugs).getLanguage())
+            );
+        }
     }
 }

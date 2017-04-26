@@ -172,7 +172,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         mFragmentPlaybackTools = FragmentPlaybackTools.newInstance();
         mFragmentContainerMapping.put(R.id.playback_tools_fragment_holder, mFragmentPlaybackTools);
 
-        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, ProjectFileUtils.getNameWithoutTake(mProject, mWavFile.getFile().getName()), mChapter);
+        mFragmentTabbedWidget = FragmentTabbedWidget.newInstance(mMarkerMediator, mProject, ProjectFileUtils.getNameWithoutTake(mWavFile.getFile().getName()), mChapter);
         mFragmentContainerMapping.put(R.id.tabbed_widget_fragment_holder, mFragmentTabbedWidget);
 
         mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguageSlug(),
@@ -501,7 +501,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
         ppm.match(from);
         TakeInfo takeInfo = ppm.getTakeInfo();
-        File to = new File(dir, takeInfo.getNameWithoutTake() + "_t" + take + AUDIO_RECORDER_FILE_EXT_WAV);
+        File to = new File(dir, ProjectFileUtils.getNameWithoutTake(from) + "_t" + take + AUDIO_RECORDER_FILE_EXT_WAV);
         writeCutToFile(to, mWavFile, intent);
     }
 

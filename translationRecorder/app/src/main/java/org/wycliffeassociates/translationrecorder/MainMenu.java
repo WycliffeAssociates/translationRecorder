@@ -310,7 +310,8 @@ public class MainMenu extends Activity {
             boolean found = false;
             ProjectSlugs slugs = takeInfo.getProjectSlugs();
             String path = rootPath + "/" + slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + String.format("%02d", takeInfo.getChapter());
-            String name = takeInfo.getNameWithoutTake() + "_t" + String.format("%02d", takeInfo.getTake()) + ".wav";
+            String visFileWithoutExtension = v.getName().split(".vis$")[0];
+            String name = visFileWithoutExtension + "_t" + String.format("%02d", takeInfo.getTake()) + ".wav";
             File searchName = new File(path, name);
             if (searchName != null && searchName.exists()) {
                 //check if the names match up; exclude the path to get to them or the file extention

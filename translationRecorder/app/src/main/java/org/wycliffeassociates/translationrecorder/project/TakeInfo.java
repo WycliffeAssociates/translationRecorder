@@ -59,23 +59,23 @@ public class TakeInfo implements Parcelable {
         return mEndVerse;
     }
 
-    public String getNameWithoutTake() {
-        if (mSlugs.anthology != null && mSlugs.anthology.compareTo("obs") == 0) {
-            return mSlugs.language + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
-        } else {
-            String name;
-            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
-            if (mSlugs.book.compareTo("psa") == 0 && mChapter != 119) {
-                name = mSlugs.language + "_" + mSlugs.version + "_b" + String.format("%02d", mSlugs.bookNumber) + "_" + mSlugs.book + "_c" + String.format("%03d", mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-            } else if (mSlugs.book.compareTo("psa") == 0) {
-                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
-                name = mSlugs.language + "_" + mSlugs.version + "_b" + String.format("%02d", mSlugs.bookNumber) + "_" + mSlugs.book + "_c" + ProjectFileUtils.chapterIntToString(mSlugs.book, mChapter) + "_v" + String.format("%03d", mStartVerse) + end;
-            } else {
-                name = mSlugs.language + "_" + mSlugs.version + "_b" + String.format("%02d", mSlugs.bookNumber) + "_" + mSlugs.book + "_c" + ProjectFileUtils.chapterIntToString(mSlugs.book, mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-            }
-            return name;
-        }
-    }
+//    public String getNameWithoutTake() {
+//        if (mSlugs.anthology != null && mSlugs.anthology.compareTo("obs") == 0) {
+//            return mSlugs.language + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
+//        } else {
+//            String name;
+//            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
+//            if (mSlugs.book.compareTo("psa") == 0 && mChapter != 119) {
+//                name = mSlugs.language + "_" + mSlugs.version + "_b" + String.format("%02d", mSlugs.bookNumber) + "_" + mSlugs.book + "_c" + String.format("%03d", mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
+//            } else if (mSlugs.book.compareTo("psa") == 0) {
+//                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
+//                name = mSlugs.language + "_" + mSlugs.version + "_b" + String.format("%02d", mSlugs.bookNumber) + "_" + mSlugs.book + "_c" + ProjectFileUtils.chapterIntToString(mSlugs.book, mChapter) + "_v" + String.format("%03d", mStartVerse) + end;
+//            } else {
+//                name = mSlugs.language + "_" + mSlugs.version + "_b" + String.format("%02d", mSlugs.bookNumber) + "_" + mSlugs.book + "_c" + ProjectFileUtils.chapterIntToString(mSlugs.book, mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
+//            }
+//            return name;
+//        }
+//    }
 
     @Override
     public int describeContents() {
@@ -107,5 +107,21 @@ public class TakeInfo implements Parcelable {
         mStartVerse = in.readInt();
         mEndVerse = in.readInt();
         mTake = in.readInt();
+    }
+
+    @Override
+    public boolean equals(Object takeInfo){
+        if(takeInfo == null) {
+            return false;
+        }
+        if(!(takeInfo instanceof TakeInfo)) {
+            return false;
+        } else {
+            return (getProjectSlugs().equals(((TakeInfo) takeInfo).getProjectSlugs())
+                    && getChapter() == ((TakeInfo) takeInfo).getChapter()
+                    && getStartVerse() == ((TakeInfo) takeInfo).getStartVerse()
+                    && getEndVerse() == ((TakeInfo) takeInfo).getEndVerse()
+                    && getTake() == ((TakeInfo) takeInfo).getTake());
+        }
     }
 }
