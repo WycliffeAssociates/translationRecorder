@@ -23,6 +23,18 @@ public class TakeInfo implements Parcelable {
         mTake = take;
     }
 
+    public TakeInfo(ProjectSlugs slugs, String chapter, String startVerse, String endVerse, String take) {
+        mSlugs = slugs;
+        mChapter = Integer.parseInt(chapter);
+        mStartVerse = Integer.parseInt(startVerse);
+        if(endVerse != null) {
+            mEndVerse = Integer.parseInt(endVerse);
+        } else {
+            mEndVerse = -1;
+        }
+        mTake = Integer.parseInt(take);
+    }
+
     public ProjectSlugs getProjectSlugs() {
         return mSlugs;
     }

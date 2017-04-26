@@ -69,10 +69,9 @@ public class ProjectPatternMatcher {
                         values[i] = "";
                     }
                 }
-                mProjectSlugs = new ProjectSlugs(values[0], values[1], values[2], Integer.parseInt(values[3]), values[4]);
+                mProjectSlugs = new ProjectSlugs(values[0], "ot", values[1], Integer.parseInt(values[2]), values[3]);
 
-                mTakeInfo = new TakeInfo(mProjectSlugs, Integer.parseInt(values[5]), Integer.parseInt(values[6]),
-                        Integer.parseInt(values[7]), Integer.parseInt(values[8]));
+                mTakeInfo = new TakeInfo(mProjectSlugs, values[4], values[5], values[6], values[7]);
 
             } else {
                 mMatched = false;

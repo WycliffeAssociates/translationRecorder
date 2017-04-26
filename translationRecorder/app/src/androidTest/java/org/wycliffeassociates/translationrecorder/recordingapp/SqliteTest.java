@@ -1,3 +1,4 @@
+/*
 package org.wycliffeassociates.translationrecorder.recordingapp;
 
 import android.app.Activity;
@@ -18,9 +19,11 @@ import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 
 import static junit.framework.Assert.assertEquals;
 
+*/
 /**
  * Created by sarabiaj on 5/11/2016.
- */
+ *//*
+
 public class SqliteTest {
 
     ProjectDatabaseHelper mDb;
@@ -115,3 +118,4 @@ public class SqliteTest {
         }
     }
 }
+*/

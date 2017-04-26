@@ -1,3 +1,4 @@
+/*
 package org.wycliffeassociates.translationrecorder.recordingapp;
 
 import android.os.Bundle;
@@ -148,3 +149,4 @@ public class MetadataTest {
 }
 
 
+*/
