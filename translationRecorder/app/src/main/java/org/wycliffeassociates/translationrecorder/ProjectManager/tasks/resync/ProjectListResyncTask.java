@@ -10,6 +10,7 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
+import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
 import java.util.HashMap;
@@ -52,6 +53,27 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                 Project project = db.getProject(lang.getName(), version.getName(), book.getName());
                                 if(project != null) {
                                     projectDirectories.put(project, book);
+                                } else {
+                                    File[] chapters = book.listFiles();
+                                    String mode = null;
+                                    if(chapters != null) {
+                                        for(File chapter : chapters) {
+                                            File[] c = chapter.listFiles();
+                                            if(c != null && c.length > 1) {
+                                                WavFile wav = new WavFile(c[0]);
+                                                mode = wav.getMetadata().getMode();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if(chapters != null && mode != null) {
+                                        int languageId = db.getLanguageId(lang.getName());
+                                        int bookId = db.getBookId(book.getName());
+                                        int anthologyId = db.getLanguageId(lang.getName());
+                                        int versionId = db.getVersionId(version.getName());
+                                        project = new Project(db.getLanguage(languageId), db.getAnthology(anthologyId), db.getBook(bookId), db.getVersion(versionId), mode);
+                                        projectDirectories.put(project, book);
+                                    }
                                 }
                             }
                         }
