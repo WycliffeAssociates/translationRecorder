@@ -41,7 +41,7 @@ public class Project implements Parcelable {
         mBook = book;
         mVersion = version;
         mMode = mode;
-        mProjectPatternMatcher = new ProjectPatternMatcher(mAnthology.getRegex(), mAnthology.getMask());
+        mProjectPatternMatcher = new ProjectPatternMatcher(mAnthology.getRegex(), mAnthology.getMatchGroups());
     }
 
     public Project(Language target, Anthology anthology, Book book, Version version, String mode, String sourceAudioPath) {
@@ -168,8 +168,13 @@ public class Project implements Parcelable {
         dest.writeParcelable(mVersion, flags);
         dest.writeString(mMode);
         dest.writeParcelable(mAnthology, flags);
-        dest.writeString(mProjectPatternMatcher.getRegex());
-        dest.writeString(mProjectPatternMatcher.getGroups());
+        if (mProjectPatternMatcher != null) {
+            dest.writeString(mProjectPatternMatcher.getRegex());
+            dest.writeString(mProjectPatternMatcher.getGroups());
+        } else {
+            dest.writeString(mAnthology.getRegex());
+            dest.writeString(mAnthology.getMatchGroups());
+        }
         dest.writeString(mContributors);
         dest.writeString(mSourceAudioPath);
     }

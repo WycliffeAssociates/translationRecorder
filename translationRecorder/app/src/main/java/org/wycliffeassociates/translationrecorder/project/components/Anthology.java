@@ -13,13 +13,13 @@ public class Anthology extends ProjectComponent implements Parcelable {
 
     private String mResource;
     private String mRegex;
-    private String mMask;
+    private String mGroups;
 
     public Anthology(String slug, String name, String resource, String regex, String mask) {
         super(slug, name);
         mResource = resource;
         mRegex = regex;
-        mMask = mask;
+        mGroups = mask;
     }
 
     public String getResource(){
@@ -30,8 +30,8 @@ public class Anthology extends ProjectComponent implements Parcelable {
         return mRegex;
     }
 
-    public String getMask(){
-        return mMask;
+    public String getMatchGroups(){
+        return mGroups;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class Anthology extends ProjectComponent implements Parcelable {
         dest.writeString(mName);
         dest.writeString(mResource);
         dest.writeString(mRegex);
-        dest.writeString(mMask);
+        dest.writeString(mGroups);
     }
 
     public static final Parcelable.Creator<Anthology> CREATOR = new Parcelable.Creator<Anthology>() {
@@ -74,6 +74,6 @@ public class Anthology extends ProjectComponent implements Parcelable {
         super(in);
         mResource = in.readString();
         mRegex = in.readString();
-        mMask = in.readString();
+        mGroups = in.readString();
     }
 }

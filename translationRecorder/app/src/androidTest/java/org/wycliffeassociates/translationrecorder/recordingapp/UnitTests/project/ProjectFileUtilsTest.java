@@ -60,6 +60,17 @@ public class ProjectFileUtilsTest {
         assertEquals(expected, name);
     }
 
+    @Test
+    public void testGetParentDirectory(){
+        String name = ProjectFileUtils.getFileNameFromProject(project, 1, 1, 2);
+        String expected = "en_ulb_b01_gen_c01_v01-02_t01.wav";
+        TakeInfo ti = new TakeInfo(project.getProjectSlugs(), 1, 1, 2, 1);
+        ProjectFileUtils.getParentDirectory()
+        assertEquals(expected, name);
 
+        String name2 = ProjectFileUtils.getFileNameFromProject(project, 1, 1, -1);
+        String expected2 = "en_ulb_b01_gen_c01_v01";
+        assertEquals(expected, name);
+    }
 
 }
