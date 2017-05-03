@@ -32,7 +32,11 @@ public class TakeInfo implements Parcelable {
         } else {
             mEndVerse = -1;
         }
-        mTake = Integer.parseInt(take);
+        if(take != null) {
+            mTake = Integer.parseInt(take);
+        } else {
+            mTake = 0;
+        }
     }
 
     public ProjectSlugs getProjectSlugs() {
@@ -109,19 +113,33 @@ public class TakeInfo implements Parcelable {
         mTake = in.readInt();
     }
 
-    @Override
-    public boolean equals(Object takeInfo){
+//    @Override
+//    public boolean equals(Object takeInfo){
+//        if(takeInfo == null) {
+//            return false;
+//        }
+//        if(!(takeInfo instanceof TakeInfo)) {
+//            return false;
+//        } else {
+//            return (getProjectSlugs().equals(((TakeInfo) takeInfo).getProjectSlugs())
+//                    && getChapter() == ((TakeInfo) takeInfo).getChapter()
+//                    && getStartVerse() == ((TakeInfo) takeInfo).getStartVerse()
+//                    && getEndVerse() == ((TakeInfo) takeInfo).getEndVerse()
+//                    && getTake() == ((TakeInfo) takeInfo).getTake());
+//        }
+//    }
+
+    public boolean equalBaseInfo(TakeInfo takeInfo) {
         if(takeInfo == null) {
             return false;
         }
         if(!(takeInfo instanceof TakeInfo)) {
             return false;
         } else {
-            return (getProjectSlugs().equals(((TakeInfo) takeInfo).getProjectSlugs())
-                    && getChapter() == ((TakeInfo) takeInfo).getChapter()
-                    && getStartVerse() == ((TakeInfo) takeInfo).getStartVerse()
-                    && getEndVerse() == ((TakeInfo) takeInfo).getEndVerse()
-                    && getTake() == ((TakeInfo) takeInfo).getTake());
+            return (getProjectSlugs().equals(takeInfo.getProjectSlugs())
+                    && getChapter() == takeInfo.getChapter()
+                    && getStartVerse() == takeInfo.getStartVerse()
+                    && getEndVerse() == takeInfo.getEndVerse());
         }
     }
 }
