@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
@@ -50,19 +51,28 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                         File[] books = version.listFiles();
                         if (books != null) {
                             for(File book : books) {
+                                //get the project from the database if it exists
                                 Project project = db.getProject(lang.getName(), version.getName(), book.getName());
                                 if(project != null) {
                                     projectDirectories.put(project, book);
-                                } else {
+                                } else { //otherwise derive the project from the filename
                                     File[] chapters = book.listFiles();
                                     String mode = null;
                                     if(chapters != null) {
                                         for(File chapter : chapters) {
                                             File[] c = chapter.listFiles();
                                             if(c != null && c.length > 1) {
-                                                WavFile wav = new WavFile(c[0]);
-                                                mode = wav.getMetadata().getMode();
-                                                break;
+                                                for (int i = 0; i < c.length; i++) {
+                                                    try {
+                                                        WavFile wav = new WavFile(c[i]);
+                                                        mode = wav.getMetadata().getMode();
+                                                    } catch (IllegalArgumentException e) {
+                                                        //don't worry about the corrupt file dialog here; the database resync will pick it up.
+                                                        Logger.e(this.toString(), c[i].getName(), e);
+                                                        continue;
+                                                    }
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
