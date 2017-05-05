@@ -517,6 +517,7 @@ public class UnitCard {
                     pauseAudio();
                     String name = takes.get(mTakeIndex).getName();
                     ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+                    ppm.match(name);
                     TakeInfo takeInfo = ppm.getTakeInfo();
                     RatingDialog dialog = RatingDialog.newInstance(takeInfo, mCurrentTakeRating);
                     dialog.show(mCtx.getFragmentManager(), "single_take_rating");
