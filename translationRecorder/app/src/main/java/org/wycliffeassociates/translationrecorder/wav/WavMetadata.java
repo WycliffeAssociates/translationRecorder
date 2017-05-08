@@ -47,7 +47,7 @@ public class WavMetadata implements Parcelable {
         mVersion = p.getVersionSlug();
         mSlug = p.getBookSlug();
         mBookNumber = p.getBookNumber();
-        mMode = p.getMode();
+        mMode = p.getMode().toLowerCase();
         mChapter = chapter;
         mStartVerse = startVerse;
         mEndVerse = endVerse;
@@ -286,7 +286,7 @@ public class WavMetadata implements Parcelable {
             }
             mMode = "";
             if (json.has("mode")) {
-                mMode = json.getString("mode");
+                mMode = json.getString("mode").toLowerCase();
             }
             mChapter = "";
             if (json.has("chapter")) {

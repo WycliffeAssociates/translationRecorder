@@ -174,7 +174,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == MODE && result instanceof String) {
-            mProject.setMode((String) result);
+            mProject.setMode(((String) result).toLowerCase());
             mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
