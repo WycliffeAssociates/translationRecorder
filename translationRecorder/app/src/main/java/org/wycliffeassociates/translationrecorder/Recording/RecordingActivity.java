@@ -296,7 +296,7 @@ public class RecordingActivity extends AppCompatActivity implements
         if (mInsertMode) {
             finalizeInsert(mLoadedWav, mNewRecording, mInsertLocation);
         } else {
-            Intent intent = PlaybackActivity.getPlaybackIntent(this, mNewRecording, mProject, mChapter, mUnit);
+            Intent intent = PlaybackActivity.getPlaybackIntent(this, mNewRecording, mProject, mFragmentRecordingFileBar.getChapter(), mFragmentRecordingFileBar.getUnit());
             startActivity(intent);
             this.finish();
         }

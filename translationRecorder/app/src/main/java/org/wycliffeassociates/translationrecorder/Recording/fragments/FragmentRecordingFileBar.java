@@ -91,6 +91,14 @@ public class FragmentRecordingFileBar extends Fragment {
         mOnUnitChangedListener = null;
     }
 
+    public int getUnit() {
+        return mUnit;
+    }
+
+    public int getChapter() {
+        return mChapter;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
