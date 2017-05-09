@@ -60,7 +60,7 @@ public class FragmentRecordingFileBar extends Fragment {
         void onUnitChanged(Project project, String fileName, int chapter);
     }
 
-    public static FragmentRecordingFileBar newInstance(Project project, int chapter, int unit, FragmentRecordingControls.Mode mode, boolean unitIsChunks){
+    public static FragmentRecordingFileBar newInstance(Project project, int chapter, int unit, FragmentRecordingControls.Mode mode, boolean unitIsChunks) {
         FragmentRecordingFileBar f = new FragmentRecordingFileBar();
         Bundle args = new Bundle();
         args.putParcelable(KEY_PROJECT, project);
@@ -79,8 +79,8 @@ public class FragmentRecordingFileBar extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if( activity instanceof OnUnitChangedListener) {
-            mOnUnitChangedListener = (OnUnitChangedListener)activity;
+        if (activity instanceof OnUnitChangedListener) {
+            mOnUnitChangedListener = (OnUnitChangedListener) activity;
         } else {
             throw new RuntimeException("Attemped to attach activity which does not implement OnUnitChangedListener");
         }
@@ -108,7 +108,7 @@ public class FragmentRecordingFileBar extends Fragment {
         initializeViews();
         try {
             initializePickers();
-            if(mMode == FragmentRecordingControls.Mode.INSERT_MODE) {
+            if (mMode == FragmentRecordingControls.Mode.INSERT_MODE) {
                 disablePickers();
             }
         } catch (IOException e) {
@@ -136,7 +136,7 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void initializeViews() {
         //Logging to help track issue #669
-        if(mProject.getSlug().equals("")) {
+        if (mProject.getSlug().equals("")) {
             Logger.e(this.toString(), "Project book is empty string " + mProject);
         }
 
@@ -281,7 +281,15 @@ public class FragmentRecordingFileBar extends Fragment {
         return mEndVerse;
     }
 
-    public void disablePickers(){
+    public int getUnit() {
+        return mUnit;
+    }
+
+    public int getChapter() {
+        return mChapter;
+    }
+
+    public void disablePickers() {
         mUnitPicker.displayIncrementDecrement(false);
         mChapterPicker.displayIncrementDecrement(false);
     }
