@@ -520,7 +520,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
             anthology = new Anthology(anthologySlug, anthologyName, resourceSlug, regex, mask);
         } else {
-            throw new IllegalArgumentException("Version id not found in database.");
+            throw new IllegalArgumentException("Anthology id " + id + " not found in database.");
         }
         return anthology;
     }

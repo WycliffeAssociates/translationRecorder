@@ -10,6 +10,7 @@ import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
@@ -48,15 +49,15 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                 File[] versions = lang.listFiles();
                 if (versions != null) {
                     for(File version : versions) {
-                        File[] books = version.listFiles();
-                        if (books != null) {
-                            for(File book : books) {
+                        File[] bookDirs = version.listFiles();
+                        if (bookDirs != null) {
+                            for(File bookDir : bookDirs) {
                                 //get the project from the database if it exists
-                                Project project = db.getProject(lang.getName(), version.getName(), book.getName());
+                                Project project = db.getProject(lang.getName(), version.getName(), bookDir.getName());
                                 if(project != null) {
-                                    projectDirectories.put(project, book);
+                                    projectDirectories.put(project, bookDir);
                                 } else { //otherwise derive the project from the filename
-                                    File[] chapters = book.listFiles();
+                                    File[] chapters = bookDir.listFiles();
                                     String mode = null;
                                     if(chapters != null) {
                                         for(File chapter : chapters) {
@@ -78,11 +79,12 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                     }
                                     if(chapters != null && mode != null) {
                                         int languageId = db.getLanguageId(lang.getName());
-                                        int bookId = db.getBookId(book.getName());
-                                        int anthologyId = db.getLanguageId(lang.getName());
+                                        int bookId = db.getBookId(bookDir.getName());
+                                        Book book = db.getBook(bookId);
+                                        int anthologyId = db.getAnthologyId(book.getAnthology());
                                         int versionId = db.getVersionId(version.getName());
-                                        project = new Project(db.getLanguage(languageId), db.getAnthology(anthologyId), db.getBook(bookId), db.getVersion(versionId), mode);
-                                        projectDirectories.put(project, book);
+                                        project = new Project(db.getLanguage(languageId), db.getAnthology(anthologyId), book, db.getVersion(versionId), mode);
+                                        projectDirectories.put(project, bookDir);
                                     }
                                 }
                             }
