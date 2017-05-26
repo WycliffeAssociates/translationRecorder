@@ -32,6 +32,18 @@ public class Project implements Parcelable {
     String mBookNumber;
     String mSourceAudioPath;
 
+    public boolean equals(Project p) {
+        if (p != null) {
+            if (mTargetLanguage != null && mTargetLanguage.equals(p.getTargetLanguage())
+                    && mSlug != null && mSlug.equals(p.getSlug())
+                    && mVersion != null && mVersion.equals(p.getVersion())
+                    && mMode != null && mMode.equals(p.getMode())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Project() {
     }
 
@@ -67,7 +79,7 @@ public class Project implements Parcelable {
         return project;
     }
 
-    private static String getContributorsFromJson(String jsonString){
+    private static String getContributorsFromJson(String jsonString) {
         try {
             JSONObject json = new JSONObject(jsonString);
             return json.getString("full_name");
@@ -79,7 +91,7 @@ public class Project implements Parcelable {
     public static void loadProjectIntoPreferences(Context ctx, Project project) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        if(db.projectExists(project)) {
+        if (db.projectExists(project)) {
             int projectId = db.getProjectId(project);
             pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();
         }
