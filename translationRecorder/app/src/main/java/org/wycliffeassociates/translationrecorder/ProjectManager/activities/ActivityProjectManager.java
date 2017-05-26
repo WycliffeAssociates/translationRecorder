@@ -22,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
@@ -32,7 +34,6 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSou
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -265,7 +266,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             Logger.e(this.toString(), "Project " + project + " does not exist");
         }
         int projectId = db.getProjectId(project);
-        pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId);
+        pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();
 
         //FIXME: find the last place worked on?
         pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
