@@ -244,6 +244,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if (recent != null) {
             for (int i = 0; i < projects.size(); i++) {
                 if (recent.equals(projects.get(i))) {
+                    projects.remove(i);
                     break;
                 }
             }
@@ -360,9 +361,11 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                             Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguage()
                                     + " book " + project.getSlug() + " version "
                                     + project.getVersion() + " mode " + project.getMode());
+                            if(project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
+                                removeProjectFromPreferences();
+                            }
                             Project.deleteProject(ActivityProjectManager.this, project);
                             hideProjectsIfEmpty(mAdapter.getCount());
-                            removeProjectFromPreferences();
                             mNumProjects--;
                             initializeViews();
                         }
