@@ -1,0 +1,21 @@
+{
+    "resource": "bible_stories",
+    "anthology": {
+        "slug": "obs",
+        "name": "open bible stories",
+        "parser": {
+            "regex": "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_obs_c([\\d]{2,3})_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?",
+            "groups": {
+                "language": 1,
+                "book": 2,
+                "chapter": 3,
+                "start_verse": 4,
+                "end_verse": 6,
+                "take": 8
+            }
+        }
+    },
+    "books": "OBSBooks.json",
+    "chunks": "obsChunks/",
+    "versions": "obsVersions.json"
+}
