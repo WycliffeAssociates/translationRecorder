@@ -4,17 +4,15 @@
 
 import json
 import urllib.request
+import os
 
 # import re
-
 # {"firstvs": "27", "id": "18-27", "lastvs": "29"}
-
 # {"slug": "gen", "num": 1, "anth": "ot", "name": "Genesis"}
 
-response_obs = \
-    urllib.request.urlopen('https://api.unfoldingword.org/obs/txt/1/en/obs-en.json'
-                           )
-obs = json.loads(response_obs.read().decode('utf-8'))
+RESPONSE_OBS = urllib.request.urlopen(
+    'https://api.unfoldingword.org/obs/txt/1/en/obs-en.json')
+obs = json.loads(RESPONSE_OBS.read().decode('utf-8'))
 num_chunks = []
 books = []
 for x in range(50):
@@ -22,12 +20,13 @@ for x in range(50):
     chunks = []
     for i in range(size):
         chunk = {}
-        chunk['firstvs'] = str(x + 1)
-		print(obs['chapters'][x]['frames']['id'])
-        chunk['id'] = obs['chapters'][x]['frames']['id']
-        chunk['lastvs'] = str(x + 1)
+        chunk['firstvs'] = str(i + 1)
+        print(obs['chapters'][x]['frames'][i]['id'])
+        chunk['id'] = obs['chapters'][x]['frames'][i]['id']
+        chunk['lastvs'] = str(i + 1)
         chunks.append(chunk)
         num_chunks.append(size)
+    os.mkdir(str(x+1))
     with open(str(x + 1) + '/chunks.json', 'w') as outfile:
         json.dump(chunks, outfile)
     book = {}
@@ -36,6 +35,8 @@ for x in range(50):
     book['anth'] = 'obs'
     book['name'] = obs['chapters'][x]['title']
     books.append(book)
-
-with open(str(x + 1) + '/chunks.json', 'w') as outfile:
-    json.dump(books, outfile)
+try:
+    with open('books.json', 'w') as outfile:
+        json.dump(books, outfile)
+except FileNotFoundError:
+    print("error")
