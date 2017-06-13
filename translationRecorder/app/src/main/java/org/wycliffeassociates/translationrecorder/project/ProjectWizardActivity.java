@@ -162,7 +162,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         } else if (mCurrentFragment == PROJECT && result instanceof Anthology) {
             mProject.setAnthology((Anthology)result);
             mLastFragment = mCurrentFragment;
-            mCurrentFragment = mProject.getAnthologySlug().compareTo("obs") == 0 ? SOURCE_LANGUAGE : BOOK;
+            mCurrentFragment = mProject.getAnthologySlug().compareTo("hjklhjkhkl") == 0 ? SOURCE_LANGUAGE : BOOK;
             this.displayFragment();
         } else if (mCurrentFragment == BOOK && result instanceof Book) {
             Book book = (Book) result;

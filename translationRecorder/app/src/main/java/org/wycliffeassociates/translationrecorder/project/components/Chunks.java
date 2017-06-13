@@ -29,16 +29,17 @@ public class Chunks {
     public static String FIRST_VERSE = "firstvs";
     public static String LAST_VERSE = "lastvs";
 
-    public Chunks(Context ctx, String slug) throws IOException{
-        parseChunksJSON(ctx, slug);
+    public Chunks(Context ctx, Project project) throws IOException{
+        parseChunksJSON(ctx, project);
         generateChunks(mParsedChunks);
         generateVerses();
     }
 
-    private void parseChunksJSON(Context ctx, String slug) throws IOException{
+    private void parseChunksJSON(Context ctx, Project project) throws IOException{
         Gson gson = new Gson();
         Type type = new TypeToken<ArrayList<Map<String, String>>>(){}.getType();
-        String filename = "chunks/" + slug + "/en/" + "ulb" + "/chunks.json";
+        String filename = "chunks/" + project.getAnthologySlug() + "/" + project.getBookSlug() + "/chunks.json";
+        //String filename = "chunks/" + slug + "/en/" + "ulb" + "/chunks.json";
         InputStream is = ctx.getAssets().open(filename);
         InputStreamReader isr = new InputStreamReader(is);
         JsonReader json = new JsonReader(isr);

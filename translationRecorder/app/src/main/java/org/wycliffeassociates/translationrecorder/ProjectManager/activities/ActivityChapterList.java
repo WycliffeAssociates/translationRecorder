@@ -92,7 +92,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         }
 
         try {
-            mChunks = new Chunks(this, mProject.getBookSlug());
+            mChunks = new Chunks(this, mProject);
         } catch (Exception e) {
 
         }

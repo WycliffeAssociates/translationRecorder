@@ -167,13 +167,10 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void initializePickers() throws IOException {
-        if (mProject.isOBS()) {
-            //mNumChapters = OBS_SIZE;
-        } else {
-            mChunks = new Chunks(getActivity(), mProject.getBookSlug());
+
+            mChunks = new Chunks(getActivity(), mProject);
             mNumChapters = mChunks.getNumChapters();
             mChunksList = mChunks.getChunks(mProject, mChapter);
-        }
         initializeUnitPicker();
         initializeChapterPicker();
     }
