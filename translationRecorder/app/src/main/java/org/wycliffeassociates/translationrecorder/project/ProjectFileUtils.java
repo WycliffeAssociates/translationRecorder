@@ -67,6 +67,11 @@ public class ProjectFileUtils {
     }
 
     public static String getFileNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
+        String fileConvention = project.getFileConvention();
+        String[] categories = new String[];
+
+
+
         String anthology = project.getAnthologySlug();
         String language = project.getTargetLanguageSlug();
         String book = project.getBookSlug();

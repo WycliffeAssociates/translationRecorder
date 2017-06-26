@@ -91,6 +91,10 @@ public class Project implements Parcelable {
         return (mBook == null) ? "" : mBook.getSlug();
     }
 
+    public String getBookName() {
+        return (mBook == null) ? "" : mBook.getName();
+    }
+
     public String getVersionSlug() {
         return (mVersion == null) ? "" : mVersion.getSlug();
     }

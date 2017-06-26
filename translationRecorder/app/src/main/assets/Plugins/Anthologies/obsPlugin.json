@@ -3,8 +3,9 @@
     "anthology": {
         "slug": "obs",
         "name": "open bible stories",
+        "file_convention": "%s_obs_s%02d_c%d", 
         "parser": {
-            "regex": "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_obs_c([\\d]{2,3})_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?",
+            "regex": "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_obs_b([\\d]{2})_c([\\d]{2,3})_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?",
             "groups": {
                 "language": 1,
                 "book": 2,
@@ -14,6 +15,9 @@
                 "take": 8
             }
         }
+    },
+    "modes": {
+        "single": "chunk" 
     },
     "books": "OBSBooks.json",
     "chunks": "obsChunks/",

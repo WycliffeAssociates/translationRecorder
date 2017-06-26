@@ -80,12 +80,9 @@ public class ProjectAdapter extends ArrayAdapter {
     public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper dB, TextView languageView, TextView bookView,
                                              ImageButton infoView, ImageButton recordView, LinearLayout textLayout, ProgressPieView progressPie) {
 
-        if(project.isOBS()){
-            bookView.setText("Open Bible Stories");
-        } else {
-            String book = dB.getBookName(project.getBookSlug());
-            bookView.setText(book);
-        }
+
+        String book = project.getBookName();
+        bookView.setText(book);
 
         String language = dB.getLanguageName(project.getTargetLanguageSlug());
         languageView.setText(language);

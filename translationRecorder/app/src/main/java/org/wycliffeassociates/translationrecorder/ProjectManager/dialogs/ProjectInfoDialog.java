@@ -90,12 +90,6 @@ public class ProjectInfoDialog extends DialogFragment {
         String bookCode = mProject.getBookSlug();
         String book = db.getBookName(bookCode);
         String translation = mProject.getVersionSlug();
-        if(mProject.isOBS()){
-            bookCode = "obs";
-            book = "Open Bible Stories";
-            mTranslationType.setVisibility(View.GONE);
-            mUnitType.setVisibility(View.GONE);
-        }
         String translators = mProject.getContributors();
 
         mTitle.setText(book + " - " + language);
