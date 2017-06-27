@@ -26,10 +26,12 @@ public class ProjectPlugin {
     String slug;
     String name;
     String regex;
+    String groups;
+    String mask;
     String booksPath;
     String chunksPath;
-    String versionsPath;
 
+    String versionsPath;
     //groups
     int language = -1;
     int version = -1;
@@ -38,18 +40,8 @@ public class ProjectPlugin {
     int chapter = -1;
     int startVerse = -1;
     int endVerse = -1;
+
     int take = -1;
-
-    String mask;
-
-    static final int LANGUAGE = 0x1;
-    static final int VERSION = 0x2;
-    static final int BOOK_NUMBER = 0x3;
-    static final int BOOK = 0x4;
-    static final int CHAPTER = 0x5;
-    static final int START_VERSE = 0x6;
-    static final int END_VERSE = 0x7;
-    static final int TAKE = 0x8;
 
     public ProjectPlugin(File pluginDir, File plugin) throws IOException {
         this.pluginDir = pluginDir;
@@ -71,7 +63,7 @@ public class ProjectPlugin {
     private void init(Reader reader) throws IOException {
         JsonReader jsonReader = new JsonReader(reader);
         readPlugin(jsonReader);
-        mask = createMatchGroupMask();
+        groups = createMatchGroups();
     }
 
     private List<Book> readBooks(JsonReader jsonReader) throws IOException {
@@ -85,7 +77,7 @@ public class ProjectPlugin {
             String name = null;
             while (jsonReader.hasNext()) {
                 String key = jsonReader.nextName();
-                if(key.equals("slug")) {
+                if (key.equals("slug")) {
                     slug = jsonReader.nextString();
                 } else if (key.equals("num")) {
                     num = jsonReader.nextInt();
@@ -115,7 +107,7 @@ public class ProjectPlugin {
             String name = null;
             while (jsonReader.hasNext()) {
                 String key = jsonReader.nextName();
-                if(key.equals("slug")) {
+                if (key.equals("slug")) {
                     slug = jsonReader.nextString();
                 } else if (key.equals("name")) {
                     name = jsonReader.nextString();
@@ -130,31 +122,31 @@ public class ProjectPlugin {
 
     private void importPluginToDatabase(Context ctx, Book[] books, Version[] versions) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        db.addAnthology(slug, name, resource, regex, mask);
+        db.addAnthology(slug, name, resource, regex, groups, mask);
         db.addBooks(books);
         db.addVersions(versions);
         db.addVersionRelationships(slug, versions);
         db.close();
     }
 
-    private String createMatchGroupMask(){
-        StringBuilder mask= new StringBuilder();
-        mask.append(language);
-        mask.append(" ");
-        mask.append(version);
-        mask.append(" ");
-        mask.append(bookNumber);
-        mask.append(" ");
-        mask.append(book);
-        mask.append(" ");
-        mask.append(chapter);
-        mask.append(" ");
-        mask.append(startVerse);
-        mask.append(" ");
-        mask.append(endVerse);
-        mask.append(" ");
-        mask.append(take);
-        return mask.toString();
+    private String createMatchGroups() {
+        StringBuilder groups = new StringBuilder();
+        groups.append(language);
+        groups.append(" ");
+        groups.append(version);
+        groups.append(" ");
+        groups.append(bookNumber);
+        groups.append(" ");
+        groups.append(book);
+        groups.append(" ");
+        groups.append(chapter);
+        groups.append(" ");
+        groups.append(startVerse);
+        groups.append(" ");
+        groups.append(endVerse);
+        groups.append(" ");
+        groups.append(take);
+        return groups.toString();
     }
 
     private void readPlugin(JsonReader jsonReader) throws IOException {
@@ -184,6 +176,8 @@ public class ProjectPlugin {
                 slug = jsonReader.nextString();
             } else if (key.equals("name")) {
                 name = jsonReader.nextString();
+            } else if (key.equals("file_conv")) {
+                mask = jsonReader.nextString();
             } else if (key.equals("parser")) {
                 readParserSection(jsonReader);
             }
@@ -229,7 +223,7 @@ public class ProjectPlugin {
         jsonReader.endObject();
     }
 
-    public String getBooksPath(){
+    public String getBooksPath() {
         return booksPath;
     }
 

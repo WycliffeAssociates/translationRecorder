@@ -27,7 +27,8 @@ public class ProjectFileUtilsTest {
     Language language = new Language("en", "English");
     Book book = new Book("gen", "Genesis", "ot", 1);
     Version version = new Version("ulb", "Unlocked Literal Bible");
-    Anthology anthology = new Anthology("ot", "Old Testament", "bible", regex, groups);
+    String mask = "1111111111";
+    Anthology anthology = new Anthology("ot", "Old Testament", "bible", regex, groups, mask);
     Project project = new Project(language, anthology, book, version, "chunk");
 
     @Test
@@ -51,24 +52,24 @@ public class ProjectFileUtilsTest {
 
     @Test
     public void testGetNameFromProject(){
-        String name = ProjectFileUtils.getFileNameFromProject(project, 1, 1, 2);
+        String name = project.getFileName(1, 1, 2);
         String expected = "en_ulb_b01_gen_c01_v01-02";
         assertEquals(expected, name);
 
-        String name2 = ProjectFileUtils.getFileNameFromProject(project, 1, 1, -1);
+        String name2 = project.getFileName(1, 1, -1);
         String expected2 = "en_ulb_b01_gen_c01_v01";
         assertEquals(expected, name);
     }
 
     @Test
     public void testGetParentDirectory(){
-        String name = ProjectFileUtils.getFileNameFromProject(project, 1, 1, 2);
+        String name = project.getFileName(1, 1, 2);
         String expected = "en_ulb_b01_gen_c01_v01-02_t01.wav";
         TakeInfo ti = new TakeInfo(project.getProjectSlugs(), 1, 1, 2, 1);
 //        ProjectFileUtils.getParentDirectory();
         assertEquals(expected, name);
 
-        String name2 = ProjectFileUtils.getFileNameFromProject(project, 1, 1, -1);
+        String name2 = project.getFileName(1, 1, -1);
         String expected2 = "en_ulb_b01_gen_c01_v01";
         assertEquals(expected, name);
     }

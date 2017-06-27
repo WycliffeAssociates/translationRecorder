@@ -25,7 +25,12 @@ public class TakeInfo implements Parcelable {
 
     public TakeInfo(ProjectSlugs slugs, String chapter, String startVerse, String endVerse, String take) {
         mSlugs = slugs;
-        mChapter = Integer.parseInt(chapter);
+        //If there is only one chapter in the book, set default the chapter to 1
+        if(chapter != null && !chapter.equals("")) {
+            mChapter = Integer.parseInt(chapter);
+        } else {
+            mChapter = 1;
+        }
         mStartVerse = Integer.parseInt(startVerse);
         if(endVerse != null) {
             mEndVerse = Integer.parseInt(endVerse);

@@ -26,6 +26,8 @@ public class Project implements Parcelable {
     private Book mBook;
     private Version mVersion;
     private String mMode;
+    private FileName mFileName;
+
 
     String mContributors;
     String mSourceAudioPath;
@@ -39,6 +41,7 @@ public class Project implements Parcelable {
         mBook = book;
         mVersion = version;
         mMode = mode;
+        mFileName = new FileName(target, anthology, version, book);
     }
 
     public Project(Language target, Anthology anthology, Book book, Version version, String mode, String sourceAudioPath) {
@@ -69,6 +72,13 @@ public class Project implements Parcelable {
         } else {
             return false;
         }
+    }
+
+    public String getFileName(int chapter, int ... verses){
+        if(mFileName == null) {
+            mFileName = new FileName(mTargetLanguage, mAnthology, mVersion, mBook);
+        }
+        return mFileName.getFileName(chapter, verses);
     }
 
     public ProjectSlugs getProjectSlugs(){

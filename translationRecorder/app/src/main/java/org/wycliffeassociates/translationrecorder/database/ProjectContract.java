@@ -52,6 +52,7 @@ public final class ProjectContract {
         public static final String ANTHOLOGY_NAME = "name";
         public static final String ANTHOLOGY_RESOURCE = "resource";
         public static final String ANTHOLOGY_REGEX = "regex";
+        public static final String ANTHOLOGY_GROUPS = "groups";
         public static final String ANTHOLOGY_MASK = "mask";
         public static final String ANTHOLOGY_UNIQUE_CONSTRAINT = "cols_unique";
 
@@ -61,6 +62,7 @@ public final class ProjectContract {
                 + ANTHOLOGY_NAME + TEXTCOMMA
                 + ANTHOLOGY_RESOURCE + TEXTCOMMA
                 + ANTHOLOGY_REGEX + TEXTCOMMA
+                + ANTHOLOGY_GROUPS + TEXTCOMMA
                 + ANTHOLOGY_MASK + TEXTCOMMA
                 + "CONSTRAINT " + ANTHOLOGY_UNIQUE_CONSTRAINT + " UNIQUE(" + ANTHOLOGY_SLUG + ")"
                 + ");";

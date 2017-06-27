@@ -192,7 +192,7 @@ public class FragmentRecordingFileBar extends Fragment {
                     mUnitPicker.setDisplayedValues(values);
                     mUnitPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
                     setChunk(getChunkIndex(mChunksList, mUnit) + 1);
-                    mOnUnitChangedListener.onUnitChanged(mProject, ProjectFileUtils.getFileNameFromProject(mProject, mChapter,
+                    mOnUnitChangedListener.onUnitChanged(mProject, mProject.getFileName(mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                     //reinitialize all of the filenames
                     mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
@@ -200,7 +200,7 @@ public class FragmentRecordingFileBar extends Fragment {
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             Logger.w(this.toString(), "User changed unit");
                             setChunk(newVal + 1);
-                            mOnUnitChangedListener.onUnitChanged(mProject, ProjectFileUtils.getFileNameFromProject(mProject, mChapter,
+                            mOnUnitChangedListener.onUnitChanged(mProject, mProject.getFileName(mChapter,
                                     Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                         }
                     });
@@ -230,7 +230,7 @@ public class FragmentRecordingFileBar extends Fragment {
                     mUnitPicker.setCurrent(0);
                     mChunksList = mChunks.getChunks(mProject, mChapter);
                     initializeUnitPicker();
-                    mOnUnitChangedListener.onUnitChanged(mProject, ProjectFileUtils.getFileNameFromProject(mProject, mChapter,
+                    mOnUnitChangedListener.onUnitChanged(mProject, mProject.getFileName(mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                 }
             });

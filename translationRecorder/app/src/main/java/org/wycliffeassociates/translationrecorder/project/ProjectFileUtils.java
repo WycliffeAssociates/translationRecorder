@@ -11,8 +11,6 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.amazonaws.util.VersionInfoUtils.getVersion;
-
 /**
  * Created by Joe on 3/31/2017.
  */
@@ -23,7 +21,7 @@ public class ProjectFileUtils {
 
     public static File createFile(Project project, int chapter, int startVerse, int endVerse) {
         File dir = getParentDirectory(project, chapter);
-        String nameWithoutTake = getFileNameFromProject(project, chapter, startVerse, endVerse);
+        String nameWithoutTake = project.getFileName(chapter, startVerse, endVerse);
         int take = getLargestTake(project, dir, nameWithoutTake) + 1;
         return new File(dir, nameWithoutTake + "_t" +  String.format("%02d", take) + ".wav");
     }
@@ -66,38 +64,35 @@ public class ProjectFileUtils {
         return maxTake;
     }
 
-    public static String getFileNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
-        String fileConvention = project.getFileConvention();
-        String[] categories = new String[];
-
-
-
-        String anthology = project.getAnthologySlug();
-        String language = project.getTargetLanguageSlug();
-        String book = project.getBookSlug();
-        int bookNumber = Integer.parseInt(project.getBookNumber());
-        String version = project.getVersionSlug();
-        if (anthology != null && anthology.compareTo("obs") == 0) {
-            return language + "_obs_c" + String.format("%02d", chapter) + "_v" + String.format("%02d", startVerse);
-        } else {
-            String name;
-            String end = (endVerse != -1 && startVerse != endVerse) ? String.format("-%02d", endVerse) : "";
-            if (book.compareTo("psa") == 0 && chapter != 119) {
-                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + String.format("%03d", chapter) + "_v" + String.format("%02d", startVerse) + end;
-            } else if (book.compareTo("psa") == 0) {
-                end = (endVerse != -1) ? String.format("-%03d", endVerse) : "";
-                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%03d", startVerse) + end;
-            } else {
-                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%02d", startVerse) + end;
-            }
-            return name;
-        }
-    }
+    //public static String getFileNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
+//
+//
+//        String anthology = project.getAnthologySlug();
+//        String language = project.getTargetLanguageSlug();
+//        String book = project.getBookSlug();
+//        int bookNumber = Integer.parseInt(project.getBookNumber());
+//        String version = project.getVersionSlug();
+//        if (anthology != null && anthology.compareTo("obs") == 0) {
+//            return language + "_obs_c" + String.format("%02d", chapter) + "_v" + String.format("%02d", startVerse);
+//        } else {
+//            String name;
+//            String end = (endVerse != -1 && startVerse != endVerse) ? String.format("-%02d", endVerse) : "";
+//            if (book.compareTo("psa") == 0 && chapter != 119) {
+//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + String.format("%03d", chapter) + "_v" + String.format("%02d", startVerse) + end;
+//            } else if (book.compareTo("psa") == 0) {
+//                end = (endVerse != -1) ? String.format("-%03d", endVerse) : "";
+//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%03d", startVerse) + end;
+//            } else {
+//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%02d", startVerse) + end;
+//            }
+//            return name;
+//        }
+    //}
 
     public static File getParentDirectory(TakeInfo takeInfo){
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
-        File out = new File(root, slugs.getLanguage() + "/" + getVersion() + "/" + slugs.getBook() + "/" + ProjectFileUtils.chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
+        File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + ProjectFileUtils.chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
     }
 
