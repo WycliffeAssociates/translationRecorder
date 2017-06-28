@@ -22,7 +22,7 @@ for x in range(50):
         chunk = {}
         chunk['firstvs'] = str(i + 1)
         print(obs['chapters'][x]['frames'][i]['id'])
-        chunk['id'] = obs['chapters'][x]['frames'][i]['id']
+        chunk['id'] = "01-{num:02d}".format(num=(i+1))
         chunk['lastvs'] = str(i + 1)
         chunks.append(chunk)
         num_chunks.append(size)
