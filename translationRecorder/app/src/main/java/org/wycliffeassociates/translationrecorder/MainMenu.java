@@ -15,13 +15,14 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.door43.tools.reporting.GithubReporter;
+import com.door43.tools.reporting.GlobalExceptionHandler;
+import com.door43.tools.reporting.Logger;
+
 import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityProjectManager;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog;
-import org.wycliffeassociates.translationrecorder.Reporting.GithubReporter;
-import org.wycliffeassociates.translationrecorder.Reporting.GlobalExceptionHandler;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;

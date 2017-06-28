@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
@@ -19,6 +18,7 @@ import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;

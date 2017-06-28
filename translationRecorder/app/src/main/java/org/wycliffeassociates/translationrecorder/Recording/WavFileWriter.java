@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 

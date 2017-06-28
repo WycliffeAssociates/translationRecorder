@@ -19,7 +19,7 @@ import com.wycliffeassociates.io.LanguageLevel;
 
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.widgets.AudioPlayer;

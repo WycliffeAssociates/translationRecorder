@@ -4,7 +4,7 @@ import android.app.ProgressDialog;
 import android.util.Pair;
 
 import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;
 

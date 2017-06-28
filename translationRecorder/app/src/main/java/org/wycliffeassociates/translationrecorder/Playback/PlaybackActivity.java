@@ -36,7 +36,7 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;

@@ -6,7 +6,7 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 import java.io.File;
 import java.io.IOException;

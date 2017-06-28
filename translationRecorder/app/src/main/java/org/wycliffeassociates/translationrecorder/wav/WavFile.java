@@ -7,8 +7,8 @@ import android.os.Parcelable;
 import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.AudioInfo;
 import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import com.door43.tools.reporting.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

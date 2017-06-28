@@ -2,7 +2,7 @@ package org.wycliffeassociates.translationrecorder;
 
 import android.content.Context;
 
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.BufferedOutputStream;

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 import java.io.File;
 

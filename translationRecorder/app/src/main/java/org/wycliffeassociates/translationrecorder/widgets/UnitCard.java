@@ -12,9 +12,9 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCa
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
-import org.wycliffeassociates.translationrecorder.Utils;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;

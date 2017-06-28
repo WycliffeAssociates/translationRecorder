@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.RecordingTimer;
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 /**
  * Created by sarabiaj on 2/20/2017.

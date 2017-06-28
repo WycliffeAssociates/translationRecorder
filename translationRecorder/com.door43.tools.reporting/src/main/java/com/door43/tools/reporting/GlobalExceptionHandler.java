@@ -82,7 +82,7 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
         e.printStackTrace(printWriter);
         String stacktrace = result.toString();
         printWriter.close();
-        String filename = timestamp + "" + STACKTRACE_EXT;
+        String filename = timestamp + "." + STACKTRACE_EXT;
 
         if (mStracktraceDir != null) {
             writeToFile(stacktrace, filename);

@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 import java.io.File;
 

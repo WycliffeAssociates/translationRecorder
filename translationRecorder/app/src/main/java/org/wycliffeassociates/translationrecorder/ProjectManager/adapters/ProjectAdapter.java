@@ -19,7 +19,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.activities.Acti
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 

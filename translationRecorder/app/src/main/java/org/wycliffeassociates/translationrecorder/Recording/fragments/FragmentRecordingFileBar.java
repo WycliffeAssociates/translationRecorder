@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.project.Project;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.components.Chunks;
@@ -59,7 +59,7 @@ public class FragmentRecordingFileBar extends Fragment {
         void onUnitChanged(Project project, String fileName, int chapter);
     }
 
-    public static FragmentRecordingFileBar newInstance(Project project, int chapter, int unit, FragmentRecordingControls.Mode mode, boolean unitIsChunks){
+    public static FragmentRecordingFileBar newInstance(Project project, int chapter, int unit, FragmentRecordingControls.Mode mode, boolean unitIsChunks) {
         FragmentRecordingFileBar f = new FragmentRecordingFileBar();
         Bundle args = new Bundle();
         args.putParcelable(KEY_PROJECT, project);
@@ -78,8 +78,8 @@ public class FragmentRecordingFileBar extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if( activity instanceof OnUnitChangedListener) {
-            mOnUnitChangedListener = (OnUnitChangedListener)activity;
+        if (activity instanceof OnUnitChangedListener) {
+            mOnUnitChangedListener = (OnUnitChangedListener) activity;
         } else {
             throw new RuntimeException("Attemped to attach activity which does not implement OnUnitChangedListener");
         }
@@ -89,14 +89,6 @@ public class FragmentRecordingFileBar extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         mOnUnitChangedListener = null;
-    }
-
-    public int getUnit() {
-        return mUnit;
-    }
-
-    public int getChapter() {
-        return mChapter;
     }
 
     @Nullable
@@ -115,7 +107,7 @@ public class FragmentRecordingFileBar extends Fragment {
         initializeViews();
         try {
             initializePickers();
-            if(mMode == FragmentRecordingControls.Mode.INSERT_MODE) {
+            if (mMode == FragmentRecordingControls.Mode.INSERT_MODE) {
                 disablePickers();
             }
         } catch (IOException e) {
@@ -285,7 +277,15 @@ public class FragmentRecordingFileBar extends Fragment {
         return mEndVerse;
     }
 
-    public void disablePickers(){
+    public int getUnit() {
+        return mUnit;
+    }
+
+    public int getChapter() {
+        return mChapter;
+    }
+
+    public void disablePickers() {
         mUnitPicker.displayIncrementDecrement(false);
         mChapterPicker.displayIncrementDecrement(false);
     }

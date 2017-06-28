@@ -12,6 +12,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.AudioVisualization.ActiveRecordingRenderer;
 import org.wycliffeassociates.translationrecorder.FilesPage.ExitDialog;
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
@@ -21,7 +23,6 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRe
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingWaveform;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSourceAudio;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
@@ -53,8 +54,8 @@ public class RecordingActivity extends AppCompatActivity implements
     private static final int DEFAULT_CHAPTER = 1;
     private static final int DEFAULT_UNIT = 1;
     private Project mProject;
-    private int mChapter;
-    private int mUnit;
+    private int mInitialChapter;
+    private int mInitialUnit;
     private WavFile mLoadedWav;
     private int mInsertLocation;
     private boolean mInsertMode;
@@ -183,8 +184,8 @@ public class RecordingActivity extends AppCompatActivity implements
 
         mFragmentRecordingFileBar = FragmentRecordingFileBar.newInstance(
                 mProject,
-                mChapter,
-                mUnit,
+                mInitialChapter,
+                mInitialUnit,
                 (mInsertMode)? FragmentRecordingControls.Mode.INSERT_MODE : FragmentRecordingControls.Mode.RECORDING_MODE,
                 isChunkMode
         );
@@ -209,8 +210,8 @@ public class RecordingActivity extends AppCompatActivity implements
 
     private void parseIntent(Intent intent) {
         mProject = intent.getParcelableExtra(KEY_PROJECT);
-        mChapter = intent.getIntExtra(KEY_CHAPTER, DEFAULT_CHAPTER);
-        mUnit = intent.getIntExtra(KEY_UNIT, DEFAULT_UNIT);
+        mInitialChapter = intent.getIntExtra(KEY_CHAPTER, DEFAULT_CHAPTER);
+        mInitialUnit = intent.getIntExtra(KEY_UNIT, DEFAULT_UNIT);
         if (intent.hasExtra(KEY_WAV_FILE)) {
             mLoadedWav = intent.getParcelableExtra(KEY_WAV_FILE);
         }
@@ -261,8 +262,8 @@ public class RecordingActivity extends AppCompatActivity implements
             RecordingQueues.clearQueues();
             String startVerse = mFragmentRecordingFileBar.getStartVerse();
             String endVerse = mFragmentRecordingFileBar.getEndVerse();
-            File file = ProjectFileUtils.createFile(mProject, mChapter, Integer.parseInt(startVerse), Integer.parseInt(endVerse));
-            mNewRecording = new WavFile(file, new WavMetadata(mProject, String.valueOf(mChapter), startVerse, endVerse));
+            File file = ProjectFileUtils.createFile(mProject, mFragmentRecordingFileBar.getChapter(), Integer.parseInt(startVerse), Integer.parseInt(endVerse));
+            mNewRecording = new WavFile(file, new WavMetadata(mProject, String.valueOf(mFragmentRecordingFileBar.getChapter()), startVerse, endVerse));
             startService(new Intent(this, WavRecorder.class));
             startService(WavFileWriter.getIntent(this, mNewRecording));
             mRecordingRenderer.listenForRecording(false);
@@ -331,7 +332,7 @@ public class RecordingActivity extends AppCompatActivity implements
         } catch (IllegalArgumentException e) {
             Logger.e(this.toString(), "Tried to dismiss insert progress dialog", e);
         }
-        Intent intent = PlaybackActivity.getPlaybackIntent(this, result, mProject, mChapter, mUnit);
+        Intent intent = PlaybackActivity.getPlaybackIntent(this, result, mProject, mFragmentRecordingFileBar.getChapter(), mFragmentRecordingFileBar.getUnit());
         startActivity(intent);
         this.finish();
     }
