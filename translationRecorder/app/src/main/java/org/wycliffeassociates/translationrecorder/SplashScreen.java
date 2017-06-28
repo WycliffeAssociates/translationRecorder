@@ -10,10 +10,10 @@ import android.widget.ProgressBar;
 import com.door43.login.ProfileActivity;
 import com.door43.login.TermsOfUseActivity;
 import com.door43.login.core.Profile;
+import com.door43.tools.reporting.Logger;
 
 import org.json.JSONException;
 
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
