@@ -1,11 +1,13 @@
 package org.wycliffeassociates.translationrecorder.Playback;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -15,6 +17,8 @@ import android.os.Looper;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+
+import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.AudioVisualization.WavVisualizer;
 import org.wycliffeassociates.translationrecorder.FilesPage.ExitDialog;
@@ -36,7 +40,6 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
@@ -220,6 +223,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         ft.commit();
     }
 
+
     @Override
     public void onMediaPause() {
         mAudioController.pause();
@@ -227,27 +231,58 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onMediaPlay() {
-        mAudioController.play();
+        try {
+            mAudioController.play();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
+    }
+
+    public void requestUserToRestart() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Could not initialize the audio player");
+        builder.setMessage("If this issue continues, try restarting your device.");
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.label_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
     public void onSeekForward() {
-        mAudioController.seekNext();
-        //mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
-        onLocationUpdated();
+        try {
+            mAudioController.seekNext();
+            //mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+            onLocationUpdated();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
     }
 
     @Override
-    public void onSeekBackward() {
-        mAudioController.seekPrevious();
-        //mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
-        onLocationUpdated();
+    public void onSeekBackward() throws IllegalStateException {
+        try {
+            mAudioController.seekPrevious();
+            //mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+            onLocationUpdated();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
     }
 
     @Override
     public void onSeekTo(float x) {
-        mAudioController.seekTo(mAudioController.mCutOp.relativeLocToAbsolute((int) (x * mAudioController.getRelativeDurationInFrames()), false));
-        onLocationUpdated();
+        try {
+            mAudioController.seekTo(mAudioController.mCutOp.relativeLocToAbsolute((int) (x * mAudioController.getRelativeDurationInFrames()), false));
+            onLocationUpdated();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
     }
 
     @Override
@@ -256,18 +291,33 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     @Override
-    public int getLocationMs() {
-        return mAudioController.getRelativeLocationMs();
+    public int getLocationMs() throws IllegalStateException {
+        try {
+            return mAudioController.getRelativeLocationMs();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
+        return 0;
     }
 
     @Override
     public int getLocationInFrames() {
-        return mAudioController.getRelativeLocationInFrames();
+        try {
+            return mAudioController.getRelativeLocationInFrames();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
+        return 0;
     }
 
     @Override
     public int getDurationInFrames() {
-        return mAudioController.getRelativeDurationInFrames();
+        try {
+            return mAudioController.getRelativeDurationInFrames();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
+        return 0;
     }
 
     @Override
@@ -325,8 +375,12 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
         for (DraggableMarker marker : markers) {
             marker.updateFrame(mAudioController.mCutOp.absoluteLocToRelative(marker.getFrame(), false));
         }
-        mFragmentPlaybackTools.onLocationUpdated(mAudioController.getAbsoluteLocationMs());
-        mFragmentPlaybackTools.onDurationUpdated(mAudioController.getRelativeDurationMs());
+        try {
+            mFragmentPlaybackTools.onLocationUpdated(mAudioController.getAbsoluteLocationMs());
+            mFragmentPlaybackTools.onDurationUpdated(mAudioController.getRelativeDurationMs());
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
         onClearMarkers();
         mFragmentTabbedWidget.invalidateMinimap();
         mFragmentTabbedWidget.onLocationChanged();
@@ -334,18 +388,26 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onDropStartMarker() {
-        mAudioController.dropStartMarker();
-        int location = mAudioController.getLoopStart();
-        mWaveformFragment.addStartMarker(mAudioController.mCutOp.absoluteLocToRelative(location, false));
-        onLocationUpdated();
+        try {
+            mAudioController.dropStartMarker();
+            int location = mAudioController.getLoopStart();
+            mWaveformFragment.addStartMarker(mAudioController.mCutOp.absoluteLocToRelative(location, false));
+            onLocationUpdated();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
     }
 
     @Override
     public void onDropEndMarker() {
-        mAudioController.dropEndMarker();
-        int location = mAudioController.getLoopEnd();
-        mWaveformFragment.addEndMarker(mAudioController.mCutOp.absoluteLocToRelative(location, false));
-        onLocationUpdated();
+        try {
+            mAudioController.dropEndMarker();
+            int location = mAudioController.getLoopEnd();
+            mWaveformFragment.addEndMarker(mAudioController.mCutOp.absoluteLocToRelative(location, false));
+            onLocationUpdated();
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
     }
 
     @Override
@@ -652,20 +714,24 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
     @Override
     public void onLocationUpdated() {
-        int absoluteFrame = mAudioController.getAbsoluteLocationInFrames();
-        int relativeFrame = mAudioController.getRelativeLocationInFrames();
-        int absoluteMs = mAudioController.getAbsoluteLocationMs();
+        try {
+            int absoluteFrame = mAudioController.getAbsoluteLocationInFrames();
+            int relativeFrame = mAudioController.getRelativeLocationInFrames();
+            int absoluteMs = mAudioController.getAbsoluteLocationMs();
 
-        mWaveformFragment.invalidateFrame(absoluteFrame, relativeFrame, absoluteMs);
+            mWaveformFragment.invalidateFrame(absoluteFrame, relativeFrame, absoluteMs);
 
 //                //// TODO
 //                mFragmentTabbedWidget.invalidateFrame(frame);
 //                mFragmentPlaybackTools.invalidateMs(ms);
 //                mMarkerToolbarFragment.invalidateMs(ms);
 
-        mFragmentPlaybackTools.onLocationUpdated(mAudioController.getRelativeLocationMs());
-        mFragmentTabbedWidget.onLocationChanged();
-        mMarkerToolbarFragment.onLocationUpdated(mAudioController.getRelativeLocationMs());
+            mFragmentPlaybackTools.onLocationUpdated(mAudioController.getRelativeLocationMs());
+            mFragmentTabbedWidget.onLocationChanged();
+            mMarkerToolbarFragment.onLocationUpdated(mAudioController.getRelativeLocationMs());
+        } catch (IllegalStateException e) {
+            requestUserToRestart();
+        }
     }
 
     @Override
@@ -730,7 +796,11 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
             mAudioController.dropVerseMarker("Verse " + markerNumber, frame);
             mWaveformFragment.addVerseMarker(markerNumber, frame);
             mMarkerCounterFragment.decrementVersesRemaining();
-            mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+            try {
+                mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
+            } catch (IllegalStateException e) {
+                requestUserToRestart();
+            }
         }
     }
 
