@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
@@ -18,7 +20,6 @@ import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
-import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
@@ -533,8 +534,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         List<ProjectPatternMatcher> patterns = new ArrayList<>();
         while (cursor.moveToNext()) {
             String regex = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX));
-            String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
-            patterns.add(new ProjectPatternMatcher(regex, mask));
+            String groups = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_GROUPS));
+            patterns.add(new ProjectPatternMatcher(regex, groups));
         }
         return patterns;
     }
