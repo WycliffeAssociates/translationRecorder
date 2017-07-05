@@ -171,7 +171,7 @@ public final class ProjectContract {
         public static final String PROJECT_TARGET_LANGUAGE_FK = "target_language_fk";
         public static final String PROJECT_BOOK_FK = "book_fk";
         public static final String PROJECT_VERSION_FK = "version_fk";
-        public static final String PROJECT_MODE = "mode";
+        public static final String PROJECT_MODE_FK = "mode_fk";
         public static final String PROJECT_SOURCE_LANGUAGE_FK = "source_lang_fk";
         public static final String PROJECT_SOURCE_AUDIO_PATH = "source_audio_path";
         public static final String PROJECT_CONTRIBUTORS = "contributors";
@@ -184,7 +184,7 @@ public final class ProjectContract {
                 + PROJECT_TARGET_LANGUAGE_FK + INTCOMMA
                 + PROJECT_BOOK_FK + TEXTCOMMA
                 + PROJECT_VERSION_FK + INTCOMMA
-                + PROJECT_MODE + TEXTCOMMA
+                + PROJECT_MODE_FK + TEXTCOMMA
                 + PROJECT_SOURCE_LANGUAGE_FK + INTCOMMA
                 + PROJECT_SOURCE_AUDIO_PATH + TEXTCOMMA
                 + PROJECT_CONTRIBUTORS + TEXTCOMMA
@@ -195,6 +195,20 @@ public final class ProjectContract {
                 + "FOREIGN KEY(" + PROJECT_VERSION_FK + ") REFERENCES " + VersionEntry.TABLE_VERSION + "(" + _ID + ")"
                 + "CONSTRAINT " + PROJECT_UNIQUE_CONSTRAINT + " UNIQUE(" + PROJECT_BOOK_FK + "," +  PROJECT_TARGET_LANGUAGE_FK + "," + PROJECT_VERSION_FK + ")"
                 + " );";
+    }
+
+    public static abstract class ModeEntry implements BaseColumns {
+        public static final String TABLE_MODE = "modes";
+        public static final String MODE_NAME = "name";
+        public static final String MODE_TYPE = "type";
+        public static final String MODE_UNIQUE_CONSTRAINT = "cols_unique";
+
+        public static final String CREATE_MODE_TABLE = "CREATE TABLE " + TABLE_MODE + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + MODE_NAME + TEXTCOMMA
+                + MODE_TYPE + TEXTCOMMA
+                + "CONSTRAINT " + MODE_UNIQUE_CONSTRAINT + " UNIQUE(" + MODE_NAME + "," + MODE_TYPE + ")"
+                + ");";
     }
 
     public static abstract class TempEntry implements BaseColumns {

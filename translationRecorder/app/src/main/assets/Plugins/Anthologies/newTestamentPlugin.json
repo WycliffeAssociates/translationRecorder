@@ -17,6 +17,16 @@
             }
         }
     },
+    "modes": [
+        {
+            "name":"verse",
+            "type":"single"
+        },
+        {
+            "name":"chunk",
+            "type":"multi"
+        }
+    ],
     "books": "NTBooks.json",
     "chunks": "bibleChunks/",
     "versions": "bibleVersions.json"

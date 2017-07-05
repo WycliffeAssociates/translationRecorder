@@ -19,6 +19,7 @@ import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
@@ -655,6 +656,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         int bookId = getBookId(p.getBookSlug());
         int versionId = getVersionId(p.getVersionSlug());
+        int modeId = getModeId(p.getModeSlug());
 
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -664,7 +666,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         cv.put(ProjectContract.ProjectEntry.PROJECT_BOOK_FK, bookId);
         cv.put(ProjectContract.ProjectEntry.PROJECT_VERSION_FK, versionId);
-        cv.put(ProjectContract.ProjectEntry.PROJECT_MODE, p.getMode());
+        cv.put(ProjectContract.ProjectEntry.PROJECT_MODE_FK, modeId);
         cv.put(ProjectContract.ProjectEntry.PROJECT_CONTRIBUTORS, p.getContributors());
         cv.put(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH, p.getSourceAudioPath());
         cv.put(ProjectContract.ProjectEntry.PROJECT_NOTES, "");
@@ -674,17 +676,18 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addProject(String languageSlug, String bookSlug, String versionSlug, String mode) throws IllegalArgumentException {
+    public void addProject(String languageSlug, String bookSlug, String versionSlug, String modeSlug) throws IllegalArgumentException {
         int targetLanguageId = getLanguageId(languageSlug);
         int bookId = getBookId(bookSlug);
         int versionId = getVersionId(versionSlug);
+        int modeId = getModeId(modeSlug);
 
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(ProjectContract.ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, targetLanguageId);
         cv.put(ProjectContract.ProjectEntry.PROJECT_BOOK_FK, bookId);
         cv.put(ProjectContract.ProjectEntry.PROJECT_VERSION_FK, versionId);
-        cv.put(ProjectContract.ProjectEntry.PROJECT_MODE, mode);
+        cv.put(ProjectContract.ProjectEntry.PROJECT_MODE_FK, modeId);
         cv.put(ProjectContract.ProjectEntry.PROJECT_NOTES, "");
         cv.put(ProjectContract.ProjectEntry.PROJECT_PROGRESS, 0);
 
@@ -778,7 +781,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                     project.setSourceLanguage(sourceLanguage);
                     project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
                 }
-                project.setMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE)));
+                Mode mode = getMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE_FK)));
+                project.setMode(mode);
                 Book book = getBook(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_BOOK_FK)));
                 project.setBook(book);
                 Anthology anthology = getAnthology(getAnthologyId(book.getAnthology()));
@@ -811,7 +815,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 project.setSourceLanguage(sourceLanguage);
                 project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
             }
-            project.setMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE)));
+            Mode mode = getMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE_FK)));
+            project.setMode(mode);
             Book book = getBook(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_BOOK_FK)));
             project.setBook(book);
             Anthology anthology = getAnthology(getAnthologyId(book.getAnthology()));
