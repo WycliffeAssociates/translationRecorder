@@ -81,8 +81,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.UnitEntry.CREATE_UNIT_TABLE);
         db.execSQL(ProjectContract.TakeEntry.CREATE_TAKE_TABLE);
         db.execSQL(ProjectContract.AnthologyEntry.CREATE_ANTHOLOGY_TABLE);
+        db.execSQL(ProjectContract.ModeEntry.CREATE_MODE_TABLE);
         db.execSQL(ProjectContract.VersionEntry.CREATE_VERSION_TABLE);
         db.execSQL(ProjectContract.VersionRelationshipEntry.CREATE_VERSION_RELATIONSHIP_TABLE);
+        db.execSQL(ProjectContract.ModeRelationshipEntry.CREATE_MODE_RELATIONSHIP_TABLE);
         //db.close();
     }
 
@@ -95,7 +97,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_TAKES);
         db.execSQL(ProjectContract.DELETE_ANTHOLOGIES);
         db.execSQL(ProjectContract.DELETE_VERSIONS);
+        db.execSQL(ProjectContract.DELETE_MODES);
         db.execSQL(ProjectContract.DELETE_VERSION_RELATIONSHIPS);
+        db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
         onCreate(db);
     }
 
@@ -113,7 +117,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_TAKES);
         db.execSQL(ProjectContract.DELETE_ANTHOLOGIES);
         db.execSQL(ProjectContract.DELETE_VERSIONS);
+        db.execSQL(ProjectContract.DELETE_MODES);
         db.execSQL(ProjectContract.DELETE_VERSION_RELATIONSHIPS);
+        db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
         onCreate(db);
     }
 
@@ -334,6 +340,21 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public int getModeId(String modeSlug) throws IllegalArgumentException {
+        SQLiteDatabase db = getReadableDatabase();
+        final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=?",
+                ProjectContract.ModeEntry._ID, ProjectContract.ModeEntry.TABLE_MODE, ProjectContract.ModeEntry.MODE_SLUG);
+        int id = -1;
+        try {
+            id = (int) DatabaseUtils.longForQuery(db, takeIdQuery, new String[]{modeSlug});
+        } catch (SQLiteDoneException e) {
+            //db.close();
+            throw new IllegalArgumentException("Mode not found in database.");
+        }
+        //db.close();
+        return id;
+    }
+
     public int getTakeCount(int unitId) throws IllegalArgumentException {
         int count = -1;
         String stringifiedId = String.valueOf(unitId);
@@ -423,6 +444,23 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return slug;
     }
 
+    public Mode getMode(int id) throws IllegalArgumentException {
+        SQLiteDatabase db = getReadableDatabase();
+        String query = String.format("SELECT * FROM %s WHERE %s=%s", ProjectContract.ModeEntry.TABLE_MODE, ProjectContract.ModeEntry._ID, String.valueOf(id));
+        Cursor cursor = db.rawQuery(query, null);
+        Mode mode;
+        if (cursor.moveToFirst()) {
+            String modeSlug = cursor.getString(cursor.getColumnIndex(ProjectContract.ModeEntry.MODE_SLUG));
+            String modeName = cursor.getString(cursor.getColumnIndex(ProjectContract.ModeEntry.MODE_NAME));
+            String modeType = cursor.getString(cursor.getColumnIndex(ProjectContract.ModeEntry.MODE_TYPE));
+
+            mode = new Mode(modeSlug, modeName, modeType);
+        } else {
+            throw new IllegalArgumentException("Book id not found in database.");
+        }
+        return mode;
+    }
+
     public Book getBook(int id) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
         String query = String.format("SELECT * FROM %s WHERE %s=%s", ProjectContract.BookEntry.TABLE_BOOK, ProjectContract.BookEntry._ID, String.valueOf(id));
@@ -482,6 +520,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         } else {
             throw new IllegalArgumentException("Version id not found in database.");
         }
+        cursor.close();
         return version;
     }
 
@@ -538,6 +577,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             String groups = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_GROUPS));
             patterns.add(new ProjectPatternMatcher(regex, groups));
         }
+        cursor.close();
         return patterns;
     }
 
@@ -615,6 +655,29 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void addMode(String slug, String name, String type) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ProjectContract.ModeEntry.MODE_SLUG, slug);
+        cv.put(ProjectContract.ModeEntry.MODE_NAME, name);
+        cv.put(ProjectContract.ModeEntry.MODE_TYPE, type);
+        long result = db.insertWithOnConflict(ProjectContract.ModeEntry.TABLE_MODE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
+    public void addModes(Mode[] modes) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for (Mode m : modes) {
+                addVersion(m.getSlug(), m.getName());
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+
     public void addVersion(String versionSlug, String versionName) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -622,6 +685,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.VersionEntry.VERSION_NAME, versionName);
         long result = db.insertWithOnConflict(ProjectContract.VersionEntry.TABLE_VERSION, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
     }
+
+
 
     public void addVersions(Version[] versions) {
         SQLiteDatabase db = getWritableDatabase();
@@ -633,6 +698,18 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+        }
+    }
+
+    public void addModeRelationships(String anthologySlug, Mode[] modes) {
+        int anthId = getAnthologyId(anthologySlug);
+        SQLiteDatabase db = getWritableDatabase();
+        for(Mode m : modes) {
+            int modeId = getModeId(m.getSlug());
+            ContentValues cv = new ContentValues();
+            cv.put(ProjectContract.ModeRelationshipEntry.ANTHOLOGY_FK, anthId);
+            cv.put(ProjectContract.ModeRelationshipEntry.MODE_FK, modeId);
+            long result = db.insertWithOnConflict(ProjectContract.ModeRelationshipEntry.TABLE_MODE_RELATIONSHIP, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         }
     }
 
@@ -727,7 +804,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(TakeInfo takeInfo, String takeFilename, String recordingMode, long timestamp, int rating) {
+    public void addTake(TakeInfo takeInfo, String takeFilename, String modeSlug, long timestamp, int rating) {
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
         String bookSlug = slugs.getBook();
         String languageSlug = slugs.getLanguage();
@@ -735,7 +812,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         int chapter = takeInfo.getChapter();
         int start = takeInfo.getStartVerse();
         if (!projectExists(languageSlug, bookSlug, versionSlug)) {
-            addProject(languageSlug, bookSlug, versionSlug, recordingMode);
+            addProject(languageSlug, bookSlug, versionSlug, modeSlug);
             addChapter(languageSlug, bookSlug, versionSlug, chapter);
             addUnit(languageSlug, bookSlug, versionSlug, chapter, start);
             //If the chapter doesn't exist, then the unit can't either
@@ -781,7 +858,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                     project.setSourceLanguage(sourceLanguage);
                     project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
                 }
-                Mode mode = getMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE_FK)));
+                Mode mode = getMode(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE_FK)));
                 project.setMode(mode);
                 Book book = getBook(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_BOOK_FK)));
                 project.setBook(book);
@@ -815,7 +892,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 project.setSourceLanguage(sourceLanguage);
                 project.setSourceAudioPath(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_SOURCE_AUDIO_PATH)));
             }
-            Mode mode = getMode(cursor.getString(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE_FK)));
+            Mode mode = getMode(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_MODE_FK)));
             project.setMode(mode);
             Book book = getBook(cursor.getInt(cursor.getColumnIndex(ProjectContract.ProjectEntry.PROJECT_BOOK_FK)));
             project.setBook(book);

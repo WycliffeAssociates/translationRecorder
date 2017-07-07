@@ -199,15 +199,33 @@ public final class ProjectContract {
 
     public static abstract class ModeEntry implements BaseColumns {
         public static final String TABLE_MODE = "modes";
+        public static final String MODE_SLUG = "slug";
         public static final String MODE_NAME = "name";
         public static final String MODE_TYPE = "type";
         public static final String MODE_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_MODE_TABLE = "CREATE TABLE " + TABLE_MODE + " ("
                 + _ID + " INTEGER PRIMARY KEY,"
+                + MODE_SLUG + TEXTCOMMA
                 + MODE_NAME + TEXTCOMMA
                 + MODE_TYPE + TEXTCOMMA
-                + "CONSTRAINT " + MODE_UNIQUE_CONSTRAINT + " UNIQUE(" + MODE_NAME + "," + MODE_TYPE + ")"
+                + "CONSTRAINT " + MODE_UNIQUE_CONSTRAINT + " UNIQUE(" + MODE_SLUG + "," + MODE_TYPE + ")"
+                + ");";
+    }
+
+    public static abstract class ModeRelationshipEntry implements BaseColumns {
+        public static final String TABLE_MODE_RELATIONSHIP = "version_relationship";
+        public static final String MODE_FK = "version_fk";
+        public static final String ANTHOLOGY_FK = "anthology_fk";
+        public static final String UNIQUE_CONSTRAINT = "cols_unique";
+
+        public static final String CREATE_MODE_RELATIONSHIP_TABLE = "CREATE TABLE " + TABLE_MODE_RELATIONSHIP + " ("
+                + _ID + " INTEGER PRIMARY KEY,"
+                + MODE_FK + INTCOMMA
+                + ANTHOLOGY_FK + INTCOMMA
+                + "FOREIGN KEY(" + MODE_FK + ") REFERENCES " + ModeEntry.TABLE_MODE + "(" + _ID + ")"
+                + "FOREIGN KEY(" + ANTHOLOGY_FK + ") REFERENCES " + AnthologyEntry.TABLE_ANTHOLOGY + "(" + _ID + ")"
+                + "CONSTRAINT " + UNIQUE_CONSTRAINT + " UNIQUE(" + MODE_FK + COMMA + ANTHOLOGY_FK + ")"
                 + ");";
     }
 
@@ -238,6 +256,8 @@ public final class ProjectContract {
     public static final String DELETE_ANTHOLOGIES = "DROP TABLE IF EXISTS " + AnthologyEntry.TABLE_ANTHOLOGY;
     public static final String DELETE_VERSION_RELATIONSHIPS = "DROP TABLE IF EXISTS " + VersionRelationshipEntry.TABLE_VERSION_RELATIONSHIP;
     public static final String DELETE_TAKES = "DROP TABLE IF EXISTS " + TakeEntry.TABLE_TAKE;
+    public static final String DELETE_MODES = "DROP TABLE IF EXISTS " + ModeEntry.TABLE_MODE;
+    public static final String DELETE_MODE_RELATIONSHIPS = "DROP TABLE IF EXISTS " + ModeRelationshipEntry.TABLE_MODE_RELATIONSHIP;
 
     public static final String DELETE_TEMP = "DROP TABLE IF EXISTS stuff";
 }
