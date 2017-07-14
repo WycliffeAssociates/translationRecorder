@@ -114,6 +114,14 @@ public class Project implements Parcelable {
         return (mMode == null) ? "" : mMode.getSlug();
     }
 
+    public Mode.TYPE getModeType() {
+        return (mMode == null) ? null : mMode.getType();
+    }
+
+    public String getModeName() {
+        return (mMode == null) ? "" : mMode.getName();
+    }
+
     public String getContributors() {
         return (mContributors == null) ? "" : mContributors;
     }

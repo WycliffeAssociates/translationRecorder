@@ -11,16 +11,29 @@ import org.wycliffeassociates.translationrecorder.Utils;
 
 public class Mode extends ProjectComponent {
 
-    private String mType;
+    public String getTypeString() {
+        return (mType == TYPE.SINGLE)? "single" : "multi";
+    }
+
+    public enum TYPE {
+        SINGLE,
+        MULTI
+    }
+
+    private TYPE mType;
 
     public Mode(String slug, String name, String type) {
         super(slug, name);
-        mType = type;
+        mType = (new String("multi").equals(type))? TYPE.MULTI : TYPE.SINGLE;
     }
 
     public Mode(Parcel in) {
         super(in);
-        mType = in.readString();
+        mType = (Mode.TYPE) in.readSerializable();
+    }
+
+    public TYPE getType() {
+        return mType;
     }
 
     @Override
@@ -37,7 +50,7 @@ public class Mode extends ProjectComponent {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mSlug);
         parcel.writeString(mName);
-        parcel.writeString(mType);
+        parcel.writeSerializable(mType);
     }
 
     public static final Parcelable.Creator<Mode> CREATOR = new Parcelable.Creator<Mode>() {

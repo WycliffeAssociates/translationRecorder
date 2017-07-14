@@ -59,7 +59,7 @@ public class ProjectPlugin {
 //        Reader chunksReader = new FileReader(new File(pluginDir, "Chunks/" + chunksPath));
 //        readChunks(new JsonReader(chunksReader));
 
-        importPluginToDatabase(context, books.toArray(new Book[books.size()]), versions.toArray(new Version[versions.size()]));
+        importPluginToDatabase(context, books.toArray(new Book[books.size()]), versions.toArray(new Version[versions.size()]), modes.toArray(new Mode[modes.size()]));
     }
 
     private void init(Reader reader) throws IOException {
@@ -127,9 +127,9 @@ public class ProjectPlugin {
         db.addAnthology(slug, name, resource, regex, groups, mask);
         db.addBooks(books);
         db.addVersions(versions);
-        db.addModes(modes);
+        db.addModes(modes, slug);
         db.addVersionRelationships(slug, versions);
-        db.addModeRelationships(slug, modes);
+        //db.addModeRelationships(slug, modes);
         db.close();
     }
 
@@ -230,7 +230,7 @@ public class ProjectPlugin {
     }
 
     public void readModesSection(JsonReader jsonReader) throws IOException {
-        jsonReader.beginObject();
+        jsonReader.beginArray();
         while (jsonReader.hasNext()) {
             jsonReader.beginObject();
             String name = null;
@@ -243,8 +243,10 @@ public class ProjectPlugin {
                     type = jsonReader.nextString();
                 }
             }
+            jsonReader.endObject();
             modes.add(new Mode(name, name, type));
         }
+        jsonReader.endArray();
     }
 
     public String getBooksPath() {

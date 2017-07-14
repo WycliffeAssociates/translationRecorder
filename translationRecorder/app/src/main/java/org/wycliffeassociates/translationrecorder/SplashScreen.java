@@ -141,7 +141,7 @@ public class SplashScreen extends Activity {
         ProjectPlugin projectPlugin = new ProjectPlugin(pluginsDir, pluginPath);
         copyPluginContentFromAssets(am, pluginsDir, "Books", projectPlugin.getBooksPath());
         copyPluginContentFromAssets(am, pluginsDir, "Versions", projectPlugin.getVersionsPath());
-        copyPluginContentFromAssets(am, pluginPath, "Chunks", projectPlugin.getChunksPath());
+        //copyPluginContentFromAssets(am, pluginPath, "Chunks", projectPlugin.getChunksPath());
         projectPlugin.importProjectPlugin(this, pluginsDir);
     }
 
@@ -161,6 +161,5 @@ public class SplashScreen extends Activity {
         } catch (IOException e) {
             Logger.e(this.toString(), "Exception copying " + pluginName + " from assets", e);
         }
-
     }
 }

@@ -18,10 +18,10 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.adapters.GenericAdapter;
-import org.wycliffeassociates.translationrecorder.project.adapters.ModeCategoryAdapter;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 
 
@@ -173,8 +173,8 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             mProject.setVersion((Version)result);
             mCurrentFragment++;
             this.displayFragment();
-        } else if (mCurrentFragment == MODE && result instanceof String) {
-            mProject.setMode(((String) result).toLowerCase());
+        } else if (mCurrentFragment == MODE && result instanceof Mode) {
+            mProject.setMode((Mode) result);
             mLastFragment = mCurrentFragment;
             mCurrentFragment++;
             this.displayFragment();
@@ -232,7 +232,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
                 break;
             case MODE:
                 mFragment = new ScrollableListFragment
-                        .Builder(new ModeCategoryAdapter(new String[]{"Verse", "Chunk"}, this))
+                        .Builder(new GenericAdapter(getModeList(mProject.getAnthologySlug()), this))
                         .setSearchHint("Choose a Mode")
                         .build();
                 break;
@@ -270,6 +270,13 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         Version[] versions = db.getVersions(anthologySlug);
         db.close();
         return versions;
+    }
+
+    private Mode[] getModeList(String anthologySlug){
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        Mode[] mode = db.getModes(anthologySlug);
+        db.close();
+        return mode;
     }
 
     public static void displayProjectExists(Context context){

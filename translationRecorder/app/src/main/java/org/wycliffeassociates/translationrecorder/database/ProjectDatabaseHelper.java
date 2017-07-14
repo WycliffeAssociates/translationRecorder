@@ -84,7 +84,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.ModeEntry.CREATE_MODE_TABLE);
         db.execSQL(ProjectContract.VersionEntry.CREATE_VERSION_TABLE);
         db.execSQL(ProjectContract.VersionRelationshipEntry.CREATE_VERSION_RELATIONSHIP_TABLE);
-        db.execSQL(ProjectContract.ModeRelationshipEntry.CREATE_MODE_RELATIONSHIP_TABLE);
+        //db.execSQL(ProjectContract.ModeRelationshipEntry.CREATE_MODE_RELATIONSHIP_TABLE);
         //db.close();
     }
 
@@ -99,7 +99,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_VERSIONS);
         db.execSQL(ProjectContract.DELETE_MODES);
         db.execSQL(ProjectContract.DELETE_VERSION_RELATIONSHIPS);
-        db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
+        //db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
         onCreate(db);
     }
 
@@ -119,7 +119,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_VERSIONS);
         db.execSQL(ProjectContract.DELETE_MODES);
         db.execSQL(ProjectContract.DELETE_VERSION_RELATIONSHIPS);
-        db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
+        //db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
         onCreate(db);
     }
 
@@ -340,7 +340,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public int getModeId(String modeSlug) throws IllegalArgumentException {
+    public int getModeId(String modeSlug, String anthologySlug) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
         final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=?",
                 ProjectContract.ModeEntry._ID, ProjectContract.ModeEntry.TABLE_MODE, ProjectContract.ModeEntry.MODE_SLUG);
@@ -655,21 +655,23 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void addMode(String slug, String name, String type) {
+    public void addMode(String slug, String name, String type, String anthologySlug) {
+        int anthId = getAnthologyId(anthologySlug);
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(ProjectContract.ModeEntry.MODE_SLUG, slug);
         cv.put(ProjectContract.ModeEntry.MODE_NAME, name);
         cv.put(ProjectContract.ModeEntry.MODE_TYPE, type);
+        cv.put(ProjectContract.ModeEntry.MODE_ANTHOLOGY_FK, anthId);
         long result = db.insertWithOnConflict(ProjectContract.ModeEntry.TABLE_MODE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-    public void addModes(Mode[] modes) {
+    public void addModes(Mode[] modes, String anthologySlug) {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
             for (Mode m : modes) {
-                addVersion(m.getSlug(), m.getName());
+                addMode(m.getSlug(), m.getName(), m.getTypeString(), anthologySlug);
             }
             db.setTransactionSuccessful();
         } finally {
@@ -701,17 +703,17 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void addModeRelationships(String anthologySlug, Mode[] modes) {
-        int anthId = getAnthologyId(anthologySlug);
-        SQLiteDatabase db = getWritableDatabase();
-        for(Mode m : modes) {
-            int modeId = getModeId(m.getSlug());
-            ContentValues cv = new ContentValues();
-            cv.put(ProjectContract.ModeRelationshipEntry.ANTHOLOGY_FK, anthId);
-            cv.put(ProjectContract.ModeRelationshipEntry.MODE_FK, modeId);
-            long result = db.insertWithOnConflict(ProjectContract.ModeRelationshipEntry.TABLE_MODE_RELATIONSHIP, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
-        }
-    }
+//    public void addModeRelationships(String anthologySlug, Mode[] modes) {
+//        int anthId = getAnthologyId(anthologySlug);
+//        SQLiteDatabase db = getWritableDatabase();
+//        for(Mode m : modes) {
+//            int modeId = getModeId(m.getSlug());
+//            ContentValues cv = new ContentValues();
+//            cv.put(ProjectContract.ModeRelationshipEntry.ANTHOLOGY_FK, anthId);
+//            cv.put(ProjectContract.ModeRelationshipEntry.MODE_FK, modeId);
+//            long result = db.insertWithOnConflict(ProjectContract.ModeRelationshipEntry.TABLE_MODE_RELATIONSHIP, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+//        }
+//    }
 
     public void addVersionRelationships(String anthologySlug, Version[] versions) {
         int anthId = getAnthologyId(anthologySlug);
@@ -733,7 +735,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         int bookId = getBookId(p.getBookSlug());
         int versionId = getVersionId(p.getVersionSlug());
-        int modeId = getModeId(p.getModeSlug());
+        int modeId = getModeId(p.getModeSlug(), p.getAnthologySlug());
 
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -757,7 +759,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         int targetLanguageId = getLanguageId(languageSlug);
         int bookId = getBookId(bookSlug);
         int versionId = getVersionId(versionSlug);
-        int modeId = getModeId(modeSlug);
+        String anthologySlug = getAnthologySlug(bookSlug);
+        int modeId = getModeId(modeSlug, anthologySlug);
 
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -1270,7 +1273,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 File file = new File(dir, c.getString(nameIndex));
                 try {
                     WavFile wav = new WavFile(file);
-                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0);
                 } catch (IllegalArgumentException e) {
                     //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
                     Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
@@ -1383,7 +1386,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 File file = new File(dir, c.getString(nameIndex));
                 try {
                     WavFile wav = new WavFile(file);
-                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0);
                 } catch (IllegalArgumentException e) {
                     //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
                     Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
@@ -1480,7 +1483,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
                 File dir = ProjectFileUtils.getParentDirectory(takeInfo);
                 WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
-                addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getMode(), c.getLong(timestampIndex), 0);
+                addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0);
             } while (c.moveToNext());
         }
         c.close();
@@ -1531,6 +1534,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             int takeId = c.getInt(0);
             setSelectedTake(unitId, takeId);
         }
+        c.close();
     }
 
     public Language[] getLanguages() {
@@ -1619,5 +1623,26 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.endTransaction();
         //db.close();
         return versionList.toArray(new Version[versionList.size()]);
+    }
+
+    public Mode[] getModes(String anthologySlug) {
+        int anthId = getAnthologyId(anthologySlug);
+        List<Mode> modeList = new ArrayList<>();
+        String query = "SELECT * FROM " + ProjectContract.ModeEntry.TABLE_MODE +
+                " WHERE " + ProjectContract.ModeEntry.MODE_ANTHOLOGY_FK + "=" + String.valueOf(anthId);
+        SQLiteDatabase db = getReadableDatabase();
+        db.beginTransaction();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int modeId = cursor.getInt(cursor.getColumnIndex(ProjectContract.ModeEntry._ID));
+                Mode mode = getMode(modeId);
+                modeList.add(mode);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.endTransaction();
+        //db.close();
+        return modeList.toArray(new Mode[modeList.size()]);
     }
 }
