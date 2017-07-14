@@ -208,7 +208,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             project = db.getProject(projectId);
             Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguageSlug()
                     + " book " + project.getBookSlug() + " version "
-                    + project.getVersionSlug() + " mode " + project.getMode());
+                    + project.getVersionSlug() + " mode " + project.getModeSlug());
         } else {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             List<Project> projects = db.getAllProjects();
@@ -251,7 +251,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             }
         }
         for (Project p : projects) {
-            Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getMode());
+            Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getModeSlug());
         }
         mAdapter = new ProjectAdapter(this, projects);
         mProjectList.setAdapter(mAdapter);
@@ -361,7 +361,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         if (which == dialog.BUTTON_POSITIVE) {
                             Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
                                     + " book " + project.getBookSlug() + " version "
-                                    + project.getVersionSlug() + " mode " + project.getMode());
+                                    + project.getVersionSlug() + " mode " + project.getModeSlug());
                             if(project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
                                 removeProjectFromPreferences();
                             }

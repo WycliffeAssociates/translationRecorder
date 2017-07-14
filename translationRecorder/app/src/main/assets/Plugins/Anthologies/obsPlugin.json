@@ -17,6 +17,12 @@
             }
         }
     },
+    "modes": [
+        {
+            "name":"chunk",
+            "type":"single"
+        }
+    ],
     "books": "OBSBooks.json",
     "chunks": "obsChunks/",
     "versions": "obsVersions.json"

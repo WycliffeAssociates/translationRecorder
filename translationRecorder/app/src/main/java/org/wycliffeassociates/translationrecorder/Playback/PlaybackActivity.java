@@ -46,6 +46,7 @@ import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
@@ -180,8 +181,9 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
 
         mFragmentFileBar = FragmentFileBar.newInstance(mProject.getTargetLanguageSlug(),
                 mProject.getVersionSlug(), mProject.getBookSlug(), "Chapter", String.valueOf(mChapter),
-                mProject.getMode(),
-                getUnitLabel());
+                mProject.getModeName(),
+                getUnitLabel(),
+                mProject.getModeType());
 
         mFragmentContainerMapping.put(R.id.file_bar_fragment_holder, mFragmentFileBar);
 
@@ -203,7 +205,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private String getUnitLabel() {
-        if (mProject.getMode().equals("chunk")) {
+        if (mProject.getModeType() == Mode.TYPE.MULTI) {
             ProjectPatternMatcher ppm = mProject.getPatternMatcher();
             ppm.match(mWavFile.getFile());
             TakeInfo takeInfo = ppm.getTakeInfo();
@@ -596,7 +598,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
                         ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackActivity.this);
                         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
                         ppm.match(to);
-                        db.addTake(ppm.getTakeInfo(), to.getName(), from.getMetadata().getMode(), to.lastModified(), 0);
+                        db.addTake(ppm.getTakeInfo(), to.getName(), from.getMetadata().getModeSlug(), to.lastModified(), 0);
                         db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));

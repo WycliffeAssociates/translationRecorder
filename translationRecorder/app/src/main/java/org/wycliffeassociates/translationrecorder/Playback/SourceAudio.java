@@ -13,14 +13,14 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.door43.tools.reporting.Logger;
 import com.wycliffeassociates.io.ArchiveOfHolding;
 import com.wycliffeassociates.io.ArchiveOfHoldingEntry;
 import com.wycliffeassociates.io.LanguageLevel;
 
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
-import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.widgets.AudioPlayer;
 
@@ -233,8 +233,7 @@ public class SourceAudio extends LinearLayout {
     }
 
     public void showNoSource(boolean noSource) {
-        if (noSource) {
-            mSeekBar.setVisibility(View.GONE);
+        if (noSource) { mSeekBar.setVisibility(View.GONE);
             mSrcTimeElapsed.setVisibility(View.GONE);
             mSrcTimeDuration.setVisibility(View.GONE);
             mNoSourceMsg.setVisibility(View.VISIBLE);

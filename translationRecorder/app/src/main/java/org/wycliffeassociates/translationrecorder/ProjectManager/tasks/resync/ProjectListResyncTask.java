@@ -4,13 +4,15 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import com.door43.tools.reporting.Logger;
+
+import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
@@ -58,7 +60,7 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                     projectDirectories.put(project, bookDir);
                                 } else { //otherwise derive the project from the filename
                                     File[] chapters = bookDir.listFiles();
-                                    String mode = null;
+                                    Mode mode = null;
                                     if(chapters != null) {
                                         for(File chapter : chapters) {
                                             File[] c = chapter.listFiles();
@@ -66,7 +68,7 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                                 for (int i = 0; i < c.length; i++) {
                                                     try {
                                                         WavFile wav = new WavFile(c[i]);
-                                                        mode = wav.getMetadata().getMode();
+                                                        mode = db.getMode(db.getModeId(wav.getMetadata().getModeSlug(), wav.getMetadata().getAnthology()));
                                                     } catch (IllegalArgumentException e) {
                                                         //don't worry about the corrupt file dialog here; the database resync will pick it up.
                                                         Logger.e(this.toString(), c[i].getName(), e);

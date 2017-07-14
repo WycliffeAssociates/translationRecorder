@@ -27,6 +27,7 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 
@@ -219,7 +220,7 @@ public class RecordingActivity extends AppCompatActivity implements
             mInsertLocation = intent.getIntExtra(KEY_INSERT_LOCATION, 0);
             mInsertMode = true;
         }
-        isChunkMode = mProject.getMode().equals("chunk");
+        isChunkMode = mProject.getModeType() == Mode.TYPE.MULTI;
     }
 
     private void initializeTaskFragment(Bundle savedInstanceState) {
@@ -307,7 +308,7 @@ public class RecordingActivity extends AppCompatActivity implements
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
         ppm.match(mNewRecording.getFile());
-        db.addTake(ppm.getTakeInfo(), mNewRecording.getFile().getName(), mNewRecording.getMetadata().getMode(), mNewRecording.getFile().lastModified(), 0);
+        db.addTake(ppm.getTakeInfo(), mNewRecording.getFile().getName(), mNewRecording.getMetadata().getModeSlug(), mNewRecording.getFile().lastModified(), 0);
         db.close();
     }
 

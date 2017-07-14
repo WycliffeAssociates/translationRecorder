@@ -5,6 +5,7 @@ import android.util.JsonReader;
 
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 
 import java.io.File;
@@ -42,6 +43,7 @@ public class ProjectPlugin {
     int endVerse = -1;
 
     int take = -1;
+    List<Mode> modes = new ArrayList<>();
 
     public ProjectPlugin(File pluginDir, File plugin) throws IOException {
         this.pluginDir = pluginDir;
@@ -57,7 +59,7 @@ public class ProjectPlugin {
 //        Reader chunksReader = new FileReader(new File(pluginDir, "Chunks/" + chunksPath));
 //        readChunks(new JsonReader(chunksReader));
 
-        importPluginToDatabase(context, books.toArray(new Book[books.size()]), versions.toArray(new Version[versions.size()]));
+        importPluginToDatabase(context, books.toArray(new Book[books.size()]), versions.toArray(new Version[versions.size()]), modes.toArray(new Mode[modes.size()]));
     }
 
     private void init(Reader reader) throws IOException {
@@ -120,12 +122,14 @@ public class ProjectPlugin {
         return bookList;
     }
 
-    private void importPluginToDatabase(Context ctx, Book[] books, Version[] versions) {
+    private void importPluginToDatabase(Context ctx, Book[] books, Version[] versions, Mode[] modes) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
         db.addAnthology(slug, name, resource, regex, groups, mask);
         db.addBooks(books);
         db.addVersions(versions);
+        db.addModes(modes, slug);
         db.addVersionRelationships(slug, versions);
+        //db.addModeRelationships(slug, modes);
         db.close();
     }
 
@@ -163,6 +167,8 @@ public class ProjectPlugin {
                 versionsPath = jsonReader.nextString();
             } else if (key.equals("anthology")) {
                 readAnthologySection(jsonReader);
+            } else if (key.equals("modes")) {
+                readModesSection(jsonReader);
             }
         }
         jsonReader.endObject();
@@ -221,6 +227,26 @@ public class ProjectPlugin {
             }
         }
         jsonReader.endObject();
+    }
+
+    public void readModesSection(JsonReader jsonReader) throws IOException {
+        jsonReader.beginArray();
+        while (jsonReader.hasNext()) {
+            jsonReader.beginObject();
+            String name = null;
+            String type = null;
+            while (jsonReader.hasNext()) {
+                String key = jsonReader.nextName();
+                if (key.equals("name")) {
+                    name = jsonReader.nextString();
+                } else if (key.equals("type")) {
+                    type = jsonReader.nextString();
+                }
+            }
+            jsonReader.endObject();
+            modes.add(new Mode(name, name, type));
+        }
+        jsonReader.endArray();
     }
 
     public String getBooksPath() {
