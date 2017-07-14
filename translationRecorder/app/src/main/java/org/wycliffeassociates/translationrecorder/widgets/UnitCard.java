@@ -7,12 +7,13 @@ import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
@@ -70,7 +71,7 @@ public class UnitCard {
 
     // Constructors
     public UnitCard(Activity ctx, Project project, int chapter, int firstVerse, int endVerse) {
-        mTitle = Utils.capitalizeFirstLetter(project.getMode()) + " " + firstVerse;
+        mTitle = Utils.capitalizeFirstLetter(project.getModeName()) + " " + firstVerse;
         mFirstVerse = firstVerse;
         mEndVerse = endVerse;
         mChapter = chapter;

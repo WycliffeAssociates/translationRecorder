@@ -22,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
@@ -32,7 +34,6 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSou
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ProjectListResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -192,16 +193,14 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
         hideProjectsIfEmpty(mNumProjects);
         if (mNumProjects > 0) {
-            initializeRecentProject();
-            if (mNumProjects > 1) {
-                populateProjectList();
-            }
-        } else {
-            mProjectList.setVisibility(View.GONE);
+            Project recent = initializeRecentProject();
+            populateProjectList(recent);
         }
     }
 
-    public void initializeRecentProject() {
+
+    //Returns the project that was initialized
+    public Project initializeRecentProject() {
         Project project = null;
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
         if (projectId != -1) {
@@ -209,7 +208,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             project = db.getProject(projectId);
             Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguageSlug()
                     + " book " + project.getBookSlug() + " version "
-                    + project.getVersionSlug() + " mode " + project.getMode());
+                    + project.getVersionSlug() + " mode " + project.getModeSlug());
         } else {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             List<Project> projects = db.getAllProjects();
@@ -220,8 +219,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if (project != null) {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             ProjectAdapter.initializeProjectCard(this, project, db, findViewById(R.id.recent_project));
+            return project;
         } else {
             findViewById(R.id.recent_project).setVisibility(View.GONE);
+            return null;
         }
     }
 
@@ -238,11 +239,19 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, -1).commit();
     }
 
-    private void populateProjectList() {
+    private void populateProjectList(Project recent) {
         final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        final List<Project> projects = db.getAllProjects();
+        List<Project> projects = db.getAllProjects();
+        if (recent != null) {
+            for (int i = 0; i < projects.size(); i++) {
+                if (recent.equals(projects.get(i))) {
+                    projects.remove(i);
+                    break;
+                }
+            }
+        }
         for (Project p : projects) {
-            Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getMode());
+            Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getModeSlug());
         }
         mAdapter = new ProjectAdapter(this, projects);
         mProjectList.setAdapter(mAdapter);
@@ -262,11 +271,11 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     private void loadProject(Project project) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if(!db.projectExists(project)) {
+        if (!db.projectExists(project)) {
             Logger.e(this.toString(), "Project " + project + " does not exist");
         }
         int projectId = db.getProjectId(project);
-        pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId);
+        pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();
 
         //FIXME: find the last place worked on?
         pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
@@ -277,7 +286,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     private boolean addProjectToDatabase(Project project) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if(db.projectExists(project)) {
+        if (db.projectExists(project)) {
             ProjectWizardActivity.displayProjectExists(this);
             return false;
         } else {
@@ -352,11 +361,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         if (which == dialog.BUTTON_POSITIVE) {
                             Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
                                     + " book " + project.getBookSlug() + " version "
-                                    + project.getVersionSlug() + " mode " + project.getMode());
+                                    + project.getVersionSlug() + " mode " + project.getModeSlug());
+                            if(project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
+                                removeProjectFromPreferences();
+                            }
                             ProjectFileUtils.deleteProject(ActivityProjectManager.this, project);
-                            populateProjectList();
                             hideProjectsIfEmpty(mAdapter.getCount());
-                            removeProjectFromPreferences();
                             mNumProjects--;
                             initializeViews();
                         }

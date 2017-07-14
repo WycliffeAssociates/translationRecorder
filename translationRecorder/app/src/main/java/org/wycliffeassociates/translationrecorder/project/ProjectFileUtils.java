@@ -178,7 +178,7 @@ public class ProjectFileUtils {
     }
 
     public static String getMode(WavFile file) {
-        return file.getMetadata().getMode();
+        return file.getMetadata().getModeSlug();
     }
 
 //    public static File getFileFromFileName(File file) {

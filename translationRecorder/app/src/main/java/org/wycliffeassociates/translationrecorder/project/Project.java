@@ -11,6 +11,7 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 
 /**
@@ -25,7 +26,7 @@ public class Project implements Parcelable {
     private Anthology mAnthology;
     private Book mBook;
     private Version mVersion;
-    private String mMode;
+    private Mode mMode;
     private FileName mFileName;
 
 
@@ -35,7 +36,7 @@ public class Project implements Parcelable {
     public Project() {
     }
 
-    public Project(Language target, Anthology anthology, Book book, Version version, String mode) {
+    public Project(Language target, Anthology anthology, Book book, Version version, Mode mode) {
         mTargetLanguage = target;
         mAnthology = anthology;
         mBook = book;
@@ -44,7 +45,7 @@ public class Project implements Parcelable {
         mFileName = new FileName(target, anthology, version, book);
     }
 
-    public Project(Language target, Anthology anthology, Book book, Version version, String mode, String sourceAudioPath) {
+    public Project(Language target, Anthology anthology, Book book, Version version, Mode mode, String sourceAudioPath) {
         this(target, anthology, book, version, mode);
         mSourceAudioPath = sourceAudioPath;
     }
@@ -109,8 +110,16 @@ public class Project implements Parcelable {
         return (mVersion == null) ? "" : mVersion.getSlug();
     }
 
-    public String getMode() {
-        return (mMode == null) ? "" : mMode;
+    public String getModeSlug() {
+        return (mMode == null) ? "" : mMode.getSlug();
+    }
+
+    public Mode.TYPE getModeType() {
+        return (mMode == null) ? null : mMode.getType();
+    }
+
+    public String getModeName() {
+        return (mMode == null) ? "" : mMode.getName();
     }
 
     public String getContributors() {
@@ -145,7 +154,7 @@ public class Project implements Parcelable {
         mAnthology = anthology;
     }
 
-    public void setMode(String mode) {
+    public void setMode(Mode mode) {
         mMode = mode;
     }
 
@@ -177,7 +186,7 @@ public class Project implements Parcelable {
         }
         dest.writeParcelable(mBook, flags);
         dest.writeParcelable(mVersion, flags);
-        dest.writeString(mMode);
+        dest.writeParcelable(mMode, flags);
         dest.writeParcelable(mAnthology, flags);
         dest.writeString(mContributors);
         dest.writeString(mSourceAudioPath);
@@ -201,7 +210,7 @@ public class Project implements Parcelable {
         }
         mBook = in.readParcelable(Book.class.getClassLoader());
         mVersion = in.readParcelable(Version.class.getClassLoader());
-        mMode = in.readString();
+        mMode = in.readParcelable(Mode.class.getClassLoader());
         mAnthology = in.readParcelable(Anthology.class.getClassLoader());
         mContributors = in.readString();
         mSourceAudioPath = in.readString();

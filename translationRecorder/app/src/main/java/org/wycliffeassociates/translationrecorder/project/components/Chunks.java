@@ -32,7 +32,9 @@ public class Chunks {
     public Chunks(Context ctx, Project project) throws IOException{
         parseChunksJSON(ctx, project);
         generateChunks(mParsedChunks);
-        generateVerses();
+        if (project.getModeType() == Mode.TYPE.SINGLE) {
+            generateVerses();
+        }
     }
 
     private void parseChunksJSON(Context ctx, Project project) throws IOException{
@@ -95,7 +97,7 @@ public class Chunks {
     }
 
     public int getNumChunks(Project project, int chapter){
-        if(project.getMode().compareTo("chunk") == 0) {
+        if(project.getModeType() == Mode.TYPE.MULTI) {
             return mChunks.get(chapter - 1).size();
         } else {
             return mVerses.get(chapter - 1).size();
@@ -103,7 +105,7 @@ public class Chunks {
     }
 
     public List<Map<String,String>> getChunks(Project project, int chapter) {
-        if(project.getMode().compareTo("chunk") == 0) {
+        if(project.getModeType() == Mode.TYPE.MULTI) {
             return mChunks.get(chapter - 1);
         } else {
             return mVerses.get(chapter - 1);

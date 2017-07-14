@@ -4,7 +4,7 @@ import com.wycliffeassociates.io.ArchiveOfHolding;
 
 import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 

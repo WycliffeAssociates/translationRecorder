@@ -3,10 +3,11 @@ package org.wycliffeassociates.translationrecorder.wav;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.door43.tools.reporting.Logger;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +48,7 @@ public class WavMetadata implements Parcelable {
         mVersion = p.getVersionSlug();
         mSlug = p.getBookSlug();
         mBookNumber = p.getBookNumber();
-        mMode = p.getMode().toLowerCase();
+        mMode = p.getModeSlug().toLowerCase();
         mChapter = chapter;
         mStartVerse = startVerse;
         mEndVerse = endVerse;
@@ -62,7 +63,7 @@ public class WavMetadata implements Parcelable {
     public String getVersion(){return mVersion;}
     public String getSlug(){return mSlug;}
     public String getBookNumber(){return mBookNumber;}
-    public String getMode(){return mMode;}
+    public String getModeSlug(){return mMode;}
     public String getChapter(){return mChapter;}
     public String getStartVerse(){return mStartVerse;}
     public String getEndVerse(){return mEndVerse;}

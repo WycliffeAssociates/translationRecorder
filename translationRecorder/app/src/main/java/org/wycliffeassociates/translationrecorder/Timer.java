@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder;
 
-import org.wycliffeassociates.translationrecorder.Reporting.Logger;
+import com.door43.tools.reporting.Logger;
 
 /**
  * Created by sarabiaj on 12/22/2015.
