@@ -5,13 +5,13 @@ import json
 import urllib.request
 import re
 
-# RESULT_JSON_NAME = "chunks.json"
+RESULT_JSON_NAME = "chunks.json"
 
 # with open("catalog.json") as file:
 #     DATA = json.load(file)
 
 # Get catalog.json
-URL_CAT = "https://api.unfoldingword.org/uw/txt/2/catalog.json"
+URL_CAT = "https://api.unfoldingword.org/ts/txt/2/catalog.json"
 response_cat = urllib.request.urlopen(URL_CAT)
 DATA = json.loads(response_cat.read().decode('utf-8'))
 
@@ -106,4 +106,3 @@ for x in range(1, 67):
 #output all book data to a json file
 with open(RESULT_JSON_NAME, 'w') as outfile:
     json.dump(OUTPUT, outfile)
-
