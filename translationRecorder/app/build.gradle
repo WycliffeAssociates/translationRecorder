@@ -72,6 +72,8 @@ dependencies {
     compile group: 'net.lingala.zip4j', name: 'zip4j', version: '1.3.2'
     compile project(':door43login')
     compile files('src/main/lib/archive_of_holding_0.9.jar')
+    compile project(path: ':chunkplugin')
+    compile project(path: ':biblechunk')
 }
 
 configurations.all {

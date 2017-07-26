@@ -11,12 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.wycliffeassociates.translationrecorder.project.Project;
 import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
+import org.wycliffeassociates.translationrecorder.biblechunk.BibleChunk;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 
 import java.io.IOException;
@@ -44,8 +46,8 @@ public class FragmentRecordingFileBar extends Fragment {
     private TextView mModeView;
     private Project mProject;
     private boolean isChunkMode;
-    private Chunks mChunks;
-    private List<Map<String, String>> mChunksList;
+    private Chunk mChunks;
+    //private List<Map<String, String>> mChunksList;
     private int mChapter = DEFAULT_CHAPTER;
     private int mUnit = DEFAULT_UNIT;
     private Handler mHandler;
@@ -160,20 +162,20 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void initializePickers() throws IOException {
 
-            mChunks = new Chunks(getActivity(), mProject);
-            mNumChapters = mChunks.getNumChapters();
-            mChunksList = mChunks.getChunks(mProject, mChapter);
+            mChunks = new BibleChunk(Chunk.TYPE.SINGLE);
+            mNumChapters = mChunks.numChapters();
+            //mChunksList = mChunks.getChunks(mProject, mChapter);
         initializeUnitPicker();
         initializeChapterPicker();
     }
 
     private void initializeUnitPicker() {
-        final String[] values = new String[mChunksList.size()];
+        final String[] values = new String[mChunks.numChunks(mChapter)];
         if (isChunkMode) {
             setDisplayValuesAsRange(values);
         } else {
-            for (int i = 0; i < mChunksList.size(); i++) {
-                values[i] = mChunksList.get(i).get(Chunks.FIRST_VERSE);
+            for (int i = 0; i < mChunks.numChunks(mChapter); i++) {
+                values[i] = mChunks.getUnitLabel(mChapter, i);
             }
         }
         mHandler.post(new Runnable() {
@@ -205,7 +207,7 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void initializeChapterPicker() {
         Logger.w(this.toString(), "Initializing chapter picker");
-        int numChapters = mChunks.getNumChapters();
+        int numChapters = mChunks.numChapters();
         final String[] values = new String[numChapters];
         for (int i = 0; i < numChapters; i++) {
             values[i] = String.valueOf(i + 1);
