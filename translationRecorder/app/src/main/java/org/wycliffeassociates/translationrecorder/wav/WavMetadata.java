@@ -118,7 +118,7 @@ public class WavMetadata implements Parcelable {
                         WavUtils.seek(bb, chunkSize);
                     } else {
                         //TODO: #664
-                        throw new IllegalArgumentException("Chunk size larger than remaining file length; " +
+                        throw new IllegalArgumentException("ChunkPlugin size larger than remaining file length; " +
                                 "attempting to allocate " + chunkSize + " with remaining file size of " +
                                 (file.length() - bb.remaining()));
                     }

@@ -4,10 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
-import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -17,65 +20,60 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BibleChunk extends Chunk {
+public class BibleChunkPlugin extends ChunkPlugin {
 
-    ArrayList<ArrayList<Map<String, String>>> mChunks;
-    ArrayList<ArrayList<Map<String, String>>> mVerses;
+    Map<Integer, Chapter> mChapters;
     ArrayList<Map<String, String>> mParsedChunks;
     int mNumChapters = 0;
 
-    public BibleChunk(TYPE mode) {
+    public BibleChunkPlugin(TYPE mode) {
         super(mode);
     }
 
     @Override
-    public int get(int chapter, int chunk) {
-        if (mMode == TYPE.SINGLE) {
-            return mVerses.get(chapter - 1).get(chunk - 1).get("id");
-        }
+    public Chapter getChapter(int chapter) {
+        return mChapters.get(chapter);
     }
 
     @Override
     public void parseChunks(File chunkFile) {
         try (InputStream is = new FileInputStream(chunkFile)) {
             parseChunks(is);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     public void parseChunks(InputStream chunkFile) {
         Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<Map<String, String>>>() {
-        }.getType();
-
+        Type type = new TypeToken<ArrayList<Map<String, String>>>(){}.getType();
         InputStreamReader isr = new InputStreamReader(chunkFile);
-        JsonReader json = new JsonReader(isr);
-        mParsedChunks = gson.fromJson(json, type);
-        json.close();
+        try (JsonReader json = new JsonReader(isr)) {
+            mParsedChunks = gson.fromJson(json, type);
+            json.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         String id = mParsedChunks.get(mParsedChunks.size() - 1).get("id");
         mNumChapters = Integer.parseInt(id.substring(0, id.lastIndexOf("-")));
+        generateChunks(mParsedChunks);
     }
 
     private void generateChunks(List<Map<String, String>> parsedChunks) {
-        mChunks = new ArrayList<>();
-        ArrayList<Map<String, String>> temp = new ArrayList<>();
-        int currentChapter = 1;
+        mChapters = new HashMap<>();
         String chunkId;
         int chapter;
         for (Map<String, String> chunk : parsedChunks) {
             chunkId = chunk.get("id");
             chapter = Integer.parseInt(chunkId.substring(0, chunkId.lastIndexOf("-")));
-            if (chapter == currentChapter) {
-                temp.add(chunk);
-            } else {
-                mChunks.add(temp);
-                temp = new ArrayList<>();
-                temp.add(chunk);
-                currentChapter = chapter;
+            if (!mChapters.containsKey(chapter)) {
+                mChapters.put(chapter, new BibleChapter(chapter, new ArrayList<Map<String, String>>()));
             }
+            mChapters.get(chapter).addChunk(chunk);
         }
-        //add last
-        mChunks.add(temp);
     }
 
     private void generateVerses() {
@@ -112,16 +110,12 @@ public class BibleChunk extends Chunk {
 
     @Override
     public int numChapters() {
-        return mNumChapters;
+        return mChapters.keySet().size();
     }
 
     @Override
     public int numChunks(int chapter) {
-        if (mMode == TYPE.MULTI) {
-            return mChunks.get(chapter - 1).size();
-        } else {
-            return mVerses.get(chapter - 1).size();
-        }
+        return mChapters.get(chapter).getChunks().size();
     }
 
     @Override
@@ -142,9 +136,9 @@ public class BibleChunk extends Chunk {
     @Override
     public String getChunkName(int chapter, int id) {
         if (mMode == TYPE.SINGLE) {
-            return "verse " + mVerses.get(chapter - 1).get(id);
+            return "verse " + mChapters.get(chapter).getChunks().get(id);
         } else {
-            return "chunk " + mVerses.get(chapter - 1).get(id);
+            return "chunk " + mVerses.get(chapter).get(id);
         }
     }
 }

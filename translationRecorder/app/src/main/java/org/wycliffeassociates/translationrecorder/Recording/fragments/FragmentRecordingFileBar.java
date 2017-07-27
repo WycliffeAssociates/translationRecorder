@@ -15,8 +15,8 @@ import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
-import org.wycliffeassociates.translationrecorder.biblechunk.BibleChunk;
-import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
+import org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.components.Chunks;
@@ -46,7 +46,7 @@ public class FragmentRecordingFileBar extends Fragment {
     private TextView mModeView;
     private Project mProject;
     private boolean isChunkMode;
-    private Chunk mChunks;
+    private ChunkPlugin mChunks;
     //private List<Map<String, String>> mChunksList;
     private int mChapter = DEFAULT_CHAPTER;
     private int mUnit = DEFAULT_UNIT;
@@ -152,7 +152,7 @@ public class FragmentRecordingFileBar extends Fragment {
         mBookView.postInvalidate();
 
         if (isChunkMode) {
-            mModeView.setText("Chunk");
+            mModeView.setText("ChunkPlugin");
         } else {
             mModeView.setText("Verse");
         }
@@ -162,7 +162,7 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void initializePickers() throws IOException {
 
-            mChunks = new BibleChunk(Chunk.TYPE.SINGLE);
+            mChunks = new BibleChunkPlugin(ChunkPlugin.TYPE.SINGLE);
             mNumChapters = mChunks.numChapters();
             //mChunksList = mChunks.getChunks(mProject, mChapter);
         initializeUnitPicker();
