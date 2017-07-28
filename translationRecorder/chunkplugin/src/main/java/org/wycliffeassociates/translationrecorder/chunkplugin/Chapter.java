@@ -22,6 +22,10 @@ public abstract class Chapter {
 
     public abstract String getLabel();
 
-    public abstract int getNumer();
+    public abstract int getNumber();
+
+    public abstract void addChunk(Chunk chunk);
+
+    public abstract String[] getChunkDisplayValues();
 
 }

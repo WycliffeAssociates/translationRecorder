@@ -104,6 +104,10 @@ public class UnitPicker extends LinearLayout {
         return mDisplayedValues[mCurrent];
     }
 
+    public int getCurrentIndex() {
+        return mCurrent;
+    }
+
     public void setDisplayedValues(String[] displayedValues) {
         if (displayedValues == mDisplayedValues) {
             return;

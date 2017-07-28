@@ -16,14 +16,13 @@ import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
 import org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sarabiaj on 2/20/2017.
@@ -162,9 +161,9 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void initializePickers() throws IOException {
 
-            mChunks = new BibleChunkPlugin(ChunkPlugin.TYPE.SINGLE);
-            mNumChapters = mChunks.numChapters();
-            //mChunksList = mChunks.getChunks(mProject, mChapter);
+        mChunks = new BibleChunkPlugin(ChunkPlugin.TYPE.SINGLE);
+        mNumChapters = mChunks.numChapters();
+        //mChunksList = mChunks.getChunks(mProject, mChapter);
         initializeUnitPicker();
         initializeChapterPicker();
     }
@@ -183,9 +182,9 @@ public class FragmentRecordingFileBar extends Fragment {
             public void run() {
                 Logger.w(this.toString(), "Initializing unit picker");
                 if (values != null && values.length > 0) {
-                    mUnitPicker.setDisplayedValues(values);
-                    mUnitPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
-                    setChunk(getChunkIndex(mChunksList, mUnit) + 1);
+                    Chapter chapter = mChunks.getChapter(mChapter);
+                    mUnitPicker.setCurrent(getChunkIndex(chapter, mUnit));
+                    setChunk(getChunkIndex(chapter, mUnit) + 1);
                     mOnUnitChangedListener.onUnitChanged(mProject, mProject.getFileName(mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                     //reinitialize all of the filenames
@@ -222,7 +221,6 @@ public class FragmentRecordingFileBar extends Fragment {
                     mUnit = 1;
                     mChapter = newVal + 1;
                     mUnitPicker.setCurrent(0);
-                    mChunksList = mChunks.getChunks(mProject, mChapter);
                     initializeUnitPicker();
                     mOnUnitChangedListener.onUnitChanged(mProject, mProject.getFileName(mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
@@ -233,9 +231,9 @@ public class FragmentRecordingFileBar extends Fragment {
         }
     }
 
-    private int getChunkIndex(List<Map<String, String>> chunks, int chunk) {
-        for (int i = 0; i < chunks.size(); i++) {
-            if (Integer.parseInt(chunks.get(i).get(Chunks.FIRST_VERSE)) == chunk) {
+    private int getChunkIndex(Chapter chapter, int chunk) {
+        for (int i = 0; i < chapter.getChunks().size(); i++) {
+            if (chapter.getChunks().get(i).getStartVerse() == chunk) {
                 return i;
             }
         }
@@ -243,18 +241,9 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void setDisplayValuesAsRange(String[] values) {
-        Map<String, String> chunk;
-        String firstVerse, lastVerse;
-
-        for (int i = 0; i < mChunksList.size(); i++) {
-            chunk = mChunksList.get(i);
-            firstVerse = chunk.get(Chunks.FIRST_VERSE);
-            lastVerse = chunk.get(Chunks.LAST_VERSE);
-            if (firstVerse.compareTo(lastVerse) == 0) {
-                values[i] = firstVerse;
-            } else {
-                values[i] = firstVerse.concat("-").concat(lastVerse);
-            }
+        String[] range = mChunks.getChapter(mChapter).getChunkDisplayValues();
+        for(int i = 0; i < values.length; i++) {
+            values[i] = range[i];
         }
     }
 
@@ -265,8 +254,9 @@ public class FragmentRecordingFileBar extends Fragment {
      */
     private void setChunk(int idx) {
         if (mChunks != null) {
-            mStartVerse = mChunksList.get(idx - 1).get(Chunks.FIRST_VERSE);
-            mEndVerse = mChunksList.get(idx - 1).get(Chunks.LAST_VERSE);
+            Chunk chunk = mChunks.getChapter(mChapter).getChunks().get(idx);
+            mStartVerse = String.valueOf(chunk.getStartVerse());
+            mEndVerse = String.valueOf(chunk.getEndVerse());
             mUnit = Integer.parseInt(mStartVerse);
         }
     }

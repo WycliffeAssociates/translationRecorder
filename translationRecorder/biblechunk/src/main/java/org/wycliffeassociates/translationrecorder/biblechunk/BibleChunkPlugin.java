@@ -70,9 +70,11 @@ public class BibleChunkPlugin extends ChunkPlugin {
             chunkId = chunk.get("id");
             chapter = Integer.parseInt(chunkId.substring(0, chunkId.lastIndexOf("-")));
             if (!mChapters.containsKey(chapter)) {
-                mChapters.put(chapter, new BibleChapter(chapter, new ArrayList<Map<String, String>>()));
+                mChapters.put(chapter, new BibleChapter(chapter, new HashMap<String, String>()));
             }
-            mChapters.get(chapter).addChunk(chunk);
+            for(String start : chunk.keySet()) {
+                mChapters.get(chapter).addChunk(new BibleChunk(start, chunk.get(start)));
+            }
         }
     }
 
