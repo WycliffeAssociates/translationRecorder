@@ -72,28 +72,26 @@ public class BibleChunkPlugin extends ChunkPlugin {
             if (!mChapters.containsKey(chapter)) {
                 mChapters.put(chapter, new BibleChapter(chapter, new HashMap<String, String>()));
             }
-            for(String start : chunk.keySet()) {
-                mChapters.get(chapter).addChunk(new BibleChunk(start, chunk.get(start)));
-            }
+            mChapters.get(chapter).addChunk(new BibleChunk(chunk.get("firstvs"), chunk.get("lastvs")));
         }
     }
 
-    private void generateVerses() {
-        mVerses = new ArrayList<>();
-        ArrayList<Map<String, String>> temp = new ArrayList<>();
-        for (List<Map<String, String>> chapter : mChunks) {
-            int length = Integer.parseInt(chapter.get(chapter.size() - 1).get(LAST_VERSE));
-            for (int i = 1; i <= length; i++) {
-                Map<String, String> verse = new HashMap<>();
-                String verseNumber = String.valueOf(i);
-                verse.put(FIRST_VERSE, verseNumber);
-                verse.put(LAST_VERSE, verseNumber);
-                temp.add(verse);
-            }
-            mVerses.add(temp);
-            temp = new ArrayList<>();
-        }
-    }
+//    private void generateVerses() {
+//        mVerses = new ArrayList<>();
+//        ArrayList<Map<String, String>> temp = new ArrayList<>();
+//        for (List<Map<String, String>> chapter : mChunks) {
+//            int length = Integer.parseInt(chapter.get(chapter.size() - 1).get(LAST_VERSE));
+//            for (int i = 1; i <= length; i++) {
+//                Map<String, String> verse = new HashMap<>();
+//                String verseNumber = String.valueOf(i);
+//                verse.put(FIRST_VERSE, verseNumber);
+//                verse.put(LAST_VERSE, verseNumber);
+//                temp.add(verse);
+//            }
+//            mVerses.add(temp);
+//            temp = new ArrayList<>();
+//        }
+//    }
 
     @Override
     public void parseChunks(Reader chunkFile) {
@@ -126,21 +124,16 @@ public class BibleChunkPlugin extends ChunkPlugin {
     }
 
     @Override
-    public String getChapterLabel() {
-        return null;
-    }
-
-    @Override
-    public String getChunkName() {
+    public String getChapterLabel(int chapter) {
         return null;
     }
 
     @Override
     public String getChunkName(int chapter, int id) {
-        if (mMode == TYPE.SINGLE) {
+        //if (mMode == TYPE.SINGLE) {
             return "verse " + mChapters.get(chapter).getChunks().get(id);
-        } else {
-            return "chunk " + mVerses.get(chapter).get(id);
-        }
+//        } else {
+//            return "chunk " + mVerses.get(chapter).get(id);
+//        }
     }
 }

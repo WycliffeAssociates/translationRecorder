@@ -38,10 +38,10 @@ public abstract class ChunkPlugin {
     public abstract void previousChunk();
     public abstract int numChapters();
     public abstract int numChunks(int chapter);
-
+    public abstract String getChapterLabel(int chapter);
     public abstract String getUnitLabel(int chapter, int unit);
 
-    public abstract String getChunkName();
+    public abstract String getChunkName(int chapter, int id);
 
 
 }

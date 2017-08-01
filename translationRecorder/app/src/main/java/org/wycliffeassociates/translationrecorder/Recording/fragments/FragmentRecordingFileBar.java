@@ -15,14 +15,20 @@ import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
-import org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import dalvik.system.DexClassLoader;
+
+import static org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin.TYPE;
 
 /**
  * Created by sarabiaj on 2/20/2017.
@@ -160,8 +166,26 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void initializePickers() throws IOException {
-
-        mChunks = new BibleChunkPlugin(ChunkPlugin.TYPE.SINGLE);
+        String jarFile = getActivity().getExternalCacheDir() + "/Plugins/jars/biblechunk.jar";
+        final File optimizedDexOutputPath = File.createTempFile("outdex", "");
+        DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
+        try {
+            Class<?> plugin = classLoader.loadClass("BibleChunkPlugin");
+            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(TYPE.MULTI.getClass());
+            mChunks = ctr.newInstance(TYPE.MULTI);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (java.lang.InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        //mChunks = new BibleChunkPlugin(ChunkPlugin.TYPE.SINGLE);
+        mChunks.parseChunks(getActivity().getAssets().open("chunks/" + mProject.getAnthologySlug() + "/" + mProject.getBookSlug() + "/chunks.json"));
         mNumChapters = mChunks.numChapters();
         //mChunksList = mChunks.getChunks(mProject, mChapter);
         initializeUnitPicker();
@@ -177,6 +201,7 @@ public class FragmentRecordingFileBar extends Fragment {
                 values[i] = mChunks.getUnitLabel(mChapter, i);
             }
         }
+        mUnitPicker.setDisplayedValues(values);
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -192,7 +217,7 @@ public class FragmentRecordingFileBar extends Fragment {
                         @Override
                         public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
                             Logger.w(this.toString(), "User changed unit");
-                            setChunk(newVal + 1);
+                            setChunk(newVal);
                             mOnUnitChangedListener.onUnitChanged(mProject, mProject.getFileName(mChapter,
                                     Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                         }
