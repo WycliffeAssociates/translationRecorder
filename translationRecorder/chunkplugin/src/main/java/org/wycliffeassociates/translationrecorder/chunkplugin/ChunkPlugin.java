@@ -7,6 +7,15 @@ import java.util.List;
 
 public abstract class ChunkPlugin {
 
+    /**
+     * Create a Chunk Plugin for tR
+     * ----------------------------
+     *
+     * compile subclassed files to a jar
+     * run dx command from android sdk tools
+     * dx --dex --output={output jar name} {input jar}
+      */
+
     public enum TYPE {
         SINGLE, MULTI
     }

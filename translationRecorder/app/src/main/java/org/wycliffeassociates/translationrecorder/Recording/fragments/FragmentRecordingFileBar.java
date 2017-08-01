@@ -166,11 +166,15 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void initializePickers() throws IOException {
+        Chunk mChunks;
         String jarFile = getActivity().getExternalCacheDir() + "/Plugins/jars/biblechunk.jar";
-        final File optimizedDexOutputPath = File.createTempFile("outdex", "");
+        File codeDir = new File(getActivity().getExternalCacheDir(), "code/");
+        codeDir.mkdirs();
+        final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
+        optimizedDexOutputPath.createNewFile();
         DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
         try {
-            Class<?> plugin = classLoader.loadClass("BibleChunkPlugin");
+            Class<?> plugin = classLoader.loadClass("org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin");
             Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(TYPE.MULTI.getClass());
             mChunks = ctr.newInstance(TYPE.MULTI);
         } catch (ClassNotFoundException e) {
