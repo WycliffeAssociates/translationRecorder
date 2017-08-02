@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class Chunks {
     public Chunks(Context ctx, Project project) throws IOException{
         parseChunksJSON(ctx, project);
         generateChunks(mParsedChunks);
-        if (project.getModeType() == Mode.TYPE.SINGLE) {
+        if (project.getModeType() == ChunkPlugin.TYPE.SINGLE) {
             generateVerses();
         }
     }

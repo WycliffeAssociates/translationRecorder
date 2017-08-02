@@ -6,13 +6,22 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+
+import dalvik.system.DexClassLoader;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -48,6 +57,27 @@ public class Project implements Parcelable {
     public Project(Language target, Anthology anthology, Book book, Version version, Mode mode, String sourceAudioPath) {
         this(target, anthology, book, version, mode);
         mSourceAudioPath = sourceAudioPath;
+    }
+
+    public ChunkPlugin getChunkPlugin(Context ctx) throws IOException {
+        ChunkPlugin chunks = null;
+        File jarsDir = new File(ctx.getExternalCacheDir(), "Plugins/jars");
+        jarsDir.mkdirs();
+        String jarFile = new File(jarsDir, mAnthology.getPluginFilename());
+        File codeDir = new File(ctx.getExternalCacheDir(), "dex/");
+        codeDir.mkdirs();
+        final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
+        optimizedDexOutputPath.createNewFile();
+        DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
+        try {
+            Class<?> plugin = classLoader.loadClass(mAnthology.getPluginClassName());
+            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(ChunkPlugin.TYPE.MULTI.getClass());
+            chunks = ctr.newInstance(ChunkPlugin.TYPE.MULTI);
+        } catch (Exception e) {
+            Logger.e(this.toString(), "Error loading plugin from jar for anthology: " + getAnthologySlug(), e);
+            e.printStackTrace();
+        }
+        return chunks;
     }
 
     public static Project getProjectFromPreferences(Context ctx) {
@@ -114,7 +144,7 @@ public class Project implements Parcelable {
         return (mMode == null) ? "" : mMode.getSlug();
     }
 
-    public Mode.TYPE getModeType() {
+    public ChunkPlugin.TYPE getModeType() {
         return (mMode == null) ? null : mMode.getType();
     }
 

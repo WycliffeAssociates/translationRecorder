@@ -166,7 +166,6 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void initializePickers() throws IOException {
-        Chunk mChunks;
         String jarFile = getActivity().getExternalCacheDir() + "/Plugins/jars/biblechunk.jar";
         File codeDir = new File(getActivity().getExternalCacheDir(), "code/");
         codeDir.mkdirs();

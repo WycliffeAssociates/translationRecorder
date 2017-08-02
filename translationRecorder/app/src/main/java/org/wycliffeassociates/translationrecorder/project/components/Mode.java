@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin.TYPE;
 
 /**
  * Created by sarabiaj on 7/5/2017.
@@ -15,11 +16,6 @@ public class Mode extends ProjectComponent {
         return (mType == TYPE.SINGLE)? "single" : "multi";
     }
 
-    public enum TYPE {
-        SINGLE,
-        MULTI
-    }
-
     private TYPE mType;
 
     public Mode(String slug, String name, String type) {
@@ -29,7 +25,7 @@ public class Mode extends ProjectComponent {
 
     public Mode(Parcel in) {
         super(in);
-        mType = (Mode.TYPE) in.readSerializable();
+        mType = (TYPE) in.readSerializable();
     }
 
     public TYPE getType() {

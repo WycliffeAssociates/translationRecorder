@@ -12,16 +12,16 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.door43.tools.reporting.Logger;
 import com.filippudak.ProgressPieView.ProgressPieView;
 
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityChapterList;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import com.door43.tools.reporting.Logger;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.components.Chunks;
+import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.IOException;
 import java.util.List;
@@ -91,8 +91,8 @@ public class ProjectAdapter extends ArrayAdapter {
         if (dB.projectExists(project)) {
             try {
                 // TODO: This is a bottle neck. Please optimize the progress calculation.
-                Chunks chunks = new Chunks(ctx.getBaseContext(), project);
-                int chapterCount = chunks.getNumChapters();
+                ChunkPlugin chunks = project.getChunkPlugin(ctx);
+                int chapterCount = chunks.numChapters();
                 int projectId = dB.getProjectId(project);
                 int progress = Math.round((float)dB.getProjectProgressSum(projectId) / chapterCount);
                 progressPie.setProgress(progress);

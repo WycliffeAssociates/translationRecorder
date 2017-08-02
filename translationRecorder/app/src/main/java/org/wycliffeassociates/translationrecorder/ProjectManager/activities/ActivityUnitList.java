@@ -17,9 +17,10 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Checkin
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 import org.wycliffeassociates.translationrecorder.widgets.UnitCard;
@@ -27,7 +28,6 @@ import org.wycliffeassociates.translationrecorder.widgets.UnitCard;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/30/2016.
@@ -177,10 +177,11 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     private void prepareUnitCardData() {
         try {
-            Chunks chunks = new Chunks(this, mProject);
-            List<Map<String, String>> map = chunks.getChunks(mProject, mChapterNum);
-            for (Map<String, String> unit : map) {
-                mUnitCardList.add(new UnitCard(this, mProject, mChapterNum, Integer.parseInt(unit.get(Chunks.FIRST_VERSE)), Integer.parseInt(unit.get(Chunks.LAST_VERSE))));
+            ChunkPlugin chunkPlugin = mProject.getChunkPlugin(this);
+            chunkPlugin.parseChunks(mProject.getChunksFile());
+            List<Chunk> chunks = chunkPlugin.getChapter(mChapterNum).getChunks();
+            for (Chunk unit : chunks) {
+                mUnitCardList.add(new UnitCard(this, mProject, mChapterNum, unit.getStartVerse(), unit.getEndVerse()));
             }
         } catch (IOException e) {
             e.printStackTrace();

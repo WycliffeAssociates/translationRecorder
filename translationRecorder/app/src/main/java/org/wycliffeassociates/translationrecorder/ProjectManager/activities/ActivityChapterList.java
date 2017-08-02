@@ -13,15 +13,17 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import org.wycliffeassociates.translationrecorder.project.Project;
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ChapterResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.components.Chunks;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
@@ -40,7 +42,7 @@ public class ActivityChapterList extends AppCompatActivity implements
     public static String PROJECT_KEY = "project_key";
     private final String STATE_RESYNC = "db_resync";
     private final String TAG_TASK_FRAGMENT = "task_fragment";
-    private Chunks mChunks;
+    private ChunkPlugin mChunks;
     private ProgressDialog mPd;
     private volatile boolean mIsCompiling = false;
     private Project mProject;
@@ -92,9 +94,10 @@ public class ActivityChapterList extends AppCompatActivity implements
         }
 
         try {
-            mChunks = new Chunks(this, mProject);
+            mChunks = mProject.getChunkPlugin(this);
+            mChunks.parseChunks(mProject.getChunkFile());
         } catch (Exception e) {
-
+            Logger.e(this.toString(), "Error parsing chunks", e);
         }
 
         // Find the recycler view
@@ -129,7 +132,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     public void refreshChapterCards() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        int numChapters = mChunks.getNumChapters();
+        int numChapters = mChunks.numChapters();
         int[] unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
         for (int i = 0; i < mChapterCardList.size(); i++) {
             ChapterCard cc = mChapterCardList.get(i);
@@ -217,8 +220,8 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-        for (int i = 0; i < mChunks.getNumChapters(); i++) {
-            int unitCount = mChunks.getNumChunks(mProject, i + 1);
+        for (int i = 0; i < mChunks.numChapters(); i++) {
+            int unitCount = mChunks.getChapter(i+1).getChunks().size();
             mChapterCardList.add(new ChapterCard(this, mProject, i + 1, unitCount));
         }
     }

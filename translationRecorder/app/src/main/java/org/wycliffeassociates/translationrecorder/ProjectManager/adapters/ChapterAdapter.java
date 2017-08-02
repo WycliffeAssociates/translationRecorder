@@ -11,12 +11,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
-import org.wycliffeassociates.translationrecorder.project.components.Chunks;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,8 +38,8 @@ public class ChapterAdapter extends ArrayAdapter {
     Activity mCtx;
     Project mProject;
 
-    public ChapterAdapter(Activity context, Project project, Chunks chunks){
-        super(context, R.layout.project_list_item, createList(chunks.getNumChapters(), project));
+    public ChapterAdapter(Activity context, Project project, ChunkPlugin chunks){
+        super(context, R.layout.project_list_item, createList(chunks.numChapters(), project));
         mCtx = context;
         mLayoutInflater = context.getLayoutInflater();
         mProject = project;
