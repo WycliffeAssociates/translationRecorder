@@ -95,7 +95,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
         try {
             mChunks = mProject.getChunkPlugin(this);
-            mChunks.parseChunks(mProject.getChunkFile());
+            mChunks.parseChunks(mProject.getChunksFile(this));
         } catch (Exception e) {
             Logger.e(this.toString(), "Error parsing chunks", e);
         }

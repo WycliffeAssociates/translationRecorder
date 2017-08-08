@@ -41,7 +41,7 @@ public class FileName {
             sb.append(String.format("v%02d", verses[0]));
         }
         if((mask | END_VERSE) == MATCH) {
-            if(verses.length > 2 && verses[0] != verses[1] && verses[1] != -1) {
+            if(verses.length > 1 && verses[0] != verses[1] && verses[1] != -1) {
                 sb.append(String.format("-%02d", verses[1]));
             }
         }

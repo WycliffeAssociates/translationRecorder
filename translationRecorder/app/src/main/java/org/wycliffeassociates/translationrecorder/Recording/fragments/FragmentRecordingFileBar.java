@@ -21,14 +21,7 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-import dalvik.system.DexClassLoader;
-
-import static org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin.TYPE;
 
 /**
  * Created by sarabiaj on 2/20/2017.
@@ -166,29 +159,29 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void initializePickers() throws IOException {
-        String jarFile = getActivity().getExternalCacheDir() + "/Plugins/jars/biblechunk.jar";
-        File codeDir = new File(getActivity().getExternalCacheDir(), "code/");
-        codeDir.mkdirs();
-        final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
-        optimizedDexOutputPath.createNewFile();
-        DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
-        try {
-            Class<?> plugin = classLoader.loadClass("org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin");
-            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(TYPE.MULTI.getClass());
-            mChunks = ctr.newInstance(TYPE.MULTI);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (java.lang.InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        //mChunks = new BibleChunkPlugin(ChunkPlugin.TYPE.SINGLE);
-        mChunks.parseChunks(getActivity().getAssets().open("chunks/" + mProject.getAnthologySlug() + "/" + mProject.getBookSlug() + "/chunks.json"));
+//        String jarFile = getActivity().getExternalCacheDir() + "/Plugins/jars/biblechunk.jar";
+//        File codeDir = new File(getActivity().getExternalCacheDir(), "code/");
+//        codeDir.mkdirs();
+//        final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
+//        optimizedDexOutputPath.createNewFile();
+//        DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
+//        try {
+//            Class<?> plugin = classLoader.loadClass("org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin");
+//            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(TYPE.MULTI.getClass());
+//            mChunks = ctr.newInstance(TYPE.MULTI);
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        } catch (java.lang.InstantiationException e) {
+//            e.printStackTrace();
+//        } catch (InvocationTargetException e) {
+//            e.printStackTrace();
+//        }
+        mChunks = mProject.getChunkPlugin(getActivity());
+        mChunks.parseChunks(mProject.getChunksFile(getActivity()));
         mNumChapters = mChunks.numChapters();
         //mChunksList = mChunks.getChunks(mProject, mChapter);
         initializeUnitPicker();
@@ -212,7 +205,7 @@ public class FragmentRecordingFileBar extends Fragment {
                 if (values != null && values.length > 0) {
                     Chapter chapter = mChunks.getChapter(mChapter);
                     mUnitPicker.setCurrent(getChunkIndex(chapter, mUnit));
-                    setChunk(getChunkIndex(chapter, mUnit) + 1);
+                    setChunk(getChunkIndex(chapter, mUnit));
                     mOnUnitChangedListener.onUnitChanged(mProject, mProject.getFileName(mChapter,
                             Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
                     //reinitialize all of the filenames

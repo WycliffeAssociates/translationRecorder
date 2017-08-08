@@ -19,6 +19,7 @@ import org.wycliffeassociates.translationrecorder.project.components.Version;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 
 import dalvik.system.DexClassLoader;
@@ -63,7 +64,7 @@ public class Project implements Parcelable {
         ChunkPlugin chunks = null;
         File jarsDir = new File(ctx.getExternalCacheDir(), "Plugins/jars");
         jarsDir.mkdirs();
-        String jarFile = new File(jarsDir, mAnthology.getPluginFilename());
+        String jarFile = new File(jarsDir, mAnthology.getPluginFilename()).getAbsolutePath();
         File codeDir = new File(ctx.getExternalCacheDir(), "dex/");
         codeDir.mkdirs();
         final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
@@ -78,6 +79,15 @@ public class Project implements Parcelable {
             e.printStackTrace();
         }
         return chunks;
+    }
+
+    public InputStream getChunksFile(Context ctx){
+        try {
+            return ctx.getAssets().open("chunks/" + getAnthologySlug() + "/" + getBookSlug() + "/chunks.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static Project getProjectFromPreferences(Context ctx) {

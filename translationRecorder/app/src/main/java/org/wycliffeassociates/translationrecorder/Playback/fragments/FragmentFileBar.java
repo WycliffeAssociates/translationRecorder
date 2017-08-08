@@ -14,7 +14,7 @@ import android.widget.TextView;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.VerseMarkerModeToggler;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
-import org.wycliffeassociates.translationrecorder.project.components.Mode;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 
 /**
@@ -24,7 +24,7 @@ import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 public class FragmentFileBar extends Fragment {
 
     private InsertCallback mInsertCallback;
-    private Mode.TYPE mUnitType;
+    private ChunkPlugin.TYPE mUnitType;
 
     public void onRatingChanged(int mRating) {
         mRateBtn.setStep(mRating);
@@ -64,7 +64,7 @@ public class FragmentFileBar extends Fragment {
 
     public static FragmentFileBar newInstance(String language, String version, String book, String chapterLabel,
                                               String chapterNumber, String unitLabel, String unitNumber,
-                                              Mode.TYPE unitType){
+                                              ChunkPlugin.TYPE unitType){
         FragmentFileBar f = new FragmentFileBar();
         Bundle args = new Bundle();
         args.putString(KEY_LANGUAGE, language.toUpperCase());
@@ -92,7 +92,7 @@ public class FragmentFileBar extends Fragment {
         findViews();
         setText();
         setClickListeners();
-        if(mUnitType == Mode.TYPE.SINGLE) {
+        if(mUnitType == ChunkPlugin.TYPE.SINGLE) {
             mEnterVerseMarkerMode.setVisibility(View.GONE);
         }
     }
@@ -106,7 +106,7 @@ public class FragmentFileBar extends Fragment {
         mChapterView.setText(args.getString(KEY_CHAPTER_NUMBER));
         mUnitLabel.setText(args.getString(KEY_UNIT_LABEL));
         mUnitView.setText(args.getString(KEY_UNIT_NUMBER));
-        mUnitType = (Mode.TYPE) args.getSerializable(KEY_UNIT_TYPE);
+        mUnitType = (ChunkPlugin.TYPE) args.getSerializable(KEY_UNIT_TYPE);
     }
 
     private void findViews(){

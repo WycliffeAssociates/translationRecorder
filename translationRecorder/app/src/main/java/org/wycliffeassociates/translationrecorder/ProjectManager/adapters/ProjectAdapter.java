@@ -92,6 +92,7 @@ public class ProjectAdapter extends ArrayAdapter {
             try {
                 // TODO: This is a bottle neck. Please optimize the progress calculation.
                 ChunkPlugin chunks = project.getChunkPlugin(ctx);
+                chunks.parseChunks(project.getChunksFile(ctx));
                 int chapterCount = chunks.numChapters();
                 int projectId = dB.getProjectId(project);
                 int progress = Math.round((float)dB.getProjectProgressSum(projectId) / chapterCount);

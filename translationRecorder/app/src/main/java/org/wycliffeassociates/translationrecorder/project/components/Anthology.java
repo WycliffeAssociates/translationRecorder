@@ -41,6 +41,14 @@ public class Anthology extends ProjectComponent implements Parcelable {
         return mGroups;
     }
 
+    public String getPluginClassName(){
+        return "org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin";
+    }
+
+    public String getPluginFilename(){
+        return "biblechunk.jar";
+    }
+
     @Override
     public String getLabel() {
         String label = "";

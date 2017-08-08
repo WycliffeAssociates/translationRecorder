@@ -41,12 +41,12 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingD
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
-import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
@@ -205,7 +205,7 @@ public class PlaybackActivity extends Activity implements RatingDialog.DialogLis
     }
 
     private String getUnitLabel() {
-        if (mProject.getModeType() == Mode.TYPE.MULTI) {
+        if (mProject.getModeType() == ChunkPlugin.TYPE.MULTI) {
             ProjectPatternMatcher ppm = mProject.getPatternMatcher();
             ppm.match(mWavFile.getFile());
             TakeInfo takeInfo = ppm.getTakeInfo();

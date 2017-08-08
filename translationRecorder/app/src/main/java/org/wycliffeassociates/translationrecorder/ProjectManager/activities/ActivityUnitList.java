@@ -178,7 +178,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private void prepareUnitCardData() {
         try {
             ChunkPlugin chunkPlugin = mProject.getChunkPlugin(this);
-            chunkPlugin.parseChunks(mProject.getChunksFile());
+            chunkPlugin.parseChunks(mProject.getChunksFile(this));
             List<Chunk> chunks = chunkPlugin.getChapter(mChapterNum).getChunks();
             for (Chunk unit : chunks) {
                 mUnitCardList.add(new UnitCard(this, mProject, mChapterNum, unit.getStartVerse(), unit.getEndVerse()));
