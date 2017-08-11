@@ -62,7 +62,7 @@ public class Project implements Parcelable {
 
     public ChunkPlugin getChunkPlugin(Context ctx) throws IOException {
         ChunkPlugin chunks = null;
-        File jarsDir = new File(ctx.getExternalCacheDir(), "Plugins/jars");
+        File jarsDir = new File(ctx.getExternalCacheDir(), "Plugins/Jars");
         jarsDir.mkdirs();
         String jarFile = new File(jarsDir, mAnthology.getPluginFilename()).getAbsolutePath();
         File codeDir = new File(ctx.getExternalCacheDir(), "dex/");

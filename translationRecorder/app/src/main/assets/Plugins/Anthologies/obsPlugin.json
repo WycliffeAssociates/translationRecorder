@@ -25,5 +25,9 @@
     ],
     "books": "OBSBooks.json",
     "chunks": "obsChunks/",
-    "versions": "obsVersions.json"
+    "versions": "obsVersions.json",
+    "chunk_plugin": {
+        "jar" : "obschunk.jar",
+        "class": "org.wycliffeassociates.translationrecorder.obschunk.ObsChunkPlugin"
+    }
 }

@@ -159,27 +159,6 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void initializePickers() throws IOException {
-//        String jarFile = getActivity().getExternalCacheDir() + "/Plugins/jars/biblechunk.jar";
-//        File codeDir = new File(getActivity().getExternalCacheDir(), "code/");
-//        codeDir.mkdirs();
-//        final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
-//        optimizedDexOutputPath.createNewFile();
-//        DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
-//        try {
-//            Class<?> plugin = classLoader.loadClass("org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin");
-//            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(TYPE.MULTI.getClass());
-//            mChunks = ctr.newInstance(TYPE.MULTI);
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (NoSuchMethodException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        } catch (java.lang.InstantiationException e) {
-//            e.printStackTrace();
-//        } catch (InvocationTargetException e) {
-//            e.printStackTrace();
-//        }
         mChunks = mProject.getChunkPlugin(getActivity());
         mChunks.parseChunks(mProject.getChunksFile(getActivity()));
         mNumChapters = mChunks.numChapters();

@@ -9,6 +9,7 @@ import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 
 import java.io.File;
@@ -28,8 +29,12 @@ public class ProjectFileUtilsTest {
     Book book = new Book("gen", "Genesis", "ot", 1);
     Version version = new Version("ulb", "Unlocked Literal Bible");
     String mask = "1111111111";
-    Anthology anthology = new Anthology("ot", "Old Testament", "bible", regex, groups, mask);
-    Project project = new Project(language, anthology, book, version, "chunk");
+
+    String jarName = "biblechunk.jar";
+    String className = "org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin";
+    Anthology anthology = new Anthology("ot", "Old Testament", "bible", regex, groups, mask, jarName, className);
+    Mode mode = new Mode("chunk", "chunk", "chunk");
+    Project project = new Project(language, anthology, book, version, mode);
 
     @Test
     public void testCreateFile(){

@@ -11,18 +11,22 @@ import org.wycliffeassociates.translationrecorder.Utils;
 
 public class Anthology extends ProjectComponent implements Parcelable {
 
+    private String mPluginClassName;
+    private String mPluginJarName;
     private String mResource;
     private String mRegex;
     private String mGroups;
     private String mMask;
 
-
-    public Anthology(String slug, String name, String resource, String regex, String groups, String mask) {
+    public Anthology(String slug, String name, String resource,
+                     String regex, String groups, String mask, String pluginJarName, String pluginClassName) {
         super(slug, name);
         mResource = resource;
         mRegex = regex;
         mGroups = groups;
         mMask = mask;
+        mPluginJarName = pluginJarName;
+        mPluginClassName = pluginClassName;
     }
 
     public String getMask(){
@@ -42,11 +46,11 @@ public class Anthology extends ProjectComponent implements Parcelable {
     }
 
     public String getPluginClassName(){
-        return "org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin";
+        return mPluginClassName;
     }
 
     public String getPluginFilename(){
-        return "biblechunk.jar";
+        return mPluginJarName;
     }
 
     @Override
@@ -74,6 +78,8 @@ public class Anthology extends ProjectComponent implements Parcelable {
         dest.writeString(mRegex);
         dest.writeString(mGroups);
         dest.writeString(mMask);
+        dest.writeString(mPluginJarName);
+        dest.writeString(mPluginClassName);
     }
 
     public static final Parcelable.Creator<Anthology> CREATOR = new Parcelable.Creator<Anthology>() {
@@ -92,5 +98,7 @@ public class Anthology extends ProjectComponent implements Parcelable {
         mRegex = in.readString();
         mGroups = in.readString();
         mMask = in.readString();
+        mPluginJarName = in.readString();
+        mPluginClassName = in.readString();
     }
 }

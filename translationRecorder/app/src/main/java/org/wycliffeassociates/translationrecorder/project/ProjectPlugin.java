@@ -31,8 +31,10 @@ public class ProjectPlugin {
     String mask;
     String booksPath;
     String chunksPath;
-
+    String jarPath;
+    String className;
     String versionsPath;
+
     //groups
     int language = -1;
     int version = -1;
@@ -40,10 +42,11 @@ public class ProjectPlugin {
     int book = -1;
     int chapter = -1;
     int startVerse = -1;
-    int endVerse = -1;
 
+    int endVerse = -1;
     int take = -1;
     List<Mode> modes = new ArrayList<>();
+
 
     public ProjectPlugin(File pluginDir, File plugin) throws IOException {
         this.pluginDir = pluginDir;
@@ -101,7 +104,7 @@ public class ProjectPlugin {
     }
 
     private List<Version> readVersions(JsonReader jsonReader) throws IOException {
-        List<Version> bookList = new ArrayList<>();
+        List<Version> versionList = new ArrayList<>();
         jsonReader.beginArray();
         while (jsonReader.hasNext()) {
             jsonReader.beginObject();
@@ -115,16 +118,16 @@ public class ProjectPlugin {
                     name = jsonReader.nextString();
                 }
             }
-            bookList.add(new Version(slug, name));
+            versionList.add(new Version(slug, name));
             jsonReader.endObject();
         }
         jsonReader.endArray();
-        return bookList;
+        return versionList;
     }
 
     private void importPluginToDatabase(Context ctx, Book[] books, Version[] versions, Mode[] modes) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        db.addAnthology(slug, name, resource, regex, groups, mask);
+        db.addAnthology(slug, name, resource, regex, groups, mask, jarPath, className);
         db.addBooks(books);
         db.addVersions(versions);
         db.addModes(modes, slug);
@@ -169,6 +172,8 @@ public class ProjectPlugin {
                 readAnthologySection(jsonReader);
             } else if (key.equals("modes")) {
                 readModesSection(jsonReader);
+            } else  if (key.equals("chunk_plugin")) {
+                readChunkSection(jsonReader);
             }
         }
         jsonReader.endObject();
@@ -249,6 +254,18 @@ public class ProjectPlugin {
         jsonReader.endArray();
     }
 
+    public void readChunkSection(JsonReader jsonReader) throws IOException
+    {
+        jsonReader.beginObject();
+        while (jsonReader.hasNext()) {
+            String key = jsonReader.nextName();
+            if(key.equals("jar")) {
+                jarPath = jsonReader.nextString();
+            } else if (key.equals("class")) {
+                className = jsonReader.nextString();
+            }
+        }
+    }
     public String getBooksPath() {
         return booksPath;
     }
@@ -259,5 +276,9 @@ public class ProjectPlugin {
 
     public String getVersionsPath() {
         return versionsPath;
+    }
+
+    public String getJarPath() {
+        return jarPath;
     }
 }

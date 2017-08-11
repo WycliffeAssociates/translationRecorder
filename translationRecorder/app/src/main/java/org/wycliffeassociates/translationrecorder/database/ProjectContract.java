@@ -55,6 +55,8 @@ public final class ProjectContract {
         public static final String ANTHOLOGY_GROUPS = "groups";
         public static final String ANTHOLOGY_MASK = "mask";
         public static final String ANTHOLOGY_UNIQUE_CONSTRAINT = "cols_unique";
+        public static final String PLUGIN_CLASS = "class";
+        public static final String PLUGIN_JAR = "jar";
 
         public static final String CREATE_ANTHOLOGY_TABLE = "CREATE TABLE " + TABLE_ANTHOLOGY + " ("
                 + _ID + " INTEGER PRIMARY KEY,"
@@ -64,8 +66,11 @@ public final class ProjectContract {
                 + ANTHOLOGY_REGEX + TEXTCOMMA
                 + ANTHOLOGY_GROUPS + TEXTCOMMA
                 + ANTHOLOGY_MASK + TEXTCOMMA
+                + PLUGIN_CLASS + TEXTCOMMA
+                + PLUGIN_JAR + TEXTCOMMA
                 + "CONSTRAINT " + ANTHOLOGY_UNIQUE_CONSTRAINT + " UNIQUE(" + ANTHOLOGY_SLUG + ")"
                 + ");";
+
     }
 
     public static abstract class VersionEntry implements BaseColumns {

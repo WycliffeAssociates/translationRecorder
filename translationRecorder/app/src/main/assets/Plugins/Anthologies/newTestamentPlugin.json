@@ -30,5 +30,9 @@
     ],
     "books": "NTBooks.json",
     "chunks": "bibleChunks/",
-    "versions": "bibleVersions.json"
+    "versions": "bibleVersions.json",
+    "chunk_plugin": {
+        "jar" : "biblechunk.jar",
+        "class": "org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin"
+    }
 }

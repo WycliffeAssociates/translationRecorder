@@ -141,6 +141,7 @@ public class SplashScreen extends Activity {
         ProjectPlugin projectPlugin = new ProjectPlugin(pluginsDir, pluginPath);
         copyPluginContentFromAssets(am, pluginsDir, "Books", projectPlugin.getBooksPath());
         copyPluginContentFromAssets(am, pluginsDir, "Versions", projectPlugin.getVersionsPath());
+        copyPluginContentFromAssets(am, pluginsDir, "Jars", projectPlugin.getJarPath());
         //copyPluginContentFromAssets(am, pluginPath, "Chunks", projectPlugin.getChunksPath());
         projectPlugin.importProjectPlugin(this, pluginsDir);
     }

@@ -560,7 +560,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             String regex = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX));
             String groups = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_GROUPS));
             String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
-            anthology = new Anthology(anthologySlug, anthologyName, resourceSlug, regex, groups, mask);
+            String pluginClassName = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.PLUGIN_CLASS));
+            String pluginJarName = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.PLUGIN_JAR));
+            anthology = new Anthology(anthologySlug, anthologyName, resourceSlug, regex, groups, mask, pluginJarName, pluginClassName);
         } else {
             throw new IllegalArgumentException("Anthology id " + id + " not found in database.");
         }
@@ -618,7 +620,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void addAnthology(String anthologySlug, String name, String resource, String regex, String groups, String mask) {
+    public void addAnthology(String anthologySlug, String name, String resource,
+                             String regex, String groups, String mask, String jarName, String className) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_SLUG, anthologySlug);
@@ -627,6 +630,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX, regex);
         cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_GROUPS, groups);
         cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK, mask);
+        cv.put(ProjectContract.AnthologyEntry.PLUGIN_JAR, jarName);
+        cv.put(ProjectContract.AnthologyEntry.PLUGIN_CLASS, className);
         long result = db.insertWithOnConflict(ProjectContract.AnthologyEntry.TABLE_ANTHOLOGY, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
@@ -1570,7 +1575,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 String regex = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_REGEX));
                 String groups = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_GROUPS));
                 String mask = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK));
-                anthologyList.add(new Anthology(anthologySlug, anthologyName, resource, regex, groups, mask));
+                String jarName = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.PLUGIN_JAR));
+                String className = cursor.getString(cursor.getColumnIndex(ProjectContract.AnthologyEntry.PLUGIN_CLASS));
+                anthologyList.add(new Anthology(anthologySlug, anthologyName, resource, regex, groups, mask, jarName, className));
             } while (cursor.moveToNext());
         }
         cursor.close();
