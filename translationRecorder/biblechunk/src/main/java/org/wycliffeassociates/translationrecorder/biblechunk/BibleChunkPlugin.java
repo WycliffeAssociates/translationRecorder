@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 
 import java.io.File;
@@ -60,6 +61,9 @@ public class BibleChunkPlugin extends ChunkPlugin {
         String id = mParsedChunks.get(mParsedChunks.size() - 1).get("id");
         mNumChapters = Integer.parseInt(id.substring(0, id.lastIndexOf("-")));
         generateChunks(mParsedChunks);
+        if(mMode == TYPE.SINGLE) {
+            generateVerses();
+        }
     }
 
     private void generateChunks(List<Map<String, String>> parsedChunks) {
@@ -76,22 +80,27 @@ public class BibleChunkPlugin extends ChunkPlugin {
         }
     }
 
-//    private void generateVerses() {
-//        mVerses = new ArrayList<>();
-//        ArrayList<Map<String, String>> temp = new ArrayList<>();
-//        for (List<Map<String, String>> chapter : mChunks) {
-//            int length = Integer.parseInt(chapter.get(chapter.size() - 1).get(LAST_VERSE));
-//            for (int i = 1; i <= length; i++) {
-//                Map<String, String> verse = new HashMap<>();
-//                String verseNumber = String.valueOf(i);
-//                verse.put(FIRST_VERSE, verseNumber);
-//                verse.put(LAST_VERSE, verseNumber);
-//                temp.add(verse);
-//            }
-//            mVerses.add(temp);
-//            temp = new ArrayList<>();
-//        }
-//    }
+    private void generateVerses() {
+        Map<Integer, Chapter> verses = new HashMap<>();
+        for(Map.Entry<Integer, Chapter> entry : mChapters.entrySet()) {
+            Chapter chap = entry.getValue();
+            int max = 0;
+            List<Chunk> chunks = chap.getChunks();
+            for(Chunk chunk : chunks) {
+                if (chunk.getEndVerse() > max) {
+                    max = chunk.getEndVerse();
+                }
+            }
+            if (!verses.containsKey(entry.getKey())) {
+                verses.put(entry.getKey(), new BibleChapter(entry.getKey(), new HashMap<String, String>()));
+            }
+            max++;
+            for(int i = 1; i < max; i++) {
+                verses.get(entry.getKey()).addChunk(new BibleChunk(String.valueOf(i), String.valueOf(i)));
+            }
+        }
+        mChapters = verses;
+    }
 
     @Override
     public void parseChunks(Reader chunkFile) {
@@ -120,12 +129,12 @@ public class BibleChunkPlugin extends ChunkPlugin {
 
     @Override
     public String getUnitLabel(int chapter, int unit) {
-        return null;
+        return mChapters.get(chapter).getChunks().get(unit).getLabel();
     }
 
     @Override
     public String getChapterLabel(int chapter) {
-        return null;
+        return mChapters.get(chapter).getLabel();
     }
 
     @Override

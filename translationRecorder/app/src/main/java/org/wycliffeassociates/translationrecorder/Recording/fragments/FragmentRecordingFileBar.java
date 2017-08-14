@@ -15,6 +15,7 @@ import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
+import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
@@ -148,13 +149,7 @@ public class FragmentRecordingFileBar extends Fragment {
         String bookName = db.getBookName(bookCode);
         mBookView.setText(bookName);
         mBookView.postInvalidate();
-
-        if (isChunkMode) {
-            mModeView.setText("ChunkPlugin");
-        } else {
-            mModeView.setText("Verse");
-        }
-
+        mModeView.setText(Utils.capitalizeFirstLetter(mProject.getModeName()));
         mSourceView.setText(mProject.getVersionSlug().toUpperCase());
     }
 

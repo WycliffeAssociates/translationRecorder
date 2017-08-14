@@ -72,8 +72,8 @@ public class Project implements Parcelable {
         DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
         try {
             Class<?> plugin = classLoader.loadClass(mAnthology.getPluginClassName());
-            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(ChunkPlugin.TYPE.MULTI.getClass());
-            chunks = ctr.newInstance(ChunkPlugin.TYPE.MULTI);
+            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(getModeType().getClass());
+            chunks = ctr.newInstance(getModeType());
         } catch (Exception e) {
             Logger.e(this.toString(), "Error loading plugin from jar for anthology: " + getAnthologySlug(), e);
             e.printStackTrace();

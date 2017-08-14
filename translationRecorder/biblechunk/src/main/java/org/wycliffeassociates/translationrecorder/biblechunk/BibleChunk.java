@@ -9,7 +9,15 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 public class BibleChunk extends Chunk {
 
     public BibleChunk(String startVerse, String endVerse) {
-        super("", Integer.parseInt(startVerse), Integer.parseInt(endVerse), ((Integer.parseInt(endVerse) - Integer.parseInt(startVerse)) + 1));
+        super(getLabel(startVerse, endVerse), Integer.parseInt(startVerse), Integer.parseInt(endVerse), ((Integer.parseInt(endVerse) - Integer.parseInt(startVerse)) + 1));
+    }
+
+    private static String getLabel(String startVerse, String endVerse) {
+        if (startVerse.equals(endVerse)) {
+            return startVerse;
+        } else {
+            return startVerse + "-"+ endVerse;
+        }
     }
 
     public String getRangeDisplay(){
