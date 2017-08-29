@@ -83,7 +83,11 @@ public class Project implements Parcelable {
 
     public InputStream getChunksFile(Context ctx){
         try {
-            return ctx.getAssets().open("chunks/" + getAnthologySlug() + "/" + getBookSlug() + "/chunks.json");
+            if(mAnthology.getResource().equals("bible_resources")) {
+                return ctx.getAssets().open("notes/" + getAnthologySlug() + "/" + getBookSlug() + "/chunks.json");
+            } else {
+                return ctx.getAssets().open("chunks/" + getAnthologySlug() + "/" + getBookSlug() + "/chunks.json");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -50,7 +50,7 @@ public class ParseJSON {
 
     private void pullBookInfo() throws JSONException {
         ArrayList<Book> books = new ArrayList<>();
-        String json = loadJSONFromAsset("books.json");
+        String json = loadJSONFromAsset("note_books.json");
         JSONArray booksJSON = new JSONArray(json);
         for(int i = 0; i < booksJSON.length(); i++){
             JSONObject bookObj = booksJSON.getJSONObject(i);
@@ -88,7 +88,12 @@ public class ParseJSON {
         mBooks = books.toArray(new Book[books.size()]);
     }
 
+
+
     public int getNumChapters(String bookCode){
+
+
+
         try {
             String json = loadJSONFromAsset("chunks/" + bookCode + "/en/" + "udb" + "/chunks.json");
             JSONArray arrayOfChunks = new JSONArray(json);

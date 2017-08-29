@@ -38,7 +38,7 @@ public class ChapterAdapter extends ArrayAdapter {
     Activity mCtx;
     Project mProject;
 
-    public ChapterAdapter(Activity context, Project project, ChunkPlugin chunks){
+    public ChapterAdapter(Activity context, Project project, ChunkPlugin chunks) {
         super(context, R.layout.project_list_item, createList(chunks.numChapters(), project));
         mCtx = context;
         mLayoutInflater = context.getLayoutInflater();
@@ -48,17 +48,17 @@ public class ChapterAdapter extends ArrayAdapter {
     private static List<Pair<Integer, Boolean>> createList(int numChapters, Project project) {
         List<Pair<Integer, Boolean>> chapterList = new ArrayList<>();
         int chapter;
-        for(int i = 0; i < numChapters; i++){
+        for (int i = 0; i < numChapters; i++) {
             chapter = i + 1;
-            chapterList.add(new Pair<>( chapter, (isChapterStarted(project, chapter)) ));
+            chapterList.add(new Pair<>(chapter, (isChapterStarted(project, chapter))));
         }
         return chapterList;
     }
 
-    private static boolean isChapterStarted(Project project, int chapter){
+    private static boolean isChapterStarted(Project project, int chapter) {
         File dir = ProjectFileUtils.getProjectDirectory(project);
         File[] files = dir.listFiles();
-        if(files != null) {
+        if (files != null) {
             for (File f : files) {
                 if (f.getName().compareTo(String.format("%02d", chapter)) == 0) {
                     return true;
@@ -68,9 +68,9 @@ public class ChapterAdapter extends ArrayAdapter {
         return false;
     }
 
-    public View getView(final int position, View convertView, final ViewGroup parent){
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         ViewHolder holder;
-        if(convertView == null) {
+        if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.project_list_item, null);
             holder = new ViewHolder();
             holder.mBook = (TextView) convertView.findViewById(R.id.book_text_view);
@@ -85,31 +85,50 @@ public class ChapterAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.mChapterView.setText("Chapter " + (position+1));
+        holder.mChapterView.setText("Chapter " + (position + 1));
         holder.mBook.setVisibility(View.INVISIBLE);
         holder.mInfo.setVisibility(View.INVISIBLE);
 
 
-        Pair<Integer, Boolean> chapter = (Pair<Integer, Boolean>)this.getItem(position);
+        Pair<Integer, Boolean> chapter = (Pair<Integer, Boolean>) this.getItem(position);
         //if the chapter doesn't exist, gray it out
-        if(chapter.second == false){
-            holder.mChapterView.setTextColor(convertView.getContext().getResources().getColor(R.color.text_light_disabled));
+        if (chapter.second == false) {
+            holder.mChapterView.setTextColor(
+                    convertView.getContext()
+                            .getResources()
+                            .getColor(R.color.text_light_disabled)
+            );
         } else {
-            holder.mChapterView.setTextColor(convertView.getContext().getResources().getColor(R.color.dark_primary_text));
+            holder.mChapterView.setTextColor(
+                    convertView.getContext()
+                            .getResources()
+                            .getColor(R.color.dark_primary_text)
+            );
         }
 
         holder.mRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mProject.loadProjectIntoPreferences(mCtx);
-                v.getContext().startActivity(RecordingActivity.getNewRecordingIntent(v.getContext(), mProject, (position+1), 1));
+                v.getContext().startActivity(
+                        RecordingActivity.getNewRecordingIntent(
+                                v.getContext(),
+                                mProject,
+                                (position + 1),
+                                1
+                        )
+                );
             }
         });
 
         holder.mTextLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent verseListIntent = ActivityUnitList.getActivityUnitListIntent(v.getContext(), mProject, (position+1));
+                Intent verseListIntent = ActivityUnitList.getActivityUnitListIntent(
+                        v.getContext(),
+                        mProject,
+                        (position + 1)
+                );
                 v.getContext().startActivity(verseListIntent);
             }
         });

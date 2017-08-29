@@ -5,7 +5,7 @@
         "name": "translation notes",
         "file_conv": "1011110101",
         "parser": {
-            "regex": "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_obs_([\\w\\d]*)_b([\\d]{2})_([\\d]+)_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?",
+            "regex": "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_notes_([\\w\\d]*)_b([\\d]{2})_([\\d]+)_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?",
             "groups": {
                 "language": 1,
                 "version": 2,
@@ -23,7 +23,11 @@
             "type":"single"
         }
     ],
-    "books": ["NTBooks.json","OTBooks.json"],
+    "books": "note_books.json",
     "chunks": "bibleChunks/",
-    "versions": "bibleVersions.json"
+    "versions": "bibleVersions.json",
+    "chunk_plugin": {
+        "jar" : "noteschunk.jar",
+        "class": "org.wycliffeassociates.translationrecorder.noteschunk.NotesChunkPlugin"
+    }
 }

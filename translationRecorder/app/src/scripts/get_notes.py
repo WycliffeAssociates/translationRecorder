@@ -20,6 +20,12 @@ def process_notes_json(stuff):
         book[int(chap)][chk] = (chunk["tn"])
     return book
 
+def process_chapter(chap):
+    processed_chap = []
+    for key, value in chap.items():
+        processed_chap.append({"id":key, "tn":value})
+    return processed_chap
+
 RESULT_JSON_NAME = "chunks/"
 
 # with open("catalog.json") as file:
@@ -37,6 +43,8 @@ RES = ["ulb"]
 
 OUTPUT = []
 
+note_book_slugs = []
+
 # skip obs for now, loop over all books
 for x in range(0, 67):
     # gives book name and order (the books are stored out of order in the json)
@@ -50,9 +58,17 @@ for x in range(0, 67):
 
     chunks_url = BASE_URL + slug + "/" + EN + "/notes.json"
     NOTE = json.loads(urllib.request.urlopen(chunks_url).read().decode('utf-8'))
+    
     book = process_notes_json(NOTE)
     for chap in book:
         outpath = "notes/" + anth + "/" + slug + "-ch-" + str(chap) + "/chunks.json"
-        os.makedirs(os.path.dirname(outpath))
+        tmp_slg = slug + "-ch-" + str(chap)
+        note_book_slugs.append({"slug":tmp_slg, "anth":"tn", "num":((int(sort)*100)+int(chap)), "name": tmp_slg})
+        os.makedirs(os.path.dirname(outpath), exist_ok=True)
         with(open(outpath,'w')) as outfile:
-            json.dump(book[chap], outfile)
+            json.dump(process_chapter(book[chap]), outfile)
+
+with(open("note_books.json", 'w')) as outfile:
+    json.dump(note_book_slugs, outfile)
+
+print("done")

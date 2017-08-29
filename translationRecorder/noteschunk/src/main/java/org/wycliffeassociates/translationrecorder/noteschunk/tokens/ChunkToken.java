@@ -7,4 +7,12 @@ package org.wycliffeassociates.translationrecorder.noteschunk.tokens;
 public class ChunkToken {
     String id;
     NotesToken[] tn;
+
+    public String getId() {
+        return id;
+    }
+
+    public NotesToken[] getNotes() {
+        return tn;
+    }
 }

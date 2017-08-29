@@ -11,6 +11,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Checkin
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
@@ -31,7 +32,12 @@ import java.util.List;
 public class ChapterCard {
 
     public interface OnClickListener extends View.OnClickListener {
-        void onClick(View v, ChapterCardAdapter.ViewHolder vh, List<Integer> expandedCards, int position);
+        void onClick(
+                View v,
+                ChapterCardAdapter.ViewHolder vh,
+                List<Integer> expandedCards,
+                int position
+        );
     }
 
     // Constants
@@ -224,7 +230,12 @@ public class ChapterCard {
     private AudioPlayer initializeAudioPlayer() {
         AudioPlayer ap = new AudioPlayer();
         if (mViewHolder != null) {
-            ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.playPauseBtn, mViewHolder.seekBar);
+            ap.refreshView(
+                    mViewHolder.elapsed,
+                    mViewHolder.duration,
+                    mViewHolder.playPauseBtn,
+                    mViewHolder.seekBar
+            );
         }
         mAudioPlayer = new SoftReference<AudioPlayer>(ap);
         return ap;
@@ -236,7 +247,12 @@ public class ChapterCard {
             ap.reset();
             ap.loadFile(mChapterWav);
         }
-        ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.playPauseBtn, mViewHolder.seekBar);
+        ap.refreshView(
+                mViewHolder.elapsed,
+                mViewHolder.duration,
+                mViewHolder.playPauseBtn,
+                mViewHolder.seekBar
+        );
     }
 
     private int calculateProgress() {
@@ -274,9 +290,14 @@ public class ChapterCard {
     public void raise() {
         if (mViewHolder != null) {
             mViewHolder.cardView.setCardElevation(8f);
-            mViewHolder.cardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.accent));
-            mViewHolder.title.setTextColor(mCtx.getResources().getColor(R.color.text_light));
-            // Compile button activated status gets reset by multiSelector. This is a way to correct it.
+            mViewHolder.cardContainer.setBackgroundColor(
+                    mCtx.getResources().getColor(R.color.accent)
+            );
+            mViewHolder.title.setTextColor(
+                    mCtx.getResources().getColor(R.color.text_light)
+            );
+            // Compile button activated status gets reset by multiSelector.
+            // This is a way to correct it.
             mViewHolder.compileBtn.setActivated(canCompile());
         }
         setIconsEnabled(false);
@@ -285,11 +306,18 @@ public class ChapterCard {
     public void drop() {
         if (mViewHolder != null) {
             mViewHolder.cardView.setCardElevation(2f);
-            mViewHolder.cardContainer.setBackgroundColor(mCtx.getResources().getColor(R.color.card_bg));
-            mViewHolder.title.setTextColor(
-                    mCtx.getResources().getColor((isEmpty()) ? R.color.primary_text_disabled_material_light : R.color.primary_text_default_material_light)
+            mViewHolder.cardContainer.setBackgroundColor(
+                    mCtx.getResources().getColor(R.color.card_bg)
             );
-            // Compile button activated status gets reset by multiSelector. This is a way to correct it.
+            mViewHolder.title.setTextColor(
+                    mCtx.getResources().getColor(
+                            (isEmpty())
+                                    ? R.color.primary_text_disabled_material_light
+                                    : R.color.primary_text_default_material_light
+                    )
+            );
+            // Compile button activated status gets reset by multiSelector.
+            // This is a way to correct it.
             mViewHolder.compileBtn.setActivated(canCompile());
         }
         setIconsEnabled(true);
@@ -370,7 +398,10 @@ public class ChapterCard {
                     return;
                 }
                 pauseAudio();
-                CheckingDialog dialog = CheckingDialog.newInstance(mProject, mChapter - 1, mCheckingLevel);
+                CheckingDialog dialog = CheckingDialog.newInstance(
+                        mProject,
+                        mViewHolder.getAdapterPosition(),
+                        mCheckingLevel);
                 dialog.show(mCtx.getFragmentManager(), "single_chapter_checking_level");
             }
         };
@@ -386,7 +417,10 @@ public class ChapterCard {
                     }
                     pauseAudio();
                     //pass in chapter index, not chapter number
-                    CompileDialog dialog = CompileDialog.newInstance(mProject, mChapter - 1, isCompiled());
+                    CompileDialog dialog = CompileDialog.newInstance(
+                            mProject,
+                            mViewHolder.getAdapterPosition(),
+                            isCompiled());
                     dialog.show(mCtx.getFragmentManager(), "single_compile_chapter");
                 }
             }
@@ -402,8 +436,12 @@ public class ChapterCard {
                 }
                 pauseAudio();
                 destroyAudioPlayer();
-                int chapter = mViewHolder.getAdapterPosition() + 1;
-                Intent intent = RecordingActivity.getNewRecordingIntent(mCtx, mProject, chapter, 1);
+                int chapter = mChapter;
+                Intent intent = RecordingActivity.getNewRecordingIntent(
+                        mCtx,
+                        mProject,
+                        chapter,
+                        ChunkPlugin.DEFAULT_UNIT);
                 mCtx.startActivity(intent);
             }
         };

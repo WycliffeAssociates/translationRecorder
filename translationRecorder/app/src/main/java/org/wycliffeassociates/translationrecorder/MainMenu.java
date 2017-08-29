@@ -24,6 +24,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.activities.Acti
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
@@ -120,7 +121,12 @@ public class MainMenu extends Activity {
                     Project project = data.getParcelableExtra(Project.PROJECT_EXTRA);
                     if (addProjectToDatabase(project)) {
                         loadProject(project);
-                        Intent intent = RecordingActivity.getNewRecordingIntent(this, project, 1, 1);
+                        Intent intent = RecordingActivity.getNewRecordingIntent(
+                                this,
+                                project,
+                                ChunkPlugin.DEFAULT_CHAPTER,
+                                ChunkPlugin.DEFAULT_UNIT
+                        );
                         startActivity(intent);
                     } else {
                         onResume();
@@ -139,7 +145,12 @@ public class MainMenu extends Activity {
 
     private void startRecordingScreen() {
         Project project = Project.getProjectFromPreferences(this);
-        Intent intent = RecordingActivity.getNewRecordingIntent(this, project, 1, 1);
+        Intent intent = RecordingActivity.getNewRecordingIntent(
+                this,
+                project,
+                ChunkPlugin.DEFAULT_CHAPTER,
+                ChunkPlugin.DEFAULT_UNIT
+        );
         startActivity(intent);
     }
 
@@ -297,7 +308,7 @@ public class MainMenu extends Activity {
             boolean matched = false;
             TakeInfo takeInfo = null;
             //no idea what project the vis file is, so try all known anthology regexes until one works
-            for(ProjectPatternMatcher ppm : patterns) {
+            for (ProjectPatternMatcher ppm : patterns) {
                 if (ppm.match(v)) {
                     matched = true;
                     takeInfo = ppm.getTakeInfo();

@@ -1,11 +1,9 @@
 package org.wycliffeassociates.translationrecorder.noteschunk;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
-import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.noteschunk.tokens.ChunkToken;
 
@@ -15,11 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class NotesChunkPlugin extends ChunkPlugin {
@@ -49,34 +44,16 @@ public class NotesChunkPlugin extends ChunkPlugin {
 
     @Override
     public void parseChunks(InputStream chunkFile) {
+        mChapters = new HashMap<>();
         Gson gson = new Gson();
         ChunkToken[] chunks = gson.fromJson(new JsonReader(new InputStreamReader(chunkFile)), ChunkToken[].class);
-    }
-
-
-    @Override
-    public void parseChunks(Reader chunkFile) {
-
-    }
-
-    @Override
-    public void nextChunk() {
-
-    }
-
-    @Override
-    public void previousChunk() {
-
-    }
-
-    @Override
-    public int numChapters() {
-        return mChapters.keySet().size();
-    }
-
-    @Override
-    public int numChunks(int chapter) {
-        return mChapters.get(chapter).getChunks().size();
+        for(int i = 0; i < chunks.length; i++) {
+            int num = Integer.parseInt(chunks[i].getId());
+            if(!mChapters.containsKey(num)) {
+                mChapters.put(num, new NotesChapter(num, new ArrayList<NotesChunk>()));
+            }
+            mChapters.get(num).addChunk(new NotesChunk(i));
+        }
     }
 
     @Override
@@ -91,10 +68,7 @@ public class NotesChunkPlugin extends ChunkPlugin {
 
     @Override
     public String getChunkName(int chapter, int id) {
-        //if (mMode == TYPE.SINGLE) {
-        return "verse " + mChapters.get(chapter).getChunks().get(id);
-//        } else {
-//            return "chunk " + mVerses.get(chapter).get(id);
-//        }
+        String pref = (id % 2 == 0)? "ref " : "text ";
+        return pref + mChapters.get(chapter).getChunks().get(id);
     }
 }

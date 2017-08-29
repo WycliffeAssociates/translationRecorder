@@ -7,4 +7,12 @@ package org.wycliffeassociates.translationrecorder.noteschunk.tokens;
 public class NotesToken {
     String ref;
     String text;
+
+    public String getRef() {
+        return ref;
+    }
+
+    public String getText() {
+        return text;
+    }
 }

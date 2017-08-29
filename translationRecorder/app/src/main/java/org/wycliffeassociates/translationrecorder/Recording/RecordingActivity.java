@@ -41,9 +41,10 @@ import java.util.Set;
  */
 
 public class RecordingActivity extends AppCompatActivity implements
-        FragmentRecordingControls.RecordingControlCallback, InsertTaskFragment.Insert,
-        FragmentRecordingFileBar.OnUnitChangedListener, ExitDialog.DeleteFileCallback
-{
+        FragmentRecordingControls.RecordingControlCallback,
+        InsertTaskFragment.Insert,
+        FragmentRecordingFileBar.OnUnitChangedListener,
+        ExitDialog.DeleteFileCallback {
 
     public static final String KEY_PROJECT = "key_project";
     public static final String KEY_WAV_FILE = "key_wav_file";
@@ -78,14 +79,26 @@ public class RecordingActivity extends AppCompatActivity implements
     private boolean isSaved;
     private boolean hasStartedRecording = false;
 
-    public static Intent getInsertIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit, int locationMs) {
+    public static Intent getInsertIntent(
+            Context ctx,
+            Project project,
+            WavFile wavFile,
+            int chapter,
+            int unit,
+            int locationMs
+    ) {
         Logger.w("RecordingActivity", "Creating Insert Intent");
         Intent intent = getRerecordIntent(ctx, project, wavFile, chapter, unit);
         intent.putExtra(KEY_INSERT_LOCATION, locationMs);
         return intent;
     }
 
-    public static Intent getNewRecordingIntent(Context ctx, Project project, int chapter, int unit) {
+    public static Intent getNewRecordingIntent(
+            Context ctx,
+            Project project,
+            int chapter,
+            int unit
+    ) {
         Logger.w("RecordingActivity", "Creating New Recording Intent");
         Intent intent = new Intent(ctx, RecordingActivity.class);
         intent.putExtra(KEY_PROJECT, project);
@@ -94,7 +107,13 @@ public class RecordingActivity extends AppCompatActivity implements
         return intent;
     }
 
-    public static Intent getRerecordIntent(Context ctx, Project project, WavFile wavFile, int chapter, int unit) {
+    public static Intent getRerecordIntent(
+            Context ctx,
+            Project project,
+            WavFile wavFile,
+            int chapter,
+            int unit
+    ) {
         Logger.w("RecordingActivity", "Creating Rerecord Intent");
         Intent intent = getNewRecordingIntent(ctx, project, chapter, unit);
         intent.putExtra(KEY_WAV_FILE, wavFile);
@@ -142,14 +161,20 @@ public class RecordingActivity extends AppCompatActivity implements
     public void onBackPressed() {
         Logger.w(this.toString(), "User pressed back");
         if (!isSaved && hasStartedRecording) {
-            ExitDialog exitDialog = ExitDialog.Build(this, DialogFragment.STYLE_NORMAL, false, false, mNewRecording.getFile());
+            ExitDialog exitDialog = ExitDialog.Build(
+                    this,
+                    DialogFragment.STYLE_NORMAL,
+                    false,
+                    false,
+                    mNewRecording.getFile()
+            );
             exitDialog.show();
         } else {
             super.onBackPressed();
         }
     }
 
-    public void onDeleteRecording(){
+    public void onDeleteRecording() {
         isRecording = false;
         isPausedRecording = false;
         stopService(new Intent(this, WavRecorder.class));
@@ -169,37 +194,55 @@ public class RecordingActivity extends AppCompatActivity implements
         parseIntent(intent);
         initializeFragments();
         attachFragments();
-        mRecordingRenderer = new ActiveRecordingRenderer(mFragmentRecordingControls, mFragmentVolumeBar, mFragmentRecordingWaveform);
+        mRecordingRenderer = new ActiveRecordingRenderer(
+                mFragmentRecordingControls,
+                mFragmentVolumeBar,
+                mFragmentRecordingWaveform
+        );
     }
 
     private void initializeFragments() {
-        mFragmentHolder = new HashMap<>();
-
+        //initialize fragments
         mFragmentRecordingControls = FragmentRecordingControls.newInstance(
-                (mInsertMode)? FragmentRecordingControls.Mode.INSERT_MODE : FragmentRecordingControls.Mode.RECORDING_MODE
+                (mInsertMode)
+                        ? FragmentRecordingControls.Mode.INSERT_MODE
+                        : FragmentRecordingControls.Mode.RECORDING_MODE
         );
-        mFragmentHolder.put(R.id.fragment_recording_controls_holder, mFragmentRecordingControls);
-
         mFragmentSourceAudio = FragmentSourceAudio.newInstance();
-        mFragmentHolder.put(R.id.fragment_source_audio_holder, mFragmentSourceAudio);
-
         mFragmentRecordingFileBar = FragmentRecordingFileBar.newInstance(
                 mProject,
                 mInitialChapter,
                 mInitialUnit,
-                (mInsertMode)? FragmentRecordingControls.Mode.INSERT_MODE : FragmentRecordingControls.Mode.RECORDING_MODE,
-                isChunkMode
+                (mInsertMode)
+                        ? FragmentRecordingControls.Mode.INSERT_MODE
+                        : FragmentRecordingControls.Mode.RECORDING_MODE
         );
-        mFragmentHolder.put(R.id.fragment_recording_file_bar_holder, mFragmentRecordingFileBar);
-
         mFragmentVolumeBar = FragmentVolumeBar.newInstance();
-        mFragmentHolder.put(R.id.fragment_volume_bar_holder, mFragmentVolumeBar);
-
         mFragmentRecordingWaveform = FragmentRecordingWaveform.newInstance();
-        mFragmentHolder.put(R.id.fragment_recording_waveform_holder, mFragmentRecordingWaveform);
+
+        //add fragments to map
+        mFragmentHolder = new HashMap<>();
+        mFragmentHolder.put(
+                R.id.fragment_recording_controls_holder,
+                mFragmentRecordingControls
+        );
+
+        mFragmentHolder.put(R.id.fragment_source_audio_holder, mFragmentSourceAudio);
+        mFragmentHolder.put(
+                R.id.fragment_recording_file_bar_holder,
+                mFragmentRecordingFileBar
+        );
+        mFragmentHolder.put(
+                R.id.fragment_volume_bar_holder,
+                mFragmentVolumeBar
+        );
+        mFragmentHolder.put(
+                R.id.fragment_recording_waveform_holder,
+                mFragmentRecordingWaveform
+        );
     }
 
-    private void attachFragments(){
+    private void attachFragments() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         Set<Map.Entry<Integer, Fragment>> entrySet = mFragmentHolder.entrySet();
@@ -263,8 +306,21 @@ public class RecordingActivity extends AppCompatActivity implements
             RecordingQueues.clearQueues();
             String startVerse = mFragmentRecordingFileBar.getStartVerse();
             String endVerse = mFragmentRecordingFileBar.getEndVerse();
-            File file = ProjectFileUtils.createFile(mProject, mFragmentRecordingFileBar.getChapter(), Integer.parseInt(startVerse), Integer.parseInt(endVerse));
-            mNewRecording = new WavFile(file, new WavMetadata(mProject, String.valueOf(mFragmentRecordingFileBar.getChapter()), startVerse, endVerse));
+            File file = ProjectFileUtils.createFile(
+                    mProject,
+                    mFragmentRecordingFileBar.getChapter(),
+                    Integer.parseInt(startVerse),
+                    Integer.parseInt(endVerse)
+            );
+            mNewRecording = new WavFile(
+                    file,
+                    new WavMetadata(
+                            mProject,
+                            String.valueOf(mFragmentRecordingFileBar.getChapter()),
+                            startVerse,
+                            endVerse
+                    )
+            );
             startService(new Intent(this, WavRecorder.class));
             startService(WavFileWriter.getIntent(this, mNewRecording));
             mRecordingRenderer.listenForRecording(false);
@@ -290,7 +346,12 @@ public class RecordingActivity extends AppCompatActivity implements
         long start = System.currentTimeMillis();
         Logger.w(this.toString(), "Stopping recording");
         RecordingQueues.stopQueues(this);
-        Logger.w(this.toString(), "SUCCESS: exited queues, took " + (System.currentTimeMillis() - start) + " to finish writing");
+        Logger.w(
+                this.toString(),
+                "SUCCESS: exited queues, took "
+                        + (System.currentTimeMillis() - start)
+                        + " to finish writing"
+        );
         isRecording = false;
         isPausedRecording = false;
         addTakeToDb();
@@ -298,7 +359,13 @@ public class RecordingActivity extends AppCompatActivity implements
         if (mInsertMode) {
             finalizeInsert(mLoadedWav, mNewRecording, mInsertLocation);
         } else {
-            Intent intent = PlaybackActivity.getPlaybackIntent(this, mNewRecording, mProject, mFragmentRecordingFileBar.getChapter(), mFragmentRecordingFileBar.getUnit());
+            Intent intent = PlaybackActivity.getPlaybackIntent(
+                    this,
+                    mNewRecording,
+                    mProject,
+                    mFragmentRecordingFileBar.getChapter(),
+                    mFragmentRecordingFileBar.getUnit()
+            );
             startActivity(intent);
             this.finish();
         }
@@ -308,12 +375,19 @@ public class RecordingActivity extends AppCompatActivity implements
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
         ppm.match(mNewRecording.getFile());
-        db.addTake(ppm.getTakeInfo(), mNewRecording.getFile().getName(), mNewRecording.getMetadata().getModeSlug(), mNewRecording.getFile().lastModified(), 0);
+        db.addTake(
+                ppm.getTakeInfo(),
+                mNewRecording.getFile().getName(),
+                mNewRecording.getMetadata().getModeSlug(),
+                mNewRecording.getFile().lastModified(),
+                0
+        );
         db.close();
     }
 
     private void finalizeInsert(WavFile base, WavFile insertClip, int insertFrame) {
-        //need to reparse the sizes after recording; updates to the object aren't reflected due to parceling to the writing service
+        // need to reparse the sizes after recording
+        // updates to the object aren't reflected due to parceling to the writing service
         mNewRecording.parseHeader();
         mLoadedWav.parseHeader();
         mInserting = true;
@@ -333,7 +407,13 @@ public class RecordingActivity extends AppCompatActivity implements
         } catch (IllegalArgumentException e) {
             Logger.e(this.toString(), "Tried to dismiss insert progress dialog", e);
         }
-        Intent intent = PlaybackActivity.getPlaybackIntent(this, result, mProject, mFragmentRecordingFileBar.getChapter(), mFragmentRecordingFileBar.getUnit());
+        Intent intent = PlaybackActivity.getPlaybackIntent(
+                this,
+                result,
+                mProject,
+                mFragmentRecordingFileBar.getChapter(),
+                mFragmentRecordingFileBar.getUnit()
+        );
         startActivity(intent);
         this.finish();
     }

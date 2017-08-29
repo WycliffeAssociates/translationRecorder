@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- *
  * Creates a custom view for the audio entries in the file screen.
- *
  */
 public class ProjectAdapter extends ArrayAdapter {
     //class for caching the views in a row
@@ -95,7 +93,7 @@ public class ProjectAdapter extends ArrayAdapter {
                 chunks.parseChunks(project.getChunksFile(ctx));
                 int chapterCount = chunks.numChapters();
                 int projectId = dB.getProjectId(project);
-                int progress = Math.round((float)dB.getProjectProgressSum(projectId) / chapterCount);
+                int progress = Math.round((float) dB.getProjectProgressSum(projectId) / chapterCount);
                 progressPie.setProgress(progress);
             } catch (IOException e) {
                 Logger.e("ProjectAdapter init project card", "IOException", e);
@@ -107,7 +105,14 @@ public class ProjectAdapter extends ArrayAdapter {
             public void onClick(View v) {
                 project.loadProjectIntoPreferences(ctx);
                 //TODO: should find place left off at?
-                v.getContext().startActivity(RecordingActivity.getNewRecordingIntent(v.getContext(), project, 1, 1));
+                v.getContext().startActivity(
+                        RecordingActivity.getNewRecordingIntent(
+                                v.getContext(),
+                                project,
+                                ChunkPlugin.DEFAULT_CHAPTER,
+                                ChunkPlugin.DEFAULT_UNIT
+                        )
+                );
             }
         });
 

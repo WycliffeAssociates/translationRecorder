@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,31 +72,6 @@ public class ObsChunkPlugin extends ChunkPlugin {
             }
             mChapters.get(chapter).addChunk(new ObsChunk(chunk.get("firstvs"), chunk.get("lastvs")));
         }
-    }
-
-    @Override
-    public void parseChunks(Reader chunkFile) {
-
-    }
-
-    @Override
-    public void nextChunk() {
-
-    }
-
-    @Override
-    public void previousChunk() {
-
-    }
-
-    @Override
-    public int numChapters() {
-        return mChapters.keySet().size();
-    }
-
-    @Override
-    public int numChunks(int chapter) {
-        return mChapters.get(chapter).getChunks().size();
     }
 
     @Override

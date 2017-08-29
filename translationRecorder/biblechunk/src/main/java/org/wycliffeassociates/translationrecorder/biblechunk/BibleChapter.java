@@ -46,7 +46,7 @@ public class BibleChapter extends Chapter {
 
     @Override
     public String getLabel() {
-        return "chapter " + mNumber;
+        return String.valueOf(mNumber);
     }
 
     @Override

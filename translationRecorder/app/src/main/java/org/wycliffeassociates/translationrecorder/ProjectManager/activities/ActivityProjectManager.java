@@ -27,6 +27,7 @@ import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
@@ -305,7 +306,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         loadProject(project);
                         finish();
                         //TODO: should find place left off at?
-                        Intent intent = RecordingActivity.getNewRecordingIntent(this, project, 1, 1);
+                        Intent intent = RecordingActivity.getNewRecordingIntent(
+                                this,
+                                project,
+                                ChunkPlugin.DEFAULT_CHAPTER,
+                                ChunkPlugin.DEFAULT_UNIT
+                        );
                         startActivity(intent);
                     } else {
                         onResume();
@@ -362,7 +368,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                             Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
                                     + " book " + project.getBookSlug() + " version "
                                     + project.getVersionSlug() + " mode " + project.getModeSlug());
-                            if(project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
+                            if (project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
                                 removeProjectFromPreferences();
                             }
                             ProjectFileUtils.deleteProject(ActivityProjectManager.this, project);
