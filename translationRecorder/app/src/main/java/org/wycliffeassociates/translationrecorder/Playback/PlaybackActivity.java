@@ -95,11 +95,11 @@ public class PlaybackActivity extends Activity implements
         VERSE_MARKER
     }
 
-    private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
-    private static final String KEY_PROJECT = "key_project";
-    private static final String KEY_WAV_FILE = "wavfile";
-    private static final String KEY_CHAPTER = "key_chapter";
-    private static final String KEY_UNIT = "key_unit";
+    public static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
+    public static final String KEY_PROJECT = "key_project";
+    public static final String KEY_WAV_FILE = "wavfile";
+    public static final String KEY_CHAPTER = "key_chapter";
+    public static final String KEY_UNIT = "key_unit";
 
     private volatile boolean isSaved = true;
     private boolean isPlaying = false;
@@ -193,8 +193,8 @@ public class PlaybackActivity extends Activity implements
     private void parseIntent(Intent intent) {
         mWavFile = intent.getParcelableExtra(KEY_WAV_FILE);
         mProject = intent.getParcelableExtra(KEY_PROJECT);
-        mUnit = intent.getIntExtra(KEY_UNIT, 1);
-        mChapter = intent.getIntExtra(KEY_CHAPTER, 1);
+        mChapter = intent.getIntExtra(KEY_CHAPTER, ChunkPlugin.DEFAULT_CHAPTER);
+        mUnit = intent.getIntExtra(KEY_UNIT, ChunkPlugin.DEFAULT_UNIT);
     }
 
     private void initializeFragments() {
@@ -241,7 +241,9 @@ public class PlaybackActivity extends Activity implements
     @Override
     public void finish() {
         super.finish();
-        mDrawLoop.finish();
+        if(mDrawLoop != null) {
+            mDrawLoop.finish();
+        }
         if (mAudioController.isPlaying()) {
             mAudioController.pause();
         }

@@ -26,7 +26,7 @@ public class ChunkState {
 
     public void nextChunk(){
         currentChunk++;
-        if (chunksPerChapter[currentChapter] >= currentChunk) {
+        if (currentChunk >= chunksPerChapter[currentChapter]) {
             currentChunk = 0;
         }
     }

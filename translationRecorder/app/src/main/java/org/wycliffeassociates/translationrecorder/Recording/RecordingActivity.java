@@ -53,8 +53,7 @@ public class RecordingActivity extends AppCompatActivity implements
     public static final String KEY_INSERT_LOCATION = "key_insert_location";
     private static final String TAG_INSERT_TASK_FRAGMENT = "insert_task_fragment";
     private static final String STATE_INSERTING = "state_inserting";
-    private static final int DEFAULT_CHAPTER = 1;
-    private static final int DEFAULT_UNIT = 1;
+
     private Project mProject;
     private int mInitialChapter;
     private int mInitialUnit;
@@ -65,13 +64,17 @@ public class RecordingActivity extends AppCompatActivity implements
     private InsertTaskFragment mInsertTaskFragment;
     private boolean mInserting;
     private ProgressDialog mProgressDialog;
+
+    //Fragments
     private HashMap<Integer, Fragment> mFragmentHolder;
     private FragmentRecordingFileBar mFragmentRecordingFileBar;
     private FragmentVolumeBar mFragmentVolumeBar;
     private FragmentRecordingControls mFragmentRecordingControls;
     private FragmentSourceAudio mFragmentSourceAudio;
     private FragmentRecordingWaveform mFragmentRecordingWaveform;
+
     private ActiveRecordingRenderer mRecordingRenderer;
+
     private boolean isRecording = false;
     private boolean onlyVolumeTest = true;
     private WavFile mNewRecording;
@@ -254,8 +257,8 @@ public class RecordingActivity extends AppCompatActivity implements
 
     private void parseIntent(Intent intent) {
         mProject = intent.getParcelableExtra(KEY_PROJECT);
-        mInitialChapter = intent.getIntExtra(KEY_CHAPTER, DEFAULT_CHAPTER);
-        mInitialUnit = intent.getIntExtra(KEY_UNIT, DEFAULT_UNIT);
+        mInitialChapter = intent.getIntExtra(KEY_CHAPTER, ChunkPlugin.DEFAULT_CHAPTER);
+        mInitialUnit = intent.getIntExtra(KEY_UNIT, ChunkPlugin.DEFAULT_UNIT);
         if (intent.hasExtra(KEY_WAV_FILE)) {
             mLoadedWav = intent.getParcelableExtra(KEY_WAV_FILE);
         }

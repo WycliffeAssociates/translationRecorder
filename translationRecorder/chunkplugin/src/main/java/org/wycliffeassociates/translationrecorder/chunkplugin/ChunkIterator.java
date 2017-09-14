@@ -40,6 +40,14 @@ public class ChunkIterator {
         return chapters.get(state.getCurrentChapter());
     }
 
+    public int getChapterIndex() {
+        return state.getCurrentChapter();
+    }
+
+    public int getChunkIndex() {
+        return state.getCurrentChunk();
+    }
+
     /**
      * Accepts a chapter number and looks for that chapter in the list, sets the state to the index
      * of that chapter, and the chunk resets to 0

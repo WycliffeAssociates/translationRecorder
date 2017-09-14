@@ -54,6 +54,14 @@ public abstract class ChunkPlugin {
         return mIter.getChapter().getNumber();
     }
 
+    public int getChapterLabelIndex() {
+        return mIter.getChapterIndex();
+    }
+
+    public int getStartVerseLabelIndex() {
+        return mIter.getChunkIndex();
+    }
+
     public String[] getChapterDisplayLabels() {
         Collections.sort(mChapters, new Comparator<Chapter>() {
             @Override

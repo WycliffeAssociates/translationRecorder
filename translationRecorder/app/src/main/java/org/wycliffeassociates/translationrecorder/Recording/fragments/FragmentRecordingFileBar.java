@@ -166,7 +166,7 @@ public class FragmentRecordingFileBar extends Fragment {
         final String[] values = mChunks.getChapterDisplayLabels();
         if (values != null && values.length > 0) {
             mChapterPicker.setDisplayedValues(values);
-            mChapterPicker.setCurrent(mChapter);
+            mChapterPicker.setCurrent(mChunks.getChapterLabelIndex());
             mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                 @Override
                 public void onValueChange(
@@ -176,9 +176,9 @@ public class FragmentRecordingFileBar extends Fragment {
                         UnitPicker.DIRECTION direction
                 ) {
                     if (direction == UnitPicker.DIRECTION.INCREMENT) {
-                        mChunks.nextChunk();
+                        mChunks.nextChapter();
                     } else {
-                        mChunks.previousChunk();
+                        mChunks.previousChapter();
                     }
                     mUnitPicker.setCurrent(0);
                     initializeUnitPicker();
@@ -205,7 +205,7 @@ public class FragmentRecordingFileBar extends Fragment {
             @Override
             public void run() {
                 if (values != null && values.length > 0) {
-                    mUnitPicker.setCurrent(mUnit);
+                    mUnitPicker.setCurrent(mChunks.getStartVerseLabelIndex());
                     mOnUnitChangedListener.onUnitChanged(
                             mProject,
                             mProject.getFileName(
@@ -213,7 +213,8 @@ public class FragmentRecordingFileBar extends Fragment {
                                     mChunks.getStartVerse(),
                                     mChunks.getEndVerse()
                             ),
-                            mChunks.getChapter());
+                            mChunks.getChapter()
+                    );
                     //reinitialize all of the filenames
                     mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                         @Override
