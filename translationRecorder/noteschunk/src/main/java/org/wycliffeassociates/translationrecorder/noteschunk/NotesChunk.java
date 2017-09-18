@@ -12,7 +12,7 @@ public class NotesChunk extends Chunk {
     }
 
     static String computeLabel(int number){
-        String pref = (number % 2 == 0)? "ref " : "text ";
+        String pref = (number % 2 == 1)? "ref " : "text ";
         int num = (number % 2 == 0)? number/2 : (number + 1) / 2;
         return pref + num;
     }

@@ -5,12 +5,12 @@
         "name": "translation notes",
         "file_conv": "1011110101",
         "parser": {
-            "regex": "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_notes_([\\w\\d]*)_b([\\d]{2})_([\\d]+)_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?",
+            "regex": "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_tn_([\\w\\d]*)_b([\\d]*)_([\\w\\d]*-ch-[\\d]*)_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?",
             "groups": {
                 "language": 1,
                 "version": 2,
                 "book_number": 3,
-                "book":4,
+                "book": 4,
                 "start_verse": 5,
                 "end_verse": 6,
                 "take": 9
