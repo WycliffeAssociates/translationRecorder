@@ -37,11 +37,20 @@ public abstract class ChunkPlugin {
     }
 
     public Chapter getChapter(int chapter) {
-        return mChapters.get(chapter - 1);
+        //chapter number might not be associated with any particular index, so search
+        for(Chapter c : mChapters) {
+            if (c.getNumber() == chapter) {
+                return c;
+            }
+        }
+        return null;
     }
 
+    public List<Chapter> getChapters() {
+        return mChapters;
+    }
     public List<Chunk> getChunks(int chapter) {
-        return mChapters.get(chapter -1).getChunks();
+        return getChapter(chapter).getChunks();
     }
 
     public int getStartVerse() {

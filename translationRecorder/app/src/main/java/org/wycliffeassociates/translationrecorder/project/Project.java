@@ -69,10 +69,17 @@ public class Project implements Parcelable {
         codeDir.mkdirs();
         final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
         optimizedDexOutputPath.createNewFile();
-        DexClassLoader classLoader = new DexClassLoader(jarFile, optimizedDexOutputPath.getAbsolutePath(), null, getClass().getClassLoader());
+        DexClassLoader classLoader = new DexClassLoader(
+                jarFile,
+                optimizedDexOutputPath.getAbsolutePath(),
+                null,
+                getClass().getClassLoader()
+        );
         try {
             Class<?> plugin = classLoader.loadClass(mAnthology.getPluginClassName());
-            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin.asSubclass(ChunkPlugin.class).getConstructor(getModeType().getClass());
+            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin
+                    .asSubclass(ChunkPlugin.class)
+                    .getConstructor(getModeType().getClass());
             chunks = ctr.newInstance(getModeType());
         } catch (Exception e) {
             Logger.e(this.toString(), "Error loading plugin from jar for anthology: " + getAnthologySlug(), e);

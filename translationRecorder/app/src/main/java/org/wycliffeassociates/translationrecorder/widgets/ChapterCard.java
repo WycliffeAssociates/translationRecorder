@@ -508,4 +508,8 @@ public class ChapterCard {
             }
         };
     }
+
+    public int getChapterNumber() {
+        return mChapter;
+    }
 }

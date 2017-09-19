@@ -21,6 +21,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Compile
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ChapterResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
@@ -123,9 +124,16 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+
+        //if the database is still resyncing from a previous orientation change, don't start a new one
         if (!mDbResyncing) {
             mDbResyncing = true;
-            ChapterResyncTask task = new ChapterResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager(), mProject);
+            ChapterResyncTask task = new ChapterResyncTask(
+                    DATABASE_RESYNC_TASK,
+                    getBaseContext(),
+                    getFragmentManager(),
+                    mProject
+            );
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
@@ -140,9 +148,9 @@ public class ActivityChapterList extends AppCompatActivity implements
             cc.refreshProgress();
             cc.refreshIsEmpty();
             cc.refreshCanCompile();
-            cc.refreshChapterCompiled(i + 1);
+            cc.refreshChapterCompiled(cc.getChapterNumber());
             if (cc.isCompiled()) {
-                cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
+                cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, cc.getChapterNumber()));
             }
         }
         db.close();
@@ -179,8 +187,9 @@ public class ActivityChapterList extends AppCompatActivity implements
         int[] chapterIndicies = dialog.getChapterIndicies();
         for (int i = 0; i < chapterIndicies.length; i++) {
             int position = chapterIndicies[i];
-            mChapterCardList.get(position).setCheckingLevel(level);
-            db.setCheckingLevel(dialog.getProject(), position + 1, level);
+            ChapterCard cc = mChapterCardList.get(position);
+            cc.setCheckingLevel(level);
+            db.setCheckingLevel(dialog.getProject(), cc.getChapterNumber(), level);
             mAdapter.notifyItemChanged(position);
         }
         db.close();
@@ -220,9 +229,10 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-        for (int i = 0; i < mChunks.numChapters(); i++) {
-            int unitCount = mChunks.getChapter(i+1).getChunks().size();
-            mChapterCardList.add(new ChapterCard(this, mProject, i + 1, unitCount));
+        List<Chapter> chapters = mChunks.getChapters();
+        for(Chapter chapter : chapters) {
+            int unitCount = chapter.getChunks().size();
+            mChapterCardList.add(new ChapterCard(this, mProject, chapter.getNumber(), unitCount));
         }
     }
 
