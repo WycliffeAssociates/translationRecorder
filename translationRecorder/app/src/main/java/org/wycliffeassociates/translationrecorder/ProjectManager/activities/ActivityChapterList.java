@@ -60,7 +60,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     public static Intent getActivityUnitListIntent(Context ctx, Project p) {
         Intent intent = new Intent(ctx, ActivityUnitList.class);
-        intent.putExtra(PROJECT_KEY, p);
+        intent.putExtra(Project.PROJECT_EXTRA, p);
         return intent;
     }
 

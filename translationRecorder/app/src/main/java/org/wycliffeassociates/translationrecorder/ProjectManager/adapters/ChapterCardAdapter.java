@@ -174,7 +174,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             progressPie.setProgress(chapterCard.getProgress());
 
             // Checking Level
-            chapterCard.refreshCheckingLevel(mProject, pos + 1);
+            chapterCard.refreshCheckingLevel(mProject, chapterCard.getChapterNumber());
             checkLevelBtn.setStep(chapterCard.getCheckingLevel());
 
             // Compile
@@ -252,7 +252,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             } else {
                 chapterCard.pauseAudio();
                 chapterCard.destroyAudioPlayer();
-                Intent intent = ActivityUnitList.getActivityUnitListIntent(mCtx, mProject, getAdapterPosition() + 1);
+                Intent intent = ActivityUnitList.getActivityUnitListIntent(mCtx, mProject, chapterCard.getChapterNumber());
                 mCtx.startActivity(intent);
             }
         }
@@ -396,6 +396,10 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 cc.destroyAudioPlayer();
             }
         }
+    }
+
+    public ChapterCard getItem(int index) {
+        return mChapterCardList.get(index);
     }
 
 }

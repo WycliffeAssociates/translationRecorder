@@ -20,6 +20,7 @@ import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,7 +72,11 @@ public class ChapterCard {
     public ChapterCard(Activity ctx, Project proj, int chapter, int unitCount) {
         mCtx = ctx;
         mProject = proj;
-        mTitle = "Chapter " + chapter;
+        try {
+            mTitle = proj.getChunkPlugin(ctx).getChapterLabel(chapter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mChapter = chapter;
         mUnitCount = unitCount;
     }

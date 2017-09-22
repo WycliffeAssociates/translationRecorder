@@ -33,6 +33,8 @@ import java.util.List;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertEquals;
+import static org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil.createBibleTestProject;
+import static org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil.createNotesTestProject;
 
 /**
  * Created by sarabiaj on 8/30/2017.
@@ -62,18 +64,32 @@ public class RecordingActivityIntentTest {
 
     @Test
     public void testNewProjects() {
-        Project project = createBibleTestProject();
+        Project project = createBibleTestProject(mSplashScreenRule);
         testRecordingActivityDataFlow(project, 1, 1);
         System.out.println("Passed chapter 1 unit 1!");
-        project = createBibleTestProject();
+        project = createBibleTestProject(mSplashScreenRule);
         testRecordingActivityDataFlow(project, 1, 2);
         System.out.println("Passed chapter 1 unit 2!");
-        project = createBibleTestProject();
+        project = createBibleTestProject(mSplashScreenRule);
         testRecordingActivityDataFlow(project, 2, 1);
         System.out.println("Passed chapter 2 unit 1!");
-        project = createBibleTestProject();
+        project = createBibleTestProject(mSplashScreenRule);
         testRecordingActivityDataFlow(project, 2, 2);
         System.out.println("Passed chapter 2 unit 2!");
+
+        //use chunk 3 since there is no chunk 2
+        Project projectNotes = createNotesTestProject(mSplashScreenRule);
+        testRecordingActivityDataFlow(projectNotes, 1, 1);
+        System.out.println("Passed chunk 1 text 1!");
+        projectNotes = createNotesTestProject(mSplashScreenRule);
+        testRecordingActivityDataFlow(projectNotes, 1, 2);
+        System.out.println("Passed chunk 1 ref 1!");
+        projectNotes = createNotesTestProject(mSplashScreenRule);
+        testRecordingActivityDataFlow(projectNotes, 3, 1);
+        System.out.println("Passed chunk 3 text 1!");
+        projectNotes = createNotesTestProject(mSplashScreenRule);
+        testRecordingActivityDataFlow(projectNotes, 3, 2);
+        System.out.println("Passed chunk 3 ref 1!");
     }
 
     public void testRecordingActivityDataFlow(Project project, int chapter, int unit) {
@@ -218,38 +234,6 @@ public class RecordingActivityIntentTest {
             }
         }
         return projects;
-    }
-
-    Project createBibleTestProject() {
-        Project project = new Project();
-        mSplashScreenRule.launchActivity(new Intent());
-        Context ctx = mSplashScreenRule.getActivity();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        Anthology anthology = db.getAnthology(db.getAnthologyId("ot"));
-        project.setAnthology(anthology);
-        project.setBook(db.getBook(db.getBookId("gen")));
-        project.setMode(db.getMode(db.getModeId("verse", anthology.getSlug())));
-        project.setVersion(db.getVersion(db.getVersionId("ulb")));
-        project.setTargetLanguage(db.getLanguage(db.getLanguageId("en")));
-        db.close();
-        mSplashScreenRule.getActivity().finish();
-        return project;
-    }
-
-    Project createNotesTestProject() {
-        Project project = new Project();
-        mSplashScreenRule.launchActivity(new Intent());
-        Context ctx = mSplashScreenRule.getActivity();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        Anthology anthology = db.getAnthology(db.getAnthologyId("tn"));
-        project.setAnthology(anthology);
-        project.setBook(db.getBook(db.getBookId("gen-ch-1")));
-        project.setMode(db.getMode(db.getModeId("note", anthology.getSlug())));
-        project.setVersion(db.getVersion(db.getVersionId("ulb")));
-        project.setTargetLanguage(db.getLanguage(db.getLanguageId("en")));
-        db.close();
-        mSplashScreenRule.getActivity().finish();
-        return project;
     }
 
     List<Chapter> getChunkPlugin(Context ctx, Project project) throws NoSuchFieldException, IOException, IllegalAccessException {

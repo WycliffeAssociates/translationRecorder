@@ -85,6 +85,7 @@ public class Project implements Parcelable {
             Logger.e(this.toString(), "Error loading plugin from jar for anthology: " + getAnthologySlug(), e);
             e.printStackTrace();
         }
+        chunks.parseChunks(getChunksFile(ctx));
         return chunks;
     }
 

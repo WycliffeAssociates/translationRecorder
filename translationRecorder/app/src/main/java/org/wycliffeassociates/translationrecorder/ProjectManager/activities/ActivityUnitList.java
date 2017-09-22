@@ -65,50 +65,57 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         setContentView(R.layout.activity_unit_list);
 
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
-        mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        FragmentManager fm = getFragmentManager();
-        mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
-        if (mTaskFragment == null) {
-            mTaskFragment = new TaskFragment();
-            fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
-            fm.executePendingTransactions();
+        ChunkPlugin plugin = null;
+        try {
+            plugin = mProject.getChunkPlugin(this);
+
+            mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+            FragmentManager fm = getFragmentManager();
+            mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+            if (mTaskFragment == null) {
+                mTaskFragment = new TaskFragment();
+                fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
+                fm.executePendingTransactions();
+            }
+
+            if (savedInstanceState != null) {
+                mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC);
+            }
+
+            // Setup toolbar
+            String language = db.getLanguageName(mProject.getTargetLanguageSlug());
+            String book = db.getBookName(mProject.getBookSlug());
+            Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
+            setSupportActionBar(mToolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(language + " - " + book + " - " + plugin.getChapterLabel(mChapterNum));
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+            }
+
+            // Find the recycler view
+            mUnitList = (RecyclerView) findViewById(R.id.unit_list);
+            mUnitList.setHasFixedSize(false);
+
+            // Set its layout manager
+            mLayoutManager = new LinearLayoutManager(this);
+            mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            mUnitList.setLayoutManager(mLayoutManager);
+
+            // Set its adapter
+            mUnitCardList = new ArrayList<>();
+            mAdapter = new UnitCardAdapter(this, mProject, mChapterNum, mUnitCardList);
+            mUnitList.setAdapter(mAdapter);
+
+            // Set its animator
+            mUnitList.setItemAnimator(new DefaultItemAnimator());
+            prepareUnitCardData();
+
+            db.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        if (savedInstanceState != null) {
-            mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC);
-        }
-
-        // Setup toolbar
-        String language = db.getLanguageName(mProject.getTargetLanguageSlug());
-        String book = db.getBookName(mProject.getBookSlug());
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
-        setSupportActionBar(mToolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(language + " - " + book + " - Chapter " + mChapterNum);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        // Find the recycler view
-        mUnitList = (RecyclerView) findViewById(R.id.unit_list);
-        mUnitList.setHasFixedSize(false);
-
-        // Set its layout manager
-        mLayoutManager = new LinearLayoutManager(this);
-        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mUnitList.setLayoutManager(mLayoutManager);
-
-        // Set its adapter
-        mUnitCardList = new ArrayList<>();
-        mAdapter = new UnitCardAdapter(this, mProject, mChapterNum, mUnitCardList);
-        mUnitList.setAdapter(mAdapter);
-
-        // Set its animator
-        mUnitList.setItemAnimator(new DefaultItemAnimator());
-        prepareUnitCardData();
-
-        db.close();
     }
 
     @Override
