@@ -23,6 +23,7 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.TestUtils.FragmentTestActivity;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 
@@ -87,7 +88,7 @@ public class ActivityChapterListTest  {
         recyclerViewField.setAccessible(true);
         RecyclerView rv = (RecyclerView) recyclerViewField.get(chapterListActivity);
 
-        ChunkPlugin plugin = project.getChunkPlugin(chapterListActivity);
+        ChunkPlugin plugin = project.getChunkPlugin(new ChunkPluginLoader(chapterListActivity));
 
         List<Chapter> chapters = plugin.getChapters();
         //number of children in the recycler view should match the number of chapters

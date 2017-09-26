@@ -21,6 +21,7 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.IOException;
@@ -89,8 +90,7 @@ public class ProjectAdapter extends ArrayAdapter {
         if (dB.projectExists(project)) {
             try {
                 // TODO: This is a bottle neck. Please optimize the progress calculation.
-                ChunkPlugin chunks = project.getChunkPlugin(ctx);
-                chunks.parseChunks(project.getChunksFile(ctx));
+                ChunkPlugin chunks = project.getChunkPlugin(new ChunkPluginLoader(ctx));
                 int chapterCount = chunks.numChapters();
                 int projectId = dB.getProjectId(project);
                 int progress = Math.round((float) dB.getProjectProgressSum(projectId) / chapterCount);

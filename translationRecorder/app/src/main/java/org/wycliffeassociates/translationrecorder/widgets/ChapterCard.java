@@ -13,6 +13,7 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
@@ -41,6 +42,11 @@ public class ChapterCard {
         );
     }
 
+    public interface ChapterProgress {
+        void updateChapterProgress(int chapter);
+        int chapterProgress(int chapter);
+    }
+
     // Constants
     public int MIN_CHECKING_LEVEL = 0;
     public int MAX_CHECKING_LEVEL = 3;
@@ -48,7 +54,6 @@ public class ChapterCard {
     public int MAX_PROGRESS = 100;
 
     // Attributes
-    private Activity mCtx;
     private Project mProject;
     private ChapterCardAdapter.ViewHolder mViewHolder;
     private SoftReference<AudioPlayer> mAudioPlayer;
@@ -70,31 +75,15 @@ public class ChapterCard {
 
     // Constructor
     public ChapterCard(Activity ctx, Project proj, int chapter, int unitCount) {
-        mCtx = ctx;
         mProject = proj;
         try {
-            mTitle = proj.getChunkPlugin(ctx).getChapterLabel(chapter);
+            mTitle = proj.getChunkPlugin(new ChunkPluginLoader(ctx)).getChapterLabel(chapter);
         } catch (IOException e) {
             e.printStackTrace();
         }
         mChapter = chapter;
         mUnitCount = unitCount;
     }
-
-//    public void refreshChapterStarted(Project project, int chapter){
-//        File dir = Project.getProjectDirectory(project);
-//        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
-//        File[] files = dir.listFiles();
-//        if(files != null) {
-//            for (File f : files) {
-//                if (f.getName().equals(chapterString)) {
-//                    mIsEmpty = false;
-//                    return;
-//                }
-//            }
-//        }
-//        mIsEmpty = true;
-//    }
 
     public void refreshIsEmpty() {
         mIsEmpty = mProgress == 0;

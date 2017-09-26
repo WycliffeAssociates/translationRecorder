@@ -24,6 +24,7 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
@@ -95,8 +96,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         }
 
         try {
-            mChunks = mProject.getChunkPlugin(this);
-            mChunks.parseChunks(mProject.getChunksFile(this));
+            mChunks = mProject.getChunkPlugin(new ChunkPluginLoader(this));
         } catch (Exception e) {
             Logger.e(this.toString(), "Error parsing chunks", e);
         }

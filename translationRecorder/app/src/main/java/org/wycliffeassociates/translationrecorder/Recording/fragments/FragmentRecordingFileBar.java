@@ -18,6 +18,7 @@ import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.IOException;
@@ -155,8 +156,7 @@ public class FragmentRecordingFileBar extends Fragment {
     }
 
     private void initializePickers() throws IOException {
-        mChunks = mProject.getChunkPlugin(getActivity());
-        mChunks.parseChunks(mProject.getChunksFile(getActivity()));
+        mChunks = mProject.getChunkPlugin(new ChunkPluginLoader(getActivity()));
         mChunks.initialize(mChapter, mUnit);
         initializeUnitPicker();
         initializeChapterPicker();

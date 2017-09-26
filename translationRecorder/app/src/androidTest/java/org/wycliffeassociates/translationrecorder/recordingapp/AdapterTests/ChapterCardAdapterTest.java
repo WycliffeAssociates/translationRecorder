@@ -13,6 +13,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.activities.Acti
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 
@@ -67,7 +68,7 @@ public class ChapterCardAdapterTest {
 
     List<ChapterCard> createChapterCardList(Project project) throws IOException {
         Context ctx = InstrumentationRegistry.getContext();
-        ChunkPlugin plugin = project.getChunkPlugin(ctx);
+        ChunkPlugin plugin = project.getChunkPlugin(new ChunkPluginLoader(ctx));
         List<Chapter> chapters = plugin.getChapters();
         List<ChapterCard> cards = new ArrayList<>();
         for(Chapter chapter : chapters) {

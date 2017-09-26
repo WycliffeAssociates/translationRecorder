@@ -6,8 +6,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
-import com.door43.tools.reporting.Logger;
-
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -17,12 +15,8 @@ import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-
-import dalvik.system.DexClassLoader;
 
 /**
  * Created by sarabiaj on 5/10/2016.
@@ -43,6 +37,11 @@ public class Project implements Parcelable {
     String mContributors;
     String mSourceAudioPath;
 
+    public interface ProjectPluginLoader {
+        ChunkPlugin loadChunkPlugin(Anthology anthology, Book book, ChunkPlugin.TYPE type);
+        InputStream chunksInputStream(Anthology anthology, Book book);
+    }
+
     public Project() {
     }
 
@@ -60,46 +59,8 @@ public class Project implements Parcelable {
         mSourceAudioPath = sourceAudioPath;
     }
 
-    public ChunkPlugin getChunkPlugin(Context ctx) throws IOException {
-        ChunkPlugin chunks = null;
-        File jarsDir = new File(ctx.getExternalCacheDir(), "Plugins/Jars");
-        jarsDir.mkdirs();
-        String jarFile = new File(jarsDir, mAnthology.getPluginFilename()).getAbsolutePath();
-        File codeDir = new File(ctx.getExternalCacheDir(), "dex/");
-        codeDir.mkdirs();
-        final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
-        optimizedDexOutputPath.createNewFile();
-        DexClassLoader classLoader = new DexClassLoader(
-                jarFile,
-                optimizedDexOutputPath.getAbsolutePath(),
-                null,
-                getClass().getClassLoader()
-        );
-        try {
-            Class<?> plugin = classLoader.loadClass(mAnthology.getPluginClassName());
-            Constructor<ChunkPlugin> ctr = (Constructor<ChunkPlugin>) plugin
-                    .asSubclass(ChunkPlugin.class)
-                    .getConstructor(getModeType().getClass());
-            chunks = ctr.newInstance(getModeType());
-        } catch (Exception e) {
-            Logger.e(this.toString(), "Error loading plugin from jar for anthology: " + getAnthologySlug(), e);
-            e.printStackTrace();
-        }
-        chunks.parseChunks(getChunksFile(ctx));
-        return chunks;
-    }
-
-    public InputStream getChunksFile(Context ctx){
-        try {
-            if(mAnthology.getResource().equals("bible_resources")) {
-                return ctx.getAssets().open("notes/" + getAnthologySlug() + "/" + getBookSlug() + "/chunks.json");
-            } else {
-                return ctx.getAssets().open("chunks/" + getAnthologySlug() + "/" + getBookSlug() + "/chunks.json");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public ChunkPlugin getChunkPlugin(ProjectPluginLoader pluginLoader) throws IOException {
+        return pluginLoader.loadChunkPlugin(mAnthology, mBook, getModeType());
     }
 
     public static Project getProjectFromPreferences(Context ctx) {

@@ -20,6 +20,7 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
@@ -67,7 +68,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
         ChunkPlugin plugin = null;
         try {
-            plugin = mProject.getChunkPlugin(this);
+            plugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
 
             mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
@@ -184,8 +185,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     private void prepareUnitCardData() {
         try {
-            ChunkPlugin chunkPlugin = mProject.getChunkPlugin(this);
-            chunkPlugin.parseChunks(mProject.getChunksFile(this));
+            ChunkPlugin chunkPlugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
             List<Chunk> chunks = chunkPlugin.getChapter(mChapterNum).getChunks();
             for (Chunk unit : chunks) {
                 mUnitCardList.add(new UnitCard(this, mProject, mChapterNum, unit.getStartVerse(), unit.getEndVerse()));

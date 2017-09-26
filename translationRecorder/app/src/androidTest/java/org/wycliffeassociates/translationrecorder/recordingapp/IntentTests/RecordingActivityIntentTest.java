@@ -19,6 +19,7 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRe
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
@@ -237,7 +238,7 @@ public class RecordingActivityIntentTest {
     }
 
     List<Chapter> getChunkPlugin(Context ctx, Project project) throws NoSuchFieldException, IOException, IllegalAccessException {
-            ChunkPlugin plugin = project.getChunkPlugin(ctx);
+            ChunkPlugin plugin = project.getChunkPlugin(new ChunkPluginLoader(ctx));
             Field field = ChunkPlugin.class.getDeclaredField("mChapters");
             List<Chapter> chapters = (List<Chapter>) field.get(plugin);
             return chapters;
