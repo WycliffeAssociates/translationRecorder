@@ -44,4 +44,5 @@ public class ProjectMockingUtil {
         activityTestRule.getActivity().finish();
         return project;
     }
+
 }

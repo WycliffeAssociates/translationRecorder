@@ -17,6 +17,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Checkin
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -188,7 +189,8 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             ChunkPlugin chunkPlugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
             List<Chunk> chunks = chunkPlugin.getChapter(mChapterNum).getChunks();
             for (Chunk unit : chunks) {
-                mUnitCardList.add(new UnitCard(this, mProject, mChapterNum, unit.getStartVerse(), unit.getEndVerse()));
+                String title = Utils.capitalizeFirstLetter(mProject.getModeName()) + " " + unit.getLabel();
+                mUnitCardList.add(new UnitCard(this, mProject, title, mChapterNum, unit.getStartVerse(), unit.getEndVerse()));
             }
         } catch (IOException e) {
             e.printStackTrace();

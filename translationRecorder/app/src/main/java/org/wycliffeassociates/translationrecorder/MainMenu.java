@@ -1,6 +1,5 @@
 package org.wycliffeassociates.translationrecorder;
 
-
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
@@ -35,7 +34,6 @@ import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 
 public class MainMenu extends Activity {
 

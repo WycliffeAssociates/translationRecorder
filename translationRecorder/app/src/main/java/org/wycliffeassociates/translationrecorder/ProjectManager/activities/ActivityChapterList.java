@@ -31,7 +31,9 @@ import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/28/2016.
@@ -145,7 +147,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         for (int i = 0; i < mChapterCardList.size(); i++) {
             ChapterCard cc = mChapterCardList.get(i);
             cc.setNumOfUnitStarted(unitsStarted[i]);
-            cc.refreshProgress();
+            cc.refreshProgress(this);
             cc.refreshIsEmpty();
             cc.refreshCanCompile();
             cc.refreshChapterCompiled(cc.getChapterNumber());
@@ -203,7 +205,14 @@ public class ActivityChapterList extends AppCompatActivity implements
             mChapterCardList.get(i).destroyAudioPlayer();
         }
         mChaptersCompiled = dialog.getChapterIndicies();
-        CompileChapterTask task = new CompileChapterTask(COMPILE_CHAPTER_TASK, toCompile);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+
+        Map<ChapterCard, List<String>> chaptersToCompile = new HashMap<>();
+        for(ChapterCard cc : toCompile) {
+            chaptersToCompile.put(cc, db.getTakesForChapterCompilation(mProject, cc.getChapterNumber()));
+        }
+
+        CompileChapterTask task = new CompileChapterTask(COMPILE_CHAPTER_TASK, chaptersToCompile, mProject);
         mTaskFragment.executeRunnable(task, "Compiling Chapter", "Please wait...", false);
     }
 
@@ -232,7 +241,8 @@ public class ActivityChapterList extends AppCompatActivity implements
         List<Chapter> chapters = mChunks.getChapters();
         for(Chapter chapter : chapters) {
             int unitCount = chapter.getChunks().size();
-            mChapterCardList.add(new ChapterCard(this, mProject, chapter.getNumber(), unitCount));
+            int chapterNumber = chapter.getNumber();
+            mChapterCardList.add(new ChapterCard(mProject, mChunks.getChapterLabel(chapterNumber), chapterNumber, unitCount));
         }
     }
 
@@ -245,7 +255,8 @@ public class ActivityChapterList extends AppCompatActivity implements
             } else if (taskTag == COMPILE_CHAPTER_TASK) {
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(ActivityChapterList.this);
                 for (int i : mChaptersCompiled) {
-                    db.setCheckingLevel(mProject, i + 1, 0);
+                    int chapter = mChapterCardList.get(i).getChapterNumber();
+                    db.setCheckingLevel(mProject, chapter, 0);
                     mAdapter.notifyItemChanged(i);
                 }
             }

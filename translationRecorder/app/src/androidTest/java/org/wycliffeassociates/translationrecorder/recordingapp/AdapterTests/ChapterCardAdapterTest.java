@@ -72,12 +72,12 @@ public class ChapterCardAdapterTest {
         List<Chapter> chapters = plugin.getChapters();
         List<ChapterCard> cards = new ArrayList<>();
         for(Chapter chapter : chapters) {
-            cards.add(new ChapterCard(
-                    mActivityChapterListRule.getActivity(),
-                    project,
-                    chapter.getNumber(),
-                    chapter.getChunks().size()
-            ));
+//            cards.add(new ChapterCard(
+//                    mActivityChapterListRule.getActivity(),
+//                    project,
+//                    chapter.getNumber(),
+//                    chapter.getChunks().size()
+//            ));
         }
         return cards;
     }

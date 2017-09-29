@@ -3,7 +3,6 @@ package org.wycliffeassociates.translationrecorder.widgets;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
@@ -14,7 +13,6 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.UnitCa
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
-import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
@@ -62,25 +60,20 @@ public class UnitCard {
     private final int mFirstVerse;
     private final int mEndVerse;
     private int mTakeCount;
-    private int mSelectedTake;
     private SoftReference<List<File>> mTakeList;
     private SoftReference<AudioPlayer> mAudioPlayer;
     private Activity mCtx;
-    private Resources.Theme mTheme;
-
 
     // Constructors
-    public UnitCard(Activity ctx, Project project, int chapter, int firstVerse, int endVerse) {
-        mTitle = Utils.capitalizeFirstLetter(project.getModeName()) + " " + firstVerse;
+    public UnitCard(Activity ctx, Project project, String title, int chapter, int firstVerse, int endVerse) {
+        mTitle = title;
         mFirstVerse = firstVerse;
         mEndVerse = endVerse;
         mChapter = chapter;
         mProject = project;
         mCtx = ctx;
-        mTheme = mCtx.getTheme();
         refreshTakeCount();
     }
-
 
     // Setters
     public void setTitle(String title) {
@@ -90,7 +83,6 @@ public class UnitCard {
     public void setViewHolder(UnitCardAdapter.ViewHolder vh) {
         mViewHolder = vh;
     }
-
 
     // Getters
     public String getTitle() {
@@ -112,7 +104,6 @@ public class UnitCard {
     public boolean isEmpty() {
         return mIsEmpty;
     }
-
 
     // Private Methods
     private AudioPlayer initializeAudioPlayer() {
