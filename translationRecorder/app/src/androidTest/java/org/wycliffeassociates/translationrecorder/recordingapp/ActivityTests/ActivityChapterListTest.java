@@ -7,15 +7,16 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityChapterList;
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
@@ -25,24 +26,23 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertEquals;
-import static org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil.createBibleTestProject;
-import static org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil.createNotesTestProject;
 
 /**
  * Created by sarabiaj on 9/21/2017.
  */
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 @LargeTest
 public class ActivityChapterListTest  {
 
@@ -54,24 +54,61 @@ public class ActivityChapterListTest  {
                     false
             );
 
-    @Rule
-    public ActivityTestRule<FragmentTestActivity> mTestActivity =
+    @ClassRule
+    public static ActivityTestRule<FragmentTestActivity> mTestActivity =
             new ActivityTestRule<>(
                     FragmentTestActivity.class,
                     true,
                     false
             );
 
-    @Test
-    public void ActivityChapterListTest() throws IllegalAccessException, NoSuchFieldException, IOException {
-        Project bibleProject = createBibleTestProject(mTestActivity);
-        Project notesProject = createNotesTestProject(mTestActivity);
+    @Parameterized.Parameters
+    public static Iterable<Object[]> data() throws IOException {
 
-        testClickingChapterCard(bibleProject);
-        testClickingChapterCard(notesProject);
+        //Project notesProject = ProjectMockingUtil.createNotesTestProject(mainMenuActivityTestRule);
+        Project bibleProject = ProjectMockingUtil.createBibleTestProject(mTestActivity);
+
+        ArrayList<Object[]> bibleTestArgs = new ArrayList<>();
+        ChunkPlugin plugin = bibleProject.getChunkPlugin(new ChunkPluginLoader(mTestActivity.getActivity()));
+        int numChapters  = plugin.numChapters();
+
+        for(int i = 1; i < numChapters +1; i++) {
+            bibleTestArgs.add(new Object[]{i, bibleProject});
+        }
+        return bibleTestArgs;
+
+//        return Arrays.asList(new Object[][] {
+//                //Bible Projects
+//                {
+//                        1,
+//                        bibleProject
+//                },
+//                {
+//                        2,
+//                        bibleProject
+//                }
+//        });
     }
 
-    public void testClickingChapterCard(Project project) throws IllegalAccessException, NoSuchFieldException, IOException {
+    private final int i;
+    private final Project project;
+
+    public ActivityChapterListTest(int chapter, Project project) {
+        i = chapter;
+        this.project = project;
+    }
+
+
+//    @Test
+//    public void ActivityChapterListTest() throws IllegalAccessException, NoSuchFieldException, IOException {
+//        Project bibleProject = createBibleTestProject(mTestActivity);
+//        Project notesProject = createNotesTestProject(mTestActivity);
+//
+//        testClickingChapterCard(bibleProject);
+//        testClickingChapterCard(notesProject);
+//    }
+    @Test
+    public void testClickingChapterCard() throws IllegalAccessException, NoSuchFieldException, IOException {
         Context ctx = InstrumentationRegistry.getContext();
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         Instrumentation.ActivityMonitor chapterListMonitor = new Instrumentation.ActivityMonitor(
@@ -95,9 +132,9 @@ public class ActivityChapterListTest  {
         assertEquals("Number of chapters vs number in adapter", chapters.size(), rv.getAdapter().getItemCount());
 
 
-        for(int i = 0; i < chapters.size(); i++) {
-            final ChapterCard cc = ((ChapterCardAdapter)rv.getAdapter()).getItem(i);
-            assertEquals(cc.getChapterNumber(), chapters.get(i).getNumber());
+        //for(int i = 0; i < chapters.size(); i++) {
+            final ChapterCard cc = ((ChapterCardAdapter)rv.getAdapter()).getItem(i-1);
+            assertEquals(cc.getChapterNumber(), chapters.get(i-1).getNumber());
             Instrumentation.ActivityMonitor activityMonitor = new Instrumentation.ActivityMonitor(ActivityUnitList.class.getName(), null, false);
             InstrumentationRegistry.getInstrumentation().addMonitor(activityMonitor);
 
@@ -105,29 +142,34 @@ public class ActivityChapterListTest  {
             //this hack seems to work? the sleep is necessary probably to give enough time for the data to bind to the view holder
             //fumbling around first with the scrolling seems to be necessary for it to not throw an exception saying one of the chapter numbers can't match
             onView(withId(R.id.chapter_list)).perform(RecyclerViewActions.scrollToHolder(withChapterNumber(cc.getChapterNumber())));
-            onView(withId(R.id.chapter_list)).perform(RecyclerViewActions.scrollToHolder(withChapterNumber(chapters.get(0).getNumber())));
-            onView(withId(R.id.chapter_list)).perform(RecyclerViewActions.scrollToHolder(withChapterNumber(cc.getChapterNumber())));
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            onView(withId(R.id.chapter_list)).perform(RecyclerViewActions.actionOnHolderItem(withChapterNumber(cc.getChapterNumber()), click()));
+
+            //onView(withId(R.id.chapter_list)).perform(RecyclerViewActions.scrollToHolder(withChapterNumber(chapters.get(0).getNumber())));
+            //onView(withId(R.id.chapter_list)).perform(RecyclerViewActions.scrollToHolder(withChapterNumber(cc.getChapterNumber())));
+//            try {
+//                Thread.sleep(100);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
+            ChapterCardAdapter.ViewHolder view = (ChapterCardAdapter.ViewHolder) rv.findViewHolderForAdapterPosition(i-1);
+            view.onClick(view.cardHeader);
+            //onView(withId(R.id.chapter_list)).perform(RecyclerViewActions.actionOnHolderItem(withChapterNumber(cc.getChapterNumber()), click()));
 
 
             ActivityUnitList aul = (ActivityUnitList) activityMonitor.waitForActivity();
 
+
             Field chapterField = ActivityUnitList.class.getDeclaredField("mChapterNum");
             chapterField.setAccessible(true);
             int unitListChapter = chapterField.getInt(aul);
-            System.out.println("chapters.get is " + chapters.get(i).getNumber());
+            System.out.println("chapters.get is " + chapters.get(i-1).getNumber());
             System.out.println("i is " + i);
             System.out.println("unitListChapter is " + unitListChapter);
-            assertEquals(unitListChapter, chapters.get(i).getNumber());
-            System.out.println("SUCCESS: UnitListChapter " + unitListChapter + " and Chapter Number " + chapters.get(i).getNumber() + " are the same!");
+            assertEquals(unitListChapter, chapters.get(i-1).getNumber());
+            System.out.println("SUCCESS: UnitListChapter " + unitListChapter + " and Chapter Number " + chapters.get(i-1).getNumber() + " are the same!");
             aul.finish();
             InstrumentationRegistry.getInstrumentation().removeMonitor(activityMonitor);
-        }
+        //}
         chapterListActivity.finish();
         instrumentation.removeMonitor(chapterListMonitor);
 
