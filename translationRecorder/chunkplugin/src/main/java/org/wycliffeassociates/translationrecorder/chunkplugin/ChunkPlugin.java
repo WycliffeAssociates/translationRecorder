@@ -80,7 +80,7 @@ public abstract class ChunkPlugin {
         });
         String[] labels = new String[mChapters.size()];
         for(int i = 0; i < mChapters.size(); i++) {
-            labels[i] = mChapters.get(i).getLabel();
+            labels[i] = mChapters.get(i).getName();
         }
         return labels;
     }
@@ -128,7 +128,8 @@ public abstract class ChunkPlugin {
 
     //public abstract int numChapters();
     //public abstract int numChunks(int chapter);
-    public abstract String getChapterLabel(int chapter);
+    public abstract String getChapterName(int chapter);
+    public abstract String getChapterLabel();
     public abstract String getUnitLabel(int chapter, int unit);
 
     public abstract String getChunkName(int chapter, int id);

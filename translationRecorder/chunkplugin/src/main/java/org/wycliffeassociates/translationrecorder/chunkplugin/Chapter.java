@@ -20,6 +20,8 @@ public abstract class Chapter {
 
     public abstract List<Chunk> getChunks();
 
+    public abstract String getName();
+
     public abstract String getLabel();
 
     public abstract int getNumber();

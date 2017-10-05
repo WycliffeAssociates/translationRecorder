@@ -113,8 +113,13 @@ public class BibleChunkPlugin extends ChunkPlugin {
     }
 
     @Override
-    public String getChapterLabel(int chapter) {
-        return getChapter(chapter).getLabel();
+    public String getChapterLabel() {
+        return "chapter";
+    }
+
+    @Override
+    public String getChapterName(int chapter) {
+        return getChapter(chapter).getName();
     }
 
     @Override

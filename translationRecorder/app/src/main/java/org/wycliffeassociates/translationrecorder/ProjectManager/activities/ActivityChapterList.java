@@ -21,6 +21,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Compile
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ChapterResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -143,10 +144,11 @@ public class ActivityChapterList extends AppCompatActivity implements
     public void refreshChapterCards() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int numChapters = mChunks.numChapters();
-        int[] unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
+        Map<Integer, Integer> unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
         for (int i = 0; i < mChapterCardList.size(); i++) {
             ChapterCard cc = mChapterCardList.get(i);
-            cc.setNumOfUnitStarted(unitsStarted[i]);
+            int numUnits = (unitsStarted.containsKey(cc.getChapterNumber())) ? unitsStarted.get(cc.getChapterNumber()) : 0;
+            cc.setNumOfUnitStarted(numUnits);
             cc.refreshProgress(this);
             cc.refreshIsEmpty();
             cc.refreshCanCompile();
@@ -208,7 +210,7 @@ public class ActivityChapterList extends AppCompatActivity implements
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
 
         Map<ChapterCard, List<String>> chaptersToCompile = new HashMap<>();
-        for(ChapterCard cc : toCompile) {
+        for (ChapterCard cc : toCompile) {
             chaptersToCompile.put(cc, db.getTakesForChapterCompilation(mProject, cc.getChapterNumber()));
         }
 
@@ -239,10 +241,17 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     private void prepareChapterCardData() {
         List<Chapter> chapters = mChunks.getChapters();
-        for(Chapter chapter : chapters) {
+        for (Chapter chapter : chapters) {
             int unitCount = chapter.getChunks().size();
             int chapterNumber = chapter.getNumber();
-            mChapterCardList.add(new ChapterCard(mProject, mChunks.getChapterLabel(chapterNumber), chapterNumber, unitCount));
+            mChapterCardList.add(
+                    new ChapterCard(
+                            mProject,
+                            Utils.capitalizeFirstLetter(mChunks.getChapterLabel()) + " " + mChunks.getChapterName(chapterNumber),
+                            chapterNumber,
+                            unitCount
+                    )
+            );
         }
     }
 

@@ -73,7 +73,7 @@ public class ChapterCard {
     public ChapterCard(Project proj, String title, int chapter, int unitCount) {
         mProject = proj;
 //        try {
-//            mTitle = proj.getChunkPlugin(new ChunkPluginLoader(ctx)).getChapterLabel(chapter);
+//            mTitle = proj.getChunkPlugin(new ChunkPluginLoader(ctx)).getChapterName(chapter);
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }

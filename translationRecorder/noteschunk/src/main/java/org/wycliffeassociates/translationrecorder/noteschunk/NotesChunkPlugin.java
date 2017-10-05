@@ -80,8 +80,13 @@ public class NotesChunkPlugin extends ChunkPlugin {
     }
 
     @Override
-    public String getChapterLabel(int chapter) {
-        return mChaptersMap.get(chapter).getLabel();
+    public String getChapterLabel() {
+        return "chunk";
+    }
+
+    @Override
+    public String getChapterName(int chapter) {
+        return mChaptersMap.get(chapter).getName();
     }
 
     @Override

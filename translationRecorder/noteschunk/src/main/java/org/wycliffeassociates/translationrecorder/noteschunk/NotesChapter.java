@@ -26,8 +26,13 @@ public class NotesChapter extends Chapter {
     }
 
     @Override
-    public String getLabel() {
-        return "chunk " + mNumber;
+    public String getLabel(){
+        return "chunk";
+    }
+
+    @Override
+    public String getName() {
+        return String.valueOf(mNumber);
     }
 
     @Override

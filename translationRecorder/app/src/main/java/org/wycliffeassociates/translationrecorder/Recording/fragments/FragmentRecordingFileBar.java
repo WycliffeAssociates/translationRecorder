@@ -39,6 +39,7 @@ public class FragmentRecordingFileBar extends Fragment {
     private TextView mLanguageView;
     private UnitPicker mUnitPicker;
     private UnitPicker mChapterPicker;
+    private TextView mChapterView;
     private TextView mModeView;
     private Project mProject;
     private ChunkPlugin mChunks;
@@ -134,6 +135,7 @@ public class FragmentRecordingFileBar extends Fragment {
         mUnitPicker = (UnitPicker) view.findViewById(R.id.unit_picker);
         mChapterPicker = (UnitPicker) view.findViewById(R.id.chapter_picker);
         mModeView = (TextView) view.findViewById(R.id.file_unit_label);
+        mChapterView = (TextView) view.findViewById(R.id.file_chapter_label);
     }
 
     private void initializeViews() {
@@ -158,6 +160,7 @@ public class FragmentRecordingFileBar extends Fragment {
     private void initializePickers() throws IOException {
         mChunks = mProject.getChunkPlugin(new ChunkPluginLoader(getActivity()));
         mChunks.initialize(mChapter, mUnit);
+        mChapterView.setText(Utils.capitalizeFirstLetter(mChunks.getChapterLabel()));
         initializeUnitPicker();
         initializeChapterPicker();
     }

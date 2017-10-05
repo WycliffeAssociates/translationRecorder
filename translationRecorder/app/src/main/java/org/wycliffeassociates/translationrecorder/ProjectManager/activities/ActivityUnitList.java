@@ -91,7 +91,9 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
             setSupportActionBar(mToolbar);
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(language + " - " + book + " - " + plugin.getChapterLabel(mChapterNum));
+                String chapterLabel = Utils.capitalizeFirstLetter(plugin.getChapterLabel());
+                String chapterName = plugin.getChapterName(mChapterNum);
+                getSupportActionBar().setTitle(language + " - " + book + " - " + chapterLabel + " " + chapterName);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
             }

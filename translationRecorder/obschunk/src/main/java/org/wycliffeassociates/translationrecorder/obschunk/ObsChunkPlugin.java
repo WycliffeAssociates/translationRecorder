@@ -80,7 +80,12 @@ public class ObsChunkPlugin extends ChunkPlugin {
     }
 
     @Override
-    public String getChapterLabel(int chapter) {
+    public String getChapterLabel() {
+        return "chapter";
+    }
+
+    @Override
+    public String getChapterName(int chapter) {
         return null;
     }
 

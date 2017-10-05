@@ -46,7 +46,12 @@ public class ObsChapter extends Chapter {
 
     @Override
     public String getLabel() {
-        return "chapter " + mNumber;
+        return "chapter";
+    }
+
+    @Override
+    public String getName() {
+        return String.valueOf(mNumber);
     }
 
     @Override

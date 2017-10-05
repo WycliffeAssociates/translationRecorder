@@ -25,7 +25,9 @@ import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -1128,7 +1130,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
      * @param numUnits
      * @return
      */
-    public int[] getNumStartedUnitsInProject(Project project, int numUnits) {
+    public Map<Integer, Integer> getNumStartedUnitsInProject(Project project, int numUnits) {
         String projectId = String.valueOf(getProjectId(project));
 //        final String numUnitsStarted = String.format("SELECT c.%s, COUNT(u.%s) FROM %s c LEFT JOIN %s u ON c.%s=u.%s LEFT JOIN %s t ON t.%s=u.%s WHERE c.%s=? AND t.%s IS NOT NULL GROUP BY c.%s",
 //                ChapterEntry.CHAPTER_NUMBER, UnitEntry._ID, ChapterEntry.TABLE_CHAPTER, UnitEntry.TABLE_UNIT, ChapterEntry._ID, UnitEntry.UNIT_CHAPTER_FK, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, UnitEntry._ID, ChapterEntry.CHAPTER_PROJECT_FK, TakeEntry._ID, ChapterEntry.CHAPTER_NUMBER);
@@ -1159,14 +1161,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.rawQuery(numUnitsStarted, new String[]{projectId});
-        int[] numStartedUnits = new int[numUnits];
-
+        //int[] numStartedUnits = new int[numUnits];
+        Map<Integer, Integer> numStartedUnits = new HashMap<>();
         if (c.getCount() > 0) {
             c.moveToFirst();
             do {
                 int chapterNum = c.getInt(0);
                 int unitCount = c.getInt(1);
-                numStartedUnits[chapterNum - 1] = unitCount;
+                numStartedUnits.put(chapterNum, unitCount);
             } while (c.moveToNext());
             return numStartedUnits;
         }
