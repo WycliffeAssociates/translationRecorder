@@ -89,12 +89,12 @@ public class ObsChunkPlugin extends ChunkPlugin {
         return null;
     }
 
-    @Override
-    public String getChunkName(int chapter, int id) {
-        //if (mMode == TYPE.SINGLE) {
-        return "chunk " + mChapters.get(chapter).getChunks().get(id);
-//        } else {
-//            return "chunk " + mVerses.get(chapter).get(id);
-//        }
-    }
+//    @Override
+//    public String getChunkName(int chapter, int id) {
+//        //if (mMode == TYPE.SINGLE) {
+//        return "chunk " + mChapters.get(chapter).getChunks().get(id);
+////        } else {
+////            return "chunk " + mVerses.get(chapter).get(id);
+////        }
+//    }
 }

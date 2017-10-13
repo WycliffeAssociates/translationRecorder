@@ -132,7 +132,9 @@ public abstract class ChunkPlugin {
     public abstract String getChapterLabel();
     public abstract String getUnitLabel(int chapter, int unit);
 
-    public abstract String getChunkName(int chapter, int id);
+    public String getChunkName() {
+        return mIter.getChunk().getLabel();
+    }
 
 
 }

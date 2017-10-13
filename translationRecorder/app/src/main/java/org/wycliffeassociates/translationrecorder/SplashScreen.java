@@ -13,13 +13,11 @@ import com.door43.login.core.Profile;
 import com.door43.tools.reporting.Logger;
 
 import org.json.JSONException;
-
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 import org.wycliffeassociates.translationrecorder.project.ProjectPlugin;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -104,9 +102,9 @@ public class SplashScreen extends Activity {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         ParseJSON parse = new ParseJSON(this);
         try {
-            Book[] books = parse.pullBooks();
+            //Book[] books = parse.pullBooks();
             Language[] languages = parse.pullLangNames();
-            db.addBooks(books);
+            //db.addBooks(books);
             db.addLanguages(languages);
             System.out.println("Proof: en is " + db.getLanguageName("en"));
         } catch (JSONException e) {
@@ -116,7 +114,7 @@ public class SplashScreen extends Activity {
 
     private void initializePlugins() throws IOException {
         AssetManager am = getAssets();
-        String[] plugins = am.list("Plugins/Anthologies");
+        String[] assetPlugins = am.list("Plugins/Anthologies");
         File pluginsDir = new File(getExternalCacheDir(), "Plugins");
         if (!pluginsDir.exists()) {
             pluginsDir.mkdirs();
@@ -125,25 +123,43 @@ public class SplashScreen extends Activity {
         if (!anthologiesDir.exists()) {
             anthologiesDir.mkdirs();
         }
-        if (plugins != null) {
+        copyPluginsFromAssets(am, pluginsDir, anthologiesDir, assetPlugins);
+
+        String[] plugins = anthologiesDir.list();
+        if (plugins != null && plugins.length > 0) {
             for (String s : plugins) {
                 File plugin = new File(anthologiesDir, s);
-                if (!plugin.exists()) {
+                //if (!plugin.exists()) {
                     importPlugin(am, pluginsDir, anthologiesDir, s);
-                }
+                //}
             }
         }
     }
 
     private void importPlugin(AssetManager am, File pluginsDir, File anthologiesDir, String plugin) throws IOException {
         File pluginPath = new File(anthologiesDir, plugin);
-        copyPluginContentFromAssets(am, pluginsDir, "Anthologies", plugin);
         ProjectPlugin projectPlugin = new ProjectPlugin(pluginsDir, pluginPath);
+        copyPluginContentFromAssets(am, pluginsDir, "Anthologies", plugin);
         copyPluginContentFromAssets(am, pluginsDir, "Books", projectPlugin.getBooksPath());
         copyPluginContentFromAssets(am, pluginsDir, "Versions", projectPlugin.getVersionsPath());
         copyPluginContentFromAssets(am, pluginsDir, "Jars", projectPlugin.getJarPath());
+
+
         //copyPluginContentFromAssets(am, pluginPath, "Chunks", projectPlugin.getChunksPath());
         projectPlugin.importProjectPlugin(this, pluginsDir);
+    }
+
+    private void copyPluginsFromAssets(AssetManager am, File pluginsDir, File anthologiesDir, String[] plugins) throws IOException {
+        if(plugins != null && plugins.length > 0) {
+            for(String plugin : plugins) {
+                copyPluginContentFromAssets(am, pluginsDir, "Anthologies", plugin);
+                File pluginPath = new File(anthologiesDir, plugin);
+                ProjectPlugin projectPlugin = new ProjectPlugin(pluginsDir, pluginPath);
+                copyPluginContentFromAssets(am, pluginsDir, "Books", projectPlugin.getBooksPath());
+                copyPluginContentFromAssets(am, pluginsDir, "Versions", projectPlugin.getVersionsPath());
+                copyPluginContentFromAssets(am, pluginsDir, "Jars", projectPlugin.getJarPath());
+            }
+        }
     }
 
     private void copyPluginContentFromAssets(AssetManager am, File outputRoot, String prefix, String pluginName) {

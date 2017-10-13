@@ -64,11 +64,7 @@ public class ChunkPluginLoader implements Project.ProjectPluginLoader {
     @Override
     public InputStream chunksInputStream(Anthology anthology, Book book) {
         try {
-            if(anthology.getResource().equals("bible_resources")) {
-                return ctx.getAssets().open("notes/" + anthology.getSlug() + "/" + book.getSlug() + "/chunks.json");
-            } else {
-                return ctx.getAssets().open("chunks/" + anthology.getSlug() + "/" + book.getSlug() + "/chunks.json");
-            }
+            return ctx.getAssets().open("chunks/" + anthology.getSlug() + "/" + book.getSlug() + "/chunks.json");
         } catch (IOException e) {
             e.printStackTrace();
         }

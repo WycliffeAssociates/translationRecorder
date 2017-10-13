@@ -122,12 +122,12 @@ public class BibleChunkPlugin extends ChunkPlugin {
         return getChapter(chapter).getName();
     }
 
-    @Override
-    public String getChunkName(int chapter, int id) {
-        //if (mMode == TYPE.SINGLE) {
-        return "verse " + mChapters.get(chapter).getChunks().get(id);
-//        } else {
-//            return "chunk " + mVerses.get(chapter).get(id);
-//        }
-    }
+//    @Override
+//    public String getChunkName(int chapter, int id) {
+//        //if (mMode == TYPE.SINGLE) {
+//        return "verse " + mChapters.get(chapter).getChunks().get(id);
+////        } else {
+////            return "chunk " + mVerses.get(chapter).get(id);
+////        }
+//    }
 }

@@ -40,9 +40,11 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
+import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
@@ -143,11 +145,15 @@ public class PlaybackActivity extends Activity implements
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_playback_screen);
-        initialize(getIntent());
+        try {
+            initialize(getIntent());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         Logger.w(this.toString(), "onCreate");
     }
 
-    private void initialize(Intent intent) {
+    private void initialize(Intent intent) throws IOException {
         isSaved = true;
         parseIntent(intent);
         getVerseRange();
@@ -197,7 +203,10 @@ public class PlaybackActivity extends Activity implements
         mUnit = intent.getIntExtra(KEY_UNIT, ChunkPlugin.DEFAULT_UNIT);
     }
 
-    private void initializeFragments() {
+    private void initializeFragments() throws IOException {
+        ChunkPlugin plugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
+        plugin.initialize(mChapter, mUnit);
+
         mFragmentContainerMapping = new HashMap<>();
 
         mFragmentPlaybackTools = FragmentPlaybackTools.newInstance();
@@ -221,10 +230,11 @@ public class PlaybackActivity extends Activity implements
                 mProject.getTargetLanguageSlug(),
                 mProject.getVersionSlug(),
                 mProject.getBookSlug(),
-                "Chapter",
-                String.valueOf(mChapter),
+                Utils.capitalizeFirstLetter(plugin.getChapterLabel()),
+                plugin.getChapterName(mChapter),
                 mProject.getModeName(),
-                getUnitLabel(),
+                //getUnitLabel(),
+                plugin.getChunkName(),
                 mProject.getModeType()
         );
 

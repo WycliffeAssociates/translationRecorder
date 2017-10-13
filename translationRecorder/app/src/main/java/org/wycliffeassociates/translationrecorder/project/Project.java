@@ -59,6 +59,18 @@ public class Project implements Parcelable {
         mSourceAudioPath = sourceAudioPath;
     }
 
+    public boolean equals(Project p) {
+        if (p != null) {
+            if (mTargetLanguage != null  && mTargetLanguage.getSlug() != null && mTargetLanguage.getSlug().equals(p.getTargetLanguageSlug())
+                    && mBook != null && mBook.getSlug() != null && mBook.getSlug().equals(p.getBookSlug())
+                    && mVersion != null && mVersion.getSlug() != null && mVersion.getSlug().equals(p.getVersionSlug())
+                    && mMode != null && mMode.getSlug() != null && mMode.getSlug().equals(p.getModeSlug())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ChunkPlugin getChunkPlugin(ProjectPluginLoader pluginLoader) throws IOException {
         return pluginLoader.loadChunkPlugin(mAnthology, mBook, getModeType());
     }

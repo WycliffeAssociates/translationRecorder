@@ -43,6 +43,7 @@ public class ChunkState {
         if(currentChapter >= chunksPerChapter.length) {
             currentChapter = 0;
         }
+        currentChunk = 0;
     }
 
     public void previousChapter() {
@@ -50,6 +51,7 @@ public class ChunkState {
         if(currentChapter < 0) {
             currentChapter = chunksPerChapter.length - 1;
         }
+        currentChunk = 0;
     }
 
     public int getCurrentChunk(){

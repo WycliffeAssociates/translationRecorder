@@ -42,7 +42,7 @@ public final class ProjectContract {
                 + BOOK_NUMBER + INTCOMMA
                 + BOOK_ANTHOLOGY_FK + INTCOMMA
                 + "FOREIGN KEY(" + ANTHOLOGY_FK + ") REFERENCES " + AnthologyEntry.TABLE_ANTHOLOGY + "(" + _ID + ")"
-                + "CONSTRAINT " + BOOK_UNIQUE_CONSTRAINT + " UNIQUE(" + BOOK_SLUG + ")"
+                + "CONSTRAINT " + BOOK_UNIQUE_CONSTRAINT + " UNIQUE(" + BOOK_SLUG +COMMA + ANTHOLOGY_FK + ")"
                 + ");";
     }
 

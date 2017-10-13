@@ -89,9 +89,9 @@ public class NotesChunkPlugin extends ChunkPlugin {
         return mChaptersMap.get(chapter).getName();
     }
 
-    @Override
-    public String getChunkName(int chapter, int id) {
-        String pref = (id % 2 == 1)? "ref " : "text ";
-        return pref + mChaptersMap.get(chapter).getChunks().get(id);
-    }
+//    @Override
+//    public String getChunkName(int chapter, int id) {
+//        String pref = (id % 2 == 1)? "ref " : "text ";
+//        return pref + mChaptersMap.get(chapter).getChunks().get(id);
+//    }
 }

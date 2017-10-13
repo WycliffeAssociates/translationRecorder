@@ -1654,6 +1654,4 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
         return modeList.toArray(new Mode[modeList.size()]);
     }
-
-
 }
