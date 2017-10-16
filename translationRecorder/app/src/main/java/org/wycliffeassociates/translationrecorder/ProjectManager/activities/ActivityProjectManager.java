@@ -27,7 +27,8 @@ import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSourceAudioTask;
@@ -37,6 +38,7 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
@@ -205,9 +207,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if (projectId != -1) {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             project = db.getProject(projectId);
-            Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguage()
-                    + " book " + project.getSlug() + " version "
-                    + project.getVersion() + " mode " + project.getMode());
+            Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguageSlug()
+                    + " book " + project.getBookSlug() + " version "
+                    + project.getVersionSlug() + " mode " + project.getModeSlug());
         } else {
             ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             List<Project> projects = db.getAllProjects();
@@ -250,7 +252,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             }
         }
         for (Project p : projects) {
-            Logger.w(this.toString(), "Project: language " + p.getTargetLanguage() + " book " + p.getSlug() + " version " + p.getVersion() + " mode " + p.getMode());
+            Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getModeSlug());
         }
         mAdapter = new ProjectAdapter(this, projects);
         mProjectList.setAdapter(mAdapter);
@@ -304,7 +306,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         loadProject(project);
                         finish();
                         //TODO: should find place left off at?
-                        Intent intent = RecordingActivity.getNewRecordingIntent(this, project, 1, 1);
+                        Intent intent = RecordingActivity.getNewRecordingIntent(
+                                this,
+                                project,
+                                ChunkPlugin.DEFAULT_CHAPTER,
+                                ChunkPlugin.DEFAULT_UNIT
+                        );
                         startActivity(intent);
                     } else {
                         onResume();
@@ -323,7 +330,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         fos = getContentResolver().openOutputStream(uri, "w");
                         bos = new BufferedOutputStream(fos);
                         //sending output streams to the task to run in a thread means they cannot be closed in a finally block here
-                        ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, mProjectToExport.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
+                        ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, ProjectFileUtils.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
                         mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...", false);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -358,13 +365,13 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == dialog.BUTTON_POSITIVE) {
-                            Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguage()
-                                    + " book " + project.getSlug() + " version "
-                                    + project.getVersion() + " mode " + project.getMode());
-                            if(project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
+                            Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
+                                    + " book " + project.getBookSlug() + " version "
+                                    + project.getVersionSlug() + " mode " + project.getModeSlug());
+                            if (project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
                                 removeProjectFromPreferences();
                             }
-                            Project.deleteProject(ActivityProjectManager.this, project);
+                            ProjectFileUtils.deleteProject(ActivityProjectManager.this, project);
                             hideProjectsIfEmpty(mAdapter.getCount());
                             mNumProjects--;
                             initializeViews();
@@ -461,7 +468,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getSlug() + ".tr");
+        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguageSlug() + "_" + project.getVersionSlug() + "_" + project.getBookSlug() + ".tr");
         intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
         startActivityForResult(intent, SAVE_SOURCE_AUDIO_REQUEST);
     }

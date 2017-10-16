@@ -1,11 +1,11 @@
 package org.wycliffeassociates.translationrecorder.ProjectManager.tasks;
 
+import com.door43.tools.reporting.Logger;
 import com.wycliffeassociates.io.ArchiveOfHolding;
 
 import org.apache.commons.io.FileUtils;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 import java.io.BufferedOutputStream;
@@ -77,10 +77,10 @@ public class ExportSourceAudioTask extends Task {
     }
 
     private File stageFilesForArchive(Project project, File input, File stagingRoot) {
-        File root = new File(stagingRoot, project.getTargetLanguage() + "_" + project.getVersion() + "_" + project.getSlug());
-        File lang = new File(root, project.getTargetLanguage());
-        File version = new File(lang, project.getVersion());
-        File book = new File(version, project.getSlug());
+        File root = new File(stagingRoot, project.getTargetLanguageSlug() + "_" + project.getVersionSlug() + "_" + project.getBookSlug());
+        File lang = new File(root, project.getTargetLanguageSlug());
+        File version = new File(lang, project.getVersionSlug());
+        File book = new File(version, project.getBookSlug());
         book.mkdirs();
         if(input.listFiles() != null) {
             for (File c : input.listFiles()) {

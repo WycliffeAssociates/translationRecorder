@@ -4,11 +4,12 @@ import android.media.AudioFormat;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.door43.tools.reporting.Logger;
+
 import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.AudioInfo;
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import com.door43.tools.reporting.Logger;
+import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -531,10 +532,10 @@ public class WavFile implements Parcelable {
 //    }
 
     public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile) {
-        File root = FileNameExtractor.getParentDirectory(project, chapter);
+        File root = ProjectFileUtils.getParentDirectory(project, chapter);
         File chap = new File(root, "chapter.wav");
         chap.delete();
-        String chapterString = FileNameExtractor.chapterIntToString(project, chapter);
+        String chapterString = ProjectFileUtils.chapterIntToString(project, chapter);
         String startVerse = toCompile.get(0).getMetadata().getStartVerse();
         String endVerse = toCompile.get(toCompile.size()-1).getMetadata().getEndVerse();
         WavFile chapterWav = new WavFile(chap, new WavMetadata(project, chapterString, startVerse, endVerse));

@@ -6,6 +6,8 @@ import android.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.project.components.Language;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +50,7 @@ public class ParseJSON {
 
     private void pullBookInfo() throws JSONException {
         ArrayList<Book> books = new ArrayList<>();
-        String json = loadJSONFromAsset("books.json");
+        String json = loadJSONFromAsset("note_books.json");
         JSONArray booksJSON = new JSONArray(json);
         for(int i = 0; i < booksJSON.length(); i++){
             JSONObject bookObj = booksJSON.getJSONObject(i);
@@ -86,7 +88,12 @@ public class ParseJSON {
         mBooks = books.toArray(new Book[books.size()]);
     }
 
+
+
     public int getNumChapters(String bookCode){
+
+
+
         try {
             String json = loadJSONFromAsset("chunks/" + bookCode + "/en/" + "udb" + "/chunks.json");
             JSONArray arrayOfChunks = new JSONArray(json);
@@ -237,7 +244,7 @@ public class ParseJSON {
         }
         mLanguages = new String[languageList.size()];
         for (int a = 0; a < mLanguages.length; a++) {
-            mLanguages[a] = (languageList.get(a)).getCode() + " - " +
+            mLanguages[a] = (languageList.get(a)).getSlug() + " - " +
                     (languageList.get(a)).getName();
         }
         Language[] languages = new Language[languageList.size()];

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 
 /**
@@ -17,7 +18,7 @@ import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
  */
 public class RatingDialog extends DialogFragment {
 
-    public static String TAKE_KEY = "key_take_name";
+    public static String TAKE_INFO = "key_take_info";
     public static String CURRENT_RATING_KEY = "key_current_rating";
 
     public interface DialogListener {
@@ -27,14 +28,14 @@ public class RatingDialog extends DialogFragment {
 
     private int mRating;
     private DialogListener mListener;
-    private String mTakeName;
+    private TakeInfo mTakeInfo;
 
     private FourStepImageView mOneStar, mTwoStar, mThreeStar;
 
-    public static RatingDialog newInstance(String takeName, int currentRating){
+    public static RatingDialog newInstance(TakeInfo takeInfo, int currentRating){
         RatingDialog rate = new RatingDialog();
         Bundle args = new Bundle();
-        args.putString(TAKE_KEY, takeName);
+        args.putParcelable(TAKE_INFO, takeInfo);
         args.putInt(CURRENT_RATING_KEY, currentRating);
         rate.setArguments(args);
         return rate;
@@ -44,7 +45,7 @@ public class RatingDialog extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mTakeName = args.getString(TAKE_KEY);
+        mTakeInfo = args.getParcelable(TAKE_INFO);
         mRating = args.getInt(CURRENT_RATING_KEY);
     }
 
@@ -142,7 +143,7 @@ public class RatingDialog extends DialogFragment {
         return mRating;
     }
 
-    public String getTakeName(){
-        return mTakeName;
+    public TakeInfo getTakeInfo(){
+        return mTakeInfo;
     }
 }

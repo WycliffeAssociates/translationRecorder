@@ -12,3 +12,6 @@ translationRecorder/app/src/main/res/values/github.xml
 # Ignore (for now) marker images
 translationRecorder/app/src/main/res/values/door43.xml
 *.apk
+translationRecorder/app/src/main/assets/Plugins/Jars/biblechunk.jar
+translationRecorder/app/src/main/assets/Plugins/Jars/obschunk.jar
+translationRecorder/biblechunk/app/build/lib/biblechunk.jar

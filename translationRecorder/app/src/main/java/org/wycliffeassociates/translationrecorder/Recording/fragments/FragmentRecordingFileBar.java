@@ -13,16 +13,15 @@ import android.widget.TextView;
 
 import com.door43.tools.reporting.Logger;
 
-import org.wycliffeassociates.translationrecorder.FilesPage.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
+import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Chunks;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
+import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sarabiaj on 2/20/2017.
@@ -30,29 +29,24 @@ import java.util.Map;
 
 public class FragmentRecordingFileBar extends Fragment {
 
-    private static final int DEFAULT_CHAPTER = 1;
-    private static final int DEFAULT_UNIT = 1;
+
     private static final String KEY_PROJECT = "key_project";
     public static final String KEY_CHAPTER = "key_chapter";
     public static final String KEY_UNIT = "key_unit";
-    private static final String KEY_IS_CHUNK_MODE = "key_unit_mode";
 
     private TextView mBookView;
     private TextView mSourceView;
     private TextView mLanguageView;
     private UnitPicker mUnitPicker;
     private UnitPicker mChapterPicker;
+    private TextView mChapterView;
     private TextView mModeView;
     private Project mProject;
-    private boolean isChunkMode;
-    private Chunks mChunks;
-    private List<Map<String, String>> mChunksList;
-    private int mChapter = DEFAULT_CHAPTER;
-    private int mUnit = DEFAULT_UNIT;
+    private ChunkPlugin mChunks;
+    private int mChapter = ChunkPlugin.DEFAULT_CHAPTER;
+    private int mUnit = ChunkPlugin.DEFAULT_UNIT;
     private Handler mHandler;
-    private String mStartVerse;
-    private String mEndVerse;
-    private int mNumChapters;
+
     private OnUnitChangedListener mOnUnitChangedListener;
     private FragmentRecordingControls.Mode mMode;
 
@@ -60,11 +54,15 @@ public class FragmentRecordingFileBar extends Fragment {
         void onUnitChanged(Project project, String fileName, int chapter);
     }
 
-    public static FragmentRecordingFileBar newInstance(Project project, int chapter, int unit, FragmentRecordingControls.Mode mode, boolean unitIsChunks) {
+    public static FragmentRecordingFileBar newInstance(
+            Project project,
+            int chapter,
+            int unit,
+            FragmentRecordingControls.Mode mode
+    ) {
         FragmentRecordingFileBar f = new FragmentRecordingFileBar();
         Bundle args = new Bundle();
         args.putParcelable(KEY_PROJECT, project);
-        args.putBoolean(KEY_IS_CHUNK_MODE, unitIsChunks);
         args.putInt(KEY_CHAPTER, chapter);
         args.putInt(KEY_UNIT, unit);
         f.setArguments(args);
@@ -82,7 +80,9 @@ public class FragmentRecordingFileBar extends Fragment {
         if (activity instanceof OnUnitChangedListener) {
             mOnUnitChangedListener = (OnUnitChangedListener) activity;
         } else {
-            throw new RuntimeException("Attemped to attach activity which does not implement OnUnitChangedListener");
+            throw new RuntimeException(
+                    "Attempted to attach activity which does not implement OnUnitChangedListener"
+            );
         }
     }
 
@@ -94,7 +94,11 @@ public class FragmentRecordingFileBar extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.fragment_recording_file_bar, container, false);
     }
@@ -119,7 +123,6 @@ public class FragmentRecordingFileBar extends Fragment {
 
     private void loadArgs(Bundle args) {
         mProject = (Project) args.getParcelable(KEY_PROJECT);
-        isChunkMode = args.getBoolean(KEY_IS_CHUNK_MODE);
         mChapter = args.getInt(KEY_CHAPTER);
         mUnit = args.getInt(KEY_UNIT);
     }
@@ -132,72 +135,111 @@ public class FragmentRecordingFileBar extends Fragment {
         mUnitPicker = (UnitPicker) view.findViewById(R.id.unit_picker);
         mChapterPicker = (UnitPicker) view.findViewById(R.id.chapter_picker);
         mModeView = (TextView) view.findViewById(R.id.file_unit_label);
+        mChapterView = (TextView) view.findViewById(R.id.file_chapter_label);
     }
 
     private void initializeViews() {
         //Logging to help track issue #669
-        if (mProject.getSlug().equals("")) {
+        if (mProject.getBookSlug().equals("")) {
             Logger.e(this.toString(), "Project book is empty string " + mProject);
         }
 
-        String languageCode = mProject.getTargetLanguage();
+        String languageCode = mProject.getTargetLanguageSlug();
         mLanguageView.setText(languageCode.toUpperCase());
         mLanguageView.postInvalidate();
 
-        String bookCode = mProject.getSlug();
+        String bookCode = mProject.getBookSlug();
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
         String bookName = db.getBookName(bookCode);
         mBookView.setText(bookName);
         mBookView.postInvalidate();
-
-        if (isChunkMode) {
-            mModeView.setText("Chunk");
-        } else {
-            mModeView.setText("Verse");
-        }
-
-        mSourceView.setText(mProject.getVersion().toUpperCase());
+        mModeView.setText(Utils.capitalizeFirstLetter(mProject.getModeName()));
+        mSourceView.setText(mProject.getVersionSlug().toUpperCase());
     }
 
     private void initializePickers() throws IOException {
-        if (mProject.isOBS()) {
-            //mNumChapters = OBS_SIZE;
-        } else {
-            mChunks = new Chunks(getActivity(), mProject.getSlug());
-            mNumChapters = mChunks.getNumChapters();
-            mChunksList = mChunks.getChunks(mProject, mChapter);
-        }
+        mChunks = mProject.getChunkPlugin(new ChunkPluginLoader(getActivity()));
+        mChunks.initialize(mChapter, mUnit);
+        mChapterView.setText(Utils.capitalizeFirstLetter(mChunks.getChapterLabel()));
         initializeUnitPicker();
         initializeChapterPicker();
     }
 
-    private void initializeUnitPicker() {
-        final String[] values = new String[mChunksList.size()];
-        if (isChunkMode) {
-            setDisplayValuesAsRange(values);
+    private void initializeChapterPicker() {
+        final String[] values = mChunks.getChapterDisplayLabels();
+        if (values != null && values.length > 0) {
+            mChapterPicker.setDisplayedValues(values);
+            mChapterPicker.setCurrent(mChunks.getChapterLabelIndex());
+            mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(
+                        UnitPicker picker,
+                        int oldVal,
+                        int newVal,
+                        UnitPicker.DIRECTION direction
+                ) {
+                    if (direction == UnitPicker.DIRECTION.INCREMENT) {
+                        mChunks.nextChapter();
+                    } else {
+                        mChunks.previousChapter();
+                    }
+                    mUnitPicker.setCurrent(0);
+                    initializeUnitPicker();
+                    mOnUnitChangedListener.onUnitChanged(
+                            mProject,
+                            mProject.getFileName(
+                                    mChunks.getChapter(),
+                                    mChunks.getStartVerse(),
+                                    mChunks.getEndVerse()
+                            ),
+                            mChunks.getChapter()
+                    );
+                }
+            });
         } else {
-            for (int i = 0; i < mChunksList.size(); i++) {
-                values[i] = mChunksList.get(i).get(Chunks.FIRST_VERSE);
-            }
+            Logger.e(this.toString(), "values was null or of zero length");
         }
+    }
+
+    private void initializeUnitPicker() {
+        final String[] values = mChunks.getChunkDisplayLabels();
+        mUnitPicker.setDisplayedValues(values);
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                Logger.w(this.toString(), "Initializing unit picker");
                 if (values != null && values.length > 0) {
-                    mUnitPicker.setDisplayedValues(values);
-                    mUnitPicker.setCurrent(getChunkIndex(mChunksList, mUnit));
-                    setChunk(getChunkIndex(mChunksList, mUnit) + 1);
-                    mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
-                            Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
+                    mUnitPicker.setCurrent(mChunks.getStartVerseLabelIndex());
+                    mOnUnitChangedListener.onUnitChanged(
+                            mProject,
+                            mProject.getFileName(
+                                    mChunks.getChapter(),
+                                    mChunks.getStartVerse(),
+                                    mChunks.getEndVerse()
+                            ),
+                            mChunks.getChapter()
+                    );
                     //reinitialize all of the filenames
                     mUnitPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
                         @Override
-                        public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
-                            Logger.w(this.toString(), "User changed unit");
-                            setChunk(newVal + 1);
-                            mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
-                                    Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
+                        public void onValueChange(
+                                UnitPicker picker,
+                                int oldVal,
+                                int newVal,
+                                UnitPicker.DIRECTION direction
+                        ) {
+                            if (direction == UnitPicker.DIRECTION.INCREMENT) {
+                                mChunks.nextChunk();
+                            } else {
+                                mChunks.previousChunk();
+                            }
+                            mOnUnitChangedListener.onUnitChanged(mProject,
+                                    mProject.getFileName(
+                                            mChunks.getChapter(),
+                                            mChunks.getStartVerse(),
+                                            mChunks.getEndVerse()
+                                    ),
+                                    mChunks.getChapter()
+                            );
                         }
                     });
                 } else {
@@ -207,86 +249,20 @@ public class FragmentRecordingFileBar extends Fragment {
         });
     }
 
-    private void initializeChapterPicker() {
-        Logger.w(this.toString(), "Initializing chapter picker");
-        int numChapters = mChunks.getNumChapters();
-        final String[] values = new String[numChapters];
-        for (int i = 0; i < numChapters; i++) {
-            values[i] = String.valueOf(i + 1);
-        }
-        if (values != null && values.length > 0) {
-            mChapterPicker.setDisplayedValues(values);
-            mChapterPicker.setCurrent(mChapter - 1);
-            mChapterPicker.setOnValueChangedListener(new UnitPicker.OnValueChangeListener() {
-                @Override
-                public void onValueChange(UnitPicker picker, int oldVal, int newVal) {
-                    Logger.w(this.toString(), "User changed chapter");
-                    mUnit = 1;
-                    mChapter = newVal + 1;
-                    mUnitPicker.setCurrent(0);
-                    mChunksList = mChunks.getChunks(mProject, mChapter);
-                    initializeUnitPicker();
-                    mOnUnitChangedListener.onUnitChanged(mProject, FileNameExtractor.getNameFromProject(mProject, mChapter,
-                            Integer.parseInt(mStartVerse), Integer.parseInt(mEndVerse)), mChapter);
-                }
-            });
-        } else {
-            Logger.e(this.toString(), "values was null or of zero length");
-        }
-    }
-
-    private int getChunkIndex(List<Map<String, String>> chunks, int chunk) {
-        for (int i = 0; i < chunks.size(); i++) {
-            if (Integer.parseInt(chunks.get(i).get(Chunks.FIRST_VERSE)) == chunk) {
-                return i;
-            }
-        }
-        return 1;
-    }
-
-    private void setDisplayValuesAsRange(String[] values) {
-        Map<String, String> chunk;
-        String firstVerse, lastVerse;
-
-        for (int i = 0; i < mChunksList.size(); i++) {
-            chunk = mChunksList.get(i);
-            firstVerse = chunk.get(Chunks.FIRST_VERSE);
-            lastVerse = chunk.get(Chunks.LAST_VERSE);
-            if (firstVerse.compareTo(lastVerse) == 0) {
-                values[i] = firstVerse;
-            } else {
-                values[i] = firstVerse.concat("-").concat(lastVerse);
-            }
-        }
-    }
-
-    /**
-     * Sets the chunk by indexing the chunk list with the provided index
-     *
-     * @param idx
-     */
-    private void setChunk(int idx) {
-        if (mChunks != null) {
-            mStartVerse = mChunksList.get(idx - 1).get(Chunks.FIRST_VERSE);
-            mEndVerse = mChunksList.get(idx - 1).get(Chunks.LAST_VERSE);
-            mUnit = Integer.parseInt(mStartVerse);
-        }
-    }
-
     public String getStartVerse() {
-        return mStartVerse;
+        return String.valueOf(mChunks.getStartVerse());
     }
 
     public String getEndVerse() {
-        return mEndVerse;
+        return String.valueOf(mChunks.getEndVerse());
     }
 
     public int getUnit() {
-        return mUnit;
+        return mChunks.getStartVerse();
     }
 
     public int getChapter() {
-        return mChapter;
+        return mChunks.getChapter();
     }
 
     public void disablePickers() {

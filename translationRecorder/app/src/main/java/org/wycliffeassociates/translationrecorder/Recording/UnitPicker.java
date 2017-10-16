@@ -23,7 +23,7 @@ public class UnitPicker extends LinearLayout {
     private OnValueChangeListener mOnValueChangeListener;
 
     public interface OnValueChangeListener {
-        void onValueChange(UnitPicker picker, int oldVal, int newVal);
+        void onValueChange(UnitPicker picker, int oldVal, int newVal, DIRECTION direction);
     }
 
     public UnitPicker(Context context) {
@@ -39,6 +39,11 @@ public class UnitPicker extends LinearLayout {
         init();
     }
 
+    public enum DIRECTION {
+        INCREMENT,
+        DECREMENT
+    }
+
     private void init() {
         inflate(getContext(), layout, this);
         mIncrementButton = (ImageButton) findViewById(R.id.increment);
@@ -49,28 +54,32 @@ public class UnitPicker extends LinearLayout {
         mText.setFocusable(false);
         mText.setFocusableInTouchMode(false);
 
-        OnClickListener onClickListener = new OnClickListener() {
+        mIncrementButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
-                changeValueByOne(v.getId() == R.id.increment);
+            public void onClick(View view) {
+                increment();
             }
-        };
+        });
 
-        mIncrementButton.setOnClickListener(onClickListener);
-        mDecrementButton.setOnClickListener(onClickListener);
+        mDecrementButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                decrement();
+            }
+        });
     }
 
     private void updateText() {
         mText.setText(mDisplayedValues[mCurrent]);
     }
 
-    private void changeValueByOne(boolean increment) {
+    private void changeValueByOne(DIRECTION direction) {
         mText.clearFocus();
         if (mDisplayedValues == null || mDisplayedValues.length <= 0) {
             return;
         }
         int previous = mCurrent;
-        if (increment) {
+        if (direction == DIRECTION.INCREMENT) {
             if (mCurrent + 1 < mDisplayedValues.length) {
                 setCurrent(mCurrent + 1);
             } else {
@@ -84,7 +93,7 @@ public class UnitPicker extends LinearLayout {
             }
         }
         updateText();
-        mOnValueChangeListener.onValueChange(this, previous, mCurrent);
+        mOnValueChangeListener.onValueChange(this, previous, mCurrent, direction);
     }
 
 
@@ -104,6 +113,10 @@ public class UnitPicker extends LinearLayout {
         return mDisplayedValues[mCurrent];
     }
 
+    public int getCurrentIndex() {
+        return mCurrent;
+    }
+
     public void setDisplayedValues(String[] displayedValues) {
         if (displayedValues == mDisplayedValues) {
             return;
@@ -121,11 +134,11 @@ public class UnitPicker extends LinearLayout {
     }
 
     public void increment() {
-        changeValueByOne(true);
+        changeValueByOne(DIRECTION.INCREMENT);
     }
 
     public void decrement() {
-        changeValueByOne(false);
+        changeValueByOne(DIRECTION.DECREMENT);
     }
 
     public void displayIncrementDecrement(boolean display) {

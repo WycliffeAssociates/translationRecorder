@@ -14,9 +14,10 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.S3Export;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.SourceAudioActivity;
 
 import static android.app.Activity.RESULT_OK;
@@ -84,17 +85,11 @@ public class ProjectInfoDialog extends DialogFragment {
         mSourceLanguage = (TextView) view.findViewById(R.id.source_audio_language);
         mSourceLocation = (TextView) view.findViewById(R.id.source_audio_location);
 
-        String languageCode = mProject.getTargetLanguage();
+        String languageCode = mProject.getTargetLanguageSlug();
         String language = db.getLanguageName(languageCode);
-        String bookCode = mProject.getSlug();
+        String bookCode = mProject.getBookSlug();
         String book = db.getBookName(bookCode);
-        String translation = mProject.getVersion();
-        if(mProject.isOBS()){
-            bookCode = "obs";
-            book = "Open Bible Stories";
-            mTranslationType.setVisibility(View.GONE);
-            mUnitType.setVisibility(View.GONE);
-        }
+        String translation = mProject.getVersionSlug();
         String translators = mProject.getContributors();
 
         mTitle.setText(book + " - " + language);
@@ -111,7 +106,7 @@ public class ProjectInfoDialog extends DialogFragment {
 
         setSourceAudioTextInfo();
 
-        mUnitType.setText(mProject.getMode());
+        mUnitType.setText(mProject.getModeName());
 
         ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
         ImageButton sourceButton = (ImageButton) view.findViewById(R.id.export_as_source_btn);
@@ -133,7 +128,7 @@ public class ProjectInfoDialog extends DialogFragment {
         View.OnClickListener localExport = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new FolderExport(Project.getProjectDirectory(mProject), mProject);
+                mExp = new FolderExport(ProjectFileUtils.getProjectDirectory(mProject), mProject);
                 mExportDelegator.delegateExport(mExp);
             }
         };
@@ -143,7 +138,7 @@ public class ProjectInfoDialog extends DialogFragment {
         publishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new S3Export(Project.getProjectDirectory(mProject), mProject);
+                mExp = new S3Export(ProjectFileUtils.getProjectDirectory(mProject), mProject);
                 mExportDelegator.delegateExport(mExp);
             }
         });
@@ -151,7 +146,7 @@ public class ProjectInfoDialog extends DialogFragment {
         otherButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new AppExport(Project.getProjectDirectory(mProject), mProject);
+                mExp = new AppExport(ProjectFileUtils.getProjectDirectory(mProject), mProject);
                 mExportDelegator.delegateExport(mExp);
             }
         });
@@ -185,7 +180,7 @@ public class ProjectInfoDialog extends DialogFragment {
 
     private void setSourceAudioTextInfo() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
-        String sourceLanguageCode = mProject.getSourceLanguage();
+        String sourceLanguageCode = mProject.getSourceLanguageSlug();
         String sourceLanguageName = (db.languageExists(sourceLanguageCode))? db.getLanguageName(sourceLanguageCode) : "";
         mSourceLanguage.setText(String.format("%s - (%s)", sourceLanguageName, sourceLanguageCode));
         mSourceLocation.setText(mProject.getSourceAudioPath());
@@ -200,7 +195,7 @@ public class ProjectInfoDialog extends DialogFragment {
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
                 int projectId = db.getProjectId(mProject);
                 Project updatedProject = data.getParcelableExtra(Project.PROJECT_EXTRA);
-                if(updatedProject.getSourceLanguage() != null && !updatedProject.getSourceLanguage().equals("")) {
+                if(updatedProject.getSourceLanguageSlug() != null && !updatedProject.getSourceLanguageSlug().equals("")) {
                     mProject = updatedProject;
                     db.updateSourceAudio(projectId, mProject);
                     setSourceAudioTextInfo();

@@ -42,6 +42,10 @@ public class ScrollableListFragment extends Fragment implements Searchable {
             }
         });
 
+        //if only one item is in the adapter, just choose it and continue on in the project wizard
+        if(mAdapter.getCount() == 1) {
+            mListener.onItemClick(mAdapter.getItem(0));
+        }
         EditText searchView = (EditText) rootView.findViewById(R.id.search_text);
         searchView.setHint(mSearchHint);
         searchView.setEnabled(false);

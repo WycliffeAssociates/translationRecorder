@@ -3,10 +3,11 @@ package org.wycliffeassociates.translationrecorder.wav;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.door43.tools.reporting.Logger;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
-import com.door43.tools.reporting.Logger;
+import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,12 +43,12 @@ public class WavMetadata implements Parcelable {
     HashMap<Integer, WavCue> mCuePoints = new HashMap<>();
 
     public WavMetadata(Project p, String chapter, String startVerse, String endVerse) {
-        mAnthology = p.getAnthology();
-        mLanguage = p.getTargetLanguage();
-        mVersion = p.getVersion();
-        mSlug = p.getSlug();
+        mAnthology = p.getAnthologySlug();
+        mLanguage = p.getTargetLanguageSlug();
+        mVersion = p.getVersionSlug();
+        mSlug = p.getBookSlug();
         mBookNumber = p.getBookNumber();
-        mMode = p.getMode();
+        mMode = p.getModeSlug().toLowerCase();
         mChapter = chapter;
         mStartVerse = startVerse;
         mEndVerse = endVerse;
@@ -62,7 +63,7 @@ public class WavMetadata implements Parcelable {
     public String getVersion(){return mVersion;}
     public String getSlug(){return mSlug;}
     public String getBookNumber(){return mBookNumber;}
-    public String getMode(){return mMode;}
+    public String getModeSlug(){return mMode;}
     public String getChapter(){return mChapter;}
     public String getStartVerse(){return mStartVerse;}
     public String getEndVerse(){return mEndVerse;}
@@ -117,7 +118,7 @@ public class WavMetadata implements Parcelable {
                         WavUtils.seek(bb, chunkSize);
                     } else {
                         //TODO: #664
-                        throw new IllegalArgumentException("Chunk size larger than remaining file length; " +
+                        throw new IllegalArgumentException("ChunkPlugin size larger than remaining file length; " +
                                 "attempting to allocate " + chunkSize + " with remaining file size of " +
                                 (file.length() - bb.remaining()));
                     }
@@ -286,7 +287,7 @@ public class WavMetadata implements Parcelable {
             }
             mMode = "";
             if (json.has("mode")) {
-                mMode = json.getString("mode");
+                mMode = json.getString("mode").toLowerCase();
             }
             mChapter = "";
             if (json.has("chapter")) {

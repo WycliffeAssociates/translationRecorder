@@ -1,0 +1,187 @@
+[
+    {
+        "id": "01",
+        "tn": [
+            {
+                "ref": "The sons of Noah were Shem, Ham, and Japheth",
+                "text": "Some versions, including the ULB and UDB, include \"The sons of\" in order to make it clear that Shem, Ham, and Japheth were brothers to each other and sons of Noah. Otherwise, the reader would assume that each person represented one generation farther away from Noah, their ancestor."
+            },
+            {
+                "ref": "Enosh, Kenan, Mahalalel, Jared ... Methuselah",
+                "text": "These names are a list of ancestors. If your language has a specific way to mark this kind of list, you can use it here. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "05",
+        "tn": [
+            {
+                "ref": "Gomer ... Dodanim",
+                "text": "Translate these names of people the way you would translate names in your language. These are all names of men. (See: [[:en:ta:vol1:translate:translate_names]])"
+            },
+            {
+                "ref": "Dodanim",
+                "text": "This name is sometimes spelled \"Rodanim\" as in the UDB. (See: [[:en:ta:vol2:translate:translate_textvariants]])"
+            }
+        ]
+    },
+    {
+        "id": "08",
+        "tn": [
+            {
+                "ref": "Mizraim ... Nimrod",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "11",
+        "tn": [
+            {
+                "ref": "from whom the Philistines came",
+                "text": "AT: \"the ancestors of the Philistines,\""
+            }
+        ]
+    },
+    {
+        "id": "13",
+        "tn": [
+            {
+                "ref": "Heth",
+                "text": "This is the name of a person. (See: [[:en:ta:vol1:translate:translate_names]])"
+            },
+            {
+                "ref": "Arkites ... Hamathites",
+                "text": "These are names of people groups."
+            }
+        ]
+    },
+    {
+        "id": "17",
+        "tn": [
+            {
+                "ref": "Arpachshad ... Joktan",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "20",
+        "tn": [
+            {
+                "ref": "Joktan ... Jobab",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "24",
+        "tn": [
+            {
+                "ref": "Shem ... Serug",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "28",
+        "tn": [
+            {
+                "ref": "Nebaioth ... Kedemah",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "32",
+        "tn": [
+            {
+                "ref": "Keturah ... Eldaah",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "34",
+        "tn": [
+            {
+                "ref": "Eliphaz ... Mizzah",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "38",
+        "tn": [
+            {
+                "ref": "Lotan ... Anah",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "41",
+        "tn": [
+            {
+                "ref": "Anah ... Aran",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    },
+    {
+        "id": "43",
+        "tn": [
+            {
+                "ref": "Bela ... Beor ... Jobab ... Zerah ... Husham",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            },
+            {
+                "ref": "Dinhabah ... Bozrah",
+                "text": "These are the names of places."
+            },
+            {
+                "ref": "Husham of the land of the Temanites reigned in his place",
+                "text": "\"Husham, from the land where Teman's descendants lived, reigned after him.\""
+            },
+            {
+                "ref": "Temanites",
+                "text": "This is the name of a people group."
+            }
+        ]
+    },
+    {
+        "id": "46",
+        "tn": [
+            {
+                "ref": "Husham ... Hadad ... Bedad ... Samlah ... Shaul",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            },
+            {
+                "ref": "Avith ... Masrekah ... Rehoboth",
+                "text": "These are the names of places."
+            }
+        ]
+    },
+    {
+        "id": "49",
+        "tn": [
+            {
+                "ref": "Shaul ... Baal Hanan ... Achbor ... Hadar ... Mehetabel ... Matred ... Me Zahab",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            },
+            {
+                "ref": "Pai",
+                "text": "This is the name of a place."
+            }
+        ]
+    },
+    {
+        "id": "51",
+        "tn": [
+            {
+                "ref": "Timna ... Iram",
+                "text": "These are the names of people. (See: [[:en:ta:vol1:translate:translate_names]])"
+            }
+        ]
+    }
+]

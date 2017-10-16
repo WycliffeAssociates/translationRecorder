@@ -10,7 +10,7 @@ android {
         versionCode 12
         versionName "1.2.5 Beta"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        //multiDexEnabled true
+        multiDexEnabled true
     }
 // May not need after all?
 // http://stackoverflow.com/questions/39851808/errorwarning-ignoring-innerclasses-attribute-for-an-anonymous-inner-class
@@ -45,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    //compile 'com.android.support:multidex:1.0.0'
+    compile 'com.android.support:multidex:1.0.1'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile files('src/main/lib/commons-net-3.3.jar')
@@ -63,17 +63,34 @@ dependencies {
     androidTestCompile 'com.android.support.test:runner:0.3'
     androidTestCompile 'com.android.support.test:rules:0.3'
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
-    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.1'
+    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2.1'){
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude module: 'recyclerview-v7'
+    }
     compile 'com.gu:option:1.3'
     compile('net.rdrei.android.dirchooser:library:3.2@aar') {
         transitive = true;
     }
     //compile files('src/main/lib/zip4j_1.3.2.jar')
-    compile group: 'net.lingala.zip4j', name: 'zip4j', version: '1.3.2'
+    compile 'net.lingala.zip4j:zip4j:1.3.2'
+    testCompile 'org.mockito:mockito-core:2.6.3'
+    androidTestCompile 'org.mockito:mockito-android:2.6.3'
     compile project(':door43login')
     compile files('src/main/lib/archive_of_holding_0.9.jar')
+    compile project(':chunkplugin')
+    compile project(':biblechunk')
+    compile project(':obschunk')
+    compile project(':noteschunk')
+    compile project(':questionschunk')
 }
 
 configurations.all {
     resolutionStrategy.force 'com.android.support:support-annotations:22.1.0'
+}
+
+android {
+    lintOptions {
+        abortOnError false
+    }
 }

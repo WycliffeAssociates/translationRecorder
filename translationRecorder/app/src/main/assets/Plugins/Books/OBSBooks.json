@@ -1,0 +1,302 @@
+[
+    {
+        "slug": "1",
+        "num": 1,
+        "anth": "obs",
+        "name": "1. The Creation"
+    },
+    {
+        "slug": "2",
+        "num": 2,
+        "anth": "obs",
+        "name": "2. Sin Enters the World"
+    },
+    {
+        "slug": "3",
+        "num": 3,
+        "anth": "obs",
+        "name": "3. The Flood"
+    },
+    {
+        "slug": "4",
+        "num": 4,
+        "anth": "obs",
+        "name": "4. God\u2019s Covenant with Abraham"
+    },
+    {
+        "slug": "5",
+        "num": 5,
+        "anth": "obs",
+        "name": "5. The Son of Promise"
+    },
+    {
+        "slug": "6",
+        "num": 6,
+        "anth": "obs",
+        "name": "6. God Provides for Isaac"
+    },
+    {
+        "slug": "7",
+        "num": 7,
+        "anth": "obs",
+        "name": "7. God Blesses Jacob"
+    },
+    {
+        "slug": "8",
+        "num": 8,
+        "anth": "obs",
+        "name": "8. God Saves Joseph and His Family"
+    },
+    {
+        "slug": "9",
+        "num": 9,
+        "anth": "obs",
+        "name": "9. God Calls Moses"
+    },
+    {
+        "slug": "10",
+        "num": 10,
+        "anth": "obs",
+        "name": "10. The Ten Plagues"
+    },
+    {
+        "slug": "11",
+        "num": 11,
+        "anth": "obs",
+        "name": "11. The Passover"
+    },
+    {
+        "slug": "12",
+        "num": 12,
+        "anth": "obs",
+        "name": "12. The Exodus"
+    },
+    {
+        "slug": "13",
+        "num": 13,
+        "anth": "obs",
+        "name": "13. God\u2019s Covenant with Israel"
+    },
+    {
+        "slug": "14",
+        "num": 14,
+        "anth": "obs",
+        "name": "14. Wandering in the Wilderness"
+    },
+    {
+        "slug": "15",
+        "num": 15,
+        "anth": "obs",
+        "name": "15. The Promised Land"
+    },
+    {
+        "slug": "16",
+        "num": 16,
+        "anth": "obs",
+        "name": "16. The Deliverers"
+    },
+    {
+        "slug": "17",
+        "num": 17,
+        "anth": "obs",
+        "name": "17. God\u2019s Covenant with David"
+    },
+    {
+        "slug": "18",
+        "num": 18,
+        "anth": "obs",
+        "name": "18. The Divided Kingdom"
+    },
+    {
+        "slug": "19",
+        "num": 19,
+        "anth": "obs",
+        "name": "19. The Prophets"
+    },
+    {
+        "slug": "20",
+        "num": 20,
+        "anth": "obs",
+        "name": "20. The Exile and Return"
+    },
+    {
+        "slug": "21",
+        "num": 21,
+        "anth": "obs",
+        "name": "21. God Promises the Messiah"
+    },
+    {
+        "slug": "22",
+        "num": 22,
+        "anth": "obs",
+        "name": "22. The Birth of John"
+    },
+    {
+        "slug": "23",
+        "num": 23,
+        "anth": "obs",
+        "name": "23. The Birth of Jesus"
+    },
+    {
+        "slug": "24",
+        "num": 24,
+        "anth": "obs",
+        "name": "24. John Baptizes Jesus"
+    },
+    {
+        "slug": "25",
+        "num": 25,
+        "anth": "obs",
+        "name": "25. Satan Tempts Jesus"
+    },
+    {
+        "slug": "26",
+        "num": 26,
+        "anth": "obs",
+        "name": "26. Jesus Starts His Ministry"
+    },
+    {
+        "slug": "27",
+        "num": 27,
+        "anth": "obs",
+        "name": "27. The Story of the Good Samaritan"
+    },
+    {
+        "slug": "28",
+        "num": 28,
+        "anth": "obs",
+        "name": "28. The Rich Young Ruler"
+    },
+    {
+        "slug": "29",
+        "num": 29,
+        "anth": "obs",
+        "name": "29. The Story of the Unmerciful Servant"
+    },
+    {
+        "slug": "30",
+        "num": 30,
+        "anth": "obs",
+        "name": "30. Jesus Feeds Five Thousand People"
+    },
+    {
+        "slug": "31",
+        "num": 31,
+        "anth": "obs",
+        "name": "31. Jesus Walks on Water"
+    },
+    {
+        "slug": "32",
+        "num": 32,
+        "anth": "obs",
+        "name": "32. Jesus Heals a Demon-Possessed Man & a Sick Woman"
+    },
+    {
+        "slug": "33",
+        "num": 33,
+        "anth": "obs",
+        "name": "33. The Story of the Farmer"
+    },
+    {
+        "slug": "34",
+        "num": 34,
+        "anth": "obs",
+        "name": "34. Jesus Teaches Other Stories"
+    },
+    {
+        "slug": "35",
+        "num": 35,
+        "anth": "obs",
+        "name": "35. The Story of the Compassionate Father"
+    },
+    {
+        "slug": "36",
+        "num": 36,
+        "anth": "obs",
+        "name": "36. The Transfiguration"
+    },
+    {
+        "slug": "37",
+        "num": 37,
+        "anth": "obs",
+        "name": "37. Jesus Raises Lazarus from the Dead"
+    },
+    {
+        "slug": "38",
+        "num": 38,
+        "anth": "obs",
+        "name": "38. Jesus Is Betrayed"
+    },
+    {
+        "slug": "39",
+        "num": 39,
+        "anth": "obs",
+        "name": "39. Jesus Is Put on Trial"
+    },
+    {
+        "slug": "40",
+        "num": 40,
+        "anth": "obs",
+        "name": "40. Jesus Is Crucified"
+    },
+    {
+        "slug": "41",
+        "num": 41,
+        "anth": "obs",
+        "name": "41. God Raises Jesus from the Dead"
+    },
+    {
+        "slug": "42",
+        "num": 42,
+        "anth": "obs",
+        "name": "42. Jesus Returns to Heaven"
+    },
+    {
+        "slug": "43",
+        "num": 43,
+        "anth": "obs",
+        "name": "43. The Church Begins"
+    },
+    {
+        "slug": "44",
+        "num": 44,
+        "anth": "obs",
+        "name": "44. Peter and John Heal a Beggar"
+    },
+    {
+        "slug": "45",
+        "num": 45,
+        "anth": "obs",
+        "name": "45. Stephen and Philip"
+    },
+    {
+        "slug": "46",
+        "num": 46,
+        "anth": "obs",
+        "name": "46. Paul Becomes a Christian"
+    },
+    {
+        "slug": "47",
+        "num": 47,
+        "anth": "obs",
+        "name": "47. Paul and Silas in Philippi"
+    },
+    {
+        "slug": "48",
+        "num": 48,
+        "anth": "obs",
+        "name": "48. Jesus Is the Promised Messiah"
+    },
+    {
+        "slug": "49",
+        "num": 49,
+        "anth": "obs",
+        "name": "49. God\u2019s New Covenant"
+    },
+    {
+        "slug": "50",
+        "num": 50,
+        "anth": "obs",
+        "name": "50. Jesus Returns"
+    }
+]

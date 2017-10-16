@@ -260,7 +260,7 @@ public class Logger {
      * @param logMessageTag A tag identifying a group of log messages.
      * @param logMessage    The message to add to the log.
      */
-    private void logToFile(Level level, String logMessageTag, String logMessage) {
+    private synchronized void logToFile(Level level, String logMessageTag, String logMessage) {
         // filter out logging levels
         if (level.getIndex() >= mMinLoggingLevel.getIndex() && mLogFile != null) {
             try {

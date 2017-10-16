@@ -13,21 +13,28 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import com.door43.tools.reporting.Logger;
+
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ChapterResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Chunks;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/28/2016.
@@ -40,7 +47,7 @@ public class ActivityChapterList extends AppCompatActivity implements
     public static String PROJECT_KEY = "project_key";
     private final String STATE_RESYNC = "db_resync";
     private final String TAG_TASK_FRAGMENT = "task_fragment";
-    private Chunks mChunks;
+    private ChunkPlugin mChunks;
     private ProgressDialog mPd;
     private volatile boolean mIsCompiling = false;
     private Project mProject;
@@ -57,7 +64,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     public static Intent getActivityUnitListIntent(Context ctx, Project p) {
         Intent intent = new Intent(ctx, ActivityUnitList.class);
-        intent.putExtra(PROJECT_KEY, p);
+        intent.putExtra(Project.PROJECT_EXTRA, p);
         return intent;
     }
 
@@ -81,8 +88,8 @@ public class ActivityChapterList extends AppCompatActivity implements
         // Setup toolbar
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
         ProjectDatabaseHelper mDb = new ProjectDatabaseHelper(this);
-        String language = mDb.getLanguageName(mProject.getTargetLanguage());
-        String book = mDb.getBookName(mProject.getSlug());
+        String language = mDb.getLanguageName(mProject.getTargetLanguageSlug());
+        String book = mDb.getBookName(mProject.getBookSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
@@ -92,9 +99,9 @@ public class ActivityChapterList extends AppCompatActivity implements
         }
 
         try {
-            mChunks = new Chunks(this, mProject.getSlug());
+            mChunks = mProject.getChunkPlugin(new ChunkPluginLoader(this));
         } catch (Exception e) {
-
+            Logger.e(this.toString(), "Error parsing chunks", e);
         }
 
         // Find the recycler view
@@ -120,26 +127,34 @@ public class ActivityChapterList extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+
+        //if the database is still resyncing from a previous orientation change, don't start a new one
         if (!mDbResyncing) {
             mDbResyncing = true;
-            ChapterResyncTask task = new ChapterResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager(), mProject);
+            ChapterResyncTask task = new ChapterResyncTask(
+                    DATABASE_RESYNC_TASK,
+                    getBaseContext(),
+                    getFragmentManager(),
+                    mProject
+            );
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
 
     public void refreshChapterCards() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        int numChapters = mChunks.getNumChapters();
-        int[] unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
+        int numChapters = mChunks.numChapters();
+        Map<Integer, Integer> unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
         for (int i = 0; i < mChapterCardList.size(); i++) {
             ChapterCard cc = mChapterCardList.get(i);
-            cc.setNumOfUnitStarted(unitsStarted[i]);
-            cc.refreshProgress();
+            int numUnits = (unitsStarted.containsKey(cc.getChapterNumber())) ? unitsStarted.get(cc.getChapterNumber()) : 0;
+            cc.setNumOfUnitStarted(numUnits);
+            cc.refreshProgress(this);
             cc.refreshIsEmpty();
             cc.refreshCanCompile();
-            cc.refreshChapterCompiled(i + 1);
+            cc.refreshChapterCompiled(cc.getChapterNumber());
             if (cc.isCompiled()) {
-                cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, i + 1));
+                cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, cc.getChapterNumber()));
             }
         }
         db.close();
@@ -176,8 +191,9 @@ public class ActivityChapterList extends AppCompatActivity implements
         int[] chapterIndicies = dialog.getChapterIndicies();
         for (int i = 0; i < chapterIndicies.length; i++) {
             int position = chapterIndicies[i];
-            mChapterCardList.get(position).setCheckingLevel(level);
-            db.setCheckingLevel(dialog.getProject(), position + 1, level);
+            ChapterCard cc = mChapterCardList.get(position);
+            cc.setCheckingLevel(level);
+            db.setCheckingLevel(dialog.getProject(), cc.getChapterNumber(), level);
             mAdapter.notifyItemChanged(position);
         }
         db.close();
@@ -191,7 +207,14 @@ public class ActivityChapterList extends AppCompatActivity implements
             mChapterCardList.get(i).destroyAudioPlayer();
         }
         mChaptersCompiled = dialog.getChapterIndicies();
-        CompileChapterTask task = new CompileChapterTask(COMPILE_CHAPTER_TASK, toCompile);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+
+        Map<ChapterCard, List<String>> chaptersToCompile = new HashMap<>();
+        for (ChapterCard cc : toCompile) {
+            chaptersToCompile.put(cc, db.getTakesForChapterCompilation(mProject, cc.getChapterNumber()));
+        }
+
+        CompileChapterTask task = new CompileChapterTask(COMPILE_CHAPTER_TASK, chaptersToCompile, mProject);
         mTaskFragment.executeRunnable(task, "Compiling Chapter", "Please wait...", false);
     }
 
@@ -217,9 +240,18 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     private void prepareChapterCardData() {
-        for (int i = 0; i < mChunks.getNumChapters(); i++) {
-            int unitCount = mChunks.getNumChunks(mProject, i + 1);
-            mChapterCardList.add(new ChapterCard(this, mProject, i + 1, unitCount));
+        List<Chapter> chapters = mChunks.getChapters();
+        for (Chapter chapter : chapters) {
+            int unitCount = chapter.getChunks().size();
+            int chapterNumber = chapter.getNumber();
+            mChapterCardList.add(
+                    new ChapterCard(
+                            mProject,
+                            Utils.capitalizeFirstLetter(mChunks.getChapterLabel()) + " " + mChunks.getChapterName(chapterNumber),
+                            chapterNumber,
+                            unitCount
+                    )
+            );
         }
     }
 
@@ -232,7 +264,8 @@ public class ActivityChapterList extends AppCompatActivity implements
             } else if (taskTag == COMPILE_CHAPTER_TASK) {
                 ProjectDatabaseHelper db = new ProjectDatabaseHelper(ActivityChapterList.this);
                 for (int i : mChaptersCompiled) {
-                    db.setCheckingLevel(mProject, i + 1, 0);
+                    int chapter = mChapterCardList.get(i).getChapterNumber();
+                    db.setCheckingLevel(mProject, chapter, 0);
                     mAdapter.notifyItemChanged(i);
                 }
             }

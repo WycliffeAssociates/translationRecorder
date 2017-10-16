@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 
-import org.wycliffeassociates.translationrecorder.ProjectManager.Project;
+import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

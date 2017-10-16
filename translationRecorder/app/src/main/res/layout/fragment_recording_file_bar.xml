@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_padding_m"
         android:text="UDB"
+        android:maxEms="5"
         android:textColor="@color/text_light"
         android:textSize="@dimen/text_size_m"
         android:textStyle="bold" />
@@ -35,6 +36,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_padding_m"
         android:text="Matthew"
+        android:maxEms="10"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textColor="@color/text_light"
         android:textSize="@dimen/text_size_m"
         android:textStyle="bold"

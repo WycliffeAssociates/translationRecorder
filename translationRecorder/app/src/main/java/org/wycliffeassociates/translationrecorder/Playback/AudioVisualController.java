@@ -35,20 +35,15 @@ public class AudioVisualController implements MediaControlReceiver {
     WavFileLoader mWavLoader;
 
     public AudioVisualController(final AudioStateCallback callback, final WavFile wav, Context ctx) throws IOException {
-
         mCallback = callback;
-
         initPlayer(wav, ctx);
-
         mHandler = new Handler(Looper.getMainLooper());
-
         mPlayer.setOnCompleteListener(new WavPlayer.OnCompleteListener() {
             @Override
             public void onComplete() {
                 mCallback.onPlayerPaused();
             }
         });
-
     }
 
     public void setCueList(List<WavCue> cueList) {
@@ -80,7 +75,7 @@ public class AudioVisualController implements MediaControlReceiver {
         });
     }
 
-    public void play() {
+    public void play() throws IllegalStateException {
         mPlayer.play();
     }
 
@@ -88,96 +83,96 @@ public class AudioVisualController implements MediaControlReceiver {
         mPlayer.pause();
     }
 
-    public void seekNext(){
+    public void seekNext() throws IllegalStateException {
         mPlayer.seekNext();
     }
 
-    public void seekPrevious(){
+    public void seekPrevious() throws IllegalStateException {
         mPlayer.seekPrevious();
     }
 
-    public void seekTo(int frame){
+    public void seekTo(int frame) {
         mPlayer.seekToAbsolute(frame);
     }
 
     @Override
-    public int getAbsoluteLocationMs() {
+    public int getAbsoluteLocationMs() throws IllegalStateException {
         return mPlayer.getAbsoluteLocationMs();
     }
 
-    public int getAbsoluteLocationInFrames() {
+    public int getAbsoluteLocationInFrames() throws IllegalStateException {
         return mPlayer.getAbsoluteLocationInFrames();
     }
 
-    public int getRelativeLocationMs(){
+    public int getRelativeLocationMs() throws IllegalStateException {
         return mPlayer.getRelativeLocationMs();
     }
 
-    public int getRelativeLocationInFrames(){
+    public int getRelativeLocationInFrames() throws IllegalStateException {
         return mPlayer.getRelativeLocationInFrames();
     }
 
     @Override
-    public int getRelativeDurationMs() {
+    public int getRelativeDurationMs() throws IllegalStateException {
         return mPlayer.getRelativeDurationMs();
     }
 
-    public int getAbsoluteDurationInFrames() {
+    public int getAbsoluteDurationInFrames() throws IllegalStateException {
         return mPlayer.getAbsoluteDurationInFrames();
     }
 
-    public int getRelativeDurationInFrames(){
+    public int getRelativeDurationInFrames() throws IllegalStateException {
         return mPlayer.getRelativeDurationInFrames();
     }
 
-    public boolean isPlaying(){
+    public boolean isPlaying() {
         return mPlayer.isPlaying();
     }
 
-    public void cut(){
+    public void cut() {
         mCutOp.cut(mPlayer.getLoopStart(), mPlayer.getLoopEnd());
         mPlayer.clearLoopPoints();
     }
 
-    public CutOp getCutOp(){
+    public CutOp getCutOp() {
         return mCutOp;
     }
 
-    public void dropStartMarker(){
+    public void dropStartMarker() throws IllegalStateException {
         mPlayer.setLoopStart(mPlayer.getAbsoluteLocationInFrames());
     }
 
-    public void dropEndMarker(){
+    public void dropEndMarker() throws IllegalStateException {
         mPlayer.setLoopEnd(mPlayer.getAbsoluteLocationInFrames());
     }
 
-    public void dropVerseMarker(String label, int location){
+    public void dropVerseMarker(String label, int location) {
         mCues.add(new WavCue(label, location));
     }
 
-    public void clearLoopPoints(){
+    public void clearLoopPoints() {
         System.out.println("cues " + mCues.size());
         mPlayer.clearLoopPoints();
         System.out.println("cues " + mCues.size());
     }
 
-    public void undo(){
-        if(mCutOp.hasCut()) {
+    public void undo() {
+        if (mCutOp.hasCut()) {
             mCutOp.undo();
         }
     }
 
-    public int getLoopStart(){
+    public int getLoopStart() {
         return mPlayer.getLoopStart();
     }
 
-    public int getLoopEnd(){
+    public int getLoopEnd() {
         return mPlayer.getLoopEnd();
     }
 
-    public void scrollAudio(float distX){
-        int seekTo = Math.max(Math.min((int)((distX * 230) + mPlayer.getAbsoluteLocationInFrames()), mPlayer.getAbsoluteDurationInFrames()), 0);
-        if(distX > 0) {
+    public void scrollAudio(float distX) throws IllegalStateException {
+        int seekTo = Math.max(Math.min((int) ((distX * 230) + mPlayer.getAbsoluteLocationInFrames()), mPlayer.getAbsoluteDurationInFrames()), 0);
+        if (distX > 0) {
             int skip = mCutOp.skip(seekTo);
             if (skip != -1) {
                 seekTo = skip + 1;
@@ -192,15 +187,15 @@ public class AudioVisualController implements MediaControlReceiver {
         mCallback.onLocationUpdated();
     }
 
-    public void setStartMarker(int relativeLocation) {
+    public void setStartMarker(int relativeLocation) throws IllegalStateException {
         mPlayer.setLoopStart(Math.max(mCutOp.relativeLocToAbsolute(relativeLocation, false), 0));
     }
 
-    public void setEndMarker(int relativeLocation) {
+    public void setEndMarker(int relativeLocation) throws IllegalStateException {
         mPlayer.setLoopEnd(Math.min(mCutOp.relativeLocToAbsolute(relativeLocation, false), mPlayer.getAbsoluteDurationInFrames()));
     }
 
-    public WavFileLoader getWavLoader(){
+    public WavFileLoader getWavLoader() {
         return mWavLoader;
     }
 }

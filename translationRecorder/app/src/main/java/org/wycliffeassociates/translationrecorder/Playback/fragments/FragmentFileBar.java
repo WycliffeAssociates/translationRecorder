@@ -14,6 +14,7 @@ import android.widget.TextView;
 import org.wycliffeassociates.translationrecorder.Playback.interfaces.VerseMarkerModeToggler;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 
 /**
@@ -23,7 +24,7 @@ import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 public class FragmentFileBar extends Fragment {
 
     private InsertCallback mInsertCallback;
-    private String mUnit = "";
+    private ChunkPlugin.TYPE mUnitType;
 
     public void onRatingChanged(int mRating) {
         mRateBtn.setStep(mRating);
@@ -48,6 +49,7 @@ public class FragmentFileBar extends Fragment {
     public static String KEY_CHAPTER_NUMBER = "chapter_number";
     public static String KEY_UNIT_LABEL = "unit";
     public static String KEY_UNIT_NUMBER = "unit_number";
+    public static String KEY_UNIT_TYPE = "unit_type";
 
     private FourStepImageView mRateBtn;
 
@@ -61,7 +63,8 @@ public class FragmentFileBar extends Fragment {
     private RerecordCallback mRerecordCallback;
 
     public static FragmentFileBar newInstance(String language, String version, String book, String chapterLabel,
-                                              String chapterNumber, String unitLabel, String unitNumber){
+                                              String chapterNumber, String unitLabel, String unitNumber,
+                                              ChunkPlugin.TYPE unitType){
         FragmentFileBar f = new FragmentFileBar();
         Bundle args = new Bundle();
         args.putString(KEY_LANGUAGE, language.toUpperCase());
@@ -71,6 +74,7 @@ public class FragmentFileBar extends Fragment {
         args.putString(KEY_CHAPTER_NUMBER, chapterNumber);
         args.putString(KEY_UNIT_LABEL, Utils.capitalizeFirstLetter(unitLabel));
         args.putString(KEY_UNIT_NUMBER, unitNumber);
+        args.putSerializable(KEY_UNIT_TYPE, unitType);
         f.setArguments(args);
         return f;
     }
@@ -88,7 +92,7 @@ public class FragmentFileBar extends Fragment {
         findViews();
         setText();
         setClickListeners();
-        if(mUnit.toLowerCase().equals("verse")) {
+        if(mUnitType == ChunkPlugin.TYPE.SINGLE) {
             mEnterVerseMarkerMode.setVisibility(View.GONE);
         }
     }
@@ -102,7 +106,7 @@ public class FragmentFileBar extends Fragment {
         mChapterView.setText(args.getString(KEY_CHAPTER_NUMBER));
         mUnitLabel.setText(args.getString(KEY_UNIT_LABEL));
         mUnitView.setText(args.getString(KEY_UNIT_NUMBER));
-        mUnit = args.getString(KEY_UNIT_LABEL);
+        mUnitType = (ChunkPlugin.TYPE) args.getSerializable(KEY_UNIT_TYPE);
     }
 
     private void findViews(){
@@ -151,7 +155,6 @@ public class FragmentFileBar extends Fragment {
                 mRerecordCallback.onRerecord();
             }
         });
-
         mInsertBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

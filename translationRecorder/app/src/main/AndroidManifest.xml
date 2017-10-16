@@ -91,6 +91,8 @@
         <activity android:name="com.door43.login.LoginDoor43Activity" />
         <activity android:name="com.door43.login.legal.LegalDocumentActivity" />
 
+        <activity android:name="org.wycliffeassociates.translationrecorder.TestUtils.FragmentTestActivity" />
+
 
         <service android:name="org.wycliffeassociates.translationrecorder.Recording.WavRecorder" />
         <service android:name="org.wycliffeassociates.translationrecorder.Recording.WavFileWriter" />

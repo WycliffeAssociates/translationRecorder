@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(path: ':chunkplugin')
+    compile 'com.google.code.gson:gson:2.8.1'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+libsDirName = "$rootDir/app/src/main/assets/Plugins/Jars"
+
+artifacts {
+    archives jar
+}

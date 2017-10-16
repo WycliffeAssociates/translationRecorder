@@ -1,0 +1,236 @@
+[
+    {
+        "slug": "gen",
+        "num": 1,
+        "anth": "ot",
+        "name": "Genesis"
+    },
+    {
+        "slug": "exo",
+        "num": 2,
+        "anth": "ot",
+        "name": "Exodus"
+    },
+    {
+        "slug": "lev",
+        "num": 3,
+        "anth": "ot",
+        "name": "Leviticus"
+    },
+    {
+        "slug": "num",
+        "num": 4,
+        "anth": "ot",
+        "name": "Numbers"
+    },
+    {
+        "slug": "deu",
+        "num": 5,
+        "anth": "ot",
+        "name": "Deuteronomy"
+    },
+    {
+        "slug": "jos",
+        "num": 6,
+        "anth": "ot",
+        "name": "Joshua"
+    },
+    {
+        "slug": "jdg",
+        "num": 7,
+        "anth": "ot",
+        "name": "Judges"
+    },
+    {
+        "slug": "rut",
+        "num": 8,
+        "anth": "ot",
+        "name": "Ruth"
+    },
+    {
+        "slug": "1sa",
+        "num": 9,
+        "anth": "ot",
+        "name": "1 Samuel"
+    },
+    {
+        "slug": "2sa",
+        "num": 10,
+        "anth": "ot",
+        "name": "2 Samuel"
+    },
+    {
+        "slug": "1ki",
+        "num": 11,
+        "anth": "ot",
+        "name": "1 Kings"
+    },
+    {
+        "slug": "2ki",
+        "num": 12,
+        "anth": "ot",
+        "name": "2 Kings"
+    },
+    {
+        "slug": "1ch",
+        "num": 13,
+        "anth": "ot",
+        "name": "1 Chronicles"
+    },
+    {
+        "slug": "2ch",
+        "num": 14,
+        "anth": "ot",
+        "name": "2 Chronicles"
+    },
+    {
+        "slug": "ezr",
+        "num": 15,
+        "anth": "ot",
+        "name": "Ezra"
+    },
+    {
+        "slug": "neh",
+        "num": 16,
+        "anth": "ot",
+        "name": "Nehemiah"
+    },
+    {
+        "slug": "est",
+        "num": 17,
+        "anth": "ot",
+        "name": "Esther"
+    },
+    {
+        "slug": "job",
+        "num": 18,
+        "anth": "ot",
+        "name": "Job"
+    },
+    {
+        "slug": "psa",
+        "num": 19,
+        "anth": "ot",
+        "name": "Psalms"
+    },
+    {
+        "slug": "pro",
+        "num": 20,
+        "anth": "ot",
+        "name": "Proverbs"
+    },
+    {
+        "slug": "ecc",
+        "num": 21,
+        "anth": "ot",
+        "name": "Ecclesiastes"
+    },
+    {
+        "slug": "sng",
+        "num": 22,
+        "anth": "ot",
+        "name": "Song of Solomon"
+    },
+    {
+        "slug": "isa",
+        "num": 23,
+        "anth": "ot",
+        "name": "Isaiah"
+    },
+    {
+        "slug": "jer",
+        "num": 24,
+        "anth": "ot",
+        "name": "Jeremiah"
+    },
+    {
+        "slug": "lam",
+        "num": 25,
+        "anth": "ot",
+        "name": "Lamentations"
+    },
+    {
+        "slug": "ezk",
+        "num": 26,
+        "anth": "ot",
+        "name": "Ezekiel"
+    },
+    {
+        "slug": "dan",
+        "num": 27,
+        "anth": "ot",
+        "name": "Daniel"
+    },
+    {
+        "slug": "hos",
+        "num": 28,
+        "anth": "ot",
+        "name": "Hosea"
+    },
+    {
+        "slug": "jol",
+        "num": 29,
+        "anth": "ot",
+        "name": "Joel"
+    },
+    {
+        "slug": "amo",
+        "num": 30,
+        "anth": "ot",
+        "name": "Amos"
+    },
+    {
+        "slug": "oba",
+        "num": 31,
+        "anth": "ot",
+        "name": "Obadiah"
+    },
+    {
+        "slug": "jon",
+        "num": 32,
+        "anth": "ot",
+        "name": "Jonah"
+    },
+    {
+        "slug": "mic",
+        "num": 33,
+        "anth": "ot",
+        "name": "Micah"
+    },
+    {
+        "slug": "nam",
+        "num": 34,
+        "anth": "ot",
+        "name": "Nahum"
+    },
+    {
+        "slug": "hab",
+        "num": 35,
+        "anth": "ot",
+        "name": "Habakkuk"
+    },
+    {
+        "slug": "zep",
+        "num": 36,
+        "anth": "ot",
+        "name": "Zephaniah"
+    },
+    {
+        "slug": "hag",
+        "num": 37,
+        "anth": "ot",
+        "name": "Haggai"
+    },
+    {
+        "slug": "zec",
+        "num": 38,
+        "anth": "ot",
+        "name": "Zechariah"
+    },
+    {
+        "slug": "mal",
+        "num": 39,
+        "anth": "ot",
+        "name": "Malachi"
+    }
+]
