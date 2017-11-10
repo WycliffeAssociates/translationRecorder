@@ -7,7 +7,9 @@ import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
@@ -23,6 +25,7 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRe
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingWaveform;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSourceAudio;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
+import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
@@ -84,6 +87,8 @@ public class RecordingActivity extends AppCompatActivity implements
     private boolean isPausedRecording;
     private boolean isSaved;
     private boolean hasStartedRecording = false;
+
+    private String mContributor = "";
 
     public static Intent getInsertIntent(
             Context ctx,
@@ -198,6 +203,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
     private void initialize(Intent intent) {
         parseIntent(intent);
+        getCurrentUser();
         initializeFragments();
         attachFragments();
         mRecordingRenderer = new ActiveRecordingRenderer(
@@ -205,6 +211,11 @@ public class RecordingActivity extends AppCompatActivity implements
                 mFragmentVolumeBar,
                 mFragmentRecordingWaveform
         );
+    }
+
+    private void getCurrentUser() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        mContributor = pref.getString(Settings.KEY_PROFILE, "");
     }
 
     private void initializeFragments() {
@@ -323,6 +334,7 @@ public class RecordingActivity extends AppCompatActivity implements
                     file,
                     new WavMetadata(
                             mProject,
+                            mContributor,
                             String.valueOf(mFragmentRecordingFileBar.getChapter()),
                             startVerse,
                             endVerse

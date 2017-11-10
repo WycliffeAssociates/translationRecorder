@@ -255,10 +255,6 @@ public class WavFile implements Parcelable {
         }
     }
 
-    public void setMetadata(Project project, String chapter, String startVerse, String endVerse) {
-        mMetadata = new WavMetadata(project, chapter, startVerse, endVerse);
-    }
-
     private void writeMetadata(int totalAudioLength) throws IOException {
         mTotalAudioLength = totalAudioLength;
         byte[] cueChunk = mMetadata.createCueChunk();
@@ -538,7 +534,8 @@ public class WavFile implements Parcelable {
         String chapterString = ProjectFileUtils.chapterIntToString(project, chapter);
         String startVerse = toCompile.get(0).getMetadata().getStartVerse();
         String endVerse = toCompile.get(toCompile.size()-1).getMetadata().getEndVerse();
-        WavFile chapterWav = new WavFile(chap, new WavMetadata(project, chapterString, startVerse, endVerse));
+        //chapter wav isn't particularly useful in terms of keeping it for a final product, so don't worry about contributors
+        WavFile chapterWav = new WavFile(chap, new WavMetadata(project, "", chapterString, startVerse, endVerse));
         for (WavFile wav : toCompile) {
             try (WavOutputStream wos = new WavOutputStream(chapterWav, true, WavOutputStream.BUFFERED)){
                 List<WavCue> cues = wav.getMetadata().getCuePoints();

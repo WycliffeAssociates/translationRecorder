@@ -31,27 +31,32 @@ public class WavMetadata implements Parcelable {
 
     private final int SIZE_OF_LABEL = 4;
 
-    String mAnthology = "";
     String mLanguage = "";
+    String mResource = "";
+    String mAnthology = "";
     String mVersion = "";
-    String mSlug = "";
     String mBookNumber = "";
+    String mBook = "";
     String mMode = "";
     String mChapter = "";
     String mStartVerse = "";
     String mEndVerse = "";
+    String mSourceLanguage = "";
+    String mContributor = "";
+
     HashMap<Integer, WavCue> mCuePoints = new HashMap<>();
 
-    public WavMetadata(Project p, String chapter, String startVerse, String endVerse) {
+    public WavMetadata(Project p, String contributor, String chapter, String startVerse, String endVerse) {
         mAnthology = p.getAnthologySlug();
         mLanguage = p.getTargetLanguageSlug();
         mVersion = p.getVersionSlug();
-        mSlug = p.getBookSlug();
+        mBook = p.getBookSlug();
         mBookNumber = p.getBookNumber();
         mMode = p.getModeSlug().toLowerCase();
         mChapter = chapter;
         mStartVerse = startVerse;
         mEndVerse = endVerse;
+        mContributor = contributor;
     }
 
     public WavMetadata(File file) {
@@ -61,12 +66,15 @@ public class WavMetadata implements Parcelable {
     public String getAnthology(){return mAnthology;}
     public String getLanguage(){return mLanguage;}
     public String getVersion(){return mVersion;}
-    public String getSlug(){return mSlug;}
+    public String getSlug(){return mBook;}
     public String getBookNumber(){return mBookNumber;}
     public String getModeSlug(){return mMode;}
     public String getChapter(){return mChapter;}
     public String getStartVerse(){return mStartVerse;}
     public String getEndVerse(){return mEndVerse;}
+    public String getContributor() {
+        return mContributor;
+    }
 
     private String readLabel(ByteBuffer buffer) {
         if (buffer.remaining() >= SIZE_OF_LABEL) {
@@ -277,9 +285,9 @@ public class WavMetadata implements Parcelable {
             if (json.has("version")) {
                 mVersion = json.getString("version");
             }
-            mSlug = "";
+            mBook = "";
             if (json.has("slug")) {
-                mSlug = json.getString("slug");
+                mBook = json.getString("slug");
             }
             mBookNumber = "";
             if (json.has("book_number")) {
@@ -300,6 +308,10 @@ public class WavMetadata implements Parcelable {
             mEndVerse = "";
             if (json.has("endv")) {
                 mEndVerse = json.getString("endv");
+            }
+            mContributor = "";
+            if (json.has("contributor")) {
+                mContributor = json.getString("contributor");
             }
             if (json.has("markers")) {
                 JSONObject markers = json.getJSONObject("markers");
@@ -333,12 +345,13 @@ public class WavMetadata implements Parcelable {
             json.put("anthology", mAnthology);
             json.put("language", mLanguage);
             json.put("version", mVersion);
-            json.put("slug", mSlug);
+            json.put("book", mBook);
             json.put("book_number", mBookNumber);
             json.put("mode", mMode);
             json.put("chapter", mChapter);
             json.put("startv", mStartVerse);
             json.put("endv", mEndVerse);
+            json.put("contributor", mContributor);
             json.put("markers", getMarkerJsonObject());
             return json;
         } catch (JSONException e) {
