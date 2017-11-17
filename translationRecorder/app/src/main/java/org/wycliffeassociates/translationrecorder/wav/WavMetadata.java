@@ -528,6 +528,6 @@ public class WavMetadata implements Parcelable {
             newKey = Math.max(newKey, i);
         }
         newKey++;
-        mCuePoints.put(newKey, cue);
+        mCuePoints.put(Integer.parseInt(cue.getLabel()), cue);
     }
 }

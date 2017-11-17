@@ -277,12 +277,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
         int projectId = db.getProjectId(project);
         pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();
-
-        //FIXME: find the last place worked on?
-        pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
-        pref.edit().putString(Settings.KEY_PREF_START_VERSE, "1").commit();
-        pref.edit().putString(Settings.KEY_PREF_END_VERSE, "1").commit();
-        pref.edit().putString(Settings.KEY_PREF_CHUNK, "1").commit();
     }
 
     private boolean addProjectToDatabase(Project project) {

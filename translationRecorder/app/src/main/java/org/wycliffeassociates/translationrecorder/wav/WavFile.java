@@ -529,20 +529,22 @@ public class WavFile implements Parcelable {
 
     public static WavFile compileChapter(Project project, int chapter, List<WavFile> toCompile) {
         File root = ProjectFileUtils.getParentDirectory(project, chapter);
-        File chap = new File(root, "chapter.wav");
+        File chap = new File(root, project.getChapterFileName(chapter));
         chap.delete();
         String chapterString = ProjectFileUtils.chapterIntToString(project, chapter);
         String startVerse = toCompile.get(0).getMetadata().getStartVerse();
         String endVerse = toCompile.get(toCompile.size()-1).getMetadata().getEndVerse();
         //chapter wav isn't particularly useful in terms of keeping it for a final product, so don't worry about contributors
         WavFile chapterWav = new WavFile(chap, new WavMetadata(project, "", chapterString, startVerse, endVerse));
+        int locationOffset = 0;
         for (WavFile wav : toCompile) {
             try (WavOutputStream wos = new WavOutputStream(chapterWav, true, WavOutputStream.BUFFERED)){
                 List<WavCue> cues = wav.getMetadata().getCuePoints();
                 for(WavCue cue : cues){
-                    chapterWav.addMarker(cue.getLabel(), chapterWav.getTotalAudioLength() / 2 + cue.getLocation());
+                    chapterWav.addMarker(cue.getLabel(), locationOffset + cue.getLocation());
                 }
-                chapterWav.addMarker("Verse " + wav.getMetadata().getStartVerse(), chapterWav.getTotalAudioLength()/2);
+                locationOffset += wav.getTotalAudioLength()/2;
+                //chapterWav.addMarker("Verse " + wav.getMetadata().getStartVerse(), chapterWav.getTotalAudioLength()/2);
                 try (FileInputStream fis = new FileInputStream(wav.getFile());
                     BufferedInputStream bis = new BufferedInputStream(fis)){
                     byte[] buffer = new byte[5096];
@@ -642,7 +644,6 @@ public class WavFile implements Parcelable {
             insertBuffer = null;
             Runtime.getRuntime().gc();
         }
-        System.out.println("Insert took: " + (System.currentTimeMillis() - start) + "ms");
 
         return resultWav;
     }

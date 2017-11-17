@@ -94,7 +94,7 @@ public class ChapterCard {
         String chapterString = ProjectFileUtils.chapterIntToString(mProject, chapter);
         File chapterDir = new File(dir, chapterString);
         if (chapterDir.exists()) {
-            mChapterWav = new File(chapterDir, "chapter.wav");
+            mChapterWav = new File(chapterDir, mProject.getChapterFileName(chapter));
             if (mChapterWav.exists()) {
                 mIsCompiled = true;
                 return;

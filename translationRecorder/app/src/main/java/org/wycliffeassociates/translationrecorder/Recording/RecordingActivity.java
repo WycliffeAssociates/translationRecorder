@@ -202,6 +202,7 @@ public class RecordingActivity extends AppCompatActivity implements
     }
 
     private void initialize(Intent intent) {
+        initializeFromSettings();
         parseIntent(intent);
         getCurrentUser();
         initializeFragments();
@@ -211,6 +212,12 @@ public class RecordingActivity extends AppCompatActivity implements
                 mFragmentVolumeBar,
                 mFragmentRecordingWaveform
         );
+    }
+
+    private void initializeFromSettings() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        mInitialChapter = pref.getInt(Settings.KEY_PREF_CHAPTER, DEFAULT_CHAPTER);
+        mInitialUnit = pref.getInt(Settings.KEY_PREF_CHUNK, DEFAULT_UNIT);
     }
 
     private void getCurrentUser() {
@@ -272,8 +279,9 @@ public class RecordingActivity extends AppCompatActivity implements
 
     private void parseIntent(Intent intent) {
         mProject = intent.getParcelableExtra(KEY_PROJECT);
-        mInitialChapter = intent.getIntExtra(KEY_CHAPTER, DEFAULT_CHAPTER);
-        mInitialUnit = intent.getIntExtra(KEY_UNIT, DEFAULT_UNIT);
+        //if a chapter and unit does not come from an intent, fallback to the ones from settings
+        mInitialChapter = intent.getIntExtra(KEY_CHAPTER, mInitialChapter);
+        mInitialUnit = intent.getIntExtra(KEY_UNIT, mInitialUnit);
         if (intent.hasExtra(KEY_WAV_FILE)) {
             mLoadedWav = intent.getParcelableExtra(KEY_WAV_FILE);
         }
@@ -283,6 +291,8 @@ public class RecordingActivity extends AppCompatActivity implements
         }
         isChunkMode = mProject.getModeType() == ChunkPlugin.TYPE.MULTI;
     }
+
+
 
     private void initializeTaskFragment(Bundle savedInstanceState) {
         FragmentManager fm = getFragmentManager();
@@ -375,6 +385,7 @@ public class RecordingActivity extends AppCompatActivity implements
         isPausedRecording = false;
         addTakeToDb();
         mNewRecording.parseHeader();
+        saveLocationToPreferences();
         if (mInsertMode) {
             finalizeInsert(mLoadedWav, mNewRecording, mInsertLocation);
         } else {
@@ -388,6 +399,12 @@ public class RecordingActivity extends AppCompatActivity implements
             startActivity(intent);
             this.finish();
         }
+    }
+
+    private void saveLocationToPreferences() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        pref.edit().putInt(Settings.KEY_PREF_CHAPTER, mFragmentRecordingFileBar.getChapter()).commit();
+        pref.edit().putInt(Settings.KEY_PREF_CHUNK, mFragmentRecordingFileBar.getUnit()).commit();
     }
 
     private void addTakeToDb() {

@@ -14,6 +14,7 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.S3Export;
+import org.wycliffeassociates.translationrecorder.FilesPage.Export.TranslationExchangeExport;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -133,7 +134,15 @@ public class ProjectInfoDialog extends DialogFragment {
             }
         };
         sdcard_button.setOnClickListener(localExport);
-        folderButton.setOnClickListener(localExport);
+
+        View.OnClickListener tEExport = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mExp = new TranslationExchangeExport(ProjectFileUtils.getProjectDirectory(mProject), mProject);
+                mExportDelegator.delegateExport(mExp);
+            }
+        };
+        folderButton.setOnClickListener(tEExport);
 
         publishButton.setOnClickListener(new View.OnClickListener() {
             @Override

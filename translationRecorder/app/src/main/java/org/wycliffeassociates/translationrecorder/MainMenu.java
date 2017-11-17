@@ -143,11 +143,14 @@ public class MainMenu extends Activity {
 
     private void startRecordingScreen() {
         Project project = Project.getProjectFromPreferences(this);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        int chapter = pref.getInt(Settings.KEY_PREF_CHAPTER, ChunkPlugin.DEFAULT_CHAPTER);
+        int unit = pref.getInt(Settings.KEY_PREF_CHUNK, ChunkPlugin.DEFAULT_UNIT);
         Intent intent = RecordingActivity.getNewRecordingIntent(
                 this,
                 project,
-                ChunkPlugin.DEFAULT_CHAPTER,
-                ChunkPlugin.DEFAULT_UNIT
+                chapter,
+                unit
         );
         startActivity(intent);
     }
@@ -173,12 +176,6 @@ public class MainMenu extends Activity {
         } else {
             Logger.e(this.toString(), "Project " + project + " doesn't exist in the database");
         }
-
-        //FIXME: find the last place worked on?
-        pref.edit().putString(Settings.KEY_PREF_CHAPTER, "1").commit();
-        pref.edit().putString(Settings.KEY_PREF_START_VERSE, "1").commit();
-        pref.edit().putString(Settings.KEY_PREF_END_VERSE, "1").commit();
-        pref.edit().putString(Settings.KEY_PREF_CHUNK, "1").commit();
     }
 
     public void report(final String message) {

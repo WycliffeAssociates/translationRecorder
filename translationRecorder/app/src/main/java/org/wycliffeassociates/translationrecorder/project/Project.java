@@ -100,6 +100,16 @@ public class Project implements Parcelable {
         }
     }
 
+    public String getChapterFileName(int chapter) {
+        String chapterFileName = mTargetLanguage.getSlug() +
+                "_" + mAnthology.getSlug() +
+                "_" + mVersion.getSlug() +
+                "_" + mBook.getSlug() +
+                "_c" + String.format("%02d", chapter) +
+                ".wav";
+        return chapterFileName;
+    }
+
     public String getFileName(int chapter, int ... verses){
         if(mFileName == null) {
             mFileName = new FileName(mTargetLanguage, mAnthology, mVersion, mBook);

@@ -949,7 +949,7 @@ public class PlaybackActivity extends Activity implements
             Logger.w(this.toString(), "Placed verse marker");
             int frame = mAudioController.getRelativeLocationInFrames();
             int markerNumber = (startVerse + 1) + (endVerse - startVerse - mMarkerMediator.numVersesRemaining());
-            mAudioController.dropVerseMarker("Verse " + markerNumber, frame);
+            mAudioController.dropVerseMarker(String.valueOf(markerNumber), frame);
             mWaveformFragment.addVerseMarker(markerNumber, frame);
             mMarkerCounterFragment.decrementVersesRemaining();
             try {
