@@ -35,7 +35,7 @@ public class ChapterCardTest {
         Version mockVersion = mock(Version.class);
         Language mockLang = mock(Language.class);
         Mode mockMode = mock(Mode.class);
-        Project
+        //Project
 
     }
 

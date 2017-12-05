@@ -286,8 +286,8 @@ public class WavMetadata implements Parcelable {
                 mVersion = json.getString("version");
             }
             mBook = "";
-            if (json.has("slug")) {
-                mBook = json.getString("slug");
+            if (json.has("book")) {
+                mBook = json.getString("book");
             }
             mBookNumber = "";
             if (json.has("book_number")) {
