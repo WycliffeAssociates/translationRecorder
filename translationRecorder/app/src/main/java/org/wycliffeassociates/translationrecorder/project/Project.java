@@ -25,13 +25,13 @@ public class Project implements Parcelable {
 
     public static final String PROJECT_EXTRA = "project_extra";
 
-    private Language mTargetLanguage;
-    private Language mSourceLanguage;
-    private Anthology mAnthology;
-    private Book mBook;
-    private Version mVersion;
-    private Mode mMode;
-    private FileName mFileName;
+    public Language mTargetLanguage;
+    public Language mSourceLanguage;
+    public Anthology mAnthology;
+    public Book mBook;
+    public Version mVersion;
+    public Mode mMode;
+    public FileName mFileName;
 
 
     String mContributors;

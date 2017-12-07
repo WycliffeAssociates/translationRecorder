@@ -58,6 +58,7 @@ public class Manifest {
         jw.name("language");
         jw.beginObject();
         jw.name("slug").value(mProject.getTargetLanguageSlug());
+        jw.name("slug").value(mProject.mTargetLanguage.getName());
         jw.endObject();
     }
 
@@ -83,6 +84,7 @@ public class Manifest {
         jw.name("version");
         jw.beginObject();
         jw.name("slug").value(mProject.getVersionSlug());
+        jw.name("slug").value(mProject.mVersion.getName());
         jw.endObject();
     }
 
@@ -90,6 +92,7 @@ public class Manifest {
         jw.name("anthology");
         jw.beginObject();
         jw.name("slug").value(mProject.getAnthologySlug());
+        jw.name("name").value(mProject.mAnthology.getSlug());
         jw.endObject();
     }
 
