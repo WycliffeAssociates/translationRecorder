@@ -59,7 +59,7 @@ public class TranslationExchangeExport extends Export {
                 Context ctx = mCtx.getActivity().getApplicationContext();
                 uploadBinary(ctx, mZipFile);
 //                try {
-//                    URL url = new URL("https://10.0.0.1:8001/api/upload/zip");
+//                    URL url = new URL("https://te.loc/api/upload/zip");
 //                    HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 //                    urlConnection.setSSLSocketFactory(getSSLSocketFactory());
 //                    try {
@@ -93,7 +93,7 @@ public class TranslationExchangeExport extends Export {
             // starting from 3.1+, you can also use content:// URI string instead of absolute file
             String filePath = file.getAbsolutePath();
             String uploadId =
-                    new BinaryUploadRequest(context, "https://10.0.0.1:8001/api/upload/zip")
+                    new BinaryUploadRequest(context, "https://te.loc/api/upload/zip")
                             .setFileToUpload(filePath)
                             .addHeader(file.getName(), new File(filePath).getName())
                             .setNotificationConfig(getNotificationConfig())
