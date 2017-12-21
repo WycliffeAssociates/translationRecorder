@@ -63,8 +63,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="30"
-            android:weightSum="30"
+            android:weightSum="40"
             android:gravity="right">
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="@dimen/icon_l"
+                android:layout_weight="10"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_microphone_grey600_36dp"
+                android:clickable="true"
+                android:id="@+id/record_button"
+                android:background="@color/transparent"
+                />
 
             <ImageButton
                 android:layout_width="0dp"
@@ -82,11 +93,12 @@
                 android:layout_height="@dimen/icon_l"
                 android:layout_weight="10"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_microphone_grey600_36dp"
+                android:src="@drawable/ic_more_vert_black_36dp"
                 android:clickable="true"
-                android:id="@+id/record_button"
+                android:id="@+id/more_button"
                 android:background="@color/transparent"
                 />
+
 
         </LinearLayout>
 

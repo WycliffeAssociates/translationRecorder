@@ -2,9 +2,14 @@ package org.wycliffeassociates.translationrecorder.ProjectManager.adapters;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuPopupHelper;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -34,7 +39,7 @@ public class ProjectAdapter extends ArrayAdapter {
     //class for caching the views in a row
     private static class ViewHolder {
         TextView mLanguage, mBook;
-        ImageButton mRecord, mInfo;
+        ImageButton mRecord, mInfo, mMore;
         LinearLayout mTextLayout;
         ProgressPieView mProgressPie;
     }
@@ -64,6 +69,7 @@ public class ProjectAdapter extends ArrayAdapter {
             holder.mRecord = (ImageButton) convertView.findViewById(R.id.record_button);
             holder.mTextLayout = (LinearLayout) convertView.findViewById(R.id.text_layout);
             holder.mProgressPie = (ProgressPieView) convertView.findViewById(R.id.progress_pie);
+            holder.mMore = (ImageButton) convertView.findViewById(R.id.more_button);
 
             // Link the cached views to the convertView
             convertView.setTag(holder);
@@ -71,13 +77,13 @@ public class ProjectAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        initializeProjectCard(mCtx, mProjectList.get(position), mDb, holder.mLanguage, holder.mBook, holder.mInfo, holder.mRecord, holder.mTextLayout, holder.mProgressPie);
+        initializeProjectCard(mCtx, mProjectList.get(position), mDb, holder.mLanguage, holder.mBook, holder.mInfo, holder.mRecord, holder.mTextLayout, holder.mProgressPie, holder.mMore);
 
         return convertView;
     }
 
     public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper dB, TextView languageView, TextView bookView,
-                                             ImageButton infoView, ImageButton recordView, LinearLayout textLayout, ProgressPieView progressPie) {
+                                             ImageButton infoView, ImageButton recordView, LinearLayout textLayout, ProgressPieView progressPie, ImageButton more) {
 
 
         String book = project.getBookName();
@@ -137,6 +143,42 @@ public class ProjectAdapter extends ArrayAdapter {
         });
 
 
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPopup(view, project);
+            }
+        });
+
+    }
+
+    public static void showPopup(View v, final Project project) {
+        final Context mCtx = v.getContext();
+        PopupMenu menu = new PopupMenu(v.getContext(), v);
+        menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch(item.getItemId()) {
+                    case R.id.action_te_upload:
+                        break;
+                    case R.id.action_export_source:
+                        break;
+                    case R.id.action_export_sd:
+                    case R.id.action_export_folder:
+                        break;
+                    case R.id.action_share:
+                        break;
+                    case R.id.action_delete:
+                        ((ProjectInfoDialog.InfoDialogCallback) mCtx).onDelete(project);
+                        break;
+                }
+                return false;
+            }
+        });
+        menu.inflate(R.menu.project_menu);
+        MenuPopupHelper helper = new MenuPopupHelper(v.getContext(), (MenuBuilder) menu.getMenu(), v);
+        helper.setForceShowIcon(true);
+        helper.show();
     }
 
     public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper db, View projectCard) {
@@ -146,6 +188,7 @@ public class ProjectAdapter extends ArrayAdapter {
         ImageButton record = (ImageButton) projectCard.findViewById(R.id.record_button);
         LinearLayout textLayout = (LinearLayout) projectCard.findViewById(R.id.text_layout);
         ProgressPieView progressPie = (ProgressPieView) projectCard.findViewById(R.id.progress_pie);
-        initializeProjectCard(ctx, project, db, languageView, bookView, info, record, textLayout, progressPie);
+        ImageButton more = (ImageButton) projectCard.findViewById(R.id.more_button);
+        initializeProjectCard(ctx, project, db, languageView, bookView, info, record, textLayout, progressPie, more);
     }
 }

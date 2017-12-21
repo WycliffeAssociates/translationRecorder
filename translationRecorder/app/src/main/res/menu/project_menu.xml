@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <item
+        android:id="@+id/action_te_upload"
+        android:title="TranslationExchange Upload"
+        android:icon="@drawable/ic_cloud_upload_black_24dp"
+        android:orderInCategory="100"
+        />
+
+    <item
+        android:id="@+id/action_export_source"
+        android:title="Export Source Audio"
+        android:icon="@drawable/export_as_source"
+        android:orderInCategory="200"
+        />
+
+    <item
+        android:id="@+id/action_export_sd"
+        android:title="Save to SD Card"
+        android:icon="@drawable/ic_sd_black_24dp"
+        android:orderInCategory="300"
+        />
+
+    <item
+        android:id="@+id/action_export_folder"
+        android:title="Save to Folder"
+        android:icon="@drawable/ic_folder_black_24dp"
+        android:orderInCategory="400"
+        />
+
+    <item
+        android:id="@+id/action_share"
+        android:title="Share"
+        android:icon="@drawable/ic_share_variant_black_24dp"
+        android:orderInCategory="500"
+        />
+
+    <item
+        android:id="@+id/action_delete"
+        android:title="Delete"
+        android:icon="@drawable/ic_delete_black_24dp"
+        android:orderInCategory="600"
+        />
+
+</menu>
