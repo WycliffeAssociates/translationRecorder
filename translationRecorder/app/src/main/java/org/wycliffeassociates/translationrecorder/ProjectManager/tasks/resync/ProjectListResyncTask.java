@@ -48,12 +48,21 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
         File[] langs = root.listFiles();
         if (langs != null) {
             for(File lang : langs) {
+                if (!lang.isDirectory()) {
+                    continue;
+                }
                 File[] versions = lang.listFiles();
                 if (versions != null) {
                     for(File version : versions) {
+                        if(!version.isDirectory()) {
+                            continue;
+                        }
                         File[] bookDirs = version.listFiles();
                         if (bookDirs != null) {
                             for(File bookDir : bookDirs) {
+                                if (!bookDir.isDirectory()) {
+                                    continue;
+                                }
                                 //get the project from the database if it exists
                                 Project project = db.getProject(lang.getName(), version.getName(), bookDir.getName());
                                 if(project != null) {
@@ -63,8 +72,11 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                     Mode mode = null;
                                     if(chapters != null) {
                                         for(File chapter : chapters) {
+                                            if(!chapter.isDirectory()) {
+                                                continue;
+                                            }
                                             File[] c = chapter.listFiles();
-                                            if(c != null && c.length > 1) {
+                                            if(c != null) {
                                                 for (int i = 0; i < c.length; i++) {
                                                     try {
                                                         WavFile wav = new WavFile(c[i]);
