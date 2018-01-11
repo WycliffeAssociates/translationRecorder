@@ -167,7 +167,7 @@ public class Manifest {
                 ppm = mProject.getPatternMatcher();
                 ppm.match(file);
                 TakeInfo ti = ppm.getTakeInfo();
-                if (ti.getStartVerse() == first && ti.getEndVerse() == end) {
+                if (ti != null && ti.getStartVerse() == first && ti.getEndVerse() == end) {
                     resultFiles.add(file);
                 }
             }

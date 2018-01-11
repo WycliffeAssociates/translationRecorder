@@ -57,7 +57,7 @@ public class ProjectFileUtils {
         for (File f : files) {
             ppm.match(f);
             TakeInfo ti = ppm.getTakeInfo();
-            if (takeInfo.equals(ti)) {
+            if (takeInfo.equalBaseInfo(ti)) {
                 maxTake = (maxTake < ti.getTake()) ? ti.getTake() : maxTake;
             }
         }

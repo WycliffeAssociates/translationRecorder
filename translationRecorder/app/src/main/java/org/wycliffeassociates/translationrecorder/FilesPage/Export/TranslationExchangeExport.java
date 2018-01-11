@@ -4,8 +4,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 
+import com.door43.tools.reporting.Logger;
+
 import net.gotev.uploadservice.BinaryUploadRequest;
+import net.gotev.uploadservice.ServerResponse;
+import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
+import net.gotev.uploadservice.UploadStatusDelegate;
 
 import org.wycliffeassociates.translationrecorder.FilesPage.Manifest;
 import org.wycliffeassociates.translationrecorder.R;
@@ -97,12 +102,46 @@ public class TranslationExchangeExport extends Export {
                             .setFileToUpload(filePath)
                             .addHeader(file.getName(), new File(filePath).getName())
                             .setNotificationConfig(getNotificationConfig())
-                            .setMaxRetries(2)
+                            .setDelegate(getUploadStatusDelegate())
+                            .setAutoDeleteFilesAfterSuccessfulUpload(true)
                             .startUpload();
 
         } catch (Exception exc) {
             Log.e("AndroidUploadService", exc.getMessage(), exc);
         }
+    }
+
+    protected UploadStatusDelegate getUploadStatusDelegate() {
+        UploadStatusDelegate uploadStatusDelegate = new UploadStatusDelegate() {
+            @Override
+            public void onProgress(Context context, UploadInfo uploadInfo) {
+            }
+
+            @Override
+            public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                if(serverResponse != null) {
+                    Logger.e(TranslationExchangeExport.class.toString(), "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString(), exception);
+                } else if (exception != null) {
+                    Logger.e(TranslationExchangeExport.class.toString(), "error" , exception);
+                } else {
+                    Logger.e(TranslationExchangeExport.class.toString(), "an error occured without a response or exception, upload percent is " + uploadInfo.getProgressPercent());
+                }
+            }
+
+            @Override
+            public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                Logger.e(TranslationExchangeExport.class.toString(), "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString());
+            }
+
+            @Override
+            public void onCancelled(Context context, UploadInfo uploadInfo) {
+                Logger.e(TranslationExchangeExport.class.toString(), "Cancelled upload");
+                if (uploadInfo != null) {
+                    Logger.e(TranslationExchangeExport.class.toString(), "Upload percent was " + uploadInfo.getProgressPercent());
+                }
+            }
+        };
+        return uploadStatusDelegate;
     }
 
     protected UploadNotificationConfig getNotificationConfig() {

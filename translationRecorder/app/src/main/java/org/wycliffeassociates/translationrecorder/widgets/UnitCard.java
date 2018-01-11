@@ -171,9 +171,11 @@ public class UnitCard {
             for (File file : files) {
                 ppm = mProject.getPatternMatcher();
                 ppm.match(file);
-                TakeInfo ti = ppm.getTakeInfo();
-                if (ti.getStartVerse() == first && ti.getEndVerse() == end) {
-                    resultFiles.add(file);
+                if(ppm.matched()) {
+                    TakeInfo ti = ppm.getTakeInfo();
+                    if (ti != null && ti.getStartVerse() == first && ti.getEndVerse() == end) {
+                        resultFiles.add(file);
+                    }
                 }
             }
         }
@@ -270,10 +272,12 @@ public class UnitCard {
                 for (File f : files) {
                     ProjectPatternMatcher ppm = mProject.getPatternMatcher();
                     ppm.match(f);
-                    TakeInfo takeInfo = ppm.getTakeInfo();
-                    if (takeInfo.getStartVerse() == startVerse) {
-                        mIsEmpty = false;
-                        return;
+                    if (ppm.matched()) {
+                        TakeInfo takeInfo = ppm.getTakeInfo();
+                        if (takeInfo != null && takeInfo.getStartVerse() == startVerse) {
+                            mIsEmpty = false;
+                            return;
+                        }
                     }
                 }
             }

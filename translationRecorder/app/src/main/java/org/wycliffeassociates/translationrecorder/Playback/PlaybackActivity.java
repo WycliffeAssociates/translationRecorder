@@ -259,17 +259,6 @@ public class PlaybackActivity extends Activity implements
         }
     }
 
-    private String getUnitLabel() {
-        if (mProject.getModeType() == ChunkPlugin.TYPE.MULTI) {
-            ProjectPatternMatcher ppm = mProject.getPatternMatcher();
-            ppm.match(mWavFile.getFile());
-            TakeInfo takeInfo = ppm.getTakeInfo();
-            return String.format("%d-%d", takeInfo.getStartVerse(), takeInfo.getEndVerse());
-        } else {
-            return String.valueOf(mUnit);
-        }
-    }
-
     private void attachFragments() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();

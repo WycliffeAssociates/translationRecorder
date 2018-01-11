@@ -4,16 +4,18 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
 
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -47,7 +49,19 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
         } else {
             files = new ArrayList<>();
         }
+        filterFiles(files);
         return files;
+    }
+
+    public void filterFiles(List<File> files) {
+        Iterator<File> iter = files.iterator();
+        while (iter.hasNext()) {
+            ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+            ppm.match(iter.next());
+            if(!ppm.matched()) {
+                iter.remove();
+            }
+        }
     }
 
     @Override
