@@ -1,4 +1,12 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
+
+def buildTime() {
+    def df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'") // you can change it
+    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    return df.format(new Date())
+}
 
 android {
     compileSdkVersion 26
@@ -8,7 +16,8 @@ android {
         minSdkVersion 19
         targetSdkVersion 22
         versionCode 12
-        versionName "1.2.5 Beta with tE support"
+        versionName "1.2.5-beta-build-${buildTime()}"
+        versionNameSuffix
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

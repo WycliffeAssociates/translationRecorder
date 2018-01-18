@@ -4,7 +4,12 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 
+import com.amazonaws.util.Md5Utils;
 import com.door43.tools.reporting.Logger;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.gotev.uploadservice.BinaryUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
@@ -12,15 +17,22 @@ import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
+import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.FilesPage.Manifest;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -29,7 +41,13 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -39,21 +57,165 @@ import javax.net.ssl.TrustManagerFactory;
  */
 
 public class TranslationExchangeExport extends Export {
-    public TranslationExchangeExport(File projectToExport, Project project){
+    public TranslationExchangeExport(File projectToExport, Project project) {
         super(projectToExport, project);
+    }
+
+
+
+    private void stageNewFiles(Map<String, String> existingFiles) throws IOException {
+        //get local takes for that project
+        List<File> filesInProject = new ArrayList<>(
+                FileUtils.listFiles(
+                        ProjectFileUtils.getProjectDirectory(mProject),
+                        new String[]{"wav"},
+                        true
+                )
+        );
+        Iterator<File> iter = filesInProject.iterator();
+        ProjectPatternMatcher ppm = mProject.getPatternMatcher();
+        while (iter.hasNext()) {
+            File f = iter.next();
+            //remove files already in tE, or files that don't match the file convention
+            if (!ppm.match(f.getName())) {
+                iter.remove();
+            } else if (existingFiles.containsKey(f.getName())) {
+                //compute the md5 hash and convert to string
+                byte[] bytes = Md5Utils.computeMD5Hash(f);
+                StringBuilder hexString = new StringBuilder();
+                for (int i = 0; i < bytes.length; i++) {
+                    String hex = Integer.toHexString(0xFF & bytes[i]);
+                    if (hex.length() == 1) {
+                        hexString.append('0');
+                    }
+                    hexString.append(hex);
+                }
+                String hash = hexString.toString();
+                //compare hash to hash received from tE
+                if(hash.equals(existingFiles.get(f.getName()))) {
+                    iter.remove();
+                } else {
+                    System.out.println(f.getName());
+                    System.out.println(hash);
+                    System.out.println(existingFiles.get(f.getName()));
+
+                }
+            }
+        }
+        File root = new File(mCtx.getActivity().getExternalCacheDir(), "upload");
+        StringBuilder dirName = new StringBuilder();
+        dirName.append(mProject.getTargetLanguageSlug());
+        dirName.append("_");
+        dirName.append(mProject.getVersionSlug());
+        dirName.append("_");
+        dirName.append(mProject.getBookSlug());
+
+        File temp = new File(root, dirName.toString());
+        if (temp.exists()) {
+            FileUtils.deleteDirectory(temp);
+        }
+        temp.mkdirs();
+        for (File f : filesInProject) {
+            FileUtils.copyFileToDirectory(f, temp);
+        }
+
+        dirName.append(".zip");
+        mZipFile = new File(root, dirName.toString());
+        if (mZipFile.exists()) {
+            mZipFile.delete();
+        }
+        mProjectToExport = temp;
     }
 
     /**
      * Exports to a folder or SD card by starting a wrapper activity around the Storage Access Framework
      */
-    public void export(){
-        Manifest manifest = new Manifest();
+    public void export() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Manifest manifest = new Manifest();
+                try {
+                    stageNewFiles(getUploadedFilesList());
+                    manifest.createManifestFile(
+                            mCtx.getActivity(),
+                            mProject,
+                            new File(mProjectToExport, "manifest.json"),
+                            new ProjectDatabaseHelper(mCtx.getActivity())
+                    );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mCtx.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        zipFiles(TranslationExchangeExport.this, mZipFile);
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
+    public String constructProjectQueryParameters(Project project) {
+        return String.format("lang=%s&book=%s&anth=%s&version=%s",
+                project.getTargetLanguageSlug(),
+                project.getBookSlug(),
+                project.getAnthologySlug(),
+                project.getVersionSlug()
+        );
+    }
+
+    public Map<String, String> getUploadedFilesList() {
         try {
-            manifest.createManifestFile(mCtx.getActivity(), mProject, new File(mProjectToExport, "manifest.json"), new ProjectDatabaseHelper(mCtx.getActivity()));
+            String query = constructProjectQueryParameters(mProject);
+            URL url = new URL("https://te.loc/api/exclude_files/?" + query);
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setSSLSocketFactory(getSSLSocketFactory());
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream())
+            );
+            String output;
+            StringBuilder builder = new StringBuilder();
+            while ((output = br.readLine()) != null) {
+                builder.append(output);
+            }
+            return parseJsonOutput(builder.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
         }
-        zipFiles(this);
+        return new HashMap<>();
+    }
+
+    //gets the map of filenames to their md5 hashes
+    private Map<String, String> parseJsonOutput(String json) {
+        HashMap<String, String> map = new HashMap<>();
+        JsonArray ja = new JsonParser().parse(json).getAsJsonArray();
+        Iterator<JsonElement> iter = ja.iterator();
+        while(iter.hasNext()) {
+            JsonObject jo = iter.next().getAsJsonObject();
+            String file = jo.get("name").getAsString();
+            String hash = jo.get("md5hash").getAsString();
+            map.put(file, hash);
+        }
+        return map;
     }
 
     @Override
@@ -119,10 +281,10 @@ public class TranslationExchangeExport extends Export {
 
             @Override
             public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-                if(serverResponse != null) {
+                if (serverResponse != null) {
                     Logger.e(TranslationExchangeExport.class.toString(), "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString(), exception);
                 } else if (exception != null) {
-                    Logger.e(TranslationExchangeExport.class.toString(), "error" , exception);
+                    Logger.e(TranslationExchangeExport.class.toString(), "error", exception);
                 } else {
                     Logger.e(TranslationExchangeExport.class.toString(), "an error occured without a response or exception, upload percent is " + uploadInfo.getProgressPercent());
                 }
@@ -131,6 +293,11 @@ public class TranslationExchangeExport extends Export {
             @Override
             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                 Logger.e(TranslationExchangeExport.class.toString(), "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString());
+                try {
+                    FileUtils.deleteDirectory(mProjectToExport);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

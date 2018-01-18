@@ -1,7 +1,6 @@
 package org.wycliffeassociates.translationrecorder.FilesPage.Export;
 
 import android.app.Fragment;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -78,9 +77,14 @@ public abstract class Export {
                 zipName += project.getAnthologySlug();
             }
             zipName += ".zip";
-            mZipFile = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + zipName);
+            mZipFile = new File(export.mCtx.getActivity().getExternalCacheDir(), "/" + zipName);
             zip(mProjectToExport, mZipFile, export);
         //}
+    }
+
+    protected void zipFiles(Export export, File zipFile) {
+        mZipFile = zipFile;
+        zip(mProjectToExport, mZipFile, export);
     }
 
     /**
