@@ -115,7 +115,7 @@ public class SplashScreen extends Activity {
     private void initializePlugins() throws IOException {
         AssetManager am = getAssets();
         String[] assetPlugins = am.list("Plugins/Anthologies");
-        File pluginsDir = new File(getExternalCacheDir(), "Plugins");
+        File pluginsDir = new File(getCacheDir(), "Plugins");
         if (!pluginsDir.exists()) {
             pluginsDir.mkdirs();
         }

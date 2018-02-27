@@ -30,10 +30,10 @@ public class ChunkPluginLoader implements Project.ProjectPluginLoader {
     @Override
     public ChunkPlugin loadChunkPlugin(Anthology anthology, Book book, ChunkPlugin.TYPE type) {
         ChunkPlugin chunks = null;
-        File jarsDir = new File(ctx.getExternalCacheDir(), "Plugins/Jars");
+        File jarsDir = new File(ctx.getCacheDir(), "Plugins/Jars");
         jarsDir.mkdirs();
         String jarFile = new File(jarsDir, anthology.getPluginFilename()).getAbsolutePath();
-        File codeDir = new File(ctx.getExternalCacheDir(), "dex/");
+        File codeDir = new File(ctx.getCacheDir(), "dex/");
         codeDir.mkdirs();
         final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");
         try {
