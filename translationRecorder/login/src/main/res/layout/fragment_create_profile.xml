@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_create_profile"
+    android:orientation="vertical"
+    android:background="@drawable/layout_bg"
+    android:gravity="center"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    >
+
+    <ImageView
+        android:id="@+id/identicon_view"
+        android:padding="12dp"
+        android:layout_width="512px"
+        android:layout_height="512px" />
+
+    <Button
+        android:id="@+id/btnRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="@string/record"
+        android:textColor="@color/red"
+        android:background="@color/transparent"
+        android:drawableTop="@drawable/layer_record_48dp"
+        />
+
+</LinearLayout>

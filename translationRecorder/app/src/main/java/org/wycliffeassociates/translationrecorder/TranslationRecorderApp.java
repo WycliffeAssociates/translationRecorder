@@ -3,10 +3,12 @@ package org.wycliffeassociates.translationrecorder;
 import android.app.Application;
 
 import net.gotev.uploadservice.UploadService;
+import net.gotev.uploadservice.okhttp.OkHttpStack;
 
-import org.wycliffeassociates.translationrecorder.FilesPage.Export.SSLHttpStack;
+import org.wycliffeassociates.translationrecorder.FilesPage.DirectoryProvider;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -29,7 +31,7 @@ import okhttp3.OkHttpClient;
  * Created by sarabiaj on 11/28/2017.
  */
 
-public class Initializer extends Application {
+public class TranslationRecorderApp extends Application implements DirectoryProvider {
 
     @Override
     public void onCreate() {
@@ -38,19 +40,7 @@ public class Initializer extends Application {
         // be used to notify upload status.
         // Gradle automatically generates proper variable as below.
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
-        try {
-            UploadService.HTTP_STACK = new SSLHttpStack(getSSLSocketFactory());
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
+        UploadService.HTTP_STACK = new OkHttpStack(new OkHttpClient());
 
     }
 
@@ -66,7 +56,7 @@ public class Initializer extends Application {
                 .build();
     }
 
-    private SSLSocketFactory getSSLSocketFactory() throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+    public SSLSocketFactory getSSLSocketFactory() throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
         // Load CAs from an InputStream
         // (could be from a resource or ByteArrayInputStream or ...)
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -95,5 +85,9 @@ public class Initializer extends Application {
         SSLContext context = SSLContext.getInstance("TLS");
         context.init(null, tmf.getTrustManagers(), null);
         return context.getSocketFactory();
+    }
+
+    public File getUploadDirectory() {
+        return new File(this.getExternalCacheDir(), "upload");
     }
 }

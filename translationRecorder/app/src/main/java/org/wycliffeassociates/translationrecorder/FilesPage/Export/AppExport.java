@@ -19,11 +19,6 @@ public class AppExport extends Export {
     }
 
     @Override
-    public void export(){
-        zipFiles(this);
-    }
-
-    @Override
     protected void handleUserInput() {
             exportZipApplications(mZipFile);
     }
