@@ -12,7 +12,7 @@ import java.io.File
 
 class LoginActivity : AppCompatActivity() {
 
-    private var mFragmentCreateProfile: FragmentCreateProfile? = null
+    private lateinit var mFragmentCreateProfile: FragmentCreateProfile
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

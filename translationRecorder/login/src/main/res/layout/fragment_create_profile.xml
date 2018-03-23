@@ -1,30 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_create_profile"
-    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/layout_bg"
-    android:gravity="center"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:padding="12dp"
-    >
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/record_name"
+        android:textStyle="bold"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/identicon_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/identicon_view"
-        android:padding="12dp"
         android:layout_width="512px"
-        android:layout_height="512px" />
+        android:layout_height="512px"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnRecord"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <Button
-        android:id="@+id/btnRecord"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif"
+        android:textAlignment="center"
+        android:text="@string/privacy"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnRecord"
+        app:layout_constraintEnd_toEndOf="@+id/identicon_view"
+        app:layout_constraintStart_toStartOf="@+id/identicon_view"
+        app:layout_constraintTop_toBottomOf="@+id/identicon_view" />
+
+    <com.gigamole.library.PulseView
+        android:id="@+id/btnRecord"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/transparent"
         android:checked="false"
         android:text="@string/record"
         android:textColor="@color/red"
-        android:background="@color/transparent"
-        android:drawableTop="@drawable/layer_record_48dp"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:pv_alpha="70"
+        app:pv_color="@color/red"
+        app:pv_count="1"
+        app:pv_icon="@drawable/layer_record_48dp"
+        app:pv_icon_height="48dp"
+        app:pv_icon_width="48dp"
+        app:pv_interpolator="@android:anim/linear_interpolator"
+        app:pv_measure="height"
+        app:pv_spawn_period="700" />
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

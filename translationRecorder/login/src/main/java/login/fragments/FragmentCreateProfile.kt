@@ -1,12 +1,13 @@
 package login.fragments
 
 import android.app.Fragment
+import android.graphics.drawable.Drawable
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import com.gigamole.library.PulseView
 import com.pixplicity.sharp.Sharp
 import jdenticon.Jdenticon
 import kotlinx.android.synthetic.main.fragment_create_profile.*
@@ -32,13 +33,15 @@ class FragmentCreateProfile : Fragment() {
             uploadDir.mkdirs()
             fragment.userAudio = File(uploadDir, UUID.randomUUID().toString())
             fragment.userAudio.createNewFile()
-            fragment.configureRecorder()
+            fragment.retainInstance = true
             return fragment
         }
     }
 
     private lateinit var uploadDir: File
     private lateinit var userAudio: File
+    private lateinit var hash: String
+
     private val mMediaRecorder = MediaRecorder()
 
     private fun configureRecorder() {
@@ -60,21 +63,40 @@ class FragmentCreateProfile : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btnRecord as Button
+        btnRecord as PulseView
         btnRecord.setOnClickListener {
             if (btnRecord.isActivated) {
                 btnRecord.isActivated = false
                 stopRecording()
+                btnRecord.visibility = View.INVISIBLE
             }
             else {
                 btnRecord.isActivated = true
                 startRecording()
             }
         }
+        btnRecord.startPulse()
+        savedInstanceState?.let {
+            userAudio = savedInstanceState.getSerializable("user_audio") as File
+            if (userAudio.length() > 0) {
+                var icon = generateIdenticon()
+                identicon_view.setImageDrawable(icon)
+                btnRecord.visibility = View.GONE
+                identicon_view.postInvalidate()
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.let {
+            outState.putSerializable("user_audio", userAudio)
+        }
     }
 
     private fun startRecording() {
         try {
+            configureRecorder()
             mMediaRecorder.prepare()
             mMediaRecorder.start()
         } catch (e: Exception) {
@@ -85,14 +107,18 @@ class FragmentCreateProfile : Fragment() {
 
     private fun stopRecording() {
         mMediaRecorder.stop()
-        generateIdenticon()
+        var icon = generateIdenticon()
+        updateIdenticonView(icon)
     }
 
-    private fun generateIdenticon() {
-        val hash = String(Hex.encodeHex(DigestUtils.md5(FileInputStream(userAudio))))
+    private fun generateIdenticon(): Drawable {
+        hash = String(Hex.encodeHex(DigestUtils.md5(FileInputStream(userAudio))))
         val svg = Jdenticon.toSvg(hash, 512, 0f)
-        var icon = Sharp.loadString(svg).drawable
-        identicon_view.setImageDrawable(icon)
+        return Sharp.loadString(svg).drawable
+    }
+
+    private fun updateIdenticonView(identicon: Drawable) {
+        identicon_view.setImageDrawable(identicon)
         identicon_view.postInvalidate()
     }
 }
