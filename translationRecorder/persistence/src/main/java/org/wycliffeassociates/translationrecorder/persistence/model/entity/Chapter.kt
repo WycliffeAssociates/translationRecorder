@@ -1,30 +1,29 @@
 package org.wycliffeassociates.translationrecorder.persistence.model.entity
 
-import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.PrimaryKey
 
 /**
- * Created by sarabiaj on 3/28/2018.
+ * Created by sarabiaj on 3/29/2018.
  */
 
-@Entity(tableName = "books",
+@Entity(
+        tableName = "chapters",
         foreignKeys = [
                 ForeignKey(
-                        entity = Anthology::class,
+                        entity = Project::class,
                         parentColumns = ["id"],
-                        childColumns = ["anthology_fk"],
+                        childColumns = ["project_fk"],
                         onDelete = ForeignKey.CASCADE
                 )
         ]
 )
-data class Book(
+data class Chapter(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
-        val name: String,
-        val slug: String,
+        val project: Int,
         val number: Int,
-        @ColumnInfo(name = "anthology_fk")
-        val anthology: Int
+        val progress: Int,
+        val checkingLevel: Int
 )
