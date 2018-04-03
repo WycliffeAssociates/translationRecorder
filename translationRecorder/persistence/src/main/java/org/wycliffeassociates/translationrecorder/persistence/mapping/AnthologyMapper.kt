@@ -7,7 +7,7 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.AnthologyEn
  * Created by sarabiaj on 4/3/2018.
  */
 
-class AnthologyMapper : Mapper<AnthologyEntity, Anthology, Unit?> {
+class AnthologyMapper : Mapper<AnthologyEntity, Anthology> {
     override fun mapToEntity(type: Anthology): AnthologyEntity {
         return AnthologyEntity(
                 type.id,
@@ -22,7 +22,7 @@ class AnthologyMapper : Mapper<AnthologyEntity, Anthology, Unit?> {
         )
     }
 
-    override fun mapFromEntity(type: AnthologyEntity, unit: Unit?): Anthology {
+    override fun mapFromEntity(type: AnthologyEntity): Anthology {
         return Anthology(
                 type.id,
                 type.slug,
