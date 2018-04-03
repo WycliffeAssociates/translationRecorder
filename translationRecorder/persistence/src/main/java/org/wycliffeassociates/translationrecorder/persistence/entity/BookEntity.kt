@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.model.entity
+package org.wycliffeassociates.translationrecorder.persistence.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
@@ -12,14 +12,14 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "books",
         foreignKeys = [
                 ForeignKey(
-                        entity = Anthology::class,
+                        entity = AnthologyEntity::class,
                         parentColumns = ["id"],
                         childColumns = ["anthology_fk"],
                         onDelete = ForeignKey.CASCADE
                 )
         ]
 )
-data class Book(
+data class BookEntity(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
         val name: String,

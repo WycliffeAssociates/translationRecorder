@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.model.entity
+package org.wycliffeassociates.translationrecorder.persistence.entity
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
@@ -12,14 +12,14 @@ import android.arch.persistence.room.PrimaryKey
         tableName = "chapters",
         foreignKeys = [
                 ForeignKey(
-                        entity = Project::class,
+                        entity = ProjectEntity::class,
                         parentColumns = ["id"],
                         childColumns = ["project_fk"],
                         onDelete = ForeignKey.CASCADE
                 )
         ]
 )
-data class Chapter(
+data class ChapterEntity(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
         val project: Int,

@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.model.entity
+package org.wycliffeassociates.translationrecorder.persistence.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
@@ -9,7 +9,7 @@ import android.arch.persistence.room.PrimaryKey
  */
 
 @Entity(tableName = "versions")
-data class Version(
+data class VersionEntity(
         @ColumnInfo(name = "id")
         @PrimaryKey(autoGenerate = true)
         val id: Int,

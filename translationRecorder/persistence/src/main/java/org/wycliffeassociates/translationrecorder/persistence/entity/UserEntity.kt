@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.model.entity
+package org.wycliffeassociates.translationrecorder.persistence.entity
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
@@ -8,7 +8,7 @@ import android.arch.persistence.room.PrimaryKey
  */
 
 @Entity(tableName = "users")
-data class User(
+data class UserEntity(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
         val audio: String,

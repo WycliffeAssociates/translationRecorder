@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.model.entity
+package org.wycliffeassociates.translationrecorder.persistence.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
@@ -11,11 +11,11 @@ import android.arch.persistence.room.PrimaryKey
 
 @Entity(tableName = "takes",
         foreignKeys = [
-            ForeignKey(entity = Chunk::class, childColumns = ["chunk_fk"], parentColumns = ["id"]),
-            ForeignKey(entity = User::class, childColumns = ["user_fk"], parentColumns = ["id"])
+            ForeignKey(entity = ChunkEntity::class, childColumns = ["chunk_fk"], parentColumns = ["id"]),
+            ForeignKey(entity = UserEntity::class, childColumns = ["user_fk"], parentColumns = ["id"])
         ]
 )
-data class Take(
+data class TakeEntity(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
         @ColumnInfo(name = "chunk_fk")

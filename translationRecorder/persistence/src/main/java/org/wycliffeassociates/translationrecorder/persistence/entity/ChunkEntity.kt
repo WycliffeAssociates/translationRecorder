@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.model.entity
+package org.wycliffeassociates.translationrecorder.persistence.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
@@ -12,26 +12,26 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "chunks",
         foreignKeys = [
             ForeignKey(
-                    entity = Project::class,
+                    entity = ProjectEntity::class,
                     childColumns = ["project_fk"],
                     parentColumns = ["id"],
                     onDelete = ForeignKey.CASCADE
             ),
             ForeignKey(
-                    entity = Chapter::class,
+                    entity = ChapterEntity::class,
                     childColumns = ["chapter_fk"],
                     parentColumns = ["id"],
                     onDelete = ForeignKey.CASCADE
             ),
             ForeignKey(
-                    entity = Take::class,
+                    entity = TakeEntity::class,
                     childColumns = ["chosen_take_fk"],
                     parentColumns = ["id"],
                     onDelete = ForeignKey.CASCADE
             )
         ]
 )
-data class Chunk(
+data class ChunkEntity(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
         @ColumnInfo(name = "project_fk")

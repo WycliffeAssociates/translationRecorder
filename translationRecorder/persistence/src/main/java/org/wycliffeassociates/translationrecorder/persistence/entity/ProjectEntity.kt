@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.model.entity
+package org.wycliffeassociates.translationrecorder.persistence.entity
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
@@ -11,38 +11,38 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "projects",
         foreignKeys = [
                 ForeignKey(
-                        entity = Language::class,
+                        entity = LanguageEntity::class,
                         parentColumns = ["id"],
                         childColumns = ["language_fk"],
                         onDelete = ForeignKey.CASCADE
                 ),
                 ForeignKey(
-                        entity = Book::class,
+                        entity = BookEntity::class,
                         parentColumns = ["id"],
                         childColumns = ["book_fk"],
                         onDelete = ForeignKey.CASCADE
                 ),
                 ForeignKey(
-                        entity = Version::class,
+                        entity = VersionEntity::class,
                         parentColumns = ["id"],
                         childColumns = ["version_fk"],
                         onDelete = ForeignKey.CASCADE
                 ),
                 ForeignKey(
-                        entity = Anthology::class,
+                        entity = AnthologyEntity::class,
                         parentColumns = ["id"],
                         childColumns = ["anthology_fk"],
                         onDelete = ForeignKey.CASCADE
                 ),
                 ForeignKey(
-                        entity = Mode::class,
+                        entity = ModeEntity::class,
                         parentColumns = ["id"],
                         childColumns = ["mode_fk"],
                         onDelete = ForeignKey.CASCADE
                 )
         ]
 )
-data class Project(
+data class ProjectEntity(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
         @ColumnInfo(name = "language_fk")
