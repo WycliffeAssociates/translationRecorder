@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.persistence.mapping
 
-import org.wycliffeassociates.translationrecorder.data.components.Anthology
+import org.wycliffeassociates.translationrecorder.data.model.Anthology
 import org.wycliffeassociates.translationrecorder.persistence.entity.AnthologyEntity
 
 /**

@@ -23,4 +23,7 @@ interface BookDao {
 
     @Query("SELECT * FROM books")
     fun getBooks(): List<BookEntity>
+
+    @Query("SELECT * FROM books WHERE id = :id")
+    fun getById(id: Int): BookEntity
 }

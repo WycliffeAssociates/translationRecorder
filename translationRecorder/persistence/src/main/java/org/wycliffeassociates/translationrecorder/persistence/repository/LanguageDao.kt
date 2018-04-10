@@ -23,4 +23,7 @@ interface LanguageDao {
 
     @Query("SELECT * FROM languages")
     fun getLanguages(): List<LanguageEntity>
+
+    @Query("SELECT * FROM languages WHERE id = :id")
+    fun getById(id: Int): LanguageEntity
 }

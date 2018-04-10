@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.data.repository
 
-import org.wycliffeassociates.translationrecorder.data.components.Mode
+import org.wycliffeassociates.translationrecorder.data.model.Mode
 
 
 /**

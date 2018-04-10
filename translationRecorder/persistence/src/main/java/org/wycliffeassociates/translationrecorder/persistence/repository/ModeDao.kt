@@ -23,4 +23,7 @@ interface ModeDao {
 
     @Query("SELECT * FROM modes")
     fun getModes(): List<ModeEntity>
+
+    @Query("SELECT * FROM modes WHERE id = :id")
+    fun getById(id: Int): ModeEntity
 }

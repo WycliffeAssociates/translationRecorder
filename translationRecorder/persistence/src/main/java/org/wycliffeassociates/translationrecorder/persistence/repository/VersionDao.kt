@@ -23,4 +23,7 @@ interface VersionDao {
 
     @Query("SELECT * FROM versions")
     fun getVersions(): List<VersionEntity>
+
+    @Query("SELECT * FROM versions WHERE id = :id")
+    fun getById(id: Int): VersionEntity
 }

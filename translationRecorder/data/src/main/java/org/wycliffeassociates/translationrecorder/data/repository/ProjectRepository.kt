@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.data.repository
 
-import org.wycliffeassociates.translationrecorder.data.components.Project
+import org.wycliffeassociates.translationrecorder.data.model.Project
 
 /**
  * Created by sarabiaj on 3/28/2018.

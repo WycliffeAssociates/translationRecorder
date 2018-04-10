@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.persistence.mapping
 
-import org.wycliffeassociates.translationrecorder.data.components.Language
+import org.wycliffeassociates.translationrecorder.data.model.Language
 import org.wycliffeassociates.translationrecorder.persistence.entity.LanguageEntity
 
 /**

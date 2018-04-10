@@ -25,5 +25,5 @@ interface AnthologyDao {
     fun getAnthologies(): List<AnthologyEntity>
 
     @Query("SELECT * FROM anthologies WHERE id = :id")
-    fun findById(id: Int) : AnthologyEntity
+    fun getById(id: Int): AnthologyEntity
 }

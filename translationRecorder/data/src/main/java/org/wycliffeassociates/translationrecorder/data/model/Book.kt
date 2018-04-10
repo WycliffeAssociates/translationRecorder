@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.data.components
+package org.wycliffeassociates.translationrecorder.data.model
 
 /**
  * Created by sarabiaj on 1/15/2016.

@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.persistence.mapping
 
-import org.wycliffeassociates.translationrecorder.data.components.Book
+import org.wycliffeassociates.translationrecorder.data.model.Book
 import org.wycliffeassociates.translationrecorder.persistence.entity.BookEntity
 import org.wycliffeassociates.translationrecorder.persistence.repository.AnthologyDao
 
