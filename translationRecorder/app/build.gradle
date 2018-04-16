@@ -107,6 +107,7 @@ dependencies {
     //compile project(':obschunk')
     //compile project(':noteschunk')
     //compile project(':questionschunk')
+    compile project(path: ':data')
 }
 
 configurations.all {

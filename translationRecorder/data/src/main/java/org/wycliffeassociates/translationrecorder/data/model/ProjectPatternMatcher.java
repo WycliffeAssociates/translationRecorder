@@ -1,4 +1,7 @@
-package org.wycliffeassociates.translationrecorder.project;
+package org.wycliffeassociates.translationrecorder.data.model;
+
+import org.wycliffeassociates.translationrecorder.project.ProjectSlugs;
+import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
 import java.io.File;
 import java.util.regex.Matcher;

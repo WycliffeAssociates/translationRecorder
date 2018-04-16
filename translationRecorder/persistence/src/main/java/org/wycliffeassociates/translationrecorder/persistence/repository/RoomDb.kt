@@ -21,7 +21,7 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.*
         VersionEntity::class,
         UserEntity::class
 ), version = 1)
-abstract class AppDatabase : RoomDatabase() {
+abstract class RoomDb : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun anthologyDao(): AnthologyDao
     abstract fun languageDao(): AnthologyDao

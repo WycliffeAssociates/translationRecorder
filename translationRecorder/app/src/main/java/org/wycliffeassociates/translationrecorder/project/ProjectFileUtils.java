@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
@@ -63,31 +65,6 @@ public class ProjectFileUtils {
         }
         return maxTake;
     }
-
-    //public static String getFileNameFromProject(Project project, int chapter, int startVerse, int endVerse) {
-//
-//
-//        String anthology = project.getAnthologySlug();
-//        String language = project.getTargetLanguageSlug();
-//        String book = project.getBookSlug();
-//        int bookNumber = Integer.parseInt(project.getBookNumber());
-//        String version = project.getVersionSlug();
-//        if (anthology != null && anthology.compareTo("obs") == 0) {
-//            return language + "_obs_c" + String.format("%02d", chapter) + "_v" + String.format("%02d", startVerse);
-//        } else {
-//            String name;
-//            String end = (endVerse != -1 && startVerse != endVerse) ? String.format("-%02d", endVerse) : "";
-//            if (book.compareTo("psa") == 0 && chapter != 119) {
-//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + String.format("%03d", chapter) + "_v" + String.format("%02d", startVerse) + end;
-//            } else if (book.compareTo("psa") == 0) {
-//                end = (endVerse != -1) ? String.format("-%03d", endVerse) : "";
-//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%03d", startVerse) + end;
-//            } else {
-//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, chapter) + "_v" + String.format("%02d", startVerse) + end;
-//            }
-//            return name;
-//        }
-    //}
 
     public static File getParentDirectory(TakeInfo takeInfo){
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
@@ -180,45 +157,6 @@ public class ProjectFileUtils {
     public static String getMode(WavFile file) {
         return file.getMetadata().getModeSlug();
     }
-
-//    public static File getFileFromFileName(File file) {
-//        File dir = getParentDirectory(file);
-//        if (file.getName().contains(".wav")) {
-//            return new File(dir, file.getName());
-//        } else {
-//            return new File(dir, file.getName() + ".wav");
-//        }
-//    }
-
-//    public static String getNameWithoutTake(Project project, String name) {
-//        ProjectPatternMatcher ppm = project.getPatternMatcher();
-//        ppm.match(name);
-//        TakeInfo takeInfo = ppm.getTakeInfo();
-//        return takeInfo.getNameWithoutTake();
-//    }
-
-//    public static String getNameWithoutTake(Project project, int mChapter, int mStartVerse, int mEndVerse) {
-//        String anthology = project.getAnthologySlug();
-//        String language = project.getTargetLanguageSlug();
-//        String book = project.getBookSlug();
-//        int bookNumber = Integer.parseInt(project.getBookNumber());
-//        String version = project.getVersionSlug();
-//        if (anthology != null && anthology.compareTo("obs") == 0) {
-//            return language + "_obs_c" + String.format("%02d", mChapter) + "_v" + String.format("%02d", mStartVerse);
-//        } else {
-//            String name;
-//            String end = (mEndVerse != -1 && mStartVerse != mEndVerse) ? String.format("-%02d", mEndVerse) : "";
-//            if (book.compareTo("psa") == 0 && mChapter != 119) {
-//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + String.format("%03d", mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-//            } else if (book.compareTo("psa") == 0) {
-//                end = (mEndVerse != -1) ? String.format("-%03d", mEndVerse) : "";
-//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, mChapter) + "_v" + String.format("%03d", mStartVerse) + end;
-//            } else {
-//                name = language + "_" + version + "_b" + String.format("%02d", bookNumber) + "_" + book + "_c" + ProjectFileUtils.chapterIntToString(book, mChapter) + "_v" + String.format("%02d", mStartVerse) + end;
-//            }
-//            return name;
-//        }
-//    }
 
     public static String getNameWithoutExtention(File file) {
         String name = file.getName();

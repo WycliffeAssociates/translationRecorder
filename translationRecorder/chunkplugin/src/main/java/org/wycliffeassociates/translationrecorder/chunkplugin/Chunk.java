@@ -6,13 +6,15 @@ package org.wycliffeassociates.translationrecorder.chunkplugin;
 
 public abstract class Chunk {
 
+    int id;
     int mStartVerse;
     int mEndVerse;
     int mNumMarkers;
 
     String mLabel;
 
-    public Chunk(String label, int startVerse, int endVerse, int numMarkers) {
+    public Chunk(int id, String label, int startVerse, int endVerse, int numMarkers) {
+        this.id = id;
         mLabel = label;
         mStartVerse = startVerse;
         mEndVerse = endVerse;

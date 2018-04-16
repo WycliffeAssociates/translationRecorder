@@ -8,6 +8,9 @@ import java.util.List;
 
 public abstract class Chapter {
 
+    public int id;
+    public int progress;
+    public int checkingLevel;
 //    List<Chunk> mChunks;
 //    String mLabel;
 //    int mNumber;
