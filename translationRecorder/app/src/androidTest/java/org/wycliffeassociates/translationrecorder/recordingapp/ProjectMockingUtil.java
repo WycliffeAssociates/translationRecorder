@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
 
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.components.Anthology;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Anthology;
 
 /**
  * Created by sarabiaj on 9/20/2017.

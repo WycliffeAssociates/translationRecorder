@@ -15,7 +15,7 @@ import android.view.MenuItem;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
 import org.wycliffeassociates.translationrecorder.project.ScrollableListFragment;
 import org.wycliffeassociates.translationrecorder.project.adapters.TargetLanguageAdapter;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;

@@ -25,7 +25,7 @@ import org.wycliffeassociates.translationrecorder.TestUtils.FragmentTestActivity
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 

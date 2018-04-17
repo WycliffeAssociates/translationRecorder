@@ -6,12 +6,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.components.Anthology;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
-import org.wycliffeassociates.translationrecorder.project.components.Mode;
-import org.wycliffeassociates.translationrecorder.project.components.Version;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Anthology;
+import org.wycliffeassociates.translationrecorder.data.model.Book;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
+import org.wycliffeassociates.translationrecorder.data.model.Version;
 
 import static org.mockito.Mockito.mock;
 

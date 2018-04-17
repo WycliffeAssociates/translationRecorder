@@ -18,11 +18,11 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.adapters.GenericAdapter;
-import org.wycliffeassociates.translationrecorder.project.components.Anthology;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
-import org.wycliffeassociates.translationrecorder.project.components.Mode;
-import org.wycliffeassociates.translationrecorder.project.components.Version;
+import org.wycliffeassociates.translationrecorder.data.model.Anthology;
+import org.wycliffeassociates.translationrecorder.data.model.Book;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
+import org.wycliffeassociates.translationrecorder.data.model.Version;
 
 
 /**

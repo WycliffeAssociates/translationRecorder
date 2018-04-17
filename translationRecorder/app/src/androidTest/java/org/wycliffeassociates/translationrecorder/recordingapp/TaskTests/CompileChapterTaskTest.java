@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.wycliffeassociates.translationrecorder.MainMenu;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 

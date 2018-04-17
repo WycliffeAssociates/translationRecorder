@@ -4,9 +4,9 @@ import android.content.Context;
 import android.util.JsonReader;
 
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
-import org.wycliffeassociates.translationrecorder.project.components.Mode;
-import org.wycliffeassociates.translationrecorder.project.components.Version;
+import org.wycliffeassociates.translationrecorder.data.model.Book;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
+import org.wycliffeassociates.translationrecorder.data.model.Version;
 
 import java.io.File;
 import java.io.FileReader;

@@ -9,10 +9,10 @@ import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
-import org.wycliffeassociates.translationrecorder.project.components.Mode;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.data.model.Book;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 

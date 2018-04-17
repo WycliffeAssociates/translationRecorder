@@ -14,7 +14,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.Chapte
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 
 import java.io.IOException;

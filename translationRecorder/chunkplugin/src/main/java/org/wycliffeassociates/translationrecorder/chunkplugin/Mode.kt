@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.data.model
+package org.wycliffeassociates.translationrecorder.chunkplugin
 
 /**
  * Created by sarabiaj on 7/5/2017.

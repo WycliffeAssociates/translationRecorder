@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.wycliffeassociates.translationrecorder.MainMenu;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 import org.wycliffeassociates.translationrecorder.wav.WavOutputStream;

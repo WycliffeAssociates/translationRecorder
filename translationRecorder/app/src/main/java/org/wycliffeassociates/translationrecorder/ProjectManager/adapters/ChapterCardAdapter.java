@@ -29,7 +29,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Checkin
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 

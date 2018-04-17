@@ -10,11 +10,11 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.wycliffeassociates.translationrecorder.project.FileNameExtractor;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.data.model.Book;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 
 import static junit.framework.Assert.assertEquals;

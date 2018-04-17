@@ -20,7 +20,7 @@ import com.bignerdranch.android.multiselector.SwappingHolder;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
 import org.wycliffeassociates.translationrecorder.widgets.UnitCard;

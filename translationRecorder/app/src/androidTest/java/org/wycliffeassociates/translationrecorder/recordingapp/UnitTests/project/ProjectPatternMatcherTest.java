@@ -2,7 +2,7 @@ package org.wycliffeassociates.translationrecorder.recordingapp.UnitTests.projec
 
 import org.junit.Test;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
-import org.wycliffeassociates.translationrecorder.project.ProjectSlugs;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
 import static org.junit.Assert.assertEquals;

@@ -25,10 +25,10 @@ import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
-import org.wycliffeassociates.translationrecorder.project.ProjectSlugs;
-import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
 import java.io.File;

@@ -14,7 +14,7 @@ import net.gotev.uploadservice.UploadStatusDelegate;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 
 import java.io.File;
 

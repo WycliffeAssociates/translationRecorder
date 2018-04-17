@@ -4,7 +4,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Environment;
 
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
 import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;

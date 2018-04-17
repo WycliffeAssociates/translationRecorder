@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import org.apache.commons.lang3.StringUtils;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 
 import java.io.File;
 import java.io.IOException;

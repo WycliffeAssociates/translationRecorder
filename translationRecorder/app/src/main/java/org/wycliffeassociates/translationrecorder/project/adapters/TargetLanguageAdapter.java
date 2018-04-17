@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -18,7 +18,7 @@ import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.project.adapters.TargetLanguageAdapter;
 
 import org.wycliffeassociates.translationrecorder.R;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
 
 /**
  * Created by sarabiaj on 5/25/2016.

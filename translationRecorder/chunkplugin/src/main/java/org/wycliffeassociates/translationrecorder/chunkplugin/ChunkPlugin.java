@@ -17,22 +17,18 @@ public abstract class ChunkPlugin {
      * dx --dex --output={output jar name} {input jar}
       */
 
-    public enum TYPE {
-        SINGLE, MULTI
-    }
-
     public static final int DEFAULT_CHAPTER = 0;
     public static final int DEFAULT_UNIT = 0;
 
     protected ChunkIterator mIter;
     protected List<Chapter> mChapters;
 
-    protected TYPE mMode;
+    protected Mode.UNIT mMode;
 
     public static String FIRST_VERSE = "firstvs";
     public static String LAST_VERSE = "lastvs";
 
-    public ChunkPlugin(TYPE mode) {
+    public ChunkPlugin(Mode.UNIT mode) {
         mMode = mode;
     }
 

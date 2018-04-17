@@ -11,7 +11,7 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 

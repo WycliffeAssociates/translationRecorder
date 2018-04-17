@@ -5,8 +5,10 @@ import android.content.Context;
 import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
-import org.wycliffeassociates.translationrecorder.project.components.Anthology;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
+import org.wycliffeassociates.translationrecorder.data.model.Anthology;
+import org.wycliffeassociates.translationrecorder.data.model.Book;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,11 +30,11 @@ public class ChunkPluginLoader implements Project.ProjectPluginLoader {
     }
 
     @Override
-    public ChunkPlugin loadChunkPlugin(Anthology anthology, Book book, ChunkPlugin.TYPE type) {
+    public ChunkPlugin loadChunkPlugin(Anthology anthology, Book book, Mode.UNIT type) {
         ChunkPlugin chunks = null;
         File jarsDir = new File(ctx.getCacheDir(), "Plugins/Jars");
         jarsDir.mkdirs();
-        String jarFile = new File(jarsDir, anthology.getPluginFilename()).getAbsolutePath();
+        String jarFile = new File(jarsDir, anthology.getPluginJarName()).getAbsolutePath();
         File codeDir = new File(ctx.getCacheDir(), "dex/");
         codeDir.mkdirs();
         final File optimizedDexOutputPath = new File(codeDir, "biblechunkdex");

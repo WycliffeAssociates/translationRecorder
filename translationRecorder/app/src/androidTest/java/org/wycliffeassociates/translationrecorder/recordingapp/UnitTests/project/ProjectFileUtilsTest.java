@@ -1,16 +1,16 @@
 package org.wycliffeassociates.translationrecorder.recordingapp.UnitTests.project;
 
 import org.junit.Test;
-import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
-import org.wycliffeassociates.translationrecorder.project.ProjectSlugs;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
-import org.wycliffeassociates.translationrecorder.project.components.Anthology;
-import org.wycliffeassociates.translationrecorder.project.components.Book;
-import org.wycliffeassociates.translationrecorder.project.components.Language;
-import org.wycliffeassociates.translationrecorder.project.components.Mode;
-import org.wycliffeassociates.translationrecorder.project.components.Version;
+import org.wycliffeassociates.translationrecorder.data.model.Anthology;
+import org.wycliffeassociates.translationrecorder.data.model.Book;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
+import org.wycliffeassociates.translationrecorder.data.model.Version;
 
 import java.io.File;
 

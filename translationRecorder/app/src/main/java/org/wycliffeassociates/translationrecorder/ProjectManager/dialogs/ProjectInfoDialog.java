@@ -16,8 +16,8 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.TranslationExchangeExport;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
+import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.SourceAudioActivity;
 
 import static android.app.Activity.RESULT_OK;

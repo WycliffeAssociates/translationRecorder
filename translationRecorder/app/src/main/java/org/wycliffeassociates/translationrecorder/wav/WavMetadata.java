@@ -7,7 +7,7 @@ import com.door43.tools.reporting.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 
 import java.io.File;
 import java.io.FileNotFoundException;
