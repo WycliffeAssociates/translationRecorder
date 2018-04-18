@@ -9,13 +9,13 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "anthologies")
 data class AnthologyEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
-        val name: String,
-        val slug: String,
-        val resource: String,
-        val regex: String,
-        val groups: String,
-        val mask: String,
-        val pluginJarName: String,
-        val pluginClassName: String
+        var id: Int? = null,
+        var name: String,
+        var slug: String,
+        var resource: String,
+        var regex: String,
+        var groups: String,
+        var mask: String,
+        var pluginJarName: String,
+        var pluginClassName: String
 )

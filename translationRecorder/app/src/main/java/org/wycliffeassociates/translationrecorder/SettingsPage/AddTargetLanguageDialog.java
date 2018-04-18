@@ -19,11 +19,13 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 public class AddTargetLanguageDialog extends DialogFragment {
 
     public static final int LANGUAGE_CODE_SIZE = 6;
+    private ProjectDatabaseHelper db;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_add_temp_language, null);
+        db = new ProjectDatabaseHelper(getActivity());
 
         final EditText languageCode = (EditText) view.findViewById(R.id.language_code);
         final EditText languageName = (EditText) view.findViewById(R.id.language_name);
@@ -46,7 +48,6 @@ public class AddTargetLanguageDialog extends DialogFragment {
                     errorCodeTooShort.setVisibility(View.GONE);
                 }
                 code = "qaa-x-tR" + code;
-                ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
                 if(db.languageExists(code)) {
                     errorCodeExists.setVisibility(View.VISIBLE);
                     error = true;
@@ -55,7 +56,6 @@ public class AddTargetLanguageDialog extends DialogFragment {
                 }
                 if (!error) {
                     db.addLanguage(code, name);
-                    db.close();
                     dismiss();
                 }
             }

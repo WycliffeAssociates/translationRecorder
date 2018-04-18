@@ -10,8 +10,8 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "users")
 data class UserEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
-        val audio: String,
-        val hash: String,
-        val name: String
+        var id: Int? = null,
+        var audio: String,
+        var hash: String,
+        var name: String
 )

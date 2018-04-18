@@ -3,6 +3,9 @@ package org.wycliffeassociates.translationrecorder.persistence.repository
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import org.wycliffeassociates.translationrecorder.persistence.entity.*
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.AnthologyDao
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.UserDao
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.VersionDao
 
 
 /**

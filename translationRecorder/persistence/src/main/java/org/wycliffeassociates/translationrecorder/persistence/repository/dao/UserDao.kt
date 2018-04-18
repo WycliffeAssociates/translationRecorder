@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.persistence.repository
+package org.wycliffeassociates.translationrecorder.persistence.repository.dao
 
 import android.arch.persistence.room.*
 import org.wycliffeassociates.translationrecorder.persistence.entity.UserEntity

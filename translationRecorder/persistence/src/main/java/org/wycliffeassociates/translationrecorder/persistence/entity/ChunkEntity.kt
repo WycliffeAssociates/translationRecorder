@@ -33,13 +33,13 @@ import android.arch.persistence.room.PrimaryKey
 )
 data class ChunkEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
+        var id: Int? = null,
         @ColumnInfo(name = "project_fk")
-        val project: Int,
+        var project: Int,
         @ColumnInfo(name = "chapter_fk")
-        val chapter: Int,
-        val start: Int,
-        val end: Int,
+        var chapter: Int,
+        var start: Int,
+        var end: Int,
         @ColumnInfo(name = "chosen_take_fk")
-        val chosenTake: Int
+        var chosenTake: Int
 )

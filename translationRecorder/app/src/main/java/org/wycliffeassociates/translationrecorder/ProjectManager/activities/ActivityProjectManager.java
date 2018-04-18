@@ -87,10 +87,14 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private File mSourceAudioFile;
     private Project mProjectToExport;
 
+    private ProjectDatabaseHelper mDb;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_management);
+
+        mDb = new ProjectDatabaseHelper(this);
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.project_management_toolbar);
         setSupportActionBar(mToolbar);
@@ -205,20 +209,17 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Project project = null;
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
         if (projectId != -1) {
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-            project = db.getProject(projectId);
+            project = mDb.getProject(projectId);
             Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguageSlug()
                     + " book " + project.getBookSlug() + " version "
                     + project.getVersionSlug() + " mode " + project.getModeSlug());
         } else {
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-            List<Project> projects = db.getAllProjects();
+            List<Project> projects = mDb.getAllProjects();
             if (projects.size() > 0) {
                 project = projects.get(0);
             }
         }
         if (project != null) {
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             ProjectAdapter.initializeProjectCard(this, project, db, findViewById(R.id.recent_project));
             return project;
         } else {
@@ -241,8 +242,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private void populateProjectList(Project recent) {
-        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        List<Project> projects = db.getAllProjects();
+        final
+        List<Project> projects = mDb.getAllProjects();
         if (recent != null) {
             for (int i = 0; i < projects.size(); i++) {
                 if (recent.equals(projects.get(i))) {
@@ -271,21 +272,19 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private void loadProject(Project project) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if (!db.projectExists(project)) {
+        if (!mDb.projectExists(project)) {
             Logger.e(this.toString(), "Project " + project + " does not exist");
         }
-        int projectId = db.getProjectId(project);
+        int projectId = mDb.getProjectId(project);
         pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();
     }
 
     private boolean addProjectToDatabase(Project project) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if (db.projectExists(project)) {
+        if (mDb.projectExists(project)) {
             ProjectWizardActivity.displayProjectExists(this);
             return false;
         } else {
-            db.addProject(project);
+            mDb.addProject(project);
             return true;
         }
     }
@@ -471,8 +470,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     public void onTaskComplete(int taskTag, int resultCode) {
         if (resultCode == TaskFragment.STATUS_OK) {
             if (taskTag == DATABASE_RESYNC_TASK) {
-                ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-                mNumProjects = db.getNumProjects();
+                mNumProjects = mDb.getNumProjects();
                 mDbResyncing = false;
                 initializeViews();
             }

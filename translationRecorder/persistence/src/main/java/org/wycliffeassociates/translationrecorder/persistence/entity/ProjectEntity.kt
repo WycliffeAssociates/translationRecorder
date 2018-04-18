@@ -44,15 +44,15 @@ import android.arch.persistence.room.PrimaryKey
 )
 data class ProjectEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
+        var id: Int? = null,
         @ColumnInfo(name = "language_fk")
-        val language: Int,
+        var language: Int,
         @ColumnInfo(name = "anthology_fk")
-        val anthology: Int,
+        var anthology: Int,
         @ColumnInfo(name = "version_fk")
-        val version: Int,
+        var version: Int,
         @ColumnInfo(name = "book_fk")
-        val book: Int,
+        var book: Int,
         @ColumnInfo(name = "mode_fk")
-        val mode: Int
+        var mode: Int
 )

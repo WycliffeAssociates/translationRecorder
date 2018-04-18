@@ -12,12 +12,12 @@ import java.io.InputStream
  * Created by sarabiaj on 5/10/2016.
  */
 data class Project(
-        val id: Int,
-        val language: Language,
-        val anthology: Anthology,
-        val version: Version,
-        val book: Book,
-        val mode: Mode
+        var id: Int? = null,
+        var language: Language,
+        var anthology: Anthology,
+        var version: Version,
+        var book: Book,
+        var mode: Mode
 ) {
 
     interface ProjectPluginLoader {

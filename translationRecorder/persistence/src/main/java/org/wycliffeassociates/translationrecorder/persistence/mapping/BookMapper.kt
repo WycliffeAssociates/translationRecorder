@@ -2,7 +2,7 @@ package org.wycliffeassociates.translationrecorder.persistence.mapping
 
 import org.wycliffeassociates.translationrecorder.data.model.Book
 import org.wycliffeassociates.translationrecorder.persistence.entity.BookEntity
-import org.wycliffeassociates.translationrecorder.persistence.repository.AnthologyDao
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.AnthologyDao
 
 /**
  * Created by sarabiaj on 4/3/2018.

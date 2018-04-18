@@ -1,3 +1,7 @@
 package org.wycliffeassociates.translationrecorder.data.model
 
-data class Language(val id: Int, val slug: String, val name: String)
+data class Language(
+        var id: Int? = null,
+        var slug: String,
+        var name: String
+)

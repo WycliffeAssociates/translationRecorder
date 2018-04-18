@@ -2,7 +2,7 @@ package org.wycliffeassociates.translationrecorder.persistence.mapping
 
 import org.wycliffeassociates.translationrecorder.data.model.Project
 import org.wycliffeassociates.translationrecorder.persistence.entity.ProjectEntity
-import org.wycliffeassociates.translationrecorder.persistence.repository.*
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.*
 
 /**
  * Created by sarabiaj on 4/5/2018.

@@ -60,11 +60,15 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private boolean mDbResyncing;
     private TaskFragment mTaskFragment;
 
+    private ProjectDatabaseHelper mDb;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unit_list);
+
+        mDb = new ProjectDatabaseHelper(this);
 
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
         ChunkPlugin plugin = null;
@@ -72,7 +76,6 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             plugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
 
             mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             FragmentManager fm = getFragmentManager();
             mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
             if (mTaskFragment == null) {
@@ -86,8 +89,8 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             }
 
             // Setup toolbar
-            String language = db.getLanguageName(mProject.getTargetLanguageSlug());
-            String book = db.getBookName(mProject.getBookSlug());
+            String language = mDb.getLanguageName(mProject.getTargetLanguageSlug());
+            String book = mDb.getBookName(mProject.getBookSlug());
             Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
             setSupportActionBar(mToolbar);
             if (getSupportActionBar() != null) {
@@ -116,7 +119,6 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             mUnitList.setItemAnimator(new DefaultItemAnimator());
             prepareUnitCardData();
 
-            db.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -169,9 +171,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     @Override
     public void onPositiveClick(RatingDialog dialog) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        db.setTakeRating(dialog.getTakeInfo(), dialog.getRating());
-        db.close();
+        mDb.setTakeRating(dialog.getTakeInfo(), dialog.getRating());
         mAdapter.notifyDataSetChanged();
     }
 

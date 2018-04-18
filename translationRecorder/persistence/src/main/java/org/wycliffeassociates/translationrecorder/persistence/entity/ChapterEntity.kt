@@ -21,9 +21,9 @@ import android.arch.persistence.room.PrimaryKey
 )
 data class ChapterEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
-        val project: Int,
-        val number: Int,
-        val progress: Int,
-        val checkingLevel: Int
+        var id: Int? = null,
+        var project: Int,
+        var number: Int,
+        var progress: Int,
+        var checkingLevel: Int
 )

@@ -5,13 +5,13 @@ package org.wycliffeassociates.translationrecorder.data.model
  */
 
 data class Anthology(
-        val id: Int,
-        val slug: String,
-        val name: String,
-        val resource: String,
-        val regex: String,
-        val groups: String,
-        val mask: String,
-        val pluginJarName: String,
-        val pluginClassName: String
+        var id: Int? = null,
+        var slug: String,
+        var name: String,
+        var resource: String,
+        var regex: String,
+        var groups: String,
+        var mask: String,
+        var pluginJarName: String,
+        var pluginClassName: String
 )

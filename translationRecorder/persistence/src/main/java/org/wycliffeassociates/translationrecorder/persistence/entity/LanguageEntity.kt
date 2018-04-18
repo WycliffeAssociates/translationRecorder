@@ -9,7 +9,7 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "languages")
 data class LanguageEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
-        val name: String,
-        val slug: String
+        var id: Int? = null,
+        var name: String,
+        var slug: String
 )

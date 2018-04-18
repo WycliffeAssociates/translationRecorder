@@ -12,7 +12,7 @@ import android.arch.persistence.room.PrimaryKey
 data class VersionEntity(
         @ColumnInfo(name = "id")
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
-        val name: String,
-        val slug: String
+        var id: Int? = null,
+        var name: String,
+        var slug: String
 )

@@ -10,8 +10,8 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "modes")
 data class ModeEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
-        val name: String,
-        val slug: String,
-        val unit: Int
+        var id: Int? = null,
+        var name: String,
+        var slug: String,
+        var unit: Int
 )

@@ -21,10 +21,10 @@ import android.arch.persistence.room.PrimaryKey
 )
 data class BookEntity(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
-        val name: String,
-        val slug: String,
-        val number: Int,
+        var id: Int? = null,
+        var name: String,
+        var slug: String,
+        var number: Int,
         @ColumnInfo(name = "anthology_fk")
-        val anthology: Int
+        var anthology: Int
 )
