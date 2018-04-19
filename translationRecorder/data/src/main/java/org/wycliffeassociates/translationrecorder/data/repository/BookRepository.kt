@@ -7,7 +7,7 @@ import java.awt.print.Book
  */
 
 interface BookRepository {
-    fun getBook(id: Long): Book
+    fun getBook(id: Int): Book
     fun getAllBooks(): List<Book>
     fun addBook(book: Book)
     fun updateBook(book: Book)

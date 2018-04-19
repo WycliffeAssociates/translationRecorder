@@ -7,7 +7,7 @@ import org.wycliffeassociates.translationrecorder.data.model.Project
  */
 
 interface ProjectRepository {
-    fun getProject(id: Long) : Project
+    fun getProject(id: Int) : Project
     fun getAllProjects() : List<Project>
     fun addProject(project: Project)
     fun updateProject(project: Project)

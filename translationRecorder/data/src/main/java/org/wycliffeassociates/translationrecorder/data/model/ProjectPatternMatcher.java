@@ -1,6 +1,5 @@
 package org.wycliffeassociates.translationrecorder.data.model;
 
-import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
 import java.io.File;

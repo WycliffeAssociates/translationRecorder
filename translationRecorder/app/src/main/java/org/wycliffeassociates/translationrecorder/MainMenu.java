@@ -24,11 +24,11 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs;
-import org.wycliffeassociates.translationrecorder.data.model.ProjectWizardActivity;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
 import java.io.File;
@@ -56,11 +56,14 @@ public class MainMenu extends Activity {
     public static final int SOURCE_REQUEST = FIRST_REQUEST + 5;
     public static final int PROJECT_WIZARD_REQUEST = FIRST_REQUEST + 6;
 
+    private ProjectDatabaseHelper mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        mDb = new ProjectDatabaseHelper(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -76,8 +79,7 @@ public class MainMenu extends Activity {
     protected void onResume() {
         super.onResume();
 
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        mNumProjects = db.getNumProjects();
+        mNumProjects = mDb.getNumProjects();
 
         btnRecord = (RelativeLayout) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
@@ -156,12 +158,11 @@ public class MainMenu extends Activity {
     }
 
     private boolean addProjectToDatabase(Project project) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if (db.projectExists(project)) {
+        if (mDb.projectExists(project)) {
             ProjectWizardActivity.displayProjectExists(this);
             return false;
         } else {
-            db.addProject(project);
+            mDb.addProject(project);
             return true;
         }
     }
@@ -170,9 +171,8 @@ public class MainMenu extends Activity {
     private void loadProject(Project project) {
         pref.edit().putString("resume", "resume").commit();
 
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        if (db.projectExists(project)) {
-            pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, db.getProjectId(project)).commit();
+        if (mDb.projectExists(project)) {
+            pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, mDb.getProjectId(project)).commit();
         } else {
             Logger.e(this.toString(), "Project " + project + " doesn't exist in the database");
         }
@@ -232,21 +232,20 @@ public class MainMenu extends Activity {
     }
 
     private void initViews() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
         TextView languageView = (TextView) findViewById(R.id.language_view);
         TextView bookView = (TextView) findViewById(R.id.book_view);
         if (projectId != -1) {
-            Project project = db.getProject(projectId);
+            Project project = mDb.getProject(projectId);
             String language = project.getTargetLanguageSlug();
             if (language.compareTo("") != 0) {
-                language = db.getLanguageName(language);
+                language = mDb.getLanguageName(language);
             }
             languageView.setText(language);
 
             String book = project.getBookSlug();
             if (book.compareTo("") != 0) {
-                book = db.getBookName(book);
+                book = mDb.getBookName(book);
             }
             bookView.setText(book);
         } else {
@@ -297,8 +296,7 @@ public class MainMenu extends Activity {
             return;
         }
         String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder").getAbsolutePath();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        List<ProjectPatternMatcher> patterns = db.getProjectPatternMatchers();
+        List<ProjectPatternMatcher> patterns = mDb.getProjectPatternMatchers();
         for (File v : visFiles) {
             boolean matched = false;
             TakeInfo takeInfo = null;

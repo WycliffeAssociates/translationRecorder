@@ -1,5 +1,7 @@
 package org.wycliffeassociates.translationrecorder.project
 
+import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs
+
 /**
  * Created by sarabiaj on 4/17/2017.
  */

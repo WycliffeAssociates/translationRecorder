@@ -7,7 +7,7 @@ import org.wycliffeassociates.translationrecorder.data.model.Anthology
  */
 
 interface AnthologyRepository {
-    fun getAnthology(id: Long) : Anthology
+    fun getAnthology(id: Int) : Anthology
     fun getAnthologies() : List<Anthology>
     fun addAnthology(anthology: Anthology)
     fun updateAnthology(anthology: Anthology)

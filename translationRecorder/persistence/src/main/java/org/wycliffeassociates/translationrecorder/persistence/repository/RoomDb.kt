@@ -1,7 +1,9 @@
 package org.wycliffeassociates.translationrecorder.persistence.repository
 
 import android.arch.persistence.room.Database
+import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
+import android.content.Context
 import org.wycliffeassociates.translationrecorder.persistence.entity.*
 import org.wycliffeassociates.translationrecorder.persistence.repository.dao.AnthologyDao
 import org.wycliffeassociates.translationrecorder.persistence.repository.dao.UserDao
@@ -35,4 +37,26 @@ abstract class RoomDb : RoomDatabase() {
     abstract fun projectDao(): AnthologyDao
     abstract fun versionDao(): VersionDao
     abstract fun takeDao(): AnthologyDao
+
+    companion object {
+        private var INSTANCE: RoomDb? = null
+
+        fun getInstance(context: Context): RoomDb? {
+            if (INSTANCE == null) {
+                synchronized(RoomDb::class) {
+                    INSTANCE = Room.databaseBuilder(
+                                context.getApplicationContext(),
+                                RoomDb::class.java, "tr.db"
+                            )
+                            .allowMainThreadQueries()
+                            .build()
+                }
+            }
+            return INSTANCE
+        }
+
+        fun destroyInstance() {
+            INSTANCE = null
+        }
+    }
 }

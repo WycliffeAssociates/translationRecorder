@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.data.repository
 
-import org.wycliffeassociates.translationrecorder.data.model.Mode
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode
 
 
 /**
@@ -8,7 +8,7 @@ import org.wycliffeassociates.translationrecorder.data.model.Mode
  */
 
 interface ModeRepository {
-    fun getMode(id: Long) : Mode
+    fun getMode(id: Int) : Mode
     fun getModes() : List<Mode>
     fun addMode(mode: Mode)
     fun updateMode(mode: Mode)

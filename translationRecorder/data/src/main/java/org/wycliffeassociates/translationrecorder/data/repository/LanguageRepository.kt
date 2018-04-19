@@ -7,7 +7,7 @@ import org.wycliffeassociates.translationrecorder.data.model.Language
  */
 
 interface LanguageRepository {
-    fun getLanguage(id: Long) : Language
+    fun getLanguage(id: Int) : Language
     fun getLanguages() : List<Language>
     fun addLanguage(language: Language)
     fun updateLanguage(language: Language)

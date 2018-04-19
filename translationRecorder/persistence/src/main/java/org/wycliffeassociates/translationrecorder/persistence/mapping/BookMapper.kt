@@ -10,7 +10,7 @@ import org.wycliffeassociates.translationrecorder.persistence.repository.dao.Ant
 
 class BookMapper(val repo: AnthologyDao) : Mapper<BookEntity, Book> {
     override fun mapFromEntity(type: BookEntity): Book {
-        val anthEnt = repo.findById(type.anthology)
+        val anthEnt = repo.getById(type.anthology)
         val anth = AnthologyMapper().mapFromEntity(anthEnt)
         return Book(type.id, type.slug, type.name, anth, type.number)
     }

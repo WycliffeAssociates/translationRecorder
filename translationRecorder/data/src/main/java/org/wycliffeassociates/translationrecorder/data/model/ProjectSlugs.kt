@@ -1,4 +1,4 @@
-package org.wycliffeassociates.translationrecorder.project
+package org.wycliffeassociates.translationrecorder.data.model
 
 /**
  * Created by Joe on 3/31/2017.

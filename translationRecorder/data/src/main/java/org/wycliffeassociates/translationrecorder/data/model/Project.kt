@@ -3,7 +3,6 @@ package org.wycliffeassociates.translationrecorder.data.model
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin
 import org.wycliffeassociates.translationrecorder.chunkplugin.Mode
 import org.wycliffeassociates.translationrecorder.project.FileName
-import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs
 import java.io.IOException
 import java.io.InputStream
 

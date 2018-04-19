@@ -7,7 +7,7 @@ import org.wycliffeassociates.translationrecorder.data.model.Version
  */
 
 interface VersionRepository {
-    fun getVersion(id: Long) : Version
+    fun getVersion(id: Int) : Version
     fun getVersions() : List<Version>
     fun addVersion(version: Version)
     fun updateVersion(version: Version)
