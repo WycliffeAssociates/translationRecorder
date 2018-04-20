@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.persistence.mapping
 
-import org.wycliffeassociates.translationrecorder.data.model.Mode
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode
 import org.wycliffeassociates.translationrecorder.persistence.entity.ModeEntity
 
 /**

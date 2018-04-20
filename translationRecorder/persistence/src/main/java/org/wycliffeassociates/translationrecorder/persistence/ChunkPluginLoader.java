@@ -1,8 +1,6 @@
-package org.wycliffeassociates.translationrecorder.project;
+package org.wycliffeassociates.translationrecorder.persistence;
 
 import android.content.Context;
-
-import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
@@ -56,7 +54,6 @@ public class ChunkPluginLoader implements Project.ProjectPluginLoader {
                     .getConstructor(type.getClass());
             chunks = ctr.newInstance(type);
         } catch (Exception e) {
-            Logger.e(this.toString(), "Error loading plugin from jar for anthology: " + anthology.getSlug(), e);
             e.printStackTrace();
         }
         chunks.parseChunks(chunksInputStream(anthology, book));

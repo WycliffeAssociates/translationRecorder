@@ -8,6 +8,7 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkIterator;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Mode;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +28,7 @@ public class BibleChunkPlugin extends ChunkPlugin {
 
     ArrayList<Map<String, String>> mParsedChunks;
 
-    public BibleChunkPlugin(TYPE mode) {
+    public BibleChunkPlugin(Mode.UNIT mode) {
         super(mode);
     }
 
@@ -55,7 +56,7 @@ public class BibleChunkPlugin extends ChunkPlugin {
             e.printStackTrace();
         }
         generateChunks(mParsedChunks);
-        if (mMode == TYPE.SINGLE) {
+        if (mMode == Mode.UNIT.SINGLE) {
             generateVerses();
         }
         mIter = new ChunkIterator(mChapters);

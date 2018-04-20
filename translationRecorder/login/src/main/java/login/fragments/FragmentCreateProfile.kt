@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.gigamole.library.PulseView
 import com.pixplicity.sharp.Sharp
 import jdenticon.Jdenticon
 import kotlinx.android.synthetic.main.fragment_create_profile.*
@@ -63,7 +62,6 @@ class FragmentCreateProfile : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btnRecord as PulseView
         btnRecord.setOnClickListener {
             if (btnRecord.isActivated) {
                 btnRecord.isActivated = false
@@ -75,7 +73,6 @@ class FragmentCreateProfile : Fragment() {
                 startRecording()
             }
         }
-        btnRecord.startPulse()
         savedInstanceState?.let {
             userAudio = savedInstanceState.getSerializable("user_audio") as File
             if (userAudio.length() > 0) {

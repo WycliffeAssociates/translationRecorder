@@ -27,12 +27,17 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs;
+import org.wycliffeassociates.translationrecorder.data.repository.BookRepository;
+import org.wycliffeassociates.translationrecorder.data.repository.LanguageRepository;
+import org.wycliffeassociates.translationrecorder.data.repository.ProjectRepository;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.persistence.repository.RoomDb;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainMenu extends Activity {
@@ -57,6 +62,10 @@ public class MainMenu extends Activity {
     public static final int PROJECT_WIZARD_REQUEST = FIRST_REQUEST + 6;
 
     private ProjectDatabaseHelper mDb;
+    private ProjectRepository projectDb;
+    private BookRepository bookDb;
+    private LanguageRepository languageDb;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +73,12 @@ public class MainMenu extends Activity {
         setContentView(R.layout.main);
 
         mDb = new ProjectDatabaseHelper(this);
+        RoomDb rdb = RoomDb.Companion.getInstance(getApplicationContext());
+        if(rdb != null) {
+            projectDb = rdb.projectDao();
+            bookDb = rdb.bookDao();
+            languageDb = rdb.languageDao();
+        }
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -236,10 +251,10 @@ public class MainMenu extends Activity {
         TextView languageView = (TextView) findViewById(R.id.language_view);
         TextView bookView = (TextView) findViewById(R.id.book_view);
         if (projectId != -1) {
-            Project project = mDb.getProject(projectId);
+            Project project = projectDb.getProject(projectId);
             String language = project.getTargetLanguageSlug();
             if (language.compareTo("") != 0) {
-                language = mDb.getLanguageName(language);
+                language = languageDb.getLanguage(project.getLanguage().getId()).getName();
             }
             languageView.setText(language);
 
@@ -296,7 +311,11 @@ public class MainMenu extends Activity {
             return;
         }
         String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder").getAbsolutePath();
-        List<ProjectPatternMatcher> patterns = mDb.getProjectPatternMatchers();
+        List<Project> projects = projectDb.getAllProjects();
+        List<ProjectPatternMatcher> patterns = new ArrayList<>();
+        for(Project project : projects) {
+            patterns.add(project.getPatternMatcher());
+        }
         for (File v : visFiles) {
             boolean matched = false;
             TakeInfo takeInfo = null;

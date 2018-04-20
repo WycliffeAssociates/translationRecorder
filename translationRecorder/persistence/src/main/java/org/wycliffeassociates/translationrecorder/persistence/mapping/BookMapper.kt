@@ -16,7 +16,7 @@ class BookMapper(val repo: AnthologyDao) : Mapper<BookEntity, Book> {
     }
 
     override fun mapToEntity(type: Book): BookEntity {
-        return BookEntity(type.id, type.name, type.slug, type.order, type.anthology.id)
+        return BookEntity(type.id, type.name, type.slug, type.order, type.anthology.id!!)
     }
 
 }

@@ -101,13 +101,14 @@ dependencies {
     compile project(':door43login')
     compile files('src/main/lib/archive_of_holding_0.9.jar')
     compile project(':chunkplugin')
-    compile project(':biblechunk')
-    compile project(':login')
+    //compile project(':biblechunk')
+    //compile project(':login')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     //compile project(':obschunk')
     //compile project(':noteschunk')
     //compile project(':questionschunk')
     compile project(path: ':data')
+    compile project(path: ':persistence')
 }
 
 configurations.all {

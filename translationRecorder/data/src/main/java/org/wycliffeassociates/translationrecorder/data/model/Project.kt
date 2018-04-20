@@ -24,6 +24,12 @@ data class Project(
         fun chunksInputStream(anthology: Anthology, book: Book): InputStream
     }
 
+    companion object {
+        lateinit var PROJECT_EXTRA: String
+        init {
+            PROJECT_EXTRA = "project"
+        }
+    }
 
     var mFileName: FileName? = null
 

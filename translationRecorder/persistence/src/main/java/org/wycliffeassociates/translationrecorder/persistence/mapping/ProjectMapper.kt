@@ -27,11 +27,11 @@ class ProjectMapper(
     override fun mapToEntity(type: Project): ProjectEntity {
         return ProjectEntity(
                 type.id,
-                type.language.id,
-                type.anthology.id,
-                type.version.id,
-                type.book.id,
-                type.mode.id
+                type.language.id!!,
+                type.anthology.id!!,
+                type.version.id!!,
+                type.book.id!!,
+                type.mode.id!!
         )
     }
 
