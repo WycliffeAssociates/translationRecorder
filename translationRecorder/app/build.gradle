@@ -103,7 +103,7 @@ dependencies {
     compile project(':chunkplugin')
     //compile project(':biblechunk')
     //compile project(':login')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     //compile project(':obschunk')
     //compile project(':noteschunk')
     //compile project(':questionschunk')

@@ -1,1 +1,1 @@
-include ':app', ':door43login', ':sysutils', ':widgets', ':com.door43.tools.reporting', ':chunkplugin', ':biblechunk', ':obschunk', ':noteschunk', ':questionschunk', ':login', ':pulseview-1.0.2', ':data', ':persistence', ':persistence'
+include ':app', ':door43login', ':sysutils', ':widgets', ':com.door43.tools.reporting', ':chunkplugin', ':biblechunk', ':obschunk', ':noteschunk', ':questionschunk', ':data', ':persistence', ':persistence'

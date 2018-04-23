@@ -27,11 +27,11 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs;
-import org.wycliffeassociates.translationrecorder.data.repository.BookRepository;
-import org.wycliffeassociates.translationrecorder.data.repository.LanguageRepository;
-import org.wycliffeassociates.translationrecorder.data.repository.ProjectRepository;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.persistence.repository.RoomDb;
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.BookDao;
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.LanguageDao;
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.ProjectDao;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
@@ -62,9 +62,9 @@ public class MainMenu extends Activity {
     public static final int PROJECT_WIZARD_REQUEST = FIRST_REQUEST + 6;
 
     private ProjectDatabaseHelper mDb;
-    private ProjectRepository projectDb;
-    private BookRepository bookDb;
-    private LanguageRepository languageDb;
+    private ProjectDao projectDb;
+    private BookDao bookDb;
+    private LanguageDao languageDb;
 
 
     @Override
@@ -94,7 +94,7 @@ public class MainMenu extends Activity {
     protected void onResume() {
         super.onResume();
 
-        mNumProjects = mDb.getNumProjects();
+        mNumProjects = projectDb.getProjects().size();
 
         btnRecord = (RelativeLayout) findViewById(R.id.new_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
@@ -252,16 +252,10 @@ public class MainMenu extends Activity {
         TextView bookView = (TextView) findViewById(R.id.book_view);
         if (projectId != -1) {
             Project project = projectDb.getProject(projectId);
-            String language = project.getTargetLanguageSlug();
-            if (language.compareTo("") != 0) {
-                language = languageDb.getLanguage(project.getLanguage().getId()).getName();
-            }
+            String language = project.getLanguage().getName();
             languageView.setText(language);
 
-            String book = project.getBookSlug();
-            if (book.compareTo("") != 0) {
-                book = mDb.getBookName(book);
-            }
+            String book = project.getBookName();
             bookView.setText(book);
         } else {
             languageView.setText("");
