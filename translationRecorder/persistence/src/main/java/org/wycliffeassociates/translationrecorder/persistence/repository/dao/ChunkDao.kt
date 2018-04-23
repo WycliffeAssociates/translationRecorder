@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.ChunkEntity
 @Dao
 interface ChunkDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(chunk: ChunkEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(chunks: List<ChunkEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(chunk: ChunkEntity)
 
     @Delete

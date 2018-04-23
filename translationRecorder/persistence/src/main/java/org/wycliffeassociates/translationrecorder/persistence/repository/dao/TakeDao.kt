@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.TakeEntity
 @Dao
 interface TakeDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(take: TakeEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(takes: List<TakeEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(take: TakeEntity)
 
     @Delete

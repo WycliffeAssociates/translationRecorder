@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.VersionEnti
 @Dao
 interface VersionDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(version: VersionEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(versions: List<VersionEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(version: VersionEntity)
 
     @Delete

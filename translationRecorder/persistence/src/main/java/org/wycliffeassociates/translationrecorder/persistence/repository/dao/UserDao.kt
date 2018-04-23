@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.UserEntity
 @Dao
 interface UserDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(user: UserEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(users: List<UserEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(user: UserEntity)
 
     @Delete

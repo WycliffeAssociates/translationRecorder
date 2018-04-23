@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.ChapterEnti
 @Dao
 interface ChapterDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(chapter: ChapterEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(chapters: List<ChapterEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(chapter: ChapterEntity)
 
     @Delete

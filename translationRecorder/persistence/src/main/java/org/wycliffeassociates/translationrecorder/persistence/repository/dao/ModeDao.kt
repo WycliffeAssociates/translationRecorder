@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.ModeEntity
 @Dao
 interface ModeDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(mode: ModeEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(modes: List<ModeEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(mode: ModeEntity)
 
     @Delete
