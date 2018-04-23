@@ -27,10 +27,10 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSo
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 
@@ -131,12 +131,14 @@ public class RecordingActivity extends AppCompatActivity implements
         return intent;
     }
 
+    ProjectDatabaseHelper db;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_recording_screen);
-
+        db = new ProjectDatabaseHelper(this);
         initialize(getIntent());
         initializeTaskFragment(savedInstanceState);
     }
@@ -293,7 +295,6 @@ public class RecordingActivity extends AppCompatActivity implements
     }
 
 
-
     private void initializeTaskFragment(Bundle savedInstanceState) {
         FragmentManager fm = getFragmentManager();
         mInsertTaskFragment = (InsertTaskFragment) fm.findFragmentByTag(TAG_INSERT_TASK_FRAGMENT);
@@ -408,7 +409,7 @@ public class RecordingActivity extends AppCompatActivity implements
     }
 
     private void addTakeToDb() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+
         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
         ppm.match(mNewRecording.getFile());
         db.addTake(
