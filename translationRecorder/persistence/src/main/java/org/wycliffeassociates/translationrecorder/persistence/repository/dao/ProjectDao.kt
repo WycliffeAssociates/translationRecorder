@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.ProjectEnti
 @Dao
 interface ProjectDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(project: ProjectEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(projects: List<ProjectEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(project: ProjectEntity)
 
     @Delete
@@ -23,4 +23,7 @@ interface ProjectDao {
 
     @Query("SELECT * FROM projects")
     fun getProjects(): List<ProjectEntity>
+
+    @Query("SELECT * FROM projects WHERE id = :id")
+    fun getById(id: Int): ProjectEntity
 }

@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.BookEntity
 @Dao
 interface BookDao {
 
-    @Insert
-    fun insert(book: BookEntity)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insert(book: BookEntity): Long
 
-    @Insert
-    fun insertAll(books: List<BookEntity>)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insertAll(books: List<BookEntity>): List<Long>
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(book: BookEntity)
 
     @Delete

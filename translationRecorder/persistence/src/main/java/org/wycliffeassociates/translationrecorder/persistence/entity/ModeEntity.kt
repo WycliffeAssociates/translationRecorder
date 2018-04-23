@@ -5,9 +5,17 @@ package org.wycliffeassociates.translationrecorder.persistence.entity
  */
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 
-@Entity(tableName = "modes")
+@Entity(tableName = "modes",
+        indices = [
+            Index(
+                    value = ["name", "slug", "unit"],
+                    unique = true
+            )
+        ]
+)
 data class ModeEntity(
         @PrimaryKey(autoGenerate = true)
         var id: Int? = null,

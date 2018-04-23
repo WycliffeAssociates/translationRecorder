@@ -173,7 +173,7 @@ public class MainMenu extends Activity {
     }
 
     private boolean addProjectToDatabase(Project project) {
-        if (mDb.projectExists(project)) {
+        if (projectDb.getById(project.)) {
             ProjectWizardActivity.displayProjectExists(this);
             return false;
         } else {

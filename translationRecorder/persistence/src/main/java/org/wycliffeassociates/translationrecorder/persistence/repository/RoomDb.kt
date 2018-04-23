@@ -5,9 +5,7 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import org.wycliffeassociates.translationrecorder.persistence.entity.*
-import org.wycliffeassociates.translationrecorder.persistence.repository.dao.AnthologyDao
-import org.wycliffeassociates.translationrecorder.persistence.repository.dao.UserDao
-import org.wycliffeassociates.translationrecorder.persistence.repository.dao.VersionDao
+import org.wycliffeassociates.translationrecorder.persistence.repository.dao.*
 
 
 /**
@@ -29,14 +27,14 @@ import org.wycliffeassociates.translationrecorder.persistence.repository.dao.Ver
 abstract class RoomDb : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun anthologyDao(): AnthologyDao
-    abstract fun languageDao(): AnthologyDao
-    abstract fun bookDao(): AnthologyDao
-    abstract fun chapterDao(): AnthologyDao
-    abstract fun chunkDao(): AnthologyDao
-    abstract fun modeDao(): AnthologyDao
-    abstract fun projectDao(): AnthologyDao
+    abstract fun languageDao(): LanguageDao
+    abstract fun bookDao(): BookDao
+    abstract fun chapterDao(): ChapterDao
+    abstract fun chunkDao(): ChunkDao
+    abstract fun modeDao(): ModeDao
+    abstract fun projectDao(): ProjectDao
     abstract fun versionDao(): VersionDao
-    abstract fun takeDao(): AnthologyDao
+    abstract fun takeDao(): TakeDao
 
     companion object {
         private var INSTANCE: RoomDb? = null

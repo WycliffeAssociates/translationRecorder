@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.LanguageEnt
 @Dao
 interface LanguageDao {
 
-    @Insert
-    fun insert(language: LanguageEntity)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insert(language: LanguageEntity): Long
 
-    @Insert
-    fun insertAll(languages: List<LanguageEntity>)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insertAll(languages: List<LanguageEntity>): List<Long>
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(language: LanguageEntity)
 
     @Delete

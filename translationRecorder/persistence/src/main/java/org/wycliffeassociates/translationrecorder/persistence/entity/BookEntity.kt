@@ -1,9 +1,6 @@
 package org.wycliffeassociates.translationrecorder.persistence.entity
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.ForeignKey
-import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.*
 
 /**
  * Created by sarabiaj on 3/28/2018.
@@ -17,6 +14,12 @@ import android.arch.persistence.room.PrimaryKey
                         childColumns = ["anthology_fk"],
                         onDelete = ForeignKey.CASCADE
                 )
+        ],
+        indices = [
+            Index(
+                    value = ["name", "slug", "anthology"],
+                    unique = true
+            )
         ]
 )
 data class BookEntity(

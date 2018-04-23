@@ -9,13 +9,13 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.AnthologyEn
 @Dao
 interface AnthologyDao {
 
-    @Insert
-    fun insert(anthology: AnthologyEntity)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insert(anthology: AnthologyEntity): Long
 
-    @Insert
-    fun insertAll(anthologies: List<AnthologyEntity>)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insertAll(anthologies: List<AnthologyEntity>): List<Long>
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(anthology: AnthologyEntity)
 
     @Delete
