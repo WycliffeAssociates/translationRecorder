@@ -46,7 +46,7 @@ public class FragmentRecordingFileBar extends Fragment {
     private int mChapter = ChunkPlugin.DEFAULT_CHAPTER;
     private int mUnit = ChunkPlugin.DEFAULT_UNIT;
     private Handler mHandler;
-
+    private ProjectDatabaseHelper db;
     private OnUnitChangedListener mOnUnitChangedListener;
     private FragmentRecordingControls.Mode mMode;
 
@@ -109,6 +109,7 @@ public class FragmentRecordingFileBar extends Fragment {
         mHandler = new Handler(Looper.getMainLooper());
         findViews();
         loadArgs(getArguments());
+        db = new ProjectDatabaseHelper(getActivity());
         initializeViews();
         try {
             initializePickers();
@@ -149,7 +150,7 @@ public class FragmentRecordingFileBar extends Fragment {
         mLanguageView.postInvalidate();
 
         String bookCode = mProject.getBookSlug();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
+
         String bookName = db.getBookName(bookCode);
         mBookView.setText(bookName);
         mBookView.postInvalidate();
