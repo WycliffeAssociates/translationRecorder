@@ -38,13 +38,13 @@ public class CompileChapterTaskTest {
         //Project notesProject = ProjectMockingUtil.createNotesTestProject(mainMenuActivityTestRule);
         Project bibleProject = ProjectMockingUtil.createBibleTestProject(mainMenuActivityTestRule);
 
-        return Arrays.asList(new Object[][] {
+        return Arrays.asList(new Object[][]{
                 //Bible Projects
                 {
-                       Arrays.asList(
-                               "en_ulb_b01_gen_c01_v01_t01.wav",
-                               "en_ulb_b01_gen_c01_v03_t01.wav",
-                               "en_ulb_b01_gen_c01_v02_t01.wav"),
+                        Arrays.asList(
+                                "en_ulb_b01_gen_c01_v01_t01.wav",
+                                "en_ulb_b01_gen_c01_v03_t01.wav",
+                                "en_ulb_b01_gen_c01_v02_t01.wav"),
                         Arrays.asList(
                                 "en_ulb_b01_gen_c01_v01_t01.wav",
                                 "en_ulb_b01_gen_c01_v02_t01.wav",
@@ -95,14 +95,14 @@ public class CompileChapterTaskTest {
     }
 
     @Test
-    public void sortFilesTest(){
+    public void sortFilesTest() {
         assertEquals("Sorted and unsorted lists should be the same size", mUnsortedList.size(), mSortedList.size());
         ChapterCard chapterCard = new ChapterCard(mProject, "", 1, mSortedList.size());
         Map<ChapterCard, List<String>> map = new HashMap<>();
         map.put(chapterCard, mUnsortedList);
         CompileChapterTask cct = new CompileChapterTask(0, map, mProject);
         cct.sortFilesInChapter(mUnsortedList);
-        for(int i = 0; i < mSortedList.size(); i++) {
+        for (int i = 0; i < mSortedList.size(); i++) {
             assertEquals("Unsorted list should be sorted and match the sorted list", mUnsortedList.get(i), mSortedList.get(i));
         }
     }

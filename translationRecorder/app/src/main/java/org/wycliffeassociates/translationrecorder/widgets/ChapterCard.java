@@ -15,7 +15,7 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
-import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 
 import java.io.File;
 import java.lang.ref.SoftReference;
@@ -25,6 +25,7 @@ import java.util.List;
  * Created by leongv on 8/15/2016.
  */
 public class ChapterCard {
+    private ProjectDatabaseHelper db;
 
     public interface OnClickListener extends View.OnClickListener {
         void onClick(
@@ -41,6 +42,7 @@ public class ChapterCard {
 
     public interface ChapterProgress {
         void updateChapterProgress(int chapter);
+
         int chapterProgress(int chapter);
     }
 
@@ -70,7 +72,7 @@ public class ChapterCard {
     private boolean mIconsClickable = true;
 
     // Constructor
-    public ChapterCard(Project proj, String title, int chapter, int unitCount) {
+    public ChapterCard(Project proj, String title, int chapter, int unitCount, Context context) {
         mProject = proj;
 //        try {
 //            mTitle = proj.getChunkPlugin(new ChunkPluginLoader(ctx)).getChapterName(chapter);
@@ -80,6 +82,7 @@ public class ChapterCard {
         mTitle = title;
         mChapter = chapter;
         mUnitCount = unitCount;
+        db = new ProjectDatabaseHelper(context);
     }
 
     public void refreshIsEmpty() {
@@ -109,11 +112,11 @@ public class ChapterCard {
         }
     }
 
-    public void refreshProgress(Context context) {
+    public void refreshProgress() {
         int progress = calculateProgress();
         if (progress != mProgress) {
             setProgress(progress);
-            saveProgressToDB(context, progress);
+            saveProgressToDB(progress);
         }
     }
 
@@ -248,8 +251,7 @@ public class ChapterCard {
         return Math.round(((float) mUnitStarted / mUnitCount) * 100);
     }
 
-    private void saveProgressToDB(Context context, int progress) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
+    private void saveProgressToDB(int progress) {
         if (db.chapterExists(mProject, mChapter)) {
             int chapterId = db.getChapterId(mProject, mChapter);
             db.setChapterProgress(chapterId, progress);
@@ -299,9 +301,9 @@ public class ChapterCard {
             mViewHolder.cardView.setCardElevation(2f);
             mViewHolder.cardContainer.setBackgroundColor(backgroundColor);
             mViewHolder.title.setTextColor(
-                (isEmpty())
-                        ? emptyTextColor
-                        : textColor
+                    (isEmpty())
+                            ? emptyTextColor
+                            : textColor
             );
             // Compile button activated status gets reset by multiSelector.
             // This is a way to correct it.
@@ -342,8 +344,7 @@ public class ChapterCard {
         mCanCompile = mProgress == 100;
     }
 
-    public void compile(Context context) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
+    public void compile() {
         List<String> files = db.getTakesForChapterCompilation(mProject, mChapter);
 
 
@@ -440,7 +441,6 @@ public class ChapterCard {
                                 mChapterWav.delete();
                                 mIsCompiled = false;
                                 collapse();
-                                ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
                                 db.setCheckingLevel(mProject, mChapter, 0);
                                 adapter.notifyItemChanged(mViewHolder.getAdapterPosition());
                             }

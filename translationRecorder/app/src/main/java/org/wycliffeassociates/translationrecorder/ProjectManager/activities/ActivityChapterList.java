@@ -247,7 +247,7 @@ public class ActivityChapterList extends AppCompatActivity implements
                             mProject,
                             Utils.capitalizeFirstLetter(mChunks.getChapterLabel()) + " " + mChunks.getChapterName(chapterNumber),
                             chapterNumber,
-                            unitCount
+                            unitCount,this
                     )
             );
         }
