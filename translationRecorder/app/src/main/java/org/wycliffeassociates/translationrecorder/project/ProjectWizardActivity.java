@@ -16,6 +16,7 @@ import android.view.MenuItem;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.adapters.GenericAdapter;
 import org.wycliffeassociates.translationrecorder.data.model.Anthology;
@@ -55,12 +56,13 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     private int mLastFragment;
 
     private static final int SOURCE_AUDIO_REQUEST = 42;
+    ProjectDatabaseHelper db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFragmentManager = getFragmentManager();
-
+        db = new ProjectDatabaseHelper(this);
         this.displayFragment();
         mProject = new Project();
 
@@ -160,7 +162,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == PROJECT && result instanceof Anthology) {
-            mProject.setAnthology((Anthology)result);
+            mProject.setAnthology((Anthology) result);
             mLastFragment = mCurrentFragment;
             mCurrentFragment = mProject.getAnthologySlug().compareTo("hjklhjkhkl") == 0 ? SOURCE_LANGUAGE : BOOK;
             this.displayFragment();
@@ -170,7 +172,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == SOURCE_TEXT && result instanceof Version) {
-            mProject.setVersion((Version)result);
+            mProject.setVersion((Version) result);
             mCurrentFragment++;
             this.displayFragment();
         } else if (mCurrentFragment == MODE && result instanceof Mode) {
@@ -251,35 +253,31 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         }
     }
 
-    private Anthology[] getAnthologiesList(){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+    private Anthology[] getAnthologiesList() {
         Anthology[] anthologies = db.getAnthologies();
         db.close();
         return anthologies;
     }
 
-    private Book[] getBooksList(String anthologySlug){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+    private Book[] getBooksList(String anthologySlug) {
         Book[] books = db.getBooks(anthologySlug);
         db.close();
         return books;
     }
 
-    private Version[] getVersionsList(String anthologySlug){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+    private Version[] getVersionsList(String anthologySlug) {
         Version[] versions = db.getVersions(anthologySlug);
         db.close();
         return versions;
     }
 
-    private Mode[] getModeList(String anthologySlug){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+    private Mode[] getModeList(String anthologySlug) {
         Mode[] mode = db.getModes(anthologySlug);
         db.close();
         return mode;
     }
 
-    public static void displayProjectExists(Context context){
+    public static void displayProjectExists(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Project Already Exists!");
         builder.setMessage("A project already exists for that language, book, and version.\n" +
