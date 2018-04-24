@@ -9,10 +9,10 @@ import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.FilesPage.Manifest;
 import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
-import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,11 +37,13 @@ public class TranslationExchangeDiff {
     final Project mProject;
     final TranslationRecorderApp mApp;
     volatile ArrayList<File> mFilesToUpload;
+    private ProjectDatabaseHelper db;
 
     //Arraylist explicitly specified because of zip4j dependency
     public TranslationExchangeDiff(TranslationRecorderApp app, Project project) {
         mApp = app;
         mProject = project;
+        db=new ProjectDatabaseHelper(mApp);
     }
 
 
@@ -147,7 +149,7 @@ public class TranslationExchangeDiff {
                             progressCallback.onStart(DIFF_ID);
                             mFilesToUpload = stageNewFiles(getUploadedFilesList(mProject, mApp));
                             Manifest manifest = new Manifest(mProject, ProjectFileUtils.getProjectDirectory(mProject));
-                            File mani = manifest.createManifestFile(mApp, new ProjectDatabaseHelper(mApp));
+                            File mani = manifest.createManifestFile(mApp, db);
                             mFilesToUpload.add(mani);
                             progressCallback.onComplete(DIFF_ID);
                         } catch (IOException e) {
