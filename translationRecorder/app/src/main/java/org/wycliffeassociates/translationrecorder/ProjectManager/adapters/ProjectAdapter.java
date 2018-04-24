@@ -21,8 +21,8 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
+import org.wycliffeassociates.translationrecorder.persistence.ChunkPluginLoader;
 
 import java.io.IOException;
 import java.util.List;

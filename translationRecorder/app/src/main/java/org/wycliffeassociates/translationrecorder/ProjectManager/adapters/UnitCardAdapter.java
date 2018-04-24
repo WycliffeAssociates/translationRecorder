@@ -41,7 +41,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     private List<ViewHolder> mSelectedCards = new ArrayList<>();
     private MultiSelector mMultiSelector = new MultiSelector();
     private ActionMode mActionMode;
-
+    private ProjectDatabaseHelper db ;
 
     // Constructor
     public UnitCardAdapter(AppCompatActivity context, Project project, int chapter, List<UnitCard> unitCardList) {
@@ -49,18 +49,17 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         mCtx = context;
         mProject = project;
         mChapterNum = chapter;
+        db = new ProjectDatabaseHelper(mCtx);
     }
 
     @Override
     public void updateSelectedTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.setSelectedTake(takeInfo);
         db.close();
     }
 
     @Override
     public int selectedTakeNumber(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int selectedTakeNumber = db.getSelectedTakeNumber(takeInfo);
         db.close();
         return selectedTakeNumber;
@@ -68,7 +67,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
     @Override
     public int takeRating(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int takeRating = db.getTakeRating(takeInfo);
         db.close();
         return takeRating;
@@ -76,7 +74,6 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
     @Override
     public int takeCount(Project project, int chapter, int firstVerse) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int takeCount = 0;
         if (db.chapterExists(mProject, chapter) && db.unitExists(mProject, chapter, firstVerse)) {
             int unitId = db.getUnitId(project, chapter, firstVerse);
@@ -88,21 +85,18 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
     @Override
     public void deleteTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.deleteTake(takeInfo);
         db.close();
     }
 
     @Override
     public void removeSelectedTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.removeSelectedTake(takeInfo);
         db.close();
     }
 
     @Override
     public void selectTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.setSelectedTake(takeInfo);
         db.close();
     }

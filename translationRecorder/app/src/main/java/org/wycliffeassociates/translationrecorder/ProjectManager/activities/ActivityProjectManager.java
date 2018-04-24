@@ -27,8 +27,6 @@ import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
-import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
-import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSourceAudioTask;
@@ -37,9 +35,11 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.data.model.Project;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
-import org.wycliffeassociates.translationrecorder.data.model.ProjectWizardActivity;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
@@ -242,8 +242,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private void populateProjectList(Project recent) {
-        final
-        List<Project> projects = mDb.getAllProjects();
+        final List<Project> projects = mDb.getAllProjects();
         if (recent != null) {
             for (int i = 0; i < projects.size(); i++) {
                 if (recent.equals(projects.get(i))) {
