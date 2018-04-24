@@ -43,11 +43,11 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
-import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.persistence.ChunkPluginLoader;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
@@ -89,8 +89,7 @@ public class PlaybackActivity extends Activity implements
         FragmentFileBar.RatingCallback,
         FragmentFileBar.InsertCallback,
         DraggableImageView.OnMarkerMovementRequest,
-        ExitDialog.DeleteFileCallback
-{
+        ExitDialog.DeleteFileCallback {
 
     public enum MODE {
         EDIT,
@@ -140,11 +139,14 @@ public class PlaybackActivity extends Activity implements
         return intent;
     }
 
+    private ProjectDatabaseHelper db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_playback_screen);
+        db = new ProjectDatabaseHelper(this);
         try {
             initialize(getIntent());
         } catch (IOException e) {
@@ -251,7 +253,7 @@ public class PlaybackActivity extends Activity implements
     @Override
     public void finish() {
         super.finish();
-        if(mDrawLoop != null) {
+        if (mDrawLoop != null) {
             mDrawLoop.finish();
         }
         if (mAudioController.isPlaying()) {
@@ -570,8 +572,6 @@ public class PlaybackActivity extends Activity implements
     public void onPositiveClick(RatingDialog dialog) {
         Logger.w(this.toString(), "rating set");
         mRating = dialog.getRating();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-
         db.setTakeRating(dialog.getTakeInfo(), mRating);
         db.close();
         mFragmentFileBar.onRatingChanged(mRating);
@@ -713,7 +713,6 @@ public class PlaybackActivity extends Activity implements
                         writeMarkers(toTempWav);
                         to.delete();
                         toTemp.renameTo(to);
-                        ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackActivity.this);
                         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
                         ppm.match(to);
                         db.addTake(
