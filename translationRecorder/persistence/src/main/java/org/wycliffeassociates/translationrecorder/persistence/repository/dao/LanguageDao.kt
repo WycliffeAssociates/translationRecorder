@@ -22,7 +22,7 @@ interface LanguageDao {
     fun delete(language: LanguageEntity)
 
     @Query("SELECT * FROM languages")
-    fun getLanguages(): List<LanguageEntity>
+    fun getAll(): List<LanguageEntity>
 
     @Query("SELECT * FROM languages WHERE id = :id")
     fun getById(id: Int): LanguageEntity

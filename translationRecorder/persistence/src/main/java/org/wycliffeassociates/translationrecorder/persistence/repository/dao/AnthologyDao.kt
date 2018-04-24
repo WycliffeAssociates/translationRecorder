@@ -22,7 +22,7 @@ interface AnthologyDao {
     fun delete(anthology: AnthologyEntity)
 
     @Query("SELECT * FROM anthologies")
-    fun getAnthologies(): List<AnthologyEntity>
+    fun getAll(): List<AnthologyEntity>
 
     @Query("SELECT * FROM anthologies WHERE id = :id")
     fun getById(id: Int): AnthologyEntity

@@ -10,10 +10,10 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.VersionEnti
 interface VersionDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insert(version: VersionEntity)
+    fun insert(version: VersionEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertAll(versions: List<VersionEntity>)
+    fun insertAll(versions: List<VersionEntity>): List<Long>
 
     @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(version: VersionEntity)
@@ -22,7 +22,7 @@ interface VersionDao {
     fun delete(version: VersionEntity)
 
     @Query("SELECT * FROM versions")
-    fun getVersions(): List<VersionEntity>
+    fun getAll(): List<VersionEntity>
 
     @Query("SELECT * FROM versions WHERE id = :id")
     fun getById(id: Int): VersionEntity

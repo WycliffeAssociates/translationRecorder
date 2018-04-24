@@ -22,8 +22,9 @@ interface BookDao {
     fun delete(book: BookEntity)
 
     @Query("SELECT * FROM books")
-    fun getBooks(): List<BookEntity>
+    fun getAll(): List<BookEntity>
 
     @Query("SELECT * FROM books WHERE id = :id")
     fun getById(id: Int): BookEntity
+
 }
