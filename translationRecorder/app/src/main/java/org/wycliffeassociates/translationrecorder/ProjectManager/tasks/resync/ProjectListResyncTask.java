@@ -35,49 +35,50 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
 
     Context mCtx;
     FragmentManager mFragmentManager;
+    private ProjectDatabaseHelper db;
 
     public ProjectListResyncTask(int taskId, Context ctx, FragmentManager fm) {
         super(taskId);
         mCtx = ctx;
         mFragmentManager = fm;
+        db = new ProjectDatabaseHelper(mCtx);
     }
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         Map<Project, File> projectDirectories = new HashMap<>();
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         File[] langs = root.listFiles();
         if (langs != null) {
-            for(File lang : langs) {
+            for (File lang : langs) {
                 if (!lang.isDirectory()) {
                     continue;
                 }
                 File[] versions = lang.listFiles();
                 if (versions != null) {
-                    for(File version : versions) {
-                        if(!version.isDirectory()) {
+                    for (File version : versions) {
+                        if (!version.isDirectory()) {
                             continue;
                         }
                         File[] bookDirs = version.listFiles();
                         if (bookDirs != null) {
-                            for(File bookDir : bookDirs) {
+                            for (File bookDir : bookDirs) {
                                 if (!bookDir.isDirectory()) {
                                     continue;
                                 }
                                 //get the project from the database if it exists
                                 Project project = db.getProject(lang.getName(), version.getName(), bookDir.getName());
-                                if(project != null) {
+                                if (project != null) {
                                     projectDirectories.put(project, bookDir);
                                 } else { //otherwise derive the project from the filename
                                     File[] chapters = bookDir.listFiles();
                                     Mode mode = null;
-                                    if(chapters != null) {
-                                        for(File chapter : chapters) {
-                                            if(!chapter.isDirectory()) {
+                                    if (chapters != null) {
+                                        for (File chapter : chapters) {
+                                            if (!chapter.isDirectory()) {
                                                 continue;
                                             }
                                             File[] c = chapter.listFiles();
-                                            if(c != null) {
+                                            if (c != null) {
                                                 for (int i = 0; i < c.length; i++) {
                                                     try {
                                                         WavFile wav = new WavFile(c[i]);
@@ -92,7 +93,7 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                             }
                                         }
                                     }
-                                    if(chapters != null && mode != null) {
+                                    if (chapters != null && mode != null) {
                                         int languageId = db.getLanguageId(lang.getName());
                                         int bookId = db.getBookId(bookDir.getName());
                                         Book book = db.getBook(bookId);
@@ -121,8 +122,8 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
 
     public Map<Project, File> getDirectoriesMissingFromDb(Map<Project, File> fs, Map<Project, File> db) {
         Map<Project, File> missingDirectories = new HashMap<>();
-        for(Map.Entry<Project, File> f : fs.entrySet()) {
-            if(!db.containsValue(f.getValue())) {
+        for (Map.Entry<Project, File> f : fs.entrySet()) {
+            if (!db.containsValue(f.getValue())) {
                 missingDirectories.put(f.getKey(), f.getValue());
             }
         }
@@ -131,7 +132,6 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
 
     @Override
     public void run() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         Map<Project, File> directoriesOnFs = getProjectDirectoriesOnFileSystem();
         //if the number of projects doesn't match up between the filesystem and the db, OR,
         //the projects themselves don't match an id in the db, then resync everything (only resyncing
@@ -153,16 +153,16 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
         //check which directories are not in the list
         //for projects with directories, get their files and resync
         //for directories not in the list, try to find which pattern match succeeds
-        for(Map.Entry<Project, File> dir : directoriesOnFs.entrySet()) {
+        for (Map.Entry<Project, File> dir : directoriesOnFs.entrySet()) {
             File[] chapters = dir.getValue().listFiles();
-            if(chapters != null) {
+            if (chapters != null) {
                 List<File> takes = getFilesInDirectory(chapters);
                 db.resyncDbWithFs(dir.getKey(), takes, this, this);
             }
         }
-        for(Map.Entry<Project, File> dir : directoriesMissingFromFs.entrySet()) {
+        for (Map.Entry<Project, File> dir : directoriesMissingFromFs.entrySet()) {
             File[] chapters = dir.getValue().listFiles();
-            if(chapters != null) {
+            if (chapters != null) {
                 List<File> takes = getFilesInDirectory(chapters);
                 db.resyncDbWithFs(dir.getKey(), takes, this, this);
             }

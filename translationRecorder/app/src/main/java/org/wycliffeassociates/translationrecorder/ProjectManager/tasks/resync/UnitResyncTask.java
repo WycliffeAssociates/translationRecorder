@@ -8,8 +8,8 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Request
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.data.model.Project;
-import org.wycliffeassociates.translationrecorder.data.model.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 
 import java.io.File;
@@ -31,7 +31,7 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
     FragmentManager mFragmentManager;
     private int mChapter;
 
-    public UnitResyncTask(int taskId, Context ctx, FragmentManager fm, Project project, int chapter){
+    public UnitResyncTask(int taskId, Context ctx, FragmentManager fm, Project project, int chapter) {
         super(taskId);
         mCtx = ctx;
         mFragmentManager = fm;
@@ -39,12 +39,12 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
         mChapter = chapter;
     }
 
-    public List<File> getAllTakes(){
+    public List<File> getAllTakes() {
         File root = new File(Environment.getExternalStorageDirectory(),
                 "TranslationRecorder/" + mProject.getTargetLanguageSlug() + "/" + mProject.getVersionSlug() + "/" + mProject.getBookSlug() + "/" + ProjectFileUtils.chapterIntToString(mProject, mChapter) + "/");
         File[] dirs = root.listFiles();
         List<File> files;
-        if(dirs != null) {
+        if (dirs != null) {
             files = new LinkedList<>(Arrays.asList(dirs));
         } else {
             files = new ArrayList<>();
@@ -58,7 +58,7 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
         while (iter.hasNext()) {
             ProjectPatternMatcher ppm = mProject.getPatternMatcher();
             ppm.match(iter.next());
-            if(!ppm.matched()) {
+            if (!ppm.matched()) {
                 iter.remove();
             }
         }
@@ -80,7 +80,7 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
     public String requestLanguageName(String code) {
         BlockingQueue<String> response = new ArrayBlockingQueue<>(1);
         RequestLanguageNameDialog dialog = RequestLanguageNameDialog.newInstance(code, response);
-        dialog.show(mFragmentManager,"REQUEST_LANGUAGE");
+        dialog.show(mFragmentManager, "REQUEST_LANGUAGE");
         try {
             return response.take();
         } catch (InterruptedException e) {
