@@ -14,10 +14,9 @@ import com.door43.tools.reporting.Logger;
 
 import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.data.model.Language;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
-import org.wycliffeassociates.translationrecorder.data.model.ProjectPlugin;
-import org.wycliffeassociates.translationrecorder.data.model.Language;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,12 +30,13 @@ public class SplashScreen extends Activity {
 
     private static int SPLASH_TIME_OUT = 3000;
     protected ProgressBar mProgressBar;
+    private ProjectDatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
+        db = new ProjectDatabaseHelper(this);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressBar.setMax(100);
         mProgressBar.setIndeterminate(true);
@@ -48,14 +48,14 @@ public class SplashScreen extends Activity {
         super.onResume();
         String profile = PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.KEY_PROFILE, "");
         boolean termsOfUseAccepted = false;
-        if(profile.compareTo("") != 0) {
+        if (profile.compareTo("") != 0) {
             try {
                 termsOfUseAccepted = TermsOfUseActivity.termsAccepted(profile, this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if(profile.compareTo("") == 0 || !termsOfUseAccepted) {
+        if (profile.compareTo("") == 0 || !termsOfUseAccepted) {
             Intent intent = new Intent(this, ProfileActivity.class);
             intent.putExtra(Profile.PROFILE_KEY, profile);
             startActivityForResult(intent, 42);
@@ -80,26 +80,25 @@ public class SplashScreen extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //save the profile in preferences
-        if(requestCode == 42){
+        if (requestCode == 42) {
             if (resultCode == RESULT_OK) {
                 PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
                 //user backed out of profile page; empty the profile and finish
-            } else if (resultCode == RESULT_CANCELED){
+            } else if (resultCode == RESULT_CANCELED) {
                 PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
                 finish();
                 //user backed out of the TOU, keep the profile with unaccepeted TOU and finish. App will resume to TOU page
-            } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOU){
+            } else if (resultCode == TermsOfUseActivity.RESULT_BACKED_OUT_TOU) {
                 PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, data.getStringExtra(Profile.PROFILE_KEY)).commit();
                 finish();
                 //user declined TOU, clear profile and return to profile page
-            } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED_TOU){
+            } else if (resultCode == TermsOfUseActivity.RESULT_DECLINED_TOU) {
                 PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Settings.KEY_PROFILE, "").commit();
             }
         }
     }
 
-    private void initDatabase(){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+    private void initDatabase() {
         ParseJSON parse = new ParseJSON(this);
         try {
             //Book[] books = parse.pullBooks();
@@ -130,7 +129,7 @@ public class SplashScreen extends Activity {
             for (String s : plugins) {
                 File plugin = new File(anthologiesDir, s);
                 //if (!plugin.exists()) {
-                    importPlugin(am, pluginsDir, anthologiesDir, s);
+                importPlugin(am, pluginsDir, anthologiesDir, s);
                 //}
             }
         }
@@ -150,8 +149,8 @@ public class SplashScreen extends Activity {
     }
 
     private void copyPluginsFromAssets(AssetManager am, File pluginsDir, File anthologiesDir, String[] plugins) throws IOException {
-        if(plugins != null && plugins.length > 0) {
-            for(String plugin : plugins) {
+        if (plugins != null && plugins.length > 0) {
+            for (String plugin : plugins) {
                 copyPluginContentFromAssets(am, pluginsDir, "Anthologies", plugin);
                 File pluginPath = new File(anthologiesDir, plugin);
                 ProjectPlugin projectPlugin = new ProjectPlugin(pluginsDir, pluginPath);
