@@ -622,7 +622,7 @@ public class PlaybackActivity extends Activity implements
     }
 
     public void onRerecord() {
-        Intent intent = RecordingActivity.getRerecordIntent(
+        Intent intent = RecordingActivity.Companion.getRerecordIntent(
                 this,
                 mProject,
                 mWavFile,
@@ -742,7 +742,7 @@ public class PlaybackActivity extends Activity implements
                     finish();
                 } else {
                     WavFile result = new WavFile(to);
-                    intent.putExtra(RecordingActivity.KEY_WAV_FILE, result);
+                    intent.putExtra(RecordingActivity.Companion.getKEY_WAV_FILE(), result);
                     startActivity(intent);
                     finish();
                 }
@@ -752,7 +752,7 @@ public class PlaybackActivity extends Activity implements
     }
 
     public void onInsert() {
-        Intent insertIntent = RecordingActivity.getInsertIntent(
+        Intent insertIntent = RecordingActivity.Companion.getInsertIntent(
                 this,
                 mProject,
                 mWavFile,

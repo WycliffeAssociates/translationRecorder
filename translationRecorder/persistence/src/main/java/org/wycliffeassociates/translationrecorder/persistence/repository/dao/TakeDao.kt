@@ -10,10 +10,10 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.TakeEntity
 interface TakeDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insert(take: TakeEntity)
+    fun insert(take: TakeEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertAll(takes: List<TakeEntity>)
+    fun insertAll(takes: List<TakeEntity>): List<Long>
 
     @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(take: TakeEntity)
@@ -22,5 +22,8 @@ interface TakeDao {
     fun delete(take: TakeEntity)
 
     @Query("SELECT * FROM takes")
-    fun getTakes(): List<TakeEntity>
+    fun getAll(): List<TakeEntity>
+
+    @Query("SELECT * FROM takes WHERE id = :id")
+    fun getById(id: Int): TakeEntity
 }

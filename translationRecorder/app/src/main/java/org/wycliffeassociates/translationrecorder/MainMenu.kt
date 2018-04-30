@@ -2,57 +2,44 @@ package org.wycliffeassociates.translationrecorder
 
 import android.app.Activity
 import android.app.DialogFragment
-import android.app.FragmentManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Environment
-import android.os.Parcelable
 import android.preference.PreferenceManager
 import android.util.DisplayMetrics
-import android.view.View
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
-
 import com.door43.tools.reporting.GithubReporter
 import com.door43.tools.reporting.GlobalExceptionHandler
 import com.door43.tools.reporting.Logger
-
 import org.apache.commons.io.FileUtils
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityProjectManager
+import org.wycliffeassociates.translationrecorder.R.id.*
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity
 import org.wycliffeassociates.translationrecorder.Reporting.BugReportDialog
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin
 import org.wycliffeassociates.translationrecorder.data.model.Project
 import org.wycliffeassociates.translationrecorder.data.model.ProjectPatternMatcher
-import org.wycliffeassociates.translationrecorder.data.model.ProjectSlugs
 import org.wycliffeassociates.translationrecorder.data.repository.BookRepository
 import org.wycliffeassociates.translationrecorder.data.repository.LanguageRepository
 import org.wycliffeassociates.translationrecorder.data.repository.ProjectRepository
-import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
-import org.wycliffeassociates.translationrecorder.persistence.mapping.ProjectMapper
+import org.wycliffeassociates.translationrecorder.model.getProjectFromPreferences
 import org.wycliffeassociates.translationrecorder.persistence.repository.RoomDb
-import org.wycliffeassociates.translationrecorder.persistence.repository.dao.BookDao
-import org.wycliffeassociates.translationrecorder.persistence.repository.dao.LanguageDao
-import org.wycliffeassociates.translationrecorder.persistence.repository.dao.ProjectDao
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity
 import org.wycliffeassociates.translationrecorder.project.TakeInfo
-
 import java.io.File
 import java.io.IOException
-import java.util.ArrayList
+import java.util.*
 
 class MainMenu : Activity() {
 
-    private var btnRecord: RelativeLayout? = null
-    private var btnFiles: ImageButton? = null
-    private var pref: SharedPreferences? = null
+    private lateinit var pref: SharedPreferences
 
     private var mNumProjects = 0
 
-    private var mDb: ProjectDatabaseHelper? = null
     private lateinit var projectDb: ProjectRepository
     private lateinit var bookDb: BookRepository
     private lateinit var languageDb: LanguageRepository
@@ -62,12 +49,11 @@ class MainMenu : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
 
-        mDb = ProjectDatabaseHelper(this)
         val rdb = RoomDb.getInstance(applicationContext)
         if (rdb != null) {
-            projectDb = rdb.projectDao()
-            bookDb = rdb.bookDao()
-            languageDb = rdb.languageDao()
+            projectDb = rdb.projectRepo()
+            bookDb = rdb.bookRepo()
+            languageDb = rdb.languageRepo()
         }
 
         val metrics = DisplayMetrics()
@@ -83,19 +69,19 @@ class MainMenu : Activity() {
     override fun onResume() {
         super.onResume()
 
-        mNumProjects = projectDb!!.getProjects().size
+        mNumProjects = projectDb.getAll().size
 
-        btnRecord = findViewById<View>(R.id.new_record) as RelativeLayout
-        btnRecord!!.setOnClickListener {
-            if (mNumProjects <= 0 || emptyPreferences()) {
+        btnRecord as RelativeLayout
+        btnRecord.setOnClickListener {
+            if (mNumProjects <= 0 || hasRecentProject()) {
                 setupNewProject()
             } else {
                 startRecordingScreen()
             }
         }
 
-        btnFiles = findViewById<View>(R.id.files) as ImageButton
-        btnFiles!!.setOnClickListener { v ->
+        btnFiles as ImageButton
+        btnFiles.setOnClickListener { v ->
             val intent = Intent(v.context, ActivityProjectManager::class.java)
             startActivityForResult(intent, 0)
             overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left)
@@ -104,17 +90,14 @@ class MainMenu : Activity() {
         initViews()
     }
 
-    private fun emptyPreferences(): Boolean {
-        return if (pref!!.getInt(Settings.KEY_RECENT_PROJECT_ID, -1) == -1) {
-            true
-        } else false
-    }
+    private fun hasRecentProject() = (pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1) == -1)
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         when (requestCode) {
             PROJECT_WIZARD_REQUEST -> run {
                 if (resultCode == Activity.RESULT_OK) {
-                    val project = data.getParcelableExtra<Parcelable>(Project.PROJECT_EXTRA)
+                    val project = data.getSerializableExtra(Project.PROJECT_EXTRA) as Project
                     if (addProjectToDatabase(project)) {
                         loadProject(project)
                         val intent = RecordingActivity.getNewRecordingIntent(
@@ -139,8 +122,7 @@ class MainMenu : Activity() {
     }
 
     private fun startRecordingScreen() {
-        val project = Project.getProjectFromPreferences(this)
-        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val project = Project.Companion.getProjectFromPreferences(this)
         val chapter = pref.getInt(Settings.KEY_PREF_CHAPTER, ChunkPlugin.DEFAULT_CHAPTER)
         val unit = pref.getInt(Settings.KEY_PREF_CHUNK, ChunkPlugin.DEFAULT_UNIT)
         val intent = RecordingActivity.getNewRecordingIntent(
@@ -153,21 +135,21 @@ class MainMenu : Activity() {
     }
 
     private fun addProjectToDatabase(project: Project): Boolean {
-        if (projectDb!!.getById(project.id!!)) {
+        if (projectDb.getById(project.id!!) != null) {
             ProjectWizardActivity.displayProjectExists(this)
             return false
         } else {
-            mDb!!.addProject(project)
+            projectDb.insert(project)
             return true
         }
     }
 
 
     private fun loadProject(project: Project) {
-        pref!!.edit().putString("resume", "resume").commit()
+        pref.edit().putString("resume", "resume").commit()
 
-        if (mDb!!.projectExists(project)) {
-            pref!!.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, mDb!!.getProjectId(project)).commit()
+        if (project.id != null) {
+            pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, project.id!!).commit()
         } else {
             Logger.e(this.toString(), "Project $project doesn't exist in the database")
         }
@@ -187,7 +169,7 @@ class MainMenu : Activity() {
         // TRICKY: make sure the github_oauth2 token has been set
         if (githubTokenIdentifier != null) {
             val reporter = GithubReporter(this, githubUrl, githubTokenIdentifier)
-            if (stacktraces.size > 0) {
+            if (stacktraces.isNotEmpty()) {
                 // upload most recent stacktrace
                 reporter.reportCrash(message, File(stacktraces[0]), Logger.getLogFile())
                 // empty the log
@@ -224,47 +206,41 @@ class MainMenu : Activity() {
 
     private fun initViews() {
         val projectId = pref!!.getInt(Settings.KEY_RECENT_PROJECT_ID, -1)
-        val languageView = findViewById<View>(R.id.language_view) as TextView
-        val bookView = findViewById<View>(R.id.book_view) as TextView
+        language_view as TextView
+        book_view as TextView
         if (projectId != -1) {
             val project = projectDb.getById(projectId)
             val language = project.language.name
-            languageView.setText(language)
+            language_view.text = language
 
             val book = project.getBookName()
-            bookView.setText(book)
+            book_view.text = book
         } else {
-            languageView.text = ""
-            bookView.text = ""
+            language_view.text = ""
+            book_view.text = ""
         }
     }
 
     private fun initApp() {
         pref = PreferenceManager.getDefaultSharedPreferences(this)
-        pref!!.edit().putString("version", BuildConfig.VERSION_NAME).commit()
+        pref.edit().putString("version", BuildConfig.VERSION_NAME).commit()
 
         //set up Visualization folder
         Utils.VISUALIZATION_DIR = File(externalCacheDir, "Visualization")
         Utils.VISUALIZATION_DIR.mkdirs()
 
         //if the current directory is already set, then don't overwrite it
-        if (pref!!.getString("current_directory", null) == null) {
-            pref!!.edit().putString("current_directory",
+        if (pref.getString("current_directory", null) == null) {
+            pref.edit().putString("current_directory",
                     Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit()
         }
-        pref!!.edit().putString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit()
+        pref.edit().putString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit()
 
-        //configure logger
-        val dir = File(externalCacheDir, STACKTRACE_DIR)
-        dir.mkdirs()
 
-        GlobalExceptionHandler.register(dir)
-        val minLogLevel = Integer.parseInt(pref!!.getString(KEY_PREF_LOGGING_LEVEL, PREF_DEFAULT_LOGGING_LEVEL))
-        configureLogger(minLogLevel, dir)
-
+        val dir = File(externalCacheDir, MainMenu.STACKTRACE_DIR)
         //check if we crashed
         val stacktraces = GlobalExceptionHandler.getStacktraces(dir)
-        if (stacktraces.size > 0) {
+        if (stacktraces.isNotEmpty()) {
             val fm = fragmentManager
             val brd = BugReportDialog()
             brd.setStyle(DialogFragment.STYLE_NO_TITLE, 0)
@@ -278,7 +254,7 @@ class MainMenu : Activity() {
         val visFilesLocation = Utils.VISUALIZATION_DIR
         val visFiles = visFilesLocation.listFiles() ?: return
         val rootPath = File(Environment.getExternalStorageDirectory(), "TranslationRecorder").absolutePath
-        val projects = projectDb!!.getAllProjects()
+        val projects = projectDb.getAll()
         val patterns = ArrayList<ProjectPatternMatcher>()
         for (project in projects) {
             patterns.add(project.getPatternMatcher())
@@ -329,36 +305,19 @@ class MainMenu : Activity() {
         return filename
     }
 
-
-    fun configureLogger(minLogLevel: Int, logDir: File) {
-        val logFile = File(logDir, "log.txt")
-        try {
-            logFile.createNewFile()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
-        Logger.configure(logFile, Logger.Level.getLevel(minLogLevel))
-        if (logFile.exists()) {
-            Logger.w(this.toString(), "SUCCESS: Log file initialized.")
-        } else {
-            Logger.e(this.toString(), "ERROR: could not initialize log file.")
-        }
-    }
-
     companion object {
 
-        val KEY_PREF_LOGGING_LEVEL = "logging_level"
-        val PREF_DEFAULT_LOGGING_LEVEL = "1"
-        val STACKTRACE_DIR = "stacktrace"
+        const val KEY_PREF_LOGGING_LEVEL = "logging_level"
+        const val PREF_DEFAULT_LOGGING_LEVEL = "1"
+        const val STACKTRACE_DIR = "stacktrace"
 
-        val FIRST_REQUEST = 1
-        val LANGUAGE_REQUEST = FIRST_REQUEST
-        val PROJECT_REQUEST = FIRST_REQUEST + 1
-        val BOOK_REQUEST = FIRST_REQUEST + 2
-        val MODE_REQUEST = FIRST_REQUEST + 3
-        val SOURCE_TEXT_REQUEST = FIRST_REQUEST + 4
-        val SOURCE_REQUEST = FIRST_REQUEST + 5
-        val PROJECT_WIZARD_REQUEST = FIRST_REQUEST + 6
+        const val FIRST_REQUEST = 1
+        const val LANGUAGE_REQUEST = FIRST_REQUEST
+        const val PROJECT_REQUEST = FIRST_REQUEST + 1
+        const val BOOK_REQUEST = FIRST_REQUEST + 2
+        const val MODE_REQUEST = FIRST_REQUEST + 3
+        const val SOURCE_TEXT_REQUEST = FIRST_REQUEST + 4
+        const val SOURCE_REQUEST = FIRST_REQUEST + 5
+        const val PROJECT_WIZARD_REQUEST = FIRST_REQUEST + 6
     }
 }

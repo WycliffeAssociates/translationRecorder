@@ -106,7 +106,7 @@ public class ProjectAdapter extends ArrayAdapter {
                 project.loadProjectIntoPreferences(ctx);
                 //TODO: should find place left off at?
                 v.getContext().startActivity(
-                        RecordingActivity.getNewRecordingIntent(
+                        RecordingActivity.Companion.getNewRecordingIntent(
                                 v.getContext(),
                                 project,
                                 ChunkPlugin.DEFAULT_CHAPTER,

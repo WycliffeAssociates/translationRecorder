@@ -4,6 +4,8 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin
+import org.wycliffeassociates.translationrecorder.data.model.Project
 import org.wycliffeassociates.translationrecorder.data.repository.*
 import org.wycliffeassociates.translationrecorder.persistence.entity.*
 import org.wycliffeassociates.translationrecorder.persistence.repository.dao.*
@@ -38,13 +40,13 @@ abstract class RoomDb : RoomDatabase(), AppDatabase {
     abstract fun takeDao(): TakeDao
     abstract fun userDao(): UserDao
 
-    lateinit var languageRepo: LanguageRepository
-    lateinit var versionRepo: VersionRepository
-    lateinit var anthRepo: AnthologyRepository
-    lateinit var bookRepo: BookRepository
-    lateinit var modeRepo: ModeRepository
-    lateinit var projectRepo: ProjectRepository
-    //lateinit var chapterRepo: ChapterRepository
+    private lateinit var languageRepo: LanguageRepository
+    private lateinit var versionRepo: VersionRepository
+    private lateinit var anthRepo: AnthologyRepository
+    private lateinit var bookRepo: BookRepository
+    private lateinit var modeRepo: ModeRepository
+    private lateinit var projectRepo: ProjectRepository
+    //private lateinit var chapterRepo: ChapterRepository
     //lateinit var chunkRepo: ChunkRepository
     //lateinit var takeRepo: TakeRepository
     //lateinit var userRepo: UserRepository
@@ -73,6 +75,10 @@ abstract class RoomDb : RoomDatabase(), AppDatabase {
         return projectRepo
     }
 
+    override fun chapterRepo(project: Project, plugin: ChunkPlugin): ChapterRepository {
+        return ChapterRepoImpl(project, plugin, chapterDao())
+    }
+
     private fun init() {
         languageRepo = LanguageRepoImpl(languageDao())
         versionRepo = VersionRepoImpl(versionDao())
@@ -92,7 +98,7 @@ abstract class RoomDb : RoomDatabase(), AppDatabase {
     companion object {
         private var INSTANCE: RoomDb? = null
 
-        fun getInstance(context: Context): RoomDb? {
+        fun getInstance(context: Context): RoomDb {
             if (INSTANCE == null) {
                 synchronized(RoomDb::class) {
                     INSTANCE = Room.databaseBuilder(
@@ -104,7 +110,7 @@ abstract class RoomDb : RoomDatabase(), AppDatabase {
                     INSTANCE!!.init()
                 }
             }
-            return INSTANCE
+            return INSTANCE!!
         }
 
         fun destroyInstance() {

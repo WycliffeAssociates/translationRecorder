@@ -10,10 +10,10 @@ import org.wycliffeassociates.translationrecorder.persistence.entity.ChunkEntity
 interface ChunkDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insert(chunk: ChunkEntity)
+    fun insert(chunk: ChunkEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertAll(chunks: List<ChunkEntity>)
+    fun insertAll(chunks: List<ChunkEntity>): List<Long>
 
     @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(chunk: ChunkEntity)
@@ -22,5 +22,8 @@ interface ChunkDao {
     fun delete(chunk: ChunkEntity)
 
     @Query("SELECT * FROM chunks")
-    fun getChunks(): List<ChunkEntity>
+    fun getAll(): List<ChunkEntity>
+
+    @Query("SELECT * FROM chunks WHERE id = :id")
+    fun getById(id: Int): ChunkEntity
 }

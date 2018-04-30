@@ -299,7 +299,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                         loadProject(project);
                         finish();
                         //TODO: should find place left off at?
-                        Intent intent = RecordingActivity.getNewRecordingIntent(
+                        Intent intent = RecordingActivity.Companion.getNewRecordingIntent(
                                 this,
                                 project,
                                 ChunkPlugin.DEFAULT_CHAPTER,

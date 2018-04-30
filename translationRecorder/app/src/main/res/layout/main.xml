@@ -7,7 +7,7 @@
     tools:context="org.wycliffeassociates.translationrecorder.MainMenu">
 
     <ImageButton
-        android:id="@+id/files"
+        android:id="@+id/btnFiles"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="33"
@@ -18,7 +18,7 @@
         />
 
     <RelativeLayout
-        android:id="@+id/new_record"
+        android:id="@+id/btnRecord"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="67"

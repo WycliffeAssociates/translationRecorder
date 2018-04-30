@@ -398,7 +398,7 @@ public class ChapterCard {
                 pauseAudio();
                 destroyAudioPlayer();
                 int chapter = mChapter;
-                Intent intent = RecordingActivity.getNewRecordingIntent(
+                Intent intent = RecordingActivity.Companion.getNewRecordingIntent(
                         context,
                         mProject,
                         chapter,

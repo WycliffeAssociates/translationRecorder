@@ -95,7 +95,7 @@ public class RecordingActivityIntentTest {
 
     public void testRecordingActivityDataFlow(Project project, int chapter, int unit) {
         //construct Intent to initialize playback activity based on parameters
-        Intent intent = RecordingActivity.getNewRecordingIntent(
+        Intent intent = RecordingActivity.Companion.getNewRecordingIntent(
                 InstrumentationRegistry.getContext(),
                 project,
                 chapter,

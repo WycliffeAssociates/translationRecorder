@@ -131,7 +131,7 @@ public class ActivityUnitListTest  {
 //            Field unitField = RecordingActivity.class.getDeclaredField("mInitialUnit");
 //            unitField.setAccessible(true);
             //int unitListUnit = unitField.getInt(aul);
-            int unitListUnit = aul.getIntent().getIntExtra(RecordingActivity.KEY_UNIT, -1);
+            int unitListUnit = aul.getIntent().getIntExtra(RecordingActivity.Companion.getKEY_UNIT(), -1);
             System.out.println("units.get is " + units.get(i).getStartVerse());
             System.out.println("i is " + i);
             System.out.println("unitListUnit is " + unitListUnit);

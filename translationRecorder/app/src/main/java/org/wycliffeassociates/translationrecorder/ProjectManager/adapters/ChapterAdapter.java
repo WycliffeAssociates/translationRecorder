@@ -111,7 +111,7 @@ public class ChapterAdapter extends ArrayAdapter {
             public void onClick(View v) {
                 mProject.loadProjectIntoPreferences(mCtx);
                 v.getContext().startActivity(
-                        RecordingActivity.getNewRecordingIntent(
+                        RecordingActivity.Companion.getNewRecordingIntent(
                                 v.getContext(),
                                 mProject,
                                 (position + 1),

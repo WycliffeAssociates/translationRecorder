@@ -41,8 +41,9 @@ data class ChunkEntity(
         var project: Int,
         @ColumnInfo(name = "chapter_fk")
         var chapter: Int,
+        val order: Int,
         var start: Int,
         var end: Int,
         @ColumnInfo(name = "chosen_take_fk")
-        var chosenTake: Int
+        var chosenTake: Int?
 )

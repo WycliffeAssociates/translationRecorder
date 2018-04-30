@@ -365,7 +365,7 @@ public class UnitCard {
             public void onClick(View view) {
                 pauseAudio();
                 mProject.loadProjectIntoPreferences(context);
-                view.getContext().startActivity(RecordingActivity.getNewRecordingIntent(context, mProject, mChapter, mFirstVerse));
+                view.getContext().startActivity(RecordingActivity.Companion.getNewRecordingIntent(context, mProject, mChapter, mFirstVerse));
             }
         };
     }
