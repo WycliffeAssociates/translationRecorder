@@ -38,6 +38,7 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
     public static final String KEY_PREF_SRC_LOC = "pref_src_loc";
     public static final String KEY_SDK_LEVEL = "pref_sdk_level";
     public static final String KEY_PROFILE = "pref_profile";
+    public static final String KEY_USER = "pref_user";
 
     public static final String KEY_PREF_GLOBAL_SOURCE_LOC = "pref_global_src_loc";
     public static final String KEY_PREF_GLOBAL_LANG_SRC = "pref_global_lang_src";

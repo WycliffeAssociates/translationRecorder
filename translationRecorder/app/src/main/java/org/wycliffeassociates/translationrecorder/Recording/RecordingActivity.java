@@ -31,6 +31,7 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 
@@ -61,6 +62,7 @@ public class RecordingActivity extends AppCompatActivity implements
     private static final String STATE_INSERTING = "state_inserting";
 
     private Project mProject;
+    private User mUser;
     private int mInitialChapter;
     private int mInitialUnit;
     private WavFile mLoadedWav;
@@ -218,6 +220,9 @@ public class RecordingActivity extends AppCompatActivity implements
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         mInitialChapter = pref.getInt(Settings.KEY_PREF_CHAPTER, DEFAULT_CHAPTER);
         mInitialUnit = pref.getInt(Settings.KEY_PREF_CHUNK, DEFAULT_UNIT);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        int userId = pref.getInt(Settings.KEY_USER, 1);
+        mUser = db.getUser(userId);
     }
 
     private void getCurrentUser() {
@@ -416,7 +421,8 @@ public class RecordingActivity extends AppCompatActivity implements
                 mNewRecording.getFile().getName(),
                 mNewRecording.getMetadata().getModeSlug(),
                 mNewRecording.getFile().lastModified(),
-                0
+                0,
+                mUser.getId()
         );
         db.close();
     }

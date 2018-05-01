@@ -20,6 +20,7 @@ import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.components.Mode;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 import org.wycliffeassociates.translationrecorder.project.components.Version;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
@@ -65,7 +66,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         void onCorruptFile(File file);
     }
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "translation_projects";
     private Language[] languages;
 
@@ -86,6 +87,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.ModeEntry.CREATE_MODE_TABLE);
         db.execSQL(ProjectContract.VersionEntry.CREATE_VERSION_TABLE);
         db.execSQL(ProjectContract.VersionRelationshipEntry.CREATE_VERSION_RELATIONSHIP_TABLE);
+        db.execSQL(ProjectContract.UserEntry.CREATE_USER_TABLE);
         //db.execSQL(ProjectContract.ModeRelationshipEntry.CREATE_MODE_RELATIONSHIP_TABLE);
         //db.close();
     }
@@ -101,6 +103,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_VERSIONS);
         db.execSQL(ProjectContract.DELETE_MODES);
         db.execSQL(ProjectContract.DELETE_VERSION_RELATIONSHIPS);
+        db.execSQL(ProjectContract.DELETE_USERS);
         //db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
         onCreate(db);
     }
@@ -121,6 +124,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.DELETE_VERSIONS);
         db.execSQL(ProjectContract.DELETE_MODES);
         db.execSQL(ProjectContract.DELETE_VERSION_RELATIONSHIPS);
+        db.execSQL(ProjectContract.DELETE_USERS);
         //db.execSQL(ProjectContract.DELETE_MODE_RELATIONSHIPS);
         onCreate(db);
     }
@@ -414,6 +418,47 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             throw new IllegalArgumentException("Language id not found in database.");
         }
         return language;
+    }
+
+    public User getUser(int id) throws IllegalArgumentException {
+        SQLiteDatabase db = getReadableDatabase();
+        String query = String.format("SELECT * FROM %s WHERE %s=%s", ProjectContract.UserEntry.TABLE_USER, ProjectContract.UserEntry._ID, String.valueOf(id));
+        Cursor cursor = db.rawQuery(query, null);
+        User user;
+        if (cursor.moveToFirst()) {
+            File audio = new File(cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_AUDIO)));
+            String hash = cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_HASH));
+            user = new User(audio, hash);
+        } else {
+            throw new IllegalArgumentException("Language id not found in database.");
+        }
+        return user;
+    }
+
+    public void addUser(User user) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ProjectContract.UserEntry.USER_AUDIO, user.getAudio().getAbsolutePath());
+        cv.put(ProjectContract.UserEntry.USER_HASH, user.getHash());
+        long result = db.insertWithOnConflict(ProjectContract.UserEntry.TABLE_USER, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+        user.setId((int)result);
+    }
+
+    public List<User> getAllUsers() {
+        List<User> userList = new ArrayList<>();
+        String query = "SELECT * FROM " + ProjectContract.UserEntry.TABLE_USER;
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                File audio = new File(cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_AUDIO)));
+                String hash = cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_HASH));
+                User user = new User(audio, hash);
+                userList.add(user);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return userList;
     }
 
     public String getBookName(String bookSlug) throws IllegalArgumentException {
@@ -814,7 +859,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
-    public void addTake(TakeInfo takeInfo, String takeFilename, String modeSlug, long timestamp, int rating) {
+    public void addTake(TakeInfo takeInfo, String takeFilename, String modeSlug, long timestamp, int rating, int userId) {
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
         String bookSlug = slugs.getBook();
         String languageSlug = slugs.getLanguage();
@@ -843,6 +888,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.TakeEntry.TAKE_NUMBER, takeInfo.getTake());
         cv.put(ProjectContract.TakeEntry.TAKE_FILENAME, takeFilename);
         cv.put(ProjectContract.TakeEntry.TAKE_TIMESTAMP, timestamp);
+        cv.put(ProjectContract.TakeEntry.TAKE_USER_FK, userId);
         long result = db.insertWithOnConflict(ProjectContract.TakeEntry.TABLE_TAKE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         if (result > 0) {
             autoSelectTake(unitId);
@@ -1280,7 +1326,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 File file = new File(dir, c.getString(nameIndex));
                 try {
                     WavFile wav = new WavFile(file);
-                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0);
+                    //default user; currently not enough info to be able to figure it out
+                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0, 1);
                 } catch (IllegalArgumentException e) {
                     //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
                     Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
@@ -1393,7 +1440,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 File file = new File(dir, c.getString(nameIndex));
                 try {
                     WavFile wav = new WavFile(file);
-                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0);
+                    //default user
+                    addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0, 1);
                 } catch (IllegalArgumentException e) {
                     //TODO: corrupt file, prompt to fix maybe? or delete? At least tell which file is causing a problem
                     Logger.e(this.toString(), "Error loading wav file named: " + dir + "/" + c.getString(nameIndex), e);
@@ -1490,7 +1538,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 //Need to get the mode out of the metadata because chunks of only one verse are indistinguishable from verse mode
                 File dir = ProjectFileUtils.getParentDirectory(takeInfo);
                 WavFile wav = new WavFile(new File(dir, c.getString(nameIndex)));
-                addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0);
+                addTake(takeInfo, c.getString(nameIndex), wav.getMetadata().getModeSlug(), c.getLong(timestampIndex), 0, 1);
             } while (c.moveToNext());
         }
         c.close();

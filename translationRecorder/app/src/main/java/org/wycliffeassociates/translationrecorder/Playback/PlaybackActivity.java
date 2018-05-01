@@ -9,11 +9,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -40,6 +42,7 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.MinimapLayer
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
+import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
@@ -49,6 +52,7 @@ import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
@@ -124,6 +128,7 @@ public class PlaybackActivity extends Activity implements
     private boolean mWaveformInflated = false;
     private boolean mMinimapInflated = false;
     private DrawThread mDrawLoop;
+    private User mUser;
 
     public static Intent getPlaybackIntent(
             Context ctx,
@@ -151,6 +156,10 @@ public class PlaybackActivity extends Activity implements
             throw new RuntimeException(e);
         }
         Logger.w(this.toString(), "onCreate");
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        int userId = pref.getInt(Settings.KEY_USER, 1);
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        mUser = db.getUser(userId);
     }
 
     private void initialize(Intent intent) throws IOException {
@@ -721,7 +730,8 @@ public class PlaybackActivity extends Activity implements
                                 to.getName(),
                                 from.getMetadata().getModeSlug(),
                                 to.lastModified(),
-                                0
+                                0,
+                                mUser.getId()
                         );
                         db.close();
                         String oldName = from.getFile().getName();
