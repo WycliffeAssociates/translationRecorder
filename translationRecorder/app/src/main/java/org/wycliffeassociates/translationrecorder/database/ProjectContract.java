@@ -158,6 +158,7 @@ public final class ProjectContract {
         public static final String TAKE_NUMBER = "number";
         public static final String TAKE_FILENAME = "filename";
         public static final String TAKE_TIMESTAMP = "timestamp";
+        public static final String TAKE_USER_FK = "user_fk";
         public static final String TAKE_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
@@ -169,6 +170,7 @@ public final class ProjectContract {
                 + TAKE_NUMBER + INTCOMMA
                 + TAKE_FILENAME + TEXTCOMMA
                 + TAKE_TIMESTAMP + INTCOMMA
+                + TAKE_USER_FK + INTCOMMA
                 + "CONSTRAINT " + TAKE_UNIQUE_CONSTRAINT + " UNIQUE(" + TAKE_UNIT_FK + "," +  TAKE_NUMBER + ")"
                 + ");";
     }
@@ -222,21 +224,19 @@ public final class ProjectContract {
                 + ");";
     }
 
-//    public static abstract class ModeRelationshipEntry implements BaseColumns {
-//        public static final String TABLE_MODE_RELATIONSHIP = "mode_relationship";
-//        public static final String MODE_FK = "mode_fk";
-//        public static final String ANTHOLOGY_FK = "anthology_fk";
-//        public static final String UNIQUE_CONSTRAINT = "cols_unique";
-//
-//        public static final String CREATE_MODE_RELATIONSHIP_TABLE = "CREATE TABLE " + TABLE_MODE_RELATIONSHIP + " ("
-//                + _ID + " INTEGER PRIMARY KEY,"
-//                + MODE_FK + INTCOMMA
-//                + ANTHOLOGY_FK + INTCOMMA
-//                + "FOREIGN KEY(" + MODE_FK + ") REFERENCES " + ModeEntry.TABLE_MODE + "(" + _ID + ")"
-//                + "FOREIGN KEY(" + ANTHOLOGY_FK + ") REFERENCES " + AnthologyEntry.TABLE_ANTHOLOGY + "(" + _ID + ")"
-//                + "CONSTRAINT " + UNIQUE_CONSTRAINT + " UNIQUE(" + MODE_FK + COMMA + ANTHOLOGY_FK + ")"
-//                + ");";
-//    }
+    public static abstract class UserEntry implements BaseColumns {
+        public static final String TABLE_USER = "user";
+        public static final String USER_AUDIO = "audio";
+        public static final String USER_HASH = "hash";
+        public static final String USER_UNIQUE_CONSTRAINT = "cols_unique";
+
+        public static final String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + " ("
+                + _ID + "INTEGER PRIMARY KEY,"
+                + USER_AUDIO + TEXTCOMMA
+                + USER_HASH + TEXTCOMMA
+                + "CONSTRAINT " + USER_UNIQUE_CONSTRAINT + " UNIQUE(" + USER_AUDIO + "," + USER_HASH + ")"
+                + " );";
+    }
 
     public static abstract class UserEntry implements BaseColumns {
         public static final String TABLE_USER = "user";
@@ -280,6 +280,7 @@ public final class ProjectContract {
     public static final String DELETE_VERSION_RELATIONSHIPS = "DROP TABLE IF EXISTS " + VersionRelationshipEntry.TABLE_VERSION_RELATIONSHIP;
     public static final String DELETE_TAKES = "DROP TABLE IF EXISTS " + TakeEntry.TABLE_TAKE;
     public static final String DELETE_MODES = "DROP TABLE IF EXISTS " + ModeEntry.TABLE_MODE;
+    public static final String DELETE_USERS = "DROP TABLE IF EXISTS " + UserEntry.TABLE_USER;
     //public static final String DELETE_MODE_RELATIONSHIPS = "DROP TABLE IF EXISTS " + ModeRelationshipEntry.TABLE_MODE_RELATIONSHIP;
 
     public static final String DELETE_TEMP = "DROP TABLE IF EXISTS stuff";

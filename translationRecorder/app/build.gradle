@@ -62,12 +62,10 @@ repositories {
 
 dependencies {
     compile 'com.android.support:multidex:1.0.1'
+    compileOnly 'com.google.auto.value:auto-value:1.5.1'
+    annotationProcessor 'com.google.auto.value:auto-value:1.5.1'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('src/main/lib/commons-net-3.3.jar')
-    compile 'com.amazonaws:aws-android-sdk-core:2.+'
-    compile 'com.amazonaws:aws-android-sdk-cognito:2.+'
-    compile 'com.amazonaws:aws-android-sdk-s3:2.+'
-    compile 'com.amazonaws:aws-android-sdk-ddb:2.+'
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:cardview-v7:26.+'
     compile 'com.android.support:recyclerview-v7:26.+'
