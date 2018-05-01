@@ -1,16 +1,13 @@
 package login.fragments
 
 import android.app.Fragment
-import android.graphics.drawable.Drawable
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.gigamole.library.PulseView
-import com.pixplicity.sharp.Sharp
-import jdenticon.Jdenticon
 import kotlinx.android.synthetic.main.fragment_create_profile.*
+import login.utils.fragmentTransaction
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.wycliffeassociates.translationrecorder.login.R
@@ -63,27 +60,16 @@ class FragmentCreateProfile : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btnRecord as PulseView
         btnRecord.setOnClickListener {
             if (btnRecord.isActivated) {
                 btnRecord.isActivated = false
                 stopRecording()
-                btnRecord.visibility = View.INVISIBLE
-            }
-            else {
+            } else {
                 btnRecord.isActivated = true
                 startRecording()
             }
-        }
-        btnRecord.startPulse()
-        savedInstanceState?.let {
-            userAudio = savedInstanceState.getSerializable("user_audio") as File
-            if (userAudio.length() > 0) {
-                var icon = generateIdenticon()
-                identicon_view.setImageDrawable(icon)
-                btnRecord.visibility = View.GONE
-                identicon_view.postInvalidate()
-            }
+            fragmentTransaction(fragmentManager, FragmentRedoYes(), "redoyes", true, getHash())
+
         }
     }
 
@@ -102,23 +88,13 @@ class FragmentCreateProfile : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     private fun stopRecording() {
         mMediaRecorder.stop()
-        var icon = generateIdenticon()
-        updateIdenticonView(icon)
     }
 
-    private fun generateIdenticon(): Drawable {
-        hash = String(Hex.encodeHex(DigestUtils.md5(FileInputStream(userAudio))))
-        val svg = Jdenticon.toSvg(hash, 512, 0f)
-        return Sharp.loadString(svg).drawable
-    }
-
-    private fun updateIdenticonView(identicon: Drawable) {
-        identicon_view.setImageDrawable(identicon)
-        identicon_view.postInvalidate()
+    private fun getHash(): String {
+        return String(Hex.encodeHex(DigestUtils.md5(FileInputStream(userAudio))))
     }
 }
