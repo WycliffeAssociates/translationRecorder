@@ -8,6 +8,7 @@ import java.io.File;
 
 public class User {
 
+    private int id = 1;
     private File audio;
     private String hash;
 
