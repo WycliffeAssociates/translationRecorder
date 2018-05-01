@@ -1,6 +1,7 @@
 import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 def buildTime() {
     def df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'") // you can change it
@@ -10,8 +11,13 @@ def buildTime() {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion '27.0.3'
     defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath true
+            }
+        }
         applicationId "org.wycliffeassociates.translationrecorder"
         minSdkVersion 19
         targetSdkVersion 22
@@ -51,6 +57,7 @@ android {
 
 repositories {
     maven { url 'http://guardian.github.com/maven/repo-releases' }
+    mavenCentral()
 }
 
 dependencies {
@@ -58,15 +65,15 @@ dependencies {
     compileOnly 'com.google.auto.value:auto-value:1.5.1'
     annotationProcessor 'com.google.auto.value:auto-value:1.5.1'
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.2.0'
     compile files('src/main/lib/commons-net-3.3.jar')
-    compile 'com.android.support:appcompat-v7:22.0.+'
-    compile 'com.android.support:cardview-v7:22.0.+'
-    compile 'com.android.support:recyclerview-v7:22.0.+'
+    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:cardview-v7:26.+'
+    compile 'com.android.support:recyclerview-v7:26.+'
     compile 'com.github.clans:fab:1.6.4'
     compile 'com.bignerdranch.android:recyclerview-multiselect:+'
     compile 'com.github.filippudak.progresspieview:library:1.0.+'
     compile files('src/main/lib/commons-io-2.4.jar')
+    compile 'org.apache.commons:commons-lang3:3.7'
     androidTestCompile 'com.android.support.test:runner:0.3'
     androidTestCompile 'com.android.support.test:rules:0.3'
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
@@ -79,9 +86,13 @@ dependencies {
     compile('net.rdrei.android.dirchooser:library:3.2@aar') {
         transitive = true;
     }
+
+    def uploadServiceVersion = "3.4.1"
+    compile "net.gotev:uploadservice:$uploadServiceVersion"
+    compile "net.gotev:uploadservice-okhttp:$uploadServiceVersion"
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
+
     //compile files('src/main/lib/zip4j_1.3.2.jar')
-    compile "net.gotev:uploadservice:3.4.1"
     compile 'net.lingala.zip4j:zip4j:1.3.2'
     testCompile 'org.mockito:mockito-core:2.6.3'
     androidTestCompile 'org.mockito:mockito-android:2.6.3'
@@ -89,13 +100,15 @@ dependencies {
     compile files('src/main/lib/archive_of_holding_0.9.jar')
     compile project(':chunkplugin')
     compile project(':biblechunk')
+    compile project(':login')
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     //compile project(':obschunk')
     //compile project(':noteschunk')
     //compile project(':questionschunk')
 }
 
 configurations.all {
-    resolutionStrategy.force 'com.android.support:support-annotations:22.1.0'
+    resolutionStrategy.force 'com.android.support:support-annotations:26.+'
 }
 
 android {

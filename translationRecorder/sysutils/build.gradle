@@ -1,8 +1,9 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 19
@@ -26,4 +27,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'org.unfoldingword.tools:gogs-client:1.4.0'
     testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }

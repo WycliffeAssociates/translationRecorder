@@ -4,59 +4,55 @@
     package="org.wycliffeassociates.translationrecorder">
 
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
 
     <application
-        android:name=".Initializer"
-        android:hardwareAccelerated="true"
+        android:name=".TranslationRecorderApp"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/TR.NoActionBar"
-        tools:replace="android:theme"
-        >
+        tools:replace="android:theme">
 
         <!-- Splash screen -->
-        <activity android:name="org.wycliffeassociates.translationrecorder.SplashScreen"
+        <activity
+            android:name="org.wycliffeassociates.translationrecorder.SplashScreen"
             android:label="@string/app_name"
-            android:screenOrientation="locked"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:screenOrientation="locked">
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
 
         <!-- Main activity -->
         <activity android:name="org.wycliffeassociates.translationrecorder.MainMenu" />
 
         <!-- Other activities -->
-        <activity android:name="org.wycliffeassociates.translationrecorder.Recording.RecordingActivity"
-            android:screenOrientation="landscape"
+        <activity
+            android:name="org.wycliffeassociates.translationrecorder.Recording.RecordingActivity"
             android:noHistory="true"
-            />
+            android:screenOrientation="landscape" />
 
         <activity android:name="org.wycliffeassociates.translationrecorder.Recording.PermissionsDeniedActivity" />
 
-        <activity android:name="org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity"
-            android:screenOrientation="landscape"
-            />
+        <activity
+            android:name="org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity"
+            android:screenOrientation="landscape" />
 
-        <activity android:name="org.wycliffeassociates.translationrecorder.SettingsPage.Settings"
-            android:theme="@style/TR"
-            />
+        <activity
+            android:name="org.wycliffeassociates.translationrecorder.SettingsPage.Settings"
+            android:theme="@style/TR" />
 
-        <activity android:name="org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityProjectManager"
-            />
-        <activity android:name="org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityChapterList"
-            />
-        <activity android:name="org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList"
-            />
+        <activity android:name="org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityProjectManager" />
+        <activity android:name="org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityChapterList" />
+        <activity android:name="org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityUnitList" />
 
         <activity android:name="org.wycliffeassociates.translationrecorder.project.SelectSourceDirectory">
             <intent-filter>
@@ -72,17 +68,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.wycliffeassociates.translationrecorder.project.SourceAudioActivity"
-            android:theme="@style/TR"
-            />
-        <activity android:name="org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity"
-            android:theme="@style/TR"
-            />
+        <activity
+            android:name="org.wycliffeassociates.translationrecorder.project.SourceAudioActivity"
+            android:theme="@style/TR" />
+        <activity
+            android:name="org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity"
+            android:theme="@style/TR" />
 
         <!-- ?? -->
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
         <activity android:name="org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport$StorageAccess" />
-        <activity android:name="org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport$ShareZipToApps"/>
+        <activity android:name="org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport$ShareZipToApps" />
 
 
         <activity android:name="com.door43.login.ProfileActivity" />
@@ -91,6 +87,13 @@
         <activity android:name="com.door43.login.TermsOfUseActivity" />
         <activity android:name="com.door43.login.LoginDoor43Activity" />
         <activity android:name="com.door43.login.legal.LegalDocumentActivity" />
+        <activity android:name="login.LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="login.UserActivity" />
 
         <activity android:name="org.wycliffeassociates.translationrecorder.TestUtils.FragmentTestActivity" />
 

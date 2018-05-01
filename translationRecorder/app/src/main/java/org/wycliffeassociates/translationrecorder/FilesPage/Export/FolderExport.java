@@ -24,18 +24,11 @@ public class FolderExport extends Export{
         super(projectToExport, project);
     }
 
-    /**
-     * Exports to a folder or SD card by starting a wrapper activity around the Storage Access Framework
-     */
-    public void export(){
-        zipFiles(this);
-    }
-
     @Override
     protected void handleUserInput() {
         Intent i = new Intent(mCtx.getActivity(), StorageAccess.class);
         try {
-            i.putExtra("export_project", mProjectToExport.getCanonicalPath());
+            i.putExtra("export_project", mDirectoryToZip.getCanonicalPath());
             i.putExtra("zip_path", mZipFile.getCanonicalPath());
         } catch (IOException e) {
             e.printStackTrace();

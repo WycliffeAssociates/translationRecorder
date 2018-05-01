@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Login</string>
+    <string name="record">Record</string>
+    <string name="record_name">What is your name?</string>
+    <string name="privacy">If you are concerned for your privacy or safety, please use a nickname or pseudonym</string>
+    <string name="txt_record"><u>Record</u></string>
+    <string name="txt_btn_redo">Redo</string>
+    <string name="txt_btn_yes">Yes</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

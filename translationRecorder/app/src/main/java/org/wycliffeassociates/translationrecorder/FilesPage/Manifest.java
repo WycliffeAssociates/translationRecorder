@@ -5,13 +5,13 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
+import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
-import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 
@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,15 +31,20 @@ public class Manifest {
 
     protected Project mProject;
     protected List<File> mTakes = new ArrayList<>();
+    File mProjectDirectory;
 
-    public Manifest() {}
+    public Manifest(Project project, File projectDirectory) {
+        mProject = project;
+        mProjectDirectory = projectDirectory;
+    }
 
-    public void createManifestFile(Context ctx, Project p, File file, ProjectDatabaseHelper db) throws IOException {
-        mProject = p;
-        ChunkPlugin plugin = p.getChunkPlugin(new ChunkPluginLoader(ctx));
+    public File createManifestFile(Context ctx, ProjectDatabaseHelper db) throws IOException {
+
+        ChunkPlugin plugin = mProject.getChunkPlugin(new ChunkPluginLoader(ctx));
         List<Chapter> chapters = plugin.getChapters();
         Gson gson = new Gson();
-        try (JsonWriter jw = gson.newJsonWriter(new FileWriter(file))) {
+        File output = new File(mProjectDirectory, "manifest.json");
+        try (JsonWriter jw = gson.newJsonWriter(new FileWriter(output))) {
             jw.beginObject();
             writeLanguage(jw);
             writeBook(jw);
@@ -48,6 +54,7 @@ public class Manifest {
             writeChapters(db, chapters, jw);
             jw.endObject();
         }
+        return output;
     }
 
     public List<File> getTakesInManifest() {
@@ -99,10 +106,10 @@ public class Manifest {
     private void writeChapters(ProjectDatabaseHelper db, List<Chapter> chapters, JsonWriter jw) throws IOException {
         jw.name("manifest");
         jw.beginArray();
-        for(Chapter chapter : chapters) {
+        for (Chapter chapter : chapters) {
             int number = chapter.getNumber();
             int checkingLevel = 0;
-            if(db.chapterExists(mProject, number)) {
+            if (db.chapterExists(mProject, number)) {
                 checkingLevel = db.getChapterCheckingLevel(mProject, number);
             }
             jw.beginObject();
@@ -117,7 +124,7 @@ public class Manifest {
     private void writeChunks(ProjectDatabaseHelper db, List<Chunk> chunks, int chapter, JsonWriter jw) throws IOException {
         jw.name("chunks");
         jw.beginArray();
-        for(Chunk chunk : chunks) {
+        for (Chunk chunk : chunks) {
             int startv = chunk.getStartVerse();
             int endv = chunk.getEndVerse();
             jw.beginObject();
@@ -133,11 +140,11 @@ public class Manifest {
         List<File> takes = getTakesList(chapter, startv, endv);
         jw.name("takes");
         jw.beginArray();
-        for(Iterator<File> i = takes.iterator(); i.hasNext();) {
+        for (Iterator<File> i = takes.iterator(); i.hasNext(); ) {
             File take = i.next();
             ProjectPatternMatcher ppm = mProject.getPatternMatcher();
             ppm.match(take);
-            if(ppm.matched()) {
+            if (ppm.matched()) {
                 TakeInfo info = ppm.getTakeInfo();
                 int rating = db.getTakeRating(info);
                 jw.beginObject();
@@ -153,13 +160,8 @@ public class Manifest {
     }
 
     private List<File> getTakesList(int chapter, int startv, int endv) {
-        File root = ProjectFileUtils.getProjectDirectory(mProject);
-        String chap = ProjectFileUtils.chapterIntToString(mProject, chapter);
-        File folder = new File(root, chap);
-        File[] files = folder.listFiles();
+        Collection<File> files = FileUtils.listFiles(mProjectDirectory, new String[]{"wav"}, true);
         ProjectPatternMatcher ppm;
-        int first = startv;
-        int end = endv;
         //Get only the files of the appropriate unit
         List<File> resultFiles = new ArrayList<>();
         if (files != null) {
@@ -167,7 +169,11 @@ public class Manifest {
                 ppm = mProject.getPatternMatcher();
                 ppm.match(file);
                 TakeInfo ti = ppm.getTakeInfo();
-                if (ti != null && ti.getStartVerse() == first && ti.getEndVerse() == end) {
+                if (ti != null
+                        && ti.getChapter() == chapter
+                        && ti.getStartVerse() == startv
+                        && ti.getEndVerse() == endv
+                        ) {
                     resultFiles.add(file);
                 }
             }
