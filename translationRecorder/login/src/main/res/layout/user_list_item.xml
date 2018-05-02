@@ -42,6 +42,6 @@
             app:layout_constraintStart_toStartOf="@+id/identicon"
             app:layout_constraintTop_toBottomOf="@+id/identicon"
             app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_play_arrow_white_48dp" />
+            app:srcCompat="@drawable/play_pause_selector" />
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>

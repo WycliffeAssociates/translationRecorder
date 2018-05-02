@@ -26,11 +26,11 @@ class UserCardAdapter(private val context: Context, private val users: ArrayList
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val user = users[position]
         holder?.identicon?.setImageResource(user.identicon)
-        holder?.playIcon?.setImageResource(R.drawable.ic_play_arrow_white_48dp)
         holder?.identicon.setOnClickListener(View.OnClickListener {
             Toast.makeText(it.context, "Identicon $position", Toast.LENGTH_LONG).show()
         })
         holder?.playIcon.setOnClickListener(View.OnClickListener {
+            it.isActivated = !it.isActivated
             Toast.makeText(it.context, "PlayIcon", Toast.LENGTH_LONG).show()
         })
     }
