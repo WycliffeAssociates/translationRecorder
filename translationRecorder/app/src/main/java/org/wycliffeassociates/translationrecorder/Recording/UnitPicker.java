@@ -48,7 +48,7 @@ public class UnitPicker extends LinearLayout {
         inflate(getContext(), layout, this);
         mIncrementButton = (ImageButton) findViewById(R.id.increment);
         mDecrementButton = (ImageButton) findViewById(R.id.decrement);
-        mText = (EditText) findViewById(R.id.text);
+        mText = (EditText) findViewById(R.id.playIcon);
         mCurrent = 0;
         mText.setEnabled(false);
         mText.setFocusable(false);

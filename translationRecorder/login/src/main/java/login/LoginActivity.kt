@@ -26,7 +26,10 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-
+    override fun onStart() {
+        super.onStart()
+        startActivity(Intent(this, UserActivity::class.java))
+    }
 
     private fun initializeFragments() {
         mFragmentCreateProfile = FragmentCreateProfile.newInstance(File(externalCacheDir, "profiles"))

@@ -18,5 +18,4 @@
         card_view:layout_constraintRight_toRightOf="parent"
         card_view:layout_constraintTop_toTopOf="parent"
         card_view:layout_constraintWidth_percent="0.5" />
-
 </android.support.constraint.ConstraintLayout>
