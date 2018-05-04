@@ -1,11 +1,11 @@
 package org.wycliffeassociates.translationrecorder.FilesPage.Export;
 
-import com.amazonaws.util.Md5Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.FilesPage.Manifest;
 import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
@@ -16,6 +16,7 @@ import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -101,16 +102,7 @@ public class TranslationExchangeDiff {
                 iter.remove();
             } else if (existingFiles.containsKey(f.getName())) {
                 //compute the md5 hash and convert to string
-                byte[] bytes = Md5Utils.computeMD5Hash(f);
-                StringBuilder hexString = new StringBuilder();
-                for (int i = 0; i < bytes.length; i++) {
-                    String hex = Integer.toHexString(0xFF & bytes[i]);
-                    if (hex.length() == 1) {
-                        hexString.append('0');
-                    }
-                    hexString.append(hex);
-                }
-                String hash = hexString.toString();
+                String hash = DigestUtils.md5Hex(new FileInputStream(f));
                 //compare hash to hash received from tE
                 if (hash.equals(existingFiles.get(f.getName()))) {
                     iter.remove();

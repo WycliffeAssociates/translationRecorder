@@ -62,11 +62,15 @@ public class ActiveRecordingRenderer {
                             double db = Math.abs(max);
                             if (db > maxDB && ((System.currentTimeMillis() - volumeBarDelay) < 60)) {
                                 maxDB = db;
-                                mFragmentVolumeBar.updateDb((int)maxDB);
+                                if(mFragmentVolumeBar != null) {
+                                    mFragmentVolumeBar.updateDb((int) maxDB);
+                                }
                             } else if (((System.currentTimeMillis() - volumeBarDelay) > 60)) {
                                 volumeBarDelay = System.currentTimeMillis();
                                 maxDB = db;
-                                mFragmentVolumeBar.updateDb((int)maxDB);
+                                if(mFragmentVolumeBar != null) {
+                                    mFragmentVolumeBar.updateDb((int) maxDB);
+                                }
                             }
                             if (!onlyVolumeTest) {
                                 for(int i = 0; i < buffer.length; i+=2) {
@@ -78,7 +82,9 @@ public class ActiveRecordingRenderer {
                                 if((System.currentTimeMillis() - waveformDelay) > 12){
                                     waveformDelay = System.currentTimeMillis();
                                     mFragmentRecordingWaveform.updateWaveform(ringBuffer.getArray());
-                                    mFragmentRecordingControls.updateTime();
+                                    if(mFragmentRecordingControls != null) {
+                                        mFragmentRecordingControls.updateTime();
+                                    }
                                 }
                                 //if only running the volume meter, the queues need to be emptied
                             } else {

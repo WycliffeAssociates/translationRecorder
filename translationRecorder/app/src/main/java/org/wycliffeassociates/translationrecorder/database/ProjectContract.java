@@ -152,7 +152,6 @@ public final class ProjectContract {
     public static abstract class TakeEntry implements BaseColumns {
         public static final String TABLE_TAKE = "takes";
         public static final String TAKE_UNIT_FK = "unit_fk";
-        public static final String TAKE_USER_FK = "user_fk";
         public static final String TAKE_RATING = "rating";
         public static final String TAKE_NOTES = "notes";
         public static final String TAKE_NUMBER = "number";
@@ -164,7 +163,6 @@ public final class ProjectContract {
         public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
                 + _ID + " INTEGER PRIMARY KEY, "
                 + TAKE_UNIT_FK + INTCOMMA
-                + TAKE_USER_FK + INTCOMMA
                 + TAKE_RATING + INTCOMMA
                 + TAKE_NOTES + TEXTCOMMA
                 + TAKE_NUMBER + INTCOMMA
@@ -225,30 +223,16 @@ public final class ProjectContract {
     }
 
     public static abstract class UserEntry implements BaseColumns {
-        public static final String TABLE_USER = "user";
+        public static final String TABLE_USER = "tr_users";
         public static final String USER_AUDIO = "audio";
         public static final String USER_HASH = "hash";
         public static final String USER_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + " ("
-                + _ID + "INTEGER PRIMARY KEY,"
+                + _ID + " INTEGER PRIMARY KEY,"
                 + USER_AUDIO + TEXTCOMMA
                 + USER_HASH + TEXTCOMMA
                 + "CONSTRAINT " + USER_UNIQUE_CONSTRAINT + " UNIQUE(" + USER_AUDIO + "," + USER_HASH + ")"
-                + " );";
-    }
-
-    public static abstract class UserEntry implements BaseColumns {
-        public static final String TABLE_USER = "user";
-        public static final String USER_AUDIO = "audio";
-        public static final String USER_HASH = "hash";
-        public static final String USER_NAME = "name";
-
-        public static final String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + " ("
-                + _ID + "INTEGER PRIMARY KEY,"
-                + USER_AUDIO + TEXTCOMMA
-                + USER_HASH + TEXTCOMMA
-                + USER_NAME + TEXTCOMMA
                 + " );";
     }
 

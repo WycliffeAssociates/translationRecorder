@@ -69,7 +69,9 @@ public class WavFile implements Parcelable {
 
     void finishWrite(int totalAudioLength) throws IOException {
         mTotalAudioLength = totalAudioLength;
-        writeMetadata(totalAudioLength);
+        if(mMetadata != null) {
+            writeMetadata(totalAudioLength);
+        }
     }
 
     public WavFile(Parcel in) {

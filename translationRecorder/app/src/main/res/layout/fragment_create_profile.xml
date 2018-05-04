@@ -15,20 +15,18 @@
         android:layout_marginStart="8dp"
         android:text="@string/record_name"
         android:textAlignment="center"
-        android:textAppearance="@android:style/TextAppearance.Material.Title"
         app:layout_constraintBottom_toTopOf="@+id/textView2"
         app:layout_constraintEnd_toEndOf="@+id/textView2"
         app:layout_constraintStart_toStartOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/identicon_view" />
+        app:layout_constraintTop_toBottomOf="@+id/waveform_view" />
 
-    <ImageView
-        android:id="@+id/identicon_view"
+    <FrameLayout
+        android:id="@+id/waveform_view"
         android:layout_width="0dp"
         android:layout_height="128dp"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
         android:contentDescription="@null"
-        android:padding="12dp"
+        android:background="@color/dark_gray_0"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

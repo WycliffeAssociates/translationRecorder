@@ -11,18 +11,21 @@
         android:src="@drawable/tr_512" />
 
     <Button
+        android:id="@+id/btnContinue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Continue"
         />
 
     <Button
+        android:id="@+id/btnGoogleSignin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign in with Google"
         />
 
     <Button
+        android:id="@+id/btnGithubSignin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign in with GitHub"

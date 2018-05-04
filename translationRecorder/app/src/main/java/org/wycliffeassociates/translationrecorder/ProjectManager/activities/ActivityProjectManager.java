@@ -260,7 +260,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     //sets the profile in the preferences to "" then returns to the splash screen
     private void logout() {
-        pref.edit().putString(Settings.KEY_PROFILE, "").commit();
+        pref.edit().remove(Settings.KEY_PROFILE).commit();
         finishAffinity();
         Intent intent = new Intent(this, SplashScreen.class);
         startActivity(intent);
