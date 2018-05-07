@@ -1,6 +1,7 @@
 package login.fragments
 
 import android.app.Fragment
+import android.graphics.drawable.Animatable
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import org.wycliffeassociates.translationrecorder.login.R
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+
 
 /**
  * Created by sarabiaj on 3/10/2018.
@@ -61,10 +63,12 @@ class FragmentCreateProfile : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btnRecord.setOnClickListener {
+            (btnRecord.background as Animatable).start()
             if (btnRecord.isActivated) {
                 btnRecord.isActivated = false
                 stopRecording()
             } else {
+
                 btnRecord.isActivated = true
                 startRecording()
             }

@@ -164,7 +164,6 @@ public final class ProjectContract {
         public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
                 + _ID + " INTEGER PRIMARY KEY, "
                 + TAKE_UNIT_FK + INTCOMMA
-                + TAKE_USER_FK + INTCOMMA
                 + TAKE_RATING + INTCOMMA
                 + TAKE_NOTES + TEXTCOMMA
                 + TAKE_NUMBER + INTCOMMA

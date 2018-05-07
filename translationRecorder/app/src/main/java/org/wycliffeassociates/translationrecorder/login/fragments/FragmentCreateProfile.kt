@@ -2,6 +2,7 @@ package org.wycliffeassociates.translationrecorder.login.fragments
 
 import android.app.Fragment
 import android.content.Intent
+import android.graphics.drawable.Animatable
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
@@ -19,8 +20,8 @@ import org.wycliffeassociates.translationrecorder.Recording.RecordingQueues
 import org.wycliffeassociates.translationrecorder.Recording.WavFileWriter
 import org.wycliffeassociates.translationrecorder.Recording.WavRecorder
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRecordingWaveform
-import org.wycliffeassociates.translationrecorder.login.utils.convertWavToMp4
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnProfileCreatedListener
+import org.wycliffeassociates.translationrecorder.login.utils.convertWavToMp4
 import org.wycliffeassociates.translationrecorder.wav.WavFile
 import java.io.File
 import java.util.*
@@ -75,10 +76,12 @@ class FragmentCreateProfile : Fragment() {
         mRecordingWaveform = FragmentRecordingWaveform.newInstance()
         btnRecord as Button
         btnRecord.setOnClickListener {
+            (btnRecord.background as Animatable).start()
             if (btnRecord.isActivated) {
                 btnRecord.isActivated = false
                 stopRecording()
             } else {
+
                 btnRecord.isActivated = true
                 startRecording()
             }
@@ -95,7 +98,7 @@ class FragmentCreateProfile : Fragment() {
     }
 
     private fun startRecording() {
-        if(!isRecording) {
+        if (!isRecording) {
             isRecording = true
             activity.stopService(Intent(activity, WavRecorder::class.java))
             RecordingQueues.clearQueues()
@@ -107,7 +110,7 @@ class FragmentCreateProfile : Fragment() {
             activity.startService(Intent(activity, WavRecorder::class.java))
             activity.startService(WavFileWriter.getIntent(activity, mNewRecording))
             mRenderer.listenForRecording(false)
-            Handler(Looper.getMainLooper()).postDelayed({btnRecord.performClick()}, 3000)
+            Handler(Looper.getMainLooper()).postDelayed({ btnRecord.performClick() }, 3000)
 
         } else {
             stopRecording()
@@ -125,7 +128,7 @@ class FragmentCreateProfile : Fragment() {
 
     private fun convertAudio() {
         launch(UI) {
-            if(userAudio.exists()) {
+            if (userAudio.exists()) {
                 userAudio.delete()
                 userAudio.createNewFile()
             }
