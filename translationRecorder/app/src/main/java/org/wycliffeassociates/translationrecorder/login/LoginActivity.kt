@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.door43.login.TermsOfUseActivity
 import org.wycliffeassociates.translationrecorder.R
-import org.wycliffeassociates.translationrecorder.R.layout.activity_login
 import org.wycliffeassociates.translationrecorder.login.fragments.FragmentCreateProfile
 import org.wycliffeassociates.translationrecorder.login.fragments.FragmentReviewProfile
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnProfileCreatedListener
@@ -23,7 +22,7 @@ class LoginActivity : AppCompatActivity(), OnProfileCreatedListener, OnRedoListe
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(activity_login)
+        setContentView(R.layout.activity_login)
         if (savedInstanceState == null) {
             startActivityForResult(Intent(this, TermsOfUseActivity::class.java), 42)
             profilesDirectory = File(externalCacheDir, "profiles")
@@ -65,7 +64,7 @@ class LoginActivity : AppCompatActivity(), OnProfileCreatedListener, OnRedoListe
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == 42 && resultCode != TermsOfUseActivity.RESULT_OK) {
+        if (requestCode == 42 && resultCode != TermsOfUseActivity.RESULT_OK) {
             finish()
         }
     }

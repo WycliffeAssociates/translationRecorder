@@ -73,6 +73,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:text="@string/txt_record"
+        android:textColor="@color/red"
         app:layout_constraintEnd_toEndOf="@+id/btnRecord"
         app:layout_constraintStart_toStartOf="@+id/btnRecord"
         app:layout_constraintTop_toBottomOf="@+id/btnRecord" />

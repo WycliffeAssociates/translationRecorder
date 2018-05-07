@@ -14,10 +14,10 @@ import android.widget.ImageView
 import com.pixplicity.sharp.Sharp
 import jdenticon.Jdenticon
 import kotlinx.android.synthetic.main.fragment_review_profile.*
-import org.wycliffeassociates.translationrecorder.MainMenu
 import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
+import org.wycliffeassociates.translationrecorder.login.UserActivity
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnRedoListener
 import org.wycliffeassociates.translationrecorder.project.components.User
 import java.io.File
@@ -66,7 +66,7 @@ class FragmentReviewProfile : Fragment() {
             db.addUser(user)
             val pref = PreferenceManager.getDefaultSharedPreferences(activity)
             pref.edit().putString(Settings.KEY_PROFILE, user.toString()).apply()
-            val mainActivityIntent = Intent(activity, MainMenu::class.java)
+            val mainActivityIntent = Intent(activity, UserActivity::class.java)
             activity.startActivity(mainActivityIntent)
             activity.finish()
         }

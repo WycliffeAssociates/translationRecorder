@@ -24,14 +24,13 @@
     </aapt:attr>
     <target android:name="path">
         <aapt:attr name="android:animation">
-            <set
-                android:ordering="together"
-                android:repeatCount="0">
+            <set>
                 <objectAnimator
                     android:duration="3500"
                     android:interpolator="@android:anim/linear_interpolator"
                     android:propertyName="strokeColor"
                     android:valueFrom="#fdb6bd"
+                    android:repeatCount="-1"
                     android:valueTo="#e74c3c"
                     android:valueType="colorType" />
                 <objectAnimator

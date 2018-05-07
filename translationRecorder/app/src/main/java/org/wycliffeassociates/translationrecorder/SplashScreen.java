@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.login.LoginActivity;
+import org.wycliffeassociates.translationrecorder.login.UserActivity;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 import org.wycliffeassociates.translationrecorder.project.ProjectPlugin;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
@@ -52,7 +53,7 @@ public class SplashScreen extends Activity {
                     initDatabase();
                     String profile = PreferenceManager.getDefaultSharedPreferences(SplashScreen.this).getString(Settings.KEY_PROFILE, "none");
                     if(profile.equals("none")) {
-                        Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
+                        Intent intent = new Intent(SplashScreen.this, UserActivity.class);
                         startActivity(intent);
                     } else {
                         startActivity(new Intent(SplashScreen.this, MainMenu.class));
