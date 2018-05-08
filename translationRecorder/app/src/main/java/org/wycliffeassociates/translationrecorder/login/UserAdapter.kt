@@ -1,5 +1,6 @@
 package login.adapters
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
@@ -33,6 +34,7 @@ class UserAdapter(private val context: Context, private val users: ArrayList<Dra
             holder?.playIcon?.visibility = View.INVISIBLE
             holder?.identicon.rootView.setOnClickListener {
                 it.context.startActivity(Intent(it.context, LoginActivity::class.java))
+                (it.context as Activity).finish()
             }
         } else {
             holder?.identicon?.setImageDrawable(user)
