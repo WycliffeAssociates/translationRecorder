@@ -9,10 +9,11 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.pixplicity.sharp.Sharp
 import jdenticon.Jdenticon
+import kotlinx.android.synthetic.main.activity_user.*
 import login.adapters.UserAdapter
 import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
-import kotlinx.android.synthetic.main.activity_user.*
+
 /**
  * Created by sarabiaj on 3/9/2018.
  */
@@ -30,7 +31,9 @@ class UserActivity : AppCompatActivity() {
         }
         recycler.layoutManager = layoutManager
         recycler.itemAnimator = DefaultItemAnimator()
-        val adapter = UserAdapter(this, userList())
+        var list = userList()
+        list.add(0,resources.getDrawable(R.drawable.ic_person_add_black_48dp))
+        val adapter = UserAdapter(this, list)
         recycler.adapter = adapter
     }
 
