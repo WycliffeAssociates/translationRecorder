@@ -28,6 +28,7 @@ import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings
 import org.wycliffeassociates.translationrecorder.WavFileLoader
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
+import org.wycliffeassociates.translationrecorder.login.UserActivity
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnRedoListener
 import org.wycliffeassociates.translationrecorder.project.components.User
 import org.wycliffeassociates.translationrecorder.wav.WavCue
@@ -92,7 +93,7 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
             db.addUser(user)
             val pref = PreferenceManager.getDefaultSharedPreferences(activity)
             pref.edit().putString(Settings.KEY_PROFILE, user.toString()).apply()
-            val mainActivityIntent = Intent(activity, MainMenu::class.java)
+            val mainActivityIntent = Intent(activity, UserActivity::class.java)
             activity.startActivity(mainActivityIntent)
             activity.finish()
         }

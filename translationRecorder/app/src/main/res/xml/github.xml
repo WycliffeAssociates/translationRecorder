@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="github_token">761c34b3a8d3f3e5bf824b30353fb8638393c519</string>
+    <string name="github_bug_report_repo" translatable="false">https://api.github.com/repos/WycliffeAssociates/translationRecorder/issues</string>
+    <string name="github_repo_api">https://api.github.com/repos/WycliffeAssociates/translationRecorder</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="door43_region">us-west-2</string>
+    <string name="door43_bucket">audio-inbound</string>
+    <string name="door43_key">AKIAI3LYFJXK2BVEE6JA</string>
+    <string name="door43_secret_access">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</string>
+</resources>

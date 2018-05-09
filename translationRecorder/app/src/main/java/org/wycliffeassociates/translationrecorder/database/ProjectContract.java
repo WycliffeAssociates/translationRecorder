@@ -152,12 +152,13 @@ public final class ProjectContract {
     public static abstract class TakeEntry implements BaseColumns {
         public static final String TABLE_TAKE = "takes";
         public static final String TAKE_UNIT_FK = "unit_fk";
+        public static final String TAKE_USER_FK = "user_fk";
         public static final String TAKE_RATING = "rating";
         public static final String TAKE_NOTES = "notes";
         public static final String TAKE_NUMBER = "number";
         public static final String TAKE_FILENAME = "filename";
         public static final String TAKE_TIMESTAMP = "timestamp";
-        public static final String TAKE_USER_FK = "user_fk";
+//        public static final String TAKE_USER_FK = "user_fk";
         public static final String TAKE_UNIQUE_CONSTRAINT = "cols_unique";
 
         public static final String CREATE_TAKE_TABLE = "CREATE TABLE " + TABLE_TAKE + " ("
@@ -235,6 +236,20 @@ public final class ProjectContract {
                 + "CONSTRAINT " + USER_UNIQUE_CONSTRAINT + " UNIQUE(" + USER_AUDIO + "," + USER_HASH + ")"
                 + " );";
     }
+
+//    public static abstract class UserEntry implements BaseColumns {
+//        public static final String TABLE_USER = "user";
+//        public static final String USER_AUDIO = "audio";
+//        public static final String USER_HASH = "hash";
+//        public static final String USER_NAME = "name";
+//
+//        public static final String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + " ("
+//                + _ID + "INTEGER PRIMARY KEY,"
+//                + USER_AUDIO + TEXTCOMMA
+//                + USER_HASH + TEXTCOMMA
+//                + USER_NAME + TEXTCOMMA
+//                + " );";
+//    }
 
     public static abstract class TempEntry implements BaseColumns {
         public static final String TABLE_TEMP = "stuff";

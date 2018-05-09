@@ -2,4 +2,5 @@
 <resources>
     <color name="red">#FF0000</color>
     <color name="transparent">#FFFFFFFF</color>
+    <color name="playIconBg">#0C88FF</color>
 </resources>
