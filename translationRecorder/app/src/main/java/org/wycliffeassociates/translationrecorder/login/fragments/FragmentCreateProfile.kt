@@ -65,7 +65,6 @@ class FragmentCreateProfile : Fragment() {
 
     override fun onDestroy() {
         profileCreatedCallback = null
-        fragmentManager.beginTransaction().remove(mRecordingWaveform).commit()
         super.onDestroy()
     }
 

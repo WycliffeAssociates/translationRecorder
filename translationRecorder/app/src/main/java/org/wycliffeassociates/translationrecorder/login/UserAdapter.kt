@@ -1,23 +1,31 @@
 package login.adapters
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.media.MediaPlayer
+import android.preference.PreferenceManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.user_list_item.view.*
+import org.wycliffeassociates.translationrecorder.MainMenu
 import org.wycliffeassociates.translationrecorder.R
+import org.wycliffeassociates.translationrecorder.SettingsPage.Settings
 import org.wycliffeassociates.translationrecorder.login.LoginActivity
+import org.wycliffeassociates.translationrecorder.project.components.User
+
 
 
 /**
  * Created by Dilip Maharjan on 05/01/2018
  */
-class UserAdapter(private val context: Context, private val users: ArrayList<Drawable>) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
+class UserAdapter(private val context: Activity, private val users: List<Pair<User, Drawable>>) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
+
+    private var playing = false;
+
     override fun getItemCount(): Int {
         return users.size
     }
@@ -37,13 +45,28 @@ class UserAdapter(private val context: Context, private val users: ArrayList<Dra
                 (it.context as Activity).finish()
             }
         } else {
-            holder?.identicon?.setImageDrawable(user)
+            holder?.identicon?.setImageDrawable(user.second)
             holder?.identicon.setOnClickListener(View.OnClickListener {
                 Toast.makeText(it.context, "Identicon $position", Toast.LENGTH_LONG).show()
+                val pref = PreferenceManager.getDefaultSharedPreferences(context)
+                pref.edit().putString(Settings.KEY_PROFILE, user.toString()).apply()
+                val mainActivityIntent = Intent(context, MainMenu::class.java)
+                context.startActivity(mainActivityIntent)
+                context.finish()
             })
             holder?.playIcon.setOnClickListener(View.OnClickListener {
-                it.isActivated = !it.isActivated
-                Toast.makeText(it.context, "PlayIcon", Toast.LENGTH_LONG).show()
+                if(!playing) {
+                    playing = true
+                    var player = MediaPlayer()
+                    player.setDataSource(users[position].first.audio.toString())
+                    player.prepare()
+                    player.setOnCompletionListener {
+                        player.release()
+                        playing = false
+                        holder?.playIcon.isActivated = false
+                    }
+                    player.start()
+                }
             })
         }
     }

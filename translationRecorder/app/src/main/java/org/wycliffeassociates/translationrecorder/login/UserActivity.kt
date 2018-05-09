@@ -9,10 +9,12 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.pixplicity.sharp.Sharp
 import jdenticon.Jdenticon
+import kotlinx.android.synthetic.main.activity_user.*
 import login.adapters.UserAdapter
 import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
-import kotlinx.android.synthetic.main.activity_user.*
+import org.wycliffeassociates.translationrecorder.project.components.User
+
 /**
  * Created by sarabiaj on 3/9/2018.
  */
@@ -21,7 +23,7 @@ class UserActivity : AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user)
-
+        Screen.lockOrientation(this)
 
         val orientation = resources.configuration.orientation
         var layoutManager = GridLayoutManager(this, 4) as RecyclerView.LayoutManager
@@ -34,13 +36,13 @@ class UserActivity : AppCompatActivity() {
         recycler.adapter = adapter
     }
 
-    private fun userList(): ArrayList<Drawable> {
+    private fun userList(): List<Pair<User, Drawable>> {
         val db = ProjectDatabaseHelper(this)
-        var userList = arrayListOf<Drawable>()
+        var userList = arrayListOf<Pair<User, Drawable>>()
         val users = db.allUsers
         for (user in users) {
             var identicon = generateIdenticon(user.hash)
-            userList.add(identicon)
+            userList.add(Pair(user, identicon))
         }
         return userList
     }

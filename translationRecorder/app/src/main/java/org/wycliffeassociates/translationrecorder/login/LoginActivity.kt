@@ -24,6 +24,7 @@ class LoginActivity : AppCompatActivity(), OnProfileCreatedListener, OnRedoListe
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        Screen.lockOrientation(this)
         if (savedInstanceState == null) {
             startActivityForResult(Intent(this, TermsOfUseActivity::class.java), 42)
             profilesDirectory = File(externalCacheDir, "profiles")

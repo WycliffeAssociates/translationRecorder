@@ -12,7 +12,6 @@ import com.door43.tools.reporting.Logger;
 import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.login.LoginActivity;
 import org.wycliffeassociates.translationrecorder.login.UserActivity;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 import org.wycliffeassociates.translationrecorder.project.ProjectPlugin;
@@ -55,6 +54,7 @@ public class SplashScreen extends Activity {
                     if(profile.equals("none")) {
                         Intent intent = new Intent(SplashScreen.this, UserActivity.class);
                         startActivity(intent);
+                        finish();
                     } else {
                         startActivity(new Intent(SplashScreen.this, MainMenu.class));
                         finish();
