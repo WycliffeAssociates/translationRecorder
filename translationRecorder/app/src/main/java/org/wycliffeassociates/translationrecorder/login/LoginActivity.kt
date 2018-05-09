@@ -10,6 +10,7 @@ import org.wycliffeassociates.translationrecorder.login.fragments.FragmentCreate
 import org.wycliffeassociates.translationrecorder.login.fragments.FragmentReviewProfile
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnProfileCreatedListener
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnRedoListener
+import org.wycliffeassociates.translationrecorder.wav.WavFile
 import java.io.File
 
 /**
@@ -46,8 +47,8 @@ class LoginActivity : AppCompatActivity(), OnProfileCreatedListener, OnRedoListe
                 .commit()
     }
 
-    override fun onProfileCreated(audio: File, hash: String) {
-        mFragmentReviewProfile = FragmentReviewProfile.newInstance(audio, hash, this)
+    override fun onProfileCreated(wav: WavFile, audio: File, hash: String) {
+        mFragmentReviewProfile = FragmentReviewProfile.newInstance(wav, audio, hash, this)
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, mFragmentReviewProfile)
                 .commit()
