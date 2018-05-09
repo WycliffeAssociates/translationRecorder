@@ -3,7 +3,6 @@ package org.wycliffeassociates.translationrecorder.login.fragments
 import android.app.Fragment
 import android.content.Intent
 import android.graphics.drawable.Animatable
-import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -53,7 +52,6 @@ class FragmentCreateProfile : Fragment() {
     private var profileCreatedCallback: OnProfileCreatedListener? = null
 
     private lateinit var mRecording: File
-    private val mMediaRecorder = MediaRecorder()
     private lateinit var mRecordingWaveform: FragmentRecordingWaveform
     private lateinit var mRenderer: ActiveRecordingRenderer
 
@@ -133,7 +131,7 @@ class FragmentCreateProfile : Fragment() {
                 userAudio.createNewFile()
             }
             hash = convertWavToMp4(mRecording, userAudio)
-            profileCreatedCallback?.onProfileCreated(userAudio, hash)
+            profileCreatedCallback?.onProfileCreated(mNewRecording!!, userAudio, hash)
         }
     }
 
