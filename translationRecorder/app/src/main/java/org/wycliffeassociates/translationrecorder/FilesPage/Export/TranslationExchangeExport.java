@@ -91,7 +91,7 @@ public class TranslationExchangeExport extends Export {
             // starting from 3.1+, you can also use content:// URI string instead of absolute file
             String filePath = file.getAbsolutePath();
             String uploadId =
-                    new BinaryUploadRequest(context, "http://te.loc/api/upload/zip")
+                    new BinaryUploadRequest(context, "http://opentranslationtools.org/api/upload/zip")
                             .setFileToUpload(filePath)
                             .setNotificationConfig(getNotificationConfig())
                             .setDelegate(getUploadStatusDelegate())
