@@ -1,7 +1,9 @@
 package org.wycliffeassociates.translationrecorder.FilesPage.Export;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.door43.tools.reporting.Logger;
@@ -13,8 +15,11 @@ import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 
 import java.io.File;
 
@@ -90,8 +95,14 @@ public class TranslationExchangeExport extends Export {
         try {
             // starting from 3.1+, you can also use content:// URI string instead of absolute file
             String filePath = file.getAbsolutePath();
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+            int userId = pref.getInt(Settings.KEY_USER, 1);
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
+            User user = db.getUser(userId);
+            String hash = user.getHash();
             String uploadId =
-                    new BinaryUploadRequest(context, "http://te.loc/api/upload/zip")
+                    new BinaryUploadRequest(context, "http://opentranslationtools.org/api/upload/zip")
+                            .addHeader("tr-user-hash", hash)
                             .setFileToUpload(filePath)
                             .setNotificationConfig(getNotificationConfig())
                             .setDelegate(getUploadStatusDelegate())

@@ -42,4 +42,9 @@ public class User {
     public String getHash() {
         return hash;
     }
+
+    @Override
+    public String toString() {
+        return String.format("{\"id\":%d, \"hash\":\"%s\", \"audio\":\"%s\"}", id, hash, audio);
+    }
 }

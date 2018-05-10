@@ -91,7 +91,7 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
             val db = ProjectDatabaseHelper(activity)
             db.addUser(user)
             val pref = PreferenceManager.getDefaultSharedPreferences(activity)
-            pref.edit().putString(Settings.KEY_PROFILE, user.toString()).apply()
+            pref.edit().putInt(Settings.KEY_PROFILE, user.id).apply()
             val mainActivityIntent = Intent(activity, MainMenu::class.java)
             activity.startActivity(mainActivityIntent)
             activity.finish()

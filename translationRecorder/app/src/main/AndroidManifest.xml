@@ -82,12 +82,9 @@
 
         <activity android:name="com.door43.login.TermsOfUseActivity" />
         <activity android:name="com.door43.login.legal.LegalDocumentActivity" />
-        <activity android:name=".login.LoginActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
+        <activity android:name=".login.LoginActivity"
+            android:screenOrientation="portrait"
+            />
         <activity android:name=".login.UserActivity" />
 
         <activity android:name="org.wycliffeassociates.translationrecorder.TestUtils.FragmentTestActivity" />

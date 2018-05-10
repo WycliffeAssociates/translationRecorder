@@ -426,9 +426,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         User user;
         if (cursor.moveToFirst()) {
+            int userId = cursor.getInt(cursor.getColumnIndex(ProjectContract.UserEntry._ID));
             File audio = new File(cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_AUDIO)));
             String hash = cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_HASH));
-            user = new User(audio, hash);
+            user = new User(userId, audio, hash);
         } else {
             throw new IllegalArgumentException("Language id not found in database.");
         }
@@ -998,6 +999,17 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         int rating = (int) DatabaseUtils.longForQuery(db, getTake, new String[]{unitId, String.valueOf(takeInfo.getTake())});
         //db.close();
         return rating;
+    }
+
+    public User getTakeUser(TakeInfo takeInfo) {
+        ProjectSlugs slugs = takeInfo.getProjectSlugs();
+        String unitId = String.valueOf(getUnitId(slugs.getLanguage(), slugs.getBook(), slugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse()));
+        SQLiteDatabase db = getReadableDatabase();
+        final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
+                ProjectContract.TakeEntry.TAKE_USER_FK, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
+        int userId = (int) DatabaseUtils.longForQuery(db, getTake, new String[]{unitId, String.valueOf(takeInfo.getTake())});
+        User user = getUser(userId);
+        return user;
     }
 
     private int getSelectedTakeId(int unitId) {

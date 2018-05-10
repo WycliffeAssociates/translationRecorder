@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.wycliffeassociates.translationrecorder.FilesPage.Manifest;
@@ -25,6 +26,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,7 +60,7 @@ public class TranslationExchangeDiff {
     public Map<String, String> getUploadedFilesList(Project project, TranslationRecorderApp app) {
         try {
             String query = constructProjectQueryParameters(project);
-            URL url = new URL("http://te.loc/api/exclude_files/?" + query);
+            URL url = new URL("http://opentranslationtools.org/api/exclude_files/?" + query);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -102,7 +104,7 @@ public class TranslationExchangeDiff {
                 iter.remove();
             } else if (existingFiles.containsKey(f.getName())) {
                 //compute the md5 hash and convert to string
-                String hash = DigestUtils.md5Hex(new FileInputStream(f));
+                String hash = new String(Hex.encodeHex(DigestUtils.md5(new FileInputStream(f))));
                 //compare hash to hash received from tE
                 if (hash.equals(existingFiles.get(f.getName()))) {
                     iter.remove();
@@ -141,6 +143,10 @@ public class TranslationExchangeDiff {
                             Manifest manifest = new Manifest(mProject, ProjectFileUtils.getProjectDirectory(mProject));
                             File mani = manifest.createManifestFile(mApp, new ProjectDatabaseHelper(mApp));
                             mFilesToUpload.add(mani);
+                            List<File> userFiles = manifest.getUserFiles();
+                            for(File file : userFiles) {
+                                mFilesToUpload.add(file);
+                            }
                             progressCallback.onComplete(DIFF_ID);
                         } catch (IOException e) {
                             e.printStackTrace();

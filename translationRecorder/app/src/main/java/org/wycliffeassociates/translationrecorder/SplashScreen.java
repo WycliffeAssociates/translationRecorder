@@ -12,7 +12,7 @@ import com.door43.tools.reporting.Logger;
 import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.login.LoginActivity;
+import org.wycliffeassociates.translationrecorder.login.UserActivity;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 import org.wycliffeassociates.translationrecorder.project.ProjectPlugin;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
@@ -50,10 +50,11 @@ public class SplashScreen extends Activity {
                 try {
                     initializePlugins();
                     initDatabase();
-                    String profile = PreferenceManager.getDefaultSharedPreferences(SplashScreen.this).getString(Settings.KEY_PROFILE, "none");
-                    if(profile.equals("none")) {
-                        Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
+                    int profile = PreferenceManager.getDefaultSharedPreferences(SplashScreen.this).getInt(Settings.KEY_PROFILE, -1);
+                    if(profile == -1) {
+                        Intent intent = new Intent(SplashScreen.this, UserActivity.class);
                         startActivity(intent);
+                        finish();
                     } else {
                         startActivity(new Intent(SplashScreen.this, MainMenu.class));
                         finish();

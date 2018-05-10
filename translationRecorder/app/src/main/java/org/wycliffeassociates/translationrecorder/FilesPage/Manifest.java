@@ -14,14 +14,17 @@ import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by sarabiaj on 11/15/2017.
@@ -31,6 +34,7 @@ public class Manifest {
 
     protected Project mProject;
     protected List<File> mTakes = new ArrayList<>();
+    protected Map<Integer, User> mUsers = new HashMap<>();
     File mProjectDirectory;
 
     public Manifest(Project project, File projectDirectory) {
@@ -52,6 +56,7 @@ public class Manifest {
             writeAnthology(jw);
             writeMode(jw);
             writeChapters(db, chapters, jw);
+            writeUsers(jw);
             jw.endObject();
         }
         return output;
@@ -147,9 +152,14 @@ public class Manifest {
             if (ppm.matched()) {
                 TakeInfo info = ppm.getTakeInfo();
                 int rating = db.getTakeRating(info);
+                User user = db.getTakeUser(info);
+                if(!mUsers.containsKey(user.getId())) {
+                    mUsers.put(user.getId(), user);
+                }
                 jw.beginObject();
                 jw.name("name").value(take.getName());
                 jw.name("rating").value(rating);
+                jw.name("user_id").value(user.getId());
                 jw.endObject();
             } else {
                 i.remove();
@@ -157,6 +167,19 @@ public class Manifest {
         }
         jw.endArray();
         mTakes.addAll(takes);
+    }
+
+    private void writeUsers(JsonWriter jw) throws IOException {
+        jw.name("users");
+        jw.beginArray();
+        for (User user : mUsers.values()) {
+            jw.beginObject();
+            jw.name("name_audio").value(user.getAudio().getName());
+            jw.name("icon_hash").value(user.getHash());
+            jw.name("id").value(user.getId());
+            jw.endObject();
+        }
+        jw.endArray();
     }
 
     private List<File> getTakesList(int chapter, int startv, int endv) {
@@ -179,5 +202,13 @@ public class Manifest {
             }
         }
         return resultFiles;
+    }
+
+    public List<File> getUserFiles() {
+        List<File> userAudioFiles = new ArrayList<>();
+        for(User user: mUsers.values()) {
+            userAudioFiles.add(user.getAudio());
+        }
+        return userAudioFiles;
     }
 }

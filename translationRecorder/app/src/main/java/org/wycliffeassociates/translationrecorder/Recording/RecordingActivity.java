@@ -227,7 +227,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
     private void getCurrentUser() {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        mContributor = pref.getString(Settings.KEY_PROFILE, "");
+        mContributor = String.valueOf(pref.getInt(Settings.KEY_PROFILE, 1));
     }
 
     private void initializeFragments() {

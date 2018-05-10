@@ -2,6 +2,7 @@ package org.wycliffeassociates.translationrecorder.login.fragments
 
 import android.app.Fragment
 import android.content.Intent
+import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -64,7 +65,6 @@ class FragmentCreateProfile : Fragment() {
 
     override fun onDestroy() {
         profileCreatedCallback = null
-        fragmentManager.beginTransaction().remove(mRecordingWaveform).commit()
         super.onDestroy()
     }
 
@@ -73,10 +73,12 @@ class FragmentCreateProfile : Fragment() {
         mRecordingWaveform = FragmentRecordingWaveform.newInstance()
         btnRecord as Button
         btnRecord.setOnClickListener {
+            (btnRecord.background as Animatable).start()
             if (btnRecord.isActivated) {
                 btnRecord.isActivated = false
                 stopRecording()
             } else {
+
                 btnRecord.isActivated = true
                 startRecording()
             }
@@ -93,7 +95,7 @@ class FragmentCreateProfile : Fragment() {
     }
 
     private fun startRecording() {
-        if(!isRecording) {
+        if (!isRecording) {
             isRecording = true
             activity.stopService(Intent(activity, WavRecorder::class.java))
             RecordingQueues.clearQueues()
@@ -105,7 +107,7 @@ class FragmentCreateProfile : Fragment() {
             activity.startService(Intent(activity, WavRecorder::class.java))
             activity.startService(WavFileWriter.getIntent(activity, mNewRecording))
             mRenderer.listenForRecording(false)
-            Handler(Looper.getMainLooper()).postDelayed({btnRecord.performClick()}, 3000)
+            Handler(Looper.getMainLooper()).postDelayed({ btnRecord.performClick() }, 3000)
 
         } else {
             stopRecording()
@@ -123,7 +125,7 @@ class FragmentCreateProfile : Fragment() {
 
     private fun convertAudio() {
         launch(UI) {
-            if(userAudio.exists()) {
+            if (userAudio.exists()) {
                 userAudio.delete()
                 userAudio.createNewFile()
             }
