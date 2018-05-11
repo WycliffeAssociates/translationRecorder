@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_create_profile"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/layout_bg">
 
     <TextView
@@ -72,6 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:paddingBottom="16dp"
         android:text="@string/txt_record"
         android:textColor="@color/red"
         app:layout_constraintEnd_toEndOf="@+id/btnRecord"
