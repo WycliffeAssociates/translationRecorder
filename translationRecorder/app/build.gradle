@@ -88,7 +88,7 @@ dependencies {
     compile('net.rdrei.android.dirchooser:library:3.2@aar') {
         transitive = true;
     }
-    def uploadServiceVersion = "3.4.1"
+    def uploadServiceVersion = "3.4.2"
     compile "net.gotev:uploadservice:$uploadServiceVersion"
     compile "net.gotev:uploadservice-okhttp:$uploadServiceVersion"
     compile 'com.squareup.okhttp3:okhttp:3.9.1'

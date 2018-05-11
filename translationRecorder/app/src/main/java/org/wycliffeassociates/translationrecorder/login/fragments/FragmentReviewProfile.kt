@@ -5,7 +5,6 @@ import android.app.Fragment
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.widget.AppCompatImageButton
@@ -74,9 +73,8 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val icon = generateIdenticon(hash)
         icon_hash as ImageView
-        icon_hash.setImageDrawable(icon)
+        renderIdenticon(hash, icon_hash)
         btnRedo as Button
         btnRedo.setOnClickListener {
             onRedoListener?.let {
@@ -114,9 +112,9 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
         }
     }
 
-    private fun generateIdenticon(hash: String): Drawable {
+    private fun renderIdenticon(hash: String, view: ImageView): Unit {
         val svg = Jdenticon.toSvg(hash, 512, 0f)
-        return Sharp.loadString(svg).drawable
+        Sharp.loadString(svg).into(view)
     }
 
     private fun initializeRenderer() {

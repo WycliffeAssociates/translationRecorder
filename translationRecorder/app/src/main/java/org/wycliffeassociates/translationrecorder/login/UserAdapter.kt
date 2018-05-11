@@ -45,6 +45,7 @@ class UserAdapter(private val context: Activity, private val users: List<Pair<Us
                 (it.context as Activity).finish()
             }
         } else {
+            holder?.identicon?.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
             holder?.identicon?.setImageDrawable(user.second)
             holder?.identicon.setOnClickListener(View.OnClickListener {
                 Toast.makeText(it.context, "Identicon $position", Toast.LENGTH_LONG).show()
