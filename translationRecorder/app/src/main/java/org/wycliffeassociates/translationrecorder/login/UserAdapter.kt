@@ -30,7 +30,7 @@ class UserAdapter(private val context: Context, private val users: ArrayList<Dra
         val user = users[position]
         if (position == 0) {
             holder?.newUserTxt?.visibility = View.VISIBLE
-            holder?.identicon?.setImageResource(R.drawable.ic_person_add_black_48dp)
+            holder?.identicon?.setImageDrawable(user)
             holder?.playIcon?.visibility = View.INVISIBLE
             holder?.identicon.rootView.setOnClickListener {
                 it.context.startActivity(Intent(it.context, LoginActivity::class.java))
