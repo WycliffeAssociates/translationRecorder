@@ -3,69 +3,70 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:id="@+id/fragment_redo_yes"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <FrameLayout
         android:id="@+id/waveform_frame"
-        android:layout_width="match_parent"
-        android:layout_height="88dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/dark_gray_0"
+        android:contentDescription="@null"
+        app:layout_constraintDimensionRatio="3:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/dark_gray_0"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/btn_play"
-        android:layout_width="72dp"
-        android:layout_height="68dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:contentDescription="@null"
+        android:background="@drawable/circle_with_white_bg"
         app:layout_constraintBottom_toBottomOf="@+id/waveform_frame"
+        app:layout_constraintDimensionRatio="w,1:1"
         app:layout_constraintEnd_toEndOf="@+id/waveform_frame"
         app:layout_constraintStart_toStartOf="@+id/waveform_frame"
         app:layout_constraintTop_toBottomOf="@+id/waveform_frame"
-        android:src="@drawable/play_record_48dp"
-        />
+        app:srcCompat="@drawable/play_record_48dp"
+        tools:ignore="VectorDrawableCompat" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Is this ok?"
+        android:text="@string/is_this_ok_txt"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/btn_play" />
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="304dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
-        android:text="If you are concerned for your privacy or safety, please use a nickname or psuedonym."
-        app:layout_constraintEnd_toEndOf="@+id/waveform_frame"
-        app:layout_constraintStart_toStartOf="@+id/waveform_frame"
+        android:gravity="center_horizontal"
+        android:text="@string/privacy_txt"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        app:layout_constraintBottom_toTopOf="@+id/icon_hash"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <ImageView
         android:id="@+id/icon_hash"
-        android:layout_width="304dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="@null"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintDimensionRatio="w,1:3"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/textView6"
         app:srcCompat="@android:drawable/btn_dialog" />
 
@@ -73,9 +74,8 @@
         android:id="@+id/btnRedo"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="0dp"
-        android:layout_height="45dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:background="@drawable/round_corners"
         android:drawableRight="@drawable/ic_redo_blue_48dp"
         android:paddingHorizontal="24dp"
@@ -83,25 +83,41 @@
         android:textColor="#00C5FF"
         app:layout_constraintBaseline_toBaselineOf="@+id/btnYes"
         app:layout_constraintEnd_toStartOf="@+id/btnYes"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="@+id/guideline" />
 
     <Button
         android:id="@+id/btnYes"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/round_corner_with_gradient"
         android:drawableRight="@drawable/ic_check_white_48dp"
         android:paddingHorizontal="24dp"
         android:text="@string/txt_btn_yes"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btnRedo"
-        app:layout_constraintTop_toBottomOf="@+id/icon_hash" />
+        app:layout_constraintTop_toBottomOf="@+id/icon_hash"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
 </android.support.constraint.ConstraintLayout>

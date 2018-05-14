@@ -9,7 +9,7 @@
     <android.support.v7.widget.CardView
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         card_view:cardCornerRadius="12dp"
         card_view:cardElevation="12dp"
         card_view:layout_constraintBottom_toBottomOf="parent"
