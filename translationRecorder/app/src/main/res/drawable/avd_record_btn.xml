@@ -9,10 +9,17 @@
             android:viewportWidth="78">
             <group android:name="group">
                 <path
+                    android:name="path_2"
+                    android:pathData="M 39 4.5 C 29.854 4.5 21.072 8.137 14.605 14.605 C 8.137 21.072 4.5 29.854 4.5 39 C 4.5 48.146 8.137 56.928 14.605 63.395 C 21.072 69.863 29.854 73.5 39 73.5 C 48.146 73.5 56.928 69.863 63.395 63.395 C 69.863 56.928 73.5 48.146 73.5 39 C 73.5 29.854 69.863 21.072 63.395 14.605 C 56.928 8.137 48.146 4.5 39 4.5 Z"
+                    android:strokeColor="#ff0000"
+                    android:strokeLineCap="butt"
+                    android:strokeLineJoin="miter"
+                    android:strokeWidth="8" />
+                <path
                     android:name="path"
                     android:pathData="M 39 4.5 C 29.854 4.5 21.072 8.137 14.605 14.605 C 8.137 21.072 4.5 29.854 4.5 39 C 4.5 48.146 8.137 56.928 14.605 63.395 C 21.072 69.863 29.854 73.5 39 73.5 C 48.146 73.5 56.928 69.863 63.395 63.395 C 69.863 56.928 73.5 48.146 73.5 39 C 73.5 29.854 69.863 21.072 63.395 14.605 C 56.928 8.137 48.146 4.5 39 4.5 Z"
                     android:strokeColor="#fdb6bd"
-                    android:strokeLineCap="round"
+                    android:strokeLineCap="butt"
                     android:strokeLineJoin="round"
                     android:strokeWidth="8" />
                 <path
@@ -27,26 +34,11 @@
             <set>
                 <objectAnimator
                     android:duration="3500"
-                    android:interpolator="@android:anim/linear_interpolator"
-                    android:propertyName="strokeColor"
-                    android:valueFrom="#fdb6bd"
-                    android:repeatCount="-1"
-                    android:valueTo="#e74c3c"
-                    android:valueType="colorType" />
-                <objectAnimator
-                    android:duration="3000"
                     android:interpolator="@android:anim/accelerate_decelerate_interpolator"
                     android:propertyName="trimPathEnd"
                     android:valueFrom="0"
                     android:valueTo="1"
                     android:valueType="floatType" />
-                <objectAnimator
-                    android:duration="3500"
-                    android:interpolator="@android:anim/linear_interpolator"
-                    android:propertyName="strokeColor"
-                    android:valueTo="#fdb6bd"
-                    android:valueFrom="#e74c3c"
-                    android:valueType="colorType" />
             </set>
         </aapt:attr>
     </target>

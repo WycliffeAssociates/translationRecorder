@@ -73,12 +73,12 @@ class FragmentCreateProfile : Fragment() {
         mRecordingWaveform = FragmentRecordingWaveform.newInstance()
         btnRecord as Button
         btnRecord.setOnClickListener {
-            (btnRecord.background as Animatable).start()
             if (btnRecord.isActivated) {
                 btnRecord.isActivated = false
                 stopRecording()
+                (btnRecord.background as Animatable).stop()
             } else {
-
+                (btnRecord.background as Animatable).start()
                 btnRecord.isActivated = true
                 startRecording()
             }
