@@ -16,3 +16,5 @@ translationRecorder/app/src/main/assets/Plugins/Jars/biblechunk.jar
 translationRecorder/app/src/main/assets/Plugins/Jars/obschunk.jar
 translationRecorder/biblechunk/app/build/lib/biblechunk.jar
 *.crt
+*.classpath
+*.project
