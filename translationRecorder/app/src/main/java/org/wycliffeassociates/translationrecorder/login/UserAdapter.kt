@@ -18,7 +18,6 @@ import org.wycliffeassociates.translationrecorder.login.LoginActivity
 import org.wycliffeassociates.translationrecorder.project.components.User
 
 
-
 /**
  * Created by Dilip Maharjan on 05/01/2018
  */
@@ -56,11 +55,12 @@ class UserAdapter(private val context: Activity, private val users: List<Pair<Us
                 context.finish()
             })
             holder?.playIcon.setOnClickListener(View.OnClickListener {
-                if(!playing) {
+                if (!playing) {
                     playing = true
                     var player = MediaPlayer()
                     player.setDataSource(users[position].first.audio.toString())
                     player.prepare()
+                    holder?.playIcon.isActivated = true
                     player.setOnCompletionListener {
                         player.release()
                         playing = false
