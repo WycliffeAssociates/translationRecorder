@@ -47,7 +47,6 @@ class UserAdapter(private val context: Activity, private val users: List<Pair<Us
             holder?.identicon?.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
             holder?.identicon?.setImageDrawable(user.second)
             holder?.identicon.setOnClickListener(View.OnClickListener {
-                Toast.makeText(it.context, "Identicon $position", Toast.LENGTH_LONG).show()
                 val pref = PreferenceManager.getDefaultSharedPreferences(context)
                 pref.edit().putInt(Settings.KEY_PROFILE, user.first.id).apply()
                 val mainActivityIntent = Intent(context, MainMenu::class.java)

@@ -1,25 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/project_management_toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/abc_action_bar_default_height_material"
-        app:theme="@style/TR.Toolbar"
-        app:popupTheme="@style/TR.Popup"
-        android:elevation="@dimen/appbar_elevation"
-        />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/identicon"
+            android:layout_width="80dp"
+            android:layout_height="60dp"/>
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/project_management_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/abc_action_bar_default_height_material"
+            android:elevation="@dimen/appbar_elevation"
+            app:popupTheme="@style/TR.Popup"
+            app:theme="@style/TR.Toolbar">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:text="Project Management"
+                android:textColor="@android:color/white"
+                android:textSize="24sp" />
+        </android.support.v7.widget.Toolbar>
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/new_project_fab"
@@ -30,64 +47,57 @@
             android:layout_marginBottom="@dimen/default_padding_m"
             android:layout_marginEnd="@dimen/default_padding_m"
             android:src="@drawable/ic_action_create_light"
-            app:backgroundTint="@color/secondary"
-            />
+            app:backgroundTint="@color/secondary" />
 
         <Button
             android:id="@+id/new_project_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Project"
-            android:textColor="@color/text_light"
             android:layout_centerInParent="true"
             android:background="@color/primary"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
-            />
+            android:text="New Project"
+            android:textColor="@color/text_light" />
 
         <LinearLayout
             android:id="@+id/project_list_layout"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:weightSum="100"
-            android:visibility="visible"
             android:gravity="center_horizontal"
-            >
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:weightSum="100">
 
             <LinearLayout
                 android:id="@+id/project_list_container"
-                android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:visibility="visible"
                 android:layout_centerHorizontal="true"
                 android:layout_weight="@integer/project_management_list_weight"
-                >
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <LinearLayout
                     android:id="@+id/project_list_header"
-                    android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/default_padding_m"
-                    android:weightSum="1000"
-                    >
+                    android:orientation="horizontal"
+                    android:weightSum="1000">
 
                     <FrameLayout
                         android:id="@+id/language_sort"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="390"
-                        >
+                        android:layout_weight="390">
 
                         <ImageView
                             android:id="@+id/language_sort_icon"
                             android:layout_width="@dimen/icon_m"
                             android:layout_height="@dimen/icon_m"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_record_voice_over_black_24dp"
-                            />
+                            android:src="@drawable/ic_record_voice_over_black_24dp" />
 
                     </FrameLayout>
 
@@ -95,16 +105,14 @@
                         android:id="@+id/book_sort"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="295"
-                        >
+                        android:layout_weight="295">
 
                         <ImageView
                             android:id="@+id/book_sort_icon"
                             android:layout_width="@dimen/icon_m"
                             android:layout_height="@dimen/icon_m"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_library_books_black_24dp"
-                            />
+                            android:src="@drawable/ic_library_books_black_24dp" />
 
                     </FrameLayout>
 
@@ -112,37 +120,32 @@
                         android:id="@+id/progress_sort"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="315"
-                        >
+                        android:layout_weight="315">
 
                         <ImageView
                             android:id="@+id/progress_sort_icon"
                             android:layout_width="@dimen/icon_m"
                             android:layout_height="@dimen/icon_m"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_book_black_24dp"
-                            />
+                            android:src="@drawable/ic_book_black_24dp" />
 
                     </FrameLayout>
 
                 </LinearLayout>
 
-                <android.support.v7.widget.CardView
-                    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    card_view:cardCornerRadius="@dimen/default_padding_xxs"
-                    card_view:cardElevation="@dimen/cardview_default_elevation"
                     android:layout_marginLeft="@dimen/default_padding_xxs"
                     android:layout_marginRight="@dimen/default_padding_xxs"
-                    >
+                    card_view:cardCornerRadius="@dimen/default_padding_xxs"
+                    card_view:cardElevation="@dimen/cardview_default_elevation">
 
                     <include
                         android:id="@+id/recent_project"
                         layout="@layout/project_list_item"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        />
+                        android:layout_height="wrap_content" />
 
                 </android.support.v7.widget.CardView>
 
@@ -150,12 +153,11 @@
                     android:id="@+id/project_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingRight="@dimen/default_padding_xs"
-                    android:paddingLeft="@dimen/default_padding_xs"
-                    android:paddingTop="@dimen/default_padding_l"
-                    android:paddingBottom="@dimen/default_padding_l"
                     android:clipToPadding="false"
-                    />
+                    android:paddingBottom="@dimen/default_padding_l"
+                    android:paddingLeft="@dimen/default_padding_xs"
+                    android:paddingRight="@dimen/default_padding_xs"
+                    android:paddingTop="@dimen/default_padding_l" />
 
             </LinearLayout>
 

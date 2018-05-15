@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,12 +24,11 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.door43.tools.reporting.Logger;
+import com.pixplicity.sharp.Sharp;
 
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
-import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
-import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.ExportSourceAudioTask;
@@ -37,9 +37,12 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.SplashScreen;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
@@ -48,6 +51,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.util.List;
+
+import jdenticon.Jdenticon;
 
 /**
  * Created by sarabiaj on 6/23/2016.
@@ -94,11 +99,19 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.project_management_toolbar);
         setSupportActionBar(mToolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Project Management");
-        }
-
         pref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        ImageView imageView = findViewById(R.id.identicon);
+
+        imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            int userId = pref.getInt(Settings.KEY_PROFILE, -1);
+            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+            User user = db.getUser(userId);
+            String svg = Jdenticon.Companion.toSvg(user.getHash(), 512, 0f);
+            imageView.setBackground(Sharp.loadString(svg).getDrawable());
+        }
 
         if (savedInstanceState != null) {
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
@@ -155,6 +168,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
         savedInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
