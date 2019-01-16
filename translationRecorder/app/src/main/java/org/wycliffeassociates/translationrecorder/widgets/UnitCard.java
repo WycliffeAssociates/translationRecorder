@@ -187,7 +187,7 @@ public class UnitCard {
                 ppm.match(f);
                 TakeInfo takeInfo = ppm.getTakeInfo();
                 ppm2.match(s);
-                TakeInfo takeInfo2 = ppm.getTakeInfo();
+                TakeInfo takeInfo2 = ppm2.getTakeInfo();
 
 
 //                Long first = f.lastModified();
@@ -206,6 +206,7 @@ public class UnitCard {
     private void refreshTakes(DatabaseAccessor db) {
         //if the soft reference still has the takes, cool, if not, repopulate them
         List<File> takes = getTakeList();
+        refreshTakeCountText(db, takes);
         refreshTakeText(takes);
         if (takes.size() > 0) {
             File take = takes.get(mTakeIndex);
@@ -252,6 +253,15 @@ public class UnitCard {
         }
         mViewHolder.currentTake.setText(text);
         mViewHolder.currentTake.invalidate();
+    }
+
+    private void refreshTakeCountText(DatabaseAccessor db, List<File> takes) {
+        if (mViewHolder == null) {
+            return;
+        }
+
+        mViewHolder.unitCard.refreshTakeCount(db);
+        mViewHolder.takeCount.setText(String.valueOf(takes.size()));
     }
 
     private String convertTime(long time) {
