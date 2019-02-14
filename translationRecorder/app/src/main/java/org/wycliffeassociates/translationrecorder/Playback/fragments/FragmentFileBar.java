@@ -92,9 +92,6 @@ public class FragmentFileBar extends Fragment {
         findViews();
         setText();
         setClickListeners();
-        if(mUnitType == ChunkPlugin.TYPE.SINGLE) {
-            mEnterVerseMarkerMode.setVisibility(View.GONE);
-        }
     }
 
     private void setText(){

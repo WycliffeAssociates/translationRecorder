@@ -62,6 +62,7 @@ repositories {
 }
 
 dependencies {
+    annotationProcessor 'com.google.auto.value:auto-value:1.1'
     compile 'com.android.support:multidex:1.0.1'
     compileOnly 'com.google.auto.value:auto-value:1.5.1'
     annotationProcessor 'com.google.auto.value:auto-value:1.5.1'
@@ -86,7 +87,7 @@ dependencies {
     }
     compile 'com.gu:option:1.3'
     compile('net.rdrei.android.dirchooser:library:3.2@aar') {
-        transitive = true;
+        transitive = true
     }
     def uploadServiceVersion = "3.4.2"
     compile "net.gotev:uploadservice:$uploadServiceVersion"
@@ -104,7 +105,7 @@ dependencies {
     compile files('src/main/lib/archive_of_holding_0.9.jar')
     compile project(':chunkplugin')
     compile project(':biblechunk')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
     //compile project(':obschunk')
     //compile project(':noteschunk')
