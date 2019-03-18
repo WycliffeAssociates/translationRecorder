@@ -130,7 +130,7 @@ public class SourceAudio extends LinearLayout {
             return false;
         }
         ArchiveOfHoldingEntry entry = aoh.getEntry(importantSection, sourceLanguage,
-                mProject.getVersionSlug(), mProject.getBookSlug(), ProjectFileUtils.chapterIntToString(mProject, mChapter));
+                ll.getVersionSlug(sourceLanguage), mProject.getBookSlug(), ProjectFileUtils.chapterIntToString(mProject, mChapter));
         if(entry == null){
             return false;
         }
