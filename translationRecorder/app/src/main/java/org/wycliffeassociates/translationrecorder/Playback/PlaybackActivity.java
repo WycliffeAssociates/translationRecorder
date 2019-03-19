@@ -652,7 +652,9 @@ public class PlaybackActivity extends Activity implements
         });
         int i = 0;
         for (DraggableMarker m : markersList) {
-            wav.addMarker(String.valueOf(startVerse + i), m.getFrame());
+            if(m instanceof VerseMarker) {
+                wav.addMarker(String.valueOf(startVerse + i), m.getFrame());
+            }
             i++;
         }
         wav.commit();
