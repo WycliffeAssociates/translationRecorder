@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 import org.apache.commons.io.FileUtils;
+import org.wycliffeassociates.translationrecorder.FilesPage.Export.SimpleProgressCallback;
+import org.wycliffeassociates.translationrecorder.FilesPage.Export.TranslationExchangeDiff;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
@@ -36,10 +38,14 @@ public class Manifest {
     protected List<File> mTakes = new ArrayList<>();
     protected Map<Integer, User> mUsers = new HashMap<>();
     File mProjectDirectory;
+    Collection<File> mProjectFiles;
+    SimpleProgressCallback mProgressCallback;
+    int currentFileOrder = 0;
 
     public Manifest(Project project, File projectDirectory) {
         mProject = project;
         mProjectDirectory = projectDirectory;
+        mProjectFiles = FileUtils.listFiles(mProjectDirectory, new String[]{"wav"}, true);
     }
 
     public File createManifestFile(Context ctx, ProjectDatabaseHelper db) throws IOException {
@@ -59,11 +65,16 @@ public class Manifest {
             writeUsers(jw);
             jw.endObject();
         }
+
         return output;
     }
 
     public List<File> getTakesInManifest() {
         return mTakes;
+    }
+
+    public void setProgressCallback(SimpleProgressCallback progressCallback) {
+        mProgressCallback = progressCallback;
     }
 
     private void writeLanguage(JsonWriter jw) throws IOException {
@@ -164,6 +175,15 @@ public class Manifest {
             } else {
                 i.remove();
             }
+
+            currentFileOrder++;
+
+            System.out.println(String.format("%s of %s", currentFileOrder, mProjectFiles.size()));
+
+            if (mProgressCallback != null) {
+                mProgressCallback.setCurrentFile(TranslationExchangeDiff.DIFF_ID, take.getName());
+                mProgressCallback.setUploadProgress(TranslationExchangeDiff.DIFF_ID, getManifestProgress());
+            }
         }
         jw.endArray();
         mTakes.addAll(takes);
@@ -182,13 +202,16 @@ public class Manifest {
         jw.endArray();
     }
 
+    private int getManifestProgress() {
+        return Math.round((float) currentFileOrder / (float) mProjectFiles.size() * 100);
+    }
+
     private List<File> getTakesList(int chapter, int startv, int endv) {
-        Collection<File> files = FileUtils.listFiles(mProjectDirectory, new String[]{"wav"}, true);
         ProjectPatternMatcher ppm;
         //Get only the files of the appropriate unit
         List<File> resultFiles = new ArrayList<>();
-        if (files != null) {
-            for (File file : files) {
+        if (mProjectFiles != null) {
+            for (File file : mProjectFiles) {
                 ppm = mProject.getPatternMatcher();
                 ppm.match(file);
                 TakeInfo ti = ppm.getTakeInfo();

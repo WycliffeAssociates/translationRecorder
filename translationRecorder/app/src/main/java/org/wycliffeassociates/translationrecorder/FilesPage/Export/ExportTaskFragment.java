@@ -42,6 +42,11 @@ public class ExportTaskFragment extends Fragment implements Export.ProgressUpdat
     }
 
     @Override
+    public void setProgressTitle(String title) {
+        mProgressUpdateCallback.setProgressTitle(title);
+    }
+
+    @Override
     public void incrementProgress(int progress) {
         mProgressUpdateCallback.incrementProgress(progress);
     }

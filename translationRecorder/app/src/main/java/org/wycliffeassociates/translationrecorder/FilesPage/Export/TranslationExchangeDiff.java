@@ -141,6 +141,7 @@ public class TranslationExchangeDiff {
                             progressCallback.onStart(DIFF_ID);
                             mFilesToUpload = stageNewFiles(getUploadedFilesList(mProject, mApp));
                             Manifest manifest = new Manifest(mProject, ProjectFileUtils.getProjectDirectory(mProject));
+                            manifest.setProgressCallback(progressCallback);
                             File mani = manifest.createManifestFile(mApp, new ProjectDatabaseHelper(mApp));
                             mFilesToUpload.add(mani);
                             List<File> userFiles = manifest.getUserFiles();

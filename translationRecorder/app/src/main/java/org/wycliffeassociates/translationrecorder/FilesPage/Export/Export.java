@@ -33,6 +33,8 @@ public abstract class Export implements SimpleProgressCallback {
         void setExporting(boolean exporting);
 
         void setCurrentFile(String currentFile);
+
+        void setProgressTitle(String title);
     }
 
     File mDirectoryToZip;
@@ -133,7 +135,7 @@ public abstract class Export implements SimpleProgressCallback {
         zp.zip(outputFile(), this);
     }
 
-    public void onStart(int id) {
+    public void onStart(final int id) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -142,6 +144,12 @@ public abstract class Export implements SimpleProgressCallback {
                 mZipDone = false;
                 mProgressCallback.setZipping(true);
                 mProgressCallback.showProgress(ProgressUpdateCallback.ZIP);
+
+                if (id == TranslationExchangeDiff.DIFF_ID) {
+                    mProgressCallback.setProgressTitle("Generating manifest file (Step 1/2)");
+                } else if(id == ZipProject.ZIP_PROJECT_ID) {
+                    mProgressCallback.setProgressTitle("Packaging files to export (Step 2/2)");
+                }
             }
         });
     }

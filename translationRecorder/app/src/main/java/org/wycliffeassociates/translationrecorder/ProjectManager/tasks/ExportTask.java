@@ -31,6 +31,11 @@ public class ExportTask extends Task implements Export.ProgressUpdateCallback {
     }
 
     @Override
+    public void setProgressTitle(String title) {
+
+    }
+
+    @Override
     public void dismissProgress() {
         onTaskCompleteDelegator();
     }

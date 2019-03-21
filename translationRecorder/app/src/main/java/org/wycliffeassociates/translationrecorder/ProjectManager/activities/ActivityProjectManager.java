@@ -27,6 +27,7 @@ import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
+import org.wycliffeassociates.translationrecorder.FilesPage.FeedbackDialog;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
@@ -438,6 +439,13 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     @Override
+    public void setProgressTitle(String title) {
+        if (mPd != null) {
+            mPd.setTitle(title);
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         dismissExportProgressDialog();
@@ -475,6 +483,14 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                 mNumProjects = db.getNumProjects();
                 mDbResyncing = false;
                 initializeViews();
+            } else if(taskTag == SOURCE_AUDIO_TASK) {
+                FeedbackDialog fd = FeedbackDialog.newInstance("Source Audio", "Source Audio generation complete.");
+                fd.show(getFragmentManager(), "SOURCE_AUDIO");
+            }
+        } else if(resultCode == TaskFragment.STATUS_ERROR) {
+            if(taskTag == SOURCE_AUDIO_TASK) {
+                FeedbackDialog fd = FeedbackDialog.newInstance("Source Audio", "Source Audio generation failed.");
+                fd.show(getFragmentManager(), "SOURCE_AUDIO");
             }
         }
     }
