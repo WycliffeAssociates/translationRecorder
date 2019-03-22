@@ -1,20 +1,12 @@
 package org.wycliffeassociates.translationrecorder.FilesPage.Export;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
 import com.door43.tools.reporting.Logger;
-
-import net.gotev.uploadservice.BinaryUploadRequest;
-import net.gotev.uploadservice.ServerResponse;
-import net.gotev.uploadservice.UploadInfo;
-import net.gotev.uploadservice.UploadNotificationConfig;
-import net.gotev.uploadservice.UploadStatusDelegate;
-
+import net.gotev.uploadservice.*;
 import org.wycliffeassociates.translationrecorder.FilesPage.FeedbackDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
