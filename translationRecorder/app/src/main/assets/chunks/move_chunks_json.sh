@@ -1,1 +1,0 @@
-nt="./ot/"; end="/en/ulb/chunks.json"; for f in $(ls ot); do cp $nt$f$end $nt$f/; done;

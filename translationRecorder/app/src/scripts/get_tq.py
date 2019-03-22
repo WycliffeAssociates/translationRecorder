@@ -6,6 +6,8 @@ import urllib.request
 import re
 import os
 
+ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
+
 def process_questions_json(stuff):
     book = {}
     for chunk in stuff:
@@ -25,8 +27,6 @@ def process_chapter(chap):
         processed_chap.append({"id":key, "cq":value})
     return processed_chap
 
-RESULT_JSON_NAME = "chunks/"
-
 # with open("catalog.json") as file:
 #     DATA = json.load(file)
 
@@ -39,8 +39,6 @@ EN = "en"
 OT = "ot"
 NT = "nt"
 RES = ["ulb"]
-
-OUTPUT = []
 
 question_book_slugs = []
 
@@ -60,7 +58,7 @@ for x in range(0, 67):
     
     book = process_questions_json(QUESTION)
     #for chap in book:
-    outpath = "tq/tq-" + slug + "/chunks.json"
+    outpath = os.path.join(ROOT_DIR, "chunks", "tq", "tq-" + slug, "chunks.json")
     os.makedirs(os.path.dirname(outpath), exist_ok=True)
     with(open(outpath, 'w')) as outfile:
         json.dump(book, outfile)

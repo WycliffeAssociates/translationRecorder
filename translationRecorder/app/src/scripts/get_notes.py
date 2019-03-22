@@ -6,6 +6,8 @@ import urllib.request
 import re
 import os
 
+ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
+
 def process_notes_json(stuff):
     book = {}
     for chunk in stuff:
@@ -25,8 +27,6 @@ def process_chapter(chap):
     for key, value in chap.items():
         processed_chap.append({"id":key, "tn":value})
     return processed_chap
-
-RESULT_JSON_NAME = "chunks/"
 
 # with open("catalog.json") as file:
 #     DATA = json.load(file)
@@ -61,7 +61,7 @@ for x in range(0, 67):
     
     book = process_notes_json(NOTE)
     for chap in book:
-        outpath = "notes/" + anth + "/" + slug + "-ch-" + str(chap) + "/chunks.json"
+        outpath = os.path.join(ROOT_DIR, "chunks", "tn", slug + "-ch-" + str(chap), "chunks.json")
         tmp_slg = slug + "-ch-" + str(chap)
         note_book_slugs.append({"slug":tmp_slg, "anth":"tn", "num":((int(sort)*100)+int(chap)), "name": tmp_slg})
         os.makedirs(os.path.dirname(outpath), exist_ok=True)

@@ -28,6 +28,20 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
+    signingConfigs {
+        if(project.hasProperty('keystorePath') 
+                && project.hasProperty('storePass')
+                && project.hasProperty('keyPass')) {
+            release {
+                storeFile file(keystorePath)
+                storePassword storePass
+                keyAlias "translationRecorderAndroidKey"
+                keyPassword keyPass
+            }
+        } else {
+            release {}
+        }
+    }
 // May not need after all?
 // http://stackoverflow.com/questions/39851808/errorwarning-ignoring-innerclasses-attribute-for-an-anonymous-inner-class
 //    dexOptions {
@@ -36,6 +50,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

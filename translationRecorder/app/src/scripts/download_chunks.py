@@ -6,7 +6,7 @@ import urllib.request
 import re
 import os
 
-RESULT_JSON_NAME = "chunks/"
+ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # with open("catalog.json") as file:
 #     DATA = json.load(file)
@@ -27,14 +27,14 @@ OUTPUT = []
 for x in range(0, 67):
     # gives book name and order (the books are stored out of order in the json)
     slug = DATA[x]["slug"]
-    sort = DATA[x]["sort"]
 
     if slug == "obs":
         continue
 
-    anth = OT if int(sort) < 41 else NT
+    meta = DATA[x]["meta"][0]
+    anth = OT if meta == "bible-ot" else NT
 
     chunks_url = BASE_URL + slug + "/" + EN + "/ulb/chunks.json"
-    outpath = "chunks/" + anth + "/" + slug + "/chunks.json"
-    os.makedirs(os.path.dirname(outpath))
+    outpath = os.path.join(ROOT_DIR, "chunks", anth, slug, "chunks.json")
+    os.makedirs(os.path.dirname(outpath), exist_ok=True)
     urllib.request.urlretrieve(chunks_url, outpath)
