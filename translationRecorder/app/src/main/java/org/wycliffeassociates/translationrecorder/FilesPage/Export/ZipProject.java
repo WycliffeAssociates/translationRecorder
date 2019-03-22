@@ -62,6 +62,7 @@ public class ZipProject {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 if (progressCallback != null) {
                     progressCallback.onComplete(ZIP_PROJECT_ID);
                 }

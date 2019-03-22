@@ -40,7 +40,8 @@ public class Manifest {
     File mProjectDirectory;
     Collection<File> mProjectFiles;
     SimpleProgressCallback mProgressCallback;
-    int currentFileOrder = 0;
+    int mChunksWritten = 0;
+    int mTotalChunks = 0;
 
     public Manifest(Project project, File projectDirectory) {
         mProject = project;
@@ -52,6 +53,7 @@ public class Manifest {
 
         ChunkPlugin plugin = mProject.getChunkPlugin(new ChunkPluginLoader(ctx));
         List<Chapter> chapters = plugin.getChapters();
+        mTotalChunks = getTotalChunks(chapters);
         Gson gson = new Gson();
         File output = new File(mProjectDirectory, "manifest.json");
         try (JsonWriter jw = gson.newJsonWriter(new FileWriter(output))) {
@@ -148,6 +150,12 @@ public class Manifest {
             jw.name("endv").value(endv);
             writeTakes(db, chapter, startv, endv, jw);
             jw.endObject();
+
+            mChunksWritten++;
+
+            if (mProgressCallback != null) {
+                mProgressCallback.setUploadProgress(TranslationExchangeDiff.DIFF_ID, getManifestProgress());
+            }
         }
         jw.endArray();
     }
@@ -175,15 +183,6 @@ public class Manifest {
             } else {
                 i.remove();
             }
-
-            currentFileOrder++;
-
-            System.out.println(String.format("%s of %s", currentFileOrder, mProjectFiles.size()));
-
-            if (mProgressCallback != null) {
-                mProgressCallback.setCurrentFile(TranslationExchangeDiff.DIFF_ID, take.getName());
-                mProgressCallback.setUploadProgress(TranslationExchangeDiff.DIFF_ID, getManifestProgress());
-            }
         }
         jw.endArray();
         mTakes.addAll(takes);
@@ -202,8 +201,17 @@ public class Manifest {
         jw.endArray();
     }
 
+    private int getTotalChunks(List<Chapter> chapters) {
+        int total = 0;
+        for (Chapter chapter: chapters) {
+            total += chapter.getChunks().size();
+        }
+        return total;
+    }
+
     private int getManifestProgress() {
-        return Math.round((float) currentFileOrder / (float) mProjectFiles.size() * 100);
+        if(mTotalChunks <= 0) return 0;
+        return Math.round((float) mChunksWritten / (float) mTotalChunks * 100);
     }
 
     private List<File> getTakesList(int chapter, int startv, int endv) {
