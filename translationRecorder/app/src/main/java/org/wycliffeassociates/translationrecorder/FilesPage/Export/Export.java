@@ -139,8 +139,6 @@ public abstract class Export implements SimpleProgressCallback {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
-
                 mZipDone = false;
                 mProgressCallback.setZipping(true);
                 mProgressCallback.showProgress(ProgressUpdateCallback.ZIP);
@@ -158,7 +156,6 @@ public abstract class Export implements SimpleProgressCallback {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
                 mProgressCallback.setCurrentFile(currentFile);
             }
         });
@@ -168,7 +165,6 @@ public abstract class Export implements SimpleProgressCallback {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
                 mProgressCallback.setUploadProgress(progress);
             }
         });
@@ -178,14 +174,12 @@ public abstract class Export implements SimpleProgressCallback {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
-
-                mZipDone = true;
-                mProgressCallback.setZipping(false);
-                mProgressCallback.dismissProgress();
                 if (id == ZipProject.ZIP_PROJECT_ID) {
+                    mZipDone = true;
+                    mProgressCallback.setZipping(false);
                     handleUserInput();
                 }
+                mProgressCallback.dismissProgress();
             }
         });
     }

@@ -40,19 +40,18 @@ public class TranslationRecorderApp extends Application implements DirectoryProv
         // be used to notify upload status.
         // Gradle automatically generates proper variable as below.
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
-        UploadService.HTTP_STACK = new OkHttpStack(new OkHttpClient());
-
+        UploadService.HTTP_STACK = new OkHttpStack(getOkHttpClient());
     }
 
-    private OkHttpClient getOkHttpClient() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+    private OkHttpClient getOkHttpClient() {
         return new OkHttpClient.Builder()
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .retryOnConnectionFailure(true)
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(0, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
-                .sslSocketFactory(getSSLSocketFactory())
+                //.sslSocketFactory(getSSLSocketFactory())
                 .build();
     }
 
