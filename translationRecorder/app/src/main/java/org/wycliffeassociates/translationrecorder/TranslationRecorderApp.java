@@ -49,7 +49,7 @@ public class TranslationRecorderApp extends Application implements DirectoryProv
                 .followSslRedirects(true)
                 .retryOnConnectionFailure(true)
                 .connectTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(0, TimeUnit.SECONDS)
+                .writeTimeout(0, TimeUnit.SECONDS) // unlimited timeout
                 .readTimeout(30, TimeUnit.SECONDS)
                 //.sslSocketFactory(getSSLSocketFactory())
                 .build();

@@ -8,34 +8,30 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import org.wycliffeassociates.translationrecorder.R;
 import com.door43.tools.reporting.Logger;
-
-import java.io.File;
+import org.wycliffeassociates.translationrecorder.R;
 
 public class FeedbackDialog extends DialogFragment implements View.OnClickListener {
 
-    protected String mTitle = "";
-    protected String mMessage = "";
+    public static final String DIALOG_TITLE = "dialogTitle";
+    public static final String DIALOG_MESSAGE = "dialogMessage";
 
     public static FeedbackDialog newInstance(String title, String message){
         FeedbackDialog dialog = new FeedbackDialog();
-        dialog.setTitle(title);
-        dialog.setMessage(message);
+
+        Bundle args = new Bundle();
+        args.putString(DIALOG_TITLE, title);
+        args.putString(DIALOG_MESSAGE, message);
+        dialog.setArguments(args);
+
         return dialog;
-    }
-
-    public void setTitle(String title){
-        mTitle = title;
-    }
-
-    public void setMessage(String message){
-        mMessage = message;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        String mTitle = getArguments().getString(DIALOG_TITLE);
+        String mMessage = getArguments().getString(DIALOG_MESSAGE);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_feedback, null);
 
@@ -51,6 +47,8 @@ public class FeedbackDialog extends DialogFragment implements View.OnClickListen
         builder.setView(view);
         return builder.create();
     }
+
+
 
     @Override
     public void onClick(View v) {
