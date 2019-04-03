@@ -38,6 +38,12 @@ public class ZipProject {
             @Override
             public void run() {
                 try {
+                    // Trying to delete file if it exists,
+                    // because if for some reason file is corrupted
+                    // ZipFile will crash
+                    if(outFile.exists()) {
+                        outFile.delete();
+                    }
                     ZipFile zipper = new ZipFile(outFile);
                     ZipParameters zp = new ZipParameters();
                     zipper.setRunInThread(true);

@@ -1,9 +1,7 @@
 package org.wycliffeassociates.translationrecorder.FilesPage;
 
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
+import android.app.*;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -48,7 +46,12 @@ public class FeedbackDialog extends DialogFragment implements View.OnClickListen
         return builder.create();
     }
 
-
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        FragmentTransaction ft = manager.beginTransaction();
+        ft.add(this, tag);
+        ft.commitAllowingStateLoss();
+    }
 
     @Override
     public void onClick(View v) {
