@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 import org.apache.commons.io.FileUtils;
+import org.wycliffeassociates.translationrecorder.FilesPage.Export.SimpleProgressCallback;
+import org.wycliffeassociates.translationrecorder.FilesPage.Export.TranslationExchangeDiff;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
@@ -36,16 +38,22 @@ public class Manifest {
     protected List<File> mTakes = new ArrayList<>();
     protected Map<Integer, User> mUsers = new HashMap<>();
     File mProjectDirectory;
+    Collection<File> mProjectFiles;
+    SimpleProgressCallback mProgressCallback;
+    int mChunksWritten = 0;
+    int mTotalChunks = 0;
 
     public Manifest(Project project, File projectDirectory) {
         mProject = project;
         mProjectDirectory = projectDirectory;
+        mProjectFiles = FileUtils.listFiles(mProjectDirectory, new String[]{"wav"}, true);
     }
 
     public File createManifestFile(Context ctx, ProjectDatabaseHelper db) throws IOException {
 
         ChunkPlugin plugin = mProject.getChunkPlugin(new ChunkPluginLoader(ctx));
         List<Chapter> chapters = plugin.getChapters();
+        mTotalChunks = getTotalChunks(chapters);
         Gson gson = new Gson();
         File output = new File(mProjectDirectory, "manifest.json");
         try (JsonWriter jw = gson.newJsonWriter(new FileWriter(output))) {
@@ -59,11 +67,16 @@ public class Manifest {
             writeUsers(jw);
             jw.endObject();
         }
+
         return output;
     }
 
     public List<File> getTakesInManifest() {
         return mTakes;
+    }
+
+    public void setProgressCallback(SimpleProgressCallback progressCallback) {
+        mProgressCallback = progressCallback;
     }
 
     private void writeLanguage(JsonWriter jw) throws IOException {
@@ -137,6 +150,12 @@ public class Manifest {
             jw.name("endv").value(endv);
             writeTakes(db, chapter, startv, endv, jw);
             jw.endObject();
+
+            mChunksWritten++;
+
+            if (mProgressCallback != null) {
+                mProgressCallback.setUploadProgress(TranslationExchangeDiff.DIFF_ID, getManifestProgress());
+            }
         }
         jw.endArray();
     }
@@ -182,13 +201,25 @@ public class Manifest {
         jw.endArray();
     }
 
+    private int getTotalChunks(List<Chapter> chapters) {
+        int total = 0;
+        for (Chapter chapter: chapters) {
+            total += chapter.getChunks().size();
+        }
+        return total;
+    }
+
+    private int getManifestProgress() {
+        if(mTotalChunks <= 0) return 0;
+        return Math.round((float) mChunksWritten / (float) mTotalChunks * 100);
+    }
+
     private List<File> getTakesList(int chapter, int startv, int endv) {
-        Collection<File> files = FileUtils.listFiles(mProjectDirectory, new String[]{"wav"}, true);
         ProjectPatternMatcher ppm;
         //Get only the files of the appropriate unit
         List<File> resultFiles = new ArrayList<>();
-        if (files != null) {
-            for (File file : files) {
+        if (mProjectFiles != null) {
+            for (File file : mProjectFiles) {
                 ppm = mProject.getPatternMatcher();
                 ppm.match(file);
                 TakeInfo ti = ppm.getTakeInfo();

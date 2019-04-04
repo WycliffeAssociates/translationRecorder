@@ -5,15 +5,9 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
 import com.door43.tools.reporting.Logger;
-
-import net.gotev.uploadservice.BinaryUploadRequest;
-import net.gotev.uploadservice.ServerResponse;
-import net.gotev.uploadservice.UploadInfo;
-import net.gotev.uploadservice.UploadNotificationConfig;
-import net.gotev.uploadservice.UploadStatusDelegate;
-
+import net.gotev.uploadservice.*;
+import org.wycliffeassociates.translationrecorder.FilesPage.FeedbackDialog;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
@@ -103,6 +97,7 @@ public class TranslationExchangeExport extends Export {
             String uploadId =
                     new BinaryUploadRequest(context, "http://opentranslationtools.org/api/upload/zip")
                             .addHeader("tr-user-hash", hash)
+                            .addHeader("tr-file-name", file.getName())
                             .setFileToUpload(filePath)
                             .setNotificationConfig(getNotificationConfig())
                             .setDelegate(getUploadStatusDelegate())
@@ -122,19 +117,29 @@ public class TranslationExchangeExport extends Export {
 
             @Override
             public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                String message;
                 if (serverResponse != null) {
-                    Logger.e(TranslationExchangeExport.class.toString(), "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString(), exception);
+                    message = String.format("code: %s: %s", serverResponse.getHttpCode(), serverResponse.getBodyAsString());
+                    Logger.e(TranslationExchangeExport.class.toString(), message, exception);
                 } else if (exception != null) {
-                    Logger.e(TranslationExchangeExport.class.toString(), "error", exception);
+                    message = exception.getMessage();
+                    Logger.e(TranslationExchangeExport.class.toString(), "Error: " + message, exception);
                 } else {
-                    Logger.e(TranslationExchangeExport.class.toString(), "an error occured without a response or exception, upload percent is " + uploadInfo.getProgressPercent());
+                    message = "An error occurred without a response or exception, upload percent is " + uploadInfo.getProgressPercent();
+                    Logger.e(TranslationExchangeExport.class.toString(), message);
                 }
+
+                FeedbackDialog fd = FeedbackDialog.newInstance("Project upload", "Project upload failed: " + message);
+                fd.show(mCtx.getFragmentManager(), "UPLOAD_FEEDBACK");
             }
 
             @Override
             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                 Logger.e(TranslationExchangeExport.class.toString(), "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString());
                 mZipFile.delete();
+
+                FeedbackDialog fd = FeedbackDialog.newInstance("Project upload", "Project has been successfully uploaded.");
+                fd.show(mCtx.getFragmentManager(), "title");
             }
 
             @Override

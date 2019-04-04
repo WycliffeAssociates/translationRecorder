@@ -33,6 +33,8 @@ public abstract class Export implements SimpleProgressCallback {
         void setExporting(boolean exporting);
 
         void setCurrentFile(String currentFile);
+
+        void setProgressTitle(String title);
     }
 
     File mDirectoryToZip;
@@ -133,15 +135,19 @@ public abstract class Export implements SimpleProgressCallback {
         zp.zip(outputFile(), this);
     }
 
-    public void onStart(int id) {
+    public void onStart(final int id) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
-
                 mZipDone = false;
                 mProgressCallback.setZipping(true);
                 mProgressCallback.showProgress(ProgressUpdateCallback.ZIP);
+
+                if (id == TranslationExchangeDiff.DIFF_ID) {
+                    mProgressCallback.setProgressTitle("Step 1/2: Generating manifest file");
+                } else if(id == ZipProject.ZIP_PROJECT_ID) {
+                    mProgressCallback.setProgressTitle("Step 2/2: Packaging files to export");
+                }
             }
         });
     }
@@ -150,7 +156,6 @@ public abstract class Export implements SimpleProgressCallback {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
                 mProgressCallback.setCurrentFile(currentFile);
             }
         });
@@ -160,7 +165,6 @@ public abstract class Export implements SimpleProgressCallback {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
                 mProgressCallback.setUploadProgress(progress);
             }
         });
@@ -170,14 +174,12 @@ public abstract class Export implements SimpleProgressCallback {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-
-
-                mZipDone = true;
-                mProgressCallback.setZipping(false);
-                mProgressCallback.dismissProgress();
                 if (id == ZipProject.ZIP_PROJECT_ID) {
+                    mZipDone = true;
+                    mProgressCallback.setZipping(false);
                     handleUserInput();
                 }
+                mProgressCallback.dismissProgress();
             }
         });
     }

@@ -172,7 +172,7 @@ public class WavPlayer {
         if (frame < mBufferProvider.getMark()) {
             int oldMark = mBufferProvider.getMark();
             clearLoopPoints();
-            mBufferProvider.mark(frame);
+            mBufferProvider.mark(oldMark);
             mBufferProvider.setLimit(oldMark);
         } else {
             mBufferProvider.setLimit(frame);

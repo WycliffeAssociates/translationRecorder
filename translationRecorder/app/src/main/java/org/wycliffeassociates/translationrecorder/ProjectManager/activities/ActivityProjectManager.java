@@ -27,6 +27,7 @@ import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
+import org.wycliffeassociates.translationrecorder.FilesPage.FeedbackDialog;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
@@ -65,6 +66,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private int mNumProjects = 0;
     private ProgressDialog mPd;
     private volatile int mProgress = 0;
+    private volatile String mProgressTitle = null;
     private volatile boolean mZipping = false;
     private volatile boolean mExporting = false;
     private ExportTaskFragment mExportTaskFragment;
@@ -81,6 +83,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private final String STATE_RESYNC = "db_resync";
 
     private final String STATE_PROGRESS = "upload_progress";
+    private final String STATE_PROGRESS_TITLE = "upload_progress_title";
     public static final int PROJECT_WIZARD_REQUEST = RESULT_FIRST_USER;
     public static final int SAVE_SOURCE_AUDIO_REQUEST = RESULT_FIRST_USER + 1;
     private boolean mDbResyncing = false;
@@ -104,6 +107,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
             mExporting = savedInstanceState.getBoolean(STATE_EXPORTING, false);
             mProgress = savedInstanceState.getInt(STATE_PROGRESS, 0);
+            mProgressTitle = savedInstanceState.getString(STATE_PROGRESS_TITLE, null);
             mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
         }
     }
@@ -127,9 +131,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             fm.executePendingTransactions();
         } else {
             if (mZipping) {
-                zipProgress(mProgress);
+                zipProgress(mProgress, mProgressTitle);
             } else if (mExporting) {
-                exportProgress(mProgress);
+                exportProgress(mProgress, mProgressTitle);
             }
         }
         if (mTaskFragment == null) {
@@ -151,6 +155,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         if (mPd != null) {
             savedInstanceState.putInt(STATE_PROGRESS, mPd.getProgress());
         }
+        savedInstanceState.putString(STATE_PROGRESS_TITLE, mProgressTitle);
         savedInstanceState.putBoolean(STATE_EXPORTING, mExporting);
         savedInstanceState.putBoolean(STATE_ZIPPING, mZipping);
         savedInstanceState.putBoolean(STATE_RESYNC, mDbResyncing);
@@ -383,18 +388,18 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         dialog.show();
     }
 
-    public void exportProgress(int progress) {
+    public void exportProgress(int progress, String title) {
         mPd = new ProgressDialog(this);
-        mPd.setTitle("Uploading...");
+        mPd.setTitle(title != null ? title : "Uploading...");
         mPd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mPd.setProgress(progress);
         mPd.setCancelable(false);
         mPd.show();
     }
 
-    public void zipProgress(int progress) {
+    public void zipProgress(int progress, String title) {
         mPd = new ProgressDialog(this);
-        mPd.setTitle("Packaging files to export.");
+        mPd.setTitle(title != null ? title : "Packaging files to export.");
         mPd.setMessage("Please wait...");
         mPd.setProgress(progress);
         mPd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -403,22 +408,28 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     public void dismissProgress() {
-        mPd.dismiss();
+        if(mPd != null) {
+            mPd.dismiss();
+        }
     }
 
     public void incrementProgress(int progress) {
-        mPd.incrementProgressBy(progress);
+        if(mPd != null) {
+            mPd.incrementProgressBy(progress);
+        }
     }
 
     public void setUploadProgress(int progress) {
-        mPd.setProgress(progress);
+        if(mPd != null) {
+            mPd.setProgress(progress);
+        }
     }
 
     public void showProgress(boolean mode) {
         if (mode == true) {
-            zipProgress(0);
+            zipProgress(0, mProgressTitle);
         } else {
-            exportProgress(0);
+            exportProgress(0, mProgressTitle);
         }
     }
 
@@ -434,7 +445,17 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
     @Override
     public void setCurrentFile(String currentFile) {
-        mPd.setMessage(currentFile);
+        if(mPd != null) {
+            mPd.setMessage(currentFile);
+        }
+    }
+
+    @Override
+    public void setProgressTitle(String title) {
+        if (mPd != null) {
+            mProgressTitle = title;
+            mPd.setTitle(mProgressTitle);
+        }
     }
 
     @Override
@@ -475,6 +496,14 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                 mNumProjects = db.getNumProjects();
                 mDbResyncing = false;
                 initializeViews();
+            } else if(taskTag == SOURCE_AUDIO_TASK) {
+                FeedbackDialog fd = FeedbackDialog.newInstance("Source Audio", "Source Audio generation complete.");
+                fd.show(getFragmentManager(), "SOURCE_AUDIO");
+            }
+        } else if(resultCode == TaskFragment.STATUS_ERROR) {
+            if(taskTag == SOURCE_AUDIO_TASK) {
+                FeedbackDialog fd = FeedbackDialog.newInstance("Source Audio", "Source Audio generation failed.");
+                fd.show(getFragmentManager(), "SOURCE_AUDIO");
             }
         }
     }
