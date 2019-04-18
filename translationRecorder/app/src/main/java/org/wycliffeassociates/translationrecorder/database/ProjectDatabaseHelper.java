@@ -348,11 +348,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
     public int getModeId(String modeSlug, String anthologySlug) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
-        final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=?",
-                ProjectContract.ModeEntry._ID, ProjectContract.ModeEntry.TABLE_MODE, ProjectContract.ModeEntry.MODE_SLUG);
+        final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
+                ProjectContract.ModeEntry._ID, ProjectContract.ModeEntry.TABLE_MODE, ProjectContract.ModeEntry.MODE_SLUG, ProjectContract.ModeEntry.MODE_ANTHOLOGY_FK);
         int id = -1;
         try {
-            id = (int) DatabaseUtils.longForQuery(db, takeIdQuery, new String[]{modeSlug});
+            id = (int) DatabaseUtils.longForQuery(db, takeIdQuery, new String[]{modeSlug, String.valueOf(getAnthologyId(anthologySlug))});
         } catch (SQLiteDoneException e) {
             //db.close();
             throw new IllegalArgumentException("Mode not found in database.");

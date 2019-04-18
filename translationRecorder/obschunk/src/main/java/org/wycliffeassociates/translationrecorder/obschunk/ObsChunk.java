@@ -8,7 +8,7 @@ import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 
 public class ObsChunk extends Chunk {
     public ObsChunk(String startVerse, String endVerse) {
-        super("", Integer.parseInt(startVerse), Integer.parseInt(endVerse), ((Integer.parseInt(endVerse) - Integer.parseInt(startVerse)) + 1));
+        super(startVerse, Integer.parseInt(startVerse), Integer.parseInt(endVerse), ((Integer.parseInt(endVerse) - Integer.parseInt(startVerse)) + 1));
     }
 
     public String getRangeDisplay(){

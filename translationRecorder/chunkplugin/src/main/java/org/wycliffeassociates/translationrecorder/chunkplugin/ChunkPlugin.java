@@ -102,7 +102,7 @@ public abstract class ChunkPlugin {
     public void initialize(int chapter, int chunk) {
         mIter.setChapter(chapter);
         mIter.setChunk(chunk);
-    };
+    }
 
     public int numChapters(){
         return mChapters.size();
