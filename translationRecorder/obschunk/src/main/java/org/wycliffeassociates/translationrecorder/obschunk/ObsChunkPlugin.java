@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkIterator;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 
 import java.io.File;
@@ -20,17 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ObsChunkPlugin extends ChunkPlugin {
-    Map<Integer, Chapter> mChapters;
+
     ArrayList<Map<String, String>> mParsedChunks;
-    int mNumChapters = 0;
 
     public ObsChunkPlugin(TYPE mode) {
         super(mode);
-    }
-
-    @Override
-    public Chapter getChapter(int chapter) {
-        return mChapters.get(chapter);
     }
 
     @Override
@@ -55,23 +50,23 @@ public class ObsChunkPlugin extends ChunkPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String id = mParsedChunks.get(mParsedChunks.size() - 1).get("id");
-        mNumChapters = Integer.parseInt(id.substring(0, id.lastIndexOf("-")));
         generateChunks(mParsedChunks);
+        mIter = new ChunkIterator(mChapters);
     }
 
     private void generateChunks(List<Map<String, String>> parsedChunks) {
-        mChapters = new HashMap<>();
+        Map<Integer, Chapter> chaptersMap = new HashMap<>();
         String chunkId;
         int chapter;
         for (Map<String, String> chunk : parsedChunks) {
             chunkId = chunk.get("id");
             chapter = Integer.parseInt(chunkId.substring(0, chunkId.lastIndexOf("-")));
-            if (!mChapters.containsKey(chapter)) {
-                mChapters.put(chapter, new ObsChapter(chapter, new HashMap<String, String>()));
+            if (!chaptersMap.containsKey(chapter)) {
+                chaptersMap.put(chapter, new ObsChapter(chapter, new HashMap<String, String>()));
             }
-            mChapters.get(chapter).addChunk(new ObsChunk(chunk.get("firstvs"), chunk.get("lastvs")));
+            chaptersMap.get(chapter).addChunk(new ObsChunk(chunk.get("firstvs"), chunk.get("lastvs")));
         }
+        mChapters = new ArrayList<>(chaptersMap.values());
     }
 
     @Override
@@ -86,7 +81,7 @@ public class ObsChunkPlugin extends ChunkPlugin {
 
     @Override
     public String getChapterName(int chapter) {
-        return null;
+        return getChapter(chapter).getName();
     }
 
 //    @Override

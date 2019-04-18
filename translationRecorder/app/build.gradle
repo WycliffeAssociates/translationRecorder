@@ -122,7 +122,7 @@ dependencies {
     compile project(':biblechunk')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5'
-    //compile project(':obschunk')
+    compile project(':obschunk')
     //compile project(':noteschunk')
     //compile project(':questionschunk')
     implementation files('src/main/lib/jdenticon-kotlin.jar')
