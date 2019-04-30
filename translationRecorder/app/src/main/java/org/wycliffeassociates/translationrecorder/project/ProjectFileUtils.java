@@ -248,4 +248,17 @@ public class ProjectFileUtils {
             return null;
         }
     }
+
+    //Extracts the identifiable section of a filename for source audio
+    // For OBS project
+    public static String getVerseSection(String name) {
+        String VERSE = "v([\\d]{2,3})(-([\\d]{2,3}))?";
+        Pattern chapterAndVerseSection = Pattern.compile("(" + VERSE + ")");
+        Matcher matcher = chapterAndVerseSection.matcher(name);
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
 }

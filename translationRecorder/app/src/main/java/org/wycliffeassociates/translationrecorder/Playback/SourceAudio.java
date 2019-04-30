@@ -125,7 +125,10 @@ public class SourceAudio extends LinearLayout {
         ArchiveOfHolding aoh = new ArchiveOfHolding(is, ll);
         //The archive of holding entry requires the path to look for the file, so that part of the name can be ignored
         //chapter and verse information is all that is necessary to be identifiable at this point.
-        String importantSection = ProjectFileUtils.getChapterAndVerseSection(mFileName);
+        String importantSection = mProject.getAnthologySlug().equals("obs")
+                ? ProjectFileUtils.getVerseSection(mFileName)
+                : ProjectFileUtils.getChapterAndVerseSection(mFileName);
+
         if(importantSection == null) {
             return false;
         }
