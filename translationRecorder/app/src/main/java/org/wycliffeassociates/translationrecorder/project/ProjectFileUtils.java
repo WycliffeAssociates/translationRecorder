@@ -253,8 +253,8 @@ public class ProjectFileUtils {
     // For OBS project
     public static String getVerseSection(String name) {
         String VERSE = "v([\\d]{2,3})(-([\\d]{2,3}))?";
-        Pattern chapterAndVerseSection = Pattern.compile("(" + VERSE + ")");
-        Matcher matcher = chapterAndVerseSection.matcher(name);
+        Pattern verseSection = Pattern.compile("(" + VERSE + ")");
+        Matcher matcher = verseSection.matcher(name);
         if (matcher.find()) {
             return matcher.group(1);
         } else {
