@@ -31,8 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="@integer/project_management_list_weight"
             android:scrollbars="vertical"
-            android:paddingTop="@dimen/default_padding_m"
-            android:paddingBottom="@dimen/default_padding_m"
+            android:paddingTop="@dimen/default_padding_l"
+            android:paddingBottom="@dimen/default_padding_l"
             android:clipToPadding="false"
             android:divider="@color/background_material_light"
             />

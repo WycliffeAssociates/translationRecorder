@@ -62,7 +62,8 @@
                         android:duplicateParentState="true"
                         android:clickable="true"
                         android:cropToPadding="false"
-                        />
+                        android:layout_marginRight="@dimen/default_padding_l"
+                    />
 
                     <ImageView
                         android:id="@+id/unitExpandBtn"
@@ -74,7 +75,7 @@
                         android:duplicateParentState="true"
                         android:clickable="true"
                         android:cropToPadding="false"
-                        android:layout_marginLeft="@dimen/default_padding_m"
+                        android:layout_marginLeft="@dimen/default_padding_l"
                         />
 
                 </LinearLayout>

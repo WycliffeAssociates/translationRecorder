@@ -27,12 +27,12 @@
 
     <dimen name="action_bar_negative">-64dp</dimen>
 
-    <dimen name="icon_xs">12dp</dimen>
-    <dimen name="icon_s">14dp</dimen>
-    <dimen name="icon_m">16dp</dimen>
-    <dimen name="icon_l">20dp</dimen>
-    <dimen name="icon_xl">24dp</dimen>
-    <dimen name="icon_xxl">28dp</dimen>
+    <dimen name="icon_xs">14dp</dimen>
+    <dimen name="icon_s">18dp</dimen>
+    <dimen name="icon_m">24dp</dimen>
+    <dimen name="icon_l">36dp</dimen>
+    <dimen name="icon_xl">36dp</dimen>
+    <dimen name="icon_xxl">48dp</dimen>
 
     <dimen name="rating_icon_size">96dp</dimen>
 

@@ -69,7 +69,7 @@
             <ImageButton
                 android:layout_width="0dp"
                 android:layout_height="@dimen/icon_l"
-                android:layout_weight="10"
+                android:layout_weight="15"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_information_grey600_36dp"
                 android:clickable="true"
@@ -80,7 +80,7 @@
             <ImageButton
                 android:layout_width="0dp"
                 android:layout_height="@dimen/icon_l"
-                android:layout_weight="10"
+                android:layout_weight="15"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_microphone_grey600_36dp"
                 android:clickable="true"
