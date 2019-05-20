@@ -88,6 +88,17 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.VersionEntry.CREATE_VERSION_TABLE);
         db.execSQL(ProjectContract.VersionRelationshipEntry.CREATE_VERSION_RELATIONSHIP_TABLE);
         db.execSQL(ProjectContract.UserEntry.CREATE_USER_TABLE);
+
+        db.execSQL(ProjectContract.LanguageEntry.CREATE_LANGUAGE_INDEX);
+        db.execSQL(ProjectContract.BookEntry.CREATE_BOOK_INDEX);
+        db.execSQL(ProjectContract.ProjectEntry.CREATE_PROJECT_INDEX);
+        db.execSQL(ProjectContract.ChapterEntry.CREATE_CHAPTER_INDEX);
+        db.execSQL(ProjectContract.UnitEntry.CREATE_UNIT_INDEX);
+        db.execSQL(ProjectContract.TakeEntry.CREATE_TAKE_INDEX);
+        db.execSQL(ProjectContract.AnthologyEntry.CREATE_ANTHOLOGY_INDEX);
+        db.execSQL(ProjectContract.VersionEntry.CREATE_VERSION_INDEX);
+        db.execSQL(ProjectContract.VersionRelationshipEntry.CREATE_VERSION_RELATIONSHIP_INDEX);
+
         //db.execSQL(ProjectContract.ModeRelationshipEntry.CREATE_MODE_RELATIONSHIP_TABLE);
         //db.close();
     }

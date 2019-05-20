@@ -1,6 +1,7 @@
 package org.wycliffeassociates.translationrecorder.database;
 
 import android.provider.BaseColumns;
+import org.wycliffeassociates.translationrecorder.project.components.Anthology;
 
 import static org.wycliffeassociates.translationrecorder.database.ProjectContract.BookEntry.TABLE_BOOK;
 import static org.wycliffeassociates.translationrecorder.database.ProjectContract.ChapterEntry.TABLE_CHAPTER;
@@ -25,6 +26,9 @@ public final class ProjectContract {
                 + LANGUAGE_NAME + TEXTCOMMA
                 + "CONSTRAINT " + LANGUAGE_UNIQUE_CONSTRAINT + " UNIQUE(" + LANGUAGE_CODE + ")"
                 + ");";
+
+        public static final String CREATE_LANGUAGE_INDEX = "CREATE UNIQUE INDEX lang_codes ON " + TABLE_LANGUAGE
+                + " (" + LANGUAGE_CODE + ");";
     }
 
     public static abstract class BookEntry implements BaseColumns {
@@ -44,6 +48,9 @@ public final class ProjectContract {
                 + "FOREIGN KEY(" + ANTHOLOGY_FK + ") REFERENCES " + AnthologyEntry.TABLE_ANTHOLOGY + "(" + _ID + ")"
                 + "CONSTRAINT " + BOOK_UNIQUE_CONSTRAINT + " UNIQUE(" + BOOK_SLUG +COMMA + ANTHOLOGY_FK + ")"
                 + ");";
+
+        public static final String CREATE_BOOK_INDEX = "CREATE UNIQUE INDEX book_slugs ON " + TABLE_BOOK
+                + " (" + BOOK_SLUG + COMMA + ANTHOLOGY_FK + ");";
     }
 
     public static abstract class AnthologyEntry implements BaseColumns {
@@ -71,6 +78,9 @@ public final class ProjectContract {
                 + "CONSTRAINT " + ANTHOLOGY_UNIQUE_CONSTRAINT + " UNIQUE(" + ANTHOLOGY_SLUG + ")"
                 + ");";
 
+        public static final String CREATE_ANTHOLOGY_INDEX = "CREATE UNIQUE INDEX anth_slugs ON " + TABLE_ANTHOLOGY
+                + " (" + ANTHOLOGY_SLUG + ");";
+
     }
 
     public static abstract class VersionEntry implements BaseColumns {
@@ -85,6 +95,9 @@ public final class ProjectContract {
                 + VERSION_NAME + TEXTCOMMA
                 + "CONSTRAINT " + VERSION_UNIQUE_CONSTRAINT + " UNIQUE(" + VERSION_SLUG + ")"
                 + ");";
+
+        public static final String CREATE_VERSION_INDEX = "CREATE UNIQUE INDEX version_slugs ON " + TABLE_VERSION
+                + " (" + VERSION_SLUG + ");";
     }
 
     public static abstract class VersionRelationshipEntry implements BaseColumns {
@@ -101,6 +114,10 @@ public final class ProjectContract {
                 + "FOREIGN KEY(" + ANTHOLOGY_FK + ") REFERENCES " + AnthologyEntry.TABLE_ANTHOLOGY + "(" + _ID + ")"
                 + "CONSTRAINT " + UNIQUE_CONSTRAINT + " UNIQUE(" + VERSION_FK + COMMA + ANTHOLOGY_FK + ")"
                 + ");";
+
+        public static final String CREATE_VERSION_RELATIONSHIP_INDEX = "CREATE UNIQUE INDEX vsn_relations ON "
+                + TABLE_VERSION_RELATIONSHIP + " (" + VERSION_FK + COMMA + ANTHOLOGY_FK + ");";
+
     }
 
     public static abstract class ChapterEntry implements BaseColumns {
@@ -122,6 +139,10 @@ public final class ProjectContract {
                 + "FOREIGN KEY(" + CHAPTER_PROJECT_FK + ") REFERENCES " + ProjectEntry.TABLE_PROJECT + "(" + _ID + ")"
                 + "CONSTRAINT " + CHAPTER_UNIQUE_CONSTRAINT + " UNIQUE(" + CHAPTER_PROJECT_FK + "," +  CHAPTER_NUMBER + ")"
                 + ");";
+
+        public static final String CREATE_CHAPTER_INDEX = "CREATE UNIQUE INDEX chapter_idx ON " + TABLE_CHAPTER
+                + " (" + CHAPTER_PROJECT_FK + COMMA + CHAPTER_NUMBER + ");";
+
     }
 
     public static abstract class UnitEntry implements BaseColumns {
@@ -147,6 +168,10 @@ public final class ProjectContract {
                 + "FOREIGN KEY(" + UNIT_CHOSEN_TAKE_FK + ") REFERENCES " + TakeEntry.TABLE_TAKE + "(" + _ID + ")"
                 + "CONSTRAINT " + UNIT_UNIQUE_CONSTRAINT + " UNIQUE(" + UNIT_PROJECT_FK + "," +  UNIT_CHAPTER_FK + "," + UNIT_START_VERSE + ")"
                 + ");";
+
+        public static final String CREATE_UNIT_INDEX = "CREATE INDEX unit_idx ON " + TABLE_UNIT
+                + " (" + UNIT_CHAPTER_FK + COMMA + UNIT_PROJECT_FK + ");";
+
     }
 
     public static abstract class TakeEntry implements BaseColumns {
@@ -171,6 +196,10 @@ public final class ProjectContract {
                 + TAKE_USER_FK + INTCOMMA
                 + "CONSTRAINT " + TAKE_UNIQUE_CONSTRAINT + " UNIQUE(" + TAKE_UNIT_FK + "," +  TAKE_NUMBER + ")"
                 + ");";
+
+        public static final String CREATE_TAKE_INDEX = "CREATE INDEX take_idx ON " + TABLE_TAKE
+                + " (" + TAKE_UNIT_FK + COMMA + TAKE_FILENAME +  ");";
+
     }
 
     public static abstract class ProjectEntry implements BaseColumns {
@@ -202,6 +231,9 @@ public final class ProjectContract {
                 + "FOREIGN KEY(" + PROJECT_VERSION_FK + ") REFERENCES " + VersionEntry.TABLE_VERSION + "(" + _ID + ")"
                 + "CONSTRAINT " + PROJECT_UNIQUE_CONSTRAINT + " UNIQUE(" + PROJECT_BOOK_FK + "," +  PROJECT_TARGET_LANGUAGE_FK + "," + PROJECT_VERSION_FK + ")"
                 + " );";
+
+        public static final String CREATE_PROJECT_INDEX = "CREATE INDEX project_idx ON " + TABLE_PROJECT
+                + " (" + PROJECT_BOOK_FK + COMMA + PROJECT_TARGET_LANGUAGE_FK + ");";
     }
 
     public static abstract class ModeEntry implements BaseColumns {
