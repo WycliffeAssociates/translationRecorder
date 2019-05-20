@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.media.AudioTrack;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -43,6 +44,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingD
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.WavFileLoader;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
@@ -129,6 +131,8 @@ public class PlaybackActivity extends Activity implements
     private boolean mMinimapInflated = false;
     private DrawThread mDrawLoop;
     private User mUser;
+    private AudioTrack audioTrack;
+    private int trackBufferSize = 0;
 
     public static Intent getPlaybackIntent(
             Context ctx,
@@ -150,6 +154,8 @@ public class PlaybackActivity extends Activity implements
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_playback_screen);
+        audioTrack = ((TranslationRecorderApp)getApplication()).getAudioTrack();
+        trackBufferSize = ((TranslationRecorderApp)getApplication()).getTrackBufferSize();
         try {
             initialize(getIntent());
         } catch (IOException e) {
@@ -167,7 +173,7 @@ public class PlaybackActivity extends Activity implements
         parseIntent(intent);
         getVerseRange();
         try {
-            mAudioController = new AudioVisualController(this, mWavFile, this);
+            mAudioController = new AudioVisualController(audioTrack, trackBufferSize, this, mWavFile, this);
         } catch (IOException e) {
             e.printStackTrace();
         }

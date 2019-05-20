@@ -5,6 +5,7 @@ import android.app.Fragment
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.media.AudioTrack
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.widget.AppCompatImageButton
@@ -25,6 +26,7 @@ import org.wycliffeassociates.translationrecorder.Playback.overlays.WaveformLaye
 import org.wycliffeassociates.translationrecorder.Playback.player.WavPlayer
 import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp
 import org.wycliffeassociates.translationrecorder.WavFileLoader
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnRedoListener
@@ -62,6 +64,8 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
     private lateinit var wavVis: WavVisualizer
     private lateinit var mPlayer: WavPlayer
     private var mLayoutInitialized = false
+    private lateinit var audioTrack: AudioTrack
+    private var trackBufferSize: Int = 0
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -110,6 +114,8 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
                 mPlayer.play()
             }
         }
+        audioTrack = (activity.application as TranslationRecorderApp).audioTrack
+        trackBufferSize = (activity.application as TranslationRecorderApp).trackBufferSize
     }
 
     private fun renderIdenticon(hash: String, view: ImageView): Unit {
@@ -131,6 +137,6 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
                 waveform_frame.width,
                 CutOp()
         )
-        mPlayer = WavPlayer(uncompressed, CutOp(), LinkedList<WavCue>())
+        mPlayer = WavPlayer(audioTrack, trackBufferSize, uncompressed, CutOp(), LinkedList<WavCue>())
     }
 }

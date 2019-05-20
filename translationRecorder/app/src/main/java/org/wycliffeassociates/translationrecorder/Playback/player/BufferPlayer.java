@@ -14,7 +14,7 @@ import org.wycliffeassociates.translationrecorder.AudioInfo;
 class BufferPlayer {
 
     private final BufferProvider mBufferProvider;
-    private AudioTrack player = null;
+    private final AudioTrack player;
     private Thread mPlaybackThread;
     private int minBufferSize = 0;
     private int mSessionLength;
@@ -32,12 +32,9 @@ class BufferPlayer {
         void onPauseAfterPlayingXSamples(int pausedHeadPosition);
     }
 
-    BufferPlayer(BufferProvider bp) {
-        mBufferProvider = bp;
-        init();
-    }
-
-    BufferPlayer(BufferProvider bp, BufferPlayer.OnCompleteListener onCompleteListener) {
+    BufferPlayer(AudioTrack audioTrack, int trackBufferSize, BufferProvider bp, BufferPlayer.OnCompleteListener onCompleteListener) {
+        player = audioTrack;
+        minBufferSize = trackBufferSize;
         mBufferProvider = bp;
         mOnCompleteListener = onCompleteListener;
         init();
@@ -90,14 +87,6 @@ class BufferPlayer {
     }
 
     void init() {
-        //some arbitrarily larger buffer
-        minBufferSize = 10 * AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
-                AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-
-        player = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
-                AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
-                minBufferSize, AudioTrack.MODE_STREAM);
-
         mAudioShorts = new short[minBufferSize];
         if (mOnCompleteListener != null) {
             player.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
