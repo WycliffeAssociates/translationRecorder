@@ -1,6 +1,7 @@
 package org.wycliffeassociates.translationrecorder.Playback;
 
 import android.content.Context;
+import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -34,9 +35,9 @@ public class AudioVisualController implements MediaControlReceiver {
     private int durationInFrames;
     WavFileLoader mWavLoader;
 
-    public AudioVisualController(final AudioStateCallback callback, final WavFile wav, Context ctx) throws IOException {
+    public AudioVisualController(final AudioTrack audioTrack, final int trackBufferSize, final AudioStateCallback callback, final WavFile wav, Context ctx) throws IOException {
         mCallback = callback;
-        initPlayer(wav, ctx);
+        initPlayer(audioTrack, trackBufferSize, wav, ctx);
         mHandler = new Handler(Looper.getMainLooper());
         mPlayer.setOnCompleteListener(new WavPlayer.OnCompleteListener() {
             @Override
@@ -51,7 +52,7 @@ public class AudioVisualController implements MediaControlReceiver {
         mPlayer.setCueList(cueList);
     }
 
-    private void initPlayer(WavFile wav, Context ctx) throws IOException {
+    private void initPlayer(final AudioTrack audioTrack, final int trackBufferSize, WavFile wav, Context ctx) throws IOException {
         mWavLoader = new WavFileLoader(wav, ctx);
         mWavLoader.setOnVisualizationFileCreatedListener(new WavFileLoader.OnVisualizationFileCreatedListener() {
             @Override
@@ -63,7 +64,7 @@ public class AudioVisualController implements MediaControlReceiver {
         if (mCues != null) {
             sortCues(mCues);
         }
-        mPlayer = new WavPlayer(mWavLoader.mapAndGetAudioBuffer(), mCutOp, mCues);
+        mPlayer = new WavPlayer(audioTrack, trackBufferSize, mWavLoader.mapAndGetAudioBuffer(), mCutOp, mCues);
     }
 
     private void sortCues(List<WavCue> cues) {

@@ -2,6 +2,9 @@ package org.wycliffeassociates.translationrecorder;
 
 import android.app.Application;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
@@ -32,6 +35,14 @@ import okhttp3.OkHttpClient;
  */
 
 public class TranslationRecorderApp extends Application implements DirectoryProvider {
+
+    //some arbitrarily larger buffer
+    int minBufferSize = 10 * AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
+    AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+
+    AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
+                            AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+                            minBufferSize, AudioTrack.MODE_STREAM);
 
     @Override
     public void onCreate() {
@@ -88,5 +99,13 @@ public class TranslationRecorderApp extends Application implements DirectoryProv
 
     public File getUploadDirectory() {
         return new File(this.getExternalCacheDir(), "upload");
+    }
+
+    public AudioTrack getAudioTrack() {
+        return audioTrack;
+    }
+
+    public int getTrackBufferSize() {
+        return minBufferSize;
     }
 }

@@ -1,5 +1,6 @@
 package org.wycliffeassociates.translationrecorder.Playback.player;
 
+import android.media.AudioTrack;
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp;
 import org.wycliffeassociates.translationrecorder.wav.WavCue;
 
@@ -29,20 +30,25 @@ public class WavPlayer {
         void onComplete();
     }
 
-    public WavPlayer(ShortBuffer audioBuffer, CutOp operations, List<WavCue> cueList) {
+    public WavPlayer(final AudioTrack audioTrack, final int trackBufferSize, ShortBuffer audioBuffer, CutOp operations, List<WavCue> cueList) {
         mOperationStack = operations;
         mAudioBuffer = audioBuffer;
         mBufferProvider = new AudioBufferProvider(mAudioBuffer, mOperationStack);
         mCueList = cueList;
-        mPlayer = new BufferPlayer(mBufferProvider, new BufferPlayer.OnCompleteListener() {
-            @Override
-            public void onComplete() {
-                if (mOnCompleteListener != null) {
-                    mBufferProvider.reset();
-                    mOnCompleteListener.onComplete();
+        mPlayer = new BufferPlayer(
+                audioTrack,
+                trackBufferSize,
+                mBufferProvider,
+                new BufferPlayer.OnCompleteListener() {
+                    @Override
+                    public void onComplete() {
+                        if (mOnCompleteListener != null) {
+                            mBufferProvider.reset();
+                            mOnCompleteListener.onComplete();
+                        }
+                    }
                 }
-            }
-        });
+        );
     }
 
     public synchronized void seekNext() throws IllegalStateException {
