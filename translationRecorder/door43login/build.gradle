@@ -1,9 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '27.0.3'
 
     defaultConfig {
         //applicationId "com.door43.login"
@@ -19,16 +17,13 @@ android {
         }
     }
 }
-repositories {
-    jcenter()
-}
+
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile project(':com.door43.tools.reporting')
-    compile 'org.unfoldingword.tools:gogs-client:1.4.0'
-    compile project(':sysutils')
-    compile project(':widgets')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:22.2.0'
+    implementation project(':com.door43.tools.reporting')
+    implementation 'org.unfoldingword.tools:gogs-client:1.4.0'
+    implementation project(':sysutils')
+    implementation project(':widgets')
 }
