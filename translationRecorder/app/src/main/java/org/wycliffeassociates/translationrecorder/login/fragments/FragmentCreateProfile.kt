@@ -11,8 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import kotlinx.android.synthetic.main.fragment_create_profile.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.wycliffeassociates.translationrecorder.AudioVisualization.ActiveRecordingRenderer
 import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.Recording.RecordingQueues
@@ -124,7 +125,7 @@ class FragmentCreateProfile : Fragment() {
     }
 
     private fun convertAudio() {
-        launch(UI) {
+        GlobalScope.launch(Dispatchers.Main) {
             if (userAudio.exists()) {
                 userAudio.delete()
                 userAudio.createNewFile()
