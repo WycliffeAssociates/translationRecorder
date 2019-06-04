@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
 
     <application
         android:name=".TranslationRecorderApp"
@@ -75,8 +74,6 @@
             android:name="org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity"
             android:theme="@style/TR" />
 
-        <!-- ?? -->
-        <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
         <activity android:name="org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport$StorageAccess" />
         <activity android:name="org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport$ShareZipToApps" />
 
