@@ -1,11 +1,6 @@
 package com.door43.sysutils;
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-
-
-
-import java.io.File;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * This should be extended by all activities in the app so that we can perform verification on

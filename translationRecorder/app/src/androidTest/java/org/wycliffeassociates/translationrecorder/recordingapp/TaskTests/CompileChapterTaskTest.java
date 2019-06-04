@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.recordingapp.TaskTests;
 
-import android.support.test.rule.ActivityTestRule;
+import androidx.test.rule.ActivityTestRule;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;

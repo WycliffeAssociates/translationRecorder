@@ -5,26 +5,21 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import com.door43.tools.reporting.Logger;
 //import com.door43.translationstudio.core.ArchiveDetails;
 //import com.door43.translationstudio.core.Library;
-import com.door43.sysutils.Profile;
 //import com.door43.translationstudio.core.TargetTranslation;
 //import com.door43.translationstudio.core.TranslationViewMode;
 //import com.door43.translationstudio.core.Translator;
 //import com.door43.translationstudio.core.Util;
 //import com.door43.translationstudio.util.SdUtils;
-import com.door43.sysutils.FileUtilities;
 //import com.door43.util.StorageUtils;
 //import com.door43.util.StringUtilities;
 //import com.door43.util.Zip;
@@ -33,12 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
-    /**
+/**
      * This class provides global access to the application context as well as other important tools
      */
 public class AppContext {
