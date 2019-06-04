@@ -20,7 +20,7 @@
         android:layout_height="match_parent"
         >
 
-        <com.github.clans.fab.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/new_project_fab"
             android:layout_width="@dimen/abc_action_button_min_width_material"
             android:layout_height="@dimen/abc_action_button_min_height_material"
@@ -28,10 +28,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginBottom="@dimen/default_padding_m"
             android:layout_marginEnd="@dimen/default_padding_m"
-            android:src="@drawable/ic_action_create_light"
-            app:fab_colorNormal="@color/accent"
-            app:fab_colorPressed="@color/accent_dark"
-            app:fab_colorRipple="@color/white"
+            android:src="@drawable/ic_plus"
+            app:rippleColor="@color/white"
             />
 
         <Button
