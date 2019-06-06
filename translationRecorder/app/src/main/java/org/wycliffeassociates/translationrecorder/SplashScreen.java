@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.login.UserActivity;
+import org.wycliffeassociates.translationrecorder.permissions.PermissionActivity;
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 import org.wycliffeassociates.translationrecorder.project.ProjectPlugin;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
@@ -25,7 +26,7 @@ import java.io.InputStream;
 /**
  * Created by sarabiaj on 5/5/2016.
  */
-public class SplashScreen extends Activity {
+public class SplashScreen extends PermissionActivity {
 
     private static int SPLASH_TIME_OUT = 3000;
     protected ProgressBar mProgressBar;
@@ -42,8 +43,7 @@ public class SplashScreen extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onPermissionsAccepted() {
         Thread initDb = new Thread(new Runnable() {
             @Override
             public void run() {

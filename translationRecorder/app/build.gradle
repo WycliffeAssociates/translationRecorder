@@ -92,6 +92,7 @@ repositories {
 
         implementation 'com.bignerdranch.android:recyclerview-multiselect:0.2'
         implementation 'com.github.filippudak.progresspieview:library:1.0.4'
+        implementation 'com.karumi:dexter:5.0.0'
 
         def uploadServiceVersion = "3.4.2"
         implementation "net.gotev:uploadservice:$uploadServiceVersion"
