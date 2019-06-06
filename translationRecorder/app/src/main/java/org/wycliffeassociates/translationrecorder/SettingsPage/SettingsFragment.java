@@ -106,7 +106,7 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     @Override
     public void onPause() {
-        super.onResume();
+        super.onPause();
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
