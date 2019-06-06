@@ -2,7 +2,7 @@ package org.wycliffeassociates.translationrecorder.recordingapp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.rule.ActivityTestRule;
+import androidx.test.rule.ActivityTestRule;
 
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;

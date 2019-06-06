@@ -2,12 +2,11 @@ package com.door43.widgets.widgets;
 
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.design.widget.Snackbar;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.text.method.LinkMovementMethod;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.graphics.drawable.DrawableCompat;
+
 import android.text.method.MovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +45,7 @@ public class ViewUtil {
      * @param color
      */
     public static void setSnackBarTextColor(Snackbar snack, int color) {
-        TextView tv = (TextView) snack.getView().findViewById(android.support.design.R.id.snackbar_text);
+        TextView tv = (TextView) snack.getView().findViewById(com.google.android.material.R.id.snackbar_text);
         tv.setTextColor(color);
     }
 

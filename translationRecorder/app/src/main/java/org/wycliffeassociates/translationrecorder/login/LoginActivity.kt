@@ -2,7 +2,7 @@ package org.wycliffeassociates.translationrecorder.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.door43.login.TermsOfUseActivity
 import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.login.fragments.FragmentCreateProfile

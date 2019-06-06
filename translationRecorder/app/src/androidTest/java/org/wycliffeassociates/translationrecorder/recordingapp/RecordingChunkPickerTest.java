@@ -1,6 +1,6 @@
 package org.wycliffeassociates.translationrecorder.recordingapp;
 
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import org.junit.runner.RunWith;

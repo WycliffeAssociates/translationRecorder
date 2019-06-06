@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     >
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/chapter_list_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/abc_action_bar_default_height_material"
@@ -25,7 +25,7 @@
         android:gravity="center_horizontal"
         >
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/chapter_list"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
