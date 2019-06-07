@@ -28,6 +28,7 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVo
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.permissions.PermissionActivity;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectPatternMatcher;
@@ -47,7 +48,7 @@ import static org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin
  * Created by sarabiaj on 2/20/2017.
  */
 
-public class RecordingActivity extends AppCompatActivity implements
+public class RecordingActivity extends PermissionActivity implements
         FragmentRecordingControls.RecordingControlCallback,
         InsertTaskFragment.Insert,
         FragmentRecordingFileBar.OnUnitChangedListener,
@@ -144,8 +145,7 @@ public class RecordingActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onPermissionsAccepted() {
         onlyVolumeTest = true;
         Intent volumeTestIntent = new Intent(this, WavRecorder.class);
         volumeTestIntent.putExtra(WavRecorder.KEY_VOLUME_TEST, onlyVolumeTest);
@@ -157,17 +157,19 @@ public class RecordingActivity extends AppCompatActivity implements
     public void onPause() {
         Logger.w(this.toString(), "Recording screen onPauseRecording");
         super.onPause();
-        if (isRecording) {
-            isRecording = false;
-            stopService(new Intent(this, WavRecorder.class));
-            RecordingQueues.stopQueues(this);
-        } else if (isPausedRecording) {
-            RecordingQueues.stopQueues(this);
-        } else if (!hasStartedRecording) {
-            stopService(new Intent(this, WavRecorder.class));
-            RecordingQueues.stopVolumeTest();
+        if(!getRequestingPermission().get()) {
+            if (isRecording) {
+                isRecording = false;
+                stopService(new Intent(this, WavRecorder.class));
+                RecordingQueues.stopQueues(this);
+            } else if (isPausedRecording) {
+                RecordingQueues.stopQueues(this);
+            } else if (!hasStartedRecording) {
+                stopService(new Intent(this, WavRecorder.class));
+                RecordingQueues.stopVolumeTest();
+            }
+            finish();
         }
-        finish();
     }
 
     @Override

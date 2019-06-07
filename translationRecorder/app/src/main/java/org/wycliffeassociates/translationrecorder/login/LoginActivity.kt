@@ -9,6 +9,7 @@ import org.wycliffeassociates.translationrecorder.login.fragments.FragmentCreate
 import org.wycliffeassociates.translationrecorder.login.fragments.FragmentReviewProfile
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnProfileCreatedListener
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnRedoListener
+import org.wycliffeassociates.translationrecorder.permissions.PermissionActivity
 import org.wycliffeassociates.translationrecorder.wav.WavFile
 import java.io.File
 
@@ -16,7 +17,9 @@ import java.io.File
  * Created by sarabiaj on 3/9/2018.
  */
 
-class LoginActivity : AppCompatActivity(), OnProfileCreatedListener, OnRedoListener {
+class LoginActivity : PermissionActivity(), OnProfileCreatedListener, OnRedoListener {
+    override fun onPermissionsAccepted() {}
+
     private lateinit var mFragmentCreateProfile: FragmentCreateProfile
     private var mFragmentReviewProfile: FragmentReviewProfile? = null
     private lateinit var profilesDirectory: File
