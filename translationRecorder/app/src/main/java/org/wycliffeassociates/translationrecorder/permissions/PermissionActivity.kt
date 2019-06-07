@@ -1,6 +1,7 @@
 package org.wycliffeassociates.translationrecorder.permissions
 
 import android.Manifest
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -12,6 +13,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 abstract class PermissionActivity : AppCompatActivity() {
 
     protected val requestingPermission = AtomicBoolean(false)
+
+    // Opens an activity to guide the user to enabling settings from the settings app
+    // this is called when the user has checked "never ask again"
+    fun presentPermissionDialog() {
+        startActivity(Intent(this, PermissionsDialogActivity::class.java))
+    }
 
     /**
      * This method should replace onResume for activities that subclass PermissionActivity.
@@ -37,12 +44,14 @@ abstract class PermissionActivity : AppCompatActivity() {
                                     onPermissionsAccepted()
                                 } else {
                                     requestingPermission.set(false)
-                                    finishAffinity()
-                                    System.exit(0)
+                                    presentPermissionDialog()
                                 }
                             }
 
-                            override fun onPermissionRationaleShouldBeShown(permissions: List<PermissionRequest>, token: PermissionToken) {
+                            override fun onPermissionRationaleShouldBeShown(
+                                    permissions: List<PermissionRequest>,
+                                    token: PermissionToken)
+                            {
                                 token.continuePermissionRequest()
                             }
                         }
