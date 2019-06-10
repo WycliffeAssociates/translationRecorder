@@ -41,6 +41,11 @@
 
         <activity android:name="org.wycliffeassociates.translationrecorder.Recording.PermissionsDeniedActivity" />
 
+        <activity android:name="org.wycliffeassociates.translationrecorder.permissions.PermissionsDialogActivity"
+            android:screenOrientation="portrait"
+            />
+
+
         <activity
             android:name="org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity"
             android:screenOrientation="landscape" />
