@@ -30,9 +30,8 @@
 
         <FrameLayout
             android:id="@+id/fragment_volume_bar_holder"
-            android:layout_width="0dp"
+            android:layout_width="24dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             />
 
 
