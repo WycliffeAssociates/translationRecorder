@@ -75,11 +75,7 @@ class FragmentCreateProfile : Fragment() {
         btnRecord as Button
         btnRecord.setOnClickListener {
             (btnRecord.background as Animatable).start()
-            if (btnRecord.isActivated) {
-                btnRecord.isActivated = false
-                stopRecording()
-            } else {
-
+            if (btnRecord.isActivated.not()) {
                 btnRecord.isActivated = true
                 startRecording()
             }
@@ -108,10 +104,7 @@ class FragmentCreateProfile : Fragment() {
             activity.startService(Intent(activity, WavRecorder::class.java))
             activity.startService(WavFileWriter.getIntent(activity, mNewRecording))
             mRenderer.listenForRecording(false)
-            Handler(Looper.getMainLooper()).postDelayed({ btnRecord.performClick() }, 3000)
-
-        } else {
-            stopRecording()
+            Handler(Looper.getMainLooper()).postDelayed({ stopRecording() }, 3000)
         }
     }
 
@@ -121,6 +114,7 @@ class FragmentCreateProfile : Fragment() {
         RecordingQueues.pauseQueues()
         RecordingQueues.stopQueues(activity)
         isRecording = false
+        btnRecord.isActivated = true
         convertAudio()
     }
 
@@ -134,6 +128,4 @@ class FragmentCreateProfile : Fragment() {
             profileCreatedCallback?.onProfileCreated(mNewRecording!!, userAudio, hash)
         }
     }
-
-
 }

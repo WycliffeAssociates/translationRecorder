@@ -8,7 +8,6 @@ import android.graphics.Paint
 import android.media.AudioTrack
 import android.os.Bundle
 import android.preference.PreferenceManager
-import androidx.appcompat.widget.AppCompatImageButton
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,18 +15,16 @@ import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageButton
 import com.pixplicity.sharp.Sharp
 import jdenticon.Jdenticon
 import kotlinx.android.synthetic.main.fragment_review_profile.*
+import org.wycliffeassociates.translationrecorder.*
 import org.wycliffeassociates.translationrecorder.AudioVisualization.WavVisualizer
-import org.wycliffeassociates.translationrecorder.MainMenu
 import org.wycliffeassociates.translationrecorder.Playback.Editing.CutOp
 import org.wycliffeassociates.translationrecorder.Playback.overlays.WaveformLayer
 import org.wycliffeassociates.translationrecorder.Playback.player.WavPlayer
-import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings
-import org.wycliffeassociates.translationrecorder.TranslationRecorderApp
-import org.wycliffeassociates.translationrecorder.WavFileLoader
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.login.interfaces.OnRedoListener
 import org.wycliffeassociates.translationrecorder.project.components.User
@@ -110,20 +107,25 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
         mWaveformLayer.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
         btn_play as AppCompatImageButton
         btn_play.setOnClickListener {
-            if (!mPlayer.isPlaying) {
-                mPlayer.play()
-            }
+            showPauseButton()
+            mPlayer.play()
+        }
+        btn_pause as AppCompatImageButton
+        btn_pause.setOnClickListener {
+            showPlayButton()
+            mPlayer.pause()
         }
         audioTrack = (activity.application as TranslationRecorderApp).audioTrack
         trackBufferSize = (activity.application as TranslationRecorderApp).trackBufferSize
     }
 
-    private fun renderIdenticon(hash: String, view: ImageView): Unit {
+    private fun renderIdenticon(hash: String, view: ImageView) {
         val svg = Jdenticon.toSvg(hash, 512, 0f)
         Sharp.loadString(svg).into(view)
     }
 
     private fun initializeRenderer() {
+        showPlayButton()
         wav.overwriteHeaderData()
         val wavFileLoader = WavFileLoader(wav, activity)
         val numThreads = 4
@@ -138,5 +140,16 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
                 CutOp()
         )
         mPlayer = WavPlayer(audioTrack, trackBufferSize, uncompressed, CutOp(), LinkedList<WavCue>())
+        mPlayer.setOnCompleteListener {
+            showPlayButton()
+        }
+    }
+
+    private fun showPauseButton() {
+        Utils.swapViews(arrayOf(btn_pause), arrayOf(btn_play))
+    }
+
+    private fun showPlayButton() {
+        Utils.swapViews(arrayOf(btn_play), arrayOf(btn_pause))
     }
 }
