@@ -682,7 +682,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.AnthologyEntry.ANTHOLOGY_MASK, mask);
         cv.put(ProjectContract.AnthologyEntry.PLUGIN_JAR, jarName);
         cv.put(ProjectContract.AnthologyEntry.PLUGIN_CLASS, className);
-        long result = db.insertWithOnConflict(ProjectContract.AnthologyEntry.TABLE_ANTHOLOGY, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        long result = db.insertWithOnConflict(ProjectContract.AnthologyEntry.TABLE_ANTHOLOGY, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     public void addBook(String bookSlug, String bookName, String anthologySlug, int bookNumber) {
