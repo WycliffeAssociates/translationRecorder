@@ -14,14 +14,16 @@ public class Anthology extends ProjectComponent implements Parcelable {
     private String mPluginClassName;
     private String mPluginJarName;
     private String mResource;
+    private int mSort;
     private String mRegex;
     private String mGroups;
     private String mMask;
 
-    public Anthology(String slug, String name, String resource,
+    public Anthology(String slug, String name, String resource, int sort,
                      String regex, String groups, String mask, String pluginJarName, String pluginClassName) {
-        super(slug, name);
+        super(slug, name, sort);
         mResource = resource;
+        mSort = sort;
         mRegex = regex;
         mGroups = groups;
         mMask = mask;
@@ -35,6 +37,10 @@ public class Anthology extends ProjectComponent implements Parcelable {
 
     public String getResource(){
         return mResource;
+    }
+
+    public int getSort(){
+        return mSort;
     }
 
     public String getRegex() {
@@ -75,6 +81,7 @@ public class Anthology extends ProjectComponent implements Parcelable {
         dest.writeString(mSlug);
         dest.writeString(mName);
         dest.writeString(mResource);
+        dest.writeInt(mSort);
         dest.writeString(mRegex);
         dest.writeString(mGroups);
         dest.writeString(mMask);
@@ -95,6 +102,7 @@ public class Anthology extends ProjectComponent implements Parcelable {
     public Anthology(Parcel in) {
         super(in);
         mResource = in.readString();
+        mSort = in.readInt();
         mRegex = in.readString();
         mGroups = in.readString();
         mMask = in.readString();

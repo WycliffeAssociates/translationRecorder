@@ -29,5 +29,6 @@
     "chunk_plugin": {
         "jar" : "obschunk.jar",
         "class": "org.wycliffeassociates.translationrecorder.obschunk.ObsChunkPlugin"
-    }
+    },
+    "sort": 3
 }

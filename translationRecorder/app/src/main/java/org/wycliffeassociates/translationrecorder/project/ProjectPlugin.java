@@ -34,6 +34,7 @@ public class ProjectPlugin {
     String jarPath;
     String className;
     String versionsPath;
+    int sort;
 
     //groups
     int language = -1;
@@ -127,7 +128,7 @@ public class ProjectPlugin {
 
     private void importPluginToDatabase(Context ctx, Book[] books, Version[] versions, Mode[] modes) {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
-        db.addAnthology(slug, name, resource, regex, groups, mask, jarPath, className);
+        db.addAnthology(slug, name, resource, sort, regex, groups, mask, jarPath, className);
         db.addBooks(books);
         db.addVersions(versions);
         db.addModes(modes, slug);
@@ -174,6 +175,8 @@ public class ProjectPlugin {
                 readModesSection(jsonReader);
             } else  if (key.equals("chunk_plugin")) {
                 readChunkSection(jsonReader);
+            } else  if (key.equals("sort")) {
+                sort = jsonReader.nextInt();
             }
         }
         jsonReader.endObject();
@@ -265,6 +268,7 @@ public class ProjectPlugin {
                 className = jsonReader.nextString();
             }
         }
+        jsonReader.endObject();
     }
     public String getBooksPath() {
         return booksPath;

@@ -11,10 +11,17 @@ public abstract class ProjectComponent implements Comparable, Parcelable {
 
     protected String mSlug;
     protected String mName;
+    protected int mSort;
 
     public ProjectComponent(String slug, String name) {
         mSlug = slug;
         mName = name;
+    }
+
+    public ProjectComponent(String slug, String name, int sort) {
+        mSlug = slug;
+        mName = name;
+        mSort = sort;
     }
 
     public String getSlug() {
@@ -25,12 +32,21 @@ public abstract class ProjectComponent implements Comparable, Parcelable {
         return mName;
     }
 
+    public int getSort() {
+        return mSort;
+    }
+
     public abstract String getLabel();
 
     @Override
     public int compareTo(Object another) {
-        String anotherCode = ((ProjectComponent)another).getSlug();
-        return mSlug.compareToIgnoreCase(anotherCode);
+        if(this instanceof Anthology) {
+            int anotherSort = ((ProjectComponent)another).getSort();
+            return mSort - anotherSort;
+        } else {
+            String anotherCode = ((ProjectComponent)another).getSlug();
+            return mSlug.compareToIgnoreCase(anotherCode);
+        }
     }
 
     public boolean displayMoreIcon() {

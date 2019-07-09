@@ -51,6 +51,7 @@ public final class ProjectContract {
         public static final String ANTHOLOGY_SLUG = "slug";
         public static final String ANTHOLOGY_NAME = "name";
         public static final String ANTHOLOGY_RESOURCE = "resource";
+        public static final String ANTHOLOGY_SORT = "sort";
         public static final String ANTHOLOGY_REGEX = "regex";
         public static final String ANTHOLOGY_GROUPS = "groups";
         public static final String ANTHOLOGY_MASK = "mask";
@@ -63,6 +64,7 @@ public final class ProjectContract {
                 + ANTHOLOGY_SLUG + TEXTCOMMA
                 + ANTHOLOGY_NAME + TEXTCOMMA
                 + ANTHOLOGY_RESOURCE + TEXTCOMMA
+                + ANTHOLOGY_SORT + INTCOMMA
                 + ANTHOLOGY_REGEX + TEXTCOMMA
                 + ANTHOLOGY_GROUPS + TEXTCOMMA
                 + ANTHOLOGY_MASK + TEXTCOMMA

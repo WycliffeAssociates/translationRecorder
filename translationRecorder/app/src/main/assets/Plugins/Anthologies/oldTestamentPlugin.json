@@ -34,5 +34,6 @@
     "chunk_plugin": {
         "jar" : "biblechunk.jar",
         "class": "org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin"
-    }
+    },
+    "sort": 1
 }
