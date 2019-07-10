@@ -382,7 +382,7 @@ public class UnitCard {
         };
     }
 
-    public View.OnClickListener getUnitExpandOnClick(final DatabaseAccessor db, final int position, final List<Integer> expandedCards, final RecyclerView recyclerView) {
+    public View.OnClickListener getUnitExpandOnClick(final DatabaseAccessor db, final int position, final List<Integer> expandedCards, final OnCardExpandedListener listener) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -391,7 +391,7 @@ public class UnitCard {
                     if (!expandedCards.contains(position)) {
                         expandedCards.add(position);
                     }
-                    recyclerView.getLayoutManager().scrollToPosition(position);
+                    listener.onCardExpanded(position);
                 } else {
                     pauseAudio();
                     collapse();

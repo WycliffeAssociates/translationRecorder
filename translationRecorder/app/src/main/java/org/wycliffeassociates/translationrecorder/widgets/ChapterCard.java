@@ -410,7 +410,7 @@ public class ChapterCard {
         };
     }
 
-    public View.OnClickListener getExpandOnClick(final RecyclerView recyclerView, final int position) {
+    public View.OnClickListener getExpandOnClick(final OnCardExpandedListener listener, final int position) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -422,7 +422,7 @@ public class ChapterCard {
                     collapse();
                 } else {
                     expand();
-                    recyclerView.getLayoutManager().scrollToPosition(position);
+                    listener.onCardExpanded(position);
                 }
             }
         };
