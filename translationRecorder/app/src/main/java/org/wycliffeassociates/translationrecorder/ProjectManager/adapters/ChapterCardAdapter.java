@@ -3,6 +3,7 @@ package org.wycliffeassociates.translationrecorder.ProjectManager.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.cardview.widget.CardView;
@@ -43,6 +44,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
     // Attributes
     private AppCompatActivity mCtx;
+    private RecyclerView recyclerView;
     private Project mProject;
     private List<ChapterCard> mChapterCardList;
     private List<Integer> mExpandedCards = new ArrayList<>();
@@ -360,7 +362,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
         holder.checkLevelBtn.setOnClickListener(chapterCard.getCheckLevelOnClick(mCtx.getFragmentManager()));
         holder.compileBtn.setOnClickListener(chapterCard.getCompileOnClick(mCtx.getFragmentManager()));
         holder.recordBtn.setOnClickListener(chapterCard.getRecordOnClick(mCtx));
-        holder.expandBtn.setOnClickListener(chapterCard.getExpandOnClick());
+        holder.expandBtn.setOnClickListener(chapterCard.getExpandOnClick(recyclerView, holder.getAdapterPosition()));
         holder.deleteBtn.setOnClickListener(chapterCard.getDeleteOnClick(this, mCtx));
         holder.playPauseBtn.setOnClickListener(chapterCard.getPlayPauseOnClick());
     }
@@ -428,6 +430,12 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
                 cc.destroyAudioPlayer();
             }
         }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
     }
 
     public ChapterCard getItem(int index) {

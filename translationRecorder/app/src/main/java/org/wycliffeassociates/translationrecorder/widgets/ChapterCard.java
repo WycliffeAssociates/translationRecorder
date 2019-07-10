@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
@@ -408,7 +410,7 @@ public class ChapterCard {
         };
     }
 
-    public View.OnClickListener getExpandOnClick() {
+    public View.OnClickListener getExpandOnClick(final RecyclerView recyclerView, final int position) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -420,6 +422,7 @@ public class ChapterCard {
                     collapse();
                 } else {
                     expand();
+                    recyclerView.getLayoutManager().scrollToPosition(position);
                 }
             }
         };

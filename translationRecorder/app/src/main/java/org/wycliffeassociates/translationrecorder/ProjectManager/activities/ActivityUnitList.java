@@ -104,7 +104,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
             // Set its layout manager
             mLayoutManager = new LinearLayoutManager(this);
-            mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            mLayoutManager.setOrientation(RecyclerView.VERTICAL);
             mUnitList.setLayoutManager(mLayoutManager);
 
             // Set its adapter

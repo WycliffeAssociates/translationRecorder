@@ -7,6 +7,8 @@ import android.content.Intent;
 import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
@@ -380,7 +382,7 @@ public class UnitCard {
         };
     }
 
-    public View.OnClickListener getUnitExpandOnClick(final DatabaseAccessor db, final int position, final List<Integer> expandedCards) {
+    public View.OnClickListener getUnitExpandOnClick(final DatabaseAccessor db, final int position, final List<Integer> expandedCards, final RecyclerView recyclerView) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -389,6 +391,7 @@ public class UnitCard {
                     if (!expandedCards.contains(position)) {
                         expandedCards.add(position);
                     }
+                    recyclerView.getLayoutManager().scrollToPosition(position);
                 } else {
                     pauseAudio();
                     collapse();
