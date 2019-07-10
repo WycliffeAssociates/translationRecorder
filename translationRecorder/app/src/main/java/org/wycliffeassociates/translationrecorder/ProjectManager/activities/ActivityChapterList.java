@@ -162,8 +162,8 @@ public class ActivityChapterList extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         mAdapter.exitCleanUp();
     }
 
