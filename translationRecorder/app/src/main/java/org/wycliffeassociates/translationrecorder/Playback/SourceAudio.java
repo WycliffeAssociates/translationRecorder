@@ -50,7 +50,13 @@ public class SourceAudio extends LinearLayout {
     private String mFileName;
     private int mChapter;
     private File mTemp;
+    private OnAudioListener sourceAudioListener;
     private static final String[] filetypes = {"wav", "mp3", "mp4", "m4a", "aac", "flac", "3gp", "ogg"};
+
+    public interface OnAudioListener {
+        void onSourcePlay();
+        void onSourcePause();
+    }
 
     public SourceAudio(Context context) {
         this(context, null);
@@ -205,10 +211,16 @@ public class SourceAudio extends LinearLayout {
 
     public void playSource() {
         mSrcPlayer.play();
+        if(sourceAudioListener != null) {
+            sourceAudioListener.onSourcePlay();
+        }
     }
 
     public void pauseSource(){
         mSrcPlayer.pause();
+        if(sourceAudioListener != null) {
+            sourceAudioListener.onSourcePause();
+        }
     }
 
     public void reset(Project project, String fileName, int chapter){
@@ -248,5 +260,9 @@ public class SourceAudio extends LinearLayout {
             mNoSourceMsg.setVisibility(View.GONE);
             setEnabled(true);
         }
+    }
+
+    public void setSourceAudioListener(OnAudioListener listener) {
+        sourceAudioListener = listener;
     }
 }
