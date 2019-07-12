@@ -67,13 +67,19 @@ public class WaveformFragment extends Fragment implements DraggableViewFrame.Pos
 
 
     public interface OnScrollDelegator {
-
         void delegateOnScroll(float distY);
+        void delegateOnScrollComplete();
         void onCueScroll(int id, float distY);
     }
+
     @Override
     public void onScroll(float x1, float x2, float distX) {
         mOnScrollDelegator.delegateOnScroll(distX);
+    }
+
+    @Override
+    public void onScrollComplete() {
+        mOnScrollDelegator.delegateOnScrollComplete();
     }
 
     public static WaveformFragment newInstance(MarkerMediator mediator){
