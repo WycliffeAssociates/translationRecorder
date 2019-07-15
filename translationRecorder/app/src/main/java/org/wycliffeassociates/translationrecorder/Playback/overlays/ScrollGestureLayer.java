@@ -13,6 +13,8 @@ import android.widget.FrameLayout;
 
 public class ScrollGestureLayer extends View implements GestureDetector.OnGestureListener {
 
+    private boolean isScrolling = false;
+
     @Override
     public boolean onDown(MotionEvent e) {
         return true;
@@ -35,6 +37,7 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        isScrolling = true;
         mListener.onScroll(e1.getX(), e2.getX(), distanceX);
         return true;
     }
@@ -51,6 +54,7 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
 
     public interface OnScrollListener {
         void onScroll(float rawX1, float rawX2, float distX);
+        void onScrollComplete();
     }
 
     public interface OnTapListener {
@@ -59,6 +63,13 @@ public class ScrollGestureLayer extends View implements GestureDetector.OnGestur
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_UP) {
+            if(isScrolling)
+            {
+                mListener.onScrollComplete();
+                isScrolling = false;
+            }
+        }
         return mScroll.onTouchEvent(event);
         //return super.onTouchEvent(event);
     }

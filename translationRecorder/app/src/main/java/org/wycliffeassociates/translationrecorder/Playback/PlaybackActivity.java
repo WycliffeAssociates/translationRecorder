@@ -111,6 +111,7 @@ public class PlaybackActivity extends Activity implements
 
     private volatile boolean isSaved = true;
     private boolean isPlaying = false;
+    private boolean wasPlaying = false;
     private MODE mode;
 
     private WavVisualizer wavVis;
@@ -872,7 +873,19 @@ public class PlaybackActivity extends Activity implements
 
     @Override
     public void delegateOnScroll(float distX) {
+        if(mAudioController.isPlaying()) {
+            wasPlaying = true;
+            mAudioController.pause();
+        }
         mAudioController.scrollAudio(distX);
+    }
+
+    @Override
+    public void delegateOnScrollComplete() {
+        if(wasPlaying) {
+            wasPlaying = false;
+            mAudioController.play();
+        }
     }
 
     @Override
