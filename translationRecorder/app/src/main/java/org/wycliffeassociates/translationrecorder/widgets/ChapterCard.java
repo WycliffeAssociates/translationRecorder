@@ -344,11 +344,7 @@ public class ChapterCard {
         mCanCompile = mProgress == 100;
     }
 
-    public void compile(Context context) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
-        List<String> files = db.getTakesForChapterCompilation(mProject, mChapter);
-
-
+    public void compile() {
         mIsCompiled = true;
         setCheckingLevel(0);
     }

@@ -30,6 +30,8 @@
             android:layout_marginEnd="@dimen/default_padding_m"
             android:src="@drawable/ic_plus"
             app:rippleColor="@color/white"
+            android:tint="@color/white"
+            app:fabCustomSize="48dp"
             />
 
         <Button

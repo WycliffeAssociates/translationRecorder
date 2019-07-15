@@ -5,16 +5,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-import android.view.MenuItem;
-
 import com.door43.tools.reporting.Logger;
-
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
@@ -266,6 +264,7 @@ public class ActivityChapterList extends AppCompatActivity implements
                 for (int i : mChaptersCompiled) {
                     int chapter = mChapterCardList.get(i).getChapterNumber();
                     db.setCheckingLevel(mProject, chapter, 0);
+                    mChapterCardList.get(i).compile();
                     mAdapter.notifyItemChanged(i);
                 }
             }
