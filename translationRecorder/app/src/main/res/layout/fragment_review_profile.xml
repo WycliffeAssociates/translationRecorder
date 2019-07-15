@@ -31,6 +31,22 @@
         app:srcCompat="@drawable/play_record_48dp"
         tools:ignore="VectorDrawableCompat" />
 
+    <ImageButton
+            android:id="@+id/btn_pause"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@null"
+            android:background="@drawable/circle_with_white_bg_pause"
+            app:layout_constraintBottom_toBottomOf="@+id/waveform_frame"
+            app:layout_constraintDimensionRatio="w,1:1"
+            app:layout_constraintEnd_toEndOf="@+id/waveform_frame"
+            app:layout_constraintStart_toStartOf="@+id/waveform_frame"
+            app:layout_constraintTop_toBottomOf="@+id/waveform_frame"
+            app:srcCompat="@drawable/pause_record_48dp"
+            android:visibility="gone"
+            tools:ignore="VectorDrawableCompat" />
+
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
@@ -71,41 +87,39 @@
         app:srcCompat="@android:drawable/btn_dialog" />
 
     <Button
-        android:id="@+id/btnRedo"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/round_corners"
-        android:drawableRight="@drawable/ic_redo_blue_48dp"
-        android:paddingHorizontal="24dp"
-        android:text="@string/txt_btn_redo"
-        android:textColor="#00C5FF"
-        app:layout_constraintBaseline_toBaselineOf="@+id/btnYes"
-        app:layout_constraintEnd_toStartOf="@+id/btnYes"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/guideline"
-        app:layout_constraintStart_toStartOf="@+id/guideline" />
+            android:id="@+id/btnRedo"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_corners"
+            android:drawableRight="@drawable/ic_redo_blue_36dp"
+            android:paddingHorizontal="24dp"
+            android:text="@string/txt_btn_redo"
+            android:textColor="#00C5FF"
+            app:layout_constraintEnd_toStartOf="@+id/btnYes"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/icon_hash"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp"/>
 
     <Button
-        android:id="@+id/btnYes"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/round_corner_with_gradient"
-        android:drawableRight="@drawable/ic_check_white_48dp"
-        android:paddingHorizontal="24dp"
-        android:text="@string/txt_btn_yes"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btnRedo"
-        app:layout_constraintTop_toBottomOf="@+id/icon_hash"
-        app:layout_constraintVertical_bias="1.0" />
+            android:id="@+id/btnYes"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_corner_with_gradient"
+            android:drawableRight="@drawable/ic_check_white_36dp"
+            android:paddingHorizontal="24dp"
+            android:text="@string/txt_btn_yes"
+            android:textColor="#FFFFFF"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/icon_hash"
+            app:layout_constraintStart_toEndOf="@+id/btnRedo"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
