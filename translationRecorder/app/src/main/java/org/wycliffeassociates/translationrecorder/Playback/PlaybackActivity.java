@@ -95,7 +95,8 @@ public class PlaybackActivity extends Activity implements
         FragmentFileBar.RatingCallback,
         FragmentFileBar.InsertCallback,
         DraggableImageView.OnMarkerMovementRequest,
-        ExitDialog.DeleteFileCallback
+        ExitDialog.DeleteFileCallback,
+        SourceAudio.OnAudioListener
 {
 
     public enum MODE {
@@ -295,10 +296,20 @@ public class PlaybackActivity extends Activity implements
     public void onMediaPlay() {
         try {
             mAudioController.play();
+            mFragmentTabbedWidget.getSrcPlayer().pauseSource();
         } catch (IllegalStateException e) {
             requestUserToRestart();
         }
     }
+
+    @Override
+    public void onSourcePlay() {
+        mAudioController.pause();
+        mFragmentPlaybackTools.showPlayButton();
+    }
+
+    @Override
+    public void onSourcePause() {}
 
     public void requestUserToRestart() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
