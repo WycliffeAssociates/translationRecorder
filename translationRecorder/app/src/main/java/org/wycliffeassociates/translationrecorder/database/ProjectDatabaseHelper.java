@@ -462,6 +462,13 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return userList;
     }
 
+    public int deleteUser(String hash) {
+        SQLiteDatabase db = getWritableDatabase();
+        final String deleteWhere = String.format("%s=?", ProjectContract.UserEntry.USER_HASH);
+        int result = db.delete(ProjectContract.UserEntry.TABLE_USER, deleteWhere, new String[]{ hash });
+        return result;
+    }
+
     public String getBookName(String bookSlug) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
         final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",

@@ -1,14 +1,18 @@
 package org.wycliffeassociates.translationrecorder;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.ProgressBar;
 
 import com.door43.tools.reporting.Logger;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -17,11 +21,10 @@ import org.wycliffeassociates.translationrecorder.permissions.PermissionActivity
 import org.wycliffeassociates.translationrecorder.project.ParseJSON;
 import org.wycliffeassociates.translationrecorder.project.ProjectPlugin;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.List;
 
 /**
  * Created by sarabiaj on 5/5/2016.
@@ -79,6 +82,9 @@ public class SplashScreen extends PermissionActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        importProfiles(db);
+        deleteDanglingProfiles(db);
     }
 
     private void initializePlugins() throws IOException {
@@ -146,6 +152,50 @@ public class SplashScreen extends PermissionActivity {
             }
         } catch (IOException e) {
             Logger.e(this.toString(), "Exception copying " + pluginName + " from assets", e);
+        }
+    }
+
+    private void importProfiles(ProjectDatabaseHelper db) {
+        File profilesDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Profiles/");
+        if (!profilesDir.exists()) {
+            profilesDir.mkdirs();
+        }
+
+        for (File profile: profilesDir.listFiles()) {
+            String hash = getHash(profile);
+            String mimeType = null;
+
+            try {
+                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                mmr.setDataSource(profile.getAbsolutePath());
+                mimeType = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+            } catch (Exception e) {
+                Log.i("PROFILE", "File is not a media file");
+            }
+
+            if(hash != null && mimeType != null && mimeType.equals("audio/mp4")) {
+                db.addUser(new User(profile, hash));
+            }
+        }
+    }
+
+    private void deleteDanglingProfiles(ProjectDatabaseHelper db) {
+        List<User> profiles = db.getAllUsers();
+        for (User profile: profiles) {
+            File file = profile.getAudio();
+            if(!file.exists()) {
+                db.deleteUser(profile.getHash());
+            }
+        }
+    }
+
+    private String getHash(File file) {
+        try {
+            return new String(Hex.encodeHex(DigestUtils.md5(new FileInputStream(file))));
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (IOException e) {
+            return null;
         }
     }
 }
