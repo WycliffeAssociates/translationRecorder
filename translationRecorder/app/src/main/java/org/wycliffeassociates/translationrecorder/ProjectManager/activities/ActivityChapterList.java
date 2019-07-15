@@ -108,7 +108,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
         // Set its layout manager
         mLayoutManager = new LinearLayoutManager(this);
-        mLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mChapterList.setLayoutManager(mLayoutManager);
 
         // Set its adapter
