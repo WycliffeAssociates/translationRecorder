@@ -1,6 +1,7 @@
 package org.wycliffeassociates.translationrecorder.ProjectManager.adapters;
 
 import android.os.Build;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.cardview.widget.CardView;
@@ -23,6 +24,7 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.TakeInfo;
 import org.wycliffeassociates.translationrecorder.widgets.FourStepImageView;
+import org.wycliffeassociates.translationrecorder.widgets.OnCardExpandedListener;
 import org.wycliffeassociates.translationrecorder.widgets.UnitCard;
 
 import java.util.ArrayList;
@@ -31,9 +33,10 @@ import java.util.List;
 /**
  * Created by leongv on 7/28/2016.
  */
-public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHolder> implements UnitCard.DatabaseAccessor {
+public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHolder> implements UnitCard.DatabaseAccessor, OnCardExpandedListener {
 
     private AppCompatActivity mCtx;
+    private RecyclerView recyclerView;
     private Project mProject;
     private int mChapterNum;
     private List<UnitCard> mUnitCardList;
@@ -107,6 +110,10 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
         db.close();
     }
 
+    @Override
+    public void onCardExpanded(int position) {
+        recyclerView.getLayoutManager().scrollToPosition(position);
+    }
 
 //    private ActionMode.Callback mMultiSelectMode = new ModalMultiSelectorCallback(mMultiSelector) {
 //
@@ -323,7 +330,7 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     private void setListeners(final UnitCard unitCard, final ViewHolder holder) {
         int position = holder.getAdapterPosition();
         holder.unitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mCtx));
-        holder.unitExpandBtn.setOnClickListener(unitCard.getUnitExpandOnClick(this, position, mExpandedCards));
+        holder.unitExpandBtn.setOnClickListener(unitCard.getUnitExpandOnClick(this, position, mExpandedCards, this));
         holder.takeDeleteBtn.setOnClickListener(unitCard.getTakeDeleteOnClick(mCtx, this, position, this));
         holder.takePlayPauseBtn.setOnClickListener(unitCard.getTakePlayPauseOnClick());
         holder.takeEditBtn.setOnClickListener(unitCard.getTakeEditOnClickListener());
@@ -339,6 +346,12 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
                 uc.destroyAudioPlayer();
             }
         }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
     }
 
     public UnitCard getItem(int id) {
