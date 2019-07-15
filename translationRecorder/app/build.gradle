@@ -23,7 +23,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 15
-        versionName "1.3.2-rc"
+        versionName "1.3.3-rc"
         versionNameSuffix
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
