@@ -578,10 +578,20 @@ public class WavFile implements Parcelable {
     }
 
     public static WavFile insertWavFile(WavFile base, WavFile insert, int insertFrame) throws IOException, JSONException {
+
+        // Prepare new metadata
+        WavMetadata newMetadata = base.getMetadata();
+        for (WavCue cue: newMetadata.getCuePoints()) {
+            if(cue.getLocation() >= insertFrame) {
+                cue.setLocation(cue.getLocation() + (insert.getTotalAudioLength()/2));
+            }
+        }
+
         //convert to two byte PCM
         insertFrame *= 2;
+
         File result = new File(base.getFile().getParentFile(),"temp.wav");
-        WavFile resultWav = new WavFile(result, base.getMetadata());
+        WavFile resultWav = new WavFile(result, newMetadata);
 
         long start = System.currentTimeMillis();
 
