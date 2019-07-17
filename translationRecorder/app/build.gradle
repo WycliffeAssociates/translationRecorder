@@ -22,7 +22,7 @@ android {
         applicationId "org.wycliffeassociates.translationrecorder"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 15
+        versionCode 16
         versionName "1.3.3-rc"
         versionNameSuffix
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
