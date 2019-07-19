@@ -384,7 +384,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             name = DatabaseUtils.stringForQuery(db, languageNameQuery, new String[]{languageSlug});
         } catch (SQLiteDoneException e) {
             //db.close();
-            throw new IllegalArgumentException("Language: " + languageSlug + " not ");
+            throw new IllegalArgumentException("Language: " + languageSlug + " not found.");
         }
         //db.close();
         return name;
@@ -431,7 +431,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             String hash = cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_HASH));
             user = new User(userId, audio, hash);
         } else {
-            throw new IllegalArgumentException("Language id not found in database.");
+            throw new IllegalArgumentException("User id not found in database.");
         }
         return user;
     }
@@ -460,6 +460,13 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return userList;
+    }
+
+    public int deleteUser(String hash) {
+        SQLiteDatabase db = getWritableDatabase();
+        final String deleteWhere = String.format("%s=?", ProjectContract.UserEntry.USER_HASH);
+        int result = db.delete(ProjectContract.UserEntry.TABLE_USER, deleteWhere, new String[]{ hash });
+        return result;
     }
 
     public String getBookName(String bookSlug) throws IllegalArgumentException {

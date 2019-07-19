@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.media.AudioTrack
 import android.os.Bundle
+import android.os.Environment
 import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
@@ -86,6 +87,13 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
         }
         btnYes as Button
         btnYes.setOnClickListener {
+            val profilesDir = File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Profiles/")
+            if (profilesDir.exists().not()) {
+                profilesDir.mkdirs()
+            }
+            val newAudio = File(profilesDir.absolutePath + "/" + audio.name)
+            audio.renameTo(newAudio)
+            audio = newAudio
             val user = User(audio, hash)
             val db = ProjectDatabaseHelper(activity)
             db.addUser(user)
