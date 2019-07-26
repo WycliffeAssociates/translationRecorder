@@ -2,7 +2,6 @@ package org.wycliffeassociates.translationrecorder.login
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.door43.login.TermsOfUseActivity
 import org.wycliffeassociates.translationrecorder.R
 import org.wycliffeassociates.translationrecorder.login.fragments.FragmentCreateProfile
@@ -74,4 +73,10 @@ class LoginActivity : PermissionActivity(), OnProfileCreatedListener, OnRedoList
         }
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        startActivity(Intent(this, UserActivity::class.java))
+        finish()
+    }
 }
