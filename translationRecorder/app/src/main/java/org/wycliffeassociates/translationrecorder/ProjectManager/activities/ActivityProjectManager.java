@@ -28,7 +28,9 @@ import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
 import org.wycliffeassociates.translationrecorder.FilesPage.FeedbackDialog;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
@@ -44,11 +46,9 @@ import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/23/2016.
@@ -199,6 +199,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
 
         hideProjectsIfEmpty(mNumProjects);
         if (mNumProjects > 0) {
+            calculateProjectsProgress();
             Project recent = initializeRecentProject();
             populateProjectList(recent);
         }
@@ -261,6 +262,41 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
         mAdapter = new ProjectAdapter(this, projects);
         mProjectList.setAdapter(mAdapter);
+    }
+
+    private void calculateProjectsProgress() {
+        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        List<Project> projects = db.getAllProjects();
+        for (Project project : projects) {
+            try {
+                ChunkPlugin chunks = project.getChunkPlugin(new ChunkPluginLoader(this));
+                int numChapters = chunks.numChapters();
+                Map<Integer, Integer> unitsStarted = db.getNumStartedUnitsInProject(project, numChapters);
+                int allChaptersProgress = 0;
+
+                List<Chapter> chapters = chunks.getChapters();
+                for (Chapter chapter: chapters) {
+                    int unitCount = chapter.getChunks().size();
+                    int chapterNumber = chapter.getNumber();
+                    if(unitsStarted.get(chapterNumber) != null) {
+                        int chapterProgress = calculateProgress(unitsStarted.get(chapterNumber), unitCount);
+                        int chapterId = db.getChapterId(project, chapterNumber);
+                        db.setChapterProgress(chapterId, chapterProgress);
+
+                        allChaptersProgress += chapterProgress;
+                    }
+                }
+                int projectProgress = (int) Math.ceil((float) allChaptersProgress / numChapters);
+                int projectId = db.getProjectId(project);
+                db.setProjectProgress(projectId, projectProgress);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private int calculateProgress(int current, int total) {
+        return Math.round(((float) current / total) * 100);
     }
 
     //sets the profile in the preferences to "" then returns to the splash screen

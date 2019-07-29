@@ -1140,6 +1140,26 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         return progress;
     }
 
+    public int getProjectProgress(int projectId) {
+        String projectIdString = String.valueOf(projectId);
+        SQLiteDatabase db = getReadableDatabase();
+        final String query = String.format("SELECT %s FROM %s WHERE %s=?",
+                ProjectContract.ProjectEntry.PROJECT_PROGRESS, ProjectContract.ProjectEntry.TABLE_PROJECT, ProjectContract.ProjectEntry._ID);
+        float progress = DatabaseUtils.longForQuery(db, query, new String[]{projectIdString});
+        db.close();
+        return Math.round(progress);
+    }
+
+    public void setProjectProgress(int projectId, int progress) {
+        final String whereClause = String.format("%s=?", ProjectContract.ProjectEntry._ID);
+        String projectIdString = String.valueOf(projectId);
+        SQLiteDatabase db = getReadableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ProjectContract.ProjectEntry.PROJECT_PROGRESS, progress);
+        db.update(ProjectContract.ProjectEntry.TABLE_PROJECT, contentValues, whereClause, new String[]{projectIdString});
+        db.close();
+    }
+
     public void removeSelectedTake(TakeInfo takeInfo) {
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
         String unitId = String.valueOf(getUnitId(slugs.getLanguage(), slugs.getBook(), slugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse()));
