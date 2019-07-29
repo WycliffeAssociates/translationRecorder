@@ -86,18 +86,10 @@ public class ProjectAdapter extends ArrayAdapter {
         String language = dB.getLanguageName(project.getTargetLanguageSlug());
         languageView.setText(language);
 
-        // Calculate project's progress
+        // Get project's progress
         if (dB.projectExists(project)) {
-            try {
-                // TODO: This is a bottle neck. Please optimize the progress calculation.
-                ChunkPlugin chunks = project.getChunkPlugin(new ChunkPluginLoader(ctx));
-                int chapterCount = chunks.numChapters();
-                int projectId = dB.getProjectId(project);
-                int progress = Math.round((float) dB.getProjectProgressSum(projectId) / chapterCount);
-                progressPie.setProgress(progress);
-            } catch (IOException e) {
-                Logger.e("ProjectAdapter init project card", "IOException", e);
-            }
+            int projectID = dB.getProjectId(project);
+            progressPie.setProgress(dB.getProjectProgress(projectID));
         }
 
         recordView.setOnClickListener(new View.OnClickListener() {
