@@ -19,16 +19,22 @@ public class ProjectProgress {
     Project project;
     Context context;
     ProjectDatabaseHelper db;
+    ChunkPlugin chunks;
 
     public ProjectProgress(Project project, Context context) {
         this.project = project;
         this.context = context;
         this.db = new ProjectDatabaseHelper(context);
+
+        try {
+            this.chunks = project.getChunkPlugin(new ChunkPluginLoader(context));
+        } catch (IOException e) {
+            Logger.e(this.toString(), e.getMessage());
+        }
     }
 
     public int calculateProjectProgress() {
-        try {
-            ChunkPlugin chunks = project.getChunkPlugin(new ChunkPluginLoader(context));
+        if(chunks != null) {
             int numChapters = chunks.numChapters();
             int allChaptersProgress = 0;
 
@@ -40,8 +46,6 @@ public class ProjectProgress {
             int projectProgress = (int) Math.ceil((float) allChaptersProgress / numChapters);
 
             return projectProgress;
-        } catch (IOException e) {
-            Logger.i(this.toString(), e.getMessage());
         }
 
         return 0;
@@ -89,28 +93,22 @@ public class ProjectProgress {
     }
 
     public void updateChaptersProgress() {
-        try {
-            ChunkPlugin chunks = project.getChunkPlugin(new ChunkPluginLoader(context));
+        if(chunks != null) {
             List<Chapter> projectChapters = chunks.getChapters();
             for (Chapter chapter: projectChapters) {
                 updateChapterProgress(chapter);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    public Chapter getChapter(int chapterNumber) {
-        try {
-            ChunkPlugin chunks = project.getChunkPlugin(new ChunkPluginLoader(context));
+    private Chapter getChapter(int chapterNumber) {
+        if(chunks != null) {
             List<Chapter> chapters = chunks.getChapters();
             for (Chapter chapter: chapters) {
                 if(chapter.getNumber() == chapterNumber) {
                     return chapter;
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return null;
