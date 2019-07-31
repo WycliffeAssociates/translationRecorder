@@ -89,6 +89,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private boolean mDbResyncing = false;
     private File mSourceAudioFile;
     private Project mProjectToExport;
+    private ProjectDatabaseHelper mDb;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,6 +111,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mProgressTitle = savedInstanceState.getString(STATE_PROGRESS_TITLE, null);
             mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
         }
+
+        mDb = new ProjectDatabaseHelper(this);
     }
 
     //This code exists here rather than onResume due to the potential for onResume() -> onResume()
@@ -144,7 +147,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         //still need to track whether a db resync was issued so as to not issue them in the middle of another
         if (!mDbResyncing) {
             mDbResyncing = true;
-            ProjectListResyncTask task = new ProjectListResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager());
+            ProjectListResyncTask task = new ProjectListResyncTask(
+                    DATABASE_RESYNC_TASK,
+                    getBaseContext(),
+                    getFragmentManager(),
+                    mDb
+            );
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }

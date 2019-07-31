@@ -40,11 +40,11 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
     FragmentManager mFragmentManager;
     ProjectDatabaseHelper mDb;
 
-    public ProjectListResyncTask(int taskId, Context ctx, FragmentManager fm) {
+    public ProjectListResyncTask(int taskId, Context ctx, FragmentManager fm, ProjectDatabaseHelper db) {
         super(taskId);
         mCtx = ctx;
         mFragmentManager = fm;
-        mDb = new ProjectDatabaseHelper(mCtx);
+        mDb = db;
     }
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
