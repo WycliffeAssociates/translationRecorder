@@ -5,6 +5,20 @@
     android:layout_height="wrap_content"
     android:background="@drawable/layout_bg">
 
+    <FrameLayout
+            android:id="@+id/waveform_view"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/dark_gray_0"
+            android:contentDescription="@null"
+            app:layout_constraintBottom_toTopOf="@+id/textView"
+            app:layout_constraintDimensionRatio="w,3:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/title_bar"/>
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
@@ -19,21 +33,6 @@
         app:layout_constraintStart_toStartOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/waveform_view" />
 
-    <FrameLayout
-        android:id="@+id/waveform_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
-        android:background="@color/dark_gray_0"
-        android:contentDescription="@null"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintDimensionRatio="w,3:1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/title_bar" />
-
-
     <TextView
         android:id="@+id/textView2"
         android:layout_width="0dp"
@@ -43,6 +42,7 @@
         android:layout_marginStart="8dp"
         android:gravity="center_horizontal"
         android:text="@string/privacy"
+        android:textSize="20sp"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         app:layout_constraintBottom_toTopOf="@+id/btnRecord"

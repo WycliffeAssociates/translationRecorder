@@ -7,8 +7,8 @@
 
     <FrameLayout
         android:id="@+id/waveform_frame"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
         android:background="@color/dark_gray_0"
         android:contentDescription="@null"
         app:layout_constraintDimensionRatio="3:1"
@@ -59,32 +59,19 @@
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/btn_play" />
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:gravity="center_horizontal"
-        android:text="@string/privacy_txt"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        app:layout_constraintBottom_toTopOf="@+id/icon_hash"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
     <ImageView
-        android:id="@+id/icon_hash"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@null"
-        app:layout_constraintDimensionRatio="w,1:3"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/textView6"
-        app:srcCompat="@android:drawable/btn_dialog" />
+            android:id="@+id/icon_hash"
+            android:layout_width="wrap_content"
+            android:layout_height="90dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@null"
+            app:layout_constraintDimensionRatio="w,1:3"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/textView4"
+            app:layout_constraintBottom_toTopOf="@+id/btnRedo"
+            app:srcCompat="@android:drawable/btn_dialog"/>
 
     <Button
             android:id="@+id/btnRedo"

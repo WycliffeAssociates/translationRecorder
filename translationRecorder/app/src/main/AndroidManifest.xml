@@ -83,11 +83,11 @@
         <activity android:name="org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport$StorageAccess" />
         <activity android:name="org.wycliffeassociates.translationrecorder.FilesPage.Export.AppExport$ShareZipToApps" />
 
-        <activity android:name="com.door43.login.TermsOfUseActivity" />
-        <activity android:name="com.door43.login.legal.LegalDocumentActivity" />
-        <activity android:name=".login.LoginActivity"
-            android:screenOrientation="portrait"
-            />
+        <activity android:name="com.door43.login.TermsOfUseActivity"
+                  android:screenOrientation="locked" />
+        <activity android:name="com.door43.login.legal.LegalDocumentActivity"
+                  android:screenOrientation="locked" />
+        <activity android:name=".login.LoginActivity" />
         <activity android:name=".login.UserActivity" />
 
         <activity android:name="org.wycliffeassociates.translationrecorder.TestUtils.FragmentTestActivity" />

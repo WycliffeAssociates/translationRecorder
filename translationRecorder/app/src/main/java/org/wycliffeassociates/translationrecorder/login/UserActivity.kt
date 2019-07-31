@@ -23,7 +23,6 @@ class UserActivity : AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user)
-        Screen.lockOrientation(this)
 
         val orientation = resources.configuration.orientation
         var layoutManager = GridLayoutManager(this, 4) as RecyclerView.LayoutManager
