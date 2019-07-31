@@ -208,7 +208,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String unitId = String.valueOf(getUnitId(slugs.getLanguage(), slugs.getBook(), slugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
         final String takeCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
-                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.TakeEntry.TAKE_NUMBER
+        );
         boolean exists = (DatabaseUtils.longForQuery(db, takeCountQuery, new String[]{unitId, String.valueOf(takeInfo.getTake())})) > 0;
         //db.close();
         return exists;
@@ -273,7 +276,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String versionId = String.valueOf(getVersionId(versionSlug));
         SQLiteDatabase db = getReadableDatabase();
         final String projectIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=? AND %s=?",
-                ProjectContract.ProjectEntry._ID, ProjectContract.ProjectEntry.TABLE_PROJECT, ProjectContract.ProjectEntry.PROJECT_TARGET_LANGUAGE_FK, ProjectContract.ProjectEntry.PROJECT_BOOK_FK, ProjectContract.ProjectEntry.PROJECT_VERSION_FK);
+                ProjectContract.ProjectEntry._ID,
+                ProjectContract.ProjectEntry.TABLE_PROJECT,
+                ProjectContract.ProjectEntry.PROJECT_TARGET_LANGUAGE_FK,
+                ProjectContract.ProjectEntry.PROJECT_BOOK_FK,
+                ProjectContract.ProjectEntry.PROJECT_VERSION_FK
+        );
         int id = -1;
         try {
             id = (int) DatabaseUtils.longForQuery(db, projectIdQuery, new String[]{languageId, bookId, versionId});
@@ -294,7 +302,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String projectId = String.valueOf(getProjectId(languageSlug, bookSlug, versionSlug));
         SQLiteDatabase db = getReadableDatabase();
         final String chapterIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
-                ProjectContract.ChapterEntry._ID, ProjectContract.ChapterEntry.TABLE_CHAPTER, ProjectContract.ChapterEntry.CHAPTER_PROJECT_FK, ProjectContract.ChapterEntry.CHAPTER_NUMBER);
+                ProjectContract.ChapterEntry._ID,
+                ProjectContract.ChapterEntry.TABLE_CHAPTER,
+                ProjectContract.ChapterEntry.CHAPTER_PROJECT_FK,
+                ProjectContract.ChapterEntry.CHAPTER_NUMBER
+        );
         int id = -1;
         try {
             id = (int) DatabaseUtils.longForQuery(db, chapterIdQuery, new String[]{projectId, String.valueOf(chapter)});
@@ -316,7 +328,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String chapterId = String.valueOf(getChapterId(languageSlug, bookSlug, versionSlug, chapter));
         SQLiteDatabase db = getReadableDatabase();
         final String unitIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=? AND %s=?",
-                ProjectContract.UnitEntry._ID, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK, ProjectContract.UnitEntry.UNIT_CHAPTER_FK, ProjectContract.UnitEntry.UNIT_START_VERSE);
+                ProjectContract.UnitEntry._ID,
+                ProjectContract.UnitEntry.TABLE_UNIT,
+                ProjectContract.UnitEntry.UNIT_PROJECT_FK,
+                ProjectContract.UnitEntry.UNIT_CHAPTER_FK,
+                ProjectContract.UnitEntry.UNIT_START_VERSE
+        );
         int id = -1;
         try {
             id = (int) DatabaseUtils.longForQuery(db, unitIdQuery, new String[]{projectId, chapterId, String.valueOf(startVerse)});
@@ -349,7 +366,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     public int getModeId(String modeSlug, String anthologySlug) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
         final String takeIdQuery = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
-                ProjectContract.ModeEntry._ID, ProjectContract.ModeEntry.TABLE_MODE, ProjectContract.ModeEntry.MODE_SLUG, ProjectContract.ModeEntry.MODE_ANTHOLOGY_FK);
+                ProjectContract.ModeEntry._ID,
+                ProjectContract.ModeEntry.TABLE_MODE,
+                ProjectContract.ModeEntry.MODE_SLUG,
+                ProjectContract.ModeEntry.MODE_ANTHOLOGY_FK
+        );
         int id = -1;
         try {
             id = (int) DatabaseUtils.longForQuery(db, takeIdQuery, new String[]{modeSlug, String.valueOf(getAnthologyId(anthologySlug))});
@@ -366,7 +387,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String stringifiedId = String.valueOf(unitId);
         SQLiteDatabase db = getReadableDatabase();
         final String query = String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
-                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK);
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK
+        );
         try {
             count = (int) DatabaseUtils.longForQuery(db, query, new String[]{stringifiedId});
         } catch (SQLiteDoneException e) {
@@ -472,7 +495,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     public String getBookName(String bookSlug) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
         final String bookNameQuery = String.format("SELECT %s FROM %s WHERE %s=?",
-                ProjectContract.BookEntry.BOOK_NAME, ProjectContract.BookEntry.TABLE_BOOK, ProjectContract.BookEntry.BOOK_SLUG);
+                ProjectContract.BookEntry.BOOK_NAME,
+                ProjectContract.BookEntry.TABLE_BOOK,
+                ProjectContract.BookEntry.BOOK_SLUG
+        );
         String name;
         try {
             name = DatabaseUtils.stringForQuery(db, bookNameQuery, new String[]{bookSlug});
@@ -487,7 +513,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     public String getBookSlug(int id) throws IllegalArgumentException {
         SQLiteDatabase db = getReadableDatabase();
         final String bookSlugQuery = String.format("SELECT %s FROM %s WHERE %s=?",
-                ProjectContract.BookEntry.BOOK_SLUG, ProjectContract.BookEntry.TABLE_BOOK, ProjectContract.BookEntry._ID);
+                ProjectContract.BookEntry.BOOK_SLUG,
+                ProjectContract.BookEntry.TABLE_BOOK,
+                ProjectContract.BookEntry._ID
+        );
         String slug;
         try {
             slug = DatabaseUtils.stringForQuery(db, bookSlugQuery, new String[]{String.valueOf(id)});
@@ -993,7 +1022,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String chapterId = String.valueOf(getChapterId(project, chapter));
         SQLiteDatabase db = getReadableDatabase();
         final String getChapter = String.format("SELECT %s FROM %s WHERE %s=?",
-                ProjectContract.ChapterEntry.CHAPTER_CHECKING_LEVEL, ProjectContract.ChapterEntry.TABLE_CHAPTER, ProjectContract.ChapterEntry._ID);
+                ProjectContract.ChapterEntry.CHAPTER_CHECKING_LEVEL,
+                ProjectContract.ChapterEntry.TABLE_CHAPTER,
+                ProjectContract.ChapterEntry._ID
+        );
         int checkingLevel = (int) DatabaseUtils.longForQuery(db, getChapter, new String[]{chapterId});
         //db.close();
         return checkingLevel;
@@ -1004,7 +1036,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String unitId = String.valueOf(getUnitId(slugs.getLanguage(), slugs.getBook(), slugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
         final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
-                ProjectContract.TakeEntry.TAKE_RATING, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
+                ProjectContract.TakeEntry.TAKE_RATING,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.TakeEntry.TAKE_NUMBER
+        );
         int rating = (int) DatabaseUtils.longForQuery(db, getTake, new String[]{unitId, String.valueOf(takeInfo.getTake())});
         //db.close();
         return rating;
@@ -1015,7 +1051,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String unitId = String.valueOf(getUnitId(slugs.getLanguage(), slugs.getBook(), slugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
         final String getTake = String.format("SELECT %s FROM %s WHERE %s=? AND %s=?",
-                ProjectContract.TakeEntry.TAKE_USER_FK, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
+                ProjectContract.TakeEntry.TAKE_USER_FK,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.TakeEntry.TAKE_NUMBER
+        );
         int userId = (int) DatabaseUtils.longForQuery(db, getTake, new String[]{unitId, String.valueOf(takeInfo.getTake())});
         User user = getUser(userId);
         return user;
@@ -1024,7 +1064,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     private int getSelectedTakeId(int unitId) {
         SQLiteDatabase db = getReadableDatabase();
         final String getTake = String.format("SELECT %s FROM %s WHERE %s=?",
-                ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID);
+                ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK,
+                ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID
+        );
         //int take = (int)DatabaseUtils.longForQuery(db, getTake, new String[]{unitId});
         Cursor cursor = db.rawQuery(getTake, new String[]{String.valueOf(unitId)});
         int takeIdCol = cursor.getColumnIndex(ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK);
@@ -1090,7 +1132,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         int unitId = getUnitId(projectSlugs.getLanguage(), projectSlugs.getBook(), projectSlugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse());
         SQLiteDatabase db = getReadableDatabase();
         final String replaceTakeWhere = String.format("%s=? AND %s=?",
-                ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.TakeEntry.TAKE_NUMBER
+        );
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(ProjectContract.TakeEntry.TAKE_RATING, rating);
         int result = db.update(ProjectContract.TakeEntry.TABLE_TAKE, replaceWith, replaceTakeWhere, new String[]{String.valueOf(unitId), String.valueOf(takeInfo.getTake())});
@@ -1124,7 +1168,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String chapterIdString = String.valueOf(chapterId);
         SQLiteDatabase db = getReadableDatabase();
         final String query = String.format("SELECT %s FROM %s WHERE %s=?",
-                ProjectContract.ChapterEntry.CHAPTER_PROGRESS, ProjectContract.ChapterEntry.TABLE_CHAPTER, ProjectContract.ChapterEntry._ID);
+                ProjectContract.ChapterEntry.CHAPTER_PROGRESS,
+                ProjectContract.ChapterEntry.TABLE_CHAPTER,
+                ProjectContract.ChapterEntry._ID
+        );
         float progress = DatabaseUtils.longForQuery(db, query, new String[]{chapterIdString});
         db.close();
         return Math.round(progress);
@@ -1144,7 +1191,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         String projectIdString = String.valueOf(projectId);
         SQLiteDatabase db = getReadableDatabase();
         final String query = String.format("SELECT %s FROM %s WHERE %s=?",
-                ProjectContract.ProjectEntry.PROJECT_PROGRESS, ProjectContract.ProjectEntry.TABLE_PROJECT, ProjectContract.ProjectEntry._ID);
+                ProjectContract.ProjectEntry.PROJECT_PROGRESS,
+                ProjectContract.ProjectEntry.TABLE_PROJECT,
+                ProjectContract.ProjectEntry._ID
+        );
         float progress = DatabaseUtils.longForQuery(db, query, new String[]{projectIdString});
         db.close();
         return Math.round(progress);
@@ -1164,8 +1214,7 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
         String unitId = String.valueOf(getUnitId(slugs.getLanguage(), slugs.getBook(), slugs.getVersion(), takeInfo.getChapter(), takeInfo.getStartVerse()));
         SQLiteDatabase db = getReadableDatabase();
-        final String replaceTakeWhere = String.format("%s=?",
-                ProjectContract.UnitEntry._ID);
+        final String replaceTakeWhere = String.format("%s=?", ProjectContract.UnitEntry._ID);
         ContentValues replaceWith = new ContentValues();
         replaceWith.putNull(ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK);
         db.update(ProjectContract.UnitEntry.TABLE_UNIT, replaceWith, replaceTakeWhere, new String[]{unitId});
@@ -1177,16 +1226,27 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         final String deleteTakes = String.format("DELETE FROM %s WHERE %s IN (SELECT %s FROM %s WHERE %s=?)",
-                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry._ID, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK);
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.UnitEntry._ID,
+                ProjectContract.UnitEntry.TABLE_UNIT,
+                ProjectContract.UnitEntry.UNIT_PROJECT_FK
+        );
         db.execSQL(deleteTakes, new String[]{projectId});
         final String deleteUnits = String.format("DELETE FROM %s WHERE %s=?",
-                ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK);
+                ProjectContract.UnitEntry.TABLE_UNIT,
+                ProjectContract.UnitEntry.UNIT_PROJECT_FK
+        );
         db.execSQL(deleteUnits, new String[]{projectId});
         final String deleteChapters = String.format("DELETE FROM %s WHERE %s=?",
-                ProjectContract.ChapterEntry.TABLE_CHAPTER, ProjectContract.ChapterEntry.CHAPTER_PROJECT_FK);
+                ProjectContract.ChapterEntry.TABLE_CHAPTER,
+                ProjectContract.ChapterEntry.CHAPTER_PROJECT_FK
+        );
         db.execSQL(deleteChapters, new String[]{projectId});
         final String deleteProject = String.format("DELETE FROM %s WHERE %s=?",
-                ProjectContract.ProjectEntry.TABLE_PROJECT, ProjectContract.ProjectEntry._ID);
+                ProjectContract.ProjectEntry.TABLE_PROJECT,
+                ProjectContract.ProjectEntry._ID
+        );
         db.execSQL(deleteProject, new String[]{projectId});
         db.setTransactionSuccessful();
         db.endTransaction();
@@ -1199,7 +1259,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         int takeId = getTakeId(takeInfo);
         SQLiteDatabase db = getWritableDatabase();
         final String deleteWhere = String.format("%s=? AND %s=?",
-                ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.TakeEntry.TAKE_NUMBER
+        );
 //        final String deleteTake = String.format("DELETE FROM %s WHERE %s=? AND %s=?",
 //                TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, TakeEntry.TAKE_NUMBER);
         //db.execSQL(deleteTake, new String[]{String.valueOf(unitId), String.valueOf(takeInfo.getTake())});
@@ -1217,11 +1279,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
      * @param numUnits
      * @return
      */
-    public Map<Integer, Integer> getNumStartedUnitsInProject(Project project, int numUnits) {
+    public Map<Integer, Integer> getNumStartedUnitsInProject(Project project) {
         String projectId = String.valueOf(getProjectId(project));
-//        final String numUnitsStarted = String.format("SELECT c.%s, COUNT(u.%s) FROM %s c LEFT JOIN %s u ON c.%s=u.%s LEFT JOIN %s t ON t.%s=u.%s WHERE c.%s=? AND t.%s IS NOT NULL GROUP BY c.%s",
-//                ChapterEntry.CHAPTER_NUMBER, UnitEntry._ID, ChapterEntry.TABLE_CHAPTER, UnitEntry.TABLE_UNIT, ChapterEntry._ID, UnitEntry.UNIT_CHAPTER_FK, TakeEntry.TABLE_TAKE, TakeEntry.TAKE_UNIT_FK, UnitEntry._ID, ChapterEntry.CHAPTER_PROJECT_FK, TakeEntry._ID, ChapterEntry.CHAPTER_NUMBER);
-        // SELECT number, count(_id) from (select u._id, c.number FROM chapters c LEFT JOIN units u ON c._id=u.chapter_fk LEFT JOIN takes t ON t.unit_fk=u._id WHERE c.project=2 AND t._id IS NOT NULL group by u._id ,c.number) group by number
         final String numUnitsStarted = String.format(
                 "SELECT %s, COUNT(%s) FROM " +
                         "(SELECT u.%s, c.%s " +
@@ -1248,7 +1307,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.rawQuery(numUnitsStarted, new String[]{projectId});
-        //int[] numStartedUnits = new int[numUnits];
         Map<Integer, Integer> numStartedUnits = new HashMap<>();
         if (c.getCount() > 0) {
             c.moveToFirst();
@@ -1297,7 +1355,9 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         if (projectExists(project)) {
             int projectId = getProjectId(project);
             String where = String.format("%s.%s=?",
-                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK);
+                    ProjectContract.UnitEntry.TABLE_UNIT,
+                    ProjectContract.UnitEntry.UNIT_PROJECT_FK
+            );
             String[] whereArgs = new String[]{String.valueOf(projectId)};
             removeTakesWithNoFiles(takes, where, whereArgs);
         }
@@ -1309,8 +1369,11 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             int projectId = getProjectId(project);
             int chapterId = getChapterId(project, chapter);
             String whereClause = String.format("%s.%s=? AND %s.%s=?",
-                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
-                    ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_CHAPTER_FK);
+                    ProjectContract.UnitEntry.TABLE_UNIT,
+                    ProjectContract.UnitEntry.UNIT_PROJECT_FK,
+                    ProjectContract.UnitEntry.TABLE_UNIT,
+                    ProjectContract.UnitEntry.UNIT_CHAPTER_FK
+            );
             String[] whereArgs = new String[]{String.valueOf(projectId), String.valueOf(chapterId)};
             removeTakesWithNoFiles(takes, whereClause, whereArgs);
         }
@@ -1341,7 +1404,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //compare the names of all takes from the filesystem with the takes already in the database
         //names that do not have a match (are null in the left join) in the database need to be added
         final String getMissingTakes = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
-                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TempEntry.TEMP_TIMESTAMP, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TempEntry.TEMP_TIMESTAMP,
+                ProjectContract.TempEntry.TABLE_TEMP,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME
+        );
         Cursor c = db.rawQuery(getMissingTakes, null);
         //loop through all of the missing takes and add them to the db
         if (c.getCount() > 0) {
@@ -1396,13 +1466,22 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         final String allTakesFromAProject = String.format("SELECT %s.%s as takefilename, %s.%s as takeid from %s LEFT JOIN %s ON %s.%s=%s.%s WHERE %s",
-                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry._ID, //select
-                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.UnitEntry.TABLE_UNIT, //tables to join takes left join units
-                ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID, //ON takes.unit_fk = units._id
-                whereClause); //ie WHERE units.chapter_fk = ?
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry._ID, //select
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.UnitEntry.TABLE_UNIT, //tables to join takes left join units
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.UnitEntry.TABLE_UNIT,
+                ProjectContract.UnitEntry._ID, //ON takes.unit_fk = units._id
+                whereClause
+        ); //ie WHERE units.chapter_fk = ?
 
         final String danglingReferences = String.format("SELECT takefilename, takeid FROM (%s) LEFT JOIN %s as temps ON temps.%s=takefilename WHERE temps.%s IS NULL",
-                allTakesFromAProject, ProjectContract.TempEntry.TABLE_TEMP,
+                allTakesFromAProject,
+                ProjectContract.TempEntry.TABLE_TEMP,
                 ProjectContract.TempEntry.TEMP_TAKE_NAME,
                 ProjectContract.TempEntry.TEMP_TAKE_NAME
         );
@@ -1452,10 +1531,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //compare the names of all takes from the filesystem with the takes already in the database
         //names that do not have a match (are null in the left join) in the database need to be added
         final String getMissingTakes = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
-                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TempEntry.TEMP_TIMESTAMP,
-                ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TakeEntry.TABLE_TAKE,
-                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME,
-                ProjectContract.TakeEntry.TAKE_FILENAME);
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TempEntry.TEMP_TIMESTAMP,
+                ProjectContract.TempEntry.TABLE_TEMP,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME
+        );
         Cursor c = db.rawQuery(getMissingTakes, null);
         //loop through all of the missing takes and add them to the db
         if (c.getCount() > 0) {
@@ -1508,11 +1591,22 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 "LEFT JOIN %s AS t2 ON t1.%s=t2.%s " + //temp as t2 on t1.filename=t2.filename
                 "WHERE t2.%s IS NULL AND %s IS NOT NULL " + //t2.filename is null and project_fk is not null
                 "GROUP BY %s", //number
-                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE,
-                ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry._ID, ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
-                ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME,
-                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.UnitEntry.UNIT_PROJECT_FK,
-                ProjectContract.TakeEntry.TAKE_NUMBER);
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry._ID,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.UnitEntry.TABLE_UNIT,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.UnitEntry.TABLE_UNIT,
+                ProjectContract.UnitEntry._ID,
+                ProjectContract.UnitEntry.TABLE_UNIT,
+                ProjectContract.UnitEntry.UNIT_PROJECT_FK,
+                ProjectContract.TempEntry.TABLE_TEMP,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.UnitEntry.UNIT_PROJECT_FK,
+                ProjectContract.TakeEntry.TAKE_NUMBER
+        );
 
 
         c = db.rawQuery(deleteDanglingReferences, null);
@@ -1555,7 +1649,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         //compare the names of all takes from the filesystem with the takes already in the database
         //names that do not have a match (are null in the left join) in the database need to be added
         final String getMissingTakes = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
-                ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TempEntry.TEMP_TIMESTAMP, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TempEntry.TEMP_TIMESTAMP,
+                ProjectContract.TempEntry.TABLE_TEMP,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME
+        );
         Cursor c = db.rawQuery(getMissingTakes, null);
         //loop through all of the missing takes and add them to the db
         if (c.getCount() > 0) {
@@ -1585,7 +1686,14 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         c.close();
         //find all the takes in the db that do not have a match in the filesystem
         final String deleteDanglingReferences = String.format("SELECT t1.%s, t1.%s FROM %s AS t1 LEFT JOIN %s AS t2 ON t1.%s=t2.%s WHERE t2.%s IS NULL",
-                ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TempEntry.TABLE_TEMP, ProjectContract.TempEntry.TEMP_TAKE_NAME, ProjectContract.TakeEntry.TAKE_FILENAME, ProjectContract.TakeEntry.TAKE_FILENAME);
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry._ID,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TempEntry.TABLE_TEMP,
+                ProjectContract.TempEntry.TEMP_TAKE_NAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME,
+                ProjectContract.TakeEntry.TAKE_FILENAME
+        );
         c = db.rawQuery(deleteDanglingReferences, null);
         //for each of these takes that do not have a corresponding match, remove them from the database
         if (c.getCount() > 0) {
@@ -1623,7 +1731,12 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
     public void autoSelectTake(int unitId) {
         SQLiteDatabase db = getReadableDatabase();
         final String autoSelect = String.format("SELECT %s FROM %s WHERE %s=? ORDER BY %s DESC, %s DESC LIMIT 1",
-                ProjectContract.TakeEntry._ID, ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_RATING, ProjectContract.TakeEntry.TAKE_TIMESTAMP);
+                ProjectContract.TakeEntry._ID,
+                ProjectContract.TakeEntry.TABLE_TAKE,
+                ProjectContract.TakeEntry.TAKE_UNIT_FK,
+                ProjectContract.TakeEntry.TAKE_RATING,
+                ProjectContract.TakeEntry.TAKE_TIMESTAMP
+        );
         Cursor c = db.rawQuery(autoSelect, new String[]{String.valueOf(unitId)});
         if (c.getCount() > 0) {
             c.moveToFirst();

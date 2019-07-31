@@ -18,11 +18,13 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingD
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
+import org.wycliffeassociates.translationrecorder.project.ProjectProgress;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 import org.wycliffeassociates.translationrecorder.widgets.UnitCard;
@@ -30,12 +32,13 @@ import org.wycliffeassociates.translationrecorder.widgets.UnitCard;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/30/2016.
  */
 public class ActivityUnitList extends AppCompatActivity implements CheckingDialog.DialogListener,
-        RatingDialog.DialogListener, TaskFragment.OnTaskComplete {
+        RatingDialog.DialogListener, TaskFragment.OnTaskComplete, UnitCard.OnTakeDeleteListener {
 
     public static String PROJECT_KEY = "project_key";
     public static String CHAPTER_KEY = "chapter_key";
@@ -192,11 +195,18 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             List<Chunk> chunks = chunkPlugin.getChapter(mChapterNum).getChunks();
             for (Chunk unit : chunks) {
                 String title = Utils.capitalizeFirstLetter(mProject.getModeName()) + " " + unit.getLabel();
-                mUnitCardList.add(new UnitCard(mAdapter, mProject, title, mChapterNum, unit.getStartVerse(), unit.getEndVerse()));
+                mUnitCardList.add(new UnitCard(mAdapter, mProject, title, mChapterNum, unit.getStartVerse(), unit.getEndVerse(), this));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onTakeDeleted() {
+        ProjectProgress pp = new ProjectProgress(mProject, this);
+        pp.updateProjectProgress();
+        pp.destroy();
     }
 
     @Override

@@ -141,8 +141,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     public void refreshChapterCards() {
         ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
-        int numChapters = mChunks.numChapters();
-        Map<Integer, Integer> unitsStarted = db.getNumStartedUnitsInProject(mProject, numChapters);
+        Map<Integer, Integer> unitsStarted = db.getNumStartedUnitsInProject(mProject);
         for (int i = 0; i < mChapterCardList.size(); i++) {
             ChapterCard cc = mChapterCardList.get(i);
             int numUnits = (unitsStarted.containsKey(cc.getChapterNumber())) ? unitsStarted.get(cc.getChapterNumber()) : 0;

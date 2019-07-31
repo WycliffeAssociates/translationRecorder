@@ -47,6 +47,10 @@ public class UnitCard {
         int takeRating(TakeInfo takeInfo);
     }
 
+    public interface OnTakeDeleteListener {
+        void onTakeDeleted();
+    }
+
     public static int NO_TAKES = -1;
     public static int MIN_TAKE_THRESHOLD = 2;
 
@@ -74,14 +78,16 @@ public class UnitCard {
     private int mTakeCount;
     private SoftReference<List<File>> mTakeList;
     private SoftReference<AudioPlayer> mAudioPlayer;
+    private OnTakeDeleteListener onTakeDeleteListener;
 
     // Constructors
-    public UnitCard(DatabaseAccessor db, Project project, String title, int chapter, int firstVerse, int endVerse) {
+    public UnitCard(DatabaseAccessor db, Project project, String title, int chapter, int firstVerse, int endVerse, OnTakeDeleteListener listener) {
         mTitle = title;
         mFirstVerse = firstVerse;
         mEndVerse = endVerse;
         mChapter = chapter;
         mProject = project;
+        onTakeDeleteListener = listener;
         refreshTakeCount(db);
     }
 
@@ -476,6 +482,7 @@ public class UnitCard {
                                         destroyAudioPlayer();
                                         adapter.notifyItemChanged(position);
                                     }
+                                    onTakeDeleteListener.onTakeDeleted();
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
