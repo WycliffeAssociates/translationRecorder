@@ -18,7 +18,6 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingD
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Utils;
-import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -32,7 +31,6 @@ import org.wycliffeassociates.translationrecorder.widgets.UnitCard;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/30/2016.
@@ -62,6 +60,8 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private RecyclerView mUnitList;
     private boolean mDbResyncing;
     private TaskFragment mTaskFragment;
+    private ChunkPlugin chunkPlugin;
+    private ProjectDatabaseHelper db;
 
 
     @Override
@@ -70,12 +70,12 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         setContentView(R.layout.activity_unit_list);
 
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
-        ChunkPlugin plugin = null;
-        try {
-            plugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
+        db = new ProjectDatabaseHelper(this);
 
+        try {
+            chunkPlugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
             mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+
             FragmentManager fm = getFragmentManager();
             mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
             if (mTaskFragment == null) {
@@ -94,8 +94,8 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             Toolbar mToolbar = (Toolbar) findViewById(R.id.unit_list_toolbar);
             setSupportActionBar(mToolbar);
             if (getSupportActionBar() != null) {
-                String chapterLabel = Utils.capitalizeFirstLetter(plugin.getChapterLabel());
-                String chapterName = plugin.getChapterName(mChapterNum);
+                String chapterLabel = Utils.capitalizeFirstLetter(chunkPlugin.getChapterLabel());
+                String chapterName = chunkPlugin.getChapterName(mChapterNum);
                 getSupportActionBar().setTitle(language + " - " + book + " - " + chapterLabel + " " + chapterName);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -172,7 +172,6 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     @Override
     public void onPositiveClick(RatingDialog dialog) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         db.setTakeRating(dialog.getTakeInfo(), dialog.getRating());
         db.close();
         mAdapter.notifyDataSetChanged();
@@ -190,8 +189,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
 
     private void prepareUnitCardData() {
-        try {
-            ChunkPlugin chunkPlugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
+        if(chunkPlugin != null) {
             List<Chunk> chunks = chunkPlugin.getChapter(mChapterNum).getChunks();
             for (Chunk unit : chunks) {
                 String title = Utils.capitalizeFirstLetter(mProject.getModeName()) + " " + unit.getLabel();
@@ -205,16 +203,13 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
                         this
                 ));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
     @Override
     public void onTakeDeleted() {
-        ProjectProgress pp = new ProjectProgress(mProject, this);
+        ProjectProgress pp = new ProjectProgress(mProject, db, chunkPlugin.getChapters());
         pp.updateProjectProgress();
-        pp.destroy();
     }
 
     @Override

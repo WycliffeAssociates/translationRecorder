@@ -28,9 +28,7 @@ import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
 import org.wycliffeassociates.translationrecorder.FilesPage.FeedbackDialog;
-import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
-import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
@@ -46,9 +44,11 @@ import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sarabiaj on 6/23/2016.

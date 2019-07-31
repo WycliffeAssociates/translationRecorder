@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.door43.tools.reporting.Logger;
@@ -26,7 +25,6 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRe
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSourceAudio;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
-import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.permissions.PermissionActivity;
@@ -38,7 +36,6 @@ import org.wycliffeassociates.translationrecorder.wav.WavMetadata;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,6 +71,7 @@ public class RecordingActivity extends PermissionActivity implements
     private InsertTaskFragment mInsertTaskFragment;
     private boolean mInserting;
     private ProgressDialog mProgressDialog;
+    private ChunkPlugin chunkPlugin;
 
     //Fragments
     private HashMap<Integer, Fragment> mFragmentHolder;
@@ -298,6 +296,12 @@ public class RecordingActivity extends PermissionActivity implements
             mInsertMode = true;
         }
         isChunkMode = mProject.getModeType() == ChunkPlugin.TYPE.MULTI;
+
+        try {
+            chunkPlugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
+        } catch (IOException e) {
+            Logger.e(this.toString(), e.getMessage());
+        }
     }
 
 
@@ -428,9 +432,10 @@ public class RecordingActivity extends PermissionActivity implements
                 mUser.getId()
         );
 
-        ProjectProgress pp = new ProjectProgress(mProject, this);
-        pp.updateProjectProgress();
-        pp.destroy();
+        if(chunkPlugin != null) {
+            ProjectProgress pp = new ProjectProgress(mProject, db, chunkPlugin.getChapters());
+            pp.updateProjectProgress();
+        }
         db.close();
     }
 

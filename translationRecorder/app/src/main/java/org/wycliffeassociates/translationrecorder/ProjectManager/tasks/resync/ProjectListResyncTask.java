@@ -2,13 +2,11 @@ package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Environment;
 
 import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
-import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -165,13 +163,17 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                 List<File> takes = getFilesInDirectory(chapters);
                 db.resyncDbWithFs(dir.getKey(), takes, this, this);
 
-                // Recalculate project progress
-                ProjectProgress pp = new ProjectProgress(project, mCtx);
-                pp.updateProjectProgress();
+                try {
+                    ChunkPlugin chunkPlugin = project.getChunkPlugin(new ChunkPluginLoader(mCtx));
+                    // Recalculate project progress
+                    ProjectProgress pp = new ProjectProgress(project, db, chunkPlugin.getChapters());
+                    pp.updateProjectProgress();
 
-                // Recalculate chapters progress
-                pp.updateChaptersProgress();
-                pp.destroy();
+                    // Recalculate chapters progress
+                    pp.updateChaptersProgress();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         for(Map.Entry<Project, File> dir : directoriesMissingFromFs.entrySet()) {

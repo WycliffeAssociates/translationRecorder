@@ -7,8 +7,6 @@ import android.content.Intent;
 import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.Playback.PlaybackActivity;
@@ -81,7 +79,15 @@ public class UnitCard {
     private OnTakeDeleteListener onTakeDeleteListener;
 
     // Constructors
-    public UnitCard(DatabaseAccessor db, Project project, String title, int chapter, int firstVerse, int endVerse, OnTakeDeleteListener listener) {
+    public UnitCard(
+            DatabaseAccessor db,
+            Project project,
+            String title,
+            int chapter,
+            int firstVerse,
+            int endVerse,
+            OnTakeDeleteListener listener
+    ) {
         mTitle = title;
         mFirstVerse = firstVerse;
         mEndVerse = endVerse;
@@ -125,7 +131,12 @@ public class UnitCard {
     private AudioPlayer initializeAudioPlayer() {
         AudioPlayer ap = new AudioPlayer();
         if (mViewHolder != null) {
-            ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.takePlayPauseBtn, mViewHolder.seekBar);
+            ap.refreshView(
+                    mViewHolder.elapsed,
+                    mViewHolder.duration,
+                    mViewHolder.takePlayPauseBtn,
+                    mViewHolder.seekBar
+            );
         }
         mAudioPlayer = new SoftReference<AudioPlayer>(ap);
         return ap;
@@ -151,7 +162,11 @@ public class UnitCard {
                 ap.loadFile(getTakeList().get(mTakeIndex));
             }
         }
-        ap.refreshView(mViewHolder.elapsed, mViewHolder.duration, mViewHolder.takePlayPauseBtn, mViewHolder.seekBar);
+        ap.refreshView(mViewHolder.elapsed,
+                mViewHolder.duration,
+                mViewHolder.takePlayPauseBtn,
+                mViewHolder.seekBar
+        );
     }
 
     private List<File> getTakeList() {
@@ -383,12 +398,19 @@ public class UnitCard {
             public void onClick(View view) {
                 pauseAudio();
                 mProject.loadProjectIntoPreferences(context);
-                view.getContext().startActivity(RecordingActivity.getNewRecordingIntent(context, mProject, mChapter, mFirstVerse));
+                view.getContext().startActivity(
+                        RecordingActivity.getNewRecordingIntent(context, mProject, mChapter, mFirstVerse)
+                );
             }
         };
     }
 
-    public View.OnClickListener getUnitExpandOnClick(final DatabaseAccessor db, final int position, final List<Integer> expandedCards, final OnCardExpandedListener listener) {
+    public View.OnClickListener getUnitExpandOnClick(
+            final DatabaseAccessor db,
+            final int position,
+            final List<Integer> expandedCards,
+            final OnCardExpandedListener listener
+    ) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -445,7 +467,12 @@ public class UnitCard {
         };
     }
 
-    public View.OnClickListener getTakeDeleteOnClick(final Context ctx, final DatabaseAccessor db, final int position, final UnitCardAdapter adapter) {
+    public View.OnClickListener getTakeDeleteOnClick(
+            final Context ctx,
+            final DatabaseAccessor db,
+            final int position,
+            final UnitCardAdapter adapter
+    ) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -506,7 +533,13 @@ public class UnitCard {
                 if (takes.size() > 0) {
                     pauseAudio();
                     WavFile wavFile = new WavFile(takes.get(mTakeIndex));
-                    Intent intent = PlaybackActivity.getPlaybackIntent(v.getContext(), wavFile, mProject, mChapter, mFirstVerse);
+                    Intent intent = PlaybackActivity.getPlaybackIntent(
+                            v.getContext(),
+                            wavFile,
+                            mProject,
+                            mChapter,
+                            mFirstVerse
+                    );
                     v.getContext().startActivity(intent);
                 }
             }

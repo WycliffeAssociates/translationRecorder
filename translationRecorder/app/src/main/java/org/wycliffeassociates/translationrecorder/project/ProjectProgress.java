@@ -1,13 +1,10 @@
 package org.wycliffeassociates.translationrecorder.project;
 
 
-import android.content.Context;
 import com.door43.tools.reporting.Logger;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
-import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,38 +14,26 @@ import java.util.Map;
 public class ProjectProgress {
 
     Project project;
-    Context context;
     ProjectDatabaseHelper db;
-    ChunkPlugin chunks;
+    List<Chapter> chapters;
 
-    public ProjectProgress(Project project, Context context) {
+    public ProjectProgress(Project project, ProjectDatabaseHelper db, List<Chapter> chapters) {
         this.project = project;
-        this.context = context;
-        this.db = new ProjectDatabaseHelper(context);
-
-        try {
-            this.chunks = project.getChunkPlugin(new ChunkPluginLoader(context));
-        } catch (IOException e) {
-            Logger.e(this.toString(), e.getMessage());
-        }
+        this.db = db;
+        this.chapters = chapters;
     }
 
     public int calculateProjectProgress() {
-        if(chunks != null) {
-            int numChapters = chunks.numChapters();
-            int allChaptersProgress = 0;
+        int numChapters = numChapters();
+        int allChaptersProgress = 0;
 
-            List<Chapter> chapters = chunks.getChapters();
-            for (Chapter chapter: chapters) {
-                int chapterProgress = calculateChapterProgress(chapter);
-                allChaptersProgress += chapterProgress;
-            }
-            int projectProgress = (int) Math.ceil((float) allChaptersProgress / numChapters);
-
-            return projectProgress;
+        for (Chapter chapter: chapters) {
+            int chapterProgress = calculateChapterProgress(chapter);
+            allChaptersProgress += chapterProgress;
         }
+        int projectProgress = (int) Math.ceil((float) allChaptersProgress / numChapters);
 
-        return 0;
+        return projectProgress;
     }
 
     public void setProjectProgress(int progress) {
@@ -93,24 +78,17 @@ public class ProjectProgress {
     }
 
     public void updateChaptersProgress() {
-        if(chunks != null) {
-            List<Chapter> projectChapters = chunks.getChapters();
-            for (Chapter chapter: projectChapters) {
-                updateChapterProgress(chapter);
-            }
+        for (Chapter chapter: chapters) {
+            updateChapterProgress(chapter);
         }
     }
 
     private Chapter getChapter(int chapterNumber) {
-        if(chunks != null) {
-            List<Chapter> chapters = chunks.getChapters();
-            for (Chapter chapter: chapters) {
-                if(chapter.getNumber() == chapterNumber) {
-                    return chapter;
-                }
+        for (Chapter chapter: chapters) {
+            if(chapter.getNumber() == chapterNumber) {
+                return chapter;
             }
         }
-
         return null;
     }
 
@@ -118,10 +96,7 @@ public class ProjectProgress {
         return Math.round(((float) current / total) * 100);
     }
 
-    public void destroy() {
-        db.close();
-        db = null;
-        project = null;
-        context = null;
+    private int numChapters() {
+        return chapters.size();
     }
 }
