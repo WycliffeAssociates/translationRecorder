@@ -29,10 +29,11 @@ public class ProjectFileUtilsTest {
     Book book = new Book("gen", "Genesis", "ot", 1);
     Version version = new Version("ulb", "Unlocked Literal Bible");
     String mask = "1111111111";
+    int sort = 1;
 
     String jarName = "biblechunk.jar";
     String className = "org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin";
-    Anthology anthology = new Anthology("ot", "Old Testament", "bible", regex, groups, mask, jarName, className);
+    Anthology anthology = new Anthology("ot", "Old Testament", "bible", sort, regex, groups, mask, jarName, className);
     Mode mode = new Mode("chunk", "chunk", "chunk");
     Project project = new Project(language, anthology, book, version, mode);
 
