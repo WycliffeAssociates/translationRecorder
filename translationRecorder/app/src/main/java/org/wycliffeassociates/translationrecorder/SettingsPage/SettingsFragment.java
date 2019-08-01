@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ResyncLanguageNamesTask;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
 import org.wycliffeassociates.translationrecorder.R;
@@ -23,6 +25,7 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
 
     LanguageSelector mParent;
     SharedPreferences mSharedPreferences;
+    ProjectDatabaseHelper db;
     private TaskFragment mTaskFragment;
     private String TAG_TASK_FRAGMENT = "tag_task_fragment";
 
@@ -35,6 +38,7 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
         addPreferencesFromResource(R.xml.preference);
         mSharedPreferences = getPreferenceScreen().getSharedPreferences();
         mParent = (LanguageSelector) getActivity();
+        db = ((TranslationRecorderApp)getActivity().getApplication()).getDatabase();
         // Below is the code to clear the SharedPreferences. Use it wisely.
         // mSharedPreferences.edit().clear().commit();
 
@@ -74,11 +78,11 @@ public class SettingsFragment extends PreferenceFragment  implements SharedPrefe
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 mTaskFragment.executeRunnable(
-                        new ResyncLanguageNamesTask(1, getActivity()),
+                        new ResyncLanguageNamesTask(1, getActivity(), db),
                         "Updating Languages",
                         "Please wait...",
                         true
-                        );
+                );
                 return true;
             }
         });

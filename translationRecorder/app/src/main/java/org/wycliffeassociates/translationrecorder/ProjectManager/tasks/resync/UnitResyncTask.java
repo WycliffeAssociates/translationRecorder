@@ -30,13 +30,22 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
     Context mCtx;
     FragmentManager mFragmentManager;
     private int mChapter;
+    private ProjectDatabaseHelper db;
 
-    public UnitResyncTask(int taskId, Context ctx, FragmentManager fm, Project project, int chapter){
+    public UnitResyncTask(
+            int taskId,
+            Context ctx,
+            FragmentManager fm,
+            Project project,
+            int chapter,
+            ProjectDatabaseHelper db
+    ){
         super(taskId);
         mCtx = ctx;
         mFragmentManager = fm;
         mProject = project;
         mChapter = chapter;
+        this.db = db;
     }
 
     public List<File> getAllTakes(){
@@ -66,9 +75,7 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
 
     @Override
     public void run() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.resyncChapterWithFilesystem(mProject, mChapter, getAllTakes(), this, this);
-        db.close();
         onTaskCompleteDelegator();
     }
 

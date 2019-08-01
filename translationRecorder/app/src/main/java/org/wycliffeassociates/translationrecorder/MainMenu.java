@@ -40,6 +40,7 @@ public class MainMenu extends Activity {
     private RelativeLayout btnRecord;
     private ImageButton btnFiles;
     private SharedPreferences pref;
+    private ProjectDatabaseHelper db;
 
     private int mNumProjects = 0;
 
@@ -76,7 +77,6 @@ public class MainMenu extends Activity {
     protected void onResume() {
         super.onResume();
 
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         mNumProjects = db.getNumProjects();
 
         btnRecord = (RelativeLayout) findViewById(R.id.new_record);
@@ -142,7 +142,7 @@ public class MainMenu extends Activity {
     }
 
     private void startRecordingScreen() {
-        Project project = Project.getProjectFromPreferences(this);
+        Project project = Project.getProjectFromPreferences(this, db);
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         int chapter = pref.getInt(Settings.KEY_PREF_CHAPTER, ChunkPlugin.DEFAULT_CHAPTER);
         int unit = pref.getInt(Settings.KEY_PREF_CHUNK, ChunkPlugin.DEFAULT_UNIT);
@@ -156,7 +156,6 @@ public class MainMenu extends Activity {
     }
 
     private boolean addProjectToDatabase(Project project) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         if (db.projectExists(project)) {
             ProjectWizardActivity.displayProjectExists(this);
             return false;
@@ -170,7 +169,6 @@ public class MainMenu extends Activity {
     private void loadProject(Project project) {
         pref.edit().putString("resume", "resume").commit();
 
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         if (db.projectExists(project)) {
             pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, db.getProjectId(project)).commit();
         } else {
@@ -232,7 +230,6 @@ public class MainMenu extends Activity {
     }
 
     private void initViews() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
         TextView languageView = (TextView) findViewById(R.id.language_view);
         TextView bookView = (TextView) findViewById(R.id.book_view);
@@ -287,6 +284,8 @@ public class MainMenu extends Activity {
             brd.show(fm, "Bug Report Dialog");
         }
 
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
+
         removeUnusedVisualizationFiles();
     }
 
@@ -297,7 +296,6 @@ public class MainMenu extends Activity {
             return;
         }
         String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder").getAbsolutePath();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         List<ProjectPatternMatcher> patterns = db.getProjectPatternMatchers();
         for (File v : visFiles) {
             boolean matched = false;

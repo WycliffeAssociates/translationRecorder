@@ -75,17 +75,15 @@ public class Project implements Parcelable {
         return pluginLoader.loadChunkPlugin(mAnthology, mBook, getModeType());
     }
 
-    public static Project getProjectFromPreferences(Context ctx) {
+    public static Project getProjectFromPreferences(Context ctx, ProjectDatabaseHelper db) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
         Project project = db.getProject(projectId);
         return project;
     }
 
-    public void loadProjectIntoPreferences(Context ctx) {
+    public void loadProjectIntoPreferences(Context ctx, ProjectDatabaseHelper db) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
         if(db.projectExists(this)) {
             int projectId = db.getProjectId(this);
             pref.edit().putInt(Settings.KEY_RECENT_PROJECT_ID, projectId).commit();

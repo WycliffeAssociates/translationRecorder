@@ -142,7 +142,7 @@ public class TranslationExchangeDiff {
                             mFilesToUpload = stageNewFiles(getUploadedFilesList(mProject, mApp));
                             Manifest manifest = new Manifest(mProject, ProjectFileUtils.getProjectDirectory(mProject));
                             manifest.setProgressCallback(progressCallback);
-                            File mani = manifest.createManifestFile(mApp, new ProjectDatabaseHelper(mApp));
+                            File mani = manifest.createManifestFile(mApp, mApp.getDatabase());
                             mFilesToUpload.add(mani);
                             List<File> userFiles = manifest.getUserFiles();
                             for(File file : userFiles) {

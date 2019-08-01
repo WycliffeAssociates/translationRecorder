@@ -27,10 +27,12 @@ import java.net.URL;
 
 public class ResyncLanguageNamesTask extends Task {
     Context mCtx;
+    ProjectDatabaseHelper db;
 
-    public ResyncLanguageNamesTask(int taskTag, Context ctx) {
+    public ResyncLanguageNamesTask(int taskTag, Context ctx, ProjectDatabaseHelper db) {
         super(taskTag);
         mCtx = ctx;
+        this.db = db;
     }
 
     @Override
@@ -51,9 +53,7 @@ public class ResyncLanguageNamesTask extends Task {
                     JSONArray jsonObject = new JSONArray(json.toString());
                     ParseJSON parseJSON = new ParseJSON(mCtx);
                     Language[] languages = parseJSON.pullLangNames(jsonObject);
-                    ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
                     db.addLanguages(languages);
-                    db.close();
                     onTaskCompleteDelegator();
                     Handler handler = new Handler(Looper.getMainLooper());
                     handler.post(new Runnable() {

@@ -95,7 +95,7 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
             audio.renameTo(newAudio)
             audio = newAudio
             val user = User(audio, hash)
-            val db = ProjectDatabaseHelper(activity)
+            val db = (activity.application as TranslationRecorderApp).database
             db.addUser(user)
             val pref = PreferenceManager.getDefaultSharedPreferences(activity)
             pref.edit().putInt(Settings.KEY_PROFILE, user.id).apply()

@@ -19,6 +19,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Compile
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.ChapterResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
@@ -59,6 +60,7 @@ public class ActivityChapterList extends AppCompatActivity implements
     private static final int DATABASE_RESYNC_TASK = Task.FIRST_TASK;
     private static final int COMPILE_CHAPTER_TASK = Task.FIRST_TASK + 1;
     private int[] mChaptersCompiled;
+    private ProjectDatabaseHelper db;
 
     public static Intent getActivityUnitListIntent(Context ctx, Project p) {
         Intent intent = new Intent(ctx, ActivityUnitList.class);
@@ -85,9 +87,9 @@ public class ActivityChapterList extends AppCompatActivity implements
 
         // Setup toolbar
         mProject = getIntent().getParcelableExtra(Project.PROJECT_EXTRA);
-        ProjectDatabaseHelper mDb = new ProjectDatabaseHelper(this);
-        String language = mDb.getLanguageName(mProject.getTargetLanguageSlug());
-        String book = mDb.getBookName(mProject.getBookSlug());
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
+        String language = db.getLanguageName(mProject.getTargetLanguageSlug());
+        String book = db.getBookName(mProject.getBookSlug());
         Toolbar mToolbar = (Toolbar) findViewById(R.id.chapter_list_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
@@ -113,7 +115,7 @@ public class ActivityChapterList extends AppCompatActivity implements
 
         // Set its adapter
         mChapterCardList = new ArrayList<>();
-        mAdapter = new ChapterCardAdapter(this, mProject, mChapterCardList);
+        mAdapter = new ChapterCardAdapter(this, mProject, mChapterCardList, db);
         mChapterList.setAdapter(mAdapter);
 
         // Set its animator
@@ -133,14 +135,14 @@ public class ActivityChapterList extends AppCompatActivity implements
                     DATABASE_RESYNC_TASK,
                     getBaseContext(),
                     getFragmentManager(),
-                    mProject
+                    mProject,
+                    db
             );
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
 
     public void refreshChapterCards() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         Map<Integer, Integer> unitsStarted = db.getNumStartedUnitsInProject(mProject);
         for (int i = 0; i < mChapterCardList.size(); i++) {
             ChapterCard cc = mChapterCardList.get(i);
@@ -154,7 +156,6 @@ public class ActivityChapterList extends AppCompatActivity implements
                 cc.setCheckingLevel(db.getChapterCheckingLevel(mProject, cc.getChapterNumber()));
             }
         }
-        db.close();
         mAdapter.notifyDataSetChanged();
     }
 
@@ -183,7 +184,6 @@ public class ActivityChapterList extends AppCompatActivity implements
 
     @Override
     public void onPositiveClick(CheckingDialog dialog) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int level = dialog.getCheckingLevel();
         int[] chapterIndicies = dialog.getChapterIndicies();
         for (int i = 0; i < chapterIndicies.length; i++) {
@@ -193,7 +193,6 @@ public class ActivityChapterList extends AppCompatActivity implements
             db.setCheckingLevel(dialog.getProject(), cc.getChapterNumber(), level);
             mAdapter.notifyItemChanged(position);
         }
-        db.close();
     }
 
     @Override
@@ -204,7 +203,6 @@ public class ActivityChapterList extends AppCompatActivity implements
             mChapterCardList.get(i).destroyAudioPlayer();
         }
         mChaptersCompiled = dialog.getChapterIndicies();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
 
         Map<ChapterCard, List<String>> chaptersToCompile = new HashMap<>();
         for (ChapterCard cc : toCompile) {
@@ -246,7 +244,8 @@ public class ActivityChapterList extends AppCompatActivity implements
                             mProject,
                             Utils.capitalizeFirstLetter(mChunks.getChapterLabel()) + " " + mChunks.getChapterName(chapterNumber),
                             chapterNumber,
-                            unitCount
+                            unitCount,
+                            db
                     )
             );
         }
@@ -259,7 +258,6 @@ public class ActivityChapterList extends AppCompatActivity implements
                 mDbResyncing = false;
                 refreshChapterCards();
             } else if (taskTag == COMPILE_CHAPTER_TASK) {
-                ProjectDatabaseHelper db = new ProjectDatabaseHelper(ActivityChapterList.this);
                 for (int i : mChaptersCompiled) {
                     int chapter = mChapterCardList.get(i).getChapterNumber();
                     db.setCheckingLevel(mProject, chapter, 0);

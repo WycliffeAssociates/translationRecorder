@@ -25,6 +25,7 @@ import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentRe
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentSourceAudio;
 import org.wycliffeassociates.translationrecorder.Recording.fragments.FragmentVolumeBar;
 import org.wycliffeassociates.translationrecorder.SettingsPage.Settings;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.permissions.PermissionActivity;
@@ -72,6 +73,8 @@ public class RecordingActivity extends PermissionActivity implements
     private boolean mInserting;
     private ProgressDialog mProgressDialog;
     private ChunkPlugin chunkPlugin;
+    private ProjectProgress projectProgress;
+    private ProjectDatabaseHelper db;
 
     //Fragments
     private HashMap<Integer, Fragment> mFragmentHolder;
@@ -139,6 +142,8 @@ public class RecordingActivity extends PermissionActivity implements
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_recording_screen);
 
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
+
         initialize(getIntent());
         initializeTaskFragment(savedInstanceState);
     }
@@ -199,11 +204,6 @@ public class RecordingActivity extends PermissionActivity implements
         super.onBackPressed();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
     private void initialize(Intent intent) {
         initializeFromSettings();
         parseIntent(intent);
@@ -221,7 +221,6 @@ public class RecordingActivity extends PermissionActivity implements
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         mInitialChapter = pref.getInt(Settings.KEY_PREF_CHAPTER, DEFAULT_CHAPTER);
         mInitialUnit = pref.getInt(Settings.KEY_PREF_CHUNK, DEFAULT_UNIT);
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         int userId = pref.getInt(Settings.KEY_USER, 1);
         mUser = db.getUser(userId);
     }
@@ -299,6 +298,7 @@ public class RecordingActivity extends PermissionActivity implements
 
         try {
             chunkPlugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
+            projectProgress = new ProjectProgress(mProject, db, chunkPlugin.getChapters());
         } catch (IOException e) {
             Logger.e(this.toString(), e.getMessage());
         }
@@ -420,7 +420,6 @@ public class RecordingActivity extends PermissionActivity implements
     }
 
     private void addTakeToDb() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
         ppm.match(mNewRecording.getFile());
         db.addTake(
@@ -432,11 +431,9 @@ public class RecordingActivity extends PermissionActivity implements
                 mUser.getId()
         );
 
-        if(chunkPlugin != null) {
-            ProjectProgress pp = new ProjectProgress(mProject, db, chunkPlugin.getChapters());
-            pp.updateProjectProgress();
+        if(projectProgress != null) {
+            projectProgress.updateProjectProgress();
         }
-        db.close();
     }
 
     private void finalizeInsert(WavFile base, WavFile insertClip, int insertFrame) {

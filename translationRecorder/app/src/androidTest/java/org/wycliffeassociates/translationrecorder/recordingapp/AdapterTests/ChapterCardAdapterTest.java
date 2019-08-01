@@ -4,7 +4,6 @@ import android.content.Context;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.LargeTest;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,6 +12,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.activities.Acti
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chapter;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
@@ -29,7 +29,6 @@ import static org.wycliffeassociates.translationrecorder.recordingapp.ProjectMoc
  */
 
 @RunWith(AndroidJUnit4.class)
-@LargeTest
 public class ChapterCardAdapterTest {
 
     @Rule
@@ -47,18 +46,21 @@ public class ChapterCardAdapterTest {
 
     @Before
     public void setUp() {
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mActivityChapterListRule.getActivity());
         bibleProject = createBibleTestProject(mActivityChapterListRule);
         notesProject = createNotesTestProject(mActivityChapterListRule);
         try {
             mBibleAdapter = new ChapterCardAdapter(
                     mActivityChapterListRule.getActivity(),
                     bibleProject,
-                    createChapterCardList(bibleProject)
+                    createChapterCardList(bibleProject),
+                    db
             );
             mNotesAdapter = new ChapterCardAdapter(
                     mActivityChapterListRule.getActivity(),
                     notesProject,
-                    createChapterCardList(notesProject)
+                    createChapterCardList(notesProject),
+                    db
             );
 
         } catch (IOException e) {

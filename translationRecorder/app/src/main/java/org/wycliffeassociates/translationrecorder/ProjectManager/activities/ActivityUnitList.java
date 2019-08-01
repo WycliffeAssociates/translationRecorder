@@ -17,6 +17,7 @@ import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.Checkin
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RatingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync.UnitResyncTask;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.Chunk;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
@@ -62,6 +63,7 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     private TaskFragment mTaskFragment;
     private ChunkPlugin chunkPlugin;
     private ProjectDatabaseHelper db;
+    private ProjectProgress projectProgress;
 
 
     @Override
@@ -70,11 +72,12 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         setContentView(R.layout.activity_unit_list);
 
         mProject = getIntent().getParcelableExtra(PROJECT_KEY);
-        db = new ProjectDatabaseHelper(this);
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
 
         try {
             chunkPlugin = mProject.getChunkPlugin(new ChunkPluginLoader(this));
             mChapterNum = getIntent().getIntExtra(CHAPTER_KEY, 1);
+            projectProgress = new ProjectProgress(mProject, db, chunkPlugin.getChapters());
 
             FragmentManager fm = getFragmentManager();
             mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
@@ -112,14 +115,12 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
             // Set its adapter
             mUnitCardList = new ArrayList<>();
-            mAdapter = new UnitCardAdapter(this, mProject, mChapterNum, mUnitCardList);
+            mAdapter = new UnitCardAdapter(this, mProject, mChapterNum, mUnitCardList, db);
             mUnitList.setAdapter(mAdapter);
 
             // Set its animator
             mUnitList.setItemAnimator(new DefaultItemAnimator());
             prepareUnitCardData();
-
-            db.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -130,7 +131,14 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
         super.onResume();
         if (!mDbResyncing) {
             mDbResyncing = true;
-            UnitResyncTask task = new UnitResyncTask(DATABASE_RESYNC_TASK, getBaseContext(), getFragmentManager(), mProject, mChapterNum);
+            UnitResyncTask task = new UnitResyncTask(
+                    DATABASE_RESYNC_TASK,
+                    getBaseContext(),
+                    getFragmentManager(),
+                    mProject,
+                    mChapterNum,
+                    db
+            );
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
     }
@@ -173,7 +181,6 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
     @Override
     public void onPositiveClick(RatingDialog dialog) {
         db.setTakeRating(dialog.getTakeInfo(), dialog.getRating());
-        db.close();
         mAdapter.notifyDataSetChanged();
     }
 
@@ -208,8 +215,9 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
 
     @Override
     public void onTakeDeleted() {
-        ProjectProgress pp = new ProjectProgress(mProject, db, chunkPlugin.getChapters());
-        pp.updateProjectProgress();
+        if(projectProgress != null) {
+            projectProgress.updateProjectProgress();
+        }
     }
 
     @Override

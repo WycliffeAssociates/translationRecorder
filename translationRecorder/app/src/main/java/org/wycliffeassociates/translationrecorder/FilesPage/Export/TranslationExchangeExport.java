@@ -54,7 +54,8 @@ public class TranslationExchangeExport extends Export {
             @Override
             public void run() {
                 Context ctx = mCtx.getActivity().getApplicationContext();
-                uploadBinary(ctx, outputFile());
+                ProjectDatabaseHelper db = ((TranslationRecorderApp)mCtx.getActivity().getApplication()).getDatabase();
+                uploadBinary(ctx, db, outputFile());
 //                try {
 //                    URL url = new URL("https://te.loc/api/upload/zip");
 //                    HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
@@ -85,13 +86,12 @@ public class TranslationExchangeExport extends Export {
         thread.start();
     }
 
-    public void uploadBinary(final Context context, File file) {
+    public void uploadBinary(Context context, ProjectDatabaseHelper db, File file) {
         try {
             // starting from 3.1+, you can also use content:// URI string instead of absolute file
             String filePath = file.getAbsolutePath();
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             int userId = pref.getInt(Settings.KEY_USER, 1);
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
             User user = db.getUser(userId);
             String hash = user.getHash();
             String uploadId =

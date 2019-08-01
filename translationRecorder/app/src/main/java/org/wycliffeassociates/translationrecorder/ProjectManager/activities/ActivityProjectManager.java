@@ -28,7 +28,9 @@ import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
 import org.wycliffeassociates.translationrecorder.FilesPage.FeedbackDialog;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ProjectAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.ProjectInfoDialog;
@@ -89,7 +91,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private boolean mDbResyncing = false;
     private File mSourceAudioFile;
     private Project mProjectToExport;
-    private ProjectDatabaseHelper mDb;
+    private ProjectDatabaseHelper db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,7 +114,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
         }
 
-        mDb = new ProjectDatabaseHelper(this);
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
     }
 
     //This code exists here rather than onResume due to the potential for onResume() -> onResume()
@@ -149,9 +151,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mDbResyncing = true;
             ProjectListResyncTask task = new ProjectListResyncTask(
                     DATABASE_RESYNC_TASK,
-                    getBaseContext(),
                     getFragmentManager(),
-                    mDb
+                    db,
+                    new ChunkPluginLoader(this)
             );
             mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
         }
@@ -218,20 +220,17 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Project project = null;
         int projectId = pref.getInt(Settings.KEY_RECENT_PROJECT_ID, -1);
         if (projectId != -1) {
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             project = db.getProject(projectId);
             Logger.w(this.toString(), "Recent Project: language " + project.getTargetLanguageSlug()
                     + " book " + project.getBookSlug() + " version "
                     + project.getVersionSlug() + " mode " + project.getModeSlug());
         } else {
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             List<Project> projects = db.getAllProjects();
             if (projects.size() > 0) {
                 project = projects.get(0);
             }
         }
         if (project != null) {
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
             ProjectAdapter.initializeProjectCard(this, project, db, findViewById(R.id.recent_project));
             return project;
         } else {
@@ -254,7 +253,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private void populateProjectList(Project recent) {
-        final ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         List<Project> projects = db.getAllProjects();
         if (recent != null) {
             for (int i = 0; i < projects.size(); i++) {
@@ -267,7 +265,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         for (Project p : projects) {
             Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getModeSlug());
         }
-        mAdapter = new ProjectAdapter(this, projects);
+        mAdapter = new ProjectAdapter(this, projects, db);
         mProjectList.setAdapter(mAdapter);
     }
 
@@ -284,7 +282,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private void loadProject(Project project) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         if (!db.projectExists(project)) {
             Logger.e(this.toString(), "Project " + project + " does not exist");
         }
@@ -293,7 +290,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     }
 
     private boolean addProjectToDatabase(Project project) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         if (db.projectExists(project)) {
             ProjectWizardActivity.displayProjectExists(this);
             return false;
@@ -375,10 +371,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                             Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
                                     + " book " + project.getBookSlug() + " version "
                                     + project.getVersionSlug() + " mode " + project.getModeSlug());
-                            if (project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this))) {
+                            if (project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this, db))) {
                                 removeProjectFromPreferences();
                             }
-                            ProjectFileUtils.deleteProject(ActivityProjectManager.this, project);
+                            ProjectFileUtils.deleteProject(project, db);
                             hideProjectsIfEmpty(mAdapter.getCount());
                             mNumProjects--;
                             initializeViews();
@@ -500,7 +496,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     public void onTaskComplete(int taskTag, int resultCode) {
         if (resultCode == TaskFragment.STATUS_OK) {
             if (taskTag == DATABASE_RESYNC_TASK) {
-                ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
                 mNumProjects = db.getNumProjects();
                 mDbResyncing = false;
                 initializeViews();

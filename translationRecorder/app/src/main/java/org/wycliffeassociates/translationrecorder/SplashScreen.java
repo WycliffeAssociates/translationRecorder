@@ -33,6 +33,7 @@ public class SplashScreen extends PermissionActivity {
 
     private static int SPLASH_TIME_OUT = 3000;
     protected ProgressBar mProgressBar;
+    private ProjectDatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,8 @@ public class SplashScreen extends PermissionActivity {
         mProgressBar.setMax(100);
         mProgressBar.setIndeterminate(true);
         mProgressBar.setMinimumHeight(8);
+
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
     }
 
     @Override
@@ -71,7 +74,6 @@ public class SplashScreen extends PermissionActivity {
     }
 
     private void initDatabase(){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         ParseJSON parse = new ParseJSON(this);
         try {
             //Book[] books = parse.pullBooks();
@@ -83,8 +85,8 @@ public class SplashScreen extends PermissionActivity {
             e.printStackTrace();
         }
 
-        importProfiles(db);
-        deleteDanglingProfiles(db);
+        importProfiles();
+        deleteDanglingProfiles();
     }
 
     private void initializePlugins() throws IOException {
@@ -121,7 +123,7 @@ public class SplashScreen extends PermissionActivity {
 
 
         //copyPluginContentFromAssets(am, pluginPath, "Chunks", projectPlugin.getChunksPath());
-        projectPlugin.importProjectPlugin(this, pluginsDir);
+        projectPlugin.importProjectPlugin(pluginsDir, db);
     }
 
     private void copyPluginsFromAssets(AssetManager am, File pluginsDir, File anthologiesDir, String[] plugins) throws IOException {
@@ -155,7 +157,7 @@ public class SplashScreen extends PermissionActivity {
         }
     }
 
-    private void importProfiles(ProjectDatabaseHelper db) {
+    private void importProfiles() {
         File profilesDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Profiles/");
         if (!profilesDir.exists()) {
             profilesDir.mkdirs();
@@ -179,7 +181,7 @@ public class SplashScreen extends PermissionActivity {
         }
     }
 
-    private void deleteDanglingProfiles(ProjectDatabaseHelper db) {
+    private void deleteDanglingProfiles() {
         List<User> profiles = db.getAllUsers();
         for (User profile: profiles) {
             File file = profile.getAudio();

@@ -133,7 +133,7 @@ public class ProjectFileUtils {
         return projectDir;
     }
 
-    public static void deleteProject(Context ctx, Project project) {
+    public static void deleteProject(Project project, ProjectDatabaseHelper db) {
         File dir = getProjectDirectory(project);
         Utils.deleteRecursive(dir);
         File langDir = getLanguageDirectory(project);
@@ -149,7 +149,6 @@ public class ProjectFileUtils {
                 langDir.delete();
             }
         }
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
         db.deleteProject(project);
     }
 

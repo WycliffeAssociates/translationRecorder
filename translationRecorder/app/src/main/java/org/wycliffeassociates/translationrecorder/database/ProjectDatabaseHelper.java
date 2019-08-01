@@ -89,7 +89,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(ProjectContract.VersionRelationshipEntry.CREATE_VERSION_RELATIONSHIP_TABLE);
         db.execSQL(ProjectContract.UserEntry.CREATE_USER_TABLE);
         //db.execSQL(ProjectContract.ModeRelationshipEntry.CREATE_MODE_RELATIONSHIP_TABLE);
-        //db.close();
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -133,7 +132,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         final String languageCountQuery = "SELECT COUNT(*) FROM " + ProjectContract.LanguageEntry.TABLE_LANGUAGE + " WHERE " + ProjectContract.LanguageEntry.LANGUAGE_CODE + "=?";
         boolean exists = (DatabaseUtils.longForQuery(db, languageCountQuery, new String[]{languageSlug})) > 0;
-        //db.close();
         return exists;
     }
 
@@ -141,7 +139,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         final String bookCountQuery = "SELECT COUNT(*) FROM " + ProjectContract.BookEntry.TABLE_BOOK + " WHERE " + ProjectContract.BookEntry.BOOK_SLUG + "=?";
         boolean exists = (DatabaseUtils.longForQuery(db, bookCountQuery, new String[]{bookSlug})) > 0;
-        //db.close();
         return exists;
     }
 
@@ -160,7 +157,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String projectCountQuery = "SELECT COUNT(*) FROM " + ProjectContract.ProjectEntry.TABLE_PROJECT + " WHERE " + ProjectContract.ProjectEntry.PROJECT_TARGET_LANGUAGE_FK + "=?"
                 + " AND " + ProjectContract.ProjectEntry.PROJECT_BOOK_FK + "=? AND " + ProjectContract.ProjectEntry.PROJECT_VERSION_FK + "=?";
         boolean exists = (DatabaseUtils.longForQuery(db, projectCountQuery, new String[]{String.valueOf(languageId), String.valueOf(bookId), String.valueOf(versionId)})) > 0;
-        //db.close();
         return exists;
     }
 
@@ -174,7 +170,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String chapterCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
                 ProjectContract.ChapterEntry.TABLE_CHAPTER, ProjectContract.ChapterEntry.CHAPTER_PROJECT_FK, ProjectContract.ChapterEntry.CHAPTER_NUMBER);
         boolean exists = (DatabaseUtils.longForQuery(db, chapterCountQuery, new String[]{projectId, String.valueOf(chapter)})) > 0;
-        //db.close();
         return exists;
     }
 
@@ -189,7 +184,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String unitCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=? AND %s=?",
                 ProjectContract.UnitEntry.TABLE_UNIT, ProjectContract.UnitEntry.UNIT_PROJECT_FK, ProjectContract.UnitEntry.UNIT_CHAPTER_FK, ProjectContract.UnitEntry.UNIT_START_VERSE);
         boolean exists = (DatabaseUtils.longForQuery(db, unitCountQuery, new String[]{projectId, chapterId, String.valueOf(startVerse)})) > 0;
-        //db.close();
         return exists;
     }
 
@@ -199,7 +193,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String takeCountQuery = String.format("SELECT COUNT(*) FROM %s WHERE %s=? AND %s=?",
                 ProjectContract.TakeEntry.TABLE_TAKE, ProjectContract.TakeEntry.TAKE_UNIT_FK, ProjectContract.TakeEntry.TAKE_NUMBER);
         boolean exists = (DatabaseUtils.longForQuery(db, takeCountQuery, new String[]{unitId, String.valueOf(take)})) > 0;
-        //db.close();
         return exists;
     }
 
@@ -213,7 +206,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 ProjectContract.TakeEntry.TAKE_NUMBER
         );
         boolean exists = (DatabaseUtils.longForQuery(db, takeCountQuery, new String[]{unitId, String.valueOf(takeInfo.getTake())})) > 0;
-        //db.close();
         return exists;
     }
 
@@ -286,10 +278,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             id = (int) DatabaseUtils.longForQuery(db, projectIdQuery, new String[]{languageId, bookId, versionId});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Project not found in database");
         }
-        //db.close();
         return id;
     }
 
@@ -311,10 +301,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             id = (int) DatabaseUtils.longForQuery(db, chapterIdQuery, new String[]{projectId, String.valueOf(chapter)});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Chapter not found in database");
         }
-        //db.close();
         return id;
     }
 
@@ -338,10 +326,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             id = (int) DatabaseUtils.longForQuery(db, unitIdQuery, new String[]{projectId, chapterId, String.valueOf(startVerse)});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Unit not found in database");
         }
-        //db.close();
         return id;
     }
 
@@ -356,10 +342,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             id = (int) DatabaseUtils.longForQuery(db, takeIdQuery, new String[]{unitId, String.valueOf(takeInfo.getTake())});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Take not found in database.");
         }
-        //db.close();
         return id;
     }
 
@@ -375,10 +359,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             id = (int) DatabaseUtils.longForQuery(db, takeIdQuery, new String[]{modeSlug, String.valueOf(getAnthologyId(anthologySlug))});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Mode not found in database.");
         }
-        //db.close();
         return id;
     }
 
@@ -406,10 +388,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             name = DatabaseUtils.stringForQuery(db, languageNameQuery, new String[]{languageSlug});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Language: " + languageSlug + " not found.");
         }
-        //db.close();
         return name;
     }
 
@@ -421,10 +401,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             code = DatabaseUtils.stringForQuery(db, languageSlugQuery, new String[]{String.valueOf(id)});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Language id not found in database.");
         }
-        //db.close();
         return code;
     }
 
@@ -503,10 +481,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             name = DatabaseUtils.stringForQuery(db, bookNameQuery, new String[]{bookSlug});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Book slug: " + bookSlug + " not found in database.");
         }
-        //db.close();
         return name;
     }
 
@@ -521,10 +497,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             slug = DatabaseUtils.stringForQuery(db, bookSlugQuery, new String[]{String.valueOf(id)});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Book id not found in database.");
         }
-        //db.close();
         return slug;
     }
 
@@ -570,10 +544,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             name = DatabaseUtils.stringForQuery(db, versionSlugQuery, new String[]{String.valueOf(id)});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Version id not found in database.");
         }
-        //db.close();
         return name;
     }
 
@@ -585,10 +557,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             slug = DatabaseUtils.stringForQuery(db, versionSlugQuery, new String[]{String.valueOf(id)});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Version id not found in database.");
         }
-        //db.close();
         return slug;
     }
 
@@ -616,10 +586,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             slug = DatabaseUtils.stringForQuery(db, anthologySlugQuery, new String[]{String.valueOf(id)});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Anthology id not found in database.");
         }
-        //db.close();
         return slug;
     }
 
@@ -676,10 +644,8 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         try {
             number = (int) DatabaseUtils.longForQuery(db, bookNameQuery, new String[]{bookSlug});
         } catch (SQLiteDoneException e) {
-            //db.close();
             throw new IllegalArgumentException("Book slug: " + bookSlug + " not found in database.");
         }
-        //db.close();
         return number;
     }
 
@@ -689,7 +655,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.LanguageEntry.LANGUAGE_CODE, languageSlug);
         cv.put(ProjectContract.LanguageEntry.LANGUAGE_NAME, name);
         long result = db.insertWithOnConflict(ProjectContract.LanguageEntry.TABLE_LANGUAGE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
-        //db.close();
     }
 
     public void addLanguages(Language[] languages) {
@@ -730,7 +695,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.BookEntry.BOOK_ANTHOLOGY_FK, anthologyId);
         cv.put(ProjectContract.BookEntry.BOOK_NUMBER, bookNumber);
         long result = db.insertWithOnConflict(ProjectContract.BookEntry.TABLE_BOOK, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
-        //db.close();
     }
 
     public void addBooks(Book[] books) {
@@ -843,7 +807,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.ProjectEntry.PROJECT_PROGRESS, 0);
 
         long result = db.insert(ProjectContract.ProjectEntry.TABLE_PROJECT, null, cv);
-        //db.close();
     }
 
     public void addProject(String languageSlug, String bookSlug, String versionSlug, String modeSlug) throws IllegalArgumentException {
@@ -863,7 +826,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.ProjectEntry.PROJECT_PROGRESS, 0);
 
         long result = db.insert(ProjectContract.ProjectEntry.TABLE_PROJECT, null, cv);
-        //db.close();
     }
 
     public void addChapter(Project project, int chapter) throws IllegalArgumentException {
@@ -878,7 +840,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.ChapterEntry.CHAPTER_PROJECT_FK, projectId);
         cv.put(ProjectContract.ChapterEntry.CHAPTER_NUMBER, chapter);
         long result = db.insert(ProjectContract.ChapterEntry.TABLE_CHAPTER, null, cv);
-        //db.close();
     }
 
     public void addUnit(Project project, int chapter, int startVerse) throws IllegalArgumentException {
@@ -895,7 +856,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         cv.put(ProjectContract.UnitEntry.UNIT_CHAPTER_FK, chapterId);
         cv.put(ProjectContract.UnitEntry.UNIT_START_VERSE, startVerse);
         long result = db.insert(ProjectContract.UnitEntry.TABLE_UNIT, null, cv);
-        //db.close();
     }
 
     public void addTake(TakeInfo takeInfo, String takeFilename, String modeSlug, long timestamp, int rating, int userId) {
@@ -964,7 +924,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        //db.close();
         return projectList;
     }
 
@@ -1014,7 +973,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(countQuery, null);
         int count = cursor.getCount();
         cursor.close();
-        //db.close();
         return count;
     }
 
@@ -1027,7 +985,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 ProjectContract.ChapterEntry._ID
         );
         int checkingLevel = (int) DatabaseUtils.longForQuery(db, getChapter, new String[]{chapterId});
-        //db.close();
         return checkingLevel;
     }
 
@@ -1042,7 +999,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 ProjectContract.TakeEntry.TAKE_NUMBER
         );
         int rating = (int) DatabaseUtils.longForQuery(db, getTake, new String[]{unitId, String.valueOf(takeInfo.getTake())});
-        //db.close();
         return rating;
     }
 
@@ -1078,7 +1034,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
             }
         }
         cursor.close();
-        //db.close();
         return -1;
     }
 
@@ -1097,7 +1052,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 int takeNumCol = cursor.getColumnIndex(ProjectContract.TakeEntry.TAKE_NUMBER);
                 int takeNum = cursor.getInt(takeNumCol);
                 cursor.close();
-                //db.close();
                 return takeNum;
             }
         }
@@ -1124,7 +1078,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK, takeIdString);
         db.update(ProjectContract.UnitEntry.TABLE_UNIT, replaceWith, replaceTakeWhere, new String[]{unitIdString});
-        //db.close();
     }
 
     public void setTakeRating(TakeInfo takeInfo, int rating) {
@@ -1141,7 +1094,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         if (result > 0) {
             autoSelectTake(unitId);
         }
-        //db.close();
     }
 
     public void setCheckingLevel(Project project, int chapter, int checkingLevel) {
@@ -1151,7 +1103,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues replaceWith = new ContentValues();
         replaceWith.put(ProjectContract.ChapterEntry.CHAPTER_CHECKING_LEVEL, checkingLevel);
         db.update(ProjectContract.ChapterEntry.TABLE_CHAPTER, replaceWith, replaceChapterWhere, new String[]{chapterId});
-        //db.close();
     }
 
     public void setChapterProgress(int chapterId, int progress) {
@@ -1161,7 +1112,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(ProjectContract.ChapterEntry.CHAPTER_PROGRESS, progress);
         db.update(ProjectContract.ChapterEntry.TABLE_CHAPTER, contentValues, whereClause, new String[]{chapterIdString});
-        db.close();
     }
 
     public int getChapterProgress(int chapterId) {
@@ -1173,7 +1123,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 ProjectContract.ChapterEntry._ID
         );
         float progress = DatabaseUtils.longForQuery(db, query, new String[]{chapterIdString});
-        db.close();
         return Math.round(progress);
     }
 
@@ -1183,7 +1132,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         final String query = String.format("SELECT SUM(%s) FROM %s WHERE %s=?",
                 ProjectContract.ChapterEntry.CHAPTER_PROGRESS, ProjectContract.ChapterEntry.TABLE_CHAPTER, ProjectContract.ChapterEntry.CHAPTER_PROJECT_FK);
         int progress = (int) DatabaseUtils.longForQuery(db, query, new String[]{projectIdString});
-        db.close();
         return progress;
     }
 
@@ -1196,7 +1144,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
                 ProjectContract.ProjectEntry._ID
         );
         float progress = DatabaseUtils.longForQuery(db, query, new String[]{projectIdString});
-        db.close();
         return Math.round(progress);
     }
 
@@ -1207,7 +1154,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(ProjectContract.ProjectEntry.PROJECT_PROGRESS, progress);
         db.update(ProjectContract.ProjectEntry.TABLE_PROJECT, contentValues, whereClause, new String[]{projectIdString});
-        db.close();
     }
 
     public void removeSelectedTake(TakeInfo takeInfo) {
@@ -1218,7 +1164,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         ContentValues replaceWith = new ContentValues();
         replaceWith.putNull(ProjectContract.UnitEntry.UNIT_CHOSEN_TAKE_FK);
         db.update(ProjectContract.UnitEntry.TABLE_UNIT, replaceWith, replaceTakeWhere, new String[]{unitId});
-        //db.close();
     }
 
     public void deleteProject(Project p) {
@@ -1250,7 +1195,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(deleteProject, new String[]{projectId});
         db.setTransactionSuccessful();
         db.endTransaction();
-        //db.close();
     }
 
     public void deleteTake(TakeInfo takeInfo) {
@@ -1761,7 +1705,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         db.endTransaction();
-        //db.close();
         return languageList.toArray(new Language[languageList.size()]);
     }
 
@@ -1788,7 +1731,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         db.endTransaction();
-        //db.close();
         return anthologyList.toArray(new Anthology[anthologyList.size()]);
     }
 
@@ -1812,7 +1754,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         db.endTransaction();
-        //db.close();
         return bookList.toArray(new Book[bookList.size()]);
     }
 
@@ -1834,7 +1775,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         db.endTransaction();
-        //db.close();
         return versionList.toArray(new Version[versionList.size()]);
     }
 
@@ -1855,7 +1795,6 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         db.endTransaction();
-        //db.close();
         return modeList.toArray(new Mode[modeList.size()]);
     }
 }
