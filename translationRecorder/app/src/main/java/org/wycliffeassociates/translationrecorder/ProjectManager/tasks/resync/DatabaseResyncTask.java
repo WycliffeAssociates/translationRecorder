@@ -21,7 +21,8 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by sarabiaj on 9/27/2016.
  */
-public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound, ProjectDatabaseHelper.OnCorruptFile {
+public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound,
+        ProjectDatabaseHelper.OnCorruptFile {
     FragmentManager mFragmentManager;
     ProjectDatabaseHelper db;
 

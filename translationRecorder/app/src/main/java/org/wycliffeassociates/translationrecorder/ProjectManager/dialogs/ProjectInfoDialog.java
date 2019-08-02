@@ -139,7 +139,7 @@ public class ProjectInfoDialog extends DialogFragment {
         View.OnClickListener tEExport = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new TranslationExchangeExport(ProjectFileUtils.getProjectDirectory(mProject), mProject);
+                mExp = new TranslationExchangeExport(ProjectFileUtils.getProjectDirectory(mProject), mProject, db);
                 mExportDelegator.delegateExport(mExp);
             }
         };

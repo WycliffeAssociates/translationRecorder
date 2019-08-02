@@ -65,7 +65,8 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
             AppCompatActivity context,
             Project project,
             List<ChapterCard> chapterCardList,
-            ProjectDatabaseHelper db) {
+            ProjectDatabaseHelper db
+    ) {
         mCtx = context;
         mProject = project;
         mChapterCardList = chapterCardList;

@@ -68,15 +68,32 @@ public class ProjectAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        initializeProjectCard(mCtx, mProjectList.get(position), db, holder.mLanguage, holder.mBook, holder.mInfo, holder.mRecord, holder.mTextLayout, holder.mProgressPie);
+        initializeProjectCard(
+                mCtx,
+                mProjectList.get(position),
+                db,
+                holder.mLanguage,
+                holder.mBook,
+                holder.mInfo,
+                holder.mRecord,
+                holder.mTextLayout,
+                holder.mProgressPie
+        );
 
         return convertView;
     }
 
-    public static void initializeProjectCard(final Activity ctx, final Project project, final ProjectDatabaseHelper dB, TextView languageView, TextView bookView,
-                                             ImageButton infoView, ImageButton recordView, LinearLayout textLayout, ProgressPieView progressPie) {
-
-
+    public static void initializeProjectCard(
+            final Activity ctx,
+            final Project project,
+            final ProjectDatabaseHelper dB,
+            TextView languageView,
+            TextView bookView,
+            ImageButton infoView,
+            ImageButton recordView,
+            LinearLayout textLayout,
+            ProgressPieView progressPie
+    ) {
         String book = project.getBookName();
         bookView.setText(book);
 
@@ -128,7 +145,12 @@ public class ProjectAdapter extends ArrayAdapter {
 
     }
 
-    public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper db, View projectCard) {
+    public static void initializeProjectCard(
+            final Activity ctx,
+            final Project project,
+            ProjectDatabaseHelper db,
+            View projectCard
+    ) {
         TextView languageView = (TextView) projectCard.findViewById(R.id.language_text_view);
         TextView bookView = (TextView) projectCard.findViewById(R.id.book_text_view);
         ImageButton info = (ImageButton) projectCard.findViewById(R.id.info_button);

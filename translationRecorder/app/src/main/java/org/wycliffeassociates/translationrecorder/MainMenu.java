@@ -70,6 +70,8 @@ public class MainMenu extends Activity {
         System.out.println("internal files dir is " + this.getCacheDir());
         System.out.println("External files dir is " + Environment.getExternalStorageDirectory());
 
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
+
         initApp();
     }
 
@@ -262,10 +264,15 @@ public class MainMenu extends Activity {
 
         //if the current directory is already set, then don't overwrite it
         if (pref.getString("current_directory", null) == null) {
-            pref.edit().putString("current_directory",
-                    Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
+            pref.edit().putString(
+                    "current_directory",
+                    Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()
+            ).commit();
         }
-        pref.edit().putString("root_directory", Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()).commit();
+        pref.edit().putString(
+                "root_directory",
+                Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()
+        ).commit();
 
         //configure logger
         File dir = new File(getExternalCacheDir(), STACKTRACE_DIR);
@@ -284,8 +291,6 @@ public class MainMenu extends Activity {
             brd.show(fm, "Bug Report Dialog");
         }
 
-        db = ((TranslationRecorderApp)getApplication()).getDatabase();
-
         removeUnusedVisualizationFiles();
     }
 
@@ -295,7 +300,8 @@ public class MainMenu extends Activity {
         if (visFiles == null) {
             return;
         }
-        String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder").getAbsolutePath();
+        String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder")
+                .getAbsolutePath();
         List<ProjectPatternMatcher> patterns = db.getProjectPatternMatchers();
         for (File v : visFiles) {
             boolean matched = false;
@@ -314,7 +320,8 @@ public class MainMenu extends Activity {
             }
             boolean found = false;
             ProjectSlugs slugs = takeInfo.getProjectSlugs();
-            String path = rootPath + "/" + slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + String.format("%02d", takeInfo.getChapter());
+            String path = rootPath + "/" + slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook()
+                    + "/" + String.format("%02d", takeInfo.getChapter());
             String visFileWithoutExtension = v.getName().split(".vis$")[0];
             String name = visFileWithoutExtension + "_t" + String.format("%02d", takeInfo.getTake()) + ".wav";
             File searchName = new File(path, name);
@@ -336,7 +343,9 @@ public class MainMenu extends Activity {
             return "";
         }
         String nameWithExtention = a.getName();
-        if (nameWithExtention.lastIndexOf('.') < 0 || nameWithExtention.lastIndexOf('.') > nameWithExtention.length()) {
+        boolean hasNoExtension = nameWithExtention.lastIndexOf('.') < 0;
+        if (hasNoExtension || nameWithExtention.lastIndexOf('.') > nameWithExtention.length()
+        ) {
             return "";
         }
         String filename = nameWithExtention.substring(0, nameWithExtention.lastIndexOf('.'));

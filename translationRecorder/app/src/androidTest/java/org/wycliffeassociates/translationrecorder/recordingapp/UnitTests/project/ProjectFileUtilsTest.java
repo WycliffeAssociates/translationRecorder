@@ -22,7 +22,8 @@ import static org.junit.Assert.assertEquals;
 
 public class ProjectFileUtilsTest {
 
-    String regex = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_([a-zA-Z]{3})_b([\\d]{2})_([1-3]*[a-zA-Z]+)_c([\\d]{2,3})_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?";
+    String regex = "([a-zA-Z]{2,3}[-[\\d\\w]+]*)_([a-zA-Z]{3})_b([\\d]{2})_([1-3]*[a-zA-Z]+)_c([\\d]{2,3})"
+            + "_v([\\d]{2,3})(-([\\d]{2,3}))?(_t([\\d]{2}))?(.wav)?";
     //lang, version booknum book chapter start end take
     String groups = "1 2 3 4 5 6 8 10";
     Language language = new Language("en", "English");
@@ -33,7 +34,17 @@ public class ProjectFileUtilsTest {
 
     String jarName = "biblechunk.jar";
     String className = "org.wycliffeassociates.translationrecorder.biblechunk.BibleChunkPlugin";
-    Anthology anthology = new Anthology("ot", "Old Testament", "bible", sort, regex, groups, mask, jarName, className);
+    Anthology anthology = new Anthology(
+            "ot",
+            "Old Testament",
+            "bible",
+            sort,
+            regex,
+            groups,
+            mask,
+            jarName,
+            className
+    );
     Mode mode = new Mode("chunk", "chunk", "chunk");
     Project project = new Project(language, anthology, book, version, mode);
 

@@ -200,15 +200,17 @@ public class ActivityUnitList extends AppCompatActivity implements CheckingDialo
             List<Chunk> chunks = chunkPlugin.getChapter(mChapterNum).getChunks();
             for (Chunk unit : chunks) {
                 String title = Utils.capitalizeFirstLetter(mProject.getModeName()) + " " + unit.getLabel();
-                mUnitCardList.add(new UnitCard(
-                        mAdapter,
-                        mProject,
-                        title,
-                        mChapterNum,
-                        unit.getStartVerse(),
-                        unit.getEndVerse(),
-                        this
-                ));
+                mUnitCardList.add(
+                        new UnitCard(
+                            mAdapter,
+                            mProject,
+                            title,
+                            mChapterNum,
+                            unit.getStartVerse(),
+                            unit.getEndVerse(),
+                                this
+                        )
+                );
             }
         }
     }

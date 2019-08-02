@@ -54,7 +54,8 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             Project project,
             int chapter,
             List<UnitCard> unitCardList,
-            ProjectDatabaseHelper db) {
+            ProjectDatabaseHelper db
+    ) {
         mUnitCardList = unitCardList;
         mCtx = context;
         mProject = project;

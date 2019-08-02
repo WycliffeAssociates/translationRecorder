@@ -67,7 +67,8 @@ public class ProjectPlugin {
                 books.toArray(new Book[books.size()]),
                 versions.toArray(new Version[versions.size()]),
                 modes.toArray(new Mode[modes.size()]),
-                db);
+                db
+        );
     }
 
     private void init(Reader reader) throws IOException {

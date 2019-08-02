@@ -89,12 +89,15 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                                 for (int i = 0; i < c.length; i++) {
                                                     try {
                                                         WavFile wav = new WavFile(c[i]);
-                                                        mode = db.getMode(db.getModeId(
-                                                                wav.getMetadata().getModeSlug(),
-                                                                wav.getMetadata().getAnthology()
-                                                        ));
+                                                        mode = db.getMode(
+                                                                db.getModeId(
+                                                                        wav.getMetadata().getModeSlug(),
+                                                                        wav.getMetadata().getAnthology()
+                                                                )
+                                                        );
                                                     } catch (IllegalArgumentException e) {
-                                                        //don't worry about the corrupt file dialog here; the database resync will pick it up.
+                                                        //don't worry about the corrupt file dialog here;
+                                                        // the database resync will pick it up.
                                                         Logger.e(this.toString(), c[i].getName(), e);
                                                         continue;
                                                     }
@@ -153,9 +156,9 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
         //the projects themselves don't match an id in the db, then resync everything (only resyncing
         // projects missing won't remove dangling take references in the db)
         //NOTE: removing a project only removes dangling takes, not the project itself from the db
-        if (directoriesOnFs.size() != db.getNumProjects() || db.projectsNeedingResync(
-                directoriesOnFs.keySet()
-        ).size() > 0) {
+        boolean projectCountDiffers = directoriesOnFs.size() != db.getNumProjects();
+        boolean projectsNeedResync = db.projectsNeedingResync(directoriesOnFs.keySet()).size() > 0;
+        if (projectCountDiffers || projectsNeedResync) {
             fullResync(directoriesOnFs);
         }
         onTaskCompleteDelegator();
