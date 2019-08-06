@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import org.wycliffeassociates.translationrecorder.ProjectManager.adapters.ChapterCardAdapter;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CheckingDialog;
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.CompileDialog;
@@ -71,8 +69,10 @@ public class ChapterCard {
     private boolean mIsExpanded = false;
     private boolean mIconsClickable = true;
 
+    private ProjectDatabaseHelper db;
+
     // Constructor
-    public ChapterCard(Project proj, String title, int chapter, int unitCount) {
+    public ChapterCard(Project proj, String title, int chapter, int unitCount, ProjectDatabaseHelper db) {
         mProject = proj;
 //        try {
 //            mTitle = proj.getChunkPlugin(new ChunkPluginLoader(ctx)).getChapterName(chapter);
@@ -82,6 +82,7 @@ public class ChapterCard {
         mTitle = title;
         mChapter = chapter;
         mUnitCount = unitCount;
+        this.db = db;
     }
 
     public void refreshIsEmpty() {
@@ -105,9 +106,9 @@ public class ChapterCard {
         mIsCompiled = false;
     }
 
-    public void refreshCheckingLevel(ChapterDB db, Project project, int chapter) {
+    public void refreshCheckingLevel(ChapterDB chapterDb, Project project, int chapter) {
         if (mIsCompiled) {
-            mCheckingLevel = db.checkingLevel(project, chapter);
+            mCheckingLevel = chapterDb.checkingLevel(project, chapter);
         }
     }
 
@@ -251,12 +252,10 @@ public class ChapterCard {
     }
 
     private void saveProgressToDB(Context context, int progress) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
         if (db.chapterExists(mProject, mChapter)) {
             int chapterId = db.getChapterId(mProject, mChapter);
             db.setChapterProgress(chapterId, progress);
         }
-        db.close();
     }
 
 
@@ -439,7 +438,6 @@ public class ChapterCard {
                                 mChapterWav.delete();
                                 mIsCompiled = false;
                                 collapse();
-                                ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
                                 db.setCheckingLevel(mProject, mChapter, 0);
                                 adapter.notifyItemChanged(mViewHolder.getAdapterPosition());
                             }

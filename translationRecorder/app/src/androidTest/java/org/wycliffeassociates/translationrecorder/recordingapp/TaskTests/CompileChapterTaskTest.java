@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.wycliffeassociates.translationrecorder.MainMenu;
 import org.wycliffeassociates.translationrecorder.ProjectManager.tasks.CompileChapterTask;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.recordingapp.ProjectMockingUtil;
 import org.wycliffeassociates.translationrecorder.widgets.ChapterCard;
@@ -97,7 +98,8 @@ public class CompileChapterTaskTest {
     @Test
     public void sortFilesTest(){
         assertEquals("Sorted and unsorted lists should be the same size", mUnsortedList.size(), mSortedList.size());
-        ChapterCard chapterCard = new ChapterCard(mProject, "", 1, mSortedList.size());
+        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mainMenuActivityTestRule.getActivity());
+        ChapterCard chapterCard = new ChapterCard(mProject, "", 1, mSortedList.size(), db);
         Map<ChapterCard, List<String>> map = new HashMap<>();
         map.put(chapterCard, mUnsortedList);
         CompileChapterTask cct = new CompileChapterTask(0, map, mProject);

@@ -15,6 +15,7 @@ import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.FolderExport;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.TranslationExchangeExport;
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
@@ -44,6 +45,7 @@ public class ProjectInfoDialog extends DialogFragment {
     Project mProject;
     ExportDelegator mExportDelegator;
     Export mExp;
+    ProjectDatabaseHelper db;
     public static final String PROJECT_FRAGMENT_TAG = "project_tag";
 
     TextView mTitle;
@@ -59,6 +61,7 @@ public class ProjectInfoDialog extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mExportDelegator = (ExportDelegator) activity;
+        db = ((TranslationRecorderApp)activity.getApplication()).getDatabase();
     }
 
     @Override
@@ -71,8 +74,6 @@ public class ProjectInfoDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.project_layout_dialog, null);
-
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
 
         mProject = getArguments().getParcelable(Project.PROJECT_EXTRA);
 
@@ -138,7 +139,7 @@ public class ProjectInfoDialog extends DialogFragment {
         View.OnClickListener tEExport = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExp = new TranslationExchangeExport(ProjectFileUtils.getProjectDirectory(mProject), mProject);
+                mExp = new TranslationExchangeExport(ProjectFileUtils.getProjectDirectory(mProject), mProject, db);
                 mExportDelegator.delegateExport(mExp);
             }
         };
@@ -181,7 +182,6 @@ public class ProjectInfoDialog extends DialogFragment {
     }
 
     private void setSourceAudioTextInfo() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
         String sourceLanguageCode = mProject.getSourceLanguageSlug();
         String sourceLanguageName = (db.languageExists(sourceLanguageCode))? db.getLanguageName(sourceLanguageCode) : "";
         mSourceLanguage.setText(String.format("%s - (%s)", sourceLanguageName, sourceLanguageCode));
@@ -194,7 +194,6 @@ public class ProjectInfoDialog extends DialogFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
             if(requestCode == SOURCE_AUDIO_REQUEST) {
-                ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
                 int projectId = db.getProjectId(mProject);
                 Project updatedProject = data.getParcelableExtra(Project.PROJECT_EXTRA);
                 if(updatedProject.getSourceLanguageSlug() != null && !updatedProject.getSourceLanguageSlug().equals("")) {

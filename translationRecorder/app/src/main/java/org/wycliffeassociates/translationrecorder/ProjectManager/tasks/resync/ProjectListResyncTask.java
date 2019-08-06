@@ -1,22 +1,25 @@
 package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
 import android.app.FragmentManager;
-import android.content.Context;
 import android.os.Environment;
 
 import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
+import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
+import org.wycliffeassociates.translationrecorder.project.ProjectProgress;
 import org.wycliffeassociates.translationrecorder.project.components.Book;
 import org.wycliffeassociates.translationrecorder.project.components.Mode;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.wav.WavFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,17 +35,23 @@ import static org.wycliffeassociates.translationrecorder.ProjectManager.tasks.re
 public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound,
         ProjectDatabaseHelper.OnCorruptFile {
 
-    Context mCtx;
     FragmentManager mFragmentManager;
+    ProjectDatabaseHelper db;
+    ChunkPluginLoader chunkPluginLoader;
 
-    public ProjectListResyncTask(int taskId, Context ctx, FragmentManager fm) {
+    public ProjectListResyncTask(
+            int taskId,
+            FragmentManager fm,
+            ProjectDatabaseHelper db,
+            ChunkPluginLoader pluginLoader
+    ) {
         super(taskId);
-        mCtx = ctx;
         mFragmentManager = fm;
+        this.db = db;
+        chunkPluginLoader = pluginLoader;
     }
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         Map<Project, File> projectDirectories = new HashMap<>();
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         File[] langs = root.listFiles();
@@ -80,9 +89,15 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                                 for (int i = 0; i < c.length; i++) {
                                                     try {
                                                         WavFile wav = new WavFile(c[i]);
-                                                        mode = db.getMode(db.getModeId(wav.getMetadata().getModeSlug(), wav.getMetadata().getAnthology()));
+                                                        mode = db.getMode(
+                                                                db.getModeId(
+                                                                        wav.getMetadata().getModeSlug(),
+                                                                        wav.getMetadata().getAnthology()
+                                                                )
+                                                        );
                                                     } catch (IllegalArgumentException e) {
-                                                        //don't worry about the corrupt file dialog here; the database resync will pick it up.
+                                                        //don't worry about the corrupt file dialog here;
+                                                        // the database resync will pick it up.
                                                         Logger.e(this.toString(), c[i].getName(), e);
                                                         continue;
                                                     }
@@ -97,7 +112,13 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                                         Book book = db.getBook(bookId);
                                         int anthologyId = db.getAnthologyId(book.getAnthology());
                                         int versionId = db.getVersionId(version.getName());
-                                        project = new Project(db.getLanguage(languageId), db.getAnthology(anthologyId), book, db.getVersion(versionId), mode);
+                                        project = new Project(
+                                                db.getLanguage(languageId),
+                                                db.getAnthology(anthologyId),
+                                                book,
+                                                db.getVersion(versionId),
+                                                mode
+                                        );
                                         projectDirectories.put(project, bookDir);
                                     }
                                 }
@@ -130,20 +151,20 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
 
     @Override
     public void run() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         Map<Project, File> directoriesOnFs = getProjectDirectoriesOnFileSystem();
         //if the number of projects doesn't match up between the filesystem and the db, OR,
         //the projects themselves don't match an id in the db, then resync everything (only resyncing
         // projects missing won't remove dangling take references in the db)
         //NOTE: removing a project only removes dangling takes, not the project itself from the db
-        if (directoriesOnFs.size() != db.getNumProjects() || db.projectsNeedingResync(directoriesOnFs.keySet()).size() > 0) {
-            fullResync(db, directoriesOnFs);
+        boolean projectCountDiffers = directoriesOnFs.size() != db.getNumProjects();
+        boolean projectsNeedResync = db.projectsNeedingResync(directoriesOnFs.keySet()).size() > 0;
+        if (projectCountDiffers || projectsNeedResync) {
+            fullResync(directoriesOnFs);
         }
-        db.close();
         onTaskCompleteDelegator();
     }
 
-    public void fullResync(ProjectDatabaseHelper db, Map<Project, File> directoriesOnFs) {
+    public void fullResync(Map<Project, File> directoriesOnFs) {
         List<Project> projects = db.getAllProjects();
         Map<Project, File> directoriesFromDb = getProjectDirectories(projects);
         Map<Project, File> directoriesMissingFromFs = getDirectoriesMissingFromDb(directoriesOnFs, directoriesFromDb);
@@ -154,9 +175,22 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
         //for directories not in the list, try to find which pattern match succeeds
         for(Map.Entry<Project, File> dir : directoriesOnFs.entrySet()) {
             File[] chapters = dir.getValue().listFiles();
+            Project project = dir.getKey();
             if(chapters != null) {
                 List<File> takes = getFilesInDirectory(chapters);
                 db.resyncDbWithFs(dir.getKey(), takes, this, this);
+
+                try {
+                    ChunkPlugin chunkPlugin = project.getChunkPlugin(chunkPluginLoader);
+                    // Recalculate project progress
+                    ProjectProgress pp = new ProjectProgress(project, db, chunkPlugin.getChapters());
+                    pp.updateProjectProgress();
+
+                    // Recalculate chapters progress
+                    pp.updateChaptersProgress();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         for(Map.Entry<Project, File> dir : directoriesMissingFromFs.entrySet()) {
@@ -166,8 +200,6 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
                 db.resyncDbWithFs(dir.getKey(), takes, this, this);
             }
         }
-
-        db.close();
     }
 
     public void onCorruptFile(final File file) {

@@ -12,7 +12,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.door43.tools.reporting.Logger;
 import com.filippudak.ProgressPieView.ProgressPieView;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.activities.ActivityChapterList;
@@ -21,10 +20,8 @@ import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.RecordingActivity;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
-import org.wycliffeassociates.translationrecorder.project.ChunkPluginLoader;
 import org.wycliffeassociates.translationrecorder.project.Project;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -42,14 +39,14 @@ public class ProjectAdapter extends ArrayAdapter {
     LayoutInflater mLayoutInflater;
     List<Project> mProjectList;
     Activity mCtx;
-    ProjectDatabaseHelper mDb;
+    ProjectDatabaseHelper db;
 
-    public ProjectAdapter(Activity context, List<Project> projectList) {
+    public ProjectAdapter(Activity context, List<Project> projectList, ProjectDatabaseHelper db) {
         super(context, R.layout.project_list_item, projectList);
         mCtx = context;
         mProjectList = projectList;
         mLayoutInflater = context.getLayoutInflater();
-        mDb = new ProjectDatabaseHelper(context);
+        this.db = db;
     }
 
     public View getView(final int position, View convertView, final ViewGroup parent) {
@@ -71,39 +68,48 @@ public class ProjectAdapter extends ArrayAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        initializeProjectCard(mCtx, mProjectList.get(position), mDb, holder.mLanguage, holder.mBook, holder.mInfo, holder.mRecord, holder.mTextLayout, holder.mProgressPie);
+        initializeProjectCard(
+                mCtx,
+                mProjectList.get(position),
+                db,
+                holder.mLanguage,
+                holder.mBook,
+                holder.mInfo,
+                holder.mRecord,
+                holder.mTextLayout,
+                holder.mProgressPie
+        );
 
         return convertView;
     }
 
-    public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper dB, TextView languageView, TextView bookView,
-                                             ImageButton infoView, ImageButton recordView, LinearLayout textLayout, ProgressPieView progressPie) {
-
-
+    public static void initializeProjectCard(
+            final Activity ctx,
+            final Project project,
+            final ProjectDatabaseHelper dB,
+            TextView languageView,
+            TextView bookView,
+            ImageButton infoView,
+            ImageButton recordView,
+            LinearLayout textLayout,
+            ProgressPieView progressPie
+    ) {
         String book = project.getBookName();
         bookView.setText(book);
 
         String language = dB.getLanguageName(project.getTargetLanguageSlug());
         languageView.setText(language);
 
-        // Calculate project's progress
+        // Get project's progress
         if (dB.projectExists(project)) {
-            try {
-                // TODO: This is a bottle neck. Please optimize the progress calculation.
-                ChunkPlugin chunks = project.getChunkPlugin(new ChunkPluginLoader(ctx));
-                int chapterCount = chunks.numChapters();
-                int projectId = dB.getProjectId(project);
-                int progress = Math.round((float) dB.getProjectProgressSum(projectId) / chapterCount);
-                progressPie.setProgress(progress);
-            } catch (IOException e) {
-                Logger.e("ProjectAdapter init project card", "IOException", e);
-            }
+            int projectID = dB.getProjectId(project);
+            progressPie.setProgress(dB.getProjectProgress(projectID));
         }
 
         recordView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                project.loadProjectIntoPreferences(ctx);
+                project.loadProjectIntoPreferences(ctx, dB);
                 //TODO: should find place left off at?
                 v.getContext().startActivity(
                         RecordingActivity.getNewRecordingIntent(
@@ -139,7 +145,12 @@ public class ProjectAdapter extends ArrayAdapter {
 
     }
 
-    public static void initializeProjectCard(final Activity ctx, final Project project, ProjectDatabaseHelper db, View projectCard) {
+    public static void initializeProjectCard(
+            final Activity ctx,
+            final Project project,
+            ProjectDatabaseHelper db,
+            View projectCard
+    ) {
         TextView languageView = (TextView) projectCard.findViewById(R.id.language_text_view);
         TextView bookView = (TextView) projectCard.findViewById(R.id.book_text_view);
         ImageButton info = (ImageButton) projectCard.findViewById(R.id.info_button);

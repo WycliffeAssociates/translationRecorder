@@ -24,10 +24,12 @@ import java.io.File;
 public class TranslationExchangeExport extends Export {
 
     TranslationExchangeDiff mDiffer;
+    ProjectDatabaseHelper db;
 
-    public TranslationExchangeExport(File projectToExport, Project project) {
+    public TranslationExchangeExport(File projectToExport, Project project, ProjectDatabaseHelper db) {
         super(projectToExport, project);
         mDirectoryToZip = null;
+        this.db = db;
     }
 
     @Override
@@ -55,43 +57,17 @@ public class TranslationExchangeExport extends Export {
             public void run() {
                 Context ctx = mCtx.getActivity().getApplicationContext();
                 uploadBinary(ctx, outputFile());
-//                try {
-//                    URL url = new URL("https://te.loc/api/upload/zip");
-//                    HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-//                    urlConnection.setSSLSocketFactory(getSSLSocketFactory());
-//                    try {
-//                        urlConnection.setDoOutput(true);
-//                        urlConnection.setChunkedStreamingMode(0);
-//
-//                        OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-//                        FileInputStream fis = new FileInputStream(mZipFile);
-//                        BufferedInputStream bis = new BufferedInputStream(fis);
-//                        byte[] buf = new byte[1024];
-//                        bis.read(buf);
-//                        do {
-//                            out.write(buf);
-//                        } while(bis.read(buf) != -1);
-//                        out.close();
-//                        System.out.println(urlConnection.getResponseCode());
-//                        System.out.println(urlConnection.getResponseMessage());
-//                    } finally {
-//                        urlConnection.disconnect();
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
             }
         });
         thread.start();
     }
 
-    public void uploadBinary(final Context context, File file) {
+    public void uploadBinary(Context context, File file) {
         try {
             // starting from 3.1+, you can also use content:// URI string instead of absolute file
             String filePath = file.getAbsolutePath();
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             int userId = pref.getInt(Settings.KEY_USER, 1);
-            ProjectDatabaseHelper db = new ProjectDatabaseHelper(context);
             User user = db.getUser(userId);
             String hash = user.getHash();
             String uploadId =
@@ -116,29 +92,47 @@ public class TranslationExchangeExport extends Export {
             }
 
             @Override
-            public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+            public void onError(
+                    Context context,
+                    UploadInfo uploadInfo,
+                    ServerResponse serverResponse,
+                    Exception exception
+            ) {
                 String message;
                 if (serverResponse != null) {
-                    message = String.format("code: %s: %s", serverResponse.getHttpCode(), serverResponse.getBodyAsString());
+                    message = String.format("code: %s: %s",
+                            serverResponse.getHttpCode(),
+                            serverResponse.getBodyAsString()
+                    );
                     Logger.e(TranslationExchangeExport.class.toString(), message, exception);
                 } else if (exception != null) {
                     message = exception.getMessage();
                     Logger.e(TranslationExchangeExport.class.toString(), "Error: " + message, exception);
                 } else {
-                    message = "An error occurred without a response or exception, upload percent is " + uploadInfo.getProgressPercent();
+                    message = "An error occurred without a response or exception, upload percent is "
+                            + uploadInfo.getProgressPercent();
                     Logger.e(TranslationExchangeExport.class.toString(), message);
                 }
 
-                FeedbackDialog fd = FeedbackDialog.newInstance("Project upload", "Project upload failed: " + message);
+                FeedbackDialog fd = FeedbackDialog.newInstance(
+                        "Project upload",
+                        "Project upload failed: " + message
+                );
                 fd.show(mCtx.getFragmentManager(), "UPLOAD_FEEDBACK");
             }
 
             @Override
             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                Logger.e(TranslationExchangeExport.class.toString(), "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString());
+                Logger.e(
+                        TranslationExchangeExport.class.toString(),
+                        "code: " + serverResponse.getHttpCode() + " " + serverResponse.getBodyAsString()
+                );
                 mZipFile.delete();
 
-                FeedbackDialog fd = FeedbackDialog.newInstance("Project upload", "Project has been successfully uploaded.");
+                FeedbackDialog fd = FeedbackDialog.newInstance(
+                        "Project upload",
+                        "Project has been successfully uploaded."
+                );
                 fd.show(mCtx.getFragmentManager(), "title");
             }
 
@@ -146,7 +140,10 @@ public class TranslationExchangeExport extends Export {
             public void onCancelled(Context context, UploadInfo uploadInfo) {
                 Logger.e(TranslationExchangeExport.class.toString(), "Cancelled upload");
                 if (uploadInfo != null) {
-                    Logger.e(TranslationExchangeExport.class.toString(), "Upload percent was " + uploadInfo.getProgressPercent());
+                    Logger.e(
+                            TranslationExchangeExport.class.toString(),
+                            "Upload percent was " + uploadInfo.getProgressPercent()
+                    );
                 }
             }
         };

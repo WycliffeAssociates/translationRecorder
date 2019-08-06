@@ -52,6 +52,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
     private List<Integer> mSelectedCards = new ArrayList<>();
     private MultiSelector mMultiSelector = new MultiSelector();
     private ActionMode mActionMode;
+    private ProjectDatabaseHelper db;
 
     private int RAISED_CARD_BACKGROUND_COLOR;
     private int DROPPED_CARD_BACKGROUND_COLOR;
@@ -60,10 +61,16 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
     private int DROPPED_CARD_EMPTY_TEXT_COLOR;
 
     // Constructor
-    public ChapterCardAdapter(AppCompatActivity context, Project project, List<ChapterCard> chapterCardList) {
+    public ChapterCardAdapter(
+            AppCompatActivity context,
+            Project project,
+            List<ChapterCard> chapterCardList,
+            ProjectDatabaseHelper db
+    ) {
         mCtx = context;
         mProject = project;
         mChapterCardList = chapterCardList;
+        this.db = db;
 
         initializeColors(context);
     }
@@ -134,9 +141,7 @@ public class ChapterCardAdapter extends RecyclerView.Adapter<ChapterCardAdapter.
 
     @Override
     public int checkingLevel(Project project, int chapter) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int checkingLevel = db.getChapterCheckingLevel(project, chapter);
-        db.close();
         return checkingLevel;
     }
 

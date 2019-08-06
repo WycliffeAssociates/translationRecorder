@@ -27,12 +27,14 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
     FragmentManager mFragmentManager;
     Project mProject;
     File mChapterDir;
+    ProjectDatabaseHelper db;
 
-    public ChapterResyncTask(int taskId, Context ctx, FragmentManager fm, Project project) {
+    public ChapterResyncTask(int taskId, Context ctx, FragmentManager fm, Project project, ProjectDatabaseHelper db) {
         super(taskId);
         mCtx = ctx;
         mFragmentManager = fm;
         mProject = project;
+        this.db = db;
         mChapterDir = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder/" + mProject.getTargetLanguageSlug() + "/" + mProject.getVersionSlug() + "/" + mProject.getBookSlug() + "/");
     }
 
@@ -55,7 +57,6 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
 
     @Override
     public void run() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         List<Integer> chapters = getAllChapters(mChapterDir);
         for(Integer i : chapters) {
             if(!db.chapterExists(mProject, i)){
@@ -63,7 +64,6 @@ public class ChapterResyncTask extends Task implements ProjectDatabaseHelper.OnL
                 break;
             }
         }
-        db.close();
         onTaskCompleteDelegator();
     }
 

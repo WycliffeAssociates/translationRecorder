@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.adapters.GenericAdapter;
@@ -39,6 +40,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     protected String mSearchText;
     protected FragmentManager mFragmentManager;
     private SearchView mSearchViewAction;
+    private ProjectDatabaseHelper db;
 
     interface ProjectContract {
         String PROJECT_KEY = mProjectKey;
@@ -60,8 +62,10 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFragmentManager = getFragmentManager();
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
 
         this.displayFragment();
+
         mProject = new Project();
 
         setContentView(R.layout.activity_scrollable_list);
@@ -208,7 +212,7 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
         switch (mCurrentFragment) {
             case TARGET_LANGUAGE:
                 mFragment = new ScrollableListFragment
-                        .Builder(new GenericAdapter(Language.getLanguages(this), this))
+                        .Builder(new GenericAdapter(Language.getLanguages(db), this))
                         .setSearchHint("Choose Target Language:")
                         .build();
                 break;
@@ -252,30 +256,22 @@ public class ProjectWizardActivity extends AppCompatActivity implements Scrollab
     }
 
     private Anthology[] getAnthologiesList(){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         Anthology[] anthologies = db.getAnthologies();
-        db.close();
         return anthologies;
     }
 
     private Book[] getBooksList(String anthologySlug){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         Book[] books = db.getBooks(anthologySlug);
-        db.close();
         return books;
     }
 
     private Version[] getVersionsList(String anthologySlug){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         Version[] versions = db.getVersions(anthologySlug);
-        db.close();
         return versions;
     }
 
     private Mode[] getModeList(String anthologySlug){
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
         Mode[] mode = db.getModes(anthologySlug);
-        db.close();
         return mode;
     }
 

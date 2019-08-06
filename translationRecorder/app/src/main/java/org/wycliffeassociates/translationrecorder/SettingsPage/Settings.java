@@ -14,7 +14,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.Utils;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.components.Language;
 import org.wycliffeassociates.translationrecorder.project.ScrollableListFragment;
 import org.wycliffeassociates.translationrecorder.project.adapters.TargetLanguageAdapter;
@@ -51,6 +53,7 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
     private Fragment mFragment;
     public static boolean displayingList = false;
     private boolean mShowSearch = false;
+    private ProjectDatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,8 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
     }
 
     @Override
@@ -166,7 +171,7 @@ public class Settings extends AppCompatActivity implements TaskFragment.OnTaskCo
         displaySearchMenu();
         Settings.displayingList = true;
         mFragment = new ScrollableListFragment
-                .Builder(new TargetLanguageAdapter(Language.getLanguages(this), this))
+                .Builder(new TargetLanguageAdapter(Language.getLanguages(db), this))
                 .setSearchHint("Choose Source Language:")
                 .build();
         mFragmentManager.beginTransaction().add(R.id.fragment_scroll_list, mFragment).commit();

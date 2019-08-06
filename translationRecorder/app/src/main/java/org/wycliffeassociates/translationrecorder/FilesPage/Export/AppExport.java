@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.core.content.FileProvider;
+import org.wycliffeassociates.translationrecorder.BuildConfig;
 import org.wycliffeassociates.translationrecorder.project.Project;
 
 import java.io.File;
@@ -43,7 +45,11 @@ public class AppExport extends Export {
             Intent sendIntent = new Intent();
             sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             mFile = new File (path);
-            Uri audioUri = Uri.fromFile(mFile);
+            Uri audioUri = FileProvider.getUriForFile(
+                    ShareZipToApps.this,
+                    BuildConfig.APPLICATION_ID + ".provider",
+                    mFile
+            );
             sendIntent.setAction(Intent.ACTION_SEND);
             //send individual URI
             sendIntent.putExtra(Intent.EXTRA_STREAM, audioUri);

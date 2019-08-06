@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 
 /**
@@ -24,6 +25,7 @@ public class AddTargetLanguageDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_add_temp_language, null);
+        final ProjectDatabaseHelper db = ((TranslationRecorderApp)getActivity().getApplication()).getDatabase();
 
         final EditText languageCode = (EditText) view.findViewById(R.id.language_code);
         final EditText languageName = (EditText) view.findViewById(R.id.language_name);
@@ -46,7 +48,6 @@ public class AddTargetLanguageDialog extends DialogFragment {
                     errorCodeTooShort.setVisibility(View.GONE);
                 }
                 code = "qaa-x-tR" + code;
-                ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
                 if(db.languageExists(code)) {
                     errorCodeExists.setVisibility(View.VISIBLE);
                     error = true;
@@ -55,7 +56,6 @@ public class AddTargetLanguageDialog extends DialogFragment {
                 }
                 if (!error) {
                     db.addLanguage(code, name);
-                    db.close();
                     dismiss();
                 }
             }

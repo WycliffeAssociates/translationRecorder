@@ -55,7 +55,7 @@ public class ProjectPlugin {
         init(reader);
     }
 
-    public void importProjectPlugin(Context context, File pluginDir) throws IOException {
+    public void importProjectPlugin(File pluginDir, ProjectDatabaseHelper db) throws IOException {
         Reader bookReader = new FileReader(new File(pluginDir, "Books/" + booksPath));
         List<Book> books = readBooks(new JsonReader(bookReader));
         Reader versionReader = new FileReader(new File(pluginDir, "Versions/" + versionsPath));
@@ -63,7 +63,12 @@ public class ProjectPlugin {
 //        Reader chunksReader = new FileReader(new File(pluginDir, "Chunks/" + chunksPath));
 //        readChunks(new JsonReader(chunksReader));
 
-        importPluginToDatabase(context, books.toArray(new Book[books.size()]), versions.toArray(new Version[versions.size()]), modes.toArray(new Mode[modes.size()]));
+        importPluginToDatabase(
+                books.toArray(new Book[books.size()]),
+                versions.toArray(new Version[versions.size()]),
+                modes.toArray(new Mode[modes.size()]),
+                db
+        );
     }
 
     private void init(Reader reader) throws IOException {
@@ -126,15 +131,18 @@ public class ProjectPlugin {
         return versionList;
     }
 
-    private void importPluginToDatabase(Context ctx, Book[] books, Version[] versions, Mode[] modes) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
+    private void importPluginToDatabase(
+            Book[] books,
+            Version[] versions,
+            Mode[] modes,
+            ProjectDatabaseHelper db
+    ) {
         db.addAnthology(slug, name, resource, sort, regex, groups, mask, jarPath, className);
         db.addBooks(books);
         db.addVersions(versions);
         db.addModes(modes, slug);
         db.addVersionRelationships(slug, versions);
         //db.addModeRelationships(slug, modes);
-        db.close();
     }
 
     private String createMatchGroups() {

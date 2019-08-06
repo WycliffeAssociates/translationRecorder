@@ -1,7 +1,6 @@
 package org.wycliffeassociates.translationrecorder.ProjectManager.tasks.resync;
 
 import android.app.FragmentManager;
-import android.content.Context;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
@@ -22,14 +21,15 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by sarabiaj on 9/27/2016.
  */
-public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound, ProjectDatabaseHelper.OnCorruptFile {
-    Context mCtx;
+public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.OnLanguageNotFound,
+        ProjectDatabaseHelper.OnCorruptFile {
     FragmentManager mFragmentManager;
+    ProjectDatabaseHelper db;
 
-    public DatabaseResyncTask(int taskId, Context ctx, FragmentManager fm){
+    public DatabaseResyncTask(int taskId, FragmentManager fm, ProjectDatabaseHelper db){
         super(taskId);
-        mCtx = ctx;
         mFragmentManager = fm;
+        this.db = db;
     }
 
     public List<File> getAllTakes(){
@@ -57,7 +57,6 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
     }
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         Map<Project, File> projectDirectories = new HashMap<>();
         File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
         File[] langs = root.listFiles();
@@ -102,7 +101,6 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
 
     @Override
     public void run() {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         List<Project> projects = db.getAllProjects();
         Map<Project, File> directoriesOnFs = getProjectDirectoriesOnFileSystem();
         Map<Project, File> directoriesFromDb = getProjectDirectories(projects);
@@ -127,7 +125,6 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
             }
         }
 
-        db.close();
         onTaskCompleteDelegator();
     }
 

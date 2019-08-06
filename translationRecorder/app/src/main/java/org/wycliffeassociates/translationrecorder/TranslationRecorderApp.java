@@ -29,6 +29,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import okhttp3.OkHttpClient;
+import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 
 /**
  * Created by sarabiaj on 11/28/2017.
@@ -43,6 +44,8 @@ public class TranslationRecorderApp extends Application implements DirectoryProv
     AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, AudioInfo.SAMPLERATE,
                             AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                             minBufferSize, AudioTrack.MODE_STREAM);
+
+    ProjectDatabaseHelper database = new ProjectDatabaseHelper(this);
 
     @Override
     public void onCreate() {
@@ -107,5 +110,9 @@ public class TranslationRecorderApp extends Application implements DirectoryProv
 
     public int getTrackBufferSize() {
         return minBufferSize;
+    }
+
+    public ProjectDatabaseHelper getDatabase() {
+        return database;
     }
 }

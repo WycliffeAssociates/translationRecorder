@@ -135,6 +135,7 @@ public class PlaybackActivity extends Activity implements
     private User mUser;
     private AudioTrack audioTrack;
     private int trackBufferSize = 0;
+    private ProjectDatabaseHelper db;
 
     public static Intent getPlaybackIntent(
             Context ctx,
@@ -166,7 +167,7 @@ public class PlaybackActivity extends Activity implements
         Logger.w(this.toString(), "onCreate");
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         int userId = pref.getInt(Settings.KEY_USER, 1);
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
         mUser = db.getUser(userId);
     }
 
@@ -597,10 +598,8 @@ public class PlaybackActivity extends Activity implements
     public void onPositiveClick(RatingDialog dialog) {
         Logger.w(this.toString(), "rating set");
         mRating = dialog.getRating();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(this);
 
         db.setTakeRating(dialog.getTakeInfo(), mRating);
-        db.close();
         mFragmentFileBar.onRatingChanged(mRating);
     }
 
@@ -742,7 +741,6 @@ public class PlaybackActivity extends Activity implements
                         writeMarkers(toTempWav);
                         to.delete();
                         toTemp.renameTo(to);
-                        ProjectDatabaseHelper db = new ProjectDatabaseHelper(PlaybackActivity.this);
                         ProjectPatternMatcher ppm = mProject.getPatternMatcher();
                         ppm.match(to);
                         db.addTake(
@@ -753,7 +751,6 @@ public class PlaybackActivity extends Activity implements
                                 0,
                                 mUser.getId()
                         );
-                        db.close();
                         String oldName = from.getFile().getName();
                         oldName = oldName.substring(0, oldName.lastIndexOf("."));
                         File visDir = new File(getExternalCacheDir(), "Visualization");

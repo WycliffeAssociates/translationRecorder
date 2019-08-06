@@ -15,6 +15,7 @@ import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.Recording.UnitPicker;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.Utils;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -46,6 +47,7 @@ public class FragmentRecordingFileBar extends Fragment {
     private int mChapter = ChunkPlugin.DEFAULT_CHAPTER;
     private int mUnit = ChunkPlugin.DEFAULT_UNIT;
     private Handler mHandler;
+    private ProjectDatabaseHelper db;
 
     private OnUnitChangedListener mOnUnitChangedListener;
     private FragmentRecordingControls.Mode mMode;
@@ -77,6 +79,7 @@ public class FragmentRecordingFileBar extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        db = ((TranslationRecorderApp)activity.getApplication()).getDatabase();
         if (activity instanceof OnUnitChangedListener) {
             mOnUnitChangedListener = (OnUnitChangedListener) activity;
         } else {
@@ -149,7 +152,6 @@ public class FragmentRecordingFileBar extends Fragment {
         mLanguageView.postInvalidate();
 
         String bookCode = mProject.getBookSlug();
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(getActivity());
         String bookName = db.getBookName(bookCode);
         mBookView.setText(bookName);
         mBookView.postInvalidate();

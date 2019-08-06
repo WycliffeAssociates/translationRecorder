@@ -1,6 +1,5 @@
 package org.wycliffeassociates.translationrecorder.project.components;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -13,10 +12,8 @@ public class Language extends ProjectComponent implements Parcelable {
         super(slug, name);
     }
 
-    public static Language[] getLanguages(Context ctx) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(ctx);
+    public static Language[] getLanguages(ProjectDatabaseHelper db) {
         Language[] languages =  db.getLanguages();
-        db.close();
         return languages;
     }
 

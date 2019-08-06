@@ -12,6 +12,7 @@ import jdenticon.Jdenticon
 import kotlinx.android.synthetic.main.activity_user.*
 import login.adapters.UserAdapter
 import org.wycliffeassociates.translationrecorder.R
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 import org.wycliffeassociates.translationrecorder.project.components.User
 
@@ -36,7 +37,7 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun userList(): List<Pair<User, Drawable>> {
-        val db = ProjectDatabaseHelper(this)
+        val db = (application as TranslationRecorderApp).database
         var userList = arrayListOf<Pair<User, Drawable>>()
         userList.add(Pair(User(null), resources.getDrawable(R.drawable.ic_person_add_black_48dp)))
         val users = db.allUsers

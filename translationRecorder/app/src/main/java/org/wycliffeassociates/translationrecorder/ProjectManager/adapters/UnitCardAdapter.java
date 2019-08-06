@@ -44,70 +44,65 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
     private List<ViewHolder> mSelectedCards = new ArrayList<>();
     private MultiSelector mMultiSelector = new MultiSelector();
     private ActionMode mActionMode;
+    private ProjectDatabaseHelper db;
+
 
 
     // Constructor
-    public UnitCardAdapter(AppCompatActivity context, Project project, int chapter, List<UnitCard> unitCardList) {
+    public UnitCardAdapter(
+            AppCompatActivity context,
+            Project project,
+            int chapter,
+            List<UnitCard> unitCardList,
+            ProjectDatabaseHelper db
+    ) {
         mUnitCardList = unitCardList;
         mCtx = context;
         mProject = project;
         mChapterNum = chapter;
+        this.db = db;
     }
 
     @Override
     public void updateSelectedTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.setSelectedTake(takeInfo);
-        db.close();
     }
 
     @Override
     public int selectedTakeNumber(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int selectedTakeNumber = db.getSelectedTakeNumber(takeInfo);
-        db.close();
         return selectedTakeNumber;
     }
 
     @Override
     public int takeRating(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int takeRating = db.getTakeRating(takeInfo);
-        db.close();
         return takeRating;
     }
 
     @Override
     public int takeCount(Project project, int chapter, int firstVerse) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         int takeCount = 0;
         if (db.chapterExists(mProject, chapter) && db.unitExists(mProject, chapter, firstVerse)) {
             int unitId = db.getUnitId(project, chapter, firstVerse);
             takeCount = db.getTakeCount(unitId);
         }
-        db.close();
         return takeCount;
     }
 
     @Override
     public void deleteTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.deleteTake(takeInfo);
-        db.close();
     }
 
     @Override
     public void removeSelectedTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.removeSelectedTake(takeInfo);
-        db.close();
     }
 
     @Override
     public void selectTake(TakeInfo takeInfo) {
-        ProjectDatabaseHelper db = new ProjectDatabaseHelper(mCtx);
         db.setSelectedTake(takeInfo);
-        db.close();
     }
 
     @Override
@@ -219,11 +214,11 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
             unitCard.setViewHolder(holder);
             // Set card views based on the UnitCard object
             unitTitle.setText(unitCard.getTitle());
-            unitCard.refreshTakeCount(UnitCardAdapter.this);
+            unitCard.refreshTakeCount();
             takeCount.setText(String.valueOf(unitCard.getTakeCount()));
             // Expand card if it's already expanded before
             if (unitCard.isExpanded()) {
-                unitCard.expand(UnitCardAdapter.this);
+                unitCard.expand();
             } else {
                 unitCard.collapse();
             }
@@ -329,15 +324,15 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 
     private void setListeners(final UnitCard unitCard, final ViewHolder holder) {
         int position = holder.getAdapterPosition();
-        holder.unitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mCtx));
-        holder.unitExpandBtn.setOnClickListener(unitCard.getUnitExpandOnClick(this, position, mExpandedCards, this));
+        holder.unitRecordBtn.setOnClickListener(unitCard.getUnitRecordOnClick(mCtx, db));
+        holder.unitExpandBtn.setOnClickListener(unitCard.getUnitExpandOnClick(position, mExpandedCards, this));
         holder.takeDeleteBtn.setOnClickListener(unitCard.getTakeDeleteOnClick(mCtx, this, position, this));
         holder.takePlayPauseBtn.setOnClickListener(unitCard.getTakePlayPauseOnClick());
         holder.takeEditBtn.setOnClickListener(unitCard.getTakeEditOnClickListener());
         holder.takeRatingBtn.setOnClickListener(unitCard.getTakeRatingOnClick(mCtx));
         holder.takeSelectBtn.setOnClickListener(unitCard.getTakeSelectOnClick(this));
-        holder.nextTakeBtn.setOnClickListener(unitCard.getTakeIncrementOnClick(this));
-        holder.prevTakeBtn.setOnClickListener(unitCard.getTakeDecrementOnClick(this));
+        holder.nextTakeBtn.setOnClickListener(unitCard.getTakeIncrementOnClick());
+        holder.prevTakeBtn.setOnClickListener(unitCard.getTakeDecrementOnClick());
     }
 
     public void exitCleanUp() {
