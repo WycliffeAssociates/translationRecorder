@@ -74,11 +74,6 @@ public class ChapterCard {
     // Constructor
     public ChapterCard(Project proj, String title, int chapter, int unitCount, ProjectDatabaseHelper db) {
         mProject = proj;
-//        try {
-//            mTitle = proj.getChunkPlugin(new ChunkPluginLoader(ctx)).getChapterName(chapter);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
         mTitle = title;
         mChapter = chapter;
         mUnitCount = unitCount;
@@ -112,11 +107,11 @@ public class ChapterCard {
         }
     }
 
-    public void refreshProgress(Context context) {
+    public void refreshProgress() {
         int progress = calculateProgress();
         if (progress != mProgress) {
             setProgress(progress);
-            saveProgressToDB(context, progress);
+            saveProgressToDB(progress);
         }
     }
 
@@ -251,7 +246,7 @@ public class ChapterCard {
         return Math.round(((float) mUnitStarted / mUnitCount) * 100);
     }
 
-    private void saveProgressToDB(Context context, int progress) {
+    private void saveProgressToDB(int progress) {
         if (db.chapterExists(mProject, mChapter)) {
             int chapterId = db.getChapterId(mProject, mChapter);
             db.setChapterProgress(chapterId, progress);

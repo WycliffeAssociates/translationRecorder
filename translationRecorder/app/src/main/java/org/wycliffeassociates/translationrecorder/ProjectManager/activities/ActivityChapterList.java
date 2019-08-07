@@ -148,7 +148,7 @@ public class ActivityChapterList extends AppCompatActivity implements
             ChapterCard cc = mChapterCardList.get(i);
             int numUnits = (unitsStarted.containsKey(cc.getChapterNumber())) ? unitsStarted.get(cc.getChapterNumber()) : 0;
             cc.setNumOfUnitStarted(numUnits);
-            cc.refreshProgress(this);
+            cc.refreshProgress();
             cc.refreshIsEmpty();
             cc.refreshCanCompile();
             cc.refreshChapterCompiled(cc.getChapterNumber());
