@@ -24,7 +24,7 @@ import org.wycliffeassociates.translationrecorder.project.components.User
  */
 class UserAdapter(private val context: Activity, private val users: List<Pair<User, Drawable>>) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
 
-    private var playing = false;
+    private var playing = false
 
     override fun getItemCount(): Int {
         return users.size
