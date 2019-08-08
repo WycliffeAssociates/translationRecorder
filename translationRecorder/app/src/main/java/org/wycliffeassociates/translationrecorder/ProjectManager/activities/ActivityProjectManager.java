@@ -106,14 +106,8 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Toolbar mToolbar = (Toolbar) findViewById(R.id.project_management_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
-            ImageView imageView = findViewById(R.id.identicon);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
-            int userId = pref.getInt(Settings.KEY_PROFILE, -1);
-            final User user = db.getUser(userId);
-            String svg = Jdenticon.Companion.toSvg(user.getHash(), 512, 0f);
-            imageView.setBackground(Sharp.loadString(svg).getDrawable());
-            imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            imageView.setOnClickListener(identiconPlayerClick(user.getAudio().toString()));
+            initializeIdenticon();
         }
 
         if (savedInstanceState != null) {
@@ -250,6 +244,16 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             findViewById(R.id.recent_project).setVisibility(View.GONE);
             return null;
         }
+    }
+
+    public void initializeIdenticon() {
+        ImageView imageView = findViewById(R.id.identicon);
+        int userId = pref.getInt(Settings.KEY_PROFILE, -1);
+        final User user = db.getUser(userId);
+        String svg = Jdenticon.Companion.toSvg(user.getHash(), 512, 0f);
+        imageView.setBackground(Sharp.loadString(svg).getDrawable());
+        imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        imageView.setOnClickListener(identiconPlayerClick(user.getAudio().toString()));
     }
 
     public void hideProjectsIfEmpty(int numProjects) {
@@ -391,8 +395,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             @Override
             public void onClick(View view) {
                 if(!isIdenticonPlaying) {
-                    isIdenticonPlaying = true;
-
                     try {
                         final MediaPlayer player = new MediaPlayer();
                         player.setDataSource(audioPath);
@@ -421,6 +423,7 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         return new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                isIdenticonPlaying = true;
                 mp.start();
             }
         };
