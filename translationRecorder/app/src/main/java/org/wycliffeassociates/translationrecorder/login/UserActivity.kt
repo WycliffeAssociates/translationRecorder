@@ -39,7 +39,8 @@ class UserActivity : AppCompatActivity() {
     private fun userList(): List<Pair<User, Drawable>> {
         val db = (application as TranslationRecorderApp).database
         var userList = arrayListOf<Pair<User, Drawable>>()
-        userList.add(Pair(User(null), resources.getDrawable(R.drawable.ic_person_add_black_48dp)))
+        val newEmptyUser = User(0, null, null)
+        userList.add(Pair(newEmptyUser, resources.getDrawable(R.drawable.ic_person_add_black_48dp)))
         val users = db.allUsers
         for (user in users) {
             var identicon = generateIdenticon(user.hash)

@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,6 +25,8 @@ import android.widget.ListView;
 
 import com.door43.tools.reporting.Logger;
 
+import com.pixplicity.sharp.Sharp;
+import jdenticon.Jdenticon;
 import org.wycliffeassociates.translationrecorder.DocumentationActivity;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.Export;
 import org.wycliffeassociates.translationrecorder.FilesPage.Export.ExportTaskFragment;
@@ -43,13 +46,11 @@ import org.wycliffeassociates.translationrecorder.SplashScreen;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.ProjectFileUtils;
 import org.wycliffeassociates.translationrecorder.project.ProjectWizardActivity;
+import org.wycliffeassociates.translationrecorder.project.components.User;
 import org.wycliffeassociates.translationrecorder.utilities.Task;
 import org.wycliffeassociates.translationrecorder.utilities.TaskFragment;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -92,19 +93,28 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
     private File mSourceAudioFile;
     private Project mProjectToExport;
     private ProjectDatabaseHelper db;
+    private boolean isIdenticonPlaying = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_management);
 
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        db = ((TranslationRecorderApp)getApplication()).getDatabase();
+
         Toolbar mToolbar = (Toolbar) findViewById(R.id.project_management_toolbar);
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Project Management");
+            ImageView imageView = findViewById(R.id.identicon);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            int userId = pref.getInt(Settings.KEY_PROFILE, -1);
+            final User user = db.getUser(userId);
+            String svg = Jdenticon.Companion.toSvg(user.getHash(), 512, 0f);
+            imageView.setBackground(Sharp.loadString(svg).getDrawable());
+            imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            imageView.setOnClickListener(identiconPlayerClick(user.getAudio().toString()));
         }
-
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (savedInstanceState != null) {
             mZipping = savedInstanceState.getBoolean(STATE_ZIPPING, false);
@@ -113,8 +123,6 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             mProgressTitle = savedInstanceState.getString(STATE_PROGRESS_TITLE, null);
             mDbResyncing = savedInstanceState.getBoolean(STATE_RESYNC, false);
         }
-
-        db = ((TranslationRecorderApp)getApplication()).getDatabase();
     }
 
     //This code exists here rather than onResume due to the potential for onResume() -> onResume()
@@ -155,7 +163,12 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     db,
                     new ChunkPluginLoader(this)
             );
-            mTaskFragment.executeRunnable(task, "Resyncing Database", "Please wait...", true);
+            mTaskFragment.executeRunnable(
+                    task,
+                    "Resyncing Database",
+                    "Please wait...",
+                    true
+            );
         }
     }
 
@@ -263,7 +276,11 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
             }
         }
         for (Project p : projects) {
-            Logger.w(this.toString(), "Project: language " + p.getTargetLanguageSlug() + " book " + p.getBookSlug() + " version " + p.getVersionSlug() + " mode " + p.getModeSlug());
+            String projectName = "language " + p.getTargetLanguageSlug()
+                    + " book " + p.getBookSlug()
+                    + " version " + p.getVersionSlug()
+                    + " mode " + p.getModeSlug();
+            Logger.w(this.toString(), "Project: " + projectName);
         }
         mAdapter = new ProjectAdapter(this, projects, db);
         mProjectList.setAdapter(mAdapter);
@@ -332,9 +349,21 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     try {
                         fos = getContentResolver().openOutputStream(uri, "w");
                         bos = new BufferedOutputStream(fos);
-                        //sending output streams to the task to run in a thread means they cannot be closed in a finally block here
-                        ExportSourceAudioTask task = new ExportSourceAudioTask(SOURCE_AUDIO_TASK, mProjectToExport, ProjectFileUtils.getProjectDirectory(mProjectToExport), getFilesDir(), bos);
-                        mTaskFragment.executeRunnable(task, "Exporting Source Audio", "Please wait...", false);
+                        //sending output streams to the task to run in a thread means
+                        // they cannot be closed in a finally block here
+                        ExportSourceAudioTask task = new ExportSourceAudioTask(
+                                SOURCE_AUDIO_TASK,
+                                mProjectToExport,
+                                ProjectFileUtils.getProjectDirectory(mProjectToExport),
+                                getFilesDir(),
+                                bos
+                        );
+                        mTaskFragment.executeRunnable(
+                                task,
+                                "Exporting Source Audio",
+                                "Please wait...",
+                                false
+                        );
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -357,6 +386,46 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         }
     };
 
+    private View.OnClickListener identiconPlayerClick(final String audioPath) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isIdenticonPlaying) {
+                    isIdenticonPlaying = true;
+
+                    try {
+                        final MediaPlayer player = new MediaPlayer();
+                        player.setDataSource(audioPath);
+                        player.prepare();
+                        player.setOnPreparedListener(onIdenticonPlayerPrepared());
+                        player.setOnCompletionListener(onIdenticonPlayerCompleted());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+    }
+
+    private MediaPlayer.OnCompletionListener onIdenticonPlayerCompleted() {
+        return new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.release();
+                isIdenticonPlaying = false;
+            }
+        };
+    }
+
+    private MediaPlayer.OnPreparedListener onIdenticonPlayerPrepared() {
+        return new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.start();
+            }
+        };
+    }
+
     @Override
     public void onDelete(final Project project) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -368,9 +437,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == dialog.BUTTON_POSITIVE) {
-                            Logger.w(this.toString(), "Delete Project: language " + project.getTargetLanguageSlug()
+                            String projectName = "language " + project.getTargetLanguageSlug()
                                     + " book " + project.getBookSlug() + " version "
-                                    + project.getVersionSlug() + " mode " + project.getModeSlug());
+                                    + project.getVersionSlug() + " mode " + project.getModeSlug();
+                            Logger.w(this.toString(), "Delete Project: " + projectName);
                             if (project.equals(Project.getProjectFromPreferences(ActivityProjectManager.this, db))) {
                                 removeProjectFromPreferences();
                             }
@@ -487,7 +557,9 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        mSourceAudioFile = new File(getFilesDir(), project.getTargetLanguageSlug() + "_" + project.getVersionSlug() + "_" + project.getBookSlug() + ".tr");
+        String trName = project.getTargetLanguageSlug() + "_"
+                + project.getVersionSlug() + "_" + project.getBookSlug() + ".tr";
+        mSourceAudioFile = new File(getFilesDir(), trName);
         intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
         startActivityForResult(intent, SAVE_SOURCE_AUDIO_REQUEST);
     }
@@ -500,12 +572,19 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
                 mDbResyncing = false;
                 initializeViews();
             } else if(taskTag == SOURCE_AUDIO_TASK) {
-                FeedbackDialog fd = FeedbackDialog.newInstance("Source Audio", "Source Audio generation complete.");
+                FeedbackDialog fd = FeedbackDialog.newInstance(
+                        "Source Audio",
+                        "Source Audio generation complete."
+                );
                 fd.show(getFragmentManager(), "SOURCE_AUDIO");
             }
         } else if(resultCode == TaskFragment.STATUS_ERROR) {
             if(taskTag == SOURCE_AUDIO_TASK) {
-                FeedbackDialog fd = FeedbackDialog.newInstance("Source Audio", "Source Audio generation failed.");
+                FeedbackDialog fd = FeedbackDialog.newInstance(
+                        "Source Audio",
+                        "Source Audio generation failed."
+
+                );
                 fd.show(getFragmentManager(), "SOURCE_AUDIO");
             }
         }
