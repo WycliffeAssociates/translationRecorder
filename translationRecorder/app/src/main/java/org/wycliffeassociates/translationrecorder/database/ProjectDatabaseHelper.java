@@ -453,9 +453,10 @@ public class ProjectDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
             do {
+                int id = cursor.getInt(cursor.getColumnIndex(ProjectContract.UserEntry._ID));
                 File audio = new File(cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_AUDIO)));
                 String hash = cursor.getString(cursor.getColumnIndex(ProjectContract.UserEntry.USER_HASH));
-                User user = new User(audio, hash);
+                User user = new User(id, audio, hash);
                 userList.add(user);
             } while (cursor.moveToNext());
         }
