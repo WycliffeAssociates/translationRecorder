@@ -548,6 +548,7 @@ public class UnitCard {
                 if (mViewHolder.takePlayPauseBtn.isActivated()) {
                     pauseAudio();
                 } else {
+                    mViewHolder.pausePlayers();
                     playAudio();
                 }
             }

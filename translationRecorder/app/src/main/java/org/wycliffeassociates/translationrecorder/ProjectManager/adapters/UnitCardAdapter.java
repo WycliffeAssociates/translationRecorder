@@ -290,6 +290,14 @@ public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.ViewHo
 //            }
             return true;
         }
+
+        public void pausePlayers() {
+            for(UnitCard uc: mUnitCardList) {
+                if (uc.isExpanded()) {
+                    uc.pauseAudio();
+                }
+            }
+        }
     }
 
 
