@@ -176,7 +176,13 @@ public class PlaybackActivity extends Activity implements
         parseIntent(intent);
         getVerseRange();
         try {
-            mAudioController = new AudioVisualController(audioTrack, trackBufferSize, this, mWavFile, this);
+            mAudioController = new AudioVisualController(
+                    audioTrack,
+                    trackBufferSize,
+                    this,
+                    mWavFile,
+                    this
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -331,7 +337,6 @@ public class PlaybackActivity extends Activity implements
     public void onSeekForward() {
         try {
             mAudioController.seekNext();
-            //mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
             onLocationUpdated();
         } catch (IllegalStateException e) {
             requestUserToRestart();
@@ -342,7 +347,6 @@ public class PlaybackActivity extends Activity implements
     public void onSeekBackward() throws IllegalStateException {
         try {
             mAudioController.seekPrevious();
-            //mWaveformFragment.invalidateFrame(mAudioController.getAbsoluteLocationInFrames(), mAudioController.getRelativeLocationInFrames(), mAudioController.getAbsoluteLocationMs());
             onLocationUpdated();
         } catch (IllegalStateException e) {
             requestUserToRestart();
@@ -461,22 +465,26 @@ public class PlaybackActivity extends Activity implements
                     );
                 }
             } else {
+                if (marker instanceof VerseMarker) {
+                    marker.updateFrame(
+                            mAudioController.mCutOp.relativeLocToAbsolute(
+                                    marker.getFrame(),
+                                    false
+                            )
+                    );
+                }
+            }
+        }
+        mAudioController.cut();
+        for (DraggableMarker marker : markers) {
+            if (marker instanceof VerseMarker) {
                 marker.updateFrame(
-                        mAudioController.mCutOp.relativeLocToAbsolute(
+                        mAudioController.mCutOp.absoluteLocToRelative(
                                 marker.getFrame(),
                                 false
                         )
                 );
             }
-        }
-        mAudioController.cut();
-        for (DraggableMarker marker : markers) {
-            marker.updateFrame(
-                    mAudioController.mCutOp.absoluteLocToRelative(
-                            marker.getFrame(),
-                            false
-                    )
-            );
         }
         try {
             mFragmentPlaybackTools.onLocationUpdated(mAudioController.getAbsoluteLocationMs());
@@ -616,7 +624,8 @@ public class PlaybackActivity extends Activity implements
             onDisableVerseMarkerMode();
         } else if (actionsToSave()) {
             Logger.i(this.toString(), "Asking if user wants to save before going back");
-            //keep file needs to be false so the callback will go through and the super.onBackPressed is called
+            //keep file needs to be false so the callback will go through and
+            // the super.onBackPressed is called
             ExitDialog exit = ExitDialog.Build(
                     this,
                     R.style.Theme_AppCompat_Light_Dialog,
@@ -678,9 +687,9 @@ public class PlaybackActivity extends Activity implements
     }
 
     private void save(Intent intent) {
-        writeMarkers(mWavFile);
         //no changes were made, so just exit
         if (isSaved) {
+            writeMarkers(mWavFile);
             if (intent == null) {
                 this.finish();
                 return;
@@ -738,6 +747,7 @@ public class PlaybackActivity extends Activity implements
                                 wavFileLoader.mapAndGetAudioBuffer(),
                                 pd
                         );
+                        toTempWav.clearMarkers();
                         writeMarkers(toTempWav);
                         to.delete();
                         toTemp.renameTo(to);
@@ -1036,9 +1046,14 @@ public class PlaybackActivity extends Activity implements
 
     @Override
     public boolean onMarkerMovementRequest(int markerId) {
-        if (mode == MODE.EDIT && (markerId == MarkerHolder.END_MARKER_ID || markerId == MarkerHolder.START_MARKER_ID)) {
+        boolean isEditMode = mode == MODE.EDIT;
+        boolean isVerseMarkerMode = mode == MODE.VERSE_MARKER;
+        boolean isStartMarker = markerId == MarkerHolder.START_MARKER_ID;
+        boolean isEndMarker = markerId == MarkerHolder.END_MARKER_ID;
+
+        if (isEditMode && (isEndMarker || isStartMarker)) {
             return true;
-        } else if (mode == MODE.VERSE_MARKER && markerId != MarkerHolder.START_MARKER_ID && markerId != MarkerHolder.END_MARKER_ID) {
+        } else if (isVerseMarkerMode && !isStartMarker && !isEndMarker) {
             return true;
         } else {
             return false;
