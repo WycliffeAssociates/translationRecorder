@@ -15,13 +15,12 @@ import android.widget.TextView;
 import org.wycliffeassociates.translationrecorder.AudioVisualization.RecordingTimer;
 import org.wycliffeassociates.translationrecorder.R;
 import com.door43.tools.reporting.Logger;
-import org.wycliffeassociates.translationrecorder.OnActivityAction;
 
 /**
  * Created by sarabiaj on 2/20/2017.
  */
 
-public class FragmentRecordingControls extends Fragment implements OnActivityAction {
+public class FragmentRecordingControls extends Fragment {
 
 
     public enum Mode {
@@ -87,11 +86,6 @@ public class FragmentRecordingControls extends Fragment implements OnActivityAct
         if(mMode == Mode.INSERT_MODE) {
             mToolBar.setBackgroundColor(getResources().getColor(R.color.secondary));
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        pauseRecording();
     }
 
     private void findViews(){
