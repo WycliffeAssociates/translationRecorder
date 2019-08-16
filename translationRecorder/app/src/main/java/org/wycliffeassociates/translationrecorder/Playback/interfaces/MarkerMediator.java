@@ -34,6 +34,7 @@ public interface MarkerMediator {
     boolean hasVersesRemaining();
     int numVersesRemaining();
     int numVerseMarkersPlaced();
+    int availableMarkerNumber(int startVerse, int endVerse);
     boolean hasSectionMarkers();
     List<WavCue> getCueLocationList();
 }

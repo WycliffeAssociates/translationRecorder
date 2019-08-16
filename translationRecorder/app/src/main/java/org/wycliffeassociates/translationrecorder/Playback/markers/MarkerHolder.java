@@ -227,6 +227,15 @@ public class MarkerHolder implements MarkerMediator {
         return markers;
     }
 
+    public int availableMarkerNumber(int startVerse, int endVerse) {
+        for(int i=startVerse; i <= endVerse; i++) {
+            if(!contains(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public boolean hasSectionMarkers(){
         return mMarkers.containsKey(START_MARKER_ID) || mMarkers.containsKey(END_MARKER_ID);
     }
