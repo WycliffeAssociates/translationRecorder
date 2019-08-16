@@ -180,6 +180,7 @@ public class RecordingActivity extends PermissionActivity implements
     public void onBackPressed() {
         Logger.w(this.toString(), "User pressed back");
         if (!isSaved && hasStartedRecording) {
+            mFragmentRecordingControls.pauseRecording();
             ExitDialog exitDialog = ExitDialog.Build(
                     this,
                     DialogFragment.STYLE_NORMAL,
