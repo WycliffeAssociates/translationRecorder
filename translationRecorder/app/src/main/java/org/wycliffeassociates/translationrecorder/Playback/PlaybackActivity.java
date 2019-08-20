@@ -986,9 +986,12 @@ public class PlaybackActivity extends Activity implements
         if (mMarkerMediator.hasVersesRemaining()) {
             Logger.w(this.toString(), "Placed verse marker");
             int frame = mAudioController.getRelativeLocationInFrames();
-            int markerNumber = mMarkerMediator.availableMarkerNumber(startVerse, endVerse);
+            int markerNumber;
 
-            if(markerNumber <= 0) {
+            try {
+                markerNumber = mMarkerMediator.availableMarkerNumber(startVerse, endVerse);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
                 return;
             }
 

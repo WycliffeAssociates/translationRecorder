@@ -233,7 +233,10 @@ public class MarkerHolder implements MarkerMediator {
                 return i;
             }
         }
-        return 0;
+
+        throw new IllegalStateException(
+                String.format("No markers available to insert in range of verses %s - %s", startVerse, endVerse)
+        );
     }
 
     public boolean hasSectionMarkers(){
