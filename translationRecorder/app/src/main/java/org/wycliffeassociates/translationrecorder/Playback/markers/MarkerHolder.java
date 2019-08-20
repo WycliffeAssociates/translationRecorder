@@ -233,7 +233,7 @@ public class MarkerHolder implements MarkerMediator {
                 return i;
             }
         }
-        return -1;
+        return 0;
     }
 
     public boolean hasSectionMarkers(){

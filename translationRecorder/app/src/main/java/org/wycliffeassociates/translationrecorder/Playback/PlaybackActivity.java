@@ -988,6 +988,10 @@ public class PlaybackActivity extends Activity implements
             int frame = mAudioController.getRelativeLocationInFrames();
             int markerNumber = mMarkerMediator.availableMarkerNumber(startVerse, endVerse);
 
+            if(markerNumber <= 0) {
+                return;
+            }
+
             mAudioController.dropVerseMarker(String.valueOf(markerNumber), frame);
             mWaveformFragment.addVerseMarker(markerNumber, frame);
             mMarkerCounterFragment.decrementVersesRemaining();
