@@ -227,6 +227,18 @@ public class MarkerHolder implements MarkerMediator {
         return markers;
     }
 
+    public int availableMarkerNumber(int startVerse, int endVerse) {
+        for(int i=startVerse; i <= endVerse; i++) {
+            if(!contains(i)) {
+                return i;
+            }
+        }
+
+        throw new IllegalStateException(
+                String.format("No markers available to insert in range of verses %s - %s", startVerse, endVerse)
+        );
+    }
+
     public boolean hasSectionMarkers(){
         return mMarkers.containsKey(START_MARKER_ID) || mMarkers.containsKey(END_MARKER_ID);
     }
