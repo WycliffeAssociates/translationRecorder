@@ -561,7 +561,10 @@ public class ActivityProjectManager extends AppCompatActivity implements Project
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         String trName = project.getTargetLanguageSlug() + "_"
-                + project.getVersionSlug() + "_" + project.getBookSlug() + ".tr";
+                + project.getVersionSlug() + "_"
+                + project.getBookSlug() + "_"
+                + project.getModeSlug()
+                + ".tr";
         mSourceAudioFile = new File(getFilesDir(), trName);
         intent.putExtra(Intent.EXTRA_TITLE, mSourceAudioFile.getName());
         startActivityForResult(intent, SAVE_SOURCE_AUDIO_REQUEST);
