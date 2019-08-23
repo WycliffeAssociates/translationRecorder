@@ -953,6 +953,8 @@ public class PlaybackActivity extends Activity implements
     @Override
     public void onEnableVerseMarkerMode() {
         Logger.w(this.toString(), "onEnableVerseMarkerMode");
+        mAudioController.pause();
+        mFragmentTabbedWidget.getSrcPlayer().pauseSource();
         onClearMarkers();
         //if (mMarkerMediator.hasVersesRemaining()) {
         mode = MODE.VERSE_MARKER;
@@ -970,6 +972,8 @@ public class PlaybackActivity extends Activity implements
     @Override
     public void onDisableVerseMarkerMode() {
         Logger.w(this.toString(), "onDisableVerseMarkerMode");
+        mAudioController.pause();
+        mFragmentTabbedWidget.getSrcPlayer().pauseSource();
         mode = MODE.EDIT;
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
