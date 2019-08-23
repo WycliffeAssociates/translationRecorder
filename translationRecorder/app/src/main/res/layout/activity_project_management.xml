@@ -31,6 +31,7 @@
             android:src="@drawable/ic_plus"
             app:rippleColor="@color/white"
             android:tint="@color/white"
+            android:backgroundTint="@color/secondary"
             app:fabCustomSize="48dp"
             />
 

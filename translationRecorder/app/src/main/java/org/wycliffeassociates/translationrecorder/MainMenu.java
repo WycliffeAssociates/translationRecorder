@@ -266,12 +266,12 @@ public class MainMenu extends Activity {
         if (pref.getString("current_directory", null) == null) {
             pref.edit().putString(
                     "current_directory",
-                    Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()
+                    Environment.getExternalStoragePublicDirectory("BTTWriter").toString()
             ).commit();
         }
         pref.edit().putString(
                 "root_directory",
-                Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()
+                Environment.getExternalStoragePublicDirectory("BTTWriter").toString()
         ).commit();
 
         //configure logger
@@ -300,7 +300,7 @@ public class MainMenu extends Activity {
         if (visFiles == null) {
             return;
         }
-        String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder")
+        String rootPath = new File(Environment.getExternalStorageDirectory(), "BTTWriter")
                 .getAbsolutePath();
         List<ProjectPatternMatcher> patterns = db.getProjectPatternMatchers();
         for (File v : visFiles) {

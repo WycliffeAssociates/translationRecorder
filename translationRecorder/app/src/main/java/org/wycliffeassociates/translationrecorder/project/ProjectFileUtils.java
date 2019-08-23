@@ -1,6 +1,5 @@
 package org.wycliffeassociates.translationrecorder.project;
 
-import android.content.Context;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.Utils;
@@ -91,7 +90,7 @@ public class ProjectFileUtils {
 
     public static File getParentDirectory(TakeInfo takeInfo){
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
         File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + ProjectFileUtils.chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
     }
@@ -101,7 +100,7 @@ public class ProjectFileUtils {
         ppm.match(file);
         TakeInfo takeInfo = ppm.getTakeInfo();
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
         File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
     }
@@ -111,13 +110,13 @@ public class ProjectFileUtils {
         ppm.match(file);
         TakeInfo takeInfo = ppm.getTakeInfo();
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
         File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
     }
 
     public static File getParentDirectory(Project project, int chapter) {
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
         return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
     }
 
@@ -128,7 +127,7 @@ public class ProjectFileUtils {
     }
 
     public static File getLanguageDirectory(Project project) {
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
         File projectDir = new File(root, project.getTargetLanguageSlug());
         return projectDir;
     }

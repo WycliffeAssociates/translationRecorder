@@ -3,9 +3,9 @@
     <string name="choose_target_book">Choose Target Book</string>
 
 
-    <string name="app_name">translationRecorder</string>
+    <string name="app_name">BTT Writer</string>
     <string name="hello_world">Hello world!</string>
-    <string name="folder_name">TranslationRecorder</string>
+    <string name="folder_name">BTTWriter</string>
     <string name="action_settings">Settings</string>
 	
     <!-- Record.java -->
@@ -38,7 +38,7 @@
     <string name="export_other">App</string>
 
     <!-- SETTINGS (Values) -->
-    <string name="pref_default_folder_value">/storage/emulated/0/TranslationRecorder</string>
+    <string name="pref_default_folder_value">/storage/emulated/0/BTTWriter</string>
     <string name="pref_default_lang">en</string>
     <string name="pref_default_book">gen</string>
     <string name="pref_default_chapter">1</string>
@@ -46,7 +46,7 @@
     <string name="pref_default_take">1</string>
     <string name="pref_default_filename">"en_udb_gen_1_1-1"</string>
     <string name="pref_ftp_server_value">ts.door43.org</string>
-    <string name="pref_ftp_directory_value">/translationRecorder</string>
+    <string name="pref_ftp_directory_value">/BTTWriter</string>
     <string name="pref_ftp_username_value">unfoldingWord-1</string>
     <string name="pref_ftp_password_value">trisawesome</string>
     <string name="action_search">Search</string>
@@ -78,6 +78,6 @@
     <string name="is_this_ok_txt">Is this ok?</string>
     <string name="privacy_txt">If you are concerned for your privacy or safety, please use a nickname or psuedonym.</string>
     <string name="permissions_denied_title">Permissions Needed</string>
-    <string name="permissions_denied_message">Please enable permissions to use translationRecorder</string>
+    <string name="permissions_denied_message">Please enable permissions to use BTT Writer</string>
     <string name="open_permissions">Open Permission Settings</string>
 </resources>

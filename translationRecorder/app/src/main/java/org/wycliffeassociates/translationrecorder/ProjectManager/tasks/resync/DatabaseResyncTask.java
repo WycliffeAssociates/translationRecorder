@@ -33,7 +33,7 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
     }
 
     public List<File> getAllTakes(){
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
         File[] dirs = root.listFiles();
         List<File> files = new LinkedList<>();
         if(dirs != null && dirs.length > 0) {
@@ -58,7 +58,7 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
         Map<Project, File> projectDirectories = new HashMap<>();
-        File root = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
         File[] langs = root.listFiles();
         if (langs != null) {
             for(File lang : langs) {

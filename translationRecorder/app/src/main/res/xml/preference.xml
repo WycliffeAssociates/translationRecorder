@@ -12,8 +12,8 @@
             android:key="pref_global_src_loc"
             android:layout="@layout/custom_pref"
             android:title="Source Audio Location"
-            android:summary="/storage/emulated/0/TranslationRecorder"
-            android:defaultValue="/storage/emulated/0/TranslationRecorder">
+            android:summary="/storage/emulated/0/BTTWriter"
+            android:defaultValue="/storage/emulated/0/BTTWriter">
             <intent
                 android:action="org.wycliffeassociates.translationrecorder.SettingsPage.SELECT_SRC_INTENT">
             </intent>
