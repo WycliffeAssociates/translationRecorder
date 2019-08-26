@@ -90,7 +90,7 @@ public class ProjectFileUtils {
 
     public static File getParentDirectory(TakeInfo takeInfo){
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
         File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + ProjectFileUtils.chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
     }
@@ -100,7 +100,7 @@ public class ProjectFileUtils {
         ppm.match(file);
         TakeInfo takeInfo = ppm.getTakeInfo();
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
         File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
     }
@@ -110,13 +110,13 @@ public class ProjectFileUtils {
         ppm.match(file);
         TakeInfo takeInfo = ppm.getTakeInfo();
         ProjectSlugs slugs = takeInfo.getProjectSlugs();
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
         File out = new File(root, slugs.getLanguage() + "/" + slugs.getVersion() + "/" + slugs.getBook() + "/" + chapterIntToString(slugs.getBook(), takeInfo.getChapter()));
         return out;
     }
 
     public static File getParentDirectory(Project project, int chapter) {
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
         return new File(root, project.getTargetLanguageSlug() + "/" + project.getVersionSlug() + "/" + project.getBookSlug() + "/" + chapterIntToString(project, chapter));
     }
 
@@ -127,7 +127,7 @@ public class ProjectFileUtils {
     }
 
     public static File getLanguageDirectory(Project project) {
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
         File projectDir = new File(root, project.getTargetLanguageSlug());
         return projectDir;
     }

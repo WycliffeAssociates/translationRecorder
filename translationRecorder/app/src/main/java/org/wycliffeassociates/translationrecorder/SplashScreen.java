@@ -158,7 +158,7 @@ public class SplashScreen extends PermissionActivity {
     }
 
     private void importProfiles() {
-        File profilesDir = new File(Environment.getExternalStorageDirectory(), "BTTWriter/Profiles/");
+        File profilesDir = new File(Environment.getExternalStorageDirectory(), "BTTRecorder/Profiles/");
         if (!profilesDir.exists()) {
             profilesDir.mkdirs();
         }

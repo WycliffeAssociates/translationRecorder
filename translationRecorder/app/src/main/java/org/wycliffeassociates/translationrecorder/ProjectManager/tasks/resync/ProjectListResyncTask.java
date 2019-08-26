@@ -53,7 +53,7 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
         Map<Project, File> projectDirectories = new HashMap<>();
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTWriter");
+        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
         File[] langs = root.listFiles();
         if (langs != null) {
             for(File lang : langs) {
