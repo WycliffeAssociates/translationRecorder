@@ -87,7 +87,7 @@ class FragmentReviewProfile : Fragment(), WaveformLayer.WaveformDrawDelegator {
         }
         btnYes as Button
         btnYes.setOnClickListener {
-            val profilesDir = File(Environment.getExternalStorageDirectory(), "TranslationRecorder/Profiles/")
+            val profilesDir = File(Environment.getExternalStorageDirectory(), "BTTRecorder/Profiles/")
             if (profilesDir.exists().not()) {
                 profilesDir.mkdirs()
             }

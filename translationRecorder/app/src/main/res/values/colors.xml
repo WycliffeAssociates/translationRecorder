@@ -19,7 +19,7 @@
     <color name="dark_primary_text">#1C1C1C</color>
     <color name="dark_secondary_text">#888888</color>
     <color name="dark_tertiary_text">#CCCCCC</color>
-    <color name="playIconBg">#0C88FF</color>
+    <color name="playIconBg">@color/salad_green</color>
 
     <!-- COLOR DEFINITIONS -->
 

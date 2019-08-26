@@ -27,7 +27,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Select Source Language"
-            style="@style/Widget.Button.Blue"
+            style="@style/Widget.Button.Marine"
             android:layout_marginTop="@dimen/default_padding_m"
             android:layout_marginRight="@dimen/default_padding_xs"
             android:layout_marginLeft="@dimen/default_padding_xs"

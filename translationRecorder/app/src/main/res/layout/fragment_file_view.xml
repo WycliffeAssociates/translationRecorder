@@ -95,7 +95,7 @@
             android:visibility="visible" />
 
         <org.wycliffeassociates.translationrecorder.widgets.FourStepImageView
-            xmlns:app="http://schemas.android.com/apk/res/org.wycliffeassociates.translationrecorder"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/btn_rate"
             android:layout_width="@dimen/icon_l"
             android:layout_height="@dimen/icon_l"
