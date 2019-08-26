@@ -78,6 +78,6 @@
     <string name="is_this_ok_txt">Is this ok?</string>
     <string name="privacy_txt">If you are concerned for your privacy or safety, please use a nickname or psuedonym.</string>
     <string name="permissions_denied_title">Permissions Needed</string>
-    <string name="permissions_denied_message">Please enable permissions to use BTT Writer</string>
+    <string name="permissions_denied_message">Please enable permissions to use BTT Recorder</string>
     <string name="open_permissions">Open Permission Settings</string>
 </resources>
