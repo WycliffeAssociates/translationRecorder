@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
     <PreferenceCategory
-        android:title="Translation Recorder Settings"
+        android:title="BTT Recorder Settings"
         android:key="pref_key_app_settings"
         android:layout="@layout/custom_pref_category">
 
@@ -42,7 +42,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Translation Recorder Version"
+        android:title="BTT Recorder Version"
         android:key="pref_key_app_version"
         android:layout="@layout/custom_pref_category">
         <EditTextPreference

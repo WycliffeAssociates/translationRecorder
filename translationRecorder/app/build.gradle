@@ -18,7 +18,7 @@ android {
                 includeCompileClasspath true
             }
         }
-        applicationId "org.btt.recorder"
+        applicationId "bible.translationtools.recorder"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 19
