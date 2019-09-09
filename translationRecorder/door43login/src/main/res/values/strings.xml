@@ -161,7 +161,7 @@
     <string name="translation_guidlines" translatable="false">
 <![CDATA[
 <h1>Translation Guidelines</h1>
-<p><em>The following statement on the principles and procedures used in translation is subscribed to by all member organizations of and contributors to the <xliff:g id="organization_name">unfoldingWord</xliff:g> project. All translation activities are carried out according to these common guidelines.</em></p>
+<p><em>The following statement on the principles and procedures used in translation is subscribed to by all member organizations of and contributors to the <xliff:g id="organization_name">Bible in Every Language</xliff:g> project. All translation activities are carried out according to these common guidelines.</em></p>
 <p>
   <strong>Accurate</strong> - Translate accurately, without detracting from, changing, or adding to the meaning of the original text. Translated content should faithfully communicate as precisely as possible the meaning of the original text as it would have been understood by the original audience.
   <br/><br/><strong>Clear</strong> - Use whatever language structures are necessary to achieve the highest level of comprehension. This includes rearranging the form of a text and using as many or as few terms as necessary to communicate the original meaning as accurately as possible.
@@ -192,7 +192,7 @@
     <string name="statement_of_faith" translatable="false">
 <![CDATA[
 <h1>Statement of Faith</h1>
-<p><em>The following statement of faith is subscribed to by all member organizations of and contributors to the <xliff:g id="organization_name">unfoldingWord</xliff:g> project. It is in agreement with the <xliff:g id="formal_statement_of_faith">Lausanne Covenant</xliff:g>.</em></p>
+<p><em>The following statement of faith is subscribed to by all member organizations of and contributors to the <xliff:g id="organization_name">Bible in Every Language</xliff:g> project. It is in agreement with the <xliff:g id="formal_statement_of_faith">Lausanne Covenant</xliff:g>.</em></p>
 <p>We believe that Christian belief can and should be divided into <strong>essential beliefs</strong> and <strong>peripheral beliefs</strong>.</p>
 <h3>Essential beliefs</h3>
 <p>Essential beliefs are what define a follower of Jesus Christ and can never be compromised or ignored.</p>
