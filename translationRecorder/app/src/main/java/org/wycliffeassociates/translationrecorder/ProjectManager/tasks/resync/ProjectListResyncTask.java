@@ -6,6 +6,8 @@ import android.os.Environment;
 import com.door43.tools.reporting.Logger;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.chunkplugin.ChunkPlugin;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
@@ -53,7 +55,10 @@ public class ProjectListResyncTask extends Task implements ProjectDatabaseHelper
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
         Map<Project, File> projectDirectories = new HashMap<>();
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
+        File root = new File(
+                Environment.getExternalStorageDirectory(),
+                TranslationRecorderApp.getContext().getResources().getString(R.string.folder_name)
+        );
         File[] langs = root.listFiles();
         if (langs != null) {
             for(File lang : langs) {

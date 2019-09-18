@@ -4,6 +4,8 @@ import android.app.FragmentManager;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.R;
+import org.wycliffeassociates.translationrecorder.TranslationRecorderApp;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
@@ -33,7 +35,10 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
     }
 
     public List<File> getAllTakes(){
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
+        File root = new File(
+                Environment.getExternalStorageDirectory(),
+                TranslationRecorderApp.getContext().getResources().getString(R.string.folder_name)
+        );
         File[] dirs = root.listFiles();
         List<File> files = new LinkedList<>();
         if(dirs != null && dirs.length > 0) {
@@ -58,7 +63,10 @@ public class DatabaseResyncTask extends Task implements ProjectDatabaseHelper.On
 
     public Map<Project, File> getProjectDirectoriesOnFileSystem() {
         Map<Project, File> projectDirectories = new HashMap<>();
-        File root = new File(Environment.getExternalStorageDirectory(), "BTTRecorder");
+        File root = new File(
+                Environment.getExternalStorageDirectory(),
+                TranslationRecorderApp.getContext().getResources().getString(R.string.folder_name)
+        );
         File[] langs = root.listFiles();
         if (langs != null) {
             for(File lang : langs) {

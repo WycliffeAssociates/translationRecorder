@@ -2,6 +2,7 @@ package org.wycliffeassociates.translationrecorder;
 
 import android.app.Application;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -37,6 +38,8 @@ import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper
 
 public class TranslationRecorderApp extends Application implements DirectoryProvider {
 
+    private static Context context;
+
     //some arbitrarily larger buffer
     int minBufferSize = 10 * AudioTrack.getMinBufferSize(AudioInfo.SAMPLERATE,
     AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -55,6 +58,8 @@ public class TranslationRecorderApp extends Application implements DirectoryProv
         // Gradle automatically generates proper variable as below.
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
         UploadService.HTTP_STACK = new OkHttpStack(getOkHttpClient());
+
+        context = this;
     }
 
     private OkHttpClient getOkHttpClient() {
@@ -114,5 +119,9 @@ public class TranslationRecorderApp extends Application implements DirectoryProv
 
     public ProjectDatabaseHelper getDatabase() {
         return database;
+    }
+
+    public static Context getContext() {
+        return context;
     }
 }
