@@ -266,12 +266,16 @@ public class MainMenu extends Activity {
         if (pref.getString("current_directory", null) == null) {
             pref.edit().putString(
                     "current_directory",
-                    Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()
+                    Environment.getExternalStoragePublicDirectory(
+                            getResources().getString(R.string.folder_name)
+                    ).toString()
             ).commit();
         }
         pref.edit().putString(
                 "root_directory",
-                Environment.getExternalStoragePublicDirectory("TranslationRecorder").toString()
+                Environment.getExternalStoragePublicDirectory(
+                        getResources().getString(R.string.folder_name)
+                ).toString()
         ).commit();
 
         //configure logger
@@ -300,8 +304,10 @@ public class MainMenu extends Activity {
         if (visFiles == null) {
             return;
         }
-        String rootPath = new File(Environment.getExternalStorageDirectory(), "TranslationRecorder")
-                .getAbsolutePath();
+        String rootPath = new File(
+                Environment.getExternalStorageDirectory(),
+                getResources().getString(R.string.folder_name)
+            ).getAbsolutePath();
         List<ProjectPatternMatcher> patterns = db.getProjectPatternMatchers();
         for (File v : visFiles) {
             boolean matched = false;

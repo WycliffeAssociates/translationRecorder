@@ -8,7 +8,7 @@
     <color name="mainImageBG">#fda93d</color>
 
     <color name="red">#CC0000</color>
-    <color name="white">#FFFFFF</color>
+    <color name="white">#F7F7F7</color>
     <color name="black">#000000</color>
     <color name="transblack">#99000000</color>
     <color name="transparent">#00000000</color>
@@ -16,11 +16,21 @@
     <color name="snow">#A6ffffff</color>
     <color name="frost">#A6000000</color>
 
-    <color name="dark_secondary_text">#89000000</color>
-    <color name="dark_primary_text">#dd000000</color>
-    <color name="playIconBg">#0C88FF</color>
+    <color name="dark_primary_text">#1C1C1C</color>
+    <color name="dark_secondary_text">#888888</color>
+    <color name="dark_tertiary_text">#CCCCCC</color>
+    <color name="playIconBg">@color/salad_green</color>
 
     <!-- COLOR DEFINITIONS -->
+
+    <color name="blue">#0250D3</color>
+    <color name="dark_blue">#003389</color>
+    <color name="light_blue">#E2F0FF</color>
+    <color name="desaturated_blue">#F3F7FD</color>
+
+    <color name="salad_green">#29C38E</color>
+    <color name="dark_salad_green">#00905E</color>
+    <color name="light_salad_green">#6CF4C5</color>
 
     <color name="bright_blue">#45B5E7</color>
     <color name="bright_yellow">#FDD835</color>
@@ -29,10 +39,9 @@
 
     <color name="vivid_red">#DE1D1D</color>
     <color name="vivid_pink">#E91E63</color>
-    <color name="light_blue">#4cc8ff</color>
     <color name="dark_moderate_lime_green">#459751</color>
 
-    <color name="strong_red">#CF2A27</color>
+    <color name="strong_red">#D30202</color>
     <color name="very_soft_red">#EA9999</color>
     <color name="very_soft_yellow">#FFE599</color>
     <color name="desaturated_green">#93C47D</color>
@@ -51,9 +60,9 @@
 
     <!-- APP-WIDE COLOR ASSIGNMENTS -->
 
-    <color name="primary">@color/strong_pink</color>
-    <color name="primary_dark">@color/dark_pink</color>
-    <color name="secondary">@color/light_blue</color>
+    <color name="primary">@color/blue</color>
+    <color name="primary_dark">@color/dark_blue</color>
+    <color name="secondary">@color/salad_green</color>
     <color name="tertiary">@color/bright_yellow</color>
     <color name="primary_bg">@color/off_white</color>
     <color name="card_bg">@color/pure_white</color>

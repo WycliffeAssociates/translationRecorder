@@ -40,7 +40,7 @@ public abstract class CanvasView extends View {
         mPaintWaveform.setColor(getResources().getColor(R.color.off_white));
 
         mPaintBaseLine = new Paint();
-        mPaintBaseLine.setColor(getResources().getColor(R.color.bright_blue));
+        mPaintBaseLine.setColor(getResources().getColor(R.color.secondary));
         mPaintBaseLine.setStrokeWidth(strokeWidth);
     }
 

@@ -3,7 +3,7 @@
     <item
         android:state_enabled="true"
         android:state_activated="false"
-        android:drawable="@drawable/play_blue" />
+        android:drawable="@drawable/play_accent" />
     <item
         android:state_enabled="false"
         android:drawable="@drawable/play_white_disabled" />

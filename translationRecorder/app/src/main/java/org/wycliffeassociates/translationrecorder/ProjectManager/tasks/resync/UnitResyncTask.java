@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Environment;
 
 import org.wycliffeassociates.translationrecorder.ProjectManager.dialogs.RequestLanguageNameDialog;
+import org.wycliffeassociates.translationrecorder.R;
 import org.wycliffeassociates.translationrecorder.database.CorruptFileDialog;
 import org.wycliffeassociates.translationrecorder.database.ProjectDatabaseHelper;
 import org.wycliffeassociates.translationrecorder.project.Project;
@@ -49,8 +50,15 @@ public class UnitResyncTask extends Task implements ProjectDatabaseHelper.OnLang
     }
 
     public List<File> getAllTakes(){
-        File root = new File(Environment.getExternalStorageDirectory(),
-                "TranslationRecorder/" + mProject.getTargetLanguageSlug() + "/" + mProject.getVersionSlug() + "/" + mProject.getBookSlug() + "/" + ProjectFileUtils.chapterIntToString(mProject, mChapter) + "/");
+        String path = String.format(
+                "%s/%s/%s/%s/%s/",
+                mCtx.getResources().getString(R.string.folder_name),
+                mProject.getTargetLanguageSlug(),
+                mProject.getVersionSlug(),
+                mProject.getBookSlug(),
+                ProjectFileUtils.chapterIntToString(mProject, mChapter)
+        );
+        File root = new File(Environment.getExternalStorageDirectory(), path);
         File[] dirs = root.listFiles();
         List<File> files;
         if(dirs != null) {

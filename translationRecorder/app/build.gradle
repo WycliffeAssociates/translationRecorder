@@ -18,11 +18,11 @@ android {
                 includeCompileClasspath true
             }
         }
-        applicationId "org.wycliffeassociates.translationrecorder"
-        minSdkVersion 19
+        applicationId "bible.translationtools.recorder"
+        minSdkVersion 21
         targetSdkVersion 28
-        versionCode 18
-        versionName "1.3.5-rc"
+        versionCode 19
+        versionName "1.4.0-rc"
         versionNameSuffix
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

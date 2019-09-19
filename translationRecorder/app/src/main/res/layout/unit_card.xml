@@ -146,6 +146,8 @@
                         android:layout_marginStart="@dimen/default_padding_m"
                         android:layout_marginEnd="@dimen/default_padding_m"
                         android:layout_weight="1"
+                        android:progressTint="@color/secondary"
+                        android:thumbTint="@color/secondary"
                         />
 
                     <TextView
