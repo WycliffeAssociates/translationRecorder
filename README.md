@@ -1,3 +1,8 @@
+# This Project is Deprecated, for the latest version, please see https://github.com/bible-Translation-Tools/btt-recorder
+
+
+
+
 # translationRecorder
 
 Designed to give mother-tongue oral-only translators a tool for recording scripture audio content, translationRecorder focuses on a simple user interface and high quality recording.
